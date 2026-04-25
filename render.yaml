@@ -1,0 +1,42 @@
+# Render.com Blueprint — auto-detected on git push.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# After connecting this repo on render.com:
+#   1. Render creates the service from this file (free tier, Oregon region)
+#   2. You set the secret env vars (OPENWEATHERMAP_API_KEY, OPENAI_API_KEY,
+#      GEMINI_API_KEY) in Render dashboard → service → Environment
+#   3. Push to main → Render rebuilds + redeploys automatically
+
+services:
+  - type: web
+    name: krishiai-api
+    runtime: python
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: backend
+    buildCommand: "pip install --no-cache-dir -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_ORIGINS
+        value: '["https://krishiai.vercel.app","http://localhost:3000"]'
+      - key: ALLOWED_ORIGIN_REGEX
+        value: 'https://.*\.vercel\.app'
+      - key: OPENWEATHERMAP_API_KEY
+        sync: false   # set in dashboard
+      - key: OPENAI_API_KEY
+        sync: false   # set in dashboard
+      - key: OPENAI_BASE_URL
+        sync: false   # set in dashboard (optional)
+      - key: OPENAI_CHAT_MODEL
+        sync: false   # set in dashboard (optional)
+      - key: GEMINI_API_KEY
+        sync: false   # set in dashboard
+      - key: SARVAM_API_KEY
+        sync: false   # set in dashboard (optional)

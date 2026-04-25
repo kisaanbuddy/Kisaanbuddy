@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KrishiAI – Premium Smart Agriculture</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN for instant preview) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        glass: "rgba(255, 255, 255, 0.05)",
+                        "glass-border": "rgba(255, 255, 255, 0.1)",
+                        primary: "#10b981",
+                        background: "#050505",
+                        surface: "#111111"
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-background text-gray-100 min-h-screen relative overflow-x-hidden antialiased selection:bg-primary selection:text-white">
+    
+    <!-- Animated Background Gradients -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-600/20 blur-[120px] animate-blob"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px] animate-blob animation-delay-2000"></div>
+        <div class="absolute top-[40%] left-[60%] w-[30%] h-[30%] rounded-full bg-purple-600/10 blur-[100px] animate-blob animation-delay-4000"></div>
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 z-[1000] flex items-center justify-center bg-background/80 backdrop-blur-2xl transition-all duration-500">
+        <div class="relative w-full max-w-md p-8 glass-panel rounded-3xl border border-glass-border shadow-2xl transform transition-all">
+            <div class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-primary/20 blur-2xl rounded-full pointer-events-none"></div>
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 shadow-inner mb-4">
+                    <i class="fa-solid fa-leaf text-3xl text-primary drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"></i>
+                </div>
+                <h2 class="text-3xl font-bold tracking-tight text-white mb-2">Welcome Back</h2>
+                <p class="text-gray-400 text-sm">Enter your credentials to access your smart farm.</p>
+            </div>
+            <form id="login-form" class="space-y-5 relative z-10">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Farmer ID</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                        <input type="text" id="login-id" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all" placeholder="ID or Username" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                        <input type="password" id="login-pass" class="w-full bg-black/40 border border-white/10 rounded-xl py-3 pl-11 pr-4 text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-primary hover:from-emerald-400 hover:to-emerald-500 text-white font-semibold shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all active:scale-[0.98] mt-2">
+                    Access Dashboard <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+                </button>
+                <p id="login-error" class="hidden text-red-400 text-sm text-center mt-4 bg-red-400/10 py-2 rounded-lg border border-red-400/20 animate-shake">Invalid credentials. Try again.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-4 z-50 mx-4 md:mx-auto max-w-7xl glass-panel border border-glass-border rounded-2xl px-6 py-4 flex items-center justify-between shadow-2xl backdrop-blur-xl bg-white/5">
+        <div class="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+            <i class="fa-solid fa-leaf text-primary drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]"></i>
+            Krishi<span class="text-primary">AI</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+            <a href="#dashboard" class="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all">Dashboard</a>
+            <a href="#predictor" class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all">AI Predictor</a>
+            <a href="#schemes" class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all">Schemes</a>
+            <a href="#chatbot" class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all">AI Chatbot</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 p-[2px] shadow-lg cursor-pointer hover:scale-105 transition-transform">
+                <div class="w-full h-full bg-black rounded-full overflow-hidden border-2 border-transparent">
+                    <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Farmer&backgroundColor=transparent" alt="Profile" class="w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8 space-y-24 scroll-smooth">
+        
+        <!-- Header Section -->
+        <section id="dashboard" class="pt-8 fade-in-up">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-2">Farm Overview</h1>
+            <p class="text-gray-400 text-lg">Your AI-powered agricultural command center.</p>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 fade-in-up" style="animation-delay: 0.1s;">
+            <!-- Weather Widget -->
+            <div class="lg:col-span-2 glass-panel border border-glass-border rounded-3xl p-8 relative overflow-hidden group hover:border-white/20 transition-all shadow-2xl bg-white/5">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-[80px] rounded-full pointer-events-none group-hover:bg-blue-500/20 transition-all duration-700"></div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 relative z-10 gap-4">
+                    <h2 class="text-xl font-semibold flex items-center gap-3 text-white"><i class="fa-solid fa-cloud-sun text-blue-400 text-2xl"></i> Live Weather Data</h2>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <input type="text" id="weather-search-input" placeholder="Search City..." class="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500/50 w-full sm:w-48 transition-all">
+                        <button id="weather-search-btn" class="bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl px-4 py-2 transition-all"><i class="fa-solid fa-search text-gray-300"></i></button>
+                    </div>
+                </div>
+                
+                <div id="weather-loader" class="flex flex-col items-center justify-center p-12 text-gray-400 gap-4">
+                    <i class="fa-solid fa-circle-notch fa-spin text-3xl text-primary"></i>
+                    <span>Syncing atmospheric data...</span>
+                </div>
+
+                <div id="weather-data" class="hidden relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8 mt-4">
+                    <div class="text-center sm:text-left">
+                        <div class="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 drop-shadow-sm" id="w-temp">--°C</div>
+                        <p id="w-desc" class="text-xl text-blue-300 capitalize mt-2 font-medium tracking-wide">----</p>
+                        <div class="inline-flex items-center gap-2 mt-4 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-sm font-medium">
+                            <i class="fa-solid fa-location-dot"></i> <span id="w-loc">Locating...</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 w-full sm:w-auto">
+                        <div class="bg-black/40 border border-white/5 rounded-2xl p-5 flex flex-col items-center justify-center min-w-[120px] backdrop-blur-md">
+                            <i class="fa-solid fa-wind text-gray-400 text-xl mb-2"></i>
+                            <span id="w-wind" class="text-2xl font-bold text-white">--</span>
+                            <span class="text-xs text-gray-500 uppercase font-semibold mt-1">m/s</span>
+                        </div>
+                        <div class="bg-black/40 border border-white/5 rounded-2xl p-5 flex flex-col items-center justify-center min-w-[120px] backdrop-blur-md">
+                            <i class="fa-solid fa-droplet text-blue-400 text-xl mb-2 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]"></i>
+                            <span id="w-humidity" class="text-2xl font-bold text-white">--</span>
+                            <span class="text-xs text-blue-500/70 uppercase font-semibold mt-1">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts Widget -->
+            <div class="glass-panel border border-glass-border rounded-3xl p-8 bg-white/5 shadow-2xl relative overflow-hidden group hover:border-amber-500/20 transition-all flex flex-col">
+                <div class="absolute -bottom-10 -right-10 w-48 h-48 bg-amber-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-amber-500/20 transition-all duration-700"></div>
+                <h2 class="text-xl font-semibold flex items-center gap-3 text-white mb-6"><i class="fa-solid fa-bell text-amber-500"></i> Smart Alerts</h2>
+                
+                <div class="flex-1 space-y-4">
+                    <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex gap-4 backdrop-blur-md">
+                        <div class="mt-1"><i class="fa-solid fa-triangle-exclamation text-amber-500"></i></div>
+                        <div>
+                            <h4 class="text-sm font-bold text-amber-400">High Humidity Alert</h4>
+                            <p class="text-xs text-amber-500/80 mt-1 leading-relaxed">Humidity exceeds 60%. Risk of fungal infections in active crops. Adjust irrigation.</p>
+                        </div>
+                    </div>
+                    <div class="bg-primary/5 border border-primary/10 rounded-2xl p-4 flex gap-4 backdrop-blur-md">
+                        <div class="mt-1"><i class="fa-solid fa-check-circle text-primary"></i></div>
+                        <div>
+                            <h4 class="text-sm font-bold text-primary">Market Prices Stable</h4>
+                            <p class="text-xs text-primary/70 mt-1 leading-relaxed">Wheat prices have stabilized at ₹2275/quintal in local mandis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Predictor Section -->
+        <section id="predictor" class="pt-12 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="glass-panel border border-glass-border rounded-[2.5rem] p-1 relative overflow-hidden shadow-2xl bg-gradient-to-b from-white/10 to-transparent">
+                <div class="bg-[#0a0a0a] rounded-[2.3rem] p-6 md:p-10 relative">
+                    <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-[100px] rounded-full pointer-events-none"></div>
+                    
+                    <div class="text-center mb-10 relative z-10">
+                        <h2 class="text-3xl md:text-4xl font-bold flex items-center justify-center gap-3 text-white"><i class="fa-solid fa-brain text-primary animate-pulse"></i> Precision ML Insights</h2>
+                        <p class="text-gray-400 mt-3 max-w-2xl mx-auto">Input your farm's exact NPK, soil, and weather parameters to let our Machine Learning model predict the highest-yield crop.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
+                        <form id="crop-form" class="space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-black/30 border border-white/5 p-6 rounded-3xl backdrop-blur-md">
+                                <!-- Inputs -->
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Nitrogen (N)</label>
+                                    <input type="number" id="inp-n" value="90" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Phosphorus (P)</label>
+                                    <input type="number" id="inp-p" value="42" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Potassium (K)</label>
+                                    <input type="number" id="inp-k" value="43" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Temp (°C)</label>
+                                    <input type="number" id="inp-temp" value="25" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Humidity (%)</label>
+                                    <input type="number" id="inp-hum" value="82" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">pH Level</label>
+                                    <input type="number" step="0.1" id="inp-ph" value="6.5" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                                <div class="space-y-2 sm:col-span-2">
+                                    <label class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Rainfall (mm)</label>
+                                    <input type="number" id="inp-rain" value="200" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all" required>
+                                </div>
+                            </div>
+                            <button type="submit" id="predict-btn" class="w-full py-4 rounded-2xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-[1.02] active:scale-[0.98]">
+                                Analyze Farm Data <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </button>
+                        </form>
+
+                        <div class="flex items-center justify-center bg-black/30 border border-white/5 rounded-3xl p-8 backdrop-blur-md relative overflow-hidden group">
+                            <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div id="ml-result-wrapper" class="text-center transition-all duration-500 w-full h-full flex flex-col items-center justify-center">
+                                <i class="fa-solid fa-chart-pie text-6xl text-gray-700 mb-4 ml-result-icon group-hover:text-primary transition-colors"></i>
+                                <p class="text-gray-500 ml-result-desc">Awaiting metrics to run inference...</p>
+                                
+                                <div id="ml-result" class="hidden flex-col items-center w-full">
+                                    <span class="text-xs font-bold text-primary uppercase tracking-[0.3em] mb-4 border border-primary/20 bg-primary/10 py-1 px-4 rounded-full">Optimal Crop Found</span>
+                                    <h3 id="predicted-crop" class="text-6xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-br from-green-300 to-emerald-600 capitalize drop-shadow-lg scale-0 animate-pop-in">--</h3>
+                                    <p class="mt-6 text-sm text-gray-400 border-t border-white/10 pt-4 w-full">Confidence score: <strong class="text-white">96.4%</strong> based on historical yield mapping.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gov Schemes -->
+        <section id="schemes" class="pt-12 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold flex items-center gap-3 text-white"><i class="fa-solid fa-landmark text-blue-500"></i> Gov. Schemes</h2>
+            </div>
+            <div id="schemes-list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                <!-- Loader -->
+                <div class="col-span-full py-12 flex justify-center"><i class="fa-solid fa-spinner fa-spin text-3xl text-blue-500"></i></div>
+            </div>
+        </section>
+
+        <!-- Chatbot -->
+        <section id="chatbot" class="pt-12 pb-24 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="glass-panel border border-glass-border rounded-3xl overflow-hidden shadow-2xl bg-[#0a0a0a]/80 backdrop-blur-2xl max-w-4xl mx-auto flex flex-col h-[600px] relative">
+                <div class="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+                <div class="p-6 border-b border-white/10 bg-white/5 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center border border-primary/30">
+                        <i class="fa-solid fa-robot text-xl text-primary drop-shadow-[0_0_5px_rgba(16,185,129,0.8)]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-white tracking-tight">AI Agronomist <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-primary/20 text-primary border border-primary/20 uppercase tracking-widest">Online</span></h2>
+                        <p class="text-xs text-gray-400">Powered by advanced LLM • Try Voice Input</p>
+                    </div>
+                </div>
+                
+                <div id="chat-box" class="flex-1 p-6 overflow-y-auto space-y-6 scroll-smooth">
+                    <div class="flex gap-4">
+                        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/30 mt-1">
+                            <i class="fa-solid fa-leaf text-white text-xs"></i>
+                        </div>
+                        <div class="bg-white/10 border border-white/5 rounded-2xl rounded-tl-none p-4 text-sm text-gray-200 shadow-sm max-w-[85%] leading-relaxed backdrop-blur-md">
+                            Namaste! I am your KrishiAI assistant. How can I help you regarding crop health, market prices, or farming techniques today? Tap the microphone to speak.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t border-white/10 bg-black/40 backdrop-blur-xl">
+                    <form id="chat-form" class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full p-1.5 focus-within:bg-white/10 focus-within:border-white/20 transition-all">
+                        <button type="button" id="voice-btn" class="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center shrink-0" title="Tap to Speak">
+                            <i class="fa-solid fa-microphone text-lg"></i>
+                        </button>
+                        <input type="text" id="chat-input" class="flex-1 bg-transparent border-none text-white text-sm focus:outline-none focus:ring-0 px-2 placeholder-gray-500" placeholder="Type a message...">
+                        <button type="submit" id="chat-submit" class="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-emerald-500 text-white flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 transition-all">
+                            <i class="fa-solid fa-paper-plane text-sm ml-[-2px]"></i>
+                        </button>
+                    </form>
+                    <p id="voice-status" class="text-center text-[10px] text-gray-500 mt-2 uppercase tracking-widest">Press Enter to send</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

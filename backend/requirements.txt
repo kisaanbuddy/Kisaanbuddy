@@ -1,0 +1,47 @@
+# --- KrishiAI backend dependencies ---
+
+# Web framework
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+
+# Data validation / settings
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# HTTP clients
+httpx>=0.27.0
+requests>=2.31.0
+
+# Rate limiting (per-IP on weather endpoints)
+slowapi>=0.1.9
+
+# Async Redis cache (falls back to in-memory if REDIS_URL is unset)
+redis>=5.0.0
+
+# Database (optional — only if you wire up db/models.py)
+sqlalchemy>=2.0.0
+
+# File uploads (disease detection endpoint)
+python-multipart>=0.0.9
+
+# Env file loading
+python-dotenv>=1.0.0
+
+# ML / data
+scikit-learn>=1.3.0
+pandas>=2.1.0
+numpy>=1.26.0
+joblib>=1.3.0
+
+# Chatbot / Voice Assistant
+# - openai: LLM (gpt-4o-mini) + Whisper STT + OpenAI TTS fallback
+# - langdetect: Latin-script Hindi/Kannada ("Hinglish") detection fallback.
+#   Script-based detection (Devanagari / Kannada Unicode ranges) is tried first
+#   and is instant — langdetect only runs when the text is all ASCII.
+openai>=1.12.0
+langdetect>=1.0.9
+
+# Optional premium TTS providers — activate by setting the matching env var.
+#   SARVAM_API_KEY               -> services/chat/tts_service.py hits Sarvam Bulbul (REST, no extra dep).
+#   GOOGLE_APPLICATION_CREDENTIALS -> uncomment the line below to enable Google Cloud TTS.
+# google-cloud-texttospeech>=2.16.0

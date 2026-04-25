@@ -1,0 +1,223 @@
+"""
+KrishiAI — Government Mandi System API
+
+Provides mock crop market data for the Mandi feature.
+Completely independent module — does not touch any existing logic.
+"""
+
+from fastapi import APIRouter
+
+router = APIRouter()
+
+# ---------------------------------------------------------------------------
+# Mock Mandi Crop Data
+# ---------------------------------------------------------------------------
+MANDI_CROPS_DB = [
+    {
+        "id": 1,
+        "name": "Wheat (गेहूं)",
+        "variety": "Sharbati",
+        "price": 2275,
+        "unit": "per quintal",
+        "mandi": "Indore Mandi",
+        "state": "Madhya Pradesh",
+        "category": "Cereal",
+        "trend": "up",
+        "change_percent": 2.3,
+        "min_price": 2100,
+        "max_price": 2400,
+        "modal_price": 2275,
+        "arrival_tonnes": 12500,
+    },
+    {
+        "id": 2,
+        "name": "Rice (चावल)",
+        "variety": "Basmati 1121",
+        "price": 3850,
+        "unit": "per quintal",
+        "mandi": "Karnal Mandi",
+        "state": "Haryana",
+        "category": "Cereal",
+        "trend": "up",
+        "change_percent": 1.8,
+        "min_price": 3600,
+        "max_price": 4100,
+        "modal_price": 3850,
+        "arrival_tonnes": 8200,
+    },
+    {
+        "id": 3,
+        "name": "Soybean (सोयाबीन)",
+        "variety": "Yellow",
+        "price": 4600,
+        "unit": "per quintal",
+        "mandi": "Ujjain Mandi",
+        "state": "Madhya Pradesh",
+        "category": "Oilseed",
+        "trend": "down",
+        "change_percent": -1.2,
+        "min_price": 4400,
+        "max_price": 4800,
+        "modal_price": 4600,
+        "arrival_tonnes": 5600,
+    },
+    {
+        "id": 4,
+        "name": "Cotton (कपास)",
+        "variety": "Medium Staple",
+        "price": 6800,
+        "unit": "per quintal",
+        "mandi": "Rajkot Mandi",
+        "state": "Gujarat",
+        "category": "Fiber",
+        "trend": "up",
+        "change_percent": 3.1,
+        "min_price": 6500,
+        "max_price": 7200,
+        "modal_price": 6800,
+        "arrival_tonnes": 3200,
+    },
+    {
+        "id": 5,
+        "name": "Mustard (सरसों)",
+        "variety": "Laha",
+        "price": 5200,
+        "unit": "per quintal",
+        "mandi": "Alwar Mandi",
+        "state": "Rajasthan",
+        "category": "Oilseed",
+        "trend": "stable",
+        "change_percent": 0.1,
+        "min_price": 5000,
+        "max_price": 5400,
+        "modal_price": 5200,
+        "arrival_tonnes": 4100,
+    },
+    {
+        "id": 6,
+        "name": "Chana (चना)",
+        "variety": "Desi",
+        "price": 5100,
+        "unit": "per quintal",
+        "mandi": "Latur Mandi",
+        "state": "Maharashtra",
+        "category": "Pulse",
+        "trend": "down",
+        "change_percent": -0.8,
+        "min_price": 4900,
+        "max_price": 5300,
+        "modal_price": 5100,
+        "arrival_tonnes": 6800,
+    },
+    {
+        "id": 7,
+        "name": "Tur/Arhar Dal (तूर दाल)",
+        "variety": "FAQ",
+        "price": 7200,
+        "unit": "per quintal",
+        "mandi": "Gulbarga Mandi",
+        "state": "Karnataka",
+        "category": "Pulse",
+        "trend": "up",
+        "change_percent": 4.5,
+        "min_price": 6800,
+        "max_price": 7600,
+        "modal_price": 7200,
+        "arrival_tonnes": 2800,
+    },
+    {
+        "id": 8,
+        "name": "Onion (प्याज)",
+        "variety": "Nasik Red",
+        "price": 1800,
+        "unit": "per quintal",
+        "mandi": "Nashik Mandi",
+        "state": "Maharashtra",
+        "category": "Vegetable",
+        "trend": "up",
+        "change_percent": 8.2,
+        "min_price": 1500,
+        "max_price": 2200,
+        "modal_price": 1800,
+        "arrival_tonnes": 15000,
+    },
+    {
+        "id": 9,
+        "name": "Potato (आलू)",
+        "variety": "Jyoti",
+        "price": 1200,
+        "unit": "per quintal",
+        "mandi": "Agra Mandi",
+        "state": "Uttar Pradesh",
+        "category": "Vegetable",
+        "trend": "stable",
+        "change_percent": -0.3,
+        "min_price": 1000,
+        "max_price": 1400,
+        "modal_price": 1200,
+        "arrival_tonnes": 18000,
+    },
+    {
+        "id": 10,
+        "name": "Sugarcane (गन्ना)",
+        "variety": "Co-0238",
+        "price": 350,
+        "unit": "per quintal",
+        "mandi": "Muzaffarnagar Mandi",
+        "state": "Uttar Pradesh",
+        "category": "Cash Crop",
+        "trend": "stable",
+        "change_percent": 0.0,
+        "min_price": 340,
+        "max_price": 365,
+        "modal_price": 350,
+        "arrival_tonnes": 45000,
+    },
+    {
+        "id": 11,
+        "name": "Maize (मक्का)",
+        "variety": "Yellow",
+        "price": 2050,
+        "unit": "per quintal",
+        "mandi": "Davangere Mandi",
+        "state": "Karnataka",
+        "category": "Cereal",
+        "trend": "down",
+        "change_percent": -1.5,
+        "min_price": 1900,
+        "max_price": 2200,
+        "modal_price": 2050,
+        "arrival_tonnes": 7200,
+    },
+    {
+        "id": 12,
+        "name": "Groundnut (मूंगफली)",
+        "variety": "Bold",
+        "price": 5800,
+        "unit": "per quintal",
+        "mandi": "Junagadh Mandi",
+        "state": "Gujarat",
+        "category": "Oilseed",
+        "trend": "up",
+        "change_percent": 2.0,
+        "min_price": 5500,
+        "max_price": 6100,
+        "modal_price": 5800,
+        "arrival_tonnes": 3400,
+    },
+]
+
+
+@router.get("/crops")
+def get_mandi_crops():
+    """Returns the full list of crops with mandi prices."""
+    return {"crops": MANDI_CROPS_DB, "total": len(MANDI_CROPS_DB)}
+
+
+@router.get("/crops/{crop_id}")
+def get_mandi_crop(crop_id: int):
+    """Returns details for a single crop by ID."""
+    for crop in MANDI_CROPS_DB:
+        if crop["id"] == crop_id:
+            return {"crop": crop}
+    return {"error": "Crop not found", "crop_id": crop_id}

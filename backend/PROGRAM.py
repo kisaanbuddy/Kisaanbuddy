@@ -1,0 +1,1 @@
+d1 = {13: "thirteen", 3.14159: "pi", True: "alone triumphs",int: 7, (1,2): [1,2], "seventy-one": 71,}

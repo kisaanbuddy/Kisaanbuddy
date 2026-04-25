@@ -1,0 +1,72 @@
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+!.env.production.example
+*.env.local
+*.pem
+*.key
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+backend/venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+.pnp
+.pnp.js
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- ML artifacts (commit via Git LFS if needed) ---
+*.pkl
+*.h5
+*.pt
+*.pth
+*.onnx
+data/raw/
+data/processed/
+
+# --- OS / IDE ---
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+*.swo
+
+# --- Logs / DB ---
+*.log
+*.sqlite
+*.sqlite3
+*.db
+krishiai.db
+
+# --- Coverage ---
+.coverage
+htmlcov/
+coverage.xml
+
+# --- Vercel / deployment ---
+.vercel/
+*.tsbuildinfo
+
+# --- Runtime data ---
+backend/data/jobs.json
+backend.log
+backend.log.err
+frontend.log
+frontend.log.err
