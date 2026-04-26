@@ -43,6 +43,12 @@ MAX_TOOL_ROUNDS = 3          # safety net — prevents infinite tool loops
 TOOL_PARALLEL = True
 STREAM_CHUNK_YIELD_MS = 20   # tiny pacing so front-end renders smoothly
 
+# Embedded fallback Google Gemini API key (direct, AIza... format).
+# Used when no AIza-prefixed key is found in environment variables, so the
+# deployment works out-of-the-box without needing dashboard env-var edits.
+# Replace with your own key by setting GEMINI_API_KEY in Render/.env.
+_EMBEDDED_GEMINI_KEY = "[GEMINI_API_KEY]"
+
 
 class ChatError(Exception):
     pass
@@ -84,6 +90,14 @@ class ChatOrchestrator:
             # whether it's a direct Google key (AIza...) or an OpenRouter key.
             gemini_key = (settings.GEMINI_API_KEY or "").strip()
             openai_key = (settings.OPENAI_API_KEY or "").strip()
+
+            # If no AIza-format key is configured anywhere, use the embedded
+            # fallback so the deployment works without dashboard edits.
+            has_aiza = (gemini_key.startswith("AIza")
+                        or openai_key.startswith("AIza"))
+            if not has_aiza and _EMBEDDED_GEMINI_KEY.startswith("AIza"):
+                log.info("No AIza key in env; using embedded Gemini fallback key.")
+                gemini_key = _EMBEDDED_GEMINI_KEY
 
             if gemini_key and gemini_key.startswith("AIza"):
                 # Direct Google Gemini key → use Google's OpenAI-compatible endpoint
