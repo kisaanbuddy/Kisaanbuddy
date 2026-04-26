@@ -92,11 +92,11 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
 
-          {/* Logged-out: show Founders + Login (only on public pages) */}
+          {/* Logged-out: show Founders + Login (visible on mobile + desktop) */}
           {ready && !user && isPublic && (
             <Link
               href="/founders"
-              className="hidden md:inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              className="inline-flex items-center text-xs md:text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               Founders
             </Link>
@@ -104,7 +104,7 @@ export function Header() {
           {ready && !user && isPublic && pathname !== '/login' && (
             <Link
               href="/login"
-              className="hidden md:inline-flex items-center justify-center rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-green-700 transition-all"
+              className="inline-flex items-center justify-center rounded-full bg-green-600 px-3 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-semibold text-white shadow hover:bg-green-700 transition-all"
             >
               Login
             </Link>
