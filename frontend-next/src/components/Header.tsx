@@ -92,15 +92,17 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
 
-          {/* Logged-out: show Founders + Login (visible on mobile + desktop) */}
-          {ready && !user && isPublic && (
+          {/* Founders — ALWAYS visible (pre-login + post-login, mobile + desktop) */}
+          {pathname !== '/founders' && (
             <Link
               href="/founders"
-              className="inline-flex items-center text-xs md:text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+              className="inline-flex items-center text-xs md:text-sm font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
             >
               Founders
             </Link>
           )}
+
+          {/* Logged-out: show Login (only on public pages, not /login itself) */}
           {ready && !user && isPublic && pathname !== '/login' && (
             <Link
               href="/login"
