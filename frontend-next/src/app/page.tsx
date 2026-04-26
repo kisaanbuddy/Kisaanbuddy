@@ -230,6 +230,7 @@ export default function LandingPage() {
             &copy; {new Date().getFullYear()} KrishiAI &middot; Empowering Indian farmers
           </p>
           <div className="flex gap-6 text-sm text-muted-foreground">
+            <Link href="/founders" className="hover:text-primary">Meet the Team</Link>
             <Link href="/login" className="hover:text-primary">Login</Link>
             <Link href="/signup" className="hover:text-primary">Sign Up</Link>
             <Link href="/chatbot" className="hover:text-primary">Chatbot</Link>
