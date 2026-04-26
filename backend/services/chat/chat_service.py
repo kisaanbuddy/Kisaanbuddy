@@ -55,7 +55,8 @@ class ChatOrchestrator:
     def __init__(self) -> None:
         self._client = None
         self._client_lock = asyncio.Lock()
-        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-2.0-flash"
+        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-1.5-flash"
+        self._is_gemini_direct: bool = False  # set in _client_ready()
 
     async def _client_ready(self):
         if self._client is not None:
@@ -73,11 +74,14 @@ class ChatOrchestrator:
                 # Direct Google Gemini key → use Google's OpenAI-compatible endpoint
                 key = gemini_key
                 base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
-                # Override model name if it carries an OpenRouter prefix
-                if "/" in (settings.OPENAI_CHAT_MODEL or ""):
-                    self._effective_model = "gemini-2.0-flash"
+                self._is_gemini_direct = True
+                # gemini-1.5-flash is the most stable model on Google's OpenAI-compat
+                # endpoint; gemini-2.0-flash works but tool calls are flaky there.
+                model_setting = settings.OPENAI_CHAT_MODEL or ""
+                if "/" in model_setting or not model_setting or model_setting.startswith("gpt-"):
+                    self._effective_model = "gemini-1.5-flash"
                 else:
-                    self._effective_model = settings.OPENAI_CHAT_MODEL or "gemini-2.0-flash"
+                    self._effective_model = model_setting
                 log.info("Chat client → Google Gemini direct (model=%s)", self._effective_model)
             elif openai_key:
                 # Standard OpenAI / OpenRouter / compatible
@@ -171,18 +175,33 @@ class ChatOrchestrator:
             # guarantees clean tool-argument JSON.
             need_tools = round_idx < MAX_TOOL_ROUNDS
             if need_tools:
-                try:
-                    resp = await client.chat.completions.create(
-                        model=self._effective_model,
-                        messages=messages,
-                        tools=TOOL_SCHEMAS,
-                        tool_choice="auto",
-                        temperature=0.3,
-                        max_tokens=600,
-                    )
-                except Exception as e:
-                    log.exception("LLM call failed")
-                    yield self._evt("error", {"message": f"LLM error: {e}"})
+                # Build call args. Gemini's OpenAI-compat layer is occasionally
+                # unhappy with our tool schemas, so we degrade gracefully on
+                # failure (retry without tools so user always gets a reply).
+                base_kwargs = dict(
+                    model=self._effective_model,
+                    messages=messages,
+                    temperature=0.3,
+                    max_tokens=600,
+                )
+                tool_kwargs = dict(base_kwargs, tools=TOOL_SCHEMAS, tool_choice="auto")
+                resp = None
+                last_err: Optional[Exception] = None
+                for attempt_kwargs, label in [(tool_kwargs, "with-tools"), (base_kwargs, "no-tools")]:
+                    try:
+                        resp = await client.chat.completions.create(**attempt_kwargs)
+                        if label == "no-tools":
+                            log.warning("LLM tool call failed; succeeded without tools.")
+                        break
+                    except Exception as e:
+                        last_err = e
+                        log.warning("LLM call failed (%s): %s", label, e)
+                        # Only retry-without-tools when we still have an option
+                        if label == "with-tools":
+                            continue
+                if resp is None:
+                    log.exception("LLM call failed permanently: %s", last_err)
+                    yield self._evt("error", {"message": f"LLM error: {last_err}"})
                     return
 
                 choice = resp.choices[0]
@@ -218,7 +237,9 @@ class ChatOrchestrator:
                 # Continue to next round.
                 continue
 
-            # Final pass — stream the answer token-by-token.
+            # Final pass — stream the answer token-by-token. If streaming
+            # fails (some Gemini compat issues), fall back to a single
+            # non-streamed call so the user still gets a reply.
             try:
                 stream = await client.chat.completions.create(
                     model=self._effective_model,
@@ -227,19 +248,32 @@ class ChatOrchestrator:
                     max_tokens=600,
                     stream=True,
                 )
+                async for part in stream:
+                    try:
+                        delta = part.choices[0].delta.content or ""
+                    except (AttributeError, IndexError):
+                        delta = ""
+                    if delta:
+                        full_text += delta
+                        yield self._evt("token", {"text": delta})
             except Exception as e:
-                log.exception("LLM stream failed")
-                yield self._evt("error", {"message": f"LLM error: {e}"})
-                return
-
-            async for part in stream:
+                log.warning("LLM stream failed (%s); falling back to non-streaming.", e)
                 try:
-                    delta = part.choices[0].delta.content or ""
-                except (AttributeError, IndexError):
-                    delta = ""
-                if delta:
-                    full_text += delta
-                    yield self._evt("token", {"text": delta})
+                    resp2 = await client.chat.completions.create(
+                        model=self._effective_model,
+                        messages=messages,
+                        temperature=0.3,
+                        max_tokens=600,
+                    )
+                    content = (resp2.choices[0].message.content or "").strip()
+                    full_text = content
+                    for piece in _chunk_for_ui(content):
+                        yield self._evt("token", {"text": piece})
+                        await asyncio.sleep(STREAM_CHUNK_YIELD_MS / 1000)
+                except Exception as e2:
+                    log.exception("LLM final fallback also failed")
+                    yield self._evt("error", {"message": f"LLM error: {e2}"})
+                    return
             finish_reason = "stop"
             break
 
