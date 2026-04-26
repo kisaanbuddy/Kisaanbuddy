@@ -55,6 +55,7 @@ class ChatOrchestrator:
     def __init__(self) -> None:
         self._client = None
         self._client_lock = asyncio.Lock()
+        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-2.0-flash"
 
     async def _client_ready(self):
         if self._client is not None:
@@ -62,16 +63,50 @@ class ChatOrchestrator:
         async with self._client_lock:
             if self._client is not None:
                 return self._client
-            key = settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
-            if not key or len(key) < 20:
+
+            # Smart routing: prefer GEMINI_API_KEY when set, but auto-detect
+            # whether it's a direct Google key (AIza...) or an OpenRouter key.
+            gemini_key = (settings.GEMINI_API_KEY or "").strip()
+            openai_key = (settings.OPENAI_API_KEY or "").strip()
+
+            if gemini_key and gemini_key.startswith("AIza"):
+                # Direct Google Gemini key → use Google's OpenAI-compatible endpoint
+                key = gemini_key
+                base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
+                # Override model name if it carries an OpenRouter prefix
+                if "/" in (settings.OPENAI_CHAT_MODEL or ""):
+                    self._effective_model = "gemini-2.0-flash"
+                else:
+                    self._effective_model = settings.OPENAI_CHAT_MODEL or "gemini-2.0-flash"
+                log.info("Chat client → Google Gemini direct (model=%s)", self._effective_model)
+            elif openai_key:
+                # Standard OpenAI / OpenRouter / compatible
+                key = openai_key
+                base_url = settings.OPENAI_BASE_URL  # may be None → default OpenAI
+                self._effective_model = settings.OPENAI_CHAT_MODEL or "gpt-4o-mini"
+                log.info("Chat client → OpenAI-compat endpoint (base=%s, model=%s)",
+                         base_url or "default", self._effective_model)
+            elif gemini_key:
+                # Gemini key but not AIza prefix — assume OpenRouter-style
+                key = gemini_key
+                base_url = settings.OPENAI_BASE_URL
+                self._effective_model = settings.OPENAI_CHAT_MODEL or "google/gemini-2.0-flash-001"
+                log.info("Chat client → OpenRouter via GEMINI_API_KEY (model=%s)",
+                         self._effective_model)
+            else:
                 raise ChatError("GEMINI_API_KEY or OPENAI_API_KEY not configured on the server.")
+
+            if len(key) < 20:
+                raise ChatError("API key looks invalid (too short).")
+
             try:
                 from openai import AsyncOpenAI  # type: ignore
             except Exception as e:
                 raise ChatError(f"openai SDK not installed: {e}") from e
+
             self._client = AsyncOpenAI(
                 api_key=key,
-                base_url=settings.OPENAI_BASE_URL,
+                base_url=base_url,
                 timeout=settings.API_TIMEOUT * 5,
             )
             return self._client
@@ -138,7 +173,7 @@ class ChatOrchestrator:
             if need_tools:
                 try:
                     resp = await client.chat.completions.create(
-                        model=settings.OPENAI_CHAT_MODEL,
+                        model=self._effective_model,
                         messages=messages,
                         tools=TOOL_SCHEMAS,
                         tool_choice="auto",
@@ -186,7 +221,7 @@ class ChatOrchestrator:
             # Final pass — stream the answer token-by-token.
             try:
                 stream = await client.chat.completions.create(
-                    model=settings.OPENAI_CHAT_MODEL,
+                    model=self._effective_model,
                     messages=messages,
                     temperature=0.3,
                     max_tokens=600,
@@ -260,7 +295,7 @@ class ChatOrchestrator:
             content="".join(collected).strip(),
             language=language,  # type: ignore[arg-type]
             used_tools=used_tools,
-            provider=f"openai:{settings.OPENAI_CHAT_MODEL}",
+            provider=f"openai:{self._effective_model}",
             finish_reason=finish_reason,
         )
 
@@ -356,9 +391,11 @@ def get_orchestrator() -> ChatOrchestrator:
 
 
 def health_info() -> Dict[str, Any]:
+    orch = get_orchestrator()
+    key = (settings.GEMINI_API_KEY or settings.OPENAI_API_KEY or "").strip()
     return {
-        "llm_configured": bool((settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) and len(settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) > 20),
-        "model": settings.OPENAI_CHAT_MODEL,
+        "llm_configured": bool(key and len(key) > 20),
+        "model": orch._effective_model,
         "memory_backend": sessions.backend_name,
         "tools_enabled": enabled_tools(),
     }
