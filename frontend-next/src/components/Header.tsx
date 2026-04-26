@@ -16,6 +16,7 @@ const NAV_LINKS = [
   { href: '/mandi', label: 'Mandi' },
   { href: '/worker-connect', label: 'Worker Connect' },
   { href: '/chatbot', label: 'AI Chatbot' },
+  { href: '/founders', label: 'Founders' },
 ];
 
 // Routes that should always show the simple (logged-out) header chrome,
@@ -91,7 +92,15 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-3">
           <ThemeToggle />
 
-          {/* Logged-out: show Login button (only on public pages) */}
+          {/* Logged-out: show Founders + Login (only on public pages) */}
+          {ready && !user && isPublic && (
+            <Link
+              href="/founders"
+              className="hidden md:inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              Founders
+            </Link>
+          )}
           {ready && !user && isPublic && pathname !== '/login' && (
             <Link
               href="/login"
@@ -196,6 +205,13 @@ export function Header() {
                   className="rounded-md border-2 border-green-600 px-4 py-3 text-center text-sm font-semibold text-green-600"
                 >
                   Sign Up Free
+                </Link>
+                <Link
+                  href="/founders"
+                  onClick={() => setOpen(false)}
+                  className="rounded-md px-4 py-3 text-center text-sm font-medium text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors"
+                >
+                  Meet the Founders
                 </Link>
               </>
             )}
