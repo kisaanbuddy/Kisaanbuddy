@@ -61,20 +61,23 @@ class ChatOrchestrator:
     def __init__(self) -> None:
         self._client = None
         self._client_lock = asyncio.Lock()
-        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-2.0-flash"
+        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-1.5-flash-latest"
         self._is_gemini_direct: bool = False  # set in _client_ready()
-        # Fallback chain for Gemini direct — broad list ordered by general
-        # availability across both free-tier and older API keys. The orchestrator
-        # auto-rotates on NOT_FOUND so whatever your key has access to wins.
+        # Fallback chain for Gemini direct — ordered with the most widely
+        # accessible models FIRST. Many free-tier keys have a 0 quota on
+        # gemini-2.0-* but full access to gemini-1.5-flash-latest. The
+        # orchestrator auto-rotates on NOT_FOUND or quota=0 errors.
         self._gemini_model_fallbacks: List[str] = [
-            "gemini-2.0-flash",
-            "gemini-2.0-flash-001",
-            "gemini-2.0-flash-exp",
-            "gemini-2.0-flash-lite",
             "gemini-1.5-flash-latest",
+            "gemini-1.5-flash",
             "gemini-1.5-flash-8b",
             "gemini-1.5-flash-002",
             "gemini-1.5-pro-latest",
+            "gemini-1.5-pro",
+            "gemini-2.0-flash-exp",
+            "gemini-2.0-flash-lite",
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-001",
             "gemini-2.5-flash",
             "gemini-pro",
         ]
@@ -112,9 +115,10 @@ class ChatOrchestrator:
                     not model_setting
                     or "/" in model_setting
                     or model_setting.startswith("gpt-")
-                    or model_setting.startswith("gemini-1.5")
                 ):
-                    self._effective_model = "gemini-2.0-flash"
+                    # gemini-1.5-flash-latest is the most widely accessible
+                    # on free-tier API keys (gemini-2.0-* often has limit:0).
+                    self._effective_model = "gemini-1.5-flash-latest"
                 else:
                     self._effective_model = model_setting
                 log.info("Chat client → Google Gemini direct (model=%s)", self._effective_model)
@@ -407,7 +411,14 @@ class ChatOrchestrator:
                     msg = str(e).lower()
                     log.warning("LLM call failed (model=%s, %s): %s", model_name, label, e)
                     # NOT_FOUND / 404 → break out of inner loop and try next model
-                    if "not_found" in msg or "404" in msg or "is not found" in msg:
+                    if (
+                        "not_found" in msg
+                        or "404" in msg
+                        or "is not found" in msg
+                        or "limit: 0" in msg
+                        or "resource_exhausted" in msg
+                        or "quota exceeded" in msg
+                    ):
                         break
                     # other error: keep iterating attempts (will try no-tools next)
                     continue
@@ -415,7 +426,14 @@ class ChatOrchestrator:
             # continue to next model if it's a NOT_FOUND-style error.
             if last_err is not None:
                 em = str(last_err).lower()
-                if not ("not_found" in em or "404" in em or "is not found" in em):
+                if not (
+                    "not_found" in em
+                    or "404" in em
+                    or "is not found" in em
+                    or "limit: 0" in em
+                    or "resource_exhausted" in em
+                    or "quota exceeded" in em
+                ):
                     break
 
         return None, last_err
