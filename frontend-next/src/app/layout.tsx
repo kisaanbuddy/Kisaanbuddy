@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Header } from '@/components/Header';
-import { AssistantWidget } from '@/components/assistant/AssistantWidget';
+import { AssistantGate } from '@/components/AssistantGate';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,7 +27,7 @@ export default function RootLayout({
               {children}
             </main>
           </div>
-          <AssistantWidget />
+          <AssistantGate />
         </ThemeProvider>
       </body>
     </html>
