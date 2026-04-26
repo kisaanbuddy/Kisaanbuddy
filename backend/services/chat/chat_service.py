@@ -55,8 +55,23 @@ class ChatOrchestrator:
     def __init__(self) -> None:
         self._client = None
         self._client_lock = asyncio.Lock()
-        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-1.5-flash"
+        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-2.0-flash"
         self._is_gemini_direct: bool = False  # set in _client_ready()
+        # Fallback chain for Gemini direct — broad list ordered by general
+        # availability across both free-tier and older API keys. The orchestrator
+        # auto-rotates on NOT_FOUND so whatever your key has access to wins.
+        self._gemini_model_fallbacks: List[str] = [
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-001",
+            "gemini-2.0-flash-exp",
+            "gemini-2.0-flash-lite",
+            "gemini-1.5-flash-latest",
+            "gemini-1.5-flash-8b",
+            "gemini-1.5-flash-002",
+            "gemini-1.5-pro-latest",
+            "gemini-2.5-flash",
+            "gemini-pro",
+        ]
 
     async def _client_ready(self):
         if self._client is not None:
@@ -75,11 +90,17 @@ class ChatOrchestrator:
                 key = gemini_key
                 base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
                 self._is_gemini_direct = True
-                # gemini-1.5-flash is the most stable model on Google's OpenAI-compat
-                # endpoint; gemini-2.0-flash works but tool calls are flaky there.
+                # gemini-2.0-flash is the current GA flagship; gemini-1.5-* was
+                # retired in April 2025. We try a sensible default but the call
+                # site has a NOT_FOUND-aware fallback chain.
                 model_setting = settings.OPENAI_CHAT_MODEL or ""
-                if "/" in model_setting or not model_setting or model_setting.startswith("gpt-"):
-                    self._effective_model = "gemini-1.5-flash"
+                if (
+                    not model_setting
+                    or "/" in model_setting
+                    or model_setting.startswith("gpt-")
+                    or model_setting.startswith("gemini-1.5")
+                ):
+                    self._effective_model = "gemini-2.0-flash"
                 else:
                     self._effective_model = model_setting
                 log.info("Chat client → Google Gemini direct (model=%s)", self._effective_model)
@@ -175,30 +196,11 @@ class ChatOrchestrator:
             # guarantees clean tool-argument JSON.
             need_tools = round_idx < MAX_TOOL_ROUNDS
             if need_tools:
-                # Build call args. Gemini's OpenAI-compat layer is occasionally
-                # unhappy with our tool schemas, so we degrade gracefully on
-                # failure (retry without tools so user always gets a reply).
-                base_kwargs = dict(
-                    model=self._effective_model,
-                    messages=messages,
-                    temperature=0.3,
-                    max_tokens=600,
+                # Resilient call: try with tools, then no-tools, with model
+                # fallback if the current model returns NOT_FOUND.
+                resp, last_err = await self._call_with_fallbacks(
+                    client, messages, with_tools=True, stream=False
                 )
-                tool_kwargs = dict(base_kwargs, tools=TOOL_SCHEMAS, tool_choice="auto")
-                resp = None
-                last_err: Optional[Exception] = None
-                for attempt_kwargs, label in [(tool_kwargs, "with-tools"), (base_kwargs, "no-tools")]:
-                    try:
-                        resp = await client.chat.completions.create(**attempt_kwargs)
-                        if label == "no-tools":
-                            log.warning("LLM tool call failed; succeeded without tools.")
-                        break
-                    except Exception as e:
-                        last_err = e
-                        log.warning("LLM call failed (%s): %s", label, e)
-                        # Only retry-without-tools when we still have an option
-                        if label == "with-tools":
-                            continue
                 if resp is None:
                     log.exception("LLM call failed permanently: %s", last_err)
                     yield self._evt("error", {"message": f"LLM error: {last_err}"})
@@ -237,43 +239,20 @@ class ChatOrchestrator:
                 # Continue to next round.
                 continue
 
-            # Final pass — stream the answer token-by-token. If streaming
-            # fails (some Gemini compat issues), fall back to a single
-            # non-streamed call so the user still gets a reply.
-            try:
-                stream = await client.chat.completions.create(
-                    model=self._effective_model,
-                    messages=messages,
-                    temperature=0.3,
-                    max_tokens=600,
-                    stream=True,
-                )
-                async for part in stream:
-                    try:
-                        delta = part.choices[0].delta.content or ""
-                    except (AttributeError, IndexError):
-                        delta = ""
-                    if delta:
-                        full_text += delta
-                        yield self._evt("token", {"text": delta})
-            except Exception as e:
-                log.warning("LLM stream failed (%s); falling back to non-streaming.", e)
-                try:
-                    resp2 = await client.chat.completions.create(
-                        model=self._effective_model,
-                        messages=messages,
-                        temperature=0.3,
-                        max_tokens=600,
-                    )
-                    content = (resp2.choices[0].message.content or "").strip()
-                    full_text = content
-                    for piece in _chunk_for_ui(content):
-                        yield self._evt("token", {"text": piece})
-                        await asyncio.sleep(STREAM_CHUNK_YIELD_MS / 1000)
-                except Exception as e2:
-                    log.exception("LLM final fallback also failed")
-                    yield self._evt("error", {"message": f"LLM error: {e2}"})
-                    return
+            # Final pass — non-streamed (the resilient helper handles model
+            # fallback). Then we chunk the output to give a streamy feel.
+            resp2, err2 = await self._call_with_fallbacks(
+                client, messages, with_tools=False, stream=False
+            )
+            if resp2 is None:
+                log.exception("LLM final call failed: %s", err2)
+                yield self._evt("error", {"message": f"LLM error: {err2}"})
+                return
+            content = (resp2.choices[0].message.content or "").strip()
+            full_text = content
+            for piece in _chunk_for_ui(content):
+                yield self._evt("token", {"text": piece})
+                await asyncio.sleep(STREAM_CHUNK_YIELD_MS / 1000)
             finish_reason = "stop"
             break
 
@@ -360,6 +339,72 @@ class ChatOrchestrator:
         await sessions.append(session.id, user_msg)
         session = await sessions.get(session.id) or session
         return session, user_msg
+
+    async def _call_with_fallbacks(
+        self,
+        client: Any,
+        messages: List[Dict[str, Any]],
+        with_tools: bool,
+        stream: bool,
+    ) -> tuple[Any, Optional[Exception]]:
+        """Call the LLM with model + tool fallbacks. Returns (response, last_error).
+
+        Strategy:
+          1. Try current model with tools (if requested).
+          2. If error mentions NOT_FOUND or 404, switch to next fallback model
+             and retry (only when we are on the Gemini direct path).
+          3. If error is anything else and tools were requested, retry without tools.
+          4. Return None on permanent failure.
+        """
+        last_err: Optional[Exception] = None
+        # Build a model attempt list: current model first, then any fallbacks
+        # not yet tried (only meaningful for Gemini direct path).
+        attempt_models: List[str] = [self._effective_model]
+        if self._is_gemini_direct:
+            for m in self._gemini_model_fallbacks:
+                if m not in attempt_models:
+                    attempt_models.append(m)
+
+        for model_name in attempt_models:
+            base_kwargs: Dict[str, Any] = dict(
+                model=model_name,
+                messages=messages,
+                temperature=0.3,
+                max_tokens=600,
+            )
+            if stream:
+                base_kwargs["stream"] = True
+            attempts: List[tuple[Dict[str, Any], str]] = []
+            if with_tools:
+                attempts.append((dict(base_kwargs, tools=TOOL_SCHEMAS, tool_choice="auto"), "with-tools"))
+            attempts.append((base_kwargs, "no-tools"))
+
+            for kwargs, label in attempts:
+                try:
+                    resp = await client.chat.completions.create(**kwargs)
+                    if model_name != self._effective_model:
+                        log.warning("LLM model auto-switched: %s → %s", self._effective_model, model_name)
+                        self._effective_model = model_name
+                    if label == "no-tools" and with_tools:
+                        log.warning("LLM tools dropped for this turn (%s).", model_name)
+                    return resp, None
+                except Exception as e:
+                    last_err = e
+                    msg = str(e).lower()
+                    log.warning("LLM call failed (model=%s, %s): %s", model_name, label, e)
+                    # NOT_FOUND / 404 → break out of inner loop and try next model
+                    if "not_found" in msg or "404" in msg or "is not found" in msg:
+                        break
+                    # other error: keep iterating attempts (will try no-tools next)
+                    continue
+            # if we reach here for this model_name, all attempts failed; only
+            # continue to next model if it's a NOT_FOUND-style error.
+            if last_err is not None:
+                em = str(last_err).lower()
+                if not ("not_found" in em or "404" in em or "is not found" in em):
+                    break
+
+        return None, last_err
 
     @staticmethod
     def _to_openai_messages(messages: List[Message]) -> List[Dict[str, Any]]:
