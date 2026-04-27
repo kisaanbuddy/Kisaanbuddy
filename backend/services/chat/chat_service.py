@@ -43,11 +43,12 @@ MAX_TOOL_ROUNDS = 3          # safety net — prevents infinite tool loops
 TOOL_PARALLEL = True
 STREAM_CHUNK_YIELD_MS = 20   # tiny pacing so front-end renders smoothly
 
-# Embedded fallback Google Gemini API key (direct, AIza... format).
-# Used when no AIza-prefixed key is found in environment variables, so the
-# deployment works out-of-the-box without needing dashboard env-var edits.
-# Replace with your own key by setting GEMINI_API_KEY in Render/.env.
-_EMBEDDED_GEMINI_KEY = "[GEMINI_API_KEY]"
+# Embedded fallback Google Gemini API key.
+# IMPORTANT: leave this BLANK in the public repo. Google's automated
+# scanners revoke any AIza... key found in public GitHub code.
+# Set GEMINI_API_KEY in Render dashboard (Environment) instead — it will
+# be picked up by settings.GEMINI_API_KEY without ever appearing in source.
+_EMBEDDED_GEMINI_KEY = ""
 
 
 class ChatError(Exception):
@@ -205,8 +206,67 @@ class ChatOrchestrator:
         used_tools: List[str] = []
         full_text = ""
         finish_reason: Optional[str] = None
+        has_image = bool(getattr(req, "image_base64", None))
 
         yield self._evt("session", {"session_id": session.id, "language": lang})
+
+        # ---------- DISEASE-DIAGNOSIS VISION PATH ----------
+        # When the user uploaded a leaf/plant image, take a focused single-shot
+        # path: skip the tool round entirely (tools distract from vision), use
+        # a Pro-class model first, lower temperature for deterministic output,
+        # and allow more tokens so the strict 10-section answer is not cut off.
+        if has_image:
+            vision_models: List[str] = []
+            if self._is_gemini_direct:
+                # Try Pro-class first; fall back through the standard chain.
+                for m in (
+                    "gemini-1.5-pro-latest",
+                    "gemini-1.5-pro",
+                    "gemini-2.5-pro",
+                    "gemini-1.5-flash-latest",
+                ):
+                    if m not in vision_models:
+                        vision_models.append(m)
+            else:
+                vision_models = [self._effective_model]
+
+            resp_v, err_v = await self._call_with_fallbacks(
+                client,
+                messages,
+                with_tools=False,
+                stream=False,
+                temperature=0.1,
+                max_tokens=1500,
+                preferred_models=vision_models,
+            )
+            if resp_v is None:
+                log.exception("Vision diagnosis call failed: %s", err_v)
+                yield self._evt("error", {"message": f"LLM error: {err_v}"})
+                return
+            content = (resp_v.choices[0].message.content or "").strip()
+            full_text = content
+            for piece in _chunk_for_ui(content):
+                yield self._evt("token", {"text": piece})
+                await asyncio.sleep(STREAM_CHUNK_YIELD_MS / 1000)
+            finish_reason = "stop"
+            # Persist + emit done, then return early.
+            assistant_msg_v = Message(
+                id=uuid.uuid4().hex,
+                role="assistant",
+                content=full_text,
+                language=lang,
+                created_at=datetime.now(timezone.utc),
+                tool_name=None,
+            )
+            await sessions.append(session.id, assistant_msg_v)
+            yield self._evt("done", {
+                "session_id": session.id,
+                "message_id": assistant_msg_v.id,
+                "language": lang,
+                "used_tools": [],
+                "finish_reason": finish_reason,
+            })
+            return
 
         for round_idx in range(MAX_TOOL_ROUNDS + 1):
             # Non-streaming call when we still might need tools; stream only
@@ -364,6 +424,10 @@ class ChatOrchestrator:
         messages: List[Dict[str, Any]],
         with_tools: bool,
         stream: bool,
+        *,
+        temperature: float = 0.3,
+        max_tokens: int = 600,
+        preferred_models: Optional[List[str]] = None,
     ) -> tuple[Any, Optional[Exception]]:
         """Call the LLM with model + tool fallbacks. Returns (response, last_error).
 
@@ -373,22 +437,32 @@ class ChatOrchestrator:
              and retry (only when we are on the Gemini direct path).
           3. If error is anything else and tools were requested, retry without tools.
           4. Return None on permanent failure.
+
+        ``preferred_models`` lets the caller (e.g. disease-diagnosis vision path)
+        override the attempt order so a stronger model is tried first.
         """
         last_err: Optional[Exception] = None
-        # Build a model attempt list: current model first, then any fallbacks
-        # not yet tried (only meaningful for Gemini direct path).
-        attempt_models: List[str] = [self._effective_model]
+        # Build a model attempt list. By default: current model first, then any
+        # Gemini-direct fallbacks. ``preferred_models`` overrides the head of
+        # the list (e.g. for vision diagnosis we want a Pro-class model first).
+        if preferred_models:
+            attempt_models: List[str] = list(preferred_models)
+        else:
+            attempt_models = [self._effective_model]
         if self._is_gemini_direct:
             for m in self._gemini_model_fallbacks:
                 if m not in attempt_models:
                     attempt_models.append(m)
+        # Always end with the currently-active effective model as last resort.
+        if self._effective_model not in attempt_models:
+            attempt_models.append(self._effective_model)
 
         for model_name in attempt_models:
             base_kwargs: Dict[str, Any] = dict(
                 model=model_name,
                 messages=messages,
-                temperature=0.3,
-                max_tokens=600,
+                temperature=temperature,
+                max_tokens=max_tokens,
             )
             if stream:
                 base_kwargs["stream"] = True

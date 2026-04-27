@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
+import { AskFarmAI } from "@/components/AskFarmAI"
 
 const FADE_UP = {
   hidden: { opacity: 0, y: 15 },
@@ -164,6 +165,16 @@ export default function CropPredictor() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* ============ Crop Suitability AI ("Ask Your Farm AI") ============ */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="mt-2"
+      >
+        <AskFarmAI params={params} />
+      </motion.div>
     </div>
   )
 }
