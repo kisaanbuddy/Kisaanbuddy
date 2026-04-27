@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { AskFarmAI } from "@/components/AskFarmAI"
+import { LocationAutoFill, type AutoFillValues } from "@/components/LocationAutoFill"
 
 const FADE_UP = {
   hidden: { opacity: 0, y: 15 },
@@ -46,6 +47,17 @@ export default function CropPredictor() {
 
   const handleSlider = (key: keyof typeof params, value: number[]) => setParams(p => ({ ...p, [key]: value[0] }))
 
+  // Apply auto-detected weather to the 3 climate sliders only
+  // (NPK + pH stay user-controlled — they come from soil tests, not weather).
+  const handleAutoFill = (vals: AutoFillValues) => {
+    setParams(p => ({
+      ...p,
+      temperature: vals.temperature,
+      humidity: vals.humidity,
+      rainfall: vals.rainfall,
+    }))
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div className="text-center bg-gradient-to-br from-green-500/20 via-emerald-500/10 to-transparent p-8 rounded-3xl border border-white/10 relative overflow-hidden">
@@ -64,6 +76,9 @@ export default function CropPredictor() {
             <CardTitle className="text-xl flex items-center gap-2"><Activity className="text-primary h-5 w-5" /> Farm Parameters</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
+            {/* Location-based auto-fill (temp + humidity + rainfall) */}
+            <LocationAutoFill onApply={handleAutoFill} />
+
             <form onSubmit={handlePredict} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
                 

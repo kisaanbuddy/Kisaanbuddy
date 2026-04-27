@@ -67,7 +67,7 @@ If git asks for credentials, use a GitHub Personal Access Token
    | `OPENAI_API_KEY` | (existing OpenRouter or OpenAI key) |
    | `OPENAI_BASE_URL` | `https://openrouter.ai/api/v1` (only if using OpenRouter) |
    | `OPENAI_CHAT_MODEL` | `google/gemini-2.0-flash-001` |
-   | `GEMINI_API_KEY` | `[GEMINI_API_KEY]` |
+   | `GEMINI_API_KEY` | (your direct Google AI Studio key, starts with `AIza...`) |
 
 7. Click **Save Changes** → Render redeploys automatically
 8. Once status shows "Live", note your backend URL:
