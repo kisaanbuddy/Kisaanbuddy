@@ -27,7 +27,7 @@ type Props = {
 }
 
 export function SchemeVideo({ url, title = "Scheme guide video" }: Props) {
-  const embedUrl = url ? toEmbedUrl(url) : null
+  const embedUrl = getYouTubeEmbedUrl(url)
   const [loaded, setLoaded] = useState(false)
 
   // No URL or unparseable URL → render NOTHING. Important: avoids any layout
@@ -73,37 +73,12 @@ export function SchemeVideo({ url, title = "Scheme guide video" }: Props) {
 // ---------------------------------------------------------------------------
 // URL → embed URL converter (handles every common YouTube link form)
 // ---------------------------------------------------------------------------
-function toEmbedUrl(raw: string): string | null {
-  if (!raw || typeof raw !== "string") return null
-  try {
-    const u = new URL(raw.trim())
-    const host = u.hostname.toLowerCase()
+function getYouTubeEmbedUrl(url?: string | null): string | null {
+  if (!url) return null
 
-    // 1. youtu.be/<id>
-    if (host.includes("youtu.be")) {
-      const id = u.pathname.replace(/^\//, "").split("/")[0]
-      return id ? `https://www.youtube.com/embed/${id}` : null
-    }
+  const regExp =
+    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/
 
-    // 2. youtube.com/embed/<id> — already an embed URL
-    if (host.includes("youtube.com") && u.pathname.startsWith("/embed/")) {
-      return raw
-    }
-
-    // 3. youtube.com/watch?v=<id>
-    if (host.includes("youtube.com")) {
-      const v = u.searchParams.get("v")
-      if (v) return `https://www.youtube.com/embed/${v}`
-
-      // 4. youtube.com/shorts/<id>
-      if (u.pathname.startsWith("/shorts/")) {
-        const id = u.pathname.replace("/shorts/", "").split("/")[0]
-        return id ? `https://www.youtube.com/embed/${id}` : null
-      }
-    }
-
-    return null
-  } catch {
-    return null
-  }
+  const match = url.match(regExp)
+  return match ? `https://www.youtube.com/embed/${match[1]}` : null
 }
