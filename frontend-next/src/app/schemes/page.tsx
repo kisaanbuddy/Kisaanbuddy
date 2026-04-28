@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { Landmark, ArrowRight, CheckCircle2 } from "lucide-react"
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { SchemeVideo } from "@/components/SchemeVideo"
 
 const FADE_UP = {
   hidden: { opacity: 0, y: 30 },
@@ -63,6 +64,7 @@ export default function SchemesPage() {
                   <CheckCircle2 className="h-4 w-4 text-green-500 mt-1 shrink-0" />
                   {scheme.description}
                 </p>
+                <SchemeVideo url={scheme.youtubeLink} title={scheme.name} />
                 <a href={scheme.link} target="_blank" rel="noreferrer" className="mt-auto block">
                   <Button variant="outline" className="w-full group-hover:bg-blue-500 group-hover:text-white group-hover:border-blue-500 transition-all font-semibold">
                     Apply Now <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
