@@ -28,6 +28,39 @@ import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/c
 import { Button } from "@/components/ui/button"
 
 /* ------------------------------------------------------------------ */
+/*  Multilingual eNAM Instructions                                     */
+/* ------------------------------------------------------------------ */
+const ENAM_LANG = {
+  en: {
+    title: "Fill this on eNAM",
+    state: "State",
+    apmc: "APMC / Mandi",
+    commodity: "Commodity",
+    price: "Price",
+    proceed: "Go to eNAM ↗",
+    note: "eNAM — Government of India's official mandi. Real buyers, real payments.",
+  },
+  hi: {
+    title: "eNAM पर यह भरें",
+    state: "राज्य",
+    apmc: "मंडी",
+    commodity: "फसल",
+    price: "भाव",
+    proceed: "eNAM पर जाएं ↗",
+    note: "eNAM — भारत सरकार की आधिकारिक मंडी। असली खरीदार, असली भुगतान।",
+  },
+  kn: {
+    title: "eNAM ನಲ್ಲಿ ಇದನ್ನು ತುಂಬಿ",
+    state: "ರಾಜ್ಯ",
+    apmc: "ಮಂಡಿ",
+    commodity: "ಬೆಳೆ",
+    price: "ಬೆಲೆ",
+    proceed: "eNAM ಗೆ ಹೋಗಿ ↗",
+    note: "eNAM — ಭಾರತ ಸರ್ಕಾರದ ಅಧಿಕೃತ ಮಂಡಿ। ನೈಜ ಖರೀದಿದಾರರು, ನೈಜ ಪಾವತಿ.",
+  },
+}
+
+/* ------------------------------------------------------------------ */
 /*  Types                                                             */
 /* ------------------------------------------------------------------ */
 interface MandiCrop {
@@ -94,6 +127,7 @@ export default function MandiPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
+  const [lang, setLang] = useState<"en" | "hi" | "kn">("hi")
 
   /* ---- Fetch crops from backend ---- */
   useEffect(() => {
@@ -350,6 +384,8 @@ export default function MandiPage() {
                   connectionStatus={connectionStatus}
                   onConnect={handleConnect}
                   onReset={() => { setBuySellMode(null); setConnectionStatus("idle") }}
+                  lang={lang}
+                  onLangChange={setLang}
                 />
               </div>
             </div>
@@ -437,12 +473,16 @@ function BuySellPanel({
   connectionStatus,
   onConnect,
   onReset,
+  lang,
+  onLangChange,
 }: {
   crop: MandiCrop
   mode: "buy" | "sell" | null
   connectionStatus: "idle" | "connecting" | "connected"
   onConnect: (m: "buy" | "sell") => void
   onReset: () => void
+  lang: "en" | "hi" | "kn"
+  onLangChange: (l: "en" | "hi" | "kn") => void
 }) {
   return (
     <>
@@ -563,26 +603,49 @@ function BuySellPanel({
                       </div>
                     </div>
 
+                    {/* Language switcher */}
+                    <div className="flex gap-1.5 justify-center">
+                      {(["hi", "en", "kn"] as const).map((l) => (
+                        <button
+                          key={l}
+                          onClick={() => onLangChange(l)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                            lang === l
+                              ? "bg-green-500 text-white border-green-500"
+                              : "border-input text-muted-foreground hover:bg-accent"
+                          }`}
+                        >
+                          {l === "hi" ? "हिंदी" : l === "kn" ? "ಕನ್ನಡ" : "English"}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* eNAM fill instructions */}
+                    <div className="glass-panel rounded-xl p-3 space-y-2 border border-green-500/20">
+                      <p className="text-xs font-bold text-green-500">{ENAM_LANG[lang].title}:</p>
+                      <div className="grid grid-cols-2 gap-1.5 text-xs">
+                        <span className="text-muted-foreground">{ENAM_LANG[lang].state}:</span>
+                        <span className="font-semibold">{crop.state}</span>
+                        <span className="text-muted-foreground">{ENAM_LANG[lang].commodity}:</span>
+                        <span className="font-semibold">{crop.name.split("(")[0].trim()}</span>
+                        <span className="text-muted-foreground">{ENAM_LANG[lang].price}:</span>
+                        <span className="font-semibold text-green-500">&#x20B9;{crop.price.toLocaleString()}</span>
+                      </div>
+                    </div>
                     <div className="flex gap-2">
                       <Button
                         className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold shadow-lg shadow-green-500/25"
-                        onClick={() => {
-                          // Redirect to eNAM — India's official government trading platform
-                          const enamUrl = mode === "sell"
-                            ? "https://enam.gov.in/web/dashboard/trade-data"
-                            : "https://enam.gov.in/web/dashboard/trade-data"
-                          window.open(enamUrl, "_blank", "noopener,noreferrer")
-                        }}
+                        onClick={() => window.open("https://enam.gov.in/web/dashboard/trade-data", "_blank", "noopener,noreferrer")}
                       >
                         <CheckCircle2 className="h-4 w-4 mr-1" />
-                        {mode === "buy" ? "Buy on eNAM" : "Sell on eNAM"} ↗
+                        {ENAM_LANG[lang].proceed}
                       </Button>
                       <Button variant="outline" size="sm" onClick={onReset}>
                         Cancel
                       </Button>
                     </div>
-                    <p className="text-[10px] text-muted-foreground text-center pt-1">
-                      eNAM — Government of India's official online mandi platform. Real buyers, real payments.
+                    <p className="text-[10px] text-muted-foreground text-center">
+                      {ENAM_LANG[lang].note}
                     </p>
                   </div>
                 )}
@@ -595,23 +658,14 @@ function BuySellPanel({
   )
 }
 
-/* ---- Small helper components ---- */
-
 function TrendBadge({ trend, change, size = "sm" }: { trend: string; change: number; size?: "sm" | "lg" }) {
   const Icon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus
-  const color =
-    trend === "up"
-      ? "text-green-600 dark:text-green-400 bg-green-500/15"
-      : trend === "down"
-      ? "text-red-500 dark:text-red-400 bg-red-500/15"
-      : "text-muted-foreground bg-muted"
+  const color = trend === "up" ? "text-green-600 dark:text-green-400 bg-green-500/15" : trend === "down" ? "text-red-500 dark:text-red-400 bg-red-500/15" : "text-muted-foreground bg-muted"
   const sizeClass = size === "lg" ? "px-3 py-1.5 text-sm gap-1.5" : "px-2 py-1 text-[10px] gap-1"
-
   return (
     <span className={`inline-flex items-center font-bold rounded-lg ${color} ${sizeClass}`}>
       <Icon className={size === "lg" ? "h-4 w-4" : "h-3 w-3"} />
-      {change > 0 ? "+" : ""}
-      {change}%
+      {change > 0 ? "+" : ""}{change}%
     </span>
   )
 }
@@ -619,15 +673,12 @@ function TrendBadge({ trend, change, size = "sm" }: { trend: string; change: num
 function InfoTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="glass-panel p-3 rounded-xl">
-      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
-        {icon} {label}
-      </div>
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">{icon} {label}</div>
       <p className="text-sm font-semibold truncate">{value}</p>
     </div>
   )
 }
 
-/* ---- Utility ---- */
 function getCategoryGradient(category: string): string {
   const map: Record<string, string> = {
     Cereal: "from-amber-400 to-yellow-500",
