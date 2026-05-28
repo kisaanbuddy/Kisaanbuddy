@@ -528,29 +528,23 @@ function BuySellPanel({
                     <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                       <CheckCircle2 className="h-5 w-5" />
                       <span className="font-bold text-sm">
-                        {mode === "buy" ? "Seller" : "Buyer"} Found!
+                        eNAM {mode === "buy" ? "Sellers" : "Buyers"} Available!
                       </span>
                     </div>
 
                     <div className="glass-panel p-4 rounded-xl space-y-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-green-400 to-emerald-500 flex items-center justify-center text-white font-bold text-sm">
-                          {mode === "buy" ? "RS" : "AK"}
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-orange-400 to-green-500 flex items-center justify-center text-white font-bold text-xs text-center leading-tight">
+                          eNAM
                         </div>
                         <div>
-                          <p className="font-semibold text-sm">
-                            {mode === "buy" ? "Ramesh Sharma" : "Amit Kumar"}
-                          </p>
+                          <p className="font-semibold text-sm">National Agriculture Market</p>
                           <p className="text-xs text-muted-foreground">
-                            Registered {mode === "buy" ? "Seller" : "Buyer"} • {crop.mandi}
+                            Government of India • {crop.mandi}
                           </p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Phone className="h-3 w-3" />
-                        +91 98XXX XXXXX
-                      </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <MapPin className="h-3 w-3" />
                         {crop.mandi}, {crop.state}
@@ -558,7 +552,7 @@ function BuySellPanel({
 
                       <div className="pt-2 border-t border-border">
                         <p className="text-xs text-muted-foreground">
-                          Offered price for <span className="font-semibold">{crop.name}</span>
+                          Live market price for <span className="font-semibold">{crop.name}</span>
                         </p>
                         <p className="text-lg font-black text-green-600 dark:text-green-400">
                           ₹{crop.price.toLocaleString()}{" "}
@@ -573,18 +567,23 @@ function BuySellPanel({
                       <Button
                         className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold shadow-lg shadow-green-500/25"
                         onClick={() => {
-                          alert(
-                            `✅ Your ${mode === "buy" ? "purchase" : "sell"} request for ${crop.name} has been submitted to ${mode === "buy" ? "Ramesh Sharma" : "Amit Kumar"}!\n\nYou will receive an SMS confirmation shortly.`
-                          )
+                          // Redirect to eNAM — India's official government trading platform
+                          const enamUrl = mode === "sell"
+                            ? "https://enam.gov.in/web/dashboard/trade-data"
+                            : "https://enam.gov.in/web/dashboard/trade-data"
+                          window.open(enamUrl, "_blank", "noopener,noreferrer")
                         }}
                       >
                         <CheckCircle2 className="h-4 w-4 mr-1" />
-                        Confirm {mode === "buy" ? "Purchase" : "Sale"}
+                        {mode === "buy" ? "Buy on eNAM" : "Sell on eNAM"} ↗
                       </Button>
                       <Button variant="outline" size="sm" onClick={onReset}>
                         Cancel
                       </Button>
                     </div>
+                    <p className="text-[10px] text-muted-foreground text-center pt-1">
+                      eNAM — Government of India's official online mandi platform. Real buyers, real payments.
+                    </p>
                   </div>
                 )}
               </CardContent>
