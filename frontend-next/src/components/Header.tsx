@@ -1,51 +1,60 @@
 'use client';
 
 import Link from 'next/link';
-import { Leaf, Menu, X, LogOut, User as UserIcon } from 'lucide-react';
+import {
+  Leaf, Menu, X, LogOut, User as UserIcon,
+  LayoutDashboard, CloudSun, Sprout, Bug,
+  FileText, TrendingUp, Users, MessageSquare,
+  Star, ChevronDown,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useAuth, logoutUser } from '@/lib/auth';
 
 const NAV_LINKS = [
-  { href: '/dashboard', label: 'Dashboard' },
-  { href: '/weather', label: 'Weather' },
-  { href: '/crop-predictor', label: 'AI Predictor' },
-  { href: '/disease', label: 'Disease Detect' },
-  { href: '/schemes', label: 'Schemes' },
-  { href: '/mandi', label: 'Mandi' },
-  { href: '/worker-connect', label: 'Worker Connect' },
-  { href: '/chatbot', label: 'AI Chatbot' },
-  { href: '/founders', label: 'Founders' },
+  { href: '/dashboard',      label: 'Dashboard',      icon: LayoutDashboard },
+  { href: '/weather',        label: 'Weather',        icon: CloudSun        },
+  { href: '/crop-predictor', label: 'AI Predictor',   icon: Sprout          },
+  { href: '/disease',        label: 'Disease Detect', icon: Bug             },
+  { href: '/schemes',        label: 'Schemes',        icon: FileText        },
+  { href: '/mandi',          label: 'Mandi',          icon: TrendingUp      },
+  { href: '/worker-connect', label: 'Worker Connect', icon: Users           },
+  { href: '/chatbot',        label: 'AI Chatbot',     icon: MessageSquare   },
 ];
 
-// Routes that should always show the simple (logged-out) header chrome,
-// regardless of auth state — landing, login, signup.
 const PUBLIC_ROUTES = ['/', '/login', '/signup'];
 
 export function Header() {
-  const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-  const { user, ready } = useAuth();
+  const [open, setOpen]           = useState(false);
+  const [scrolled, setScrolled]   = useState(false);
+  const pathname                  = usePathname();
+  const router                    = useRouter();
+  const { user, ready }           = useAuth();
 
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  /* close drawer on route change */
+  useEffect(() => { setOpen(false); }, [pathname]);
 
+  /* body scroll lock when drawer open */
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
-    };
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
   }, [open]);
 
-  const isPublic = PUBLIC_ROUTES.includes(pathname || '');
+  /* shrink header on scroll */
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const isPublic    = PUBLIC_ROUTES.includes(pathname || '');
   const showFullNav = !isPublic && !!user;
+
+  function isActive(href: string) {
+    if (href === '/dashboard') return pathname === '/dashboard';
+    return pathname?.startsWith(href) ?? false;
+  }
 
   function handleLogout() {
     logoutUser();
@@ -53,90 +62,125 @@ export function Header() {
     router.push('/');
   }
 
+  /* user initials for avatar */
+  const initials = user
+    ? (user.name || user.email || 'U')
+        .split(' ')
+        .map((w: string) => w[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : 'U';
+
   return (
     <>
-      <header className="sticky top-4 z-50 mx-4 md:mx-auto max-w-6xl w-[calc(100%-2rem)] md:w-full glass-panel flex h-16 items-center justify-between px-4 md:px-6 transition-all">
+      <header
+        className={`sticky top-3 z-50 mx-3 md:mx-auto max-w-7xl w-[calc(100%-1.5rem)] md:w-full
+          flex items-center justify-between px-3 md:px-5 transition-all duration-300
+          ${scrolled
+            ? 'glass-panel h-14 shadow-lg shadow-black/10'
+            : 'glass-panel h-16'
+          }`}
+      >
+        {/* ── Logo ── */}
         <Link
           href={user ? '/dashboard' : '/'}
-          className="flex items-center gap-2 font-bold text-xl tracking-tight"
           onClick={() => setOpen(false)}
+          className="flex items-center gap-2.5 shrink-0 group"
         >
-          <Leaf className="h-6 w-6 text-green-500" />
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-500/30 group-hover:scale-110 transition-transform duration-200">
+            <Leaf className="h-4.5 w-4.5 text-white" style={{ height: '1.1rem', width: '1.1rem' }} />
+          </div>
           <div className="flex flex-col leading-none">
-            <span>
+            <span className="font-extrabold text-lg tracking-tight">
               Krishi<span className="text-green-500">AI</span>
             </span>
             {isPublic && !user && (
-              <span className="text-[10px] font-medium text-muted-foreground tracking-wider">
-                Empowering Farmers
+              <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Smart Farming
               </span>
             )}
           </div>
         </Link>
 
-        {/* Desktop nav — only when logged in & on a protected page */}
+        {/* ── Desktop Nav ── */}
         {showFullNav && (
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-            {NAV_LINKS.map((link) => (
+          <nav className="hidden lg:flex items-center gap-0.5 text-sm font-medium">
+            {NAV_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
-                key={link.href}
-                href={link.href}
-                className="hover:text-primary transition-colors"
+                key={href}
+                href={href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150
+                  ${isActive(href)
+                    ? 'bg-green-500/12 text-green-600 dark:text-green-400 font-semibold'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-white/5'
+                  }`}
               >
-                {link.label}
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                {label}
               </Link>
             ))}
           </nav>
         )}
 
-        <div className="flex items-center gap-2 md:gap-3">
+        {/* ── Right side ── */}
+        <div className="flex items-center gap-1.5 md:gap-2">
           <ThemeToggle />
 
-          {/* Founders — ALWAYS visible (pre-login + post-login, mobile + desktop) */}
+          {/* Founders link — always visible on desktop */}
           {pathname !== '/founders' && (
             <Link
               href="/founders"
-              className="inline-flex items-center text-xs md:text-sm font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
+              className="hidden md:inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap px-2 py-1 rounded-lg hover:bg-white/30 dark:hover:bg-white/5"
             >
-              Founders
+              <Star className="h-3 w-3" /> Founders
             </Link>
           )}
 
-          {/* Logged-out: show Login (only on public pages, not /login itself) */}
+          {/* Logged-out CTA */}
           {ready && !user && isPublic && pathname !== '/login' && (
             <Link
               href="/login"
-              className="inline-flex items-center justify-center rounded-full bg-green-600 px-3 py-1.5 md:px-5 md:py-2 text-xs md:text-sm font-semibold text-white shadow hover:bg-green-700 transition-all"
+              className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-sm font-semibold text-white shadow transition-all
+                bg-gradient-to-r from-green-500 to-emerald-600
+                hover:from-green-600 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/25
+                active:scale-95"
             >
               Login
             </Link>
           )}
 
-          {/* Logged-in: show user avatar + logout (desktop) */}
+          {/* Logged-in user badge */}
           {ready && user && showFullNav && (
-            <div className="hidden md:flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1.5 text-sm">
-                <UserIcon className="h-4 w-4 text-green-600" />
-                <span className="font-medium">{user.name || user.email.split('@')[0]}</span>
+            <div className="hidden md:flex items-center gap-1.5">
+              <div className="flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/8 dark:bg-green-500/10 px-3 py-1.5 text-sm cursor-default">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white text-[10px] font-bold shrink-0">
+                  {initials}
+                </div>
+                <span className="font-medium max-w-[100px] truncate">
+                  {user.name || user.email.split('@')[0]}
+                </span>
               </div>
               <button
                 onClick={handleLogout}
                 title="Sign out"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground
+                  hover:bg-red-500/10 hover:text-red-500 transition-colors"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-3.5 w-3.5" />
               </button>
             </div>
           )}
 
-          {/* Mobile hamburger — only when there's a nav to show OR user is logged out */}
+          {/* Mobile hamburger */}
           {(showFullNav || (!user && isPublic && pathname !== '/login')) && (
             <button
               type="button"
               aria-label={open ? 'Close menu' : 'Open menu'}
               aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md text-foreground hover:bg-white/10 transition-colors"
+              onClick={() => setOpen(v => !v)}
+              className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg
+                text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -144,51 +188,75 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile menu */}
+      {/* ── Mobile Drawer ── */}
       {open && (
         <>
+          {/* Backdrop */}
           <button
             type="button"
             aria-label="Close menu"
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden cursor-default"
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden cursor-default"
             onClick={() => setOpen(false)}
           />
+
+          {/* Drawer panel */}
           <nav
-            className="fixed top-24 left-4 right-4 z-50 glass-panel p-3 flex flex-col gap-1 md:hidden"
+            className="fixed top-[4.5rem] left-3 right-3 z-50 lg:hidden glass-panel p-3 flex flex-col gap-0.5 animate-slide-up max-h-[80vh] overflow-y-auto"
             aria-label="Mobile navigation"
           >
             {showFullNav ? (
               <>
-                {NAV_LINKS.map((link) => {
-                  const active =
-                    link.href === '/dashboard'
-                      ? pathname === '/dashboard'
-                      : pathname?.startsWith(link.href);
+                {/* User info row */}
+                <div className="flex items-center gap-3 px-3 py-3 mb-1 rounded-xl bg-green-500/8 dark:bg-green-500/10 border border-green-500/15">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white text-sm font-bold shrink-0">
+                    {initials}
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="font-semibold text-sm truncate">
+                      {user?.name || user?.email?.split('@')[0]}
+                    </span>
+                    <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                  </div>
+                </div>
+
+                {/* Nav links */}
+                {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+                  const active = isActive(href);
                   return (
                     <Link
-                      key={link.href}
-                      href={link.href}
+                      key={href}
+                      href={href}
                       onClick={() => setOpen(false)}
-                      className={`rounded-md px-4 py-3 text-sm font-medium transition-colors ${
-                        active
-                          ? 'bg-green-500/15 text-primary'
-                          : 'text-muted-foreground hover:text-primary hover:bg-white/5'
-                      }`}
+                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
+                        ${active
+                          ? 'bg-green-500/12 text-green-600 dark:text-green-400'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-white/30 dark:hover:bg-white/5'
+                        }`}
                     >
-                      {link.label}
+                      <Icon className="h-4 w-4 shrink-0" />
+                      {label}
+                      {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-green-500" />}
                     </Link>
                   );
                 })}
-                <div className="my-2 border-t border-white/10" />
-                <div className="flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground">
-                  <UserIcon className="h-3.5 w-3.5" />
-                  <span>{user?.email}</span>
-                </div>
+
+                {/* Founders */}
+                <Link
+                  href="/founders"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/30 dark:hover:bg-white/5 transition-all"
+                >
+                  <Star className="h-4 w-4 shrink-0" />
+                  Founders
+                </Link>
+
+                <div className="my-1 divider-gradient" />
+
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 rounded-md px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
+                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4 shrink-0" />
                   Sign out
                 </button>
               </>
@@ -197,23 +265,23 @@ export function Header() {
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="rounded-md bg-green-600 px-4 py-3 text-center text-sm font-semibold text-white"
+                  className="rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-green-500/25"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setOpen(false)}
-                  className="rounded-md border-2 border-green-600 px-4 py-3 text-center text-sm font-semibold text-green-600"
+                  className="rounded-xl border-2 border-green-500 px-4 py-3 text-center text-sm font-semibold text-green-600 dark:text-green-400 hover:bg-green-500/5 transition-colors"
                 >
                   Sign Up Free
                 </Link>
                 <Link
                   href="/founders"
                   onClick={() => setOpen(false)}
-                  className="rounded-md px-4 py-3 text-center text-sm font-medium text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors"
+                  className="rounded-xl px-4 py-3 text-center text-sm font-medium text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
                 >
-                  Meet the Founders
+                  <Star className="h-4 w-4" /> Meet the Founders
                 </Link>
               </>
             )}

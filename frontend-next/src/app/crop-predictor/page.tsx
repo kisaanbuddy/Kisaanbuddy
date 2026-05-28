@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { AskFarmAI } from "@/components/AskFarmAI"
 import { LocationAutoFill, type AutoFillValues } from "@/components/LocationAutoFill"
+import { SensorAutoFill, type SensorValues } from "@/components/SensorAutoFill"
 
 const FADE_UP = {
   hidden: { opacity: 0, y: 15 },
@@ -58,6 +59,16 @@ export default function CropPredictor() {
     }))
   }
 
+  // Apply live ESP32 field-sensor readings to temperature + humidity.
+  // (Soil moisture / soil temp have no sliders; rainfall stays from weather.)
+  const handleSensorFill = (vals: SensorValues) => {
+    setParams(p => ({
+      ...p,
+      temperature: vals.temperature,
+      humidity: vals.humidity,
+    }))
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-4xl mx-auto">
       <div className="text-center bg-gradient-to-br from-green-500/20 via-emerald-500/10 to-transparent p-8 rounded-3xl border border-white/10 relative overflow-hidden">
@@ -78,6 +89,9 @@ export default function CropPredictor() {
           <CardContent className="p-6">
             {/* Location-based auto-fill (temp + humidity + rainfall) */}
             <LocationAutoFill onApply={handleAutoFill} />
+
+            {/* Live field-sensor auto-fill (temp + humidity from ESP32) */}
+            <SensorAutoFill onApply={handleSensorFill} />
 
             <form onSubmit={handlePredict} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
