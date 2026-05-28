@@ -43,7 +43,7 @@ export default function ChatbotPage() {
         setMessages(prev => [...prev, { id: Date.now() + 1, text: "Demo Mode Reply: Im a bit overloaded right now, but a smart AI would respond here!", sender: "bot" }])
       }
     } catch {
-       setMessages(prev => [...prev, { id: Date.now() + 1, text: "Offline Mode Mode: Could not connect to the backend server. Make sure it's running on 8000.", sender: "bot" }])
+      setMessages(prev => [...prev, { id: Date.now() + 1, text: "Offline Mode Mode: Could not connect to the backend server. Make sure it's running on 8000.", sender: "bot" }])
     } finally {
       setIsTyping(false)
     }
@@ -54,10 +54,10 @@ export default function ChatbotPage() {
     if (!SpeechRecognition) return alert("Speech recognition not supported.")
 
     if (isListening) return; // Prevent double trigger
-    
+
     const recognition = new SpeechRecognition()
     recognition.lang = 'en-IN'
-    
+
     recognition.onstart = () => setIsListening(true)
     recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript
@@ -85,7 +85,7 @@ export default function ChatbotPage() {
         <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
           <AnimatePresence>
             {messages.map((msg) => (
-              <motion.div 
+              <motion.div
                 key={msg.id}
                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -95,27 +95,26 @@ export default function ChatbotPage() {
                 <div className={`mt-1 flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center shadow-sm ${msg.sender === "bot" ? "bg-primary/20 text-primary border border-primary/30" : "bg-blue-500/20 text-blue-500 border border-blue-500/30"}`}>
                   {msg.sender === "bot" ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
                 </div>
-                <div className={`p-4 rounded-2xl text-[15px] leading-relaxed relative ${
-                  msg.sender === "bot" 
-                    ? "bg-secondary text-secondary-foreground rounded-tl-sm border border-black/5 dark:border-white/5" 
+                <div className={`p-4 rounded-2xl text-[15px] leading-relaxed relative ${msg.sender === "bot"
+                    ? "bg-secondary text-secondary-foreground rounded-tl-sm border border-black/5 dark:border-white/5"
                     : "bg-blue-600 text-white rounded-tr-sm shadow-md"
-                }`}>
+                  }`}>
                   {msg.text}
                 </div>
               </motion.div>
             ))}
           </AnimatePresence>
           {isTyping && (
-             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
-               <div className="mt-1 flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                  <Bot className="h-5 w-5" />
-               </div>
-               <div className="bg-secondary p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-12">
-                 <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                 <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                 <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
-               </div>
-             </motion.div>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
+              <div className="mt-1 flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
+                <Bot className="h-5 w-5" />
+              </div>
+              <div className="bg-secondary p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-12">
+                <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+              </div>
+            </motion.div>
           )}
           <div ref={messagesEndRef} />
         </div>
@@ -123,16 +122,16 @@ export default function ChatbotPage() {
         {/* Input Area */}
         <div className="p-4 border-t bg-card/50 backdrop-blur-3xl m-2 rounded-2xl border border-white/10 shadow-inner">
           <form onSubmit={handleSend} className="flex gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="icon" 
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
               className={`h-12 w-12 rounded-full flex-shrink-0 transition-all ${isListening ? "bg-red-500/20 text-red-500 border-red-500/50 hover:bg-red-500/30 animate-pulse" : "hover:bg-primary/10 hover:text-primary"}`}
               onClick={toggleListen}
             >
               <Mic className={`h-5 w-5 ${isListening ? "animate-bounce" : ""}`} />
             </Button>
-            <Input 
+            <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={isListening ? "Listening closely..." : "Ask your agriculture question..."}
