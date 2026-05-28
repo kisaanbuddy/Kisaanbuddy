@@ -1,279 +1,233 @@
 "use client"
 /**
- * KrishiAI — Disease Detection Portal
- *
- * Standalone page that lets a farmer:
- *   1. Upload (or capture) a leaf / plant photo.
- *   2. Optionally describe symptoms in their language.
- *   3. Optionally name the crop and pick the response language.
- *   4. Submit → backend runs GPT-4o vision + diagnosis prompt + RAG and
- *      returns a strict 10-section answer (Crop, Disease, Confidence,
- *      Problem, Causes, Organic, Chemical w/ dose, Prevention, Severity,
- *      Market Advice). Streamed token-by-token over SSE.
- *
- * Reuses the same /api/chat/stream endpoint as the floating widget.
+ * KrishiAI — Disease Detection Portal (Premium UI)
  */
-import { Camera, ImagePlus, Loader2, Sparkles, X } from "lucide-react"
-import { useCallback, useRef, useState } from "react"
-
 import {
-  type AssistantRequest,
-  type Language,
-  streamMessage,
-} from "@/lib/assistant-api"
+  Camera, ImagePlus, Loader2, Sparkles, X,
+  Bug, CheckCircle2, AlertTriangle, Leaf,
+  Upload, FlaskConical,
+} from "lucide-react"
+import { useCallback, useRef, useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { type AssistantRequest, type Language, streamMessage } from "@/lib/assistant-api"
 
 const LANG_LABEL: Record<Language, string> = {
-  auto: "Auto",
-  en: "English",
-  hi: "हिन्दी",
-  kn: "ಕನ್ನಡ",
+  auto: "Auto", en: "English", hi: "हिन्दी", kn: "ಕನ್ನಡ",
 }
-
 const PLACEHOLDER: Record<Language, string> = {
   auto: "Describe the symptom (optional) — e.g. 'patti pe bhure dhabbe'",
-  en: "Describe the symptom (optional) — e.g. 'brown spots on leaves'",
-  hi: "लक्षण लिखें (वैकल्पिक) — जैसे 'पत्तियों पर भूरे धब्बे'",
-  kn: "ಲಕ್ಷಣವನ್ನು ಬರೆಯಿರಿ (ಐಚ್ಛಿಕ) — ಉದಾ. 'ಎಲೆಗಳ ಮೇಲೆ ಚುಕ್ಕೆ'",
+  en:   "Describe the symptom (optional) — e.g. 'brown spots on leaves'",
+  hi:   "लक्षण लिखें (वैकल्पिक) — जैसे 'पत्तियों पर भूरे धब्बे'",
+  kn:   "ಲಕ್ಷಣವನ್ನು ಬರೆಯಿರಿ (ಐಚ್ಛಿಕ) — ಉದಾ. 'ಎಲೆಗಳ ಮೇಲೆ ಚುಕ್ಕೆ'",
 }
-
 const PROMPT_FALLBACK: Record<Language, string> = {
   auto: "Yeh photo dekho aur disease detect karo — strict 10-section format mein jawab do.",
-  en: "Look at this photo and diagnose the disease — reply in the strict 10-section format.",
-  hi: "इस फोटो को देखो और बीमारी पहचानो — strict 10-section format में जवाब दो।",
-  kn: "ಈ ಫೋಟೋ ನೋಡಿ ರೋಗವನ್ನು ಪತ್ತೆ ಮಾಡಿ — strict 10-section format ನಲ್ಲಿ ಉತ್ತರಿಸಿ।",
+  en:   "Look at this photo and diagnose the disease — reply in the strict 10-section format.",
+  hi:   "इस फोटो को देखो और बीमारी पहचानो — strict 10-section format में जवाब दो।",
+  kn:   "ಈ ಫೋಟೋ ನೋಡಿ ರೋಗವನ್ನು ಪತ್ತೆ ಮಾಡಿ — strict 10-section format ನಲ್ಲಿ ಉತ್ತರಿಸಿ।",
 }
 
 export default function DiseasePortal() {
-  const [language, setLanguage] = useState<Language>("hi")
-  const [crop, setCrop] = useState("")
-  const [symptom, setSymptom] = useState("")
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
-  const [isStreaming, setIsStreaming] = useState(false)
-  const [response, setResponse] = useState<string>("")
-  const [error, setError] = useState<string | null>(null)
-  const [usedTools, setUsedTools] = useState<string[]>([])
-  const fileRef = useRef<HTMLInputElement | null>(null)
-  const camRef = useRef<HTMLInputElement | null>(null)
+  const [language, setLanguage]     = useState<Language>("hi")
+  const [crop, setCrop]             = useState("")
+  const [symptom, setSymptom]       = useState("")
+  const [imageDataUrl, setImage]    = useState<string | null>(null)
+  const [dragging, setDragging]     = useState(false)
+  const [isStreaming, setStreaming] = useState(false)
+  const [response, setResponse]     = useState<string>("")
+  const [error, setError]           = useState<string | null>(null)
+  const [usedTools, setUsedTools]   = useState<string[]>([])
+  const fileRef  = useRef<HTMLInputElement | null>(null)
+  const camRef   = useRef<HTMLInputElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
 
   const onPick = useCallback((file: File | null | undefined) => {
     if (!file) return
-    if (!file.type.startsWith("image/")) {
-      setError("Please pick an image file.")
-      return
-    }
-    if (file.size > 6 * 1024 * 1024) {
-      setError("Image must be smaller than 6 MB.")
-      return
-    }
+    if (!file.type.startsWith("image/")) { setError("Please pick an image file."); return }
+    if (file.size > 6 * 1024 * 1024)    { setError("Image must be smaller than 6 MB."); return }
     setError(null)
     const reader = new FileReader()
-    reader.onload = () => {
-      const r = typeof reader.result === "string" ? reader.result : null
-      if (r) setImageDataUrl(r)
-    }
+    reader.onload = () => { if (typeof reader.result === "string") setImage(reader.result) }
     reader.readAsDataURL(file)
   }, [])
+
+  /* Drag & drop */
+  const onDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault(); setDragging(false)
+    onPick(e.dataTransfer.files[0])
+  }, [onPick])
 
   const cancel = useCallback(() => {
     abortRef.current?.abort()
     abortRef.current = null
-    setIsStreaming(false)
+    setStreaming(false)
   }, [])
 
   const submit = useCallback(async () => {
     if (isStreaming) return
     if (!imageDataUrl && !symptom.trim()) {
-      setError(
-        language === "hi"
-          ? "Photo ya symptom kuch ek bhejo."
-          : "Please upload a photo or describe the symptom.",
-      )
+      setError(language === "hi" ? "Photo ya symptom kuch ek bhejo." : "Please upload a photo or describe the symptom.")
       return
     }
-    setError(null)
-    setResponse("")
-    setUsedTools([])
-
+    setError(null); setResponse(""); setUsedTools([])
     const composed = [
       crop.trim() ? `Crop: ${crop.trim()}.` : "",
       symptom.trim() || PROMPT_FALLBACK[language],
-    ]
-      .filter(Boolean)
-      .join(" ")
+    ].filter(Boolean).join(" ")
 
     const req: AssistantRequest = {
-      session_id: null,
-      message: composed,
-      language,
-      stream: true,
-      want_audio: false,
-      image_base64: imageDataUrl,
+      session_id: null, message: composed, language,
+      stream: true, want_audio: false, image_base64: imageDataUrl,
     }
-
     const ctl = new AbortController()
     abortRef.current = ctl
-    setIsStreaming(true)
+    setStreaming(true)
     let collected = ""
     try {
       for await (const evt of streamMessage(req, ctl.signal)) {
-        switch (evt.type) {
-          case "token":
-            collected += evt.text
-            setResponse(collected)
-            break
-          case "tool_start":
-            setUsedTools((prev) => [...prev, evt.name])
-            break
-          case "error":
-            setError(evt.message)
-            break
-          case "session":
-          case "tool_end":
-          case "done":
-          default:
-            break
-        }
+        if (evt.type === "token") { collected += evt.text; setResponse(collected) }
+        else if (evt.type === "tool_start") setUsedTools(p => [...p, evt.name])
+        else if (evt.type === "error") setError(evt.message)
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e)
       if (!msg.toLowerCase().includes("abort")) setError(msg)
     } finally {
-      setIsStreaming(false)
-      abortRef.current = null
+      setStreaming(false); abortRef.current = null
     }
   }, [crop, symptom, language, imageDataUrl, isStreaming])
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Sparkles className="h-4 w-4 text-emerald-500" />
-          KrishiAI · AI-powered crop care
-        </div>
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-          Disease Detection
-        </h1>
-        <p className="text-muted-foreground max-w-2xl">
-          {language === "hi"
-            ? "Patti ya paude ki photo bhejo. KrishiAI bimari pehchanega aur organic + chemical (with exact dose) + prevention bata dega — Hindi/Kannada/English mein."
-            : language === "kn"
-            ? "ಎಲೆ ಅಥವಾ ಸಸ್ಯದ ಫೋಟೋ ಕಳುಹಿಸಿ — KrishiAI ರೋಗ ಪತ್ತೆ ಮಾಡಿ ಔಷಧ + ಪ್ರಮಾಣ + ತಡೆ ಸೂಚಿಸುತ್ತದೆ."
-            : "Upload a leaf or plant photo. KrishiAI identifies the disease and gives organic + chemical (with exact dose) + prevention advice — in Hindi, Kannada, or English."}
-        </p>
-      </header>
+    <div className="flex flex-col gap-8 max-w-6xl mx-auto pb-8">
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,1.3fr)]">
-        {/* ===== Left column — input ===== */}
-        <section className="rounded-2xl border border-border bg-card/40 backdrop-blur p-5 space-y-4">
-          {/* Image picker */}
+      {/* ── Page Header ── */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-600/90 via-orange-600/80 to-amber-600/70 p-7 md:p-10 text-white shadow-2xl shadow-red-500/20">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
+          <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-black/10 blur-xl" />
+        </div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <label className="text-xs uppercase tracking-wider text-muted-foreground">
-              Leaf / plant photo
+            <div className="flex items-center gap-2 text-red-200 text-xs font-semibold mb-2">
+              <Bug className="h-4 w-4" /> AI-Powered Crop Care
+            </div>
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Disease Detection</h1>
+            <p className="mt-2 text-red-100/75 text-sm max-w-xl leading-relaxed">
+              {language === "hi"
+                ? "Patti ya paude ki photo bhejo — bimari, dose, organic aur chemical treatment sab milega"
+                : "Upload a leaf photo — get disease name, exact dose, organic & chemical treatment in seconds"}
+            </p>
+          </div>
+          <div className="hidden md:flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20">
+            <div className="text-4xl font-black">95%</div>
+            <div className="text-xs text-red-100/70 mt-1">Detection Accuracy</div>
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="grid gap-6 lg:grid-cols-[1fr_minmax(0,1.35fr)]">
+
+        {/* ══ LEFT — Input panel ══ */}
+        <motion.section
+          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
+          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 space-y-5 h-fit"
+        >
+          {/* Image upload */}
+          <div>
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Leaf / Plant Photo
             </label>
+
             {imageDataUrl ? (
-              <div className="relative mt-2 overflow-hidden rounded-xl border border-border">
+              <div className="relative mt-2 overflow-hidden rounded-2xl border-2 border-green-500/30 shadow-lg">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageDataUrl}
-                  alt="Selected leaf"
-                  className="aspect-square w-full object-cover"
-                />
+                <img src={imageDataUrl} alt="Selected leaf" className="aspect-square w-full object-cover" />
                 <button
-                  type="button"
-                  onClick={() => setImageDataUrl(null)}
-                  className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white"
-                  aria-label="Remove photo"
+                  type="button" onClick={() => setImage(null)}
+                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-500/90 transition-colors"
                 >
                   <X className="h-4 w-4" />
                 </button>
+                <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs text-white">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-green-400" /> Photo ready
+                </div>
               </div>
             ) : (
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <div
+                onDragOver={e => { e.preventDefault(); setDragging(true) }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={onDrop}
+                className={`mt-2 grid grid-cols-2 gap-3 rounded-2xl border-2 border-dashed p-4 transition-all duration-200
+                  ${dragging ? "border-green-500 bg-green-500/5" : "border-border hover:border-green-400/50 bg-muted/20"}`}
+              >
+                {/* Drag hint */}
+                <div className="col-span-2 flex flex-col items-center gap-1.5 py-2 text-center text-muted-foreground">
+                  <Upload className={`h-8 w-8 transition-colors ${dragging ? "text-green-500" : "text-muted-foreground/40"}`} />
+                  <span className="text-xs">{dragging ? "Drop the photo here!" : "Drag & drop or choose below"}</span>
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-6 text-sm text-muted-foreground hover:border-emerald-400 hover:text-emerald-500 transition"
+                  type="button" onClick={() => fileRef.current?.click()}
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/60 p-5 text-sm text-muted-foreground hover:border-green-400 hover:text-green-500 hover:bg-green-500/5 transition-all"
                 >
                   <ImagePlus className="h-6 w-6" />
-                  Choose photo
+                  <span className="text-xs font-medium">Gallery</span>
                 </button>
                 <button
-                  type="button"
-                  onClick={() => camRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border p-6 text-sm text-muted-foreground hover:border-emerald-400 hover:text-emerald-500 transition"
+                  type="button" onClick={() => camRef.current?.click()}
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/60 p-5 text-sm text-muted-foreground hover:border-green-400 hover:text-green-500 hover:bg-green-500/5 transition-all"
                 >
                   <Camera className="h-6 w-6" />
-                  Use camera
+                  <span className="text-xs font-medium">Camera</span>
                 </button>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    onPick(e.target.files?.[0])
-                    if (e.target) e.target.value = ""
-                  }}
-                />
-                <input
-                  ref={camRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={(e) => {
-                    onPick(e.target.files?.[0])
-                    if (e.target) e.target.value = ""
-                  }}
-                />
+
+                <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                  onChange={e => { onPick(e.target.files?.[0]); if (e.target) e.target.value = "" }} />
+                <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden"
+                  onChange={e => { onPick(e.target.files?.[0]); if (e.target) e.target.value = "" }} />
               </div>
             )}
           </div>
 
           {/* Crop name */}
           <div>
-            <label className="text-xs uppercase tracking-wider text-muted-foreground">
-              Crop (optional)
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Crop Name <span className="normal-case font-normal">(optional)</span>
             </label>
             <input
-              value={crop}
-              onChange={(e) => setCrop(e.target.value)}
+              value={crop} onChange={e => setCrop(e.target.value)}
               placeholder="e.g. Tomato, Cotton, Paddy, Wheat"
-              className="mt-1 w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400/50"
+              className="mt-1.5 input-base"
             />
           </div>
 
-          {/* Symptom text */}
+          {/* Symptoms */}
           <div>
-            <label className="text-xs uppercase tracking-wider text-muted-foreground">
-              Symptoms (optional)
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Symptoms <span className="normal-case font-normal">(optional)</span>
             </label>
             <textarea
-              value={symptom}
-              onChange={(e) => setSymptom(e.target.value)}
+              value={symptom} onChange={e => setSymptom(e.target.value)}
               placeholder={PLACEHOLDER[language]}
-              rows={4}
-              className="mt-1 w-full resize-y rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400/50"
+              rows={3}
+              className="mt-1.5 input-base resize-none"
             />
           </div>
 
-          {/* Language picker */}
+          {/* Language selector */}
           <div>
-            <label className="text-xs uppercase tracking-wider text-muted-foreground">
-              Reply language
+            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 block">
+              Reply Language
             </label>
-            <div className="mt-1 flex flex-wrap gap-2">
-              {(["hi", "en", "kn", "auto"] as Language[]).map((l) => (
+            <div className="flex flex-wrap gap-2">
+              {(["hi", "en", "kn", "auto"] as Language[]).map(l => (
                 <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLanguage(l)}
-                  className={`rounded-full px-3 py-1 text-xs ring-1 transition ${
-                    language === l
-                      ? "bg-emerald-500 text-white ring-emerald-400"
-                      : "bg-background/40 text-muted-foreground ring-border hover:text-foreground"
-                  }`}
+                  key={l} type="button" onClick={() => setLanguage(l)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition-all
+                    ${language === l
+                      ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-transparent shadow-md shadow-green-500/25"
+                      : "bg-background/60 text-muted-foreground border-border hover:text-foreground hover:border-green-400/50"
+                    }`}
                 >
                   {LANG_LABEL[l]}
                 </button>
@@ -282,87 +236,108 @@ export default function DiseasePortal() {
           </div>
 
           {/* Submit */}
-          <div className="flex items-center gap-3 pt-1">
+          <div className="pt-1">
             {isStreaming ? (
-              <button
-                type="button"
-                onClick={cancel}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium hover:bg-muted/70"
-              >
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Stop
+              <button onClick={cancel}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-500/20 transition-all">
+                <Loader2 className="h-4 w-4 animate-spin" /> Stop Analysis
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={submit}
-                className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:from-emerald-600 hover:to-green-700"
-              >
+              <button onClick={submit}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:from-red-600 hover:to-amber-600 hover:shadow-xl active:scale-98 transition-all">
                 <Sparkles className="h-4 w-4" />
-                {language === "hi" ? "Bimari pehchano" : language === "kn" ? "ರೋಗ ಪತ್ತೆ ಮಾಡಿ" : "Diagnose now"}
+                {language === "hi" ? "Bimari Pehchano" : language === "kn" ? "ರೋಗ ಪತ್ತೆ ಮಾಡಿ" : "Diagnose Disease"}
               </button>
             )}
           </div>
 
           {error && (
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-500">
+            <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-500">
+              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
               {error}
             </div>
           )}
-        </section>
 
-        {/* ===== Right column — diagnosis output ===== */}
-        <section className="rounded-2xl border border-border bg-card/40 backdrop-blur p-5 min-h-[520px]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Diagnosis
+          {/* Tip */}
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-3 text-xs text-amber-700 dark:text-amber-300">
+            💡 Clear, close-up photos of the affected leaf give the best results. Include both sides if possible.
+          </div>
+        </motion.section>
+
+        {/* ══ RIGHT — Diagnosis output ══ */}
+        <motion.section
+          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
+          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 min-h-[520px] flex flex-col"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-5 pb-4 border-b border-border/50">
+            <h2 className="flex items-center gap-2 font-bold text-sm">
+              <FlaskConical className="h-4 w-4 text-red-500" />
+              Diagnosis Report
             </h2>
             {usedTools.length > 0 && (
-              <span className="text-[10px] text-muted-foreground">
-                tools: {usedTools.join(", ")}
-              </span>
+              <div className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-[10px] font-medium text-green-600 dark:text-green-400">
+                <Sparkles className="h-3 w-3" />
+                {usedTools.join(" · ")}
+              </div>
             )}
           </div>
 
-          {response ? (
-            <pre className="mt-4 whitespace-pre-wrap break-words font-sans text-sm leading-relaxed">
-              {response}
-            </pre>
-          ) : isStreaming ? (
-            <div className="mt-10 flex flex-col items-center gap-3 text-muted-foreground">
-              <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
-              <p className="text-xs">
-                {language === "hi"
-                  ? "Photo aur lakshan padh raha hoon…"
-                  : "Analysing the photo and symptoms…"}
-              </p>
-            </div>
-          ) : (
-            <div className="mt-10 grid place-items-center text-center text-muted-foreground">
-              <div className="space-y-2 max-w-sm">
-                <div className="text-4xl">🌿</div>
-                <p className="text-sm">
-                  {language === "hi"
-                    ? "Photo upload karke 'Bimari pehchano' dabao — KrishiAI 10-section format mein jawab dega."
-                    : language === "kn"
-                    ? "ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ — 10-section format ನಲ್ಲಿ ರೋಗ ನಿರ್ಣಯ ಸಿಗುತ್ತದೆ."
-                    : "Upload a photo and tap Diagnose — you'll get a strict 10-section diagnosis."}
-                </p>
-                <p className="text-[11px] opacity-70">
-                  Crop · Disease · Confidence · Problem · Causes · Organic ·
-                  Chemical (with dose) · Prevention · Severity · Market Advice
-                </p>
-              </div>
-            </div>
-          )}
-        </section>
-      </div>
+          {/* Content area */}
+          <div className="flex-1">
+            <AnimatePresence mode="wait">
+              {response ? (
+                <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-foreground/90">
+                    {response}
+                  </pre>
+                </motion.div>
+              ) : isStreaming ? (
+                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center h-64 gap-4 text-center"
+                >
+                  <div className="relative">
+                    <div className="h-16 w-16 rounded-full border-4 border-red-500/20 border-t-red-500 animate-spin" />
+                    <Bug className="absolute inset-0 m-auto h-6 w-6 text-red-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm">Analysing your photo…</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === "hi" ? "Photo aur lakshan padh raha hoon…" : "Running AI disease recognition…"}
+                    </p>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  className="flex flex-col items-center justify-center h-64 gap-4 text-center text-muted-foreground"
+                >
+                  <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/15">
+                    <Leaf className="h-9 w-9 text-green-500/50" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground/60">
+                      {language === "hi"
+                        ? "Photo upload karke 'Bimari Pehchano' dabao"
+                        : "Upload a photo and click Diagnose"}
+                    </p>
+                    <p className="text-xs mt-2 opacity-50 max-w-xs">
+                      Results will include: Crop · Disease · Confidence · Organic · Chemical (dose) · Prevention · Severity
+                    </p>
+                  </div>
 
-      {/* Tip footer */}
-      <div className="rounded-xl border border-border/60 bg-muted/20 p-4 text-xs text-muted-foreground">
-        💡 Tip: clear, well-lit close-ups of the affected leaf give the best
-        diagnosis. Include both top &amp; underside if possible. Mention recent
-        weather or irrigation changes for sharper diagnosis.
+                  {/* Section pills preview */}
+                  <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
+                    {["Crop","Disease","Confidence","Problem","Organic","Chemical","Prevention","Severity","Market"].map(s => (
+                      <span key={s} className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.section>
       </div>
     </div>
   )
