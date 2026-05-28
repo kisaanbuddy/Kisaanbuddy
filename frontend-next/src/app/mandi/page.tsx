@@ -635,7 +635,11 @@ function BuySellPanel({
                     <div className="flex gap-2">
                       <Button
                         className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold shadow-lg shadow-green-500/25"
-                        onClick={() => window.open("https://enam.gov.in/web/dashboard/trade-data", "_blank", "noopener,noreferrer")}
+                        onClick={() => {
+                          const commodity = crop.name.split("(")[0].trim()
+                          const url = `https://enam.gov.in/web/dashboard/trade-data?state=${encodeURIComponent(crop.state)}&commodity=${encodeURIComponent(commodity)}`
+                          window.open(url, "_blank", "noopener,noreferrer")
+                        }}
                       >
                         <CheckCircle2 className="h-4 w-4 mr-1" />
                         {ENAM_LANG[lang].proceed}
