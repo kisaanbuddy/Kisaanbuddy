@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Mic, Send, Bot, User, RefreshCw, MicOff } from "lucide-react"
@@ -29,7 +29,7 @@ const PLACEHOLDER: Record<Lang, string> = {
   "kn-IN": "Kannada nalli keli...",
 }
 
-export default function ChatbotPage() {
+function ChatbotInner() {
   const searchParams = useSearchParams()
   const [lang, setLang] = useState<Lang>("hi-IN")
   const [messages, setMessages] = useState<Message[]>([
@@ -290,5 +290,13 @@ export default function ChatbotPage() {
         </div>
       </GlassCard>
     </div>
+  )
+}
+
+export default function ChatbotPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Loading...</div>}>
+      <ChatbotInner />
+    </Suspense>
   )
 }
