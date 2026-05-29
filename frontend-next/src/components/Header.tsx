@@ -51,7 +51,7 @@ export function Header() {
   }, []);
 
   const isPublic    = PUBLIC_ROUTES.includes(pathname || '');
-  const showFullNav = !isPublic && !!user;
+  const showFullNav = !isPublic;
 
   function isActive(href: string) {
     if (href === '/dashboard') return pathname === '/dashboard';

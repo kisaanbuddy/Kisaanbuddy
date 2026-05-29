@@ -130,7 +130,7 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    if (ready && !user) router.replace("/login")
+    // Guest mode: no forced redirect — show dashboard with save banner
   }, [ready, user, router])
 
   if (!ready || !user) {
@@ -187,6 +187,18 @@ function DashboardInner({ user }: { user: any }) {
 
   return (
     <div className="flex flex-col gap-8 pb-6">
+
+      {/* ── Guest Banner ── */}
+      {!user && (
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/8 dark:bg-amber-500/10 px-5 py-3.5 text-sm">
+          <span className="font-medium text-amber-700 dark:text-amber-300">
+            Bina account ke use kar rahe hain — data save nahi hoga.
+          </span>
+          <a href="/signup" className="shrink-0 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-1.5 transition-colors">
+            Free Account Banao
+          </a>
+        </div>
+      )}
 
       {/* ── GREETING HERO ──────────────────────────── */}
       <motion.div {...fadeUp(0)} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-600 via-emerald-600 to-teal-600 p-7 md:p-10 text-white shadow-2xl shadow-green-500/25">
