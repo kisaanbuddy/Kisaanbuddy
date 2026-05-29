@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
 import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body className={inter.className + " min-h-screen antialiased"}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Header />
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 pt-10 md:pt-14 pb-6">
@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AssistantGate />
           <SwRegister />
           <Analytics />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
