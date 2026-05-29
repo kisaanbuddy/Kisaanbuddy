@@ -5,7 +5,7 @@ import {
   Leaf, Menu, X, LogOut, User as UserIcon,
   LayoutDashboard, CloudSun, Sprout, Bug,
   FileText, TrendingUp, Users, MessageSquare,
-  Star, ChevronDown,
+  Star, ChevronDown, BookOpen, FlaskConical, Landmark,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -17,9 +17,11 @@ const NAV_LINKS = [
   { href: '/weather',        label: 'Weather',        icon: CloudSun        },
   { href: '/crop-predictor', label: 'AI Predictor',   icon: Sprout          },
   { href: '/disease',        label: 'Disease Detect', icon: Bug             },
-  { href: '/schemes',        label: 'Schemes',        icon: FileText        },
+  { href: '/khet-diary',     label: 'Khet Diary',     icon: BookOpen        },
+  { href: '/soil-health',    label: 'Soil Health',    icon: FlaskConical    },
+  { href: '/schemes',        label: 'Schemes',        icon: Landmark        },
   { href: '/mandi',          label: 'Mandi',          icon: TrendingUp      },
-  { href: '/worker-connect', label: 'Worker Connect', icon: Users           },
+  { href: '/worker-connect', label: 'Workers',        icon: Users           },
   { href: '/chatbot',        label: 'AI Chatbot',     icon: MessageSquare   },
 ];
 

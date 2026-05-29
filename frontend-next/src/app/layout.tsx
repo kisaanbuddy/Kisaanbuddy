@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { Header } from '@/components/Header';
 import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
+import { SwRegister } from '@/components/SwRegister';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -14,11 +15,17 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'KrishiAI | Smart Agriculture Platform',
-  description: 'AI-powered smart farming for Indian farmers — disease detection, crop prediction, live mandi prices, weather alerts and more.',
+  description: 'AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts and more.',
   keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan'],
-  icons: { icon: '/favicon.ico' },
+  icons: { icon: '/favicon.ico', apple: '/icon-192.svg' },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'KrishiAI',
+  },
   openGraph: {
-    title: 'KrishiAI — Smart Agriculture Platform',
+    title: 'KrishiAI - Smart Agriculture Platform',
     description: 'Empowering Indian farmers with AI-powered tools',
     type: 'website',
   },
@@ -36,7 +43,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className={`${inter.className} min-h-screen antialiased`}>
+      <body className={inter.className + " min-h-screen antialiased"}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <div className="relative flex min-h-screen flex-col">
             <Header />
@@ -45,6 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
           </div>
           <AssistantGate />
+          <SwRegister />
           <Analytics />
         </ThemeProvider>
       </body>

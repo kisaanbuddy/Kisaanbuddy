@@ -1,0 +1,49 @@
+{
+  "name": "KrishiAI — Smart Farming Assistant",
+  "short_name": "KrishiAI",
+  "description": "AI-powered farming assistant: mandi prices, weather, crop advice, disease detection, worker connect.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030e07",
+  "theme_color": "#10b981",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "agriculture", "utilities"],
+  "lang": "en-IN",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Mandi Prices",
+      "url": "/mandi",
+      "description": "Today's market prices"
+    },
+    {
+      "name": "Weather",
+      "url": "/weather",
+      "description": "Farm weather forecast"
+    },
+    {
+      "name": "Disease Detection",
+      "url": "/disease",
+      "description": "Detect crop disease with AI"
+    },
+    {
+      "name": "Worker Connect",
+      "url": "/worker-connect",
+      "description": "Hire workers or find farm jobs"
+    }
+  ],
+  "screenshots": []
+}
