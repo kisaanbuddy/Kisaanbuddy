@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   Loader2,
   MapPin,
+  MessageCircle,
   Phone,
   Search,
   ShieldAlert,
@@ -675,18 +676,30 @@ function JobCard({
           {job.notes}
         </div>
       )}
-      <div className="pt-1 border-t border-border/60 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-foreground">
+      <div className="pt-1 border-t border-border/60">
+        <div className="flex items-center gap-2 text-foreground mb-2">
           <Phone className="h-4 w-4 text-emerald-500" />
           <span className="font-medium">{job.contact_name}</span>
           <span className="text-muted-foreground">– {job.contact_phone}</span>
         </div>
-        <a
-          href={`tel:${job.contact_phone}`}
-          className="text-xs rounded-md bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-2.5 py-1"
-        >
-          {lblEn("Call", "कॉल", "ಕರೆ")}
-        </a>
+        <div className="flex items-center gap-2">
+          <a
+            href={"tel:" + job.contact_phone}
+            className="flex-1 text-xs rounded-md bg-emerald-500 hover:bg-emerald-600 text-white font-medium px-2.5 py-1.5 flex items-center justify-center gap-1.5"
+          >
+            <Phone className="h-3 w-3" />
+            {lblEn("Call", "कॉल", "ಕರೆ")}
+          </a>
+          <a
+            href={"https://wa.me/" + job.contact_phone.replace(/\D/g, "").replace(/^0/, "91")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 text-xs rounded-md bg-[#25D366] hover:bg-[#1ebe5a] text-white font-medium px-2.5 py-1.5 flex items-center justify-center gap-1.5"
+          >
+            <MessageCircle className="h-3 w-3" />
+            WhatsApp
+          </a>
+        </div>
       </div>
     </div>
   )

@@ -6,7 +6,7 @@ import {
   AlertTriangle, Leaf, ArrowRight, CloudSun, BrainCircuit,
   Thermometer, Droplets, Wind, TrendingUp, Sprout,
   Store, MessageSquare, Bug, ChevronRight, Zap, Activity,
-  Users, Star, Shield,
+  Users, Star, Shield, BookOpen, FlaskConical, Landmark,
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -315,21 +315,41 @@ function DashboardInner({ user }: { user: any }) {
             </CardContent>
           </GlassCard>
 
-          {/* Weather link card */}
-          <GlassCard className="bg-gradient-to-br from-sky-500/10 via-blue-500/5 to-transparent border-sky-500/15">
+          {/* Khet Diary card */}
+          <GlassCard className="bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-transparent border-emerald-500/15">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
-                <CloudSun className="h-4 w-4 text-sky-500" />
-                Weather Intelligence
+                <BookOpen className="h-4 w-4 text-emerald-500" />
+                Khet Diary
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <p className="text-xs text-muted-foreground mb-3">
-                Hourly + 7-day forecast, multi-provider accuracy.
+                Rozaana ka record — sowing, irrigation, disease log karo.
               </p>
-              <Link href="/weather">
-                <Button variant="outline" className="w-full text-sm border-sky-500/30 hover:bg-sky-500/8 gap-2">
-                  Open Weather Hub <ArrowRight className="h-3.5 w-3.5" />
+              <Link href="/khet-diary">
+                <Button className="w-full text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm gap-2">
+                  <BookOpen className="h-4 w-4" /> Open Diary
+                </Button>
+              </Link>
+            </CardContent>
+          </GlassCard>
+
+          {/* Soil Health card */}
+          <GlassCard className="bg-gradient-to-br from-teal-500/10 via-cyan-500/5 to-transparent border-teal-500/15">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <FlaskConical className="h-4 w-4 text-teal-500" />
+                Mitti Jaanch
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground mb-3">
+                NPK + pH daalo — AI fertilizer schedule banega.
+              </p>
+              <Link href="/soil-health">
+                <Button variant="outline" className="w-full text-sm border-teal-500/30 hover:bg-teal-500/8 gap-2">
+                  Check Soil <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>
             </CardContent>
@@ -345,13 +365,17 @@ function DashboardInner({ user }: { user: any }) {
           </h2>
           <span className="text-xs text-muted-foreground">All tools</span>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <FeatureCard delay={0.05} href="/mandi" icon={<Store className="h-5 w-5 text-orange-600" />}
             label="Mandi Rates" desc="Live APMC crop prices" accent="bg-orange-500/10 text-orange-500" />
-          <FeatureCard delay={0.1} href="/schemes" icon={<Star className="h-5 w-5 text-yellow-600" />}
-            label="Schemes" desc="Govt schemes for farmers" accent="bg-yellow-500/10 text-yellow-500" />
-          <FeatureCard delay={0.15} href="/worker-connect" icon={<Users className="h-5 w-5 text-blue-600" />}
-            label="Workers" desc="Find farm labour nearby" accent="bg-blue-500/10 text-blue-500" />
+          <FeatureCard delay={0.08} href="/khet-diary" icon={<BookOpen className="h-5 w-5 text-emerald-600" />}
+            label="Khet Diary" desc="Daily farm activity log" accent="bg-emerald-500/10 text-emerald-500" />
+          <FeatureCard delay={0.1} href="/soil-health" icon={<FlaskConical className="h-5 w-5 text-teal-600" />}
+            label="Soil Health" desc="NPK + fertilizer advice" accent="bg-teal-500/10 text-teal-500" />
+          <FeatureCard delay={0.13} href="/schemes" icon={<Landmark className="h-5 w-5 text-blue-600" />}
+            label="Schemes" desc="Check eligibility + apply" accent="bg-blue-500/10 text-blue-500" />
+          <FeatureCard delay={0.15} href="/worker-connect" icon={<Users className="h-5 w-5 text-violet-600" />}
+            label="Workers" desc="Hire labour via WhatsApp" accent="bg-violet-500/10 text-violet-500" />
           <FeatureCard delay={0.2} href="/chatbot" icon={<MessageSquare className="h-5 w-5 text-purple-600" />}
             label="AI Chatbot" desc="Ask in Hindi / English" accent="bg-purple-500/10 text-purple-500" />
           <FeatureCard delay={0.25} href="/disease" icon={<Bug className="h-5 w-5 text-red-600" />}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Store,
@@ -22,6 +22,10 @@ import {
   Users,
   ArrowUpDown,
   Filter,
+  Bell,
+  BellRing,
+  Plus,
+  Trash2,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -113,6 +117,93 @@ const CATEGORY_COLORS: Record<string, string> = {
   Fiber: "from-blue-500/20 to-indigo-500/20 text-blue-600 dark:text-blue-400",
   Vegetable: "from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-emerald-400",
   "Cash Crop": "from-purple-500/20 to-fuchsia-500/20 text-purple-600 dark:text-purple-400",
+}
+
+/* ------------------------------------------------------------------ */
+/*  Price Alert System                                                 */
+/* ------------------------------------------------------------------ */
+const ALERT_KEY = "krishiai_mandi_alerts"
+interface PriceAlert { id: string; cropName: string; threshold: number; direction: "above" | "below"; createdAt: number; fired?: boolean }
+function readAlerts(): PriceAlert[] { if (typeof window === "undefined") return []; try { return JSON.parse(localStorage.getItem(ALERT_KEY) || "[]") } catch { return [] } }
+function saveAlerts(a: PriceAlert[]) { if (typeof window !== "undefined") localStorage.setItem(ALERT_KEY, JSON.stringify(a)) }
+
+function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
+  const [alerts, setAlerts] = useState<PriceAlert[]>(() => readAlerts())
+  const [showForm, setShowForm] = useState(false)
+  const [newCrop, setNewCrop] = useState("")
+  const [newThreshold, setNewThreshold] = useState("")
+  const [newDir, setNewDir] = useState<"above" | "below">("above")
+  const [permGranted, setPermGranted] = useState(false)
+  const [checking, setChecking] = useState(false)
+  useEffect(() => { if (typeof window !== "undefined" && "Notification" in window) setPermGranted(Notification.permission === "granted") }, [])
+  const requestPerm = async () => { if (!("Notification" in window)) return; const r = await Notification.requestPermission(); setPermGranted(r === "granted") }
+  const addAlert = () => {
+    if (!newCrop || !newThreshold) return
+    const alert: PriceAlert = { id: Date.now().toString(36), cropName: newCrop, threshold: parseFloat(newThreshold), direction: newDir, createdAt: Date.now() }
+    const updated = [...alerts, alert]; setAlerts(updated); saveAlerts(updated); setShowForm(false); setNewCrop(""); setNewThreshold("")
+  }
+  const removeAlert = (id: string) => { const u = alerts.filter((a) => a.id !== id); setAlerts(u); saveAlerts(u) }
+  const checkNow = useCallback(() => {
+    if (!permGranted || crops.length === 0) return; setChecking(true)
+    const updated = alerts.map((alert) => {
+      const match = crops.find((c) => c.name.toLowerCase().includes(alert.cropName.toLowerCase()))
+      if (!match) return alert
+      const triggered = alert.direction === "above" ? match.modal_price >= alert.threshold : match.modal_price <= alert.threshold
+      if (triggered && !alert.fired) { new Notification("KrishiAI Mandi Alert", { body: match.name + " is Rs " + match.modal_price + "/qtl - " + alert.direction + " target Rs " + alert.threshold, icon: "/icon-192.svg" }); return { ...alert, fired: true } }
+      return alert
+    }); setAlerts(updated); saveAlerts(updated); setTimeout(() => setChecking(false), 800)
+  }, [alerts, crops, permGranted])
+  const uniqueCrops = Array.from(new Set(crops.map((c) => c.name))).sort()
+  return (
+    <div className="rounded-2xl border border-amber-200/60 dark:border-amber-500/30 bg-amber-50/60 dark:bg-amber-500/10 p-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/20"><Bell className="h-5 w-5 text-amber-600 dark:text-amber-400" /></div>
+          <div>
+            <div className="font-semibold text-amber-900 dark:text-amber-200 text-sm">Price Alerts</div>
+            <div className="text-xs text-amber-700/70 dark:text-amber-300/70">{alerts.length === 0 ? "Set price targets for your crops" : alerts.length + " alert(s) set"}</div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {!permGranted && <button onClick={requestPerm} className="text-xs rounded-lg bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 flex items-center gap-1.5"><BellRing className="h-3 w-3" /> Enable Notifications</button>}
+          {permGranted && alerts.length > 0 && <button onClick={checkNow} disabled={checking} className="text-xs rounded-lg border border-amber-300/60 px-3 py-1.5 text-amber-700 dark:text-amber-300 flex items-center gap-1.5">{checking ? <Loader2 className="h-3 w-3 animate-spin" /> : <Bell className="h-3 w-3" />} Check Now</button>}
+          <button onClick={() => setShowForm(!showForm)} className="text-xs rounded-lg border border-amber-300/60 px-3 py-1.5 text-amber-700 dark:text-amber-300 flex items-center gap-1.5"><Plus className="h-3 w-3" /> {showForm ? "Cancel" : "New Alert"}</button>
+        </div>
+      </div>
+      {alerts.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {alerts.map((alert) => (
+            <div key={alert.id} className={"flex items-center gap-1.5 text-xs rounded-full px-3 py-1 border " + (alert.fired ? "bg-green-100 dark:bg-green-500/20 border-green-300 text-green-700 dark:text-green-300" : "bg-amber-50 dark:bg-amber-500/10 border-amber-200 text-amber-700 dark:text-amber-300")}>
+              <Bell className="h-3 w-3" />{alert.cropName} {alert.direction === "above" ? ">=" : "<="} Rs {alert.threshold}
+              <button onClick={() => removeAlert(alert.id)} className="ml-1 opacity-60 hover:opacity-100"><X className="h-3 w-3" /></button>
+            </div>
+          ))}
+        </div>
+      )}
+      {showForm && (
+        <div className="mt-3 pt-3 border-t border-amber-200/60 dark:border-amber-500/30 flex flex-wrap gap-2 items-end">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-amber-700/70 mb-1">Crop</div>
+            <select value={newCrop} onChange={(e) => setNewCrop(e.target.value)} className="rounded-lg border border-amber-200/80 dark:border-amber-500/40 bg-white/60 dark:bg-amber-500/10 px-3 py-1.5 text-xs text-foreground">
+              <option value="">Select crop</option>{uniqueCrops.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-amber-700/70 mb-1">When price is</div>
+            <div className="flex gap-1">
+              <button onClick={() => setNewDir("above")} className={"text-xs rounded-l-lg border px-2.5 py-1.5 " + (newDir === "above" ? "bg-amber-500 text-white border-amber-500" : "border-amber-200/80 text-muted-foreground")}>Above</button>
+              <button onClick={() => setNewDir("below")} className={"text-xs rounded-r-lg border px-2.5 py-1.5 " + (newDir === "below" ? "bg-amber-500 text-white border-amber-500" : "border-amber-200/80 text-muted-foreground")}>Below</button>
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] uppercase tracking-wider text-amber-700/70 mb-1">Rs per Qtl</div>
+            <input type="number" value={newThreshold} onChange={(e) => setNewThreshold(e.target.value)} placeholder="e.g. 2000" className="w-24 rounded-lg border border-amber-200/80 dark:border-amber-500/40 bg-white/60 dark:bg-amber-500/10 px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground" />
+          </div>
+          <button onClick={addAlert} disabled={!newCrop || !newThreshold} className="text-xs rounded-lg bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 disabled:opacity-50">+ Set Alert</button>
+        </div>
+      )}
+    </div>
+  )
 }
 
 /* ------------------------------------------------------------------ */
@@ -211,6 +302,9 @@ export default function MandiPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Price Alert Panel */}
+      <PriceAlertPanel crops={crops} />
 
       <AnimatePresence mode="wait">
         {/* ============================================================ */}
