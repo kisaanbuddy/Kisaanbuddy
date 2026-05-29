@@ -10,20 +10,21 @@ import {
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useLanguage, LANG_NAMES, LANG_FLAGS, type Lang } from '@/lib/language';
 import { useAuth, logoutUser } from '@/lib/auth';
 
-const NAV_LINKS = [
-  { href: '/dashboard',      label: 'Dashboard',      icon: LayoutDashboard },
-  { href: '/weather',        label: 'Weather',        icon: CloudSun        },
-  { href: '/crop-predictor', label: 'AI Predictor',   icon: Sprout          },
-  { href: '/disease',        label: 'Disease Detect', icon: Bug             },
-  { href: '/khet-diary',     label: 'Khet Diary',     icon: BookOpen        },
-  { href: '/soil-health',    label: 'Soil Health',    icon: FlaskConical    },
-  { href: '/schemes',        label: 'Schemes',        icon: Landmark        },
-  { href: '/mandi',          label: 'Mandi',          icon: TrendingUp      },
-  { href: '/worker-connect', label: 'Workers',        icon: Users           },
-  { href: '/chatbot',        label: 'AI Chatbot',     icon: MessageSquare   },
-];
+const NAV_LINK_DEFS = [
+  { href: '/dashboard',      key: 'dashboard',      icon: LayoutDashboard },
+  { href: '/weather',        key: 'weather',        icon: CloudSun        },
+  { href: '/crop-predictor', key: 'aiPredictor',    icon: Sprout          },
+  { href: '/disease',        key: 'diseaseDetect',  icon: Bug             },
+  { href: '/khet-diary',     key: 'khetDiary',      icon: BookOpen        },
+  { href: '/soil-health',    key: 'soilHealth',     icon: FlaskConical    },
+  { href: '/schemes',        key: 'schemes',        icon: Landmark        },
+  { href: '/mandi',          key: 'mandi',          icon: TrendingUp      },
+  { href: '/worker-connect', key: 'workers',        icon: Users           },
+  { href: '/chatbot',        key: 'aiChatbot',      icon: MessageSquare   },
+] as const;
 
 const PUBLIC_ROUTES = ['/', '/login', '/signup'];
 
@@ -32,7 +33,10 @@ export function Header() {
   const [scrolled, setScrolled]   = useState(false);
   const pathname                  = usePathname();
   const router                    = useRouter();
-  const { user, ready }           = useAuth();
+  const { user, ready }           = useAuth()
+  const { lang, setLang, t }        = useLanguage()
+  const [langOpen, setLangOpen]     = useState(false)
+  const NAV_LINKS = NAV_LINK_DEFS.map(d => ({ href: d.href, label: t(d.key as any) as string, icon: d.icon }));
 
   /* close drawer on route change */
   useEffect(() => { setOpen(false); }, [pathname]);
@@ -129,13 +133,39 @@ export function Header() {
         <div className="flex items-center gap-1.5 md:gap-2">
           <ThemeToggle />
 
+          {/* Language selector */}
+          <div className="relative">
+            <button
+              onClick={() => setLangOpen(v => !v)}
+              className="flex items-center gap-1 h-8 rounded-lg border border-border/60 bg-background/50 px-2 text-xs font-semibold text-foreground hover:bg-muted/60 transition-colors"
+            >
+              {LANG_FLAGS[lang]} {LANG_NAMES[lang]}
+            </button>
+            {langOpen && (
+              <>
+                <button className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} aria-label="Close" />
+                <div className="absolute right-0 top-10 z-50 w-36 rounded-xl border border-border/60 bg-popover shadow-xl overflow-hidden">
+                  {(Object.keys(LANG_NAMES) as Lang[]).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => { setLang(l); setLangOpen(false) }}
+                      className={"w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors " + (lang === l ? "bg-green-500/10 text-green-600 dark:text-green-400 font-semibold" : "text-foreground")}
+                    >
+                      {LANG_FLAGS[l]} {LANG_NAMES[l]}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Founders link — always visible on desktop */}
           {pathname !== '/founders' && (
             <Link
               href="/founders"
               className="hidden md:inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap px-2 py-1 rounded-lg hover:bg-white/30 dark:hover:bg-white/5"
             >
-              <Star className="h-3 w-3" /> Founders
+              <Star className="h-3 w-3" /> {t("founders")}
             </Link>
           )}
 
