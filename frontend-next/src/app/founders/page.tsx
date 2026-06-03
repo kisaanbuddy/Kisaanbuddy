@@ -13,16 +13,18 @@ type Founder = {
   bio: string
   initials: string
   gradient: string
+  stake: string
 }
 
 const FOUNDERS: Founder[] = [
   {
     name: "Aditya Ishwar",
-    role: "Co-Founder & Lead Engineer",
+    role: "Founder & Lead Engineer",
     email: "adityaoutlier5@gmail.com",
     bio: "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
     initials: "AI",
     gradient: "from-emerald-400 to-green-600",
+    stake: "60% Stake (Majority)",
   },
   {
     name: "Utkarsh Sinha",
@@ -31,6 +33,7 @@ const FOUNDERS: Founder[] = [
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
     gradient: "from-blue-400 to-indigo-600",
+    stake: "10% Stake",
   },
   {
     name: "Ravi Sinha",
@@ -39,6 +42,7 @@ const FOUNDERS: Founder[] = [
     bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
     initials: "RS",
     gradient: "from-amber-400 to-orange-600",
+    stake: "10% Stake",
   },
   {
     name: "Anant Kumar",
@@ -47,6 +51,7 @@ const FOUNDERS: Founder[] = [
     bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
     initials: "AK",
     gradient: "from-purple-400 to-fuchsia-600",
+    stake: "10% Stake",
   },
   {
     name: "Pranit Powar",
@@ -55,6 +60,7 @@ const FOUNDERS: Founder[] = [
     bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
     initials: "PP",
     gradient: "from-rose-400 to-pink-600",
+    stake: "10% Stake",
   },
 ]
 
@@ -177,11 +183,20 @@ function FounderCard({ founder }: { founder: Founder }) {
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${founder.gradient}`} />
 
       <div>
-        {/* Initials badge */}
-        <div
-          className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${founder.gradient} text-lg font-black text-white shadow-lg`}
-        >
-          {founder.initials}
+        {/* Initials badge & Stake Badge */}
+        <div className="flex justify-between items-center mb-6">
+          <div
+            className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${founder.gradient} text-lg font-black text-white shadow-lg`}
+          >
+            {founder.initials}
+          </div>
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold ${
+            founder.name.includes("Aditya") 
+              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/5 animate-pulse-glow" 
+              : "bg-white/5 border border-white/10 text-muted-foreground"
+          }`}>
+            {founder.stake}
+          </span>
         </div>
 
         {/* Name + role */}
