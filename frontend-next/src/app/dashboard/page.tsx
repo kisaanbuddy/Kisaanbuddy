@@ -136,7 +136,9 @@ export default function Dashboard() {
   const router = useRouter()
 
   useEffect(() => {
-    // Guest mode: no forced redirect — show dashboard with save banner
+    if (ready && !user) {
+      router.replace("/login")
+    }
   }, [ready, user, router])
 
   if (!ready || !user) {
