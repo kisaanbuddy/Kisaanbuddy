@@ -137,51 +137,27 @@ def latest_reading(device_id: Optional[str] = None):
     """
     with _lock:
         if not _store:
-            # Fallback to simulated reading so dashboard & predictor work without hardware
-            import math
-            now = time.time()
-            temp_var = 3.0 * math.sin(now / 3600.0)
-            hum_var = 10.0 * math.cos(now / 3600.0)
-            return StoredReading(
-                device_id="krishiai-simulated-node",
-                temperature=round(25.0 + temp_var, 1),
-                humidity=round(70.0 + hum_var, 1),
-                soil_temperature=round(22.0 + temp_var * 0.5, 1),
-                soil_moisture=round(50.0 + hum_var * 0.3, 1),
-                raw_moisture=int(500 + hum_var * 3),
-                received_at=now,
-                age_seconds=0.0
-            )
+            raise HTTPException(status_code=404, detail="No sensor data received yet")
 
         if device_id is not None:
             dq = _store.get(device_id)
             if not dq:
-                if device_id == "krishiai-simulated-node":
-                    import math
-                    now = time.time()
-                    temp_var = 3.0 * math.sin(now / 3600.0)
-                    hum_var = 10.0 * math.cos(now / 3600.0)
-                    return StoredReading(
-                        device_id="krishiai-simulated-node",
-                        temperature=round(25.0 + temp_var, 1),
-                        humidity=round(70.0 + hum_var, 1),
-                        soil_temperature=round(22.0 + temp_var * 0.5, 1),
-                        soil_moisture=round(50.0 + hum_var * 0.3, 1),
-                        raw_moisture=int(500 + hum_var * 3),
-                        received_at=now,
-                        age_seconds=0.0
-                    )
                 raise HTTPException(
                     status_code=404,
                     detail=f"No data for device_id '{device_id}'",
                 )
-            return _decorate(dq[-1])
+            newest = dq[-1]
+            if time.time() - newest["received_at"] > ONLINE_WINDOW_S:
+                raise HTTPException(status_code=404, detail="Sensor offline (stale)")
+            return _decorate(newest)
 
         # Newest reading across every device
         newest = max(
             (dq[-1] for dq in _store.values() if dq),
             key=lambda r: r["received_at"],
         )
+        if time.time() - newest["received_at"] > ONLINE_WINDOW_S:
+            raise HTTPException(status_code=404, detail="All sensors are offline (stale)")
         return _decorate(newest)
 
 
@@ -191,27 +167,6 @@ def reading_history(device_id: str, limit: int = 20):
     with _lock:
         dq = _store.get(device_id)
         if not dq:
-            if device_id == "krishiai-simulated-node":
-                import math
-                now = time.time()
-                items = []
-                for i in range(min(limit, 10)):
-                    t = now - (9 - i) * 15
-                    temp_var = 3.0 * math.sin(t / 3600.0)
-                    hum_var = 10.0 * math.cos(t / 3600.0)
-                    items.append(
-                        StoredReading(
-                            device_id="krishiai-simulated-node",
-                            temperature=round(25.0 + temp_var, 1),
-                            humidity=round(70.0 + hum_var, 1),
-                            soil_temperature=round(22.0 + temp_var * 0.5, 1),
-                            soil_moisture=round(50.0 + hum_var * 0.3, 1),
-                            raw_moisture=int(500 + hum_var * 3),
-                            received_at=t,
-                            age_seconds=round(now - t, 1)
-                        )
-                    )
-                return items
             raise HTTPException(
                 status_code=404, detail=f"No data for device_id '{device_id}'"
             )
@@ -235,16 +190,6 @@ def sensor_health():
                     online=last_seen <= ONLINE_WINDOW_S,
                     last_seen_seconds=round(last_seen, 1),
                     readings_stored=len(dq),
-                )
-            )
-        if not devices:
-            # Add simulated node to health if no real hardware is connected
-            devices.append(
-                DeviceStatus(
-                    device_id="krishiai-simulated-node",
-                    online=True,
-                    last_seen_seconds=0.0,
-                    readings_stored=1,
                 )
             )
     return HealthResponse(devices=devices, server_time=now)
