@@ -19,7 +19,7 @@ type Founder = {
 const FOUNDERS: Founder[] = [
   {
     name: "Aditya Ishwar",
-    role: "Founder & Lead Engineer",
+    role: "Founder, CEO & Chief Architect (Head of KrishiAI)",
     email: "adityaoutlier5@gmail.com",
     bio: "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
     initials: "AI",
@@ -28,7 +28,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Utkarsh Sinha",
-    role: "Co-Founder & ML / Data Science",
+    role: "Co-Founder & ML Lead (Reporting to CEO)",
     email: "utkarsh.sinha.dev@gmail.com",
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
@@ -37,7 +37,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Ravi Sinha",
-    role: "Co-Founder & Operations",
+    role: "Co-Founder & Operations Lead (Reporting to CEO)",
     email: "sinharavi7088@gmail.com",
     bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
     initials: "RS",
@@ -46,7 +46,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Anant Kumar",
-    role: "Co-Founder & Product",
+    role: "Co-Founder & Product Lead (Reporting to CEO)",
     email: "anant97715@gmail.com",
     bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
     initials: "AK",
@@ -55,7 +55,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Pranit Powar",
-    role: "Co-Founder & Customer Support",
+    role: "Co-Founder & Support Lead (Reporting to CEO)",
     email: "pranitpowar1248@gmail.com",
     bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
     initials: "PP",
@@ -101,20 +101,23 @@ export default function FoundersPage() {
         </div>
       </section>
 
-      {/* FOUNDERS GRID =================================================== */}
       <section className="px-6 md:px-12 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {FOUNDERS.map((f, i) => (
-              <motion.div 
-                key={f.email}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.08 }}
-              >
-                <FounderCard founder={f} />
-              </motion.div>
-            ))}
+            {FOUNDERS.map((f, i) => {
+              const isCEO = f.name.includes("Aditya");
+              return (
+                <motion.div 
+                  key={f.email}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.08 }}
+                  className={isCEO ? "md:col-span-2 lg:col-span-3" : ""}
+                >
+                  <FounderCard founder={f} />
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -177,8 +180,13 @@ export default function FoundersPage() {
 }
 
 function FounderCard({ founder }: { founder: Founder }) {
+  const isCEO = founder.name.includes("Aditya");
   return (
-    <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.08] backdrop-blur-md shadow-lg hover:shadow-2xl hover:border-emerald-500/20 transition-all duration-300 bg-slate-950/20 p-6 md:p-8">
+    <GlassCard className={`h-full flex flex-col justify-between group overflow-hidden relative border backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300 p-6 md:p-8 ${
+      isCEO 
+        ? "border-emerald-500/35 bg-gradient-to-br from-[#051a0f]/80 via-[#030c07]/90 to-slate-950/90 shadow-emerald-950/20" 
+        : "border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/20"
+    }`}>
       {/* Top accent bar */}
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${founder.gradient}`} />
 
