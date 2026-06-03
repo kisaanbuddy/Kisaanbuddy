@@ -1,30 +1,50 @@
 "use client";
 
-/**
- * Lightweight client-side auth — stores user records + active session
- * in localStorage. Signup creates a real record; login verifies email +
- * password against that record. Replace with a real backend (NextAuth,
- * Supabase, Firebase Auth) for production scale.
- */
-
 import { useEffect, useState } from "react";
 
 const SESSION_KEY = "krishi_user";
-const USERS_KEY = "krishi_users";
+const TOKEN_KEY = "krishi_token";
 const EVENT_NAME = "krishi-auth-change";
 
 export type AuthUser = {
+  id: number;
   email: string;
   name?: string;
-  loginAt: number;
+  phone_number: string;
+  role: string;
+  provider: string;
+  profile_image?: string;
+  created_at: string;
+  last_login_at?: string;
+  last_seen_at?: string;
 };
 
-type RegisteredUser = {
-  email: string;
-  password: string; // demo-only — real backend would hash this server-side
-  name: string;
-  createdAt: number;
-};
+export type RegisterResult = { ok: true } | { ok: false; error: string };
+export type LoginResult =
+  | { ok: true; name?: string; user: AuthUser }
+  | { ok: false; error: string };
+
+// Helper to get authorization headers
+export function getAuthHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (typeof window !== "undefined") {
+    const token = window.localStorage.getItem(TOKEN_KEY);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+  return headers;
+}
+
+export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
+  const headers = {
+    ...getAuthHeaders(),
+    ...(options.headers || {}),
+  };
+  return fetch(url, { ...options, headers });
+}
 
 // ---------------------- low-level storage helpers ----------------------
 
@@ -39,45 +59,25 @@ function readSession(): AuthUser | null {
   }
 }
 
-function writeSession(user: AuthUser | null) {
+function writeSession(user: AuthUser | null, token: string | null) {
   if (typeof window === "undefined") return;
-  if (user) {
+  if (user && token) {
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    window.localStorage.setItem(TOKEN_KEY, token);
   } else {
     window.localStorage.removeItem(SESSION_KEY);
+    window.localStorage.removeItem(TOKEN_KEY);
   }
   window.dispatchEvent(new Event(EVENT_NAME));
 }
 
-function readAllUsers(): RegisteredUser[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(USERS_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as RegisteredUser[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function writeAllUsers(users: RegisteredUser[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
 // ---------------------- public API -------------------------------------
 
-export type RegisterResult = { ok: true } | { ok: false; error: string };
-export type LoginResult =
-  | { ok: true; name?: string }
-  | { ok: false; error: string };
-
-export function registerUser(
+export async function registerUser(
   email: string,
   password: string,
   name: string
-): RegisterResult {
+): Promise<RegisterResult> {
   const cleanEmail = email.trim().toLowerCase();
   const cleanName = name.trim();
   if (!cleanEmail || !password || !cleanName) {
@@ -90,50 +90,80 @@ export function registerUser(
     return { ok: false, error: "Password must be at least 4 characters." };
   }
 
-  const users = readAllUsers();
-  if (users.find((u) => u.email === cleanEmail)) {
-    return {
-      ok: false,
-      error: "An account with this email already exists. Please sign in instead.",
-    };
-  }
-  users.push({
-    email: cleanEmail,
-    password,
-    name: cleanName,
-    createdAt: Date.now(),
-  });
-  writeAllUsers(users);
+  try {
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: cleanEmail, password, name: cleanName }),
+    });
 
-  // Auto-login the new user.
-  writeSession({ email: cleanEmail, name: cleanName, loginAt: Date.now() });
-  return { ok: true };
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.detail || "Registration failed. Please try again." };
+    }
+
+    // Auto-login the new user after successful registration
+    return await verifyAndLogin(cleanEmail, password);
+  } catch (error) {
+    return { ok: false, error: "Network error. Please try again later." };
+  }
 }
 
-export function verifyAndLogin(email: string, password: string): LoginResult {
+export async function verifyAndLogin(email: string, password: string): Promise<LoginResult> {
   const cleanEmail = email.trim().toLowerCase();
   if (!cleanEmail || !password) {
     return { ok: false, error: "Please enter both email and password." };
   }
 
-  const users = readAllUsers();
-  const user = users.find((u) => u.email === cleanEmail);
-  if (!user) {
-    return {
-      ok: false,
-      error: "No account found with this email. Please sign up first.",
-    };
-  }
-  if (user.password !== password) {
-    return { ok: false, error: "Incorrect password. Please try again." };
-  }
+  try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: cleanEmail, password }),
+    });
 
-  writeSession({ email: user.email, name: user.name, loginAt: Date.now() });
-  return { ok: true, name: user.name };
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.detail || "Invalid email or password." };
+    }
+
+    const { token, user } = data;
+    writeSession(user, token);
+    return { ok: true, name: user.name, user };
+  } catch (error) {
+    return { ok: false, error: "Network error. Please try again later." };
+  }
 }
 
-export function logoutUser() {
-  writeSession(null);
+export async function googleLogin(credential: string): Promise<LoginResult> {
+  try {
+    const response = await fetch("/api/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.detail || "Google authentication failed." };
+    }
+
+    const { token, user } = data;
+    writeSession(user, token);
+    return { ok: true, name: user.name, user };
+  } catch (error) {
+    return { ok: false, error: "Network error. Please try again later." };
+  }
+}
+
+export async function logoutUser() {
+  try {
+    await fetchWithAuth("/api/auth/logout", { method: "POST" });
+  } catch (error) {
+    console.error("Logout request failed", error);
+  } finally {
+    writeSession(null, null);
+  }
 }
 
 export function getCurrentUser(): AuthUser | null {
@@ -146,13 +176,62 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setUser(readSession());
-    setReady(true);
+    let active = true;
 
-    const handler = () => setUser(readSession());
+    // Check if session exists in localStorage first for immediate UI paint
+    const localUser = readSession();
+    if (localUser) {
+      setUser(localUser);
+    }
+
+    // Verify session integrity with the backend
+    async function verifySession() {
+      const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
+      if (!token) {
+        if (active) {
+          setUser(null);
+          setReady(true);
+        }
+        return;
+      }
+
+      try {
+        const response = await fetchWithAuth("/api/auth/me");
+        if (response.ok) {
+          const userData = await response.json();
+          if (active) {
+            setUser(userData);
+            window.localStorage.setItem(SESSION_KEY, JSON.stringify(userData));
+          }
+        } else {
+          // Session expired or invalid on backend
+          if (active) {
+            setUser(null);
+            writeSession(null, null);
+          }
+        }
+      } catch (error) {
+        // network failure, we can keep the local session but flag it or proceed
+        console.warn("Backend auth verification failed, using local session state.", error);
+      } finally {
+        if (active) {
+          setReady(true);
+        }
+      }
+    }
+
+    verifySession();
+
+    const handler = () => {
+      if (active) {
+        setUser(readSession());
+      }
+    };
     window.addEventListener(EVENT_NAME, handler);
     window.addEventListener("storage", handler);
+
     return () => {
+      active = false;
       window.removeEventListener(EVENT_NAME, handler);
       window.removeEventListener("storage", handler);
     };

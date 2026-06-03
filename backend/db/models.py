@@ -7,12 +7,12 @@ from datetime import datetime
 
 try:
     from sqlalchemy import (
-        Column, Integer, String, Float, Text, DateTime, Date, ForeignKey,
+        Column, Integer, String, Float, Text, DateTime, Date, ForeignKey, Boolean,
     )
     from sqlalchemy.orm import relationship
 except ImportError:
     # SQLAlchemy optional; module importable so schema tools can still run.
-    Column = Integer = String = Float = Text = DateTime = Date = ForeignKey = None  # type: ignore
+    Column = Integer = String = Float = Text = DateTime = Date = ForeignKey = Boolean = None  # type: ignore
     relationship = lambda *a, **k: None  # type: ignore
 
 from db.session import Base
@@ -23,13 +23,23 @@ if Column is not None:
     class User(Base):  # type: ignore[misc]
         __tablename__ = "users"
         id = Column(Integer, primary_key=True, index=True)
-        phone_number = Column(String(15), unique=True, nullable=False, index=True)
+        phone_number = Column(String(50), unique=True, nullable=False, index=True)
         name = Column(String(100))
+        email = Column(String(255), unique=True, index=True, nullable=True)
+        email_verified = Column(Boolean, default=False)
+        password_hash = Column(String(255), nullable=True)
+        provider = Column(String(50), default="email")
+        provider_id = Column(String(255), unique=True, index=True, nullable=True)
+        profile_image = Column(Text, nullable=True)
+        role = Column(String(50), default="Farmer")
+        is_active = Column(Boolean, default=True)
         language = Column(String(10), default="en")
-        # location stored as lat/lon for MVP; use PostGIS GEOGRAPHY in prod
         lat = Column(Float)
         lon = Column(Float)
         created_at = Column(DateTime, default=datetime.utcnow)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+        last_login_at = Column(DateTime, nullable=True)
+        last_seen_at = Column(DateTime, nullable=True)
 
         fields = relationship("FarmerField", back_populates="user")
 
