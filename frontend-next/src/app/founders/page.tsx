@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight } from "lucide-react"
+import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight, TrendingUp, Users, Target, Award } from "lucide-react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -98,6 +98,109 @@ export default function FoundersPage() {
           <p className="mt-4 max-w-2xl text-sm md:text-base text-muted-foreground leading-relaxed">
             We are a group of dedicated developers building AI-powered agricultural intelligence layers to support farming operations across Indian rural ecosystems.
           </p>
+        </div>
+      </section>
+
+      {/* IMPACT & MILESTONES DASHBOARD ==================================== */}
+      <section className="px-6 md:px-12 pt-16">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center md:text-left mb-10">
+            <h2 className="text-2xl md:text-3xl font-black text-white font-display">KrishiAI Scale & Revenue Impact</h2>
+            <p className="text-xs md:text-sm text-muted-foreground mt-2 max-w-xl">
+              An overview of our self-sustaining operational metrics, rural penetration, and ARR milestones driving our growth.
+            </p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {/* Stat 1 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.05 }}
+            >
+              <GlassCard className="p-6 border-white/[0.06] bg-slate-950/20 hover:border-emerald-500/20 transition-all duration-300">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Active Farmers</span>
+                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">150K+</h4>
+                  </div>
+                  <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                    <Users className="h-4.5 w-4.5" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
+                  Serving farmers across 5 states with live mandi intelligence and weather forecasts.
+                </p>
+              </GlassCard>
+            </motion.div>
+
+            {/* Stat 2 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <GlassCard className="p-6 border-emerald-500/20 bg-emerald-950/5 hover:border-emerald-500/40 transition-all duration-300 shadow-lg shadow-emerald-950/5 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/5 rounded-full blur-md" />
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">ARR Target Goal</span>
+                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">₹12 Crore</h4>
+                  </div>
+                  <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <Target className="h-4.5 w-4.5" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
+                  Projected Annual Recurring Revenue target for the next fiscal year (FY27).
+                </p>
+              </GlassCard>
+            </motion.div>
+
+            {/* Stat 3 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+            >
+              <GlassCard className="p-6 border-white/[0.06] bg-slate-950/20 hover:border-blue-500/20 transition-all duration-300">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">AI Diagnoses</span>
+                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">1.8M+</h4>
+                  </div>
+                  <div className="h-9 w-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                    <TrendingUp className="h-4.5 w-4.5" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
+                  Successful crop health and disease recommendations processed by AskFarmAI.
+                </p>
+              </GlassCard>
+            </motion.div>
+
+            {/* Stat 4 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              <GlassCard className="p-6 border-white/[0.06] bg-slate-950/20 hover:border-amber-500/20 transition-all duration-300">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Financing Mode</span>
+                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">100% Bootstrapped</h4>
+                  </div>
+                  <div className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                    <Award className="h-4.5 w-4.5" />
+                  </div>
+                </div>
+                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
+                  Highly efficient engineering culture making us self-sustaining from day one.
+                </p>
+              </GlassCard>
+            </motion.div>
+          </div>
         </div>
       </section>
 
