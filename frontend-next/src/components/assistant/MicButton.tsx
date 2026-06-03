@@ -21,15 +21,15 @@ export function MicButton({
       disabled={disabled}
       aria-pressed={listening}
       aria-label={listening ? "Stop listening" : "Start voice input"}
-      className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-all ${
+      className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
         listening
-          ? "bg-red-500 text-white shadow-lg shadow-red-500/40"
-          : "bg-green-500 text-white shadow hover:bg-green-600"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+          ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20 ring-2 ring-rose-500/20"
+          : "bg-emerald-500 hover:bg-emerald-600 text-white shadow hover:shadow-emerald-500/10"
+      } ${disabled ? "opacity-40 cursor-not-allowed" : ""}`}
     >
-      {listening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+      {listening ? <MicOff className="h-4.5 w-4.5" /> : <Mic className="h-4.5 w-4.5" />}
       {listening && (
-        <span className="absolute inset-0 rounded-full animate-ping bg-red-500/40" />
+        <span className="absolute inset-0 rounded-xl animate-ping bg-rose-500/30" />
       )}
     </button>
   )

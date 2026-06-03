@@ -32,19 +32,19 @@ export function DailyForecast({ days, loading }: Props) {
   const span = Math.max(globalMax - globalMin, 1)
 
   return (
-    <GlassCard>
+    <GlassCard className="bg-gradient-to-br from-teal-500/5 via-sky-500/2 to-transparent border-teal-500/10">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">{days.length || 5}-Day Forecast</CardTitle>
+        <CardTitle className="text-xs md:text-sm font-display text-foreground font-bold">{days.length || 5}-Day Forecast</CardTitle>
       </CardHeader>
       <CardContent>
         {loading && days.length === 0 ? (
           <SkeletonList count={5} />
         ) : days.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
+          <p className="py-6 text-center text-xs text-muted-foreground">
             No forecast data available.
           </p>
         ) : (
-          <ul className="divide-y divide-white/10">
+          <ul className="divide-y divide-border/20">
             {days.map((d, i) => {
               const tMin = pickTemp(d.temp_min_c, d.temp_min_f, unit)
               const tMax = pickTemp(d.temp_max_c, d.temp_max_f, unit)
@@ -55,42 +55,42 @@ export function DailyForecast({ days, loading }: Props) {
                   key={d.date}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04, duration: 0.25 }}
-                  className="grid grid-cols-[92px_40px_1fr_88px] items-center gap-3 py-3 text-sm md:grid-cols-[120px_48px_1fr_120px]"
+                  transition={{ delay: i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="grid grid-cols-[92px_40px_1fr_88px] items-center gap-3 py-3.5 text-xs md:grid-cols-[120px_48px_1fr_120px] select-none"
                 >
-                  <span className="font-medium">{dayLabel(d.date, i)}</span>
+                  <span className="font-semibold text-foreground/90">{dayLabel(d.date, i)}</span>
                   <ConditionIcon
                     condition={d.condition}
-                    className="h-6 w-6 text-blue-400"
+                    className="h-5 w-5 text-sky-400 animate-float"
                   />
                   <div
-                    className="relative h-1.5 rounded-full bg-white/10 dark:bg-black/30"
+                    className="relative h-1.5 rounded-full bg-secondary/50 border border-border/20 shadow-inner"
                     aria-label={`Temperatures ${Math.round(tMin)} to ${Math.round(tMax)}`}
                   >
                     <div
-                      className="absolute top-0 h-1.5 rounded-full bg-gradient-to-r from-cyan-400 via-amber-400 to-red-500"
+                      className="absolute top-0 h-full rounded-full bg-gradient-to-r from-sky-400 via-amber-400 to-emerald-500 shadow-sm"
                       style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
                     />
                   </div>
-                  <div className="flex items-center justify-end gap-2 font-semibold">
+                  <div className="flex items-center justify-end gap-2 font-bold text-xs">
                     <span className="text-muted-foreground">{Math.round(tMin)}°</span>
-                    <span>{Math.round(tMax)}°</span>
+                    <span className="text-foreground">{Math.round(tMax)}°</span>
                   </div>
                   {(d.chance_of_rain != null || d.wind_kph != null) && (
-                    <div className="col-span-full flex items-center justify-end gap-3 pr-1 text-[11px] text-muted-foreground">
-                      {d.chance_of_rain != null && (
-                        <span className="flex items-center gap-1 text-cyan-500">
+                    <div className="col-span-full flex items-center justify-end gap-3.5 pr-1 text-[10px] font-medium text-muted-foreground/80">
+                      {d.chance_of_rain != null && d.chance_of_rain > 0 && (
+                        <span className="flex items-center gap-1 text-teal-400">
                           <Droplet className="h-3 w-3" />
-                          {d.chance_of_rain}%
+                          {d.chance_of_rain}% chance of rain
                         </span>
                       )}
                       {d.wind_kph != null && (
                         <span className="flex items-center gap-1">
-                          <Wind className="h-3 w-3" />
-                          {d.wind_kph.toFixed(0)} km/h
+                          <Wind className="h-3 w-3 text-sky-400" />
+                          {d.wind_kph.toFixed(0)} km/h wind
                         </span>
                       )}
-                      <span className="capitalize">{d.condition}</span>
+                      <span className="capitalize font-semibold text-foreground/70">{d.condition}</span>
                     </div>
                   )}
                 </motion.li>
@@ -107,7 +107,7 @@ function SkeletonList({ count }: { count: number }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="h-10 animate-pulse rounded-lg bg-white/5 dark:bg-black/20" />
+        <div key={i} className="h-10 animate-pulse rounded-xl bg-muted/30" />
       ))}
     </div>
   )

@@ -82,27 +82,27 @@ export function Header() {
     <>
       <header
         className={`sticky top-3 z-50 mx-3 md:mx-auto max-w-7xl w-[calc(100%-1.5rem)] md:w-full
-          flex items-center justify-between px-3 md:px-5 transition-all duration-300
+          flex items-center justify-between px-4 md:px-6 transition-all duration-500 rounded-2xl
           ${scrolled
-            ? 'glass-panel h-14 shadow-lg shadow-black/10'
-            : 'glass-panel h-16'
+            ? 'glass-panel h-14 shadow-lg shadow-black/5 dark:shadow-emerald-950/5 backdrop-blur-xl border-emerald-500/10'
+            : 'glass-panel h-16 border-transparent bg-transparent backdrop-blur-none shadow-none'
           }`}
       >
         {/* ── Logo ── */}
         <Link
           href={user ? '/dashboard' : '/'}
           onClick={() => setOpen(false)}
-          className="flex items-center gap-2.5 shrink-0 group"
+          className="flex items-center gap-2.5 shrink-0 group select-none"
         >
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-md shadow-green-500/30 group-hover:scale-110 transition-transform duration-200">
+          <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-md shadow-emerald-500/25 group-hover:scale-105 group-hover:shadow-glow-primary transition-all duration-300">
             <Leaf className="h-4.5 w-4.5 text-white" style={{ height: '1.1rem', width: '1.1rem' }} />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-extrabold text-lg tracking-tight">
-              Krishi<span className="text-green-500">AI</span>
+            <span className="font-display font-extrabold text-lg tracking-tight">
+              Krishi<span className="text-emerald-500 dark:text-emerald-400">AI</span>
             </span>
             {isPublic && !user && (
-              <span className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">
+              <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/80">
                 Smart Farming
               </span>
             )}
@@ -111,18 +111,18 @@ export function Header() {
 
         {/* ── Desktop Nav ── */}
         {showFullNav && (
-          <nav className="hidden lg:flex items-center gap-0.5 text-sm font-medium">
+          <nav className="hidden lg:flex items-center gap-1.5 text-xs font-semibold">
             {NAV_LINKS.map(({ href, label, icon: Icon }) => (
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-150
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300
                   ${isActive(href)
-                    ? 'bg-green-500/12 text-green-600 dark:text-green-400 font-semibold'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-white/40 dark:hover:bg-white/5'
+                    ? 'glass-pill-active text-emerald-500 font-bold scale-[1.02]'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-background/40 dark:hover:bg-white/5'
                   }`}
               >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
+                <Icon className="h-3.5 w-3.5 shrink-0 transition-transform duration-300 group-hover:scale-110" />
                 {label}
               </Link>
             ))}
@@ -137,21 +137,23 @@ export function Header() {
           <div className="relative">
             <button
               onClick={() => setLangOpen(v => !v)}
-              className="flex items-center gap-1 h-8 rounded-lg border border-border/60 bg-background/50 px-2 text-xs font-semibold text-foreground hover:bg-muted/60 transition-colors"
+              className="flex items-center gap-1 h-9 rounded-xl border border-border/40 bg-background/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted/40 transition-all duration-200 backdrop-blur-sm select-none"
             >
-              {LANG_FLAGS[lang]} {LANG_NAMES[lang]}
+              <span className="mr-0.5">{LANG_FLAGS[lang]}</span>
+              <span>{LANG_NAMES[lang]}</span>
+              <ChevronDown className={`h-3 w-3 text-muted-foreground/75 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
             </button>
             {langOpen && (
               <>
                 <button className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} aria-label="Close" />
-                <div className="absolute right-0 top-10 z-50 w-36 rounded-xl border border-border/60 bg-popover shadow-xl overflow-hidden">
+                <div className="absolute right-0 top-11 z-50 w-38 rounded-xl border border-border/40 bg-popover/90 backdrop-blur-md shadow-xl overflow-hidden animate-fade-in p-1">
                   {(Object.keys(LANG_NAMES) as Lang[]).map((l) => (
                     <button
                       key={l}
                       onClick={() => { setLang(l); setLangOpen(false) }}
-                      className={"w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-muted/60 transition-colors " + (lang === l ? "bg-green-500/10 text-green-600 dark:text-green-400 font-semibold" : "text-foreground")}
+                      className={"w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors " + (lang === l ? "bg-emerald-500/10 text-emerald-500 font-semibold" : "text-foreground hover:bg-muted/50")}
                     >
-                      {LANG_FLAGS[l]} {LANG_NAMES[l]}
+                      <span>{LANG_FLAGS[l]}</span> <span>{LANG_NAMES[l]}</span>
                     </button>
                   ))}
                 </div>
@@ -163,9 +165,9 @@ export function Header() {
           {pathname !== '/founders' && (
             <Link
               href="/founders"
-              className="hidden md:inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors whitespace-nowrap px-2 py-1 rounded-lg hover:bg-white/30 dark:hover:bg-white/5"
+              className="hidden md:inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-emerald-500 transition-colors whitespace-nowrap px-3 py-2 rounded-xl hover:bg-background/40 dark:hover:bg-white/5 select-none"
             >
-              <Star className="h-3 w-3" /> {t("founders")}
+              <Star className="h-3 w-3 text-amber-500 animate-pulse-glow rounded-full" /> {t("founders")}
             </Link>
           )}
 
@@ -173,10 +175,9 @@ export function Header() {
           {ready && !user && isPublic && pathname !== '/login' && (
             <Link
               href="/login"
-              className="inline-flex items-center justify-center rounded-full px-4 py-1.5 text-sm font-semibold text-white shadow transition-all
-                bg-gradient-to-r from-green-500 to-emerald-600
-                hover:from-green-600 hover:to-emerald-700 hover:shadow-lg hover:shadow-green-500/25
-                active:scale-95"
+              className="inline-flex items-center justify-center rounded-xl px-4 py-2 text-xs font-semibold text-white shadow-md transition-all duration-300
+                bg-gradient-to-r from-emerald-500 to-teal-500
+                hover:shadow-glow-primary hover:brightness-105 active:scale-95 select-none"
             >
               Login
             </Link>
@@ -184,20 +185,20 @@ export function Header() {
 
           {/* Logged-in user badge */}
           {ready && user && showFullNav && (
-            <div className="hidden md:flex items-center gap-1.5">
-              <div className="flex items-center gap-2 rounded-full border border-green-500/20 bg-green-500/8 dark:bg-green-500/10 px-3 py-1.5 text-sm cursor-default">
-                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white text-[10px] font-bold shrink-0">
+            <div className="hidden md:flex items-center gap-1">
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/10 bg-emerald-500/5 dark:bg-emerald-500/5 px-2.5 py-1.5 text-xs cursor-default">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-[9px] font-extrabold shrink-0 shadow shadow-emerald-500/20">
                   {initials}
                 </div>
-                <span className="font-medium max-w-[100px] truncate">
+                <span className="font-semibold text-muted-foreground max-w-[90px] truncate">
                   {user.name || user.email.split('@')[0]}
                 </span>
               </div>
               <button
                 onClick={handleLogout}
                 title="Sign out"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground
-                  hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground border border-transparent
+                  hover:bg-red-500/10 hover:border-red-500/15 hover:text-red-500 transition-colors duration-200"
               >
                 <LogOut className="h-3.5 w-3.5" />
               </button>
@@ -211,7 +212,7 @@ export function Header() {
               aria-label={open ? 'Close menu' : 'Open menu'}
               aria-expanded={open}
               onClick={() => setOpen(v => !v)}
-              className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg
+              className="lg:hidden flex h-9 w-9 items-center justify-center rounded-xl border border-border/40 bg-background/30 backdrop-blur-sm
                 text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-colors"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -227,27 +228,27 @@ export function Header() {
           <button
             type="button"
             aria-label="Close menu"
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden cursor-default"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-md lg:hidden cursor-default transition-all duration-300"
             onClick={() => setOpen(false)}
           />
 
           {/* Drawer panel */}
           <nav
-            className="fixed top-[4.5rem] left-3 right-3 z-50 lg:hidden glass-panel p-3 flex flex-col gap-0.5 animate-slide-up max-h-[80vh] overflow-y-auto"
+            className="fixed top-[4.5rem] left-3 right-3 z-50 lg:hidden glass-panel rounded-2xl p-4 flex flex-col gap-1.5 animate-slide-up max-h-[82vh] overflow-y-auto border-emerald-500/10 shadow-2xl"
             aria-label="Mobile navigation"
           >
             {showFullNav ? (
               <>
                 {/* User info row */}
-                <div className="flex items-center gap-3 px-3 py-3 mb-1 rounded-xl bg-green-500/8 dark:bg-green-500/10 border border-green-500/15">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white text-sm font-bold shrink-0">
+                <div className="flex items-center gap-3 px-3 py-3 mb-2 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/5 border border-emerald-500/10">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-sm font-bold shrink-0 shadow shadow-emerald-500/25">
                     {initials}
                   </div>
                   <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-sm truncate">
                       {user?.name || user?.email?.split('@')[0]}
                     </span>
-                    <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                    <span className="text-[10px] text-muted-foreground truncate">{user?.email}</span>
                   </div>
                 </div>
 
@@ -259,15 +260,15 @@ export function Header() {
                       key={href}
                       href={href}
                       onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all
+                      className={`flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold transition-all duration-200
                         ${active
-                          ? 'bg-green-500/12 text-green-600 dark:text-green-400'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-white/30 dark:hover:bg-white/5'
+                          ? 'glass-pill-active text-emerald-500'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5'
                         }`}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
+                      <Icon className="h-4 w-4 shrink-0 text-emerald-500" />
                       {label}
-                      {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-green-500" />}
+                      {active && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-glow" />}
                     </Link>
                   );
                 })}
@@ -276,19 +277,19 @@ export function Header() {
                 <Link
                   href="/founders"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/30 dark:hover:bg-white/5 transition-all"
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5 transition-all duration-200"
                 >
-                  <Star className="h-4 w-4 shrink-0" />
+                  <Star className="h-4 w-4 shrink-0 text-amber-500" />
                   Founders
                 </Link>
 
-                <div className="my-1 divider-gradient" />
+                <div className="my-2 divider-gradient" />
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-colors"
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold text-red-500 hover:bg-red-500/5 border border-transparent hover:border-red-500/10 transition-all duration-200"
                 >
-                  <LogOut className="h-4 w-4 shrink-0" />
+                  <LogOut className="h-4 w-4 shrink-0 text-red-500" />
                   Sign out
                 </button>
               </>
@@ -297,23 +298,23 @@ export function Header() {
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-green-500/25"
+                  className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3 text-center text-xs font-semibold text-white shadow-lg shadow-emerald-500/25"
                 >
                   Login
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setOpen(false)}
-                  className="rounded-xl border-2 border-green-500 px-4 py-3 text-center text-sm font-semibold text-green-600 dark:text-green-400 hover:bg-green-500/5 transition-colors"
+                  className="rounded-xl border border-emerald-500/30 px-4 py-3 text-center text-xs font-semibold text-emerald-500 hover:bg-emerald-500/5 transition-colors"
                 >
                   Sign Up Free
                 </Link>
                 <Link
                   href="/founders"
                   onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3 text-center text-sm font-medium text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                  className="rounded-xl px-4 py-3 text-center text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
                 >
-                  <Star className="h-4 w-4" /> Meet the Founders
+                  <Star className="h-4 w-4 text-amber-500" /> Meet the Founders
                 </Link>
               </>
             )}

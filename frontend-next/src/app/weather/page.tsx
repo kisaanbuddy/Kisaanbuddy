@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion } from "framer-motion"
 import { CloudSun, Info } from "lucide-react"
+import { useLanguage } from '@/lib/language'
 
 import {
   getCurrentByCoords,
@@ -29,6 +30,7 @@ interface ActiveLocation {
 }
 
 export default function WeatherPage() {
+  const { t } = useLanguage()
   return (
     <UnitProvider>
       <WeatherPageInner />
@@ -123,11 +125,11 @@ function WeatherPageInner() {
     if (!loc) return null
     switch (loc.source) {
       case "browser":
-        return "Using your precise location."
+        return "Using your precise browser geolocation."
       case "ip":
-        return `Using your approximate location${loc.label ? ` (${loc.label})` : ""} via IP.`
+        return `Using your approximate location${loc.label ? ` (${loc.label})` : ""} via network IP.`
       case "manual":
-        return `Showing weather for ${loc.label ?? "selected location"}.`
+        return `Showing weather details for ${loc.label ?? "selected location"}.`
       case "default":
         return "Using a default location — browser geolocation is blocked."
       default:
@@ -138,20 +140,21 @@ function WeatherPageInner() {
   return (
     <div className="flex flex-col gap-6">
       <motion.header
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="flex flex-col gap-4"
       >
-        <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight md:text-4xl">
-              <CloudSun className="h-8 w-8 text-blue-500" />
+            <h1 className="flex items-center gap-3 text-3xl font-display font-bold tracking-tight text-foreground md:text-4xl">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-500 shadow-sm animate-float">
+                <CloudSun className="h-6 w-6" />
+              </div>
               Weather Intelligence
             </h1>
-            <p className="mt-1 text-muted-foreground">
-              Hyper-local conditions powered by a multi-provider engine with automatic
-              fallback.
+            <p className="mt-2 text-muted-foreground text-xs md:text-sm max-w-xl leading-relaxed">
+              Hyper-local conditions powered by a multi-provider agriculture weather engine with automatic failovers.
             </p>
           </div>
           <div className="w-full md:w-96">
@@ -163,8 +166,8 @@ function WeatherPageInner() {
         </div>
 
         {sourceNote && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Info className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-2 text-xs text-muted-foreground bg-accent/15 border border-primary/5 rounded-xl px-3.5 py-2 w-fit backdrop-blur-sm shadow-sm select-none animate-fade-in font-medium">
+            <Info className="h-4 w-4 text-emerald-500 shrink-0" />
             {sourceNote}
           </div>
         )}

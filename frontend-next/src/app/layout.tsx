@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
@@ -9,7 +9,13 @@ import { SwRegister } from '@/components/SwRegister';
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+const outfit = Outfit({
+  subsets: ['latin'],
+  variable: '--font-display',
   display: 'swap',
 });
 
@@ -34,7 +40,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f0fdf4' },
-    { media: '(prefers-color-scheme: dark)',  color: '#030e07' },
+    { media: '(prefers-color-scheme: dark)',  color: '#040815' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -42,8 +48,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className={inter.className + " min-h-screen antialiased"}>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
+      <body className={`${inter.className} min-h-screen antialiased`}>
         <Providers>
           <div className="relative flex min-h-screen flex-col">
             <Header />

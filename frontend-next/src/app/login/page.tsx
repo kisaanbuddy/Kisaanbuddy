@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
@@ -8,6 +9,7 @@ import { Leaf, Mail, Lock, Loader2 } from "lucide-react"
 import { verifyAndLogin, useAuth } from "@/lib/auth"
 
 export default function LoginPage() {
+  const { t } = useLanguage()
   const router = useRouter()
   const { user, ready } = useAuth()
   const [email, setEmail] = useState("")
