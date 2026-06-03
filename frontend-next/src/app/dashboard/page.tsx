@@ -183,7 +183,7 @@ function DashboardInner({ user }: { user: any }) {
   /* try fetching latest sensor data and poll every 8 seconds */
   useEffect(() => {
     const fetchSensor = () => {
-      fetch("/api/sensor/latest", { cache: "no-store" })
+      fetch(`/api/sensor/latest?t=${Date.now()}`, { cache: "no-store" })
         .then(r => r.ok ? r.json() : null)
         .then(d => { if (d) setSensor(d) })
         .catch(() => {})
