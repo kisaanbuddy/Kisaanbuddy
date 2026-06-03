@@ -81,11 +81,11 @@ export function Header() {
   return (
     <>
       <header
-        className={`sticky top-3 z-50 mx-3 md:mx-auto max-w-7xl w-[calc(100%-1.5rem)] md:w-full
+        className={`sticky top-3 z-50 mx-3 md:mx-auto max-w-7xl w-[calc(100%-1.5rem)] md:w-full h-14
           flex items-center justify-between px-4 md:px-6 transition-all duration-500 rounded-2xl
           ${scrolled
-            ? 'glass-panel h-14 shadow-lg shadow-black/5 dark:shadow-emerald-950/5 backdrop-blur-xl border-emerald-500/10'
-            : 'glass-panel h-16 border-transparent bg-transparent backdrop-blur-none shadow-none'
+            ? 'glass-panel shadow-lg shadow-black/5 dark:shadow-emerald-950/5 backdrop-blur-xl border-emerald-500/10'
+            : 'glass-panel border-transparent bg-transparent backdrop-blur-none shadow-none'
           }`}
       >
         {/* ── Logo ── */}
