@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "KrishiAI API"
     DEBUG: bool = False
 
+    # --- Authentication & Session Security ---
+    JWT_SECRET: str = "krishiai_production_grade_secret_key_change_me_later"
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
+
     # --- Weather providers (primary + fallbacks) ---
     OPENWEATHERMAP_API_KEY: Optional[str] = None
     WEATHERAPI_API_KEY: Optional[str] = None

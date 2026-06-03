@@ -41,7 +41,7 @@ except ImportError:  # pragma: no cover
 # Orchestrator + routers
 # ---------------------------------------------------------------------------
 from services.weather_service import orchestrator
-from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor
+from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, auth
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -66,6 +66,12 @@ async def lifespan(app: FastAPI):
         log.info("Cache backend: %s", weather_cache.cache.__class__.__name__)
     except Exception as e:
         log.warning("Cache init check failed: %s", e)
+
+    try:
+        from db.migration import run_migrations
+        run_migrations()
+    except Exception as e:
+        log.error("Failed to run schema migrations: %s", e)
 
     try:
         from db.session import engine, Base
@@ -129,6 +135,7 @@ app.include_router(chatbot.router, prefix="/api/chat", tags=["Chatbot"])
 app.include_router(mandi.router, prefix="/api/mandi", tags=["Mandi"])
 app.include_router(worker_connect.router, prefix="/api/worker-connect", tags=["Worker Connect"])
 app.include_router(sensor.router, prefix="/api/sensor", tags=["Sensors"])
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

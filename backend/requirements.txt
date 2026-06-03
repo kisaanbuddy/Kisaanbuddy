@@ -24,6 +24,10 @@ sqlalchemy>=2.0.0
 # File uploads (disease detection endpoint)
 python-multipart>=0.0.9
 
+# Authentication & Security
+pyjwt>=2.8.0
+bcrypt>=4.1.0
+
 # Env file loading
 python-dotenv>=1.0.0
 

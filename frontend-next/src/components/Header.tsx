@@ -186,14 +186,25 @@ export function Header() {
           {/* Logged-in user badge */}
           {ready && user && showFullNav && (
             <div className="hidden md:flex items-center gap-1">
-              <div className="flex items-center gap-2 rounded-xl border border-emerald-500/10 bg-emerald-500/5 dark:bg-emerald-500/5 px-2.5 py-1.5 text-xs cursor-default">
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-[9px] font-extrabold shrink-0 shadow shadow-emerald-500/20">
-                  {initials}
-                </div>
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 rounded-xl border border-emerald-500/10 bg-emerald-500/5 dark:bg-emerald-500/5 px-2.5 py-1.5 text-xs hover:bg-emerald-500/10 transition-colors"
+              >
+                {user.profile_image ? (
+                  <img
+                    src={user.profile_image}
+                    alt="Profile"
+                    className="h-5 w-5 rounded-full object-cover shrink-0 border border-emerald-500/10"
+                  />
+                ) : (
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-[9px] font-extrabold shrink-0 shadow shadow-emerald-500/20">
+                    {initials}
+                  </div>
+                )}
                 <span className="font-semibold text-muted-foreground max-w-[90px] truncate">
                   {user.name || user.email.split('@')[0]}
                 </span>
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 title="Sign out"
@@ -240,17 +251,29 @@ export function Header() {
             {showFullNav ? (
               <>
                 {/* User info row */}
-                <div className="flex items-center gap-3 px-3 py-3 mb-2 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/5 border border-emerald-500/10">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-sm font-bold shrink-0 shadow shadow-emerald-500/25">
-                    {initials}
-                  </div>
+                <Link
+                  href="/profile"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-3 py-3 mb-2 rounded-xl bg-emerald-500/5 dark:bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-colors"
+                >
+                  {user?.profile_image ? (
+                    <img
+                      src={user.profile_image}
+                      alt="Profile"
+                      className="h-9 w-9 rounded-full object-cover shrink-0 border border-emerald-500/10"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 text-white text-sm font-bold shrink-0 shadow shadow-emerald-500/25">
+                      {initials}
+                    </div>
+                  )}
                   <div className="flex flex-col min-w-0">
                     <span className="font-semibold text-sm truncate">
                       {user?.name || user?.email?.split('@')[0]}
                     </span>
                     <span className="text-[10px] text-muted-foreground truncate">{user?.email}</span>
                   </div>
-                </div>
+                </Link>
 
                 {/* Nav links */}
                 {NAV_LINKS.map(({ href, label, icon: Icon }) => {
