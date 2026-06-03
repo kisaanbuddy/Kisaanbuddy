@@ -22,7 +22,7 @@
 const char* WIFI_SSID     = "YOUR_WIFI_NAME";
 const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
 const char* BACKEND_URL   = "http://192.168.1.7:8000/api/sensor/ingest";
-const char* SENSOR_TOKEN  = ""; // Set if SENSOR_INGEST_TOKEN is configured on backend
+const char* SENSOR_TOKEN  = "krishi_sensor_secure_2026"; // Set if SENSOR_INGEST_TOKEN is configured on backend
 const char* DEVICE_ID     = "krishiai-node-1";
 // ================================================
 
