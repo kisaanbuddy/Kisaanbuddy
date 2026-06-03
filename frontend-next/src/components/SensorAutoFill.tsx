@@ -46,7 +46,7 @@ export function SensorAutoFill({ onApply }: Props) {
     setBusy(true)
     setError(null)
     try {
-      const res = await fetch("/api/sensor/latest", { cache: "no-store" })
+      const res = await fetch(`/api/sensor/latest?t=${Date.now()}`, { cache: "no-store" })
       if (res.status === 404) {
         throw new Error("No sensor data yet — make sure the ESP32 node is powered on and connected.")
       }
