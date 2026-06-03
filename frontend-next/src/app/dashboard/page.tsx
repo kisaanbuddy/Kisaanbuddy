@@ -460,7 +460,7 @@ function DashboardInner({ user }: { user: any }) {
       {/* ── FOOTER DIVIDER ─────────────────────────── */}
       <div className="divider-gradient mt-4" />
       <motion.p {...fadeUp(0.35)} className="text-center text-[10px] text-muted-foreground/60 pb-2 font-medium">
-        KrishiAI &middot; Empowering Indian Farmers with AI &middot; Data updates every 15 minutes
+        KrishiAI &middot; Empowering Indian Farmers with AI &middot; {sensorData ? "Data updates every 15 seconds from field sensor" : "Data updates every 15 minutes"}
       </motion.p>
     </div>
   )
