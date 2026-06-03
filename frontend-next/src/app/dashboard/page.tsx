@@ -185,7 +185,7 @@ function DashboardInner({ user }: { user: any }) {
     const fetchSensor = () => {
       fetch(`/api/sensor/latest?t=${Date.now()}`, { cache: "no-store" })
         .then(r => r.ok ? r.json() : null)
-        .then(d => { if (d) setSensor(d) })
+        .then(d => setSensor(d))
         .catch(() => {})
     }
 
