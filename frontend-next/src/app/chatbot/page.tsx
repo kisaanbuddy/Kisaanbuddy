@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Mic, Send, Bot, User, RefreshCw, MicOff } from "lucide-react"
+import { Mic, Send, Bot, User, RefreshCw, MicOff, Sparkles, Check, ArrowRight, ShieldAlert } from "lucide-react"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,9 +12,9 @@ type Message = { id: number; text: string; sender: "bot" | "user" }
 type Lang = "hi-IN" | "en-IN" | "kn-IN"
 
 const LANG_LABELS: Record<Lang, string> = {
-  "hi-IN": "हिंदी",
+  "hi-IN": "हिंदी (Hindi)",
   "en-IN": "English",
-  "kn-IN": "ಕನ್ನಡ",
+  "kn-IN": "ಕನ್ನಡ (Kannada)",
 }
 
 const WELCOME: Record<Lang, string> = {
@@ -24,9 +24,30 @@ const WELCOME: Record<Lang, string> = {
 }
 
 const PLACEHOLDER: Record<Lang, string> = {
-  "hi-IN": "Hindi mein poochho... jaise 'mere tamatar mein bimari hai'",
+  "hi-IN": "Hindi mein poochho... jaise 'tamatar ke patte peele pad rahe hain'",
   "en-IN": "Ask in English... like 'my tomato leaves are yellowing'",
   "kn-IN": "Kannada nalli keli...",
+}
+
+const SUGGESTIONS: Record<Lang, { text: string; icon: string }[]> = {
+  "hi-IN": [
+    { text: "Tamatar ke patte peele pad rahe hain, kya karein?", icon: "🍅" },
+    { text: "Agle 3 dino ka mausam kaisa rahega?", icon: "🌦️" },
+    { text: "Dhan ki fasal ke liye kaunsi khad sabse achhi hai?", icon: "🌾" },
+    { text: "PM Kisan Yojana ke liye eligibility kya hai?", icon: "📋" },
+  ],
+  "en-IN": [
+    { text: "My tomato leaves are turning yellow, what should I do?", icon: "🍅" },
+    { text: "What is the weather forecast for the next 3 days?", icon: "🌦️" },
+    { text: "Which fertilizer is best for paddy cultivation?", icon: "🌾" },
+    { text: "What are the eligibility criteria for PM Kisan scheme?", icon: "📋" },
+  ],
+  "kn-IN": [
+    { text: "ಟೊಮೆಟೊ ಎಲೆಗಳು ಹಳದಿಯಾಗುತ್ತಿವೆ, ಏನು ಮಾಡಬೇಕು?", icon: "🍅" },
+    { text: "ಮುಂದಿನ 3 ದಿನಗಳ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಏನು?", icon: "🌦️" },
+    { text: "ಭತ್ತದ ಬೆಳೆಗೆ ಯಾವ ಗೊಬ್ಬರ ಉತ್ತಮ?", icon: "🌾" },
+    { text: "ಪಿಎಂ ಕಿಸಾನ್ ಯೋಜನೆಯ ಅರ್ಹತಾ ಮಾನದಂಡಗಳು ಯಾವುವು?", icon: "📋" },
+  ],
 }
 
 function ChatbotInner() {
@@ -151,95 +172,160 @@ function ChatbotInner() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] max-w-4xl mx-auto">
+    <div className="flex flex-col h-[calc(100vh-140px)] max-w-4xl mx-auto relative pb-4">
+      {/* Decorative Blur Blobs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[20%] right-[-10%] w-[250px] h-[250px] rounded-full bg-teal-500/5 blur-[80px] pointer-events-none -z-10" />
+
       {/* Header */}
-      <div className="text-center mb-5">
-        <h1 className="text-3xl font-bold flex items-center justify-center gap-3">
-          <Bot className="h-8 w-8 text-primary" /> Hindi Voice AI
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          {lang === "hi-IN" ? "Hindi mein bolein ya likhein — AI samajhta hai" : "Speak or type in your language"}
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 border-b border-white/[0.06] pb-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10">
+            <Bot className="h-5.5 w-5.5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold font-display text-white flex items-center gap-2">
+              Voice AI Assistant
+              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Agent Live
+              </span>
+            </h1>
+            <p className="text-xs text-muted-foreground">
+              Speak or type in your regional language
+            </p>
+          </div>
+        </div>
+
+        {/* Language selector tabs */}
+        <div className="flex rounded-xl border border-white/[0.08] bg-slate-950/40 p-1 gap-1">
+          {(Object.keys(LANG_LABELS) as Lang[]).map((l) => (
+            <button
+              key={l}
+              onClick={() => switchLang(l)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                lang === l
+                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/15"
+                  : "text-muted-foreground hover:text-white"
+              }`}
+            >
+              {LANG_LABELS[l].split(" ")[0]}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Language toggle */}
-      <div className="flex justify-center gap-2 mb-4">
-        {(Object.keys(LANG_LABELS) as Lang[]).map((l) => (
-          <button
-            key={l}
-            onClick={() => switchLang(l)}
-            className={"px-4 py-1.5 rounded-full text-sm font-semibold transition-all " +
-              (lang === l
-                ? "bg-primary text-white shadow-md"
-                : "border border-border text-muted-foreground hover:bg-muted/60")}
-          >
-            {LANG_LABELS[l]}
-          </button>
-        ))}
-      </div>
+      {/* Chat Container */}
+      <GlassCard className="flex-1 overflow-hidden flex flex-col border border-white/[0.08] backdrop-blur-md shadow-2xl bg-slate-950/20 rounded-3xl relative">
+        {/* Chat Messages */}
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar">
+          <AnimatePresence initial={false}>
+            {messages.map((msg) => {
+              const isBot = msg.sender === "bot"
+              return (
+                <motion.div
+                  key={msg.id}
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  layout
+                  className={`flex gap-3 max-w-[85%] ${isBot ? "mr-auto" : "ml-auto flex-row-reverse"}`}
+                >
+                  {/* Avatar */}
+                  <div className={`mt-1.5 flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center shadow-md relative ${
+                    isBot
+                      ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
+                      : "bg-teal-500/10 border border-teal-500/20 text-teal-400"
+                  }`}>
+                    {isBot ? <Bot className="h-4.5 w-4.5" /> : <User className="h-4.5 w-4.5" />}
+                    {isBot && (
+                      <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-slate-950" />
+                    )}
+                  </div>
 
-      <GlassCard className="flex-1 overflow-hidden flex flex-col bg-background/80 shadow-2xl relative">
-        {/* Chat Area */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-          <AnimatePresence>
-            {messages.map((msg) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                layout
-                className={"flex gap-4 max-w-[85%] " + (msg.sender === "user" ? "ml-auto flex-row-reverse" : "")}
-              >
-                <div className={"mt-1 flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center shadow-sm " +
-                  (msg.sender === "bot"
-                    ? "bg-primary/20 text-primary border border-primary/30"
-                    : "bg-blue-500/20 text-blue-500 border border-blue-500/30")}>
-                  {msg.sender === "bot" ? <Bot className="h-5 w-5" /> : <User className="h-5 w-5" />}
-                </div>
-                <div className={"p-4 rounded-2xl text-[15px] leading-relaxed " +
-                  (msg.sender === "bot"
-                    ? "bg-secondary text-secondary-foreground rounded-tl-sm border border-black/5 dark:border-white/5"
-                    : "bg-blue-600 text-white rounded-tr-sm shadow-md")}>
-                  {msg.text}
-                </div>
-              </motion.div>
-            ))}
+                  {/* Message Bubble */}
+                  <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm relative group transition-all duration-300 ${
+                    isBot
+                      ? "bg-white/[0.03] border border-white/[0.04] text-white/90 rounded-tl-sm"
+                      : "bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-tr-sm font-medium shadow-lg shadow-emerald-500/10"
+                  }`}>
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                  </div>
+                </motion.div>
+              )
+            })}
           </AnimatePresence>
 
           {isTyping && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-4">
-              <div className="mt-1 flex-shrink-0 h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
-                <Bot className="h-5 w-5" />
+            <motion.div 
+              initial={{ opacity: 0, y: 5 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="flex gap-3 max-w-[85%] mr-auto"
+            >
+              <div className="flex-shrink-0 h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <Bot className="h-4.5 w-4.5 animate-pulse" />
               </div>
-              <div className="bg-secondary p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-12">
-                <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-2 h-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="bg-white/[0.03] border border-white/[0.04] p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-11">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "300ms" }} />
               </div>
             </motion.div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 border-t bg-card/50 backdrop-blur-3xl m-2 rounded-2xl border border-white/10 shadow-inner">
+        {/* Suggestion Chips - Only display when the welcome message is the only one */}
+        {messages.length === 1 && !isTyping && (
+          <div className="px-6 pb-2 pt-4 border-t border-white/[0.04] bg-slate-950/20 backdrop-blur-sm">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-black flex items-center gap-1.5 mb-2.5">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+              Suggested topics
+            </span>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {SUGGESTIONS[lang]?.map((chip, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSend(undefined, chip.text)}
+                  className="flex items-center justify-between text-left p-3 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.04] text-xs text-white/80 hover:text-white font-medium hover:border-emerald-500/20 transition-all group"
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <span>{chip.icon}</span>
+                    <span className="truncate">{chip.text}</span>
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-emerald-400 transition-colors shrink-0 ml-2 opacity-0 group-hover:opacity-100" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Chat Input Bar */}
+        <div className="p-4 border-t border-white/[0.06] bg-slate-950/40 backdrop-blur-3xl m-2 rounded-2xl shadow-inner">
           <form onSubmit={handleSend} className="flex gap-2">
-            {/* Mic Button */}
+            {/* Mic voice record */}
             <Button
               type="button"
               variant="outline"
               size="icon"
               title={lang === "hi-IN" ? (isListening ? "Band karein" : "Hindi mein bolein") : (isListening ? "Stop" : "Speak")}
-              className={"h-12 w-12 rounded-full flex-shrink-0 transition-all " +
-                (isListening
-                  ? "bg-red-500/20 text-red-500 border-red-500/50 hover:bg-red-500/30 animate-pulse"
-                  : "hover:bg-primary/10 hover:text-primary")}
+              className={`h-12 w-12 rounded-xl flex-shrink-0 transition-all border-white/[0.08] relative overflow-hidden ${
+                isListening
+                  ? "bg-rose-500/20 text-rose-500 border-rose-500/40 hover:bg-rose-500/30 ring-2 ring-rose-500/20"
+                  : "bg-slate-900/60 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20 text-muted-foreground"
+              }`}
               onClick={toggleListen}
             >
-              {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+              {isListening ? (
+                <>
+                  <MicOff className="h-5 w-5 relative z-10" />
+                  <span className="absolute inset-0 bg-rose-500/15 animate-ping rounded-xl" />
+                </>
+              ) : (
+                <Mic className="h-5 w-5" />
+              )}
             </Button>
 
-            {/* Input */}
+            {/* Input fields */}
             <div className="flex-1 relative">
               <Input
                 value={input}
@@ -247,45 +333,50 @@ function ChatbotInner() {
                 placeholder={isListening
                   ? (lang === "hi-IN" ? "Sun raha hoon..." : "Listening...")
                   : PLACEHOLDER[lang]}
-                className="h-12 bg-background border-2 rounded-full px-6 focus-visible:ring-primary/50 text-base shadow-sm w-full"
+                className="h-12 bg-slate-950/60 border border-white/[0.08] focus:border-emerald-500/40 rounded-xl px-4 focus-visible:ring-emerald-500/10 focus-visible:ring-offset-0 text-sm shadow-sm w-full text-white placeholder:text-muted-foreground/60"
                 disabled={isListening}
               />
               {interimText && (
-                <div className="absolute left-6 top-1/2 -translate-y-1/2 text-sm text-muted-foreground/60 pointer-events-none truncate max-w-[80%]">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/60 pointer-events-none truncate max-w-[85%]">
                   {interimText}
                 </div>
               )}
             </div>
 
-            {/* Send Button */}
+            {/* Send Message Button */}
             <Button
               type="submit"
               id="send-btn"
               disabled={!input.trim() || isTyping}
-              className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg flex-shrink-0 p-0 flex items-center justify-center transition-transform hover:scale-105 active:scale-95"
+              className="h-12 w-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/10 flex-shrink-0 p-0 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40"
             >
-              <Send className="h-5 w-5 ml-0.5" />
+              <Send className="h-4.5 w-4.5 ml-0.5" />
             </Button>
           </form>
 
-          {/* Voice hint */}
+          {/* Listening State Audio Waves simulation */}
           {isListening && (
-            <div className="mt-2 flex items-center justify-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" />
+            <motion.div 
+              initial={{ opacity: 0, y: 5 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="mt-3 flex items-center justify-center gap-2 bg-rose-500/5 border border-rose-500/15 rounded-xl p-2"
+            >
+              <div className="flex items-center gap-0.5 h-3">
+                <span className="w-0.5 h-1.5 bg-rose-500 rounded animate-[pulse_0.6s_infinite_alternate]" />
+                <span className="w-0.5 h-3 bg-rose-500 rounded animate-[pulse_0.4s_infinite_alternate_0.1s]" />
+                <span className="w-0.5 h-2 bg-rose-500 rounded animate-[pulse_0.5s_infinite_alternate_0.2s]" />
+                <span className="w-0.5 h-1.5 bg-rose-500 rounded animate-[pulse_0.6s_infinite_alternate]" />
+              </div>
+              <span className="text-[10px] text-rose-400 font-bold">
+                {lang === "hi-IN" ? "Aapki aawaz sun raha hoon... bolna band hone par process hoga" : "Recording voice... processing will trigger when you stop speaking"}
               </span>
-              <span className="text-xs text-red-500 font-medium">
-                {lang === "hi-IN" ? "Sun raha hoon — bolein, ruk jaane par automatically band ho jayega" : "Listening — will stop automatically when you finish"}
-              </span>
-            </div>
+            </motion.div>
           )}
 
-          <div className="text-center mt-2">
-            <span className="text-[11px] text-muted-foreground flex items-center justify-center gap-1 opacity-60">
-              <RefreshCw className="h-3 w-3" />
-              {lang === "hi-IN" ? "KrishiAI kabhi kabhi galat jawab de sakta hai — doctor ya krishi officer se zarur salah lein." : "KrishiAI may occasionally produce inaccurate answers."}
-            </span>
+          {/* Footer disclaimer */}
+          <div className="text-center mt-3 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
+            <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
+            <span>AI advisor metrics. Always confirm diagnostics with localized agronomy professionals.</span>
           </div>
         </div>
       </GlassCard>
@@ -295,7 +386,7 @@ function ChatbotInner() {
 
 export default function ChatbotPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground">Loading...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground font-semibold">Configuring voice AI pipeline...</div>}>
       <ChatbotInner />
     </Suspense>
   )

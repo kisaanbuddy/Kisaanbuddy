@@ -31,14 +31,14 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
   const { unit } = useUnit()
 
   return (
-    <GlassCard className="h-full overflow-hidden bg-gradient-to-br from-blue-500/10 to-purple-500/10">
+    <GlassCard className="h-full overflow-hidden bg-gradient-to-br from-sky-500/5 via-indigo-500/2 to-transparent border-sky-500/10">
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-4">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-xs md:text-sm font-display text-foreground font-bold">
             <ConditionIcon
               condition={data?.current.condition}
               isDay={data?.current.is_day ?? true}
-              className="h-5 w-5 text-blue-500"
+              className="h-5 w-5 text-sky-400 animate-float"
             />
             Current Weather
           </CardTitle>
@@ -49,25 +49,25 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
       <CardContent>
         {loading && !data && (
           <div className="flex h-40 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         )}
 
         {error && !loading && (
-          <div className="flex min-h-[10rem] flex-col items-center justify-center gap-3 text-center px-4 py-2">
-            <AlertCircle className="h-8 w-8 text-red-400" />
+          <div className="flex min-h-[12rem] flex-col items-center justify-center gap-3 text-center px-4 py-2">
+            <AlertCircle className="h-8 w-8 text-red-400 animate-bounce" />
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground/90">
-                Couldn&apos;t load weather
+                Couldn&apos;t load weather details
               </p>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto">
+              <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
                 {error}
               </p>
               <HintForError error={error} />
             </div>
             {onRetry && (
-              <Button variant="outline" size="sm" onClick={onRetry} className="mt-1">
-                <RefreshCw className="mr-2 h-4 w-4" /> Retry
+              <Button variant="outline" size="sm" onClick={onRetry} className="mt-2 text-xs h-8 border-border/60 hover:bg-emerald-500/5 hover:text-emerald-500">
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Retry
               </Button>
             )}
           </div>
@@ -78,65 +78,69 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
             key={`${data.location.lat},${data.location.lon}`}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="mt-2"
           >
             <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-              <div className="text-center md:text-left">
-                <div className="flex items-baseline justify-center gap-1 md:justify-start">
-                  <h2 className="bg-gradient-to-r from-blue-500 to-cyan-400 bg-clip-text text-7xl font-black leading-none text-transparent">
+              <div className="text-center md:text-left space-y-2">
+                <div className="flex items-baseline justify-center gap-0.5 md:justify-start">
+                  <h2 className="bg-gradient-to-r from-sky-400 via-blue-400 to-teal-400 bg-clip-text text-6xl md:text-7xl font-display font-black leading-none text-transparent">
                     {Math.round(pickTemp(data.current.temp_c, data.current.temp_f, unit))}
                   </h2>
-                  <span className="text-3xl font-light text-muted-foreground">°{unit}</span>
+                  <span className="text-2xl font-light text-muted-foreground/80">°{unit}</span>
                 </div>
-                <p className="mt-2 text-xl capitalize text-muted-foreground">
-                  {data.current.condition}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Feels like{" "}
-                  {Math.round(
-                    pickTemp(data.current.feels_like_c, data.current.feels_like_f, unit)
-                  )}
-                  °{unit}
-                </p>
-                <div className="mt-3 flex items-center gap-2 justify-center md:justify-start">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  <span className="font-medium">
+                <div className="space-y-1">
+                  <p className="text-lg font-semibold capitalize text-foreground">
+                    {data.current.condition}
+                  </p>
+                  <p className="text-xs text-muted-foreground/80">
+                    Feels like{" "}
+                    <strong className="text-foreground font-semibold">
+                      {Math.round(
+                        pickTemp(data.current.feels_like_c, data.current.feels_like_f, unit)
+                      )}
+                      °{unit}
+                    </strong>
+                  </p>
+                </div>
+                <div className="pt-1 flex items-center gap-1.5 justify-center md:justify-start text-xs font-semibold text-muted-foreground select-none">
+                  <MapPin className="h-3.5 w-3.5 text-emerald-500" />
+                  <span>
                     {data.location.name}
                     {data.location.country ? `, ${data.location.country}` : ""}
                   </span>
                 </div>
               </div>
 
-              <div className="grid w-full grid-cols-2 gap-3 md:w-auto md:grid-cols-2">
+              <div className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-3 md:w-auto md:grid-cols-2">
                 <Stat
-                  icon={<Wind className="h-5 w-5 text-blue-400" />}
+                  icon={<Wind className="h-4.5 w-4.5 text-sky-400" />}
                   label="Wind"
                   value={`${data.current.wind_kph.toFixed(1)} km/h`}
                   hint={data.current.wind_dir ?? undefined}
                 />
                 <Stat
-                  icon={<Droplet className="h-5 w-5 text-cyan-400" />}
+                  icon={<Droplet className="h-4.5 w-4.5 text-teal-400" />}
                   label="Humidity"
                   value={`${data.current.humidity}%`}
                 />
                 {data.current.pressure_mb != null && (
                   <Stat
-                    icon={<Gauge className="h-5 w-5 text-purple-400" />}
+                    icon={<Gauge className="h-4.5 w-4.5 text-indigo-400" />}
                     label="Pressure"
                     value={`${Math.round(data.current.pressure_mb)} mb`}
                   />
                 )}
                 {data.current.visibility_km != null && (
                   <Stat
-                    icon={<Eye className="h-5 w-5 text-emerald-400" />}
+                    icon={<Eye className="h-4.5 w-4.5 text-emerald-400" />}
                     label="Visibility"
                     value={`${data.current.visibility_km.toFixed(1)} km`}
                   />
                 )}
                 {data.current.uv_index != null && (
                   <Stat
-                    icon={<SunIcon className="h-5 w-5 text-amber-400" />}
+                    icon={<SunIcon className="h-4.5 w-4.5 text-amber-400 animate-pulse-glow rounded-full" />}
                     label="UV Index"
                     value={`${data.current.uv_index.toFixed(1)}`}
                   />
@@ -144,21 +148,21 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span className="rounded-full bg-white/10 px-2 py-0.5 dark:bg-black/20">
-                Provider: <strong className="text-foreground">{data.provider}</strong>
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground/60 select-none">
+              <span className="rounded-lg bg-background/50 border border-border/30 px-2 py-1 font-semibold">
+                Provider: <span className="text-foreground">{data.provider}</span>
               </span>
               {data.cached ? (
-                <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-500">
+                <span className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-2 py-1 text-amber-500 font-bold">
                   Cached
                 </span>
               ) : (
-                <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-emerald-500">
+                <span className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-emerald-500 font-bold">
                   Live
                 </span>
               )}
               {data.current.observed_at && (
-                <span>Updated {new Date(data.current.observed_at).toLocaleTimeString()}</span>
+                <span className="font-semibold">Observed {new Date(data.current.observed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               )}
             </div>
           </motion.div>
@@ -180,19 +184,15 @@ function Stat({
   hint?: string
 }) {
   return (
-    <div className="flex flex-col items-center rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm dark:bg-black/20">
-      <div className="mb-1.5">{icon}</div>
-      <span className="text-sm font-semibold">{value}</span>
-      <span className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</span>
-      {hint && <span className="text-[10px] text-muted-foreground">{hint}</span>}
+    <div className="flex flex-col items-center rounded-xl border border-border/40 bg-background/30 p-3 backdrop-blur-sm hover:border-primary/20 transition-all duration-300">
+      <div className="mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-background/50 border border-border/20 shadow-inner">{icon}</div>
+      <span className="text-xs font-semibold text-foreground tracking-tight">{value}</span>
+      <span className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground/85 mt-0.5">{label}</span>
+      {hint && <span className="text-[9px] text-muted-foreground/60">{hint}</span>}
     </div>
   )
 }
 
-/**
- * Translates a raw API error string into a short, actionable hint.
- * Recognises: backend-down, auth-failed, rate-limit, no-providers.
- */
 function HintForError({ error }: { error: string }) {
   const e = error.toLowerCase()
 
@@ -222,7 +222,7 @@ function HintForError({ error }: { error: string }) {
   if (!hint) return null
 
   return (
-    <p className="text-[11px] text-amber-500/90 max-w-md mx-auto mt-1 italic">
+    <p className="text-[11px] text-amber-500/90 max-w-sm mx-auto mt-1 italic">
       Hint: {hint}
     </p>
   )

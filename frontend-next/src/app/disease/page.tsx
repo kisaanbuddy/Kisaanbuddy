@@ -1,7 +1,6 @@
 "use client"
-/**
- * KrishiAI — Disease Detection Portal (Premium UI)
- */
+
+import { useLanguage } from '@/lib/language'
 import {
   Camera, ImagePlus, Loader2, Sparkles, X,
   Bug, CheckCircle2, AlertTriangle, Leaf,
@@ -28,6 +27,7 @@ const PROMPT_FALLBACK: Record<Language, string> = {
 }
 
 export default function DiseasePortal() {
+  const { t } = useLanguage()
   const [language, setLanguage]     = useState<Language>("hi")
   const [crop, setCrop]             = useState("")
   const [symptom, setSymptom]       = useState("")
@@ -98,29 +98,29 @@ export default function DiseasePortal() {
   }, [crop, symptom, language, imageDataUrl, isStreaming])
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto pb-8">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-8">
 
       {/* ── Page Header ── */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-red-600/90 via-orange-600/80 to-amber-600/70 p-7 md:p-10 text-white shadow-2xl shadow-red-500/20">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1c0806] via-[#2c0f0a] to-[#1c0806] border border-red-500/10 p-7 md:p-10 text-white shadow-2xl">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-10 -top-10 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
-          <div className="absolute -left-6 -bottom-6 h-32 w-32 rounded-full bg-black/10 blur-xl" />
+          <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-red-500/5 blur-[80px]" />
+          <div className="absolute -left-8 -bottom-8 h-48 w-48 rounded-full bg-amber-500/3 blur-[90px]" />
         </div>
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-red-200 text-xs font-semibold mb-2">
-              <Bug className="h-4 w-4" /> AI-Powered Crop Care
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider">
+              <Bug className="h-4.5 w-4.5" /> AI-Powered Crop Care
             </div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Disease Detection</h1>
-            <p className="mt-2 text-red-100/75 text-sm max-w-xl leading-relaxed">
+            <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight">Disease Detection</h1>
+            <p className="text-muted-foreground/90 text-xs md:text-sm max-w-xl leading-relaxed">
               {language === "hi"
                 ? "Patti ya paude ki photo bhejo — bimari, dose, organic aur chemical treatment sab milega"
                 : "Upload a leaf photo — get disease name, exact dose, organic & chemical treatment in seconds"}
             </p>
           </div>
-          <div className="hidden md:flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-center border border-white/20">
-            <div className="text-4xl font-black">95%</div>
-            <div className="text-xs text-red-100/70 mt-1">Detection Accuracy</div>
+          <div className="hidden md:flex flex-col items-center justify-center bg-[#060b18]/45 backdrop-blur-sm rounded-2xl p-5 text-center border border-red-500/10 shrink-0 shadow-lg">
+            <div className="text-3xl font-display font-black text-red-500">95%</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">Detection Accuracy</div>
           </div>
         </div>
       </motion.div>
@@ -130,26 +130,27 @@ export default function DiseasePortal() {
         {/* ══ LEFT — Input panel ══ */}
         <motion.section
           initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 space-y-5 h-fit"
+          className="rounded-2xl border border-border/40 bg-card/45 backdrop-blur-md p-6 space-y-5 h-fit"
         >
           {/* Image upload */}
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/90">
               Leaf / Plant Photo
             </label>
 
             {imageDataUrl ? (
-              <div className="relative mt-2 overflow-hidden rounded-2xl border-2 border-green-500/30 shadow-lg">
+              <div className="relative mt-2 overflow-hidden rounded-2xl border-2 border-emerald-500/20 shadow-lg group select-none">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageDataUrl} alt="Selected leaf" className="aspect-square w-full object-cover" />
+                <img src={imageDataUrl} alt="Selected leaf" className="aspect-square w-full object-cover rounded-2xl brightness-95" />
                 <button
                   type="button" onClick={() => setImage(null)}
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-white hover:bg-red-500/90 transition-colors"
+                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl bg-black/70 text-white hover:bg-red-500/90 hover:scale-105 active:scale-95 transition-all"
+                  title="Remove image"
                 >
                   <X className="h-4 w-4" />
                 </button>
                 <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-lg bg-black/60 backdrop-blur-sm px-3 py-1.5 text-xs text-white">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-green-400" /> Photo ready
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> Photo ready
                 </div>
               </div>
             ) : (
@@ -157,28 +158,28 @@ export default function DiseasePortal() {
                 onDragOver={e => { e.preventDefault(); setDragging(true) }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={onDrop}
-                className={`mt-2 grid grid-cols-2 gap-3 rounded-2xl border-2 border-dashed p-4 transition-all duration-200
-                  ${dragging ? "border-green-500 bg-green-500/5" : "border-border hover:border-green-400/50 bg-muted/20"}`}
+                className={`mt-2 grid grid-cols-2 gap-3 rounded-2xl border-2 border-dashed p-4 transition-all duration-300 select-none
+                  ${dragging ? "border-emerald-500/40 bg-emerald-500/5 shadow-glow-primary" : "border-border/60 hover:border-emerald-500/30 bg-background/30"}`}
               >
                 {/* Drag hint */}
-                <div className="col-span-2 flex flex-col items-center gap-1.5 py-2 text-center text-muted-foreground">
-                  <Upload className={`h-8 w-8 transition-colors ${dragging ? "text-green-500" : "text-muted-foreground/40"}`} />
-                  <span className="text-xs">{dragging ? "Drop the photo here!" : "Drag & drop or choose below"}</span>
+                <div className="col-span-2 flex flex-col items-center gap-1.5 py-3 text-center text-muted-foreground">
+                  <Upload className={`h-8 w-8 transition-all ${dragging ? "text-emerald-500 animate-bounce" : "text-muted-foreground/30"}`} />
+                  <span className="text-[11px] font-semibold">{dragging ? "Drop the photo here!" : "Drag & drop or choose below"}</span>
                 </div>
 
                 <button
                   type="button" onClick={() => fileRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/60 p-5 text-sm text-muted-foreground hover:border-green-400 hover:text-green-500 hover:bg-green-500/5 transition-all"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/40 bg-background/50 p-4 text-sm text-muted-foreground hover:border-emerald-500/20 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all duration-200 active:scale-95 shadow-sm"
                 >
-                  <ImagePlus className="h-6 w-6" />
-                  <span className="text-xs font-medium">Gallery</span>
+                  <ImagePlus className="h-5 w-5 text-emerald-500" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Gallery</span>
                 </button>
                 <button
                   type="button" onClick={() => camRef.current?.click()}
-                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/60 bg-background/60 p-5 text-sm text-muted-foreground hover:border-green-400 hover:text-green-500 hover:bg-green-500/5 transition-all"
+                  className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/40 bg-background/50 p-4 text-sm text-muted-foreground hover:border-emerald-500/20 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all duration-200 active:scale-95 shadow-sm"
                 >
-                  <Camera className="h-6 w-6" />
-                  <span className="text-xs font-medium">Camera</span>
+                  <Camera className="h-5 w-5 text-emerald-500" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Camera</span>
                 </button>
 
                 <input ref={fileRef} type="file" accept="image/*" className="hidden"
@@ -190,43 +191,43 @@ export default function DiseasePortal() {
           </div>
 
           {/* Crop name */}
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Crop Name <span className="normal-case font-normal">(optional)</span>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/90">
+              Crop Name <span className="normal-case font-medium opacity-60">(optional)</span>
             </label>
             <input
               value={crop} onChange={e => setCrop(e.target.value)}
               placeholder="e.g. Tomato, Cotton, Paddy, Wheat"
-              className="mt-1.5 input-base"
+              className="input-base"
             />
           </div>
 
           {/* Symptoms */}
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Symptoms <span className="normal-case font-normal">(optional)</span>
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/90">
+              Symptoms <span className="normal-case font-medium opacity-60">(optional)</span>
             </label>
             <textarea
               value={symptom} onChange={e => setSymptom(e.target.value)}
               placeholder={PLACEHOLDER[language]}
               rows={3}
-              className="mt-1.5 input-base resize-none"
+              className="input-base resize-none"
             />
           </div>
 
           {/* Language selector */}
-          <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 block">
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/90 mb-1 block">
               Reply Language
             </label>
             <div className="flex flex-wrap gap-2">
               {(["hi", "en", "kn", "auto"] as Language[]).map(l => (
                 <button
                   key={l} type="button" onClick={() => setLanguage(l)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-semibold border transition-all
+                  className={`rounded-xl px-4 py-2 text-xs font-bold border transition-all duration-200 active:scale-95
                     ${language === l
-                      ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white border-transparent shadow-md shadow-green-500/25"
-                      : "bg-background/60 text-muted-foreground border-border hover:text-foreground hover:border-green-400/50"
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent shadow shadow-emerald-500/20"
+                      : "bg-background/40 text-muted-foreground/80 border-border/40 hover:text-foreground hover:border-emerald-500/25 hover:bg-emerald-500/2"
                     }`}
                 >
                   {LANG_LABEL[l]}
@@ -236,15 +237,15 @@ export default function DiseasePortal() {
           </div>
 
           {/* Submit */}
-          <div className="pt-1">
+          <div className="pt-2">
             {isStreaming ? (
               <button onClick={cancel}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-500 hover:bg-red-500/20 transition-all">
-                <Loader2 className="h-4 w-4 animate-spin" /> Stop Analysis
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-500/10 border border-red-500/30 px-4 py-3 text-xs font-bold uppercase tracking-wider text-red-500 hover:bg-red-500/20 hover:border-red-500/40 transition-all active:scale-95 shadow-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-red-500" /> Stop Analysis
               </button>
             ) : (
               <button onClick={submit}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-red-500/25 hover:from-red-600 hover:to-amber-600 hover:shadow-xl active:scale-98 transition-all">
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 via-orange-500 to-amber-500 px-4 py-3.5 text-xs font-extrabold uppercase tracking-wider text-white shadow-lg hover:shadow-red-500/10 hover:brightness-105 active:scale-95 transition-all">
                 <Sparkles className="h-4 w-4" />
                 {language === "hi" ? "Bimari Pehchano" : language === "kn" ? "ರೋಗ ಪತ್ತೆ ಮಾಡಿ" : "Diagnose Disease"}
               </button>
@@ -252,90 +253,92 @@ export default function DiseasePortal() {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-500">
-              <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              {error}
+            <div className="flex items-start gap-2.5 rounded-xl border border-red-500/20 bg-red-500/5 p-3.5 text-xs text-red-500 shadow-sm">
+              <AlertTriangle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
+              <span className="font-semibold">{error}</span>
             </div>
           )}
 
           {/* Tip */}
-          <div className="rounded-xl border border-amber-500/20 bg-amber-500/8 p-3 text-xs text-amber-700 dark:text-amber-300">
-            💡 Clear, close-up photos of the affected leaf give the best results. Include both sides if possible.
+          <div className="rounded-xl border border-amber-500/10 bg-amber-500/3 p-3.5 text-xs text-amber-700 dark:text-amber-300/90 leading-relaxed font-medium">
+            💡 Clear, close-up photos of the affected leaf yield the most accurate analysis. Capture both sides of the leaf if possible.
           </div>
         </motion.section>
 
         {/* ══ RIGHT — Diagnosis output ══ */}
         <motion.section
           initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}
-          className="rounded-2xl border border-border/60 bg-card/60 backdrop-blur-sm p-6 min-h-[520px] flex flex-col"
+          className="rounded-2xl border border-border/40 bg-card/45 backdrop-blur-md p-6 min-h-[520px] flex flex-col justify-between"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-5 pb-4 border-b border-border/50">
-            <h2 className="flex items-center gap-2 font-bold text-sm">
-              <FlaskConical className="h-4 w-4 text-red-500" />
-              Diagnosis Report
-            </h2>
-            {usedTools.length > 0 && (
-              <div className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-3 py-1 text-[10px] font-medium text-green-600 dark:text-green-400">
-                <Sparkles className="h-3 w-3" />
-                {usedTools.join(" · ")}
-              </div>
-            )}
-          </div>
-
-          {/* Content area */}
-          <div className="flex-1">
-            <AnimatePresence mode="wait">
-              {response ? (
-                <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-foreground/90">
-                    {response}
-                  </pre>
-                </motion.div>
-              ) : isStreaming ? (
-                <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="flex flex-col items-center justify-center h-64 gap-4 text-center"
-                >
-                  <div className="relative">
-                    <div className="h-16 w-16 rounded-full border-4 border-red-500/20 border-t-red-500 animate-spin" />
-                    <Bug className="absolute inset-0 m-auto h-6 w-6 text-red-500" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">Analysing your photo…</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {language === "hi" ? "Photo aur lakshan padh raha hoon…" : "Running AI disease recognition…"}
-                    </p>
-                  </div>
-                </motion.div>
-              ) : (
-                <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                  className="flex flex-col items-center justify-center h-64 gap-4 text-center text-muted-foreground"
-                >
-                  <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-green-500/10 to-emerald-500/5 border border-green-500/15">
-                    <Leaf className="h-9 w-9 text-green-500/50" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm text-foreground/60">
-                      {language === "hi"
-                        ? "Photo upload karke 'Bimari Pehchano' dabao"
-                        : "Upload a photo and click Diagnose"}
-                    </p>
-                    <p className="text-xs mt-2 opacity-50 max-w-xs">
-                      Results will include: Crop · Disease · Confidence · Organic · Chemical (dose) · Prevention · Severity
-                    </p>
-                  </div>
-
-                  {/* Section pills preview */}
-                  <div className="flex flex-wrap gap-1.5 justify-center max-w-sm">
-                    {["Crop","Disease","Confidence","Problem","Organic","Chemical","Prevention","Severity","Market"].map(s => (
-                      <span key={s} className="rounded-full border border-border/60 bg-muted/40 px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                </motion.div>
+          <div>
+            <div className="flex items-center justify-between mb-5 pb-4 border-b border-border/20">
+              <h2 className="flex items-center gap-2 font-display font-bold text-sm text-foreground">
+                <FlaskConical className="h-4 w-4 text-red-400" />
+                Diagnosis Report
+              </h2>
+              {usedTools.length > 0 && (
+                <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[9px] font-extrabold uppercase tracking-wide text-emerald-500">
+                  <Sparkles className="h-3 w-3 text-emerald-500" />
+                  {usedTools.join(" · ")}
+                </div>
               )}
-            </AnimatePresence>
+            </div>
+
+            {/* Content area */}
+            <div className="flex-1">
+              <AnimatePresence mode="wait">
+                {response ? (
+                  <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="animate-fade-in">
+                    <pre className="whitespace-pre-wrap break-words font-sans text-xs md:text-sm leading-relaxed text-foreground/90">
+                      {response}
+                    </pre>
+                  </motion.div>
+                ) : isStreaming ? (
+                  <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-20 gap-4 text-center"
+                  >
+                    <div className="relative">
+                      <div className="h-14 w-14 rounded-full border-4 border-red-500/10 border-t-red-500 animate-spin" />
+                      <Bug className="absolute inset-0 m-auto h-5.5 w-5.5 text-red-500" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-semibold text-xs md:text-sm">Analysing your photo…</p>
+                      <p className="text-[10px] text-muted-foreground/80 mt-1 max-w-xs mx-auto leading-relaxed">
+                        {language === "hi" ? "Photo aur lakshan padh raha hoon…" : "Running AI disease recognition…"}
+                      </p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-16 gap-5 text-center text-muted-foreground/85 select-none"
+                  >
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/5 to-teal-500/2 border border-emerald-500/15 shadow-sm animate-float">
+                      <Leaf className="h-7 w-7 text-emerald-500/40" />
+                    </div>
+                    <div className="space-y-2">
+                      <p className="font-display font-bold text-sm text-foreground/80">
+                        {language === "hi"
+                          ? "Photo upload karke 'Bimari Pehchano' dabao"
+                          : "Upload a photo and click Diagnose"}
+                      </p>
+                      <p className="text-[11px] leading-relaxed max-w-xs mx-auto text-muted-foreground/75 font-medium">
+                        Results will include: Crop type &middot; Disease Name &middot; Confidence &middot; Organic &middot; Chemical Treatment &middot; Prevention details.
+                      </p>
+                    </div>
+
+                    {/* Section pills preview */}
+                    <div className="flex flex-wrap gap-1.5 justify-center max-w-xs pt-2">
+                      {["Crop","Disease","Confidence","Problem","Organic","Chemical","Prevention","Severity","Market"].map(s => (
+                        <span key={s} className="rounded-lg border border-border/40 bg-background/40 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </motion.section>
       </div>

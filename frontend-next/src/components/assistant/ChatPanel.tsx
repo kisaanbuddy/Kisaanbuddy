@@ -6,9 +6,6 @@
  *   - useAssistant (session + streaming)
  *   - useSpeech    (browser STT + TTS + server STT fallback)
  *   - ChatMessage / MicButton / LanguagePicker / TranscriptLive
- *
- * Auto-speaks assistant replies once streaming finishes (browser TTS by default —
- * premium TTS can be wired in later via /api/chat/tts without UI changes).
  */
 import { AnimatePresence, motion } from "framer-motion"
 import {
@@ -22,6 +19,7 @@ import {
   Volume2,
   VolumeX,
   X,
+  Sparkles,
 } from "lucide-react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
@@ -33,24 +31,27 @@ import { TranscriptLive } from "./TranscriptLive"
 import { useAssistant } from "./useAssistant"
 import { useSpeech } from "./useSpeech"
 
-const QUICK_PROMPTS: { en: string; hi: string; kn: string; key: string }[] = [
+const QUICK_PROMPTS: { en: string; hi: string; kn: string; key: string; icon: string }[] = [
   {
     key: "weather",
     en: "Weather for my farm today?",
     hi: "आज मेरे खेत का मौसम कैसा है?",
     kn: "ಇಂದು ನನ್ನ ಹೊಲದ ಹವಾಮಾನ ಹೇಗಿದೆ?",
+    icon: "🌦️",
   },
   {
     key: "crop",
     en: "Which crop should I plant this season?",
     hi: "इस मौसम में कौन सी फसल लगाऊँ?",
     kn: "ಈ ಋತುವಿನಲ್ಲಿ ಯಾವ ಬೆಳೆ ಬೆಳೆಯಬೇಕು?",
+    icon: "🌾",
   },
   {
     key: "schemes",
     en: "What government schemes can help me?",
     hi: "मेरे लिए कौन सी सरकारी योजनाएँ हैं?",
     kn: "ನನಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳಿವೆ?",
+    icon: "📋",
   },
 ]
 
@@ -191,35 +192,40 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 24, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
-      className="glass-panel fixed bottom-24 right-4 z-[60] flex h-[min(620px,calc(100vh-8rem))] w-[min(400px,calc(100vw-2rem))] flex-col overflow-hidden"
+      className="glass-panel fixed bottom-24 right-4 z-[60] flex h-[min(600px,calc(100vh-8rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden border border-white/[0.08] backdrop-blur-xl bg-slate-950/70 shadow-2xl rounded-3xl"
       role="dialog"
       aria-label="KrishiAI assistant"
     >
       {/* Header */}
-      <div className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-white/20 dark:border-white/5 px-3 py-2.5">
+      <div className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] bg-slate-950/40 px-4 py-3">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow">
+          <div className="h-8 w-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm font-black shadow-sm shrink-0">
             K
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold leading-none truncate">
-              KrishiAI
+            <div className="text-xs font-bold text-white leading-none font-display">
+              KrishiAI Assistant
             </div>
-            <div className="text-[10px] text-muted-foreground leading-none mt-0.5">
-              {activeTool
-                ? `Using ${activeTool.replace("_", " ")}…`
-                : isSending
-                ? "Thinking…"
-                : "Online"}
+            <div className="text-[9px] text-muted-foreground leading-none mt-1 flex items-center gap-1 font-semibold">
+              <span className={`h-1.5 w-1.5 rounded-full ${activeTool || isSending ? "bg-amber-400 animate-pulse" : "bg-emerald-400 animate-pulse"}`} />
+              <span>
+                {activeTool
+                  ? `Using ${activeTool.replace("_", " ")}…`
+                  : isSending
+                  ? "Thinking…"
+                  : "Online"}
+              </span>
             </div>
           </div>
         </div>
+
         <div className="flex items-center gap-1">
           <LanguagePicker value={language} onChange={setLanguage} />
+          
           <button
             type="button"
             onClick={() => setAutoSpeak((v) => !v)}
-            className="p-1.5 rounded-full text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5"
+            className={`p-1.5 rounded-xl hover:bg-white/[0.04] transition-colors ${autoSpeak ? "text-emerald-400" : "text-muted-foreground"}`}
             title={autoSpeak ? "Mute voice replies" : "Unmute voice replies"}
             aria-label={autoSpeak ? "Mute voice replies" : "Unmute voice replies"}
           >
@@ -229,14 +235,15 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
               <VolumeX className="h-4 w-4" />
             )}
           </button>
+
           <button
             type="button"
             onClick={() =>
               location ? clearLocation() : void shareLocation()
             }
-            className={`p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/5 ${
+            className={`p-1.5 rounded-xl hover:bg-white/[0.04] transition-colors ${
               location
-                ? "text-green-600 dark:text-green-400"
+                ? "text-emerald-400 bg-emerald-500/5 border border-emerald-500/10"
                 : "text-muted-foreground"
             }`}
             title={
@@ -252,19 +259,21 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
               <MapPinOff className="h-4 w-4" />
             )}
           </button>
+
           <button
             type="button"
             onClick={() => void reset()}
-            className="p-1.5 rounded-full text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5"
+            className="p-1.5 rounded-xl text-muted-foreground hover:bg-white/[0.04] hover:text-white transition-colors"
             title="New conversation"
             aria-label="Reset conversation"
           >
             <RotateCcw className="h-4 w-4" />
           </button>
+
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5"
+            className="p-1.5 rounded-xl text-muted-foreground hover:bg-white/[0.04] hover:text-white transition-colors"
             title="Close"
             aria-label="Close assistant"
           >
@@ -273,28 +282,34 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages Scroll thread */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-3"
+        className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 custom-scrollbar"
       >
         {showQuickPrompts && (
-          <div className="flex flex-col items-center text-center px-4 py-6 gap-3">
-            <div className="text-sm font-medium">
-              {language === "hi"
-                ? "नमस्ते! मैं KrishiAI हूँ।"
-                : language === "kn"
-                ? "ನಮಸ್ಕಾರ! ನಾನು KrishiAI."
-                : "Namaste! I'm KrishiAI."}
+          <div className="flex flex-col items-center text-center px-2 py-6 gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shadow-lg shadow-emerald-500/10">
+              <Sparkles className="w-5.5 h-5.5" />
             </div>
-            <div className="text-xs text-muted-foreground">
+            
+            <div className="text-xs font-bold text-white font-display mt-1">
               {language === "hi"
-                ? "मौसम, फसल, या सरकारी योजनाओं के बारे में पूछें।"
+                ? "Namaste! Main KrishiAI sahayak hoon."
                 : language === "kn"
-                ? "ಹವಾಮಾನ, ಬೆಳೆ, ಅಥವಾ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ."
-                : "Ask me about weather, crops, or schemes."}
+                ? "Namaskara! Nanu KrishiAI."
+                : "Namaste! I'm your KrishiAI Assistant."}
             </div>
-            <div className="flex flex-col w-full gap-1.5 mt-2">
+            
+            <div className="text-[11px] text-muted-foreground leading-relaxed max-w-[240px]">
+              {language === "hi"
+                ? "Mausam, fasal checkup, ya sarkar ki yojnaon ke baare mein kuch bhi poochhein."
+                : language === "kn"
+                ? "Havamana, bele, athava yojanegala bagge keli."
+                : "Ask me about real-time weather, crop suitability, or government grants."}
+            </div>
+
+            <div className="flex flex-col w-full gap-2 mt-4 text-left">
               {QUICK_PROMPTS.map((p) => {
                 const label = pickPrompt(p, language)
                 return (
@@ -302,60 +317,63 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
                     key={p.key}
                     type="button"
                     onClick={() => submit(label)}
-                    className="text-left text-xs px-3 py-2 rounded-xl border border-border bg-white/60 dark:bg-white/5 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
+                    className="flex items-center gap-2.5 text-[11px] px-3.5 py-2.5 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.04] hover:border-emerald-500/20 text-white/90 hover:text-white transition-all font-semibold"
                   >
-                    {label}
+                    <span>{p.icon}</span>
+                    <span className="truncate flex-1">{label}</span>
                   </button>
                 )
               })}
             </div>
           </div>
         )}
+        
         {messages.map((m) => (
           <ChatMessage key={m.id} msg={m} />
         ))}
+        
         {lastError && (
-          <div className="text-[11px] text-red-600 dark:text-red-400 px-2 py-1 rounded-md bg-red-50 dark:bg-red-900/20">
+          <div className="text-[10px] font-bold text-red-400 px-3 py-2 rounded-xl bg-red-500/10 border border-red-500/20">
             {lastError}
           </div>
         )}
       </div>
 
-      {/* Interim transcript */}
+      {/* Interim voice transcript live view */}
       <TranscriptLive text={interim} active={speech.listening} />
 
-      {/* Pending image preview pill */}
+      {/* Pending image preview */}
       {pendingImage && (
-        <div className="flex flex-shrink-0 items-center gap-2 border-t border-white/20 dark:border-white/5 px-3 pt-2">
+        <div className="flex flex-shrink-0 items-center gap-2 border-t border-white/[0.06] bg-slate-950/40 px-4 py-2.5">
           <div className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={pendingImage}
-              alt="Selected leaf"
-              className="h-14 w-14 rounded-md object-cover ring-1 ring-border"
+              alt="Uploaded leaf"
+              className="h-12 w-12 rounded-xl object-cover border border-white/[0.08]"
             />
             <button
               type="button"
               onClick={() => setPendingImage(null)}
-              className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white"
+              className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-950 border border-white/[0.08] text-white hover:text-rose-400 transition-colors"
               aria-label="Remove photo"
             >
-              <X className="h-3 w-3" />
+              <X className="h-2.5 w-2.5" />
             </button>
           </div>
-          <div className="text-[11px] text-muted-foreground">
-            <ImageIcon className="mr-1 inline h-3 w-3" />
+          <div className="text-[10px] text-muted-foreground/80 leading-relaxed font-medium">
+            <ImageIcon className="mr-1.5 inline h-3.5 w-3.5 text-emerald-400" />
             {language === "hi"
-              ? "Photo bhejne ke liye Send dabao — disease detect karega."
+              ? "Send dabakar patti ki bimari ka treatment pata karein."
               : language === "kn"
-              ? "Send ottiri — roga patte hachuttade."
-              : "Hit Send to diagnose this photo."}
+              ? "Send ottiri — bimari detect aaguttade."
+              : "Hit Send to run AI diagnostics on this leaf."}
           </div>
         </div>
       )}
 
-      {/* Composer */}
-      <div className="flex flex-shrink-0 items-center gap-2 border-t border-white/20 dark:border-white/5 px-3 py-2.5">
+      {/* Input composer area */}
+      <div className="flex flex-shrink-0 items-center gap-2 border-t border-white/[0.06] bg-slate-950/40 px-3 py-3">
         <input
           ref={fileInputRef}
           type="file"
@@ -367,10 +385,11 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             if (e.target) e.target.value = ""
           }}
         />
+        
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted/60"
+          className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-slate-900 border border-white/[0.08] hover:bg-white/[0.04] text-muted-foreground hover:text-white transition-colors"
           aria-label={
             language === "hi"
               ? "Patti ki photo bhejo"
@@ -387,32 +406,34 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
         >
           <Paperclip className="h-4 w-4" />
         </button>
+
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKey}
           placeholder={placeholder}
-          className="flex-1 rounded-full border border-border bg-white/70 dark:bg-white/5 px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-green-400/50"
+          className="flex-1 rounded-xl border border-white/[0.08] bg-slate-950/60 px-3.5 py-2.5 text-xs text-white outline-none focus:border-emerald-500/40 focus:ring-1 focus:ring-emerald-500/20 placeholder:text-muted-foreground/60"
           disabled={isSending && !!input}
         />
+
         {isSending ? (
           <button
             type="button"
             onClick={cancel}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/70"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-white/[0.08] text-amber-400"
             aria-label="Stop generating"
           >
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           </button>
         ) : input.trim() || pendingImage ? (
           <button
             type="button"
             onClick={() => submit()}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-green-500 text-white shadow hover:bg-green-600"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/10 hover:bg-emerald-600 transition-all hover:scale-105 active:scale-95"
             aria-label="Send message"
           >
-            <Send className="h-4 w-4" />
+            <Send className="h-3.5 w-3.5" />
           </button>
         ) : (
           <MicButton
@@ -426,5 +447,4 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
   )
 }
 
-// Re-export AnimatePresence so the parent can wrap in one place without reimporting.
 export { AnimatePresence as ChatPanelAnimatePresence }
