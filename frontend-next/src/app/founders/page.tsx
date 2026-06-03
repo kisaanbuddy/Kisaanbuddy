@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight, TrendingUp, Users, Target, Award } from "lucide-react"
+import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight } from "lucide-react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -24,7 +24,7 @@ const FOUNDERS: Founder[] = [
     bio: "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
     initials: "AI",
     gradient: "from-emerald-400 to-green-600",
-    stake: "60% Stake (Majority)",
+    stake: "20% Stake",
   },
   {
     name: "Utkarsh Sinha",
@@ -33,7 +33,7 @@ const FOUNDERS: Founder[] = [
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
     gradient: "from-blue-400 to-indigo-600",
-    stake: "10% Stake",
+    stake: "20% Stake",
   },
   {
     name: "Ravi Sinha",
@@ -42,7 +42,7 @@ const FOUNDERS: Founder[] = [
     bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
     initials: "RS",
     gradient: "from-amber-400 to-orange-600",
-    stake: "10% Stake",
+    stake: "20% Stake",
   },
   {
     name: "Anant Kumar",
@@ -51,7 +51,7 @@ const FOUNDERS: Founder[] = [
     bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
     initials: "AK",
     gradient: "from-purple-400 to-fuchsia-600",
-    stake: "10% Stake",
+    stake: "20% Stake",
   },
   {
     name: "Pranit Powar",
@@ -60,7 +60,7 @@ const FOUNDERS: Founder[] = [
     bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
     initials: "PP",
     gradient: "from-rose-400 to-pink-600",
-    stake: "10% Stake",
+    stake: "20% Stake",
   },
 ]
 
@@ -101,126 +101,20 @@ export default function FoundersPage() {
         </div>
       </section>
 
-      {/* IMPACT & MILESTONES DASHBOARD ==================================== */}
-      <section className="px-6 md:px-12 pt-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center md:text-left mb-10">
-            <h2 className="text-2xl md:text-3xl font-black text-white font-display">KrishiAI Scale & Revenue Impact</h2>
-            <p className="text-xs md:text-sm text-muted-foreground mt-2 max-w-xl">
-              An overview of our self-sustaining operational metrics, rural penetration, and ARR milestones driving our growth.
-            </p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Stat 1 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.05 }}
-            >
-              <GlassCard className="p-6 border-white/[0.06] bg-slate-950/20 hover:border-emerald-500/20 transition-all duration-300">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Active Farmers</span>
-                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">150K+</h4>
-                  </div>
-                  <div className="h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                    <Users className="h-4.5 w-4.5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
-                  Serving farmers across 5 states with live mandi intelligence and weather forecasts.
-                </p>
-              </GlassCard>
-            </motion.div>
-
-            {/* Stat 2 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
-              <GlassCard className="p-6 border-emerald-500/20 bg-emerald-950/5 hover:border-emerald-500/40 transition-all duration-300 shadow-lg shadow-emerald-950/5 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/5 rounded-full blur-md" />
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">ARR Target Goal</span>
-                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">₹12 Crore</h4>
-                  </div>
-                  <div className="h-9 w-9 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                    <Target className="h-4.5 w-4.5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
-                  Projected Annual Recurring Revenue target for the next fiscal year (FY27).
-                </p>
-              </GlassCard>
-            </motion.div>
-
-            {/* Stat 3 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.15 }}
-            >
-              <GlassCard className="p-6 border-white/[0.06] bg-slate-950/20 hover:border-blue-500/20 transition-all duration-300">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">AI Diagnoses</span>
-                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">1.8M+</h4>
-                  </div>
-                  <div className="h-9 w-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-                    <TrendingUp className="h-4.5 w-4.5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
-                  Successful crop health and disease recommendations processed by AskFarmAI.
-                </p>
-              </GlassCard>
-            </motion.div>
-
-            {/* Stat 4 */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-            >
-              <GlassCard className="p-6 border-white/[0.06] bg-slate-950/20 hover:border-amber-500/20 transition-all duration-300">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Financing Mode</span>
-                    <h4 className="text-2xl md:text-3xl font-black font-display text-white mt-1">100% Bootstrapped</h4>
-                  </div>
-                  <div className="h-9 w-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                    <Award className="h-4.5 w-4.5" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-muted-foreground/80 mt-3 leading-relaxed">
-                  Highly efficient engineering culture making us self-sustaining from day one.
-                </p>
-              </GlassCard>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
+      {/* FOUNDERS GRID =================================================== */}
       <section className="px-6 md:px-12 py-16">
         <div className="mx-auto max-w-6xl">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {FOUNDERS.map((f, i) => {
-              const isCEO = f.name.includes("Aditya");
-              return (
-                <motion.div 
-                  key={f.email}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.08 }}
-                  className={isCEO ? "md:col-span-2 lg:col-span-3" : ""}
-                >
-                  <FounderCard founder={f} />
-                </motion.div>
-              );
-            })}
+            {FOUNDERS.map((f, i) => (
+              <motion.div 
+                key={f.email}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+              >
+                <FounderCard founder={f} />
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
@@ -283,13 +177,8 @@ export default function FoundersPage() {
 }
 
 function FounderCard({ founder }: { founder: Founder }) {
-  const isCEO = founder.name.includes("Aditya");
   return (
-    <GlassCard className={`h-full flex flex-col justify-between group overflow-hidden relative border backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300 p-6 md:p-8 ${
-      isCEO 
-        ? "border-emerald-500/35 bg-gradient-to-br from-[#051a0f]/80 via-[#030c07]/90 to-slate-950/90 shadow-emerald-950/20" 
-        : "border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/20"
-    }`}>
+    <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/20 backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300 p-6 md:p-8">
       {/* Top accent bar */}
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${founder.gradient}`} />
 
@@ -301,11 +190,7 @@ function FounderCard({ founder }: { founder: Founder }) {
           >
             {founder.initials}
           </div>
-          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold ${
-            founder.name.includes("Aditya") 
-              ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/5 animate-pulse-glow" 
-              : "bg-white/5 border border-white/10 text-muted-foreground"
-          }`}>
+          <span className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 animate-pulse-glow">
             {founder.stake}
           </span>
         </div>
