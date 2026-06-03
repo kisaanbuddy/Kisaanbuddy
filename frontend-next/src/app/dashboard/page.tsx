@@ -180,12 +180,18 @@ function DashboardInner({ user }: { user: any }) {
     return () => { cancelled = true }
   }, [])
 
-  /* try fetching latest sensor data */
+  /* try fetching latest sensor data and poll every 8 seconds */
   useEffect(() => {
-    fetch("/api/sensor/latest", { cache: "no-store" })
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d) setSensor(d) })
-      .catch(() => {})
+    const fetchSensor = () => {
+      fetch("/api/sensor/latest", { cache: "no-store" })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (d) setSensor(d) })
+        .catch(() => {})
+    }
+
+    fetchSensor()
+    const interval = setInterval(fetchSensor, 8000)
+    return () => clearInterval(interval)
   }, [])
 
   const humidityAlert = weather && weather.current.humidity >= 75
