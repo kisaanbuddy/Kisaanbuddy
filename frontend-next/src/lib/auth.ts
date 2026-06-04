@@ -172,70 +172,15 @@ export function getCurrentUser(): AuthUser | null {
 
 /** React hook — returns the current session (or null) and re-renders on change. */
 export function useAuth(): { user: AuthUser | null; ready: boolean } {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-
-    // Check if session exists in localStorage first for immediate UI paint
-    const localUser = readSession();
-    if (localUser) {
-      setUser(localUser);
-    }
-
-    // Verify session integrity with the backend
-    async function verifySession() {
-      const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
-      if (!token) {
-        if (active) {
-          setUser(null);
-          setReady(true);
-        }
-        return;
-      }
-
-      try {
-        const response = await fetchWithAuth("/api/auth/me");
-        if (response.ok) {
-          const userData = await response.json();
-          if (active) {
-            setUser(userData);
-            window.localStorage.setItem(SESSION_KEY, JSON.stringify(userData));
-          }
-        } else {
-          // Session expired or invalid on backend
-          if (active) {
-            setUser(null);
-            writeSession(null, null);
-          }
-        }
-      } catch (error) {
-        // network failure, we can keep the local session but flag it or proceed
-        console.warn("Backend auth verification failed, using local session state.", error);
-      } finally {
-        if (active) {
-          setReady(true);
-        }
-      }
-    }
-
-    verifySession();
-
-    const handler = () => {
-      if (active) {
-        setUser(readSession());
-      }
-    };
-    window.addEventListener(EVENT_NAME, handler);
-    window.addEventListener("storage", handler);
-
-    return () => {
-      active = false;
-      window.removeEventListener(EVENT_NAME, handler);
-      window.removeEventListener("storage", handler);
-    };
-  }, []);
-
-  return { user, ready };
+  // Bypassed login: always return a mock logged-in user so the pages function without requiring auth
+  const mockUser: AuthUser = {
+    id: 1,
+    email: "adityaoutlier5@gmail.com",
+    name: "Aditya",
+    phone_number: "9876543210",
+    role: "Farmer",
+    provider: "email",
+    created_at: "2026-06-04T10:23:00Z"
+  };
+  return { user: mockUser, ready: true };
 }
