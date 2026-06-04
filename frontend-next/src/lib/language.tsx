@@ -100,6 +100,16 @@ export const T = {
     // FOOTER
     footerTagline: "Empowering Indian farmers with AI",
     madeInIndia: "Made with love in India",
+    aboutUs: "About Us",
+    contactUs: "Contact Us",
+    privacyPolicy: "Privacy Policy",
+    termsConditions: "Terms & Conditions",
+    disclaimerLabel: "Disclaimer",
+    cookiePolicy: "Cookie Policy",
+    company: "Company",
+    legal: "Legal",
+    platformFeatures: "Platform Features",
+    allRightsReserved: "All rights reserved.",
 
     // DASHBOARD
     goodMorning: "Good Morning", goodAfternoon: "Good Afternoon", goodEvening: "Good Evening",
@@ -269,6 +279,16 @@ export const T = {
     // FOOTER
     footerTagline: "AI से भारतीय किसानों को सशक्त बनाना",
     madeInIndia: "भारत में प्यार से बनाया",
+    aboutUs: "हमारे बारे में",
+    contactUs: "संपर्क करें",
+    privacyPolicy: "गोपनीयता नीति",
+    termsConditions: "नियम और शर्तें",
+    disclaimerLabel: "अस्वीकरण",
+    cookiePolicy: "कुकी नीति",
+    company: "कंपनी",
+    legal: "कानूनी",
+    platformFeatures: "प्लेटफ़ॉर्म विशेषताएं",
+    allRightsReserved: "सर्वाधिकार सुरक्षित।",
 
     // DASHBOARD
     goodMorning: "सुप्रभात", goodAfternoon: "शुभ दोपहर", goodEvening: "शुभ संध्या",
@@ -438,6 +458,16 @@ export const T = {
     // FOOTER
     footerTagline: "AI ನಿಂದ ಭಾರತೀಯ ರೈತರನ್ನು ಸಬಲೀಕರಣ",
     madeInIndia: "ಭಾರತದಲ್ಲಿ ಪ್ರೀತಿಯಿಂದ ತಯಾರಿಸಲಾಗಿದೆ",
+    aboutUs: "ನಮ್ಮ ಬಗ್ಗೆ",
+    contactUs: "ಸಂಪರ್ಕಿಸಿ",
+    privacyPolicy: "ಗೌಪ್ಯತಾ ನೀತಿ",
+    termsConditions: "ನಿಯಮಗಳು ಮತ್ತು ನಿಬಂಧನೆಗಳು",
+    disclaimerLabel: "ಹಕ್ಕುತ್ಯಾಗ",
+    cookiePolicy: "ಕುಕಿ ನೀತಿ",
+    company: "ಕಂಪನಿ",
+    legal: "ಕಾನೂನು",
+    platformFeatures: "ವೇದಿಕೆಯ ವೈಶಿಷ್ಟ್ಯಗಳು",
+    allRightsReserved: "ಎಲ್ಲಾ ಹಕ್ಕುಗಳನ್ನು ಕಾಯ್ದಿರಿಸಲಾಗಿದೆ.",
 
     // DASHBOARD
     goodMorning: "ಶುಭೋದಯ", goodAfternoon: "ಶುಭ ಮಧ್ಯಾಹ್ನ", goodEvening: "ಶುಭ ಸಂಜೆ",

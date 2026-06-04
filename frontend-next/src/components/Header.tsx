@@ -26,7 +26,7 @@ const NAV_LINK_DEFS = [
   { href: '/chatbot',        key: 'aiChatbot',      icon: MessageSquare   },
 ] as const;
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/hardware'];
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/hardware', '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/cookie-policy'];
 
 export function Header() {
   const [open, setOpen]           = useState(false);

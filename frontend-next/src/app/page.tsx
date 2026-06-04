@@ -338,34 +338,6 @@ export default function LandingPage() {
           </FadeUp>
         </div>
       </section>
-
-      {/* FOOTER */}
-      <footer className="bg-background border-t border-border/30 px-6 md:px-12 py-12">
-        <div className="mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow shadow-emerald-500/20">
-                <Sprout className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-display font-bold text-base">Krishi<span className="text-emerald-500">AI</span></span>
-            </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-muted-foreground/80 justify-center">
-              <Link href="/founders"    className="hover:text-emerald-500 transition-colors">{t("founders")}</Link>
-              <Link href="/disease"     className="hover:text-emerald-500 transition-colors">{t("diseaseDetect")}</Link>
-              <Link href="/mandi"       className="hover:text-emerald-500 transition-colors">{t("mandi")}</Link>
-              <Link href="/chatbot"     className="hover:text-emerald-500 transition-colors">{t("aiChatbot")}</Link>
-              <Link href="/soil-health" className="hover:text-emerald-500 transition-colors">{t("soilHealth")}</Link>
-              <Link href="/khet-diary"  className="hover:text-emerald-500 transition-colors">{t("khetDiary")}</Link>
-              <Link href="/login"       className="hover:text-emerald-500 transition-colors">{t("login")}</Link>
-            </div>
-          </div>
-          <div className="divider-gradient mb-8" />
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-[10px] text-muted-foreground/60">
-            <p>&copy; {new Date().getFullYear()} KrishiAI &middot; {t("footerTagline")}</p>
-            <p>{t("madeInIndia")}</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }
