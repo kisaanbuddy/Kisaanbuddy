@@ -24,43 +24,43 @@ const FOUNDERS: Founder[] = [
     bio: "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
     initials: "AI",
     gradient: "from-emerald-400 to-green-600",
-    stake: "20% Stake",
+    stake: "Founder (100% Stake)",
   },
   {
     name: "Utkarsh Sinha",
-    role: "Co-Founder & ML Lead (Reporting to CEO)",
+    role: "Senior ML Engineer (Reporting to CEO)",
     email: "utkarsh.sinha.dev@gmail.com",
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
     gradient: "from-blue-400 to-indigo-600",
-    stake: "20% Stake",
+    stake: "Employee",
   },
   {
     name: "Ravi Sinha",
-    role: "Co-Founder & Operations Lead (Reporting to CEO)",
+    role: "Operations Manager (Reporting to CEO)",
     email: "sinharavi7088@gmail.com",
     bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
     initials: "RS",
     gradient: "from-amber-400 to-orange-600",
-    stake: "20% Stake",
+    stake: "Employee",
   },
   {
     name: "Anant Kumar",
-    role: "Co-Founder & Product Lead (Reporting to CEO)",
+    role: "Product Designer (Reporting to CEO)",
     email: "anant97715@gmail.com",
     bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
     initials: "AK",
     gradient: "from-purple-400 to-fuchsia-600",
-    stake: "20% Stake",
+    stake: "Employee",
   },
   {
     name: "Pranit Powar",
-    role: "Co-Founder & Support Lead (Reporting to CEO)",
+    role: "Customer Support Specialist (Reporting to CEO)",
     email: "pranitpowar1248@gmail.com",
     bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
     initials: "PP",
     gradient: "from-rose-400 to-pink-600",
-    stake: "20% Stake",
+    stake: "Employee",
   },
 ]
 
@@ -88,7 +88,7 @@ export default function FoundersPage() {
             </div>
             <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              Meet the founders
+              Meet the Team
             </span>
           </div>
 
@@ -212,7 +212,7 @@ function FounderCard({ founder }: { founder: Founder }) {
           className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.05] text-xs font-bold text-white transition-all"
         >
           <Mail className="h-4 w-4 text-emerald-400" />
-          <span>Email Founder</span>
+          <span>{founder.stake.includes("Founder") ? "Email Founder" : "Email Employee"}</span>
         </a>
         <div className="text-[10px] font-mono text-muted-foreground/50 text-center truncate">{founder.email}</div>
       </div>

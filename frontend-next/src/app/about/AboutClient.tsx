@@ -27,7 +27,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Utkarsh Sinha",
-    role: "Co-Founder & ML Lead",
+    role: "Senior ML Engineer",
     email: "utkarsh.sinha.dev@gmail.com",
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
@@ -35,7 +35,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Ravi Sinha",
-    role: "Co-Founder & Operations Lead",
+    role: "Operations Manager",
     email: "sinharavi7088@gmail.com",
     bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
     initials: "RS",
@@ -43,7 +43,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Anant Kumar",
-    role: "Co-Founder & Product Lead",
+    role: "Product Designer",
     email: "anant97715@gmail.com",
     bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
     initials: "AK",
@@ -51,7 +51,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Pranit Powar",
-    role: "Co-Founder & Support Lead",
+    role: "Customer Support Specialist",
     email: "pranitpowar1248@gmail.com",
     bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
     initials: "PP",
