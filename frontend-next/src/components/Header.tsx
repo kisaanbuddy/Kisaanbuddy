@@ -5,7 +5,7 @@ import {
   Leaf, Menu, X, LogOut, User as UserIcon,
   LayoutDashboard, CloudSun, Sprout, Bug,
   FileText, TrendingUp, Users, MessageSquare,
-  Star, ChevronDown, BookOpen, FlaskConical, Landmark,
+  Star, ChevronDown, BookOpen, FlaskConical, Landmark, Cpu,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -26,7 +26,7 @@ const NAV_LINK_DEFS = [
   { href: '/chatbot',        key: 'aiChatbot',      icon: MessageSquare   },
 ] as const;
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup'];
+const PUBLIC_ROUTES = ['/', '/login', '/signup', '/hardware'];
 
 export function Header() {
   const [open, setOpen]           = useState(false);
@@ -171,6 +171,16 @@ export function Header() {
             </Link>
           )}
 
+          {/* Hardware link — always visible on desktop */}
+          {pathname !== '/hardware' && (
+            <Link
+              href="/hardware"
+              className="hidden md:inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-emerald-500 transition-colors whitespace-nowrap px-3 py-2 rounded-xl hover:bg-background/40 dark:hover:bg-white/5 select-none"
+            >
+              <Cpu className="h-3 w-3 text-emerald-500" /> {t("hardware")}
+            </Link>
+          )}
+
           {/* Logged-out CTA */}
           {ready && !user && isPublic && pathname !== '/login' && (
             <Link
@@ -306,6 +316,16 @@ export function Header() {
                   Founders
                 </Link>
 
+                {/* Hardware */}
+                <Link
+                  href="/hardware"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5 transition-all duration-200"
+                >
+                  <Cpu className="h-4 w-4 shrink-0 text-emerald-500" />
+                  {t("hardware")}
+                </Link>
+
                 <div className="my-2 divider-gradient" />
 
                 <button
@@ -338,6 +358,13 @@ export function Header() {
                   className="rounded-xl px-4 py-3 text-center text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
                 >
                   <Star className="h-4 w-4 text-amber-500" /> Meet the Founders
+                </Link>
+                <Link
+                  href="/hardware"
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-4 py-3 text-center text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Cpu className="h-4 w-4 text-emerald-500" /> Smart Farm Hub
                 </Link>
               </>
             )}

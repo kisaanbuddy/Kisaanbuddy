@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/lib/auth"
 import { useLanguage } from "@/lib/language"
 import { motion, useInView } from "framer-motion"
+import { HardwareShowcase } from "@/components/HardwareShowcase"
 
 function FadeUp({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null)
@@ -224,6 +225,9 @@ export default function LandingPage() {
           </FadeUp>
         </div>
       </section>
+
+      {/* HARDWARE SHOWCASE */}
+      <HardwareShowcase />
 
       {/* PROBLEMS */}
       <section className="bg-background px-6 md:px-12 py-24 md:py-32 relative border-b border-border/30">

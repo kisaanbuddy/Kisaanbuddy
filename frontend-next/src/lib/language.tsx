@@ -26,6 +26,7 @@ export const T = {
     diseaseDetect: "Disease Detect", khetDiary: "Khet Diary", soilHealth: "Soil Health",
     schemes: "Schemes", mandi: "Mandi", workers: "Workers", aiChatbot: "AI Chatbot",
     founders: "Founders", login: "Login", logout: "Sign out", signUp: "Sign Up Free",
+    hardware: "Smart Hub",
 
     // HOMEPAGE HERO
     heroBadge: "Early Access – Completely Free",
@@ -194,6 +195,7 @@ export const T = {
     diseaseDetect: "बीमारी पहचान", khetDiary: "खेत डायरी", soilHealth: "मिट्टी स्वास्थ्य",
     schemes: "योजनाएं", mandi: "मंडी", workers: "मजदूर", aiChatbot: "AI चैटबॉट",
     founders: "संस्थापक", login: "लॉगिन", logout: "लॉग आउट", signUp: "मुफ्त साइन अप",
+    hardware: "स्मार्ट हब",
 
     // HOMEPAGE HERO
     heroBadge: "अर्ली एक्सेस – बिल्कुल मुफ्त",
@@ -362,6 +364,7 @@ export const T = {
     diseaseDetect: "ರೋಗ ಪತ್ತೆ", khetDiary: "ಹೊಲ ಡೈರಿ", soilHealth: "ಮಣ್ಣು ಆರೋಗ್ಯ",
     schemes: "ಯೋಜನೆಗಳು", mandi: "ಮಂಡಿ", workers: "ಕೆಲಸಗಾರರು", aiChatbot: "AI ಚಾಟ್‌ಬಾಟ್",
     founders: "ಸಂಸ್ಥಾಪಕರು", login: "ಲಾಗಿನ್", logout: "ಲಾಗ್ ಔಟ್", signUp: "ಉಚಿತ ಸೈನ್ ಅಪ್",
+    hardware: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
 
     // HOMEPAGE HERO
     heroBadge: "ಅರ್ಲಿ ಆಕ್ಸೆಸ್ – ಸಂಪೂರ್ಣ ಉಚಿತ",
