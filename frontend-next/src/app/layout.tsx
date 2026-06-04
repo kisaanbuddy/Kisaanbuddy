@@ -3,6 +3,7 @@ import { Inter, Outfit } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
 import { SwRegister } from '@/components/SwRegister';
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 pt-10 md:pt-14 pb-6">
               {children}
             </main>
+            <Footer />
           </div>
           <AssistantGate />
           <SwRegister />
