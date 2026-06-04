@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useLanguage, LANG_NAMES, LANG_FLAGS, type Lang } from '@/lib/language';
+import { useLanguage, LANG_NAMES, type Lang } from '@/lib/language';
 import { useAuth, logoutUser } from '@/lib/auth';
 
 const NAV_LINK_DEFS = [
@@ -27,6 +27,33 @@ const NAV_LINK_DEFS = [
 ] as const;
 
 const PUBLIC_ROUTES = ['/', '/login', '/signup', '/hardware', '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/cookie-policy'];
+
+function LangFlag({ lang }: { lang: Lang }) {
+  if (lang === 'en') {
+    return (
+      <svg className="h-3.5 w-5 rounded-sm shrink-0 border border-black/10 dark:border-white/10" viewBox="0 0 60 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 0h60v30H0z" fill="#012169"/>
+        <path d="M0 0l60 30M60 0L0 30" stroke="#fff" strokeWidth="6"/>
+        <path d="M0 0l60 30M60 0L0 30" stroke="#C8102E" strokeWidth="4"/>
+        <path d="M30 0v30M0 15h60" stroke="#fff" strokeWidth="10"/>
+        <path d="M30 0v30M0 15h60" stroke="#C8102E" strokeWidth="6"/>
+      </svg>
+    );
+  }
+  return (
+    <svg className="h-3.5 w-5 rounded-sm shrink-0 border border-black/10 dark:border-white/10" viewBox="0 0 900 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h900v200H0z" fill="#FF9933"/>
+      <path d="M0 200h900v200H0z" fill="#fff"/>
+      <path d="M0 400h900v200H0z" fill="#138808"/>
+      <circle cx="450" cy="300" r="80" stroke="#000080" strokeWidth="10"/>
+      <circle cx="450" cy="300" r="10" fill="#000080"/>
+      <line x1="450" y1="220" x2="450" y2="380" stroke="#000080" strokeWidth="6"/>
+      <line x1="370" y1="300" x2="530" y2="300" stroke="#000080" strokeWidth="6"/>
+      <line x1="393.4" y1="243.4" x2="506.6" y2="356.6" stroke="#000080" strokeWidth="6"/>
+      <line x1="393.4" y1="356.6" x2="506.6" y2="243.4" stroke="#000080" strokeWidth="6"/>
+    </svg>
+  );
+}
 
 export function Header() {
   const [open, setOpen]           = useState(false);
@@ -137,9 +164,9 @@ export function Header() {
           <div className="relative">
             <button
               onClick={() => setLangOpen(v => !v)}
-              className="flex items-center gap-1 h-9 rounded-xl border border-border/40 bg-background/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted/40 transition-all duration-200 backdrop-blur-sm select-none"
+              className="flex items-center gap-1.5 h-9 rounded-xl border border-border/40 bg-background/30 px-2.5 text-xs font-semibold text-foreground hover:bg-muted/40 transition-all duration-200 backdrop-blur-sm select-none"
             >
-              <span className="mr-0.5">{LANG_FLAGS[lang]}</span>
+              <LangFlag lang={lang} />
               <span>{LANG_NAMES[lang]}</span>
               <ChevronDown className={`h-3 w-3 text-muted-foreground/75 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -153,7 +180,7 @@ export function Header() {
                       onClick={() => { setLang(l); setLangOpen(false) }}
                       className={"w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors " + (lang === l ? "bg-emerald-500/10 text-emerald-500 font-semibold" : "text-foreground hover:bg-muted/50")}
                     >
-                      <span>{LANG_FLAGS[l]}</span> <span>{LANG_NAMES[l]}</span>
+                      <LangFlag lang={l} /> <span>{LANG_NAMES[l]}</span>
                     </button>
                   ))}
                 </div>

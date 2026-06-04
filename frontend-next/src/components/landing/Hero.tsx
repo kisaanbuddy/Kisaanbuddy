@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, MessageSquare, Shield, Zap, Sparkles } from 'lucide-react';
+import { ArrowRight, MessageSquare, Shield, Zap, Sparkles, Sprout, Bug, TrendingUp, CloudSun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/language';
 
@@ -71,26 +70,112 @@ export function Hero() {
           </div>
         </motion.div>
 
-        {/* Right Illustration Column */}
+        {/* Right Dashboard Mockup Column */}
         <motion.div 
           initial={{ opacity: 0, x: 30, scale: 0.96 }} 
           animate={{ opacity: 1, x: 0, scale: 1 }} 
           transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.15 }} 
           className="relative select-none w-full max-w-xl mx-auto lg:max-w-none flex justify-center items-center"
         >
-          {/* Card Frame with Glow */}
-          <div className="relative rounded-3xl p-1 bg-gradient-to-br from-white/10 via-emerald-500/10 to-white/0 dark:from-emerald-500/25 dark:via-teal-500/10 dark:to-transparent shadow-2xl overflow-hidden w-full aspect-[4/3]">
-            <Image 
-              src="/hero_farmer.png" 
-              alt="KrishiAI Futuristic Dashboard" 
-              fill
-              priority 
-              sizes="(max-width: 1024px) 100vw, 50vw" 
-              className="object-cover rounded-3xl brightness-[0.98] contrast-[1.02]" 
-            />
-            
-            {/* Glowing morphs inside image */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent pointer-events-none" />
+          {/* Card Frame with Glow (Dashboard Mockup) */}
+          <div className="relative rounded-3xl p-1 bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-transparent shadow-2xl w-full aspect-[4/3] bg-[#040815] border border-border/20 overflow-hidden text-left flex flex-col font-sans select-none">
+            {/* Window bar */}
+            <div className="flex items-center justify-between px-4 py-2.5 bg-card/60 border-b border-border/10">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500/80" />
+                <span className="w-2 h-2 rounded-full bg-amber-500/80" />
+                <span className="w-2 h-2 rounded-full bg-green-500/80" />
+              </div>
+              <span className="text-[9px] uppercase font-bold tracking-widest text-muted-foreground/60">KrishiAI Dashboard Console</span>
+              <div className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+
+            {/* Content body */}
+            <div className="flex-1 p-4 grid grid-cols-3 gap-3 overflow-hidden text-[9px] bg-slate-950/20">
+              {/* Left sidebar Mock */}
+              <div className="col-span-1 border border-border/20 rounded-xl p-3 bg-card/45 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-foreground font-extrabold pb-2 border-b border-border/10">
+                    <span className="text-xs">🌱</span>
+                    <span>Monitor</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-500 font-bold flex items-center gap-1.5">
+                      <Sprout className="h-3 w-3" /> Dashboard
+                    </div>
+                    <div className="p-1.5 rounded-lg text-muted-foreground/80 hover:text-foreground flex items-center gap-1.5">
+                      <Bug className="h-3 w-3" /> Disease Scan
+                    </div>
+                    <div className="p-1.5 rounded-lg text-muted-foreground/80 hover:text-foreground flex items-center gap-1.5">
+                      <TrendingUp className="h-3 w-3" /> Mandi Pricing
+                    </div>
+                    <div className="p-1.5 rounded-lg text-muted-foreground/80 hover:text-foreground flex items-center gap-1.5">
+                      <CloudSun className="h-3 w-3" /> Weather Alert
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 p-2 rounded-lg text-center font-bold">
+                  AI Status: Active
+                </div>
+              </div>
+
+              {/* Main panels (2 cols) */}
+              <div className="col-span-2 space-y-3 flex flex-col justify-between overflow-y-auto">
+                {/* Panel row 1: Diagnostic */}
+                <div className="rounded-xl border border-border/20 bg-card/35 p-3 flex flex-col gap-2 relative">
+                  <div className="flex items-center justify-between border-b border-border/10 pb-1.5">
+                    <span className="font-bold text-foreground">AI Soil Recommendation</span>
+                    <span className="bg-emerald-500/10 text-emerald-500 text-[8px] font-black px-1.5 py-0.5 rounded-full">OPTIMAL</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5 font-bold text-muted-foreground/85">
+                    <div className="bg-background/40 p-1.5 rounded-lg border border-border/15">
+                      <span className="block text-[7px] text-muted-foreground">Nitrogen (N)</span>
+                      <span className="text-foreground text-[10px] font-mono">92 mg/kg</span>
+                    </div>
+                    <div className="bg-background/40 p-1.5 rounded-lg border border-border/15">
+                      <span className="block text-[7px] text-muted-foreground">Phosphorus (P)</span>
+                      <span className="text-foreground text-[10px] font-mono">48 mg/kg</span>
+                    </div>
+                    <div className="bg-background/40 p-1.5 rounded-lg border border-border/15">
+                      <span className="block text-[7px] text-muted-foreground">Potassium (K)</span>
+                      <span className="text-foreground text-[10px] font-mono">205 mg/kg</span>
+                    </div>
+                  </div>
+                  <div className="text-[10px] font-extrabold text-emerald-500 flex items-center gap-1.5 mt-0.5">
+                    Suggested Crop: Premium Basmati Rice (98% match)
+                  </div>
+                </div>
+
+                {/* Panel row 2: Mandi Quotes & Weather Alert */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Mandi Rates Card */}
+                  <div className="rounded-xl border border-border/20 bg-card/35 p-3 flex flex-col gap-1.5">
+                    <span className="font-bold text-foreground">Agra Mandi (Potato)</span>
+                    <div className="flex justify-between items-center bg-background/30 p-1.5 rounded-lg border border-border/10 mt-1">
+                      <span className="text-foreground font-mono font-bold">₹1,850/Q</span>
+                      <span className="text-emerald-500 font-extrabold text-[8px]">+₹50 today</span>
+                    </div>
+                    <div className="text-[7px] text-muted-foreground font-semibold">Updated 5 min ago</div>
+                  </div>
+
+                  {/* Weather Alert Card */}
+                  <div className="rounded-xl border border-border/20 bg-card/35 p-3 flex flex-col gap-1.5 relative overflow-hidden">
+                    <div className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-red-500 animate-ping" />
+                    <span className="font-bold text-foreground flex items-center gap-1">
+                      <CloudSun className="h-3 w-3 text-sky-400" /> Weather Advisory
+                    </span>
+                    <span className="text-[8px] font-bold text-red-500 uppercase mt-0.5">Rain Warning Active</span>
+                    <p className="text-[7.5px] text-muted-foreground/80 leading-normal font-semibold">
+                      Heavy rainfall predicted. Stop urea applications immediately.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Glowing overlay */}
+            <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-emerald-500/10 to-transparent pointer-events-none" />
           </div>
 
           {/* Floaters */}
@@ -110,7 +195,7 @@ export function Hero() {
             transition={{ delay: 0.75 }} 
             className="absolute -bottom-4 -left-4 rounded-2xl glass-panel px-4 py-2.5 shadow-xl border-emerald-500/10 bg-background/80"
           >
-            <div className="text-lg font-display font-extrabold text-teal-500">9+</div>
+            <div className="text-lg font-display font-extrabold text-teal-400">9+</div>
             <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">AI Intelligence Tools</div>
           </motion.div>
         </motion.div>
