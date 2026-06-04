@@ -37,6 +37,9 @@ export const metadata: Metadata = {
     description: 'Empowering Indian farmers with AI-powered tools',
     type: 'website',
   },
+  other: {
+    'google-adsense-account': 'ca-pub-3770486100255800',
+  },
 };
 
 export const viewport: Viewport = {
@@ -56,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3770486100255800"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
         <Providers>
           <div className="relative flex min-h-screen flex-col">
