@@ -81,12 +81,12 @@ export function ContactClient() {
           <div className="lg:col-span-2 space-y-6">
             <div className="flex flex-col gap-2">
               <h2 className="text-xl font-bold font-display text-foreground">Get in Touch Directly</h2>
-              <p className="text-xs text-muted-foreground">Feel free to write to any of our co-founders for support or queries.</p>
+              <p className="text-xs text-muted-foreground">Feel free to write to any of our team members for support or queries.</p>
             </div>
 
             <div className="space-y-4">
               {[
-                { name: "Aditya Ishwar", role: "CEO & Full-Stack Architect", email: "adityaoutlier5@gmail.com" },
+                { name: "Aditya Ishwar", role: "Founder & CEO", email: "adityaoutlier5@gmail.com" },
                 { name: "Utkarsh Sinha", role: "ML Pipeline Lead", email: "utkarsh.sinha.dev@gmail.com" },
                 { name: "Ravi Sinha", role: "Operations & Partnerships", email: "sinharavi7088@gmail.com" }
               ].map((c) => (
