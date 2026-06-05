@@ -27,7 +27,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Utkarsh Sinha",
-    role: "Senior ML Engineer",
+    role: "Managing Director",
     email: "utkarsh.sinha.dev@gmail.com",
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
