@@ -87,7 +87,7 @@ export function ContactClient() {
             <div className="space-y-4">
               {[
                 { name: "Aditya Ishwar", role: "Founder & CEO", email: "adityaoutlier5@gmail.com" },
-                { name: "Utkarsh Sinha", role: "ML Pipeline Lead", email: "utkarsh.sinha.dev@gmail.com" },
+                { name: "Utkarsh Sinha", role: "Managing Director", email: "utkarsh.sinha.dev@gmail.com" },
                 { name: "Ravi Sinha", role: "Operations & Partnerships", email: "sinharavi7088@gmail.com" }
               ].map((c) => (
                 <a
