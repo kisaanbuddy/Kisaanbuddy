@@ -265,8 +265,13 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 // ─── Main Soil Page Component ──────────────────────────────────────────────────
 
 export default function SoilHealthPage() {
-  const { t } = useLanguage()
-  const [form, setForm] = useState<SoilForm>(INITIAL)
+  const { t, lang } = useLanguage()
+  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: lang }))
+  
+  useEffect(() => {
+    setForm((f) => ({ ...f, language: lang }))
+  }, [lang])
+
   const [response, setResponse] = useState("")
   const [streaming, setStreaming] = useState(false)
   const [done, setDone] = useState(false)
