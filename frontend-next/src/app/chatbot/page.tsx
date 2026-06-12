@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import { useState, useRef, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
@@ -100,18 +101,14 @@ function ChatbotInner() {
       } else {
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
-          text: lang === "hi-IN"
-            ? "Server se jawab nahi mila. Internet check karein ya thodi der baad try karein."
-            : "Could not connect to server. Please check your connection and try again.",
+          text: t("chatbot.could_not_connect_to"),
           sender: "bot"
         }])
       }
     } catch {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
-        text: lang === "hi-IN"
-          ? "Backend server se connect nahi ho pa raha. Ensure karein ki server chal raha ho."
-          : "Could not connect to backend. Make sure the server is running.",
+        text: t("chatbot.could_not_connect_to"),
         sender: "bot"
       }])
     } finally {
@@ -122,9 +119,7 @@ function ChatbotInner() {
   const toggleListen = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SR) {
-      alert(lang === "hi-IN"
-        ? "Aapka browser voice support nahi karta. Google Chrome use karein."
-        : "Voice not supported in this browser. Please use Google Chrome.")
+      alertt("chatbot.voice_not_supported_in")
       return
     }
 
@@ -331,7 +326,7 @@ function ChatbotInner() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={isListening
-                  ? (lang === "hi-IN" ? "Sun raha hoon..." : "Listening...")
+                  ? t("chatbot.listening")
                   : PLACEHOLDER[lang]}
                 className="h-12 bg-slate-950/60 border border-white/[0.08] focus:border-emerald-500/40 rounded-xl px-4 focus-visible:ring-emerald-500/10 focus-visible:ring-offset-0 text-sm shadow-sm w-full text-white placeholder:text-muted-foreground/60"
                 disabled={isListening}
@@ -368,7 +363,7 @@ function ChatbotInner() {
                 <span className="w-0.5 h-1.5 bg-rose-500 rounded animate-[pulse_0.6s_infinite_alternate]" />
               </div>
               <span className="text-[10px] text-rose-400 font-bold">
-                {lang === "hi-IN" ? "Aapki aawaz sun raha hoon... bolna band hone par process hoga" : "Recording voice... processing will trigger when you stop speaking"}
+                {t("chatbot.recording_voice_processing_will")}
               </span>
             </motion.div>
           )}
@@ -376,7 +371,7 @@ function ChatbotInner() {
           {/* Footer disclaimer */}
           <div className="text-center mt-3 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
             <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
-            <span>AI advisor metrics. Always confirm diagnostics with localized agronomy professionals.</span>
+            <span>{t("chatbot.ai_advisor_metrics_always")}</span>
           </div>
         </div>
       </GlassCard>
@@ -385,8 +380,9 @@ function ChatbotInner() {
 }
 
 export default function ChatbotPage() {
+  const { t } = useLanguage()
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground font-semibold">Configuring voice AI pipeline...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground font-semibold">{t("chatbot.configuring_voice_ai_pipeline")}</div>}>
       <ChatbotInner />
     </Suspense>
   )

@@ -480,12 +480,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       if (!match) return alert
       const triggered = alert.direction === "above" ? match.modal_price >= alert.threshold : match.modal_price <= alert.threshold
       if (triggered && !alert.fired) { 
-        const notifTitle = lang === "hi" ? "KrishiAI मंडी अलर्ट" : lang === "kn" ? "KrishiAI ಮಂಡಿ ಅಲರ್ಟ್" : "KrishiAI Mandi Alert";
-        const notifBody = lang === "hi" 
-          ? `${translateData(match.name, lang)} का भाव ₹${match.modal_price}/कुंतल हो गया है। आपका मूल्य अलर्ट ट्रिगर हो गया है।` 
-          : lang === "kn" 
-          ? `${translateData(match.name, lang)} ಬೆಲೆ ₹${match.modal_price}/ಕ್ವಿಂಟಾಲ್ ತಲುಪಿದೆ. ನಿಮ್ಮ ಬೆಲೆ ಅಲರ್ಟ್ ಟ್ರಿಗರ್ ಆಗಿದೆ.` 
-          : `${translateData(match.name, lang)} has hit ₹${match.modal_price}/qtl. This triggered your target alert.`;
+        const notifTitle = t("mandi.krishiai_mandi_alert");
+        const notifBody = t("mandi.translatedata_match_name_lang");
         
         new Notification(notifTitle, { 
           body: notifBody, 
@@ -554,7 +550,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
               <button 
                 onClick={() => removeAlert(alert.id)} 
                 className="hover:text-white transition-colors"
-                title={lang === "hi" ? "अलर्ट हटाएं" : lang === "kn" ? "ಅಲರ್ಟ್ ತೆಗೆದುಹಾಕಿ" : "Remove alert"}
+                title={t("mandi.remove_alert")}
               >
                 <X className="h-3.5 w-3.5 ml-1" />
               </button>
@@ -764,7 +760,7 @@ export default function MandiPage() {
               <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].mandiArrivals}</div>
               <div className="text-xl font-extrabold text-white flex items-center gap-1.5">
                 <Users className="h-4.5 w-4.5 text-emerald-400" />
-                {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} {lang === "hi" ? "टन" : lang === "kn" ? "ಟನ್" : "T"}
+                {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} {t("mandi.t")}
               </div>
             </div>
           </div>
@@ -918,16 +914,16 @@ export default function MandiPage() {
                     </div>
                     <div className="text-right">
                       <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].arrivalTonnes}</span>
-                      <span className="text-xl font-bold text-white block mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} {lang === "hi" ? "टन" : lang === "kn" ? "ಟನ್ಗಳು" : "Tons"}</span>
+                      <span className="text-xl font-bold text-white block mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} {t("mandi.tons")}</span>
                     </div>
                   </div>
 
                   {/* Price Range Visualizer */}
                   <div className="space-y-3">
                     <div className="flex justify-between text-xs text-muted-foreground font-semibold">
-                      <span>{lang === "hi" ? "न्यूनतम" : lang === "kn" ? "ಕಡಿಮೆ" : "Low"}: ₹{selectedCrop.min_price.toLocaleString()}</span>
-                      <span className="text-white">{lang === "hi" ? "वर्तमान मॉडल" : lang === "kn" ? "ಪ್ರಸ್ತುತ ಮಾದರಿ" : "Current Model"}: ₹{selectedCrop.modal_price.toLocaleString()}</span>
-                      <span>{lang === "hi" ? "अधिकतम" : lang === "kn" ? "ಹೆಚ್ಚು" : "High"}: ₹{selectedCrop.max_price.toLocaleString()}</span>
+                      <span>{t("mandi.low")}: ₹{selectedCrop.min_price.toLocaleString()}</span>
+                      <span className="text-white">{t("mandi.current_model")}: ₹{selectedCrop.modal_price.toLocaleString()}</span>
+                      <span>{t("mandi.high")}: ₹{selectedCrop.max_price.toLocaleString()}</span>
                     </div>
                     <div className="relative h-2 rounded-full bg-slate-900 overflow-hidden">
                       {/* Range slider indicator */}
@@ -1069,7 +1065,7 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
           <CardContent className="space-y-4">
             {/* Price */}
             <div className="flex items-baseline gap-1 bg-white/[0.02] border border-white/[0.04] p-3 rounded-xl justify-between">
-              <span className="text-[10px] text-muted-foreground font-semibold">{lang === "hi" ? "मॉडल भाव" : lang === "kn" ? "ಮಾದರಿ ಬೆಲೆ" : "Modal Price"}</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">{t("mandi.modal_price")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl font-black text-emerald-400 font-display">
                   ₹{crop.price.toLocaleString()}
@@ -1221,7 +1217,7 @@ function BuySellPanel({
                           eNAM
                         </div>
                         <div>
-                          <p className="font-bold text-xs text-white">National Agriculture Market</p>
+                          <p className="font-bold text-xs text-white">{t("mandi.national_agriculture_market")}</p>
                           <p className="text-[10px] text-muted-foreground">
                             Govt of India • Verification Center
                           </p>
@@ -1235,7 +1231,7 @@ function BuySellPanel({
 
                       <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between">
                         <div>
-                          <p className="text-[9px] text-muted-foreground uppercase font-bold">Trading Value</p>
+                          <p className="text-[9px] text-muted-foreground uppercase font-bold">{t("mandi.trading_value")}</p>
                           <p className="text-base font-extrabold text-emerald-400 font-display">
                             ₹{crop.price.toLocaleString()}
                             <span className="text-[10px] font-normal text-muted-foreground">

@@ -1,4 +1,5 @@
 "use client";
+import { useLanguage } from '@/lib/language'
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -106,6 +107,7 @@ const SPECIFICATIONS = [
 ];
 
 export function HardwareShowcase() {
+  const { t } = useLanguage()
   const [activeHotspot, setActiveHotspot] = useState<string>("dht22");
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [hovering3d, setHovering3d] = useState(false);
@@ -220,7 +222,7 @@ export function HardwareShowcase() {
                   <div className="h-5 w-5 rounded-md bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
                     <Sprout className="h-3 w-3 text-white" />
                   </div>
-                  <span className="text-[10px] font-bold text-white tracking-widest uppercase">KRISHIAI HUB</span>
+                  <span className="text-[10px] font-bold text-white tracking-widest uppercase">{t("hardware_showcase.krishiai_hub")}</span>
                 </div>
 
                 {/* OLED Display Interface */}
@@ -229,7 +231,7 @@ export function HardwareShowcase() {
                   <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[size:100%_4px,3px_100%] rounded-2xl pointer-events-none" />
                   
                   <div className="flex justify-between items-center text-[8px] opacity-75">
-                    <span>SYS: OK</span>
+                    <span>{t("hardware_showcase.sys_ok")}</span>
                     <span className="flex items-center gap-1">
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
                       WIFI ON
@@ -238,11 +240,11 @@ export function HardwareShowcase() {
                   
                   <div className="my-1.5 space-y-0.5">
                     <div className="text-xs font-black flex justify-between">
-                      <span>Temp:</span>
+                      <span>{t("hardware_showcase.temp")}</span>
                       <span className="text-white">{liveTemp}°C</span>
                     </div>
                     <div className="text-xs font-black flex justify-between">
-                      <span>Moist:</span>
+                      <span>{t("hardware_showcase.moist")}</span>
                       <span className="text-white">{liveMoisture}%</span>
                     </div>
                   </div>
@@ -256,15 +258,15 @@ export function HardwareShowcase() {
                 <div className="flex justify-around w-full items-center">
                   <div className="flex flex-col items-center gap-1">
                     <div className="h-3 w-3 rounded-full bg-emerald-500 shadow-glow-primary border border-emerald-400 animate-pulse" />
-                    <span className="text-[6px] uppercase tracking-wider text-muted-foreground">Status</span>
+                    <span className="text-[6px] uppercase tracking-wider text-muted-foreground">{t("hardware_showcase.status")}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1">
                     <div className="h-3 w-3 rounded-full bg-blue-500/80 shadow-[0_0_10px_rgba(59,130,246,0.5)] border border-blue-400" />
-                    <span className="text-[6px] uppercase tracking-wider text-muted-foreground">Tx Link</span>
+                    <span className="text-[6px] uppercase tracking-wider text-muted-foreground">{t("hardware_showcase.tx_link")}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1">
                     <div className="h-3 w-3 rounded-full bg-amber-500/50 border border-amber-400" />
-                    <span className="text-[6px] uppercase tracking-wider text-muted-foreground">Power</span>
+                    <span className="text-[6px] uppercase tracking-wider text-muted-foreground">{t("hardware_showcase.power")}</span>
                   </div>
                 </div>
 
@@ -319,7 +321,7 @@ export function HardwareShowcase() {
                   {activeHotspotData.type}
                 </div>
                 
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Sensor Details</span>
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{t("hardware_showcase.sensor_details")}</span>
                 <h3 className="text-2xl font-display font-black text-white mt-2 mb-4">{activeHotspotData.name}</h3>
                 
                 <p className="text-xs text-muted-foreground/80 leading-relaxed font-semibold mb-6">
@@ -328,7 +330,7 @@ export function HardwareShowcase() {
 
                 <div className="bg-[#040814]/40 border border-white/5 rounded-2xl p-4 flex justify-between items-center font-mono">
                   <div className="text-xs">
-                    <span className="text-muted-foreground block text-[9px] uppercase tracking-wider mb-0.5">Live Diagnostic Stream</span>
+                    <span className="text-muted-foreground block text-[9px] uppercase tracking-wider mb-0.5">{t("hardware_showcase.live_diagnostic_stream")}</span>
                     <span className="text-emerald-400 font-bold">{activeHotspotData.data}</span>
                   </div>
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 animate-pulse">
@@ -355,7 +357,7 @@ export function HardwareShowcase() {
         {/* ── Feature Cards Grid ── */}
         <div className="mb-24">
           <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">Full Monitoring Suite</h3>
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">{t("hardware_showcase.full_monitoring_suite")}</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto mt-2 leading-relaxed">
               Every critical agronomic parameter captured in a single integrated sensor node device.
             </p>
@@ -403,7 +405,7 @@ export function HardwareShowcase() {
         {/* ── AI + Hardware Ecosystem Flow Diagram ── */}
         <div className="mb-24">
           <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">Edge-to-Cloud Integration</h3>
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">{t("hardware_showcase.edge_to_cloud_integration")}</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto mt-2 leading-relaxed">
               How the KrishiAI hardware interacts directly with our analytical layers.
             </p>
@@ -417,9 +419,9 @@ export function HardwareShowcase() {
                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-green-600 flex items-center justify-center shadow-lg text-white mb-3">
                   <Cpu className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">Step 01</span>
-                <h4 className="text-xs font-bold text-white mt-1">ESP32 Node Reads</h4>
-                <p className="text-[9px] text-muted-foreground mt-1 max-w-[150px] font-semibold leading-relaxed">Sensors read soil moisture, soil & air temp, humidity.</p>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">{t("hardware_showcase.step_01")}</span>
+                <h4 className="text-xs font-bold text-white mt-1">{t("hardware_showcase.esp32_node_reads")}</h4>
+                <p className="text-[9px] text-muted-foreground mt-1 max-w-[150px] font-semibold leading-relaxed">{t("hardware_showcase.sensors_read_soil_moisture")}</p>
               </div>
 
               {/* Arrow 1 */}
@@ -432,8 +434,8 @@ export function HardwareShowcase() {
                 <div className="h-12 w-12 rounded-2xl bg-[#040814] border border-white/10 flex items-center justify-center text-emerald-400 mb-3 shadow-inner">
                   <RefreshCw className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">Step 02</span>
-                <h4 className="text-xs font-bold text-white mt-1">Ingest API Trigger</h4>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">{t("hardware_showcase.step_02")}</span>
+                <h4 className="text-xs font-bold text-white mt-1">{t("hardware_showcase.ingest_api_trigger")}</h4>
                 <p className="text-[9px] text-muted-foreground mt-1 max-w-[150px] font-semibold leading-relaxed">WiFi transmits measurements to FastAPI `/api/sensor/ingest`.</p>
               </div>
 
@@ -447,9 +449,9 @@ export function HardwareShowcase() {
                 <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-[#10b981] to-[#0ea5e9] flex items-center justify-center text-white mb-3 shadow-lg">
                   <Layers className="h-6 w-6" />
                 </div>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">Step 03</span>
-                <h4 className="text-xs font-bold text-white mt-1">Precision Analytics</h4>
-                <p className="text-[9px] text-muted-foreground mt-1 max-w-[150px] font-semibold leading-relaxed">KrishiAI Crop & Soil ML engines process live telemetry inputs.</p>
+                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase">{t("hardware_showcase.step_03")}</span>
+                <h4 className="text-xs font-bold text-white mt-1">{t("hardware_showcase.precision_analytics")}</h4>
+                <p className="text-[9px] text-muted-foreground mt-1 max-w-[150px] font-semibold leading-relaxed">{t("hardware_showcase.krishiai_crop_soil_ml")}</p>
               </div>
 
             </div>
@@ -471,9 +473,9 @@ export function HardwareShowcase() {
               <div className="flex items-center justify-between mb-6 font-mono">
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-emerald-400" />
-                  <span className="text-xs text-white font-bold">Node-01: Live Soil Moisture telemetry</span>
+                  <span className="text-xs text-white font-bold">{t("hardware_showcase.node_01_live_soil")}</span>
                 </div>
-                <span className="text-[9px] rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 animate-pulse">LIVE STREAM</span>
+                <span className="text-[9px] rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-2 py-0.5 animate-pulse">{t("hardware_showcase.live_stream")}</span>
               </div>
               
               {/* Pure SVG Line Chart */}
@@ -519,7 +521,7 @@ export function HardwareShowcase() {
               </div>
 
               <div className="flex justify-between font-mono text-[9px] text-muted-foreground mt-4 border-t border-white/[0.04] pt-3">
-                <span>Ticks (4s intervals)</span>
+                <span>{t("hardware_showcase.ticks_4s_intervals")}</span>
                 <span>Moisture Level: {liveMoisture}%</span>
               </div>
             </div>
@@ -527,8 +529,8 @@ export function HardwareShowcase() {
 
           {/* Details (Col 8-12) */}
           <div className="lg:col-span-5 space-y-6">
-            <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Dashboard Sync</span>
-            <h3 className="text-2xl md:text-3xl font-display font-black text-white leading-tight">Live Telemetry & Hyper-local Advisory</h3>
+            <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">{t("hardware_showcase.dashboard_sync")}</span>
+            <h3 className="text-2xl md:text-3xl font-display font-black text-white leading-tight">{t("hardware_showcase.live_telemetry_hyper_local")}</h3>
             <p className="text-xs text-muted-foreground/80 leading-relaxed font-semibold">
               The Smart Hub streams measurements straight into your KrishiAI cloud dashboard. Keep a continuous record of temperature spikes, frost limits, and dampness levels. Receive automated SMS recommendations whenever metrics shift.
             </p>
@@ -546,7 +548,7 @@ export function HardwareShowcase() {
         {/* ── Farmer Success Stories ── */}
         <div className="mb-24">
           <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">Farmer Success Stories</h3>
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">{t("hardware_showcase.farmer_success_stories")}</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto mt-2 leading-relaxed">
               Read how Indian farming enterprises are achieving smarter yields using the Hub.
             </p>
@@ -586,7 +588,7 @@ export function HardwareShowcase() {
         {/* ── Product Specifications ── */}
         <div className="mb-24">
           <div className="text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">Technical Specifications</h3>
+            <h3 className="text-2xl md:text-3xl font-display font-bold text-white">{t("hardware_showcase.technical_specifications")}</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto mt-2 leading-relaxed">
               Engineered using accessible, open-source industrial components.
             </p>
@@ -617,7 +619,7 @@ export function HardwareShowcase() {
             IP65 Protected Capsule
           </div>
           
-          <h3 className="text-2xl md:text-4xl font-display font-extrabold text-white leading-tight">Ready to upgrade your farm intelligence?</h3>
+          <h3 className="text-2xl md:text-4xl font-display font-extrabold text-white leading-tight">{t("hardware_showcase.ready_to_upgrade_your")}</h3>
           <p className="mt-4 text-emerald-100/60 font-semibold text-xs md:text-sm max-w-lg mx-auto leading-relaxed">
             Get the full blueprint to assemble your own hub for ₹1,200, or order a pre-assembled weatherproof capsule node directly from us.
           </p>

@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 /**
  * The expanded chat panel — mounted by the floating widget.
  *
@@ -62,6 +63,7 @@ function pickPrompt(p: (typeof QUICK_PROMPTS)[number], lang: Language) {
 }
 
 export function ChatPanel({ onClose }: { onClose: () => void }) {
+  const { t } = useLanguage()
   const {
     messages,
     activeTool,
@@ -194,7 +196,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
       className="glass-panel fixed bottom-24 right-4 z-[60] flex h-[min(600px,calc(100vh-8rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden border border-white/[0.08] backdrop-blur-xl bg-slate-950/70 shadow-2xl rounded-3xl"
       role="dialog"
-      aria-label="KrishiAI assistant"
+      aria-label={t("common.krishiai_assistant")}
     >
       {/* Header */}
       <div className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] bg-slate-950/40 px-4 py-3">
@@ -264,8 +266,8 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={() => void reset()}
             className="p-1.5 rounded-xl text-muted-foreground hover:bg-white/[0.04] hover:text-white transition-colors"
-            title="New conversation"
-            aria-label="Reset conversation"
+            title={t("common.new_conversation")}
+            aria-label={t("common.reset_conversation")}
           >
             <RotateCcw className="h-4 w-4" />
           </button>
@@ -274,8 +276,8 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-xl text-muted-foreground hover:bg-white/[0.04] hover:text-white transition-colors"
-            title="Close"
-            aria-label="Close assistant"
+            title={t("common.close")}
+            aria-label={t("common.close_assistant")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -349,14 +351,14 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={pendingImage}
-              alt="Uploaded leaf"
+              alt={t("common.uploaded_leaf")}
               className="h-12 w-12 rounded-xl object-cover border border-white/[0.08]"
             />
             <button
               type="button"
               onClick={() => setPendingImage(null)}
               className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-950 border border-white/[0.08] text-white hover:text-rose-400 transition-colors"
-              aria-label="Remove photo"
+              aria-label={t("common.remove_photo")}
             >
               <X className="h-2.5 w-2.5" />
             </button>
@@ -422,7 +424,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={cancel}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-white/[0.08] text-amber-400"
-            aria-label="Stop generating"
+            aria-label={t("common.stop_generating")}
           >
             <Loader2 className="h-4 w-4 animate-spin" />
           </button>
@@ -431,7 +433,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             type="button"
             onClick={() => submit()}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/10 hover:bg-emerald-600 transition-all hover:scale-105 active:scale-95"
-            aria-label="Send message"
+            aria-label={t("common.send_message")}
           >
             <Send className="h-3.5 w-3.5" />
           </button>

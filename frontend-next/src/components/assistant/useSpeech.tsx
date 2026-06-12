@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 /**
  * Browser speech primitives for the KrishiAI voice assistant.
  *
@@ -80,7 +81,7 @@ export interface UseSpeechReturn {
   speaking: boolean
 
   /** Start capturing speech. Returns true if capture actually started. */
-  startListening: () => Promise<boolean>
+  startListening: () =>{t("common.promise")}<boolean>
   /** Stop listening immediately and commit any partial as final (if supported). */
   stopListening: () => void
   /** Hard-abort listening without committing. */
@@ -93,6 +94,7 @@ export interface UseSpeechReturn {
 }
 
 export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
+  const { t } = useLanguage()
   const { language, onFinalTranscript, onInterim, onError } = opts
 
   const [listening, setListening] = useState(false)

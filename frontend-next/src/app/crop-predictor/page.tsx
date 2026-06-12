@@ -13,6 +13,7 @@ import { LocationAutoFill, type AutoFillValues } from "@/components/LocationAuto
 import { SensorAutoFill, type SensorValues } from "@/components/SensorAutoFill"
 
 export default function CropPredictor() {
+  const { t } = useLanguage()
   const [params, setParams] = useState({ N: 90, P: 42, K: 43, temperature: 25, humidity: 82, ph: 6.5, rainfall: 200 })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
@@ -97,7 +98,7 @@ export default function CropPredictor() {
                 {/* Nitrogen */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">Nitrogen (N)</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.nitrogen_n")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.N} mg/kg</span>
                   </div>
                   <Slider value={[params.N]} max={140} step={1} onValueChange={(v) => handleSlider("N", v)} />
@@ -106,7 +107,7 @@ export default function CropPredictor() {
                 {/* Phosphorus */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">Phosphorus (P)</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.phosphorus_p")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.P} mg/kg</span>
                   </div>
                   <Slider value={[params.P]} max={140} step={1} onValueChange={(v) => handleSlider("P", v)} />
@@ -115,7 +116,7 @@ export default function CropPredictor() {
                 {/* Potassium */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">Potassium (K)</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.potassium_k")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.K} mg/kg</span>
                   </div>
                   <Slider value={[params.K]} max={200} step={1} onValueChange={(v) => handleSlider("K", v)} />
@@ -124,7 +125,7 @@ export default function CropPredictor() {
                 {/* Temperature */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">Temperature</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.temperature")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.temperature} °C</span>
                   </div>
                   <Slider value={[params.temperature]} max={50} min={5} step={0.5} onValueChange={(v) => handleSlider("temperature", v)} />
@@ -133,7 +134,7 @@ export default function CropPredictor() {
                 {/* Humidity */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">Humidity</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.humidity")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.humidity} %</span>
                   </div>
                   <Slider value={[params.humidity]} max={100} step={1} onValueChange={(v) => handleSlider("humidity", v)} />
@@ -142,7 +143,7 @@ export default function CropPredictor() {
                 {/* pH Level */}
                 <div className="space-y-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">pH Level</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.ph_level")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.ph}</span>
                   </div>
                   <Slider value={[params.ph]} max={14} step={0.1} onValueChange={(v) => handleSlider("ph", v)} />
@@ -151,7 +152,7 @@ export default function CropPredictor() {
                 {/* Rainfall */}
                 <div className="space-y-2 sm:col-span-2">
                   <div className="flex justify-between items-center text-xs">
-                    <Label className="text-foreground/90">Rainfall</Label>
+                    <Label className="text-foreground/90">{t("crop_predictor.rainfall")}</Label>
                     <span className="text-[10px] text-muted-foreground font-mono font-semibold">{params.rainfall} mm</span>
                   </div>
                   <Slider value={[params.rainfall]} max={300} step={5} onValueChange={(v) => handleSlider("rainfall", v)} />
@@ -160,7 +161,7 @@ export default function CropPredictor() {
 
               <div className="pt-4 border-t border-border/20">
                 <Button type="submit" className="w-full text-xs font-bold uppercase tracking-wider h-11 gap-2 active:scale-[0.98] shadow-md shadow-emerald-500/10 hover:shadow-glow-primary" disabled={loading}>
-                  {loading ? <Loader2 className="animate-spin h-4 w-4" /> : <><Sparkles className="h-4 w-4" /> Analyze Farm Data</>}
+                  {loading ? <Loader2 className="animate-spin h-4 w-4" /> : <><Sparkles className="h-4 w-4" />{t("crop_predictor.analyze_farm_data")}</>}
                 </Button>
               </div>
             </form>
@@ -173,18 +174,18 @@ export default function CropPredictor() {
             {!result ? (
               <motion.div key="waiting" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-64 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed border-border/40 rounded-3xl backdrop-blur-sm select-none">
                 <Activity className="h-12 w-12 text-muted-foreground mb-4 animate-pulse opacity-10" />
-                <p className="text-xs text-muted-foreground/80 leading-relaxed max-w-xs font-semibold">Adjust the sliders to match your farm conditions and click analyze to generate prediction metrics.</p>
+                <p className="text-xs text-muted-foreground/80 leading-relaxed max-w-xs font-semibold">{t("crop_predictor.adjust_the_sliders_to")}</p>
               </motion.div>
             ) : (
               <motion.div key="result" initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", bounce: 0.3 }} className="bg-gradient-to-tr from-emerald-500 to-teal-500 p-[1px] rounded-3xl shadow-xl shadow-emerald-500/5">
                 <div className="bg-background rounded-[23px] p-8 text-center flex flex-col items-center justify-center h-full relative overflow-hidden backdrop-blur-xl border border-transparent select-none">
                   <motion.div initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.15 }}>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-2">Recommended Crop</p>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 mb-2">{t("crop_predictor.recommended_crop")}</p>
                     <h2 className="text-4xl md:text-5xl font-display font-black bg-clip-text text-transparent bg-gradient-to-br from-emerald-400 via-teal-400 to-emerald-500 capitalize py-1.5 drop-shadow-sm">{result}</h2>
                   </motion.div>
                   <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 text-xs text-muted-foreground/80 bg-background/50 border border-border/30 backdrop-blur-sm p-4 rounded-xl flex flex-col gap-2 max-w-xs leading-relaxed font-semibold">
-                    <p>Confidence Logic: <strong className="text-foreground">94.2%</strong> match based on historical crop dataset distributions.</p>
-                    <p className="text-emerald-500 flex items-center justify-center gap-1"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Optimal parameters match.</p>
+                    <p>{t("crop_predictor.confidence_logic")}<strong className="text-foreground">94.2%</strong>{t("crop_predictor.match_based_on_historical")}</p>
+                    <p className="text-emerald-500 flex items-center justify-center gap-1"><CheckCircle2 className="h-4 w-4 text-emerald-500" />{t("crop_predictor.optimal_parameters_match")}</p>
                   </motion.div>
                 </div>
               </motion.div>

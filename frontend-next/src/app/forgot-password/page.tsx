@@ -42,6 +42,7 @@ const localTranslations = {
 };
 
 export default function ForgotPasswordPage() {
+  const { t } = useLanguage()
   const { lang } = useLanguage();
   const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
 
@@ -118,7 +119,7 @@ export default function ForgotPasswordPage() {
               <div className="flex items-start gap-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-xs text-emerald-400 leading-relaxed">
                 <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5 animate-pulse-glow" />
                 <div>
-                  <span className="font-bold block text-white mb-1">Link Sent Successfully!</span>
+                  <span className="font-bold block text-white mb-1">{t("forgot_password.link_sent_successfully")}</span>
                   <span>{t.successMsg}</span>
                 </div>
               </div>

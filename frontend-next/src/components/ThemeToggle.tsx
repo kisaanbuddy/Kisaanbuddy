@@ -1,10 +1,12 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export function ThemeToggle() {
+  const { t } = useLanguage()
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
@@ -24,7 +26,7 @@ export function ThemeToggle() {
     >
       <Sun className="h-4 w-4 text-amber-500 transition-all duration-500 scale-100 rotate-0 dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute h-4 w-4 text-emerald-400 transition-all duration-500 scale-0 rotate-90 dark:rotate-0 dark:scale-100" />
-      <span className="sr-only">Toggle theme</span>
+      <span className="sr-only">{t("theme_toggle.toggle_theme")}</span>
     </button>
   )
 }

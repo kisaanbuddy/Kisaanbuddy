@@ -339,7 +339,7 @@ export default function SoilHealthPage() {
               Mitti Jaanch Center · Soil Diagnostics
             </div>
             <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white">
-              Soil Health <span className="bg-gradient-to-r from-teal-400 to-emerald-300 bg-clip-text text-transparent">Diagnostics</span>
+              Soil Health <span className="bg-gradient-to-r from-teal-400 to-emerald-300 bg-clip-text text-transparent">{t("soil_health.diagnostics")}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
               Enter your soil health card parameters or test values. Our agronomist AI model computes exact nutrient ratios and generates custom fertilization schedules.
@@ -365,8 +365,8 @@ export default function SoilHealthPage() {
                 <Zap className="h-4 w-4" />
               </div>
               <div>
-                <h2 className="text-md font-bold text-white font-display">Soil Health Parameters</h2>
-                <p className="text-[11px] text-muted-foreground">Values from physical card or standard lab metrics</p>
+                <h2 className="text-md font-bold text-white font-display">{t("soil_health.soil_health_parameters")}</h2>
+                <p className="text-[11px] text-muted-foreground">{t("soil_health.values_from_physical_card")}</p>
               </div>
             </div>
 
@@ -409,9 +409,9 @@ export default function SoilHealthPage() {
                 <TestTube className="h-4 w-4 text-teal-400" /> NPK Level Readings
               </div>
               <div className="grid gap-4">
-                <NutrientPicker label="Nitrogen (N)" symbol="N" value={form.nitrogen} onChange={(v) => upd("nitrogen", v)} unit="Kg/ha" />
-                <NutrientPicker label="Phosphorus (P)" symbol="P" value={form.phosphorus} onChange={(v) => upd("phosphorus", v)} unit="Kg/ha" />
-                <NutrientPicker label="Potassium (K)" symbol="K" value={form.potassium} onChange={(v) => upd("potassium", v)} unit="Kg/ha" />
+                <NutrientPicker label={t("soil_health.nitrogen_n")} symbol="N" value={form.nitrogen} onChange={(v) => upd("nitrogen", v)} unit="Kg/ha" />
+                <NutrientPicker label={t("soil_health.phosphorus_p")} symbol="P" value={form.phosphorus} onChange={(v) => upd("phosphorus", v)} unit="Kg/ha" />
+                <NutrientPicker label={t("soil_health.potassium_k")} symbol="K" value={form.potassium} onChange={(v) => upd("potassium", v)} unit="Kg/ha" />
               </div>
             </div>
 
@@ -539,16 +539,16 @@ export default function SoilHealthPage() {
                       <Leaf className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-md font-bold text-white font-display">Soil Diagnostic Preview</h2>
-                      <p className="text-[11px] text-muted-foreground">Interactive analysis meter of parameters</p>
+                      <h2 className="text-md font-bold text-white font-display">{t("soil_health.soil_diagnostic_preview")}</h2>
+                      <p className="text-[11px] text-muted-foreground">{t("soil_health.interactive_analysis_meter_of")}</p>
                     </div>
                   </div>
 
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <GaugeRing value={form.nitrogen} label="Nitrogen (N)" symbol="N" />
-                    <GaugeRing value={form.phosphorus} label="Phosphorus (P)" symbol="P" />
-                    <GaugeRing value={form.potassium} label="Potassium (K)" symbol="K" />
-                    <GaugeRing value={form.organicCarbon} label="Organic Carbon" symbol="OC" />
+                    <GaugeRing value={form.nitrogen} label={t("soil_health.nitrogen_n")} symbol="N" />
+                    <GaugeRing value={form.phosphorus} label={t("soil_health.phosphorus_p")} symbol="P" />
+                    <GaugeRing value={form.potassium} label={t("soil_health.potassium_k")} symbol="K" />
+                    <GaugeRing value={form.organicCarbon} label={t("soil_health.organic_carbon")} symbol="OC" />
                   </div>
 
                   {/* pH Status Indicator */}
@@ -577,7 +577,7 @@ export default function SoilHealthPage() {
                     </div>
                     <div className="flex justify-between text-[9px] text-muted-foreground/60 mt-1.5 font-mono">
                       <span>Acidic (&lt;6.5)</span>
-                      <span>Neutral (6.5-7.5)</span>
+                      <span>{t("soil_health.neutral_6_5_7")}</span>
                       <span>Alkaline (&gt;7.5)</span>
                     </div>
                   </div>
@@ -586,7 +586,7 @@ export default function SoilHealthPage() {
                 <div className="pt-6 border-t border-white/[0.04] text-center">
                   <div className="inline-flex items-center gap-2 text-xs text-teal-400 bg-teal-500/5 px-4 py-2.5 rounded-2xl border border-teal-500/10">
                     <Info className="h-4 w-4 shrink-0" />
-                    <span>Please enter values and click Generate for full recommendations.</span>
+                    <span>{t("soil_health.please_enter_values_and")}</span>
                   </div>
                 </div>
               </div>
@@ -640,7 +640,7 @@ export default function SoilHealthPage() {
 
                 <div className="pt-4 mt-4 border-t border-white/[0.06] text-center text-[10px] text-muted-foreground/60 flex items-center justify-center gap-1.5">
                   <RefreshCw className="h-3 w-3 animate-spin-slow" />
-                  <span>Recommendation calculated using regional agrochemical algorithms</span>
+                  <span>{t("soil_health.recommendation_calculated_using_regional")}</span>
                 </div>
               </div>
             )}

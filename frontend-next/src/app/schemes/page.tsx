@@ -108,7 +108,7 @@ export default function SchemesPage() {
               Sarkari Yojana Portal · Government Schemes
             </div>
             <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white flex items-center gap-3">
-              Government <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-teal-400 bg-clip-text text-transparent">Schemes</span>
+              Government <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-teal-400 bg-clip-text text-transparent">{t("schemes.schemes")}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
               Browse government agricultural grants, crop subsidies, low-interest microcredit options, and training resources. Filter instantly based on eligibility conditions.
@@ -130,7 +130,7 @@ export default function SchemesPage() {
               <Filter className="h-5 w-5 text-blue-400" />
             </div>
             <div>
-              <div className="font-bold text-white text-sm font-display">Targeted Eligibility Search</div>
+              <div className="font-bold text-white text-sm font-display">{t("schemes.targeted_eligibility_search")}</div>
               <div className="text-xs text-muted-foreground">
                 {filter.checked ? `${visible.length} of ${ALL_SCHEMES.length} schemes matching your criteria` : "Fill profile parameters below to crop check match factors"}
               </div>
@@ -167,13 +167,13 @@ export default function SchemesPage() {
             >
               <div className="mt-5 pt-5 border-t border-white/[0.06] grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Land Holding (acres)</Label>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("schemes.land_holding_acres")}</Label>
                   <Input 
                     type="number" 
                     min={0} 
                     value={filter.landAcres} 
                     onChange={(e) => upd("landAcres", e.target.value)}
-                    placeholder="e.g. 2.5" 
+                    placeholder={t("schemes.e_g_2_5")} 
                     className="h-10 rounded-xl border-white/[0.08] bg-slate-950 px-4 text-xs font-semibold focus-visible:ring-blue-500/30 text-white" 
                   />
                 </div>
@@ -184,23 +184,23 @@ export default function SchemesPage() {
                     onChange={(e) => upd("category", e.target.value as Category)}
                     className="w-full h-10 rounded-xl border border-white/[0.08] bg-slate-950/40 px-3.5 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all cursor-pointer"
                   >
-                    <option value="any" className="bg-slate-900">Any Category</option>
-                    <option value="general" className="bg-slate-900">General</option>
-                    <option value="obc" className="bg-slate-900">OBC</option>
-                    <option value="sc" className="bg-slate-900">SC</option>
-                    <option value="st" className="bg-slate-900">ST</option>
-                    <option value="women" className="bg-slate-900">Women Farmer</option>
+                    <option value="any" className="bg-slate-900">{t("schemes.any_category")}</option>
+                    <option value="general" className="bg-slate-900">{t("schemes.general")}</option>
+                    <option value="obc" className="bg-slate-900">{t("schemes.obc")}</option>
+                    <option value="sc" className="bg-slate-900">{t("schemes.sc")}</option>
+                    <option value="st" className="bg-slate-900">{t("schemes.st")}</option>
+                    <option value="women" className="bg-slate-900">{t("schemes.women_farmer")}</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Farmer Age</Label>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("schemes.farmer_age")}</Label>
                   <Input 
                     type="number" 
                     min={18} 
                     max={100} 
                     value={filter.age} 
                     onChange={(e) => upd("age", e.target.value)}
-                    placeholder="e.g. 35" 
+                    placeholder={t("schemes.e_g_35")} 
                     className="h-10 rounded-xl border-white/[0.08] bg-slate-950 px-4 text-xs font-semibold focus-visible:ring-blue-500/30 text-white" 
                   />
                 </div>
@@ -276,7 +276,7 @@ export default function SchemesPage() {
                   )}
                   <a href={scheme.link} target="_blank" rel="noreferrer" className="block w-full">
                     <Button className="w-full bg-slate-900 hover:bg-blue-500 border border-white/[0.08] hover:border-blue-500 text-white font-bold h-10 rounded-xl transition-all flex items-center justify-center gap-2 group/btn">
-                      <span>Apply Directly</span>
+                      <span>{t("schemes.apply_directly")}</span>
                       <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1.5 transition-transform" />
                     </Button>
                   </a>
@@ -290,8 +290,8 @@ export default function SchemesPage() {
       {visible.length === 0 && (
         <div className="rounded-2xl border border-dashed border-white/[0.08] bg-slate-950/20 p-12 text-center">
           <HelpCircle className="h-10 w-10 mx-auto mb-3 text-muted-foreground/30" />
-          <p className="text-muted-foreground text-sm font-semibold">No government schemes matched your parameters.</p>
-          <button onClick={reset} className="mt-3 text-xs text-blue-400 font-bold hover:underline">Clear Search Parameters</button>
+          <p className="text-muted-foreground text-sm font-semibold">{t("schemes.no_government_schemes_matched")}</p>
+          <button onClick={reset} className="mt-3 text-xs text-blue-400 font-bold hover:underline">{t("schemes.clear_search_parameters")}</button>
         </div>
       )}
     </div>

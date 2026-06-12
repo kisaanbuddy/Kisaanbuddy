@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 /**
  * LocationAutoFill — auto-fills Temperature, Humidity, and Rainfall in the
@@ -42,6 +43,7 @@ type Props = {
 }
 
 export function LocationAutoFill({ onApply }: Props) {
+  const { t } = useLanguage()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [info, setInfo] = useState<string | null>(null)
@@ -131,7 +133,7 @@ export function LocationAutoFill({ onApply }: Props) {
     <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent p-4 mb-5">
       <div className="flex items-center gap-2 mb-3">
         <MapPin className="h-4 w-4 text-emerald-500" />
-        <span className="text-sm font-semibold">Auto-fill from your location</span>
+        <span className="text-sm font-semibold">{t("location_autofill.auto_fill_from_your")}</span>
         <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
           temp · humidity · rainfall
         </span>
@@ -182,7 +184,7 @@ export function LocationAutoFill({ onApply }: Props) {
               autoFocus
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Type a city name (e.g. Pune, Bengaluru, Lucknow)..."
+              placeholder={t("location_autofill.type_a_city_name")}
               className="w-full rounded-lg border bg-background py-2.5 pl-10 pr-9 text-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
             {searchQuery && (

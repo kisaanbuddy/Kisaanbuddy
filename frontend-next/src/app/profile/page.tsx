@@ -65,6 +65,7 @@ const localTranslations = {
 };
 
 export default function ProfilePage() {
+  const { t } = useLanguage()
   const { lang } = useLanguage();
   const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
@@ -105,7 +106,7 @@ export default function ProfilePage() {
   const displayPhone = isPlaceholderPhone ? t.notProvided : user.phone_number;
 
   const joinedDate = user.created_at
-    ? new Date(user.created_at).toLocaleDateString(lang === "hi" ? "hi-IN" : lang === "kn" ? "kn-IN" : "en-US", {
+    ? new Date(user.created_at).toLocaleDateStringt("profile.en_us"), {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -180,7 +181,7 @@ export default function ProfilePage() {
 
               <div className="space-y-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">Email Address</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t("profile.email_address")}</span>
                   <span className="text-sm text-white font-medium flex items-center gap-2 mt-0.5 break-all">
                     <Mail className="h-3.5 w-3.5 text-muted-foreground/60" />
                     {user.email || t.notProvided}
@@ -201,7 +202,7 @@ export default function ProfilePage() {
             <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-5 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-2">
                 <Activity className="h-4 w-4" />
-                <span>Platform Details</span>
+                <span>{t("profile.platform_details")}</span>
               </h3>
 
               <div className="space-y-3">
@@ -241,13 +242,13 @@ export default function ProfilePage() {
                     <Clock className="h-5 w-5" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">Last Seen</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t("profile.last_seen")}</span>
                     <span className="text-sm text-white font-semibold">
                       {user.last_seen_at
-                        ? new Date(user.last_seen_at).toLocaleTimeString(lang === "hi" ? "hi-IN" : lang === "kn" ? "kn-IN" : "en-US", {
+                        ? new Date(user.last_seen_at).toLocaleTimeStringt("profile.en_us"), {
                             hour: "2-digit",
                             minute: "2-digit",
-                          }) + " " + new Date(user.last_seen_at).toLocaleDateString(lang === "hi" ? "hi-IN" : lang === "kn" ? "kn-IN" : "en-US", {
+                          }) + " " + new Date(user.last_seen_at).toLocaleDateStringt("profile.en_us"), {
                             month: "short",
                             day: "numeric",
                           })

@@ -111,7 +111,7 @@ export default function JobsPage() {
               Rural Marketplace · ग्रामीण बाजार
             </div>
             <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white">
-              Worker <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Connect</span>
+              Worker <span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">{t("worker_connect.connect")}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
               {SUBHEADING[language]}
@@ -866,7 +866,7 @@ function JobCard({
             className="flex-1 text-xs rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 text-[#25D366] font-bold h-9 flex items-center justify-center gap-1.5 transition-all"
           >
             <MessageCircle className="h-3.5 w-3.5" />
-            <span>WhatsApp</span>
+            <span>{t("worker_connect.whatsapp")}</span>
           </a>
         </div>
       </div>
