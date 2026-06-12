@@ -105,7 +105,7 @@ export default function ProfilePage() {
   const displayPhone = isPlaceholderPhone ? lt.notProvided : user.phone_number;
 
   const joinedDate = user.created_at
-    ? new Date(user.created_at).toLocaleDateStringt("profile.en_us"), {
+    ? new Date(user.created_at).toLocaleDateString(lang === "hi" ? "hi-IN" : lang === "kn" ? "kn-IN" : "en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -244,10 +244,10 @@ export default function ProfilePage() {
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t("profile.last_seen")}</span>
                     <span className="text-sm text-white font-semibold">
                       {user.last_seen_at
-                        ? new Date(user.last_seen_at).toLocaleTimeStringt("profile.en_us"), {
+                        ? new Date(user.last_seen_at).toLocaleTimeString(lang === "hi" ? "hi-IN" : lang === "kn" ? "kn-IN" : "en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
-                          }) + " " + new Date(user.last_seen_at).toLocaleDateStringt("profile.en_us"), {
+                          }) + " " + new Date(user.last_seen_at).toLocaleDateString(lang === "hi" ? "hi-IN" : lang === "kn" ? "kn-IN" : "en-US", {
                             month: "short",
                             day: "numeric",
                           })
