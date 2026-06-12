@@ -310,8 +310,8 @@ function HireTab({ language }: { language: Language }) {
             <Briefcase className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-md font-bold text-white font-display">Job Specifications</h2>
-            <p className="text-[11px] text-muted-foreground">Complete criteria to dispatch notification matching algorithm</p>
+            <h2 className="text-md font-bold text-white font-display">{lblEn("Job Specifications", "नौकरी का विवरण", "ಉದ್ಯೋಗದ ವಿವರಗಳು")}</h2>
+            <p className="text-[11px] text-muted-foreground">{lblEn("Complete criteria to dispatch notification matching algorithm", "मैचिंग नोटिफिकेशन भेजने के लिए मानदंड भरें", "ಹೊಂದಾಣಿಕೆಯ ಅಧಿಸೂಚನೆಯನ್ನು ಕಳುಹಿಸಲು ಮಾನದಂಡಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ")}</p>
           </div>
         </div>
 
@@ -421,7 +421,7 @@ function HireTab({ language }: { language: Language }) {
             <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-400 bg-emerald-500/5 px-2.5 py-1 rounded-lg border border-emerald-500/10 mt-1">
               <TrendingUp className="h-3 w-3" />
               <span>
-                {lblEn("Normal range", "सामान्य रेंज", "ಸಾಮಾನ್ಯ ಶ್ರೇಣಿ")}: ₹{wageHint.suggested_min}–₹{wageHint.suggested_max}/day
+                {lblEn("Normal range", "सामान्य रेंज", "ಸಾಮಾನ್ಯ ಶ್ರೇಣಿ")}: ₹{wageHint.suggested_min}–₹{wageHint.suggested_max}/{lblEn("day", "दिन", "ದಿನ")}
               </span>
             </div>
           )}
@@ -514,15 +514,15 @@ function HireTab({ language }: { language: Language }) {
                 <Sparkles className="h-4 w-4" />
               </div>
               <div>
-                <h2 className="text-md font-bold text-white font-display">Live Card Preview</h2>
-                <p className="text-[11px] text-muted-foreground">Real-time update of matching marketplace card</p>
+                <h2 className="text-md font-bold text-white font-display">{lblEn("Live Card Preview", "लाइव पूर्वावलोकन", "ಲೈವ್ ಕಾರ್ಡ್ ಮುನ್ನೋಟ")}</h2>
+                <p className="text-[11px] text-muted-foreground">{lblEn("Real-time update of matching marketplace card", "मैचिंग मार्केटप्लेस कार्ड का रियल-टाइम अपडेट", "ಮಾರ್ಕೆಟ್‌ಪ್ಲೇಸ್ ಕಾರ್ಡ್‌ನ ನೈಜ-ಸಮಯದ ನವೀಕರಣ")}</p>
               </div>
             </div>
             <PreviewCard form={form} language={language} />
           </div>
 
           <div className="pt-6 mt-6 border-t border-white/[0.04] text-[10px] text-muted-foreground/60 leading-relaxed text-center">
-            Once posted, this will be dispatched to matches in a ~15km radius.
+            {lblEn("Once posted, this will be dispatched to matches in a ~15km radius.", "एक बार पोस्ट होने के बाद, यह ~15 किमी के दायरे में मैच होने वाले लोगों को भेज दिया जाएगा।", "ಪೋಸ್ಟ್ ಮಾಡಿದ ನಂತರ, ಇದನ್ನು ~15 ಕಿಮೀ ವ್ಯಾಪ್ತಿಯಲ್ಲಿ ಹೊಂದಾಣಿಕೆಯಾಗುವವರಿಗೆ ಕಳುಹಿಸಲಾಗುತ್ತದೆ.")}
           </div>
         </GlassCard>
       </section>
@@ -542,7 +542,7 @@ function PreviewCard({ form, language }: { form: JobPostIn; language: Language }
     <div className="rounded-2xl border border-white/[0.08] bg-slate-950/40 p-5 space-y-4 shadow-inner relative overflow-hidden">
       <div className="absolute top-0 right-0 p-3">
         <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-          Draft Preview
+          {lblEn("Draft Preview", "ड्राफ्ट पूर्वावलोकन", "ಕರಡು ಮುನ್ನೋಟ")}
         </span>
       </div>
 
@@ -554,14 +554,14 @@ function PreviewCard({ form, language }: { form: JobPostIn; language: Language }
         
         <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold">
           <MapPin className="h-4 w-4 shrink-0 text-emerald-400/80" />
-          <span>{loc || (language === "hi" ? "जगह डालें" : "Add location")}</span>
+          <span>{loc || lblEn("Add location", "स्थान जोड़ें", "ಸ್ಥಳ ಸೇರಿಸಿ")}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-3 pt-2">
           <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
             <Users className="h-4 w-4 text-emerald-400/80 shrink-0" />
             <div>
-              <div className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider">Required</div>
+              <div className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider">{lblEn("Required", "आवश्यकता", "ಅಗತ್ಯವಿದೆ")}</div>
               <div className="text-white mt-0.5">
                 {form.workers_needed}{" "}
                 {lblEn("workers", "मज़दूर", "ಕೆಲಸಗಾರರು")}
@@ -572,18 +572,21 @@ function PreviewCard({ form, language }: { form: JobPostIn; language: Language }
           <div className="flex items-center gap-2 text-muted-foreground text-xs font-semibold p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.04]">
             <Calendar className="h-4 w-4 text-teal-400/80 shrink-0" />
             <div>
-              <div className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider">Duration</div>
-              <div className="text-white mt-0.5">{form.duration_days} Days</div>
+              <div className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider">{lblEn("Duration", "अवधि", "ಅವಧಿ")}</div>
+              <div className="text-white mt-0.5">
+                {form.duration_days}{" "}
+                {lblEn("Days", "दिन", "ದಿನಗಳು")}
+              </div>
             </div>
           </div>
         </div>
 
         <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-between">
           <div>
-            <span className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider block">Estimated Wage</span>
+            <span className="text-[9px] uppercase text-muted-foreground font-bold tracking-wider block">{lblEn("Estimated Wage", "अनुमानित मजदूरी", "ಅಂದಾಜು ಕೂಲಿ")}</span>
             <div className="flex items-baseline gap-1 mt-0.5">
               <span className="text-lg font-black text-emerald-400 font-display">₹{form.wage_amount}</span>
-              <span className="text-[10px] text-muted-foreground font-semibold">/day</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">/{lblEn("day", "दिन", "ದಿನ")}</span>
             </div>
           </div>
         </div>
@@ -594,12 +597,12 @@ function PreviewCard({ form, language }: { form: JobPostIn; language: Language }
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <User className="h-4 w-4 text-emerald-400/80 shrink-0" />
             <span>
-              Employer: <span className="font-bold text-white">{form.contact_name}</span>
+              {lblEn("Employer", "नियोक्ता", "ಉದ್ಯೋಗದಾತ")}: <span className="font-bold text-white">{form.contact_name}</span>
             </span>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Phone className="h-4 w-4 text-emerald-400/80 shrink-0" />
-            <span>Contact: {form.contact_phone}</span>
+            <span>{lblEn("Contact", "संपर्क", "ಸಂಪರ್ಕ")}: {form.contact_phone}</span>
           </div>
         </div>
       )}
@@ -781,6 +784,12 @@ function JobCard({
   const lblEn = (en: string, hi: string, kn: string) =>
     language === "hi" ? hi : language === "kn" ? kn : en
 
+  const translateWageUnit = (unit: string) => {
+    const clean = unit.replace("per_", "")
+    if (clean === "day") return lblEn("day", "दिन", "ದಿನ")
+    return clean
+  }
+
   return (
     <GlassCard className="border border-white/[0.08] backdrop-blur-md p-5 space-y-4 shadow-lg bg-slate-950/20 hover:border-emerald-500/20 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">
       <div className="space-y-3">
@@ -791,7 +800,7 @@ function JobCard({
           </div>
           {match_score != null && (
             <div className="text-[10px] font-bold rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-0.5">
-              {Math.round(match_score * 100)}% match
+              {Math.round(match_score * 100)}% {lblEn("match", "मैच", "ಹೊಂದಾಣಿಕೆ")}
             </div>
           )}
         </div>
@@ -804,7 +813,7 @@ function JobCard({
               .join(", ")}
             {distance_km != null && (
               <span className="ml-1.5 text-emerald-400">
-                · ~{distance_km} km away
+                · ~{distance_km} {lblEn("km away", "किमी दूर", "ಕಿಮೀ ದೂರ")}
               </span>
             )}
           </span>
@@ -813,16 +822,16 @@ function JobCard({
         <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Users className="h-4 w-4 text-emerald-400/80" />
-            <span>{job.workers_needed} Required</span>
+            <span>{job.workers_needed} {lblEn("Required", "आवश्यकता", "ಅಗತ್ಯವಿದೆ")}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <IndianRupee className="h-4 w-4 text-teal-400/80" />
             <span className="text-white">₹{job.wage_amount}</span>
-            <span>/{job.wage_unit.replace("per_", "")}</span>
+            <span>/{translateWageUnit(job.wage_unit)}</span>
           </span>
           <span className="flex items-center gap-1.5">
             <Calendar className="h-4 w-4 text-amber-400/80" />
-            <span>{job.duration_days} Days</span>
+            <span>{job.duration_days} {lblEn("Days", "दिन", "ದಿನಗಳು")}</span>
           </span>
         </div>
 
@@ -839,7 +848,7 @@ function JobCard({
             <User className="h-3 w-3" />
           </div>
           <span>
-            Contact: <span className="font-bold text-white">{job.contact_name}</span>
+            {lblEn("Contact", "संपर्क", "ಸಂಪರ್ಕ")}: <span className="font-bold text-white">{job.contact_name}</span>
           </span>
         </div>
         <div className="flex gap-2">

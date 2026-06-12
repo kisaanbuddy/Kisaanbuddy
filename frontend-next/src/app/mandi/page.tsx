@@ -74,6 +74,341 @@ const ENAM_LANG = {
   },
 }
 
+const ALERT_LANG = {
+  en: {
+    panelTitle: "Target Price Notifications",
+    setupMonitors: "Setup push price monitors for selected commodities",
+    activeMonitors: (count: number) => `${count} active monitors`,
+    enableNotifications: "Enable Notifications",
+    checkStatus: "Check Status",
+    cancel: "Cancel",
+    addTargetPrice: "Add Target Price",
+    cropCommodity: "Crop / Commodity",
+    selectCommodity: "Select commodity",
+    triggerRule: "Trigger Rule",
+    goesAbove: "Goes Above",
+    goesBelow: "Goes Below",
+    targetPriceLabel: "Target (₹ per Qtl)",
+    targetPricePlaceholder: "Target price",
+    createTrigger: "Create Trigger"
+  },
+  hi: {
+    panelTitle: "लक्ष्य मूल्य सूचनाएं",
+    setupMonitors: "चयनित फसलों के लिए मूल्य अलर्ट सेट करें",
+    activeMonitors: (count: number) => `${count} सक्रिय अलर्ट`,
+    enableNotifications: "सूचनाएं सक्षम करें",
+    checkStatus: "स्थिति जांचें",
+    cancel: "रद्द करें",
+    addTargetPrice: "लक्ष्य मूल्य जोड़ें",
+    cropCommodity: "फसल / वस्तु",
+    selectCommodity: "फसल चुनें",
+    triggerRule: "अलर्ट नियम",
+    goesAbove: "ऊपर जाने पर",
+    goesBelow: "नीचे जाने पर",
+    targetPriceLabel: "लक्ष्य (₹ प्रति क्विंटल)",
+    targetPricePlaceholder: "लक्ष्य मूल्य",
+    createTrigger: "अलर्ट सेट करें"
+  },
+  kn: {
+    panelTitle: "ಗುರಿ ಬೆಲೆ ಅಧಿಸೂಚನೆಗಳು",
+    setupMonitors: "ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆಗಳಿಗೆ ಬೆಲೆ ಅಲರ್ಟ್ ಸೆಟ್ ಮಾಡಿ",
+    activeMonitors: (count: number) => `${count} ಸಕ್ರಿಯ ಅಲರ್ಟ್‌ಗಳು`,
+    enableNotifications: "ಅಧಿಸೂಚನೆ ಸಕ್ರಿಯಗೊಳಿಸಿ",
+    checkStatus: "ಸ್ಥಿತಿ ಪರೀಕ್ಷಿಸಿ",
+    cancel: "ರದ್ದುಮಾಡಿ",
+    addTargetPrice: "ಗುರಿ ಬೆಲೆ ಸೇರಿಸಿ",
+    cropCommodity: "ಬೆಳೆ / ಪದಾರ್ಥ",
+    selectCommodity: "ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ",
+    triggerRule: "ನಿಯಮ",
+    goesAbove: "ಹೆಚ್ಚಾದಾಗ",
+    goesBelow: "ಕಡಿಮೆಯಾದಾಗ",
+    targetPriceLabel: "ಗುರಿ ಬೆಲೆ (₹ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್)",
+    targetPricePlaceholder: "ಗುರಿ ಬೆಲೆ",
+    createTrigger: "ಅಲರ್ಟ್ ರಚಿಸಿ"
+  }
+}
+
+const MANDI_PAGE_LANG = {
+  en: {
+    enamConnected: "eNAM Connected Mandi",
+    mandi: "Mandi",
+    marketplace: "Marketplace",
+    heroDesc: "Real-time commodity valuation indexes from national APMC centers. Place orders, monitor trading trends, or list inventories directly with automated government verification.",
+    totalCrops: "Total Crops",
+    mandiArrivals: "Mandi Arrivals",
+    searchPlaceholder: "Search commodities, APMC mandis, states...",
+    syncingIndex: "Synchronizing Mandi Pricing Index...",
+    noCommodities: "No commodities found matching filter.",
+    returnMarketplace: "Return to Marketplace",
+    varietyLabel: "Specific variety: ",
+    livePriceIndex: "Live Price Index",
+    arrivalTonnes: "Arrival Tonnes",
+    low: "Low",
+    currentModel: "Current Model",
+    high: "High",
+    apmcMandi: "APMC Mandi",
+    stateCenter: "State Center",
+    priceHistory: "Market Price History",
+    historyTrend: "Historical fluctuation trend for the past 7 days",
+    liveGraph: "Live Graph",
+    buy: "Buy",
+    sell: "Sell",
+    retry: "Retry Connection",
+    removeAlert: "Remove alert",
+  },
+  hi: {
+    enamConnected: "eNAM कनेक्टेड मंडी",
+    mandi: "मंडी",
+    marketplace: "बाजार",
+    heroDesc: "राष्ट्रीय APMC केंद्रों से वास्तविक समय में फसल मूल्य सूचकांक। सीधे सरकारी सत्यापन के साथ ऑर्डर दें, व्यापार के रुझान देखें या अपनी फसल सूचीबद्ध करें।",
+    totalCrops: "कुल फसलें",
+    mandiArrivals: "मंडी आवक",
+    searchPlaceholder: "फसलें, APMC मंडियां, राज्य खोजें...",
+    syncingIndex: "मंडी मूल्य सूचकांक सिंक किया जा रहा है...",
+    noCommodities: "फिल्टर से मेल खाने वाली कोई फसल नहीं मिली।",
+    returnMarketplace: "बाजार पर वापस जाएं",
+    varietyLabel: "विशिष्ट किस्म: ",
+    livePriceIndex: "लाइव मूल्य सूचकांक",
+    arrivalTonnes: "आवक टन",
+    low: "न्यूनतम",
+    currentModel: "वर्तमान मॉडल",
+    high: "अधिकतम",
+    apmcMandi: "APMC मंडी",
+    stateCenter: "राज्य केंद्र",
+    priceHistory: "बाजार मूल्य इतिहास",
+    historyTrend: "पिछले 7 दिनों के लिए ऐतिहासिक उतार-चढ़ाव का रुझान",
+    liveGraph: "लाइव ग्राफ",
+    buy: "खरीदें",
+    sell: "बेचें",
+    retry: "कनेक्शन पुनः प्रयास करें",
+    removeAlert: "अलर्ट हटाएं",
+  },
+  kn: {
+    enamConnected: "eNAM ಸಂಪರ್ಕಿತ ಮಂಡಿ",
+    mandi: "ಮಂಡಿ",
+    marketplace: "ಮಾರುಕಟ್ಟೆ",
+    heroDesc: "ರಾಷ್ಟ್ರೀಯ APMC ಕೇಂದ್ರಗಳಿಂದ ನೈಜ-ಸಮಯದ ಬೆಳೆ ಮೌಲ್ಯ ಸೂಚ್ಯಂಕಗಳು. ಆರ್ಡರ್ ಮಾಡಿ, ವ್ಯಾಪಾರ ಪ್ರವೃತ್ತಿ ಗಮನಿಸಿ, ಅಥವಾ ಸರ್ಕಾರದ ಪರಿಶೀಲನೆಯೊಂದಿಗೆ ನಿಮ್ಮ ದಾಸ್ತಾನು ಪಟ್ಟಿ ಮಾಡಿ.",
+    totalCrops: "ಒಟ್ಟು ಬೆಳೆಗಳು",
+    mandiArrivals: "ಮಂಡಿ ಆವಕ",
+    searchPlaceholder: "ಬೆಳೆಗಳು, APMC ಮಂಡಿಗಳು, ರಾಜ್ಯಗಳನ್ನು ಹುಡುಕಿ...",
+    syncingIndex: "ಮಂಡಿ ಬೆಲೆ ಸೂಚ್ಯಂಕವನ್ನು ಸಿಂಕ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
+    noCommodities: "ಫಿಲ್ಟರ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಪದಾರ್ಥಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+    returnMarketplace: "ಮಾರುಕಟ್ಟೆಗೆ ಹಿಂತಿರುಗಿ",
+    varietyLabel: "ನಿರ್ದಿಷ್ಟ ತಳಿ: ",
+    livePriceIndex: "ಲೈವ್ ಬೆಲೆ ಸೂಚ್ಯಂಕ",
+    arrivalTonnes: "ಆವಕ ಟನ್‌ಗಳು",
+    low: "ಕಡಿಮೆ",
+    currentModel: "ಪ್ರಸ್ತುತ ಮಾದರಿ",
+    high: "ಹೆಚ್ಚು",
+    apmcMandi: "APMC ಮಂಡಿ",
+    stateCenter: "ರಾಜ್ಯ ಕೇಂದ್ರ",
+    priceHistory: "ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಇತಿಹಾಸ",
+    historyTrend: "ಕಳೆದ 7 ದಿನಗಳ ಐತಿಹಾಸಿಕ ಏರಿಳಿತದ ಪ್ರವೃತ್ತಿ",
+    liveGraph: "ಲೈವ್ ಗ್ರಾಫ್",
+    buy: "ಖರೀದಿಸಿ",
+    sell: "ಮಾರಿ",
+    retry: "ಮರುಸಂಪರ್ಕಿಸಿ",
+    removeAlert: "ಅಲರ್ಟ್ ತೆಗೆದುಹಾಕಿ",
+  }
+}
+
+const TRADE_LANG = {
+  en: {
+    tradeCommodity: "Trade Commodity",
+    tradeDesc: "Initiate instant trading signals or direct transactions across our verified regional logistics networks.",
+    buy: "Buy",
+    sell: "Sell",
+    connectingBroker: "Connecting eNAM broker...",
+    securingPipeline: "Securing encrypted pipeline with registered trading agents for",
+    in: "in",
+    agentConnected: "eNAM Agent Connected!",
+    nam: "National Agriculture Market",
+    govIndia: "Govt of India • Verification Center",
+    tradingValue: "Trading Value",
+    cancel: "Cancel",
+  },
+  hi: {
+    tradeCommodity: "फसल का व्यापार",
+    tradeDesc: "हमारे सत्यापित क्षेत्रीय लॉजिस्टिक्स नेटवर्क पर त्वरित व्यापार संकेत या सीधे लेनदेन शुरू करें।",
+    buy: "खरीदें",
+    sell: "बेचें",
+    connectingBroker: "eNAM ब्रोकर से कनेक्ट किया जा रहा है...",
+    securingPipeline: "सत्यापित ट्रेडिंग एजेंटों के साथ सुरक्षित एन्क्रिप्टेड कनेक्शन स्थापित किया जा रहा है - ",
+    in: "मंडी:",
+    agentConnected: "eNAM एजेंट कनेक्ट हो गया!",
+    nam: "राष्ट्रीय कृषि बाजार (eNAM)",
+    govIndia: "भारत सरकार • सत्यापन केंद्र",
+    tradingValue: "व्यापार मूल्य",
+    cancel: "रद्द करें",
+  },
+  kn: {
+    tradeCommodity: "ಬೆಳೆ ವ್ಯಾಪಾರ",
+    tradeDesc: "ನಮ್ಮ ಪರಿಶೀಲಿಸಿದ ಪ್ರಾದೇಶಿಕ ಲಾಜಿಸ್ಟಿಕ್ಸ್ ನೆಟ್‌ವರ್ಕ್‌ಗಳಲ್ಲಿ ತ್ವರಿತ ವ್ಯಾಪಾರ ಸಂಕೇತಗಳು ಅಥವಾ ನೇರ ವಹಿವಾಟುಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ.",
+    buy: "ಖರೀದಿಸಿ",
+    sell: "ಮಾರಿ",
+    connectingBroker: "eNAM ಬ್ರೋಕರ್ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...",
+    securingPipeline: "ನೋಂದಾಯಿತ ವ್ಯಾಪಾರ ಏಜೆಂಟ್‌ಗಳೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಸಂಪರ್ಕ ಸಾಧಿಸಲಾಗುತ್ತಿದೆ - ಬೆಳೆ:",
+    in: "ಮಂಡಿ:",
+    agentConnected: "eNAM ಏಜೆಂಟ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ!",
+    nam: "ರಾಷ್ಟ್ರೀಯ ಕೃಷಿ ಮಾರುಕಟ್ಟೆ (eNAM)",
+    govIndia: "ಭಾರತ ಸರ್ಕಾರ • ಪರಿಶೀಲನಾ ಕೇಂದ್ರ",
+    tradingValue: "ವ್ಯಾಪಾರದ ಮೌಲ್ಯ",
+    cancel: "ರದ್ದುಮಾಡಿ",
+  }
+}
+
+const CATEGORY_LANG = {
+  en: {
+    Cereal: "Cereal",
+    Oilseed: "Oilseed",
+    Pulse: "Pulse",
+    Fiber: "Fiber",
+    Vegetable: "Vegetable",
+    "Cash Crop": "Cash Crop",
+    All: "All"
+  },
+  hi: {
+    Cereal: "अनाज",
+    Oilseed: "तिलहन",
+    Pulse: "दलहन",
+    Fiber: "रेशेदार फसल",
+    Vegetable: "सब्जी",
+    "Cash Crop": "नकदी फसल",
+    All: "सभी"
+  },
+  kn: {
+    Cereal: "ಧಾನ್ಯಗಳು",
+    Oilseed: "ಎಣ್ಣೆಕಾಳುಗಳು",
+    Pulse: "ಬೇಳೆಕಾಳುಗಳು",
+    Fiber: "ನಾರಿನ ಬೆಳೆಗಳು",
+    Vegetable: "ತರಕಾರಿ",
+    "Cash Crop": "ನಗದು ಬೆಳೆ",
+    All: "ಎಲ್ಲಾ"
+  }
+} as any
+
+const DATA_TRANSLATIONS: Record<string, Record<string, string>> = {
+  hi: {
+    // Crop names
+    "Wheat (गेहूं)": "गेहूं",
+    "Rice (चावल)": "चावल",
+    "Soybean (सोयाबीन)": "सोयाबीन",
+    "Cotton (कपास)": "कपास",
+    "Mustard (सरसों)": "सरसों",
+    "Chana (चना)": "चना",
+    "Tur/Arhar Dal (तूर दाल)": "तूर दाल (अरहर)",
+    "Onion (प्याज)": "प्याज",
+    "Potato (आलू)": "आलू",
+    "Sugarcane (गन्ना)": "गन्ना",
+    "Maize (मक्का)": "मक्का",
+    "Groundnut (मूंगफली)": "मूंगफली",
+    // Varieties
+    "Sharbati": "शरबती",
+    "Basmati 1121": "बासमती 1121",
+    "Yellow": "पीला",
+    "Medium Staple": "मध्यम रेशा",
+    "Laha": "लाहा",
+    "Desi": "देशी",
+    "FAQ": "एफएक्यू (सामान्य)",
+    "Nasik Red": "नाशिक लाल",
+    "Jyoti": "ज्योति",
+    "Co-0238": "को-0238",
+    "Bold": "बोल्ड",
+    // States
+    "Madhya Pradesh": "मध्य प्रदेश",
+    "Haryana": "हरियाणा",
+    "Gujarat": "गुजरात",
+    "Rajasthan": "राजस्थान",
+    "Maharashtra": "महाराष्ट्र",
+    "Karnataka": "कर्नाटक",
+    "Uttar Pradesh": "उत्तर प्रदेश",
+    // Mandis
+    "Indore Mandi": "इंदौर मंडी",
+    "Karnal Mandi": "करनाल मंडी",
+    "Ujjain Mandi": "उज्जयिनी मंडी",
+    "Rajkot Mandi": "राजकोट मंडी",
+    "Alwar Mandi": "अलवर मंडी",
+    "Latur Mandi": "लातूर मंडी",
+    "Gulbarga Mandi": "गुलबर्गा मंडी",
+    "Nashik Mandi": "नाशिक मंडी",
+    "Agra Mandi": "आगरा मंडी",
+    "Muzaffarnagar Mandi": "मुजफ्फरनगर मंडी",
+    "Davangere Mandi": "दावणगेरे मंडी",
+    "Junagadh Mandi": "जूनागढ़ मंडी",
+    "per quintal": "प्रति क्विंटल",
+    "Tons": "टन",
+  },
+  kn: {
+    // Crop names
+    "Wheat (गेहूं)": "ಗೋಧಿ",
+    "Rice (चावल)": "ಅಕ್ಕಿ",
+    "Soybean (सोयाबीन)": "ಸೋಯಾಬೀನ್",
+    "Cotton (कपास)": "ಹತ್ತಿ",
+    "Mustard (सरसों)": "ಸಾಸಿವೆ",
+    "Chana (चना)": "ಕಡಲೆ",
+    "Tur/Arhar Dal (तूर दाल)": "ತೊಗರಿ ಬೇಳೆ",
+    "Onion (प्याज)": "ಈರುಳ್ಳಿ",
+    "Potato (आलू)": "ಆಲೂಗಡ್ಡೆ",
+    "Sugarcane (गन्ना)": "ಕಬ್ಬು",
+    "Maize (मक्का)": "ಮೆಕ್ಕೆಜೋಳ",
+    "Groundnut (मूंगफली)": "ಕಡಲೆಕಾಯಿ",
+    // Varieties
+    "Sharbati": "ಶರಬತಿ",
+    "Basmati 1121": "ಬಾಸ್ಮತಿ 1121",
+    "Yellow": "ಹಳದಿ",
+    "Medium Staple": "ಮಧ್ಯಮ ಸ್ಟೇಪಲ್",
+    "Laha": "ಲಹಾ",
+    "Desi": "ದೇಸಿ",
+    "FAQ": "FAQ (ಸಾಮಾನ್ಯ)",
+    "Nasik Red": "ನಾಸಿಕ್ ಕೆಂಪು",
+    "Jyoti": "ಜ್ಯೋತಿ",
+    "Co-0238": "ಕೋ-0238",
+    "Bold": "ಬೋಲ್ಡ್",
+    // States
+    "Madhya Pradesh": "ಮಧ್ಯಪ್ರದೇಶ",
+    "Haryana": "ಹರಿಯಾಣ",
+    "Gujarat": "ಗುಜರಾತ್",
+    "Rajasthan": "ರಾಜಸ್ಥಾನ",
+    "Maharashtra": "ಮಹಾರಾಷ್ಟ್ರ",
+    "Karnataka": "ಕರ್ನಾಟಕ",
+    "Uttar Pradesh": "ಉತ್ತರ ಪ್ರದೇಶ",
+    // Mandis
+    "Indore Mandi": "ಇಂದೋರ್ ಮಂಡಿ",
+    "Karnal Mandi": "ಕರ್ನಾಲ್ ಮಂಡಿ",
+    "Ujjain Mandi": "ಉಜ್ಜಯಿನಿ ಮಂಡಿ",
+    "Rajkot Mandi": "ರಾಜಕೋಟ್ ಮಂಡಿ",
+    "Alwar Mandi": "ಅಲ್ವಾರ್ ಮಂಡಿ",
+    "Latur Mandi": "ಲಾತೂರ್ ಮಂಡಿ",
+    "Gulbarga Mandi": "ಗುಲ್ಬರ್ಗ ಮಂಡಿ",
+    "Nashik Mandi": "ನಾಸಿಕ್ ಮಂಡಿ",
+    "Agra Mandi": "ಆಗ್ರಾ ಮಂಡಿ",
+    "Muzaffarnagar Mandi": "ಮುಜಫರ್‌ನಗರ ಮಂಡಿ",
+    "Davangere Mandi": "ದಾವಣಗೆರೆ ಮಂಡಿ",
+    "Junagadh Mandi": "ಜುನಾಗಢ್ ಮಂಡಿ",
+    "per quintal": "ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್",
+    "Tons": "ಟನ್ಗಳು",
+  },
+  en: {
+    "Wheat (गेहूं)": "Wheat",
+    "Rice (चावल)": "Rice",
+    "Soybean (सोयाबीन)": "Soybean",
+    "Cotton (कपास)": "Cotton",
+    "Mustard (सरसों)": "Mustard",
+    "Chana (चना)": "Chana",
+    "Tur/Arhar Dal (तूर दाल)": "Tur/Arhar Dal",
+    "Onion (प्याज)": "Onion",
+    "Potato (आलू)": "Potato",
+    "Sugarcane (गन्ना)": "Sugarcane",
+    "Maize (मक्का)": "Maize",
+    "Groundnut (मूंगफلی)": "Groundnut",
+  }
+}
+
+function translateData(val: string, lang: "en" | "hi" | "kn"): string {
+  if (!val) return val
+  return DATA_TRANSLATIONS[lang]?.[val] ?? DATA_TRANSLATIONS[lang]?.[val.trim()] ?? val
+}
+
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
 /* ------------------------------------------------------------------ */
@@ -115,7 +450,7 @@ function readAlerts(): PriceAlert[] { if (typeof window === "undefined") return 
 function saveAlerts(a: PriceAlert[]) { if (typeof window !== "undefined") localStorage.setItem(ALERT_KEY, JSON.stringify(a)) }
 
 function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const [alerts, setAlerts] = useState<PriceAlert[]>(() => readAlerts())
   const [showForm, setShowForm] = useState(false)
   const [newCrop, setNewCrop] = useState("")
@@ -124,6 +459,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
   const [permGranted, setPermGranted] = useState(false)
   const [checking, setChecking] = useState(false)
   
+  const currentLang = ALERT_LANG[lang] || ALERT_LANG.en
+
   useEffect(() => { if (typeof window !== "undefined" && "Notification" in window) setPermGranted(Notification.permission === "granted") }, [])
   
   const requestPerm = async () => { if (!("Notification" in window)) return; const r = await Notification.requestPermission(); setPermGranted(r === "granted") }
@@ -143,15 +480,22 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       if (!match) return alert
       const triggered = alert.direction === "above" ? match.modal_price >= alert.threshold : match.modal_price <= alert.threshold
       if (triggered && !alert.fired) { 
-        new Notification("KrishiAI Mandi Alert", { 
-          body: `${match.name} has hit ₹${match.modal_price}/qtl. This triggered your target alert.`, 
+        const notifTitle = lang === "hi" ? "KrishiAI मंडी अलर्ट" : lang === "kn" ? "KrishiAI ಮಂಡಿ ಅಲರ್ಟ್" : "KrishiAI Mandi Alert";
+        const notifBody = lang === "hi" 
+          ? `${translateData(match.name, lang)} का भाव ₹${match.modal_price}/कुंतल हो गया है। आपका मूल्य अलर्ट ट्रिगर हो गया है।` 
+          : lang === "kn" 
+          ? `${translateData(match.name, lang)} ಬೆಲೆ ₹${match.modal_price}/ಕ್ವಿಂಟಾಲ್ ತಲುಪಿದೆ. ನಿಮ್ಮ ಬೆಲೆ ಅಲರ್ಟ್ ಟ್ರಿಗರ್ ಆಗಿದೆ.` 
+          : `${translateData(match.name, lang)} has hit ₹${match.modal_price}/qtl. This triggered your target alert.`;
+        
+        new Notification(notifTitle, { 
+          body: notifBody, 
           icon: "/icon-192.svg" 
         }); 
         return { ...alert, fired: true } 
       }
       return alert
     }); setAlerts(updated); saveAlerts(updated); setTimeout(() => setChecking(false), 800)
-  }, [alerts, crops, permGranted])
+  }, [alerts, crops, permGranted, lang])
 
   const uniqueCrops = Array.from(new Set(crops.map((c) => c.name))).sort()
 
@@ -163,8 +507,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
             <Bell className="h-5 w-5 text-amber-400" />
           </div>
           <div>
-            <div className="font-bold text-white text-sm font-display">Target Price Notifications</div>
-            <div className="text-xs text-muted-foreground">{alerts.length === 0 ? "Setup push price monitors for selected commodities" : `${alerts.length} active monitors`}</div>
+            <div className="font-bold text-white text-sm font-display">{currentLang.panelTitle}</div>
+            <div className="text-xs text-muted-foreground">{alerts.length === 0 ? currentLang.setupMonitors : currentLang.activeMonitors(alerts.length)}</div>
           </div>
         </div>
         <div className="flex gap-2">
@@ -173,7 +517,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
               onClick={requestPerm} 
               className="text-xs rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-2 flex items-center gap-1.5 shadow-lg shadow-amber-500/10 transition-all"
             >
-              <BellRing className="h-3.5 w-3.5" /> Enable Notifications
+              <BellRing className="h-3.5 w-3.5" /> {currentLang.enableNotifications}
             </button>
           )}
           {permGranted && alerts.length > 0 && (
@@ -182,14 +526,14 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
               disabled={checking} 
               className="text-xs rounded-xl border border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] px-3.5 py-2 text-white font-semibold flex items-center gap-1.5 transition-all"
             >
-              {checking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />} Check Status
+              {checking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />} {currentLang.checkStatus}
             </button>
           )}
           <button 
             onClick={() => setShowForm(!showForm)} 
             className="text-xs rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-3.5 py-2 text-amber-400 font-bold flex items-center gap-1.5 transition-all"
           >
-            <Plus className="h-3.5 w-3.5" /> {showForm ? "Cancel" : "Add Target Price"}
+            <Plus className="h-3.5 w-3.5" /> {showForm ? currentLang.cancel : currentLang.addTargetPrice}
           </button>
         </div>
       </div>
@@ -206,11 +550,11 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
               }`}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
-              <span>{alert.cropName} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
+              <span>{translateData(alert.cropName, lang)} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
               <button 
                 onClick={() => removeAlert(alert.id)} 
                 className="hover:text-white transition-colors"
-                title="Remove alert"
+                title={lang === "hi" ? "अलर्ट हटाएं" : lang === "kn" ? "ಅಲರ್ಟ್ ತೆಗೆದುಹಾಕಿ" : "Remove alert"}
               >
                 <X className="h-3.5 w-3.5 ml-1" />
               </button>
@@ -222,42 +566,42 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       {showForm && (
         <div className="mt-4 pt-4 border-t border-white/[0.04] grid gap-4 sm:flex sm:items-end sm:flex-wrap">
           <div className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Crop / Commodity</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{currentLang.cropCommodity}</span>
             <select 
               value={newCrop} 
               onChange={(e) => setNewCrop(e.target.value)} 
               className="w-full sm:w-48 rounded-xl border border-white/[0.08] bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
             >
-              <option value="" className="bg-slate-900">Select commodity</option>
-              {uniqueCrops.map((c) => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
+              <option value="" className="bg-slate-900">{currentLang.selectCommodity}</option>
+              {uniqueCrops.map((c) => <option key={c} value={c} className="bg-slate-900">{translateData(c, lang)}</option>)}
             </select>
           </div>
           <div className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Trigger Rule</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{currentLang.triggerRule}</span>
             <div className="flex p-0.5 rounded-xl border border-white/[0.08] bg-slate-950">
               <button 
                 onClick={() => setNewDir("above")} 
                 type="button"
                 className={`text-[11px] rounded-lg px-3 py-1.5 font-bold transition-all ${newDir === "above" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-white"}`}
               >
-                Goes Above
+                {currentLang.goesAbove}
               </button>
               <button 
                 onClick={() => setNewDir("below")} 
                 type="button"
                 className={`text-[11px] rounded-lg px-3 py-1.5 font-bold transition-all ${newDir === "below" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-white"}`}
               >
-                Goes Below
+                {currentLang.goesBelow}
               </button>
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Target (₹ per Qtl)</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{currentLang.targetPriceLabel}</span>
             <input 
               type="number" 
               value={newThreshold} 
               onChange={(e) => setNewThreshold(e.target.value)} 
-              placeholder="Target price" 
+              placeholder={currentLang.targetPricePlaceholder} 
               className="w-full sm:w-32 rounded-xl border border-white/[0.08] bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none" 
             />
           </div>
@@ -266,7 +610,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
             disabled={!newCrop || !newThreshold} 
             className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold h-9 px-4 disabled:opacity-50 transition-all text-xs"
           >
-            Create Trigger
+            {currentLang.createTrigger}
           </Button>
         </div>
       )}
@@ -398,29 +742,29 @@ export default function MandiPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-xs font-semibold text-orange-400 mb-3">
               <Store className="h-3.5 w-3.5" />
-              eNAM Connected Mandi
+              {MANDI_PAGE_LANG[lang].enamConnected}
             </div>
             <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white flex items-center gap-3">
-              Mandi <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">Marketplace</span>
+              {MANDI_PAGE_LANG[lang].mandi} <span className="bg-gradient-to-r from-orange-400 via-amber-300 to-emerald-400 bg-clip-text text-transparent">{MANDI_PAGE_LANG[lang].marketplace}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
-              Real-time commodity valuation indexes from national APMC centers. Place orders, monitor trading trends, or list inventories directly with automated government verification.
+              {MANDI_PAGE_LANG[lang].heroDesc}
             </p>
           </div>
           {/* Stats widget */}
           <div className="flex gap-3 flex-wrap">
             <div className="rounded-2xl border border-white/[0.06] bg-slate-900/60 p-4 min-w-[120px] backdrop-blur-sm">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">Total Crops</div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].totalCrops}</div>
               <div className="text-xl font-extrabold text-white flex items-center gap-1.5">
                 <Package className="h-4.5 w-4.5 text-orange-400" />
                 {crops.length}
               </div>
             </div>
             <div className="rounded-2xl border border-white/[0.06] bg-slate-900/60 p-4 min-w-[150px] backdrop-blur-sm">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">Mandi Arrivals</div>
+              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].mandiArrivals}</div>
               <div className="text-xl font-extrabold text-white flex items-center gap-1.5">
                 <Users className="h-4.5 w-4.5 text-emerald-400" />
-                {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} T
+                {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} {lang === "hi" ? "टन" : lang === "kn" ? "ಟನ್" : "T"}
               </div>
             </div>
           </div>
@@ -450,7 +794,7 @@ export default function MandiPage() {
                 <input
                   id="mandi-search"
                   type="text"
-                  placeholder="Search commodities, APMC mandis, states..."
+                  placeholder={MANDI_PAGE_LANG[lang].searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-10 py-3 rounded-2xl border border-white/[0.08] bg-slate-950/40 backdrop-blur-sm text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all text-white font-medium"
@@ -475,7 +819,7 @@ export default function MandiPage() {
                         : "border-white/[0.08] bg-slate-950/40 hover:bg-white/[0.04] text-muted-foreground hover:text-white"
                     }`}
                   >
-                    {cat}
+                    {CATEGORY_LANG[lang]?.[cat] || cat}
                   </button>
                 ))}
               </div>
@@ -485,7 +829,7 @@ export default function MandiPage() {
             {loading && (
               <div className="flex flex-col items-center justify-center py-24 gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-                <p className="text-muted-foreground text-sm font-medium">Synchronizing Mandi Pricing Index...</p>
+                <p className="text-muted-foreground text-sm font-medium">{MANDI_PAGE_LANG[lang].syncingIndex}</p>
               </div>
             )}
 
@@ -494,7 +838,7 @@ export default function MandiPage() {
               <GlassCard className="border border-red-500/20 bg-red-500/5 p-8 text-center rounded-2xl">
                 <p className="text-red-400 font-bold">{error}</p>
                 <Button variant="outline" className="mt-4 border-white/[0.08]" onClick={() => location.reload()}>
-                  Retry Connection
+                  {MANDI_PAGE_LANG[lang].retry}
                 </Button>
               </GlassCard>
             )}
@@ -508,12 +852,13 @@ export default function MandiPage() {
                     crop={crop}
                     index={i}
                     onClick={() => setSelectedCrop(crop)}
+                    lang={lang}
                   />
                 ))}
                 {filteredCrops.length === 0 && (
                   <div className="col-span-full text-center py-20">
                     <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                    <p className="text-muted-foreground font-semibold">No commodities found matching filter.</p>
+                    <p className="text-muted-foreground font-semibold">{MANDI_PAGE_LANG[lang].noCommodities}</p>
                   </div>
                 )}
               </div>
@@ -538,7 +883,7 @@ export default function MandiPage() {
               onClick={handleBack}
               className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-white transition-colors w-fit pb-2"
             >
-              <ArrowLeft className="h-4.5 w-4.5" /> Return to Marketplace
+              <ArrowLeft className="h-4.5 w-4.5" /> {MANDI_PAGE_LANG[lang].returnMarketplace}
             </button>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
@@ -549,10 +894,10 @@ export default function MandiPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r ${CATEGORY_COLORS[selectedCrop.category] || "from-gray-500/20 to-gray-500/20 text-gray-500"}`}>
-                        {selectedCrop.category}
+                        {CATEGORY_LANG[lang]?.[selectedCrop.category] || selectedCrop.category}
                       </span>
-                      <CardTitle className="text-3xl font-black font-display text-white mt-3">{selectedCrop.name}</CardTitle>
-                      <p className="text-muted-foreground text-xs mt-1">Specific variety: <span className="font-semibold text-white/80">{selectedCrop.variety}</span></p>
+                      <CardTitle className="text-3xl font-black font-display text-white mt-3">{translateData(selectedCrop.name, lang)}</CardTitle>
+                      <p className="text-muted-foreground text-xs mt-1">{MANDI_PAGE_LANG[lang].varietyLabel}<span className="font-semibold text-white/80">{translateData(selectedCrop.variety, lang)}</span></p>
                     </div>
                     <TrendBadge trend={selectedCrop.trend} change={selectedCrop.change_percent} size="lg" />
                   </div>
@@ -562,27 +907,27 @@ export default function MandiPage() {
                   {/* Price display row */}
                   <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Live Price Index</span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].livePriceIndex}</span>
                       <div className="flex items-baseline gap-1.5 mt-1">
                         <IndianRupee className="h-5 w-5 text-emerald-400" />
                         <span className="text-3xl font-black text-emerald-400 font-display">
                           {selectedCrop.price.toLocaleString()}
                         </span>
-                        <span className="text-muted-foreground text-xs font-medium">/{selectedCrop.unit}</span>
+                        <span className="text-muted-foreground text-xs font-medium">/{translateData(selectedCrop.unit, lang)}</span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">Arrival Tonnes</span>
-                      <span className="text-xl font-bold text-white block mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} Tons</span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].arrivalTonnes}</span>
+                      <span className="text-xl font-bold text-white block mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} {lang === "hi" ? "टन" : lang === "kn" ? "ಟನ್ಗಳು" : "Tons"}</span>
                     </div>
                   </div>
 
                   {/* Price Range Visualizer */}
                   <div className="space-y-3">
                     <div className="flex justify-between text-xs text-muted-foreground font-semibold">
-                      <span>Low: ₹{selectedCrop.min_price.toLocaleString()}</span>
-                      <span className="text-white">Current Model: ₹{selectedCrop.modal_price.toLocaleString()}</span>
-                      <span>High: ₹{selectedCrop.max_price.toLocaleString()}</span>
+                      <span>{lang === "hi" ? "न्यूनतम" : lang === "kn" ? "ಕಡಿಮೆ" : "Low"}: ₹{selectedCrop.min_price.toLocaleString()}</span>
+                      <span className="text-white">{lang === "hi" ? "वर्तमान मॉडल" : lang === "kn" ? "ಪ್ರಸ್ತುತ ಮಾದರಿ" : "Current Model"}: ₹{selectedCrop.modal_price.toLocaleString()}</span>
+                      <span>{lang === "hi" ? "अधिकतम" : lang === "kn" ? "ಹೆಚ್ಚು" : "High"}: ₹{selectedCrop.max_price.toLocaleString()}</span>
                     </div>
                     <div className="relative h-2 rounded-full bg-slate-900 overflow-hidden">
                       {/* Range slider indicator */}
@@ -597,19 +942,19 @@ export default function MandiPage() {
 
                   {/* Details grid */}
                   <div className="grid grid-cols-2 gap-4 pt-2">
-                    <InfoTile icon={<MapPin className="h-4 w-4 text-orange-400" />} label="APMC Mandi" value={selectedCrop.mandi} />
-                    <InfoTile icon={<MapPin className="h-4 w-4 text-emerald-400" />} label="State Center" value={selectedCrop.state} />
+                    <InfoTile icon={<MapPin className="h-4 w-4 text-orange-400" />} label={MANDI_PAGE_LANG[lang].apmcMandi} value={translateData(selectedCrop.mandi, lang)} />
+                    <InfoTile icon={<MapPin className="h-4 w-4 text-emerald-400" />} label={MANDI_PAGE_LANG[lang].stateCenter} value={translateData(selectedCrop.state, lang)} />
                   </div>
 
                   {/* Historical Graph Chart */}
                   <div className="pt-4 border-t border-white/[0.04]">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <span className="text-xs uppercase font-bold text-white tracking-wider block">Market Price History</span>
-                        <span className="text-[10px] text-muted-foreground">Historical fluctuation trend for the past 7 days</span>
+                        <span className="text-xs uppercase font-bold text-white tracking-wider block">{MANDI_PAGE_LANG[lang].priceHistory}</span>
+                        <span className="text-[10px] text-muted-foreground">{MANDI_PAGE_LANG[lang].historyTrend}</span>
                       </div>
                       <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/10 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" /> Live Graph
+                        <TrendingUp className="w-3 h-3" /> {MANDI_PAGE_LANG[lang].liveGraph}
                       </span>
                     </div>
                     
@@ -690,7 +1035,7 @@ export default function MandiPage() {
 /* ================================================================== */
 
 /* ---- Crop Card ---- */
-function CropCard({ crop, index, onClick }: { crop: MandiCrop; index: number; onClick: () => void }) {
+function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: "en" | "hi" | "kn" }) {
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }} 
@@ -710,12 +1055,12 @@ function CropCard({ crop, index, onClick }: { crop: MandiCrop; index: number; on
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
                 <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gradient-to-r ${CATEGORY_COLORS[crop.category] || "from-gray-500/20 to-gray-500/20 text-gray-500"}`}>
-                  {crop.category}
+                  {CATEGORY_LANG[lang]?.[crop.category] || crop.category}
                 </span>
                 <CardTitle className="text-base font-extrabold text-white mt-3 group-hover:text-emerald-400 transition-colors truncate font-display">
-                  {crop.name}
+                  {translateData(crop.name, lang)}
                 </CardTitle>
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{crop.variety}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{translateData(crop.variety, lang)}</p>
               </div>
               <TrendBadge trend={crop.trend} change={crop.change_percent} />
             </div>
@@ -724,19 +1069,19 @@ function CropCard({ crop, index, onClick }: { crop: MandiCrop; index: number; on
           <CardContent className="space-y-4">
             {/* Price */}
             <div className="flex items-baseline gap-1 bg-white/[0.02] border border-white/[0.04] p-3 rounded-xl justify-between">
-              <span className="text-[10px] text-muted-foreground font-semibold">Modal Price</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">{lang === "hi" ? "मॉडल भाव" : lang === "kn" ? "ಮಾದರಿ ಬೆಲೆ" : "Modal Price"}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl font-black text-emerald-400 font-display">
                   ₹{crop.price.toLocaleString()}
                 </span>
-                <span className="text-xs text-muted-foreground font-medium">/{crop.unit}</span>
+                <span className="text-xs text-muted-foreground font-medium">/{translateData(crop.unit, lang)}</span>
               </div>
             </div>
 
             {/* Mandi + State */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-400/80" />
-              <span className="truncate">{crop.mandi}, {crop.state}</span>
+              <span className="truncate">{translateData(crop.mandi, lang)}, {translateData(crop.state, lang)}</span>
             </div>
           </CardContent>
         </div>
@@ -748,14 +1093,14 @@ function CropCard({ crop, index, onClick }: { crop: MandiCrop; index: number; on
               size="sm"
               className="flex-1 text-xs bg-emerald-500 hover:bg-emerald-600 text-white font-bold shadow-md shadow-emerald-500/10 rounded-xl"
             >
-              <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Buy
+              <ShoppingCart className="h-3.5 w-3.5 mr-1" /> {MANDI_PAGE_LANG[lang].buy}
             </Button>
             <Button
               size="sm"
               variant="outline"
               className="flex-1 text-xs border-white/[0.08] hover:bg-white/[0.03] text-orange-400 font-bold rounded-xl"
             >
-              <Tag className="h-3.5 w-3.5 mr-1" /> Sell
+              <Tag className="h-3.5 w-3.5 mr-1" /> {MANDI_PAGE_LANG[lang].sell}
             </Button>
           </div>
         </div>
