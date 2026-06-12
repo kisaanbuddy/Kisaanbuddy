@@ -5,6 +5,7 @@ import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight } from "lucide-rea
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/language"
 
 type Founder = {
   name: string
@@ -16,46 +17,80 @@ type Founder = {
   stake: string
 }
 
-const FOUNDERS: Founder[] = [
-  {
-    name: "Aditya Ishwar",
-    role: "Founder, CEO & Chief Architect (Head of KrishiAI)",
-    email: "adityaoutlier5@gmail.com",
-    bio: "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
-    initials: "AI",
-    gradient: "from-emerald-400 to-green-600",
-    stake: "Founder",
-  },
-  {
-    name: "Utkarsh Sinha",
-    role: "Co-Founder & Managing Director",
-    email: "utkarsh.sinha.dev@gmail.com",
-    bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
-    initials: "US",
-    gradient: "from-blue-400 to-indigo-600",
-    stake: "Co-Founder",
-  },
-  {
-    name: "Sanidhya Sharma",
-    role: "Co-Founder & CTO",
-    email: "sanidhyasharma.dev@gmail.com",
-    bio: "Steers KrishiAI's technical roadmap, cloud infrastructure, and large-scale system architecture. Specializes in building highly scalable microservices and robust, real-time engines for millions of Kisans.",
-    initials: "SS",
-    gradient: "from-purple-400 to-fuchsia-600",
-    stake: "Co-Founder",
-  },
-  {
-    name: "Yash Singh",
-    role: "Co-Founder & CMO",
-    email: "yashkumaryashsingh384@gmail.com",
-    bio: "Co-Founder and Chief Marketing Officer. Drives brand growth, strategic outreach, and community-led marketing campaigns. Passionate about bringing smart agricultural tech directly to India's rural heartlands.",
-    initials: "YS",
-    gradient: "from-rose-400 to-pink-600",
-    stake: "Co-Founder",
-  },
-]
-
 export default function FoundersPage() {
+  const { lang } = useLanguage();
+
+  const founders: Founder[] = [
+    {
+      name: "Aditya Ishwar",
+      role: lang === "hi" 
+        ? "संस्थापक, मुख्य कार्यकारी अधिकारी (CEO) और मुख्य वास्तुकार (कृषिAI प्रमुख)" 
+        : lang === "kn" 
+          ? "ಸಂಸ್ಥಾಪಕ, ಮುಖ್ಯ ಕಾರ್ಯನಿರ್ವಾಹಕ ಅಧಿಕಾರಿ (CEO) ಮತ್ತು ಮುಖ್ಯ ವಾಸ್ತುಶಿಲ್ಪಿ (ಕೃಷಿAI ಮುಖ್ಯಸ್ಥ)" 
+          : "Founder, CEO & Chief Architect (Head of KrishiAI)",
+      email: "adityaoutlier5@gmail.com",
+      bio: lang === "hi" 
+        ? "कृषिAI की तकनीकी दृष्टि — फुल-स्टैक आर्किटेक्चर, AI एकीकरण और उत्पादन परिनियोजन को संचालित करते हैं। उनका मानना है कि तकनीक हर किसान की जेब तक पहुंचनी चाहिए।" 
+        : lang === "kn" 
+          ? "ಕೃಷಿAI ನ ತಾಂತ್ರಿಕ ದೃಷ್ಟಿಕೋನ — ಫುಲ್-ಸ್ಟ್ಯಾಕ್ ಆರ್ಕಿಟೆಕ್ಚರ್, AI ಸಂಯೋಜನೆಗಳು ಮತ್ತು ಉತ್ಪಾದನೆ ನಿಯೋಜನೆಯನ್ನು ನಡೆಸುತ್ತಾರೆ. ತಂತ್ರಜ್ಞಾನವು ಪ್ರತಿ ರೈತನ ಜೇಬಿಗೆ ತಲುಪಬೇಕು ಎಂದು ನಂಬುತ್ತಾರೆ." 
+          : "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
+      initials: "AI",
+      gradient: "from-emerald-400 to-green-600",
+      stake: lang === "hi" ? "संस्थापक" : lang === "kn" ? "ಸಂಸ್ಥಾಪಕ" : "Founder",
+    },
+    {
+      name: "Utkarsh Sinha",
+      role: lang === "hi" 
+        ? "सह-संस्थापक और प्रबंध निदेशक" 
+        : lang === "kn" 
+          ? "ಸಹ-ಸಂಸ್ಥಾಪಕ ಮತ್ತು ವ್ಯವಸ್ಥಾಪಕ ನಿರ್ದೇಶಕ" 
+          : "Co-Founder & Managing Director",
+      email: "utkarsh.sinha.dev@gmail.com",
+      bio: lang === "hi" 
+        ? "मशीन लर्निंग पाइपलाइन — फसल अनुशंसा मॉडल, बीमारी का सटीक पता लगाना, और क्यूरेटेड कृषि विज्ञान ज्ञान का प्रबंधन करते हैं। कच्चे कृषि डेटा को व्यावहारिक अंतर्दृष्टि में बदलते हैं।" 
+        : lang === "kn" 
+          ? "ಯಂತ್ರ ಕಲಿಕೆ ಪೈಪ್‌ಲೈನ್ — ಬೆಳೆ ಶಿಫಾರಸು ಮಾದರಿಗಳು, ರೋಗ ಪತ್ತೆ ನಿಖರತೆ ಮತ್ತು ಕೃಷಿ ಜ್ಞಾನದ ನಿರ್ವಹಣೆ ಮಾಡುತ್ತಾರೆ. ಕೃಷಿ ಡೇಟಾವನ್ನು ಉಪಯುಕ್ತ ಒಳನೋಟಗಳಾಗಿ ಪರಿವರ್ತಿಸುತ್ತಾರೆ." 
+          : "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
+      initials: "US",
+      gradient: "from-blue-400 to-indigo-600",
+      stake: lang === "hi" ? "सह-संस्थापक" : lang === "kn" ? "ಸಹ-ಸಂಸ್ಥಾಪಕ" : "Co-Founder",
+    },
+    {
+      name: "Sanidhya Sharma",
+      role: lang === "hi" 
+        ? "सह-संस्थापक और मुख्य प्रौद्योगिकी अधिकारी (CTO)" 
+        : lang === "kn" 
+          ? "ಸಹ-ಸಂಸ್ಥಾಪಕ ಮತ್ತು ಮುಖ್ಯ ತಂತ್ರಜ್ಞಾನ ಅಧಿಕಾರಿ (CTO)" 
+          : "Co-Founder & CTO",
+      email: "sanidhyasharma.dev@gmail.com",
+      bio: lang === "hi" 
+        ? "कृषिAI के तकनीकी रोडमैप, क्लाउड इंफ्रास्ट्रक्चर और बड़े पैमाने के सिस्टम आर्किटेक्चर का संचालन करते हैं। लाखों किसानों के लिए अत्यधिक स्केलेबल माइक्रोसर्विसेज और मजबूत, वास्तविक समय इंजनों के निर्माण में विशेषज्ञता रखते हैं।" 
+        : lang === "kn" 
+          ? "ಕೃಷಿAI ನ ತಾಂತ್ರಿಕ ರೋಡ್‌ಮ್ಯಾಪ್, ಕ್ಲೌಡ್ ಮೂಲಸೌಕರ್ಯ ಮತ್ತು ಸಿಸ್ಟಮ್ ಆರ್ಕಿಟೆಕ್ಚರ್ ಅನ್ನು ಮುನ್ನಡೆಸುತ್ತಾರೆ. ಲಕ್ಷಾಂತರ ರೈತರಿಗಾಗಿ ಸ್ಕೇಲೆಬಲ್ ಮೈಕ್ರೋಸರ್ವಿಸ್ ಮತ್ತು ನೈಜ-ಸಮಯದ ಎಂಜಿನ್‌ಗಳ ನಿರ್ಮಾಣದಲ್ಲಿ ಪರಿಣತಿ ಹೊಂದಿದ್ದಾರೆ." 
+          : "Steers KrishiAI's technical roadmap, cloud infrastructure, and large-scale system architecture. Specializes in building highly scalable microservices and robust, real-time engines for millions of Kisans.",
+      initials: "SS",
+      gradient: "from-purple-400 to-fuchsia-600",
+      stake: lang === "hi" ? "सह-संस्थापक" : lang === "kn" ? "ಸಹ-ಸಂಸ್ಥಾಪಕ" : "Co-Founder",
+    },
+    {
+      name: "Yash Singh",
+      role: lang === "hi" 
+        ? "सह-संस्थापक और मुख्य विपणन अधिकारी (CMO)" 
+        : lang === "kn" 
+          ? "ಸಹ-ಸಂಸ್ಥಾಪಕ ಮತ್ತು ಮುಖ್ಯ ಮಾರುಕಟ್ಟೆ ಅಧಿಕಾರಿ (CMO)" 
+          : "Co-Founder & CMO",
+      email: "yashkumaryashsingh384@gmail.com",
+      bio: lang === "hi" 
+        ? "सह-संस्थापक और मुख्य विपणन अधिकारी। ब्रांड विकास, रणनीतिक पहुंच और सामुदायिक विपणन अभियानों का संचालन करते हैं। भारत के ग्रामीण इलाकों में स्मार्ट कृषि तकनीक लाने के लिए उत्सुक हैं।" 
+        : lang === "kn" 
+          ? "ಸಹ-ಸಂಸ್ಥಾಪಕ ಮತ್ತು ಮುಖ್ಯ ಮಾರುಕಟ್ಟೆ ಅಧಿಕಾರಿ. ಬ್ರ್ಯಾಂಡ್ ಬೆಳವಣಿಗೆ, ಕಾರ್ಯತಂತ್ರದ ಪ್ರಭಾವ ಮತ್ತು ಸಮುದಾಯ ಮಾರುಕಟ್ಟೆ ಪ್ರಚಾರಗಳನ್ನು ನಡೆಸುತ್ತಾರೆ. ಭಾರತದ ಗ್ರಾಮೀಣ ಪ್ರದೇಶಗಳಿಗೆ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ತಂತ್ರಜ್ಞಾನವನ್ನು ತರಲು ಉತ್ಸುಕರಾಗಿದ್ದಾರೆ." 
+          : "Co-Founder and Chief Marketing Officer. Drives brand growth, strategic outreach, and community-led marketing campaigns. Passionate about bringing smart agricultural tech directly to India's rural heartlands.",
+      initials: "YS",
+      gradient: "from-rose-400 to-pink-600",
+      stake: lang === "hi" ? "सह-संस्थापक" : lang === "kn" ? "ಸಹ-ಸಂಸ್ಥಾಪಕ" : "Co-Founder",
+    },
+  ]
+
   return (
     <div className="-mt-8 -mx-4 md:-mx-8 flex flex-col relative pb-12 overflow-hidden">
       {/* Decorative Blob */}
@@ -70,7 +105,7 @@ export default function FoundersPage() {
             className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-white transition-colors group"
           >
             <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to home</span>
+            <span>{lang === "hi" ? "मुख्य पृष्ठ पर वापस जाएं" : lang === "kn" ? "ಹೋಮ್ ಪೇಜ್‌ಗೆ ಹಿಂತಿರುಗಿ" : "Back to home"}</span>
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
@@ -79,15 +114,22 @@ export default function FoundersPage() {
             </div>
             <span className="text-xs font-extrabold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              Meet the Team
+              {lang === "hi" ? "टीम से मिलें" : lang === "kn" ? "ತಂಡವನ್ನು ಭೇಟಿ ಮಾಡಿ" : "Meet the Team"}
             </span>
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight text-white leading-tight">
-            The minds behind <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">KrishiAI</span>
+            {lang === "hi" ? "कृषिAI के पीछे के" : lang === "kn" ? "ಕೃಷಿAI ಹಿಂದಿನ" : "The minds behind"}{' '}
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">
+              {lang === "hi" ? "विचारक" : lang === "kn" ? "ಚಿಂತಕರು" : "KrishiAI"}
+            </span>
           </h1>
           <p className="mt-4 max-w-2xl text-sm md:text-base text-muted-foreground leading-relaxed">
-            We are a group of dedicated developers building AI-powered agricultural intelligence layers to support farming operations across Indian rural ecosystems.
+            {lang === "hi"
+              ? "हम भारतीय ग्रामीण कृषि प्रणालियों में खेती के कार्यों को बढ़ावा देने के लिए एआई-संचालित समाधान बनाने वाले समर्पित डेवलपर्स का एक समूह हैं।"
+              : lang === "kn"
+                ? "ನಾವು ಭಾರತೀಯ ಗ್ರಾಮೀಣ ಕೃಷಿ ವ್ಯವಸ್ಥೆಗಳಲ್ಲಿ ಕೃಷಿ ಚಟುವಟಿಕೆಗಳನ್ನು ಬೆಂಬಲಿಸಲು AI-ಚಾಲಿತ ಪರಿಹಾರಗಳನ್ನು ನಿರ್ಮಿಸುವ ಡೆವಲಪರ್‌ಗಳ ಗುಂಪಾಗಿದ್ದೇವೆ."
+                : "We are a group of dedicated developers building AI-powered agricultural intelligence layers to support farming operations across Indian rural ecosystems."}
           </p>
         </div>
       </section>
@@ -96,14 +138,14 @@ export default function FoundersPage() {
       <section className="px-6 md:px-12 py-16">
         <div className="mx-auto max-w-7xl">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {FOUNDERS.map((f, i) => (
+            {founders.map((f, i) => (
               <motion.div 
                 key={f.email}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
               >
-                <FounderCard founder={f} />
+                <FounderCard founder={f} lang={lang} />
               </motion.div>
             ))}
           </div>
@@ -116,13 +158,19 @@ export default function FoundersPage() {
           <div className="absolute top-0 right-0 w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[80px] pointer-events-none -z-10" />
           
           <div className="max-w-4xl text-center mx-auto space-y-4">
-            <h2 className="text-3xl font-black text-white font-display">Get in touch with us</h2>
+            <h2 className="text-3xl font-black text-white font-display">
+              {lang === "hi" ? "हमसे संपर्क करें" : lang === "kn" ? "ನಮ್ಮನ್ನು ಸಂಪರ್ಕಿಸಿ" : "Get in touch with us"}
+            </h2>
             <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
-              Have questions, feedback, or interest in partnership opportunities? Drop us a line.
+              {lang === "hi"
+                ? "क्या आपके पास कोई प्रश्न, प्रतिक्रिया या साझेदारी के अवसरों में रुचि है? हमें ईमेल भेजें।"
+                : lang === "kn"
+                  ? "ಪ್ರಶ್ನೆಗಳು, ಪ್ರತಿಕ್ರಿಯೆ ಅಥವಾ ಪಾಲುದಾರಿಕೆಯ ಅವಕಾಶಗಳ ಬಗ್ಗೆ ಆಸಕ್ತಿ ಇದೆಯೇ? ನಮಗೆ ಇಮೇಲ್ ಕಳುಹಿಸಿ."
+                  : "Have questions, feedback, or interest in partnership opportunities? Drop us a line."}
             </p>
 
             <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-left pt-4">
-              {FOUNDERS.map((f) => (
+              {founders.map((f) => (
                 <a
                   key={f.email}
                   href={`mailto:${f.email}`}
@@ -144,20 +192,24 @@ export default function FoundersPage() {
       <section className="px-6 md:px-12 py-10 md:py-16 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
           <h2 className="text-3xl font-black font-display text-white">
-            Ready to try KrishiAI?
+            {lang === "hi" ? "कृषिAI आजमाने के लिए तैयार हैं?" : lang === "kn" ? "KrishiAI ಬಳಸಲು ಸಿದ್ಧರಿದ್ದೀರಾ?" : "Ready to try KrishiAI?"}
           </h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-            Free forever, mobile responsive, and fully localized in multi-language scripts.
+            {lang === "hi"
+              ? "हमेशा के लिए मुफ्त, मोबाइल के अनुकूल, और विभिन्न भाषाओं में पूर्णतः स्थानीयकृत।"
+              : lang === "kn"
+                ? "ಯಾವಾಗಲೂ ಉಚಿತ, ಮೊಬೈಲ್ ಸ್ನೇಹಿ ಮತ್ತು ಬಹು-ಭಾಷೆಗಳಲ್ಲಿ ಸಂಪೂರ್ಣವಾಗಿ ಸ್ಥಳೀಯಗೊಳಿಸಲಾಗಿದೆ."
+                : "Free forever, mobile responsive, and fully localized in multi-language scripts."}
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-2">
             <Link href="/signup">
               <Button className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 px-6 shadow-lg shadow-emerald-500/15">
-                Get Started Free
+                {lang === "hi" ? "मुफ्त शुरू करें" : lang === "kn" ? "ಉಚಿತವಾಗಿ ಪ್ರಾರಂಭಿಸಿ" : "Get Started Free"}
               </Button>
             </Link>
             <Link href="/">
               <Button variant="outline" className="rounded-xl border-white/[0.08] hover:bg-white/[0.03] text-white font-semibold h-11 px-6">
-                Learn More
+                {lang === "hi" ? "अधिक जानें" : lang === "kn" ? "ಹೆಚ್ಚು ತಿಳಿಯಿರಿ" : "Learn More"}
               </Button>
             </Link>
           </div>
@@ -167,11 +219,8 @@ export default function FoundersPage() {
   )
 }
 
-function FounderCard({ founder }: { founder: Founder }) {
-  const isFounder = founder.stake.includes("Founder");
-  const badgeColorClass = isFounder 
-    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse-glow" 
-    : "bg-blue-500/10 border-blue-500/20 text-blue-400";
+function FounderCard({ founder, lang }: { founder: Founder; lang: string }) {
+  const badgeColorClass = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse-glow";
 
   return (
     <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/40 hover:-translate-y-2 hover:scale-[1.01] backdrop-blur-md shadow-lg hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300 p-6 md:p-8">
@@ -211,7 +260,7 @@ function FounderCard({ founder }: { founder: Founder }) {
           className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-xs font-bold text-white transition-all duration-200"
         >
           <Mail className="h-4 w-4 text-emerald-400 group-hover:text-white transition-colors" />
-          <span>Email {founder.stake}</span>
+          <span>{lang === "hi" ? "ईमेल संपर्क" : lang === "kn" ? "ಇಮೇಲ್ ಸಂಪರ್ಕ" : `Email ${founder.stake}`}</span>
         </a>
         <div className="text-[10px] font-mono text-muted-foreground/50 text-center truncate">{founder.email}</div>
       </div>

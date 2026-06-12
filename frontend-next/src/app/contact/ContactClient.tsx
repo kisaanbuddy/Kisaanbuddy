@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export function ContactClient() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -65,10 +65,17 @@ export function ContactClient() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight text-foreground leading-tight">
-            How can we <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">help you</span>?
+            {lang === "hi" ? "हम आपकी क्या" : lang === "kn" ? "ನಾವು ನಿಮಗೆ ಹೇಗೆ" : "How can we"}{' '}
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">
+              {lang === "hi" ? "सहायता कर सकते हैं?" : lang === "kn" ? "ಸಹಾಯ ಮಾಡಬಹುದು?" : "help you?"}
+            </span>
           </h1>
           <p className="mt-4 max-w-2xl text-sm md:text-base text-muted-foreground leading-relaxed">
-            Have questions about our AI features, partnership options, or technical concerns? Reach out directly and our founding team will respond as soon as possible.
+            {lang === "hi"
+              ? "हमारे एआई फीचर्स, साझेदारी विकल्पों या तकनीकी चिंताओं के बारे में प्रश्न हैं? सीधे संपर्क करें और हमारी संस्थापक टीम जल्द से जल्द जवाब देगी।"
+              : lang === "kn"
+                ? "ನಮ್ಮ AI ವೈಶಿಷ್ಟ್ಯಗಳು, ಪಾಲುದಾರಿಕೆ ಆಯ್ಕೆಗಳು ಅಥವಾ ತಾಂತ್ರಿಕ ಕಾಳಜಿಗಳ ಬಗ್ಗೆ ಪ್ರಶ್ನೆಗಳಿವೆಯೇ? ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ ಮತ್ತು ನಮ್ಮ ತಂಡವು ಶೀಘ್ರದಲ್ಲೇ ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತದೆ."
+                : "Have questions about our AI features, partnership options, or technical concerns? Reach out directly and our founding team will respond as soon as possible."}
           </p>
         </div>
       </section>
@@ -80,16 +87,22 @@ export function ContactClient() {
           {/* Left: Contact Info (2 cols) */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex flex-col gap-2">
-              <h2 className="text-xl font-bold font-display text-foreground">Get in Touch Directly</h2>
-              <p className="text-xs text-muted-foreground">Feel free to write to any of our team members for support or queries.</p>
+              <h2 className="text-xl font-bold font-display text-foreground">{lang === "hi" ? "सीधे संपर्क करें" : lang === "kn" ? "ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ" : "Get in Touch Directly"}</h2>
+              <p className="text-xs text-muted-foreground">
+                {lang === "hi"
+                  ? "समर्थन या प्रश्नों के लिए हमारी टीम के किसी भी सदस्य को लिखने में संकोच न करें।"
+                  : lang === "kn"
+                    ? "ಬೆಂಬಲ ಅಥವಾ ಪ್ರಶ್ನೆಗಳಿಗಾಗಿ ನಮ್ಮ ತಂಡದ ಯಾವುದೇ ಸದಸ್ಯರಿಗೆ ಬರೆಯಲು ಮುಕ್ತವಾಗಿರಿ."
+                    : "Feel free to write to any of our team members for support or queries."}
+              </p>
             </div>
 
             <div className="space-y-4">
               {[
-                { name: "Aditya Ishwar", role: "Founder & CEO", shortRole: "Founder", email: "adityaoutlier5@gmail.com" },
-                { name: "Utkarsh Sinha", role: "Co-Founder & Managing Director", shortRole: "Co-Founder", email: "utkarsh.sinha.dev@gmail.com" },
-                { name: "Sanidhya Sharma", role: "Co-Founder & CTO", shortRole: "Co-Founder", email: "sanidhyasharma.dev@gmail.com" },
-                { name: "Yash Singh", role: "Co-Founder & CMO", shortRole: "Co-Founder", email: "yashkumaryashsingh384@gmail.com" }
+                { name: "Aditya Ishwar", role: "Founder & CEO", shortRole: lang === "hi" ? "संस्थापक" : lang === "kn" ? "ಸಂಸ್ಥಾಪಕ" : "Founder", email: "adityaoutlier5@gmail.com" },
+                { name: "Utkarsh Sinha", role: "Co-Founder & Managing Director", shortRole: lang === "hi" ? "सह-संस्थापक" : lang === "kn" ? "ಸಹ-ಸಂಸ್ಥಾಪಕ" : "Co-Founder", email: "utkarsh.sinha.dev@gmail.com" },
+                { name: "Sanidhya Sharma", role: "Co-Founder & CTO", shortRole: lang === "hi" ? "सह-संस्थापक" : lang === "kn" ? "ಸಹ-ಸಂಸ್ಥಾಪಕ" : "Co-Founder", email: "sanidhyasharma.dev@gmail.com" },
+                { name: "Yash Singh", role: "Co-Founder & CMO", shortRole: lang === "hi" ? "सह-संस्थापक" : lang === "kn" ? "ಸಹ-ಸಂಸ್ಥಾಪಕ" : "Co-Founder", email: "yashkumaryashsingh384@gmail.com" }
               ].map((c) => (
                 <a
                   key={c.email}
@@ -111,7 +124,7 @@ export function ContactClient() {
             <div className="rounded-xl border border-border/20 bg-muted/10 p-5 space-y-3.5 text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
                 <MapPin className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-                <span>Patna, Bihar, India</span>
+                <span>{lang === "hi" ? "पटना, बिहार, भारत" : lang === "kn" ? "ಪಾಟ್ನಾ, ಬಿಹಾರ್, ಭಾರತ" : "Patna, Bihar, India"}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Globe className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
@@ -119,14 +132,14 @@ export function ContactClient() {
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-                <span>+91 9876543210 (Founding Support Helpline)</span>
+                <span>+91 9876543210 ({lang === "hi" ? "संस्थापक सहायता हेल्पलाइन" : lang === "kn" ? "ಸಂಸ್ಥಾಪಕ ಸಹಾಯ ಸಹಾಯವಾಣಿ" : "Founding Support Helpline"})</span>
               </div>
             </div>
           </div>
 
           {/* Right: Message Form (3 cols) */}
           <div className="lg:col-span-3 rounded-2xl border border-border/40 bg-card/40 backdrop-blur-md p-6 md:p-8 shadow-xl">
-            <h3 className="text-lg font-bold font-display text-foreground mb-4">Send a Message</h3>
+            <h3 className="text-lg font-bold font-display text-foreground mb-4">{lang === "hi" ? "एक संदेश भेजें" : lang === "kn" ? "ಒಂದು ಸಂದೇಶ ಕಳುಹಿಸಿ" : "Send a Message"}</h3>
             
             {status === 'success' ? (
               <motion.div
@@ -137,22 +150,26 @@ export function ContactClient() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 animate-pulse-glow">
                   <CheckCircle2 className="h-8 w-8" />
                 </div>
-                <h4 className="text-base font-bold text-foreground">Message Sent Successfully!</h4>
+                <h4 className="text-base font-bold text-foreground">{lang === "hi" ? "संदेश सफलतापूर्वक भेजा गया!" : lang === "kn" ? "ಸಂದೇಶವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ!" : "Message Sent Successfully!"}</h4>
                 <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-                  Thank you for reaching out. We have received your query and will respond shortly.
+                  {lang === "hi"
+                    ? "संपर्क करने के लिए धन्यवाद। हमें आपका संदेश प्राप्त हो गया है और हम जल्द ही जवाब देंगे।"
+                    : lang === "kn"
+                      ? "ಸಂಪರ್ಕಿಸಿದ್ದಕ್ಕಾಗಿ ಧನ್ಯವಾದಗಳು. ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ನಾವು ಸ್ವೀಕರಿಸಿದ್ದೇವೆ ಮತ್ತು ಶೀಘ್ರದಲ್ಲೇ ಪ್ರತಿಕ್ರಿಯಿಸುತ್ತೇವೆ."
+                      : "Thank you for reaching out. We have received your query and will respond shortly."}
                 </p>
                 <Button 
                   onClick={() => setStatus('idle')}
                   className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-9 px-4 text-xs mt-2"
                 >
-                  Send another message
+                  {lang === "hi" ? "दूसरा संदेश भेजें" : lang === "kn" ? "ಮತ್ತೊಂದು ಸಂದೇಶ ಕಳುಹಿಸಿ" : "Send another message"}
                 </Button>
               </motion.div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Full Name *</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{lang === "hi" ? "पूरा नाम *" : lang === "kn" ? "ಪೂರ್ಣ ಹೆಸರು *" : "Full Name *"}</label>
                     <div className="relative">
                       <Input
                         type="text"
@@ -160,7 +177,7 @@ export function ContactClient() {
                         required
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="Farmer/Partner Name"
+                        placeholder={lang === "hi" ? "किसान/साझेदार का नाम" : lang === "kn" ? "ರೈತ/ಪಾಲುದಾರರ ಹೆಸರು" : "Farmer/Partner Name"}
                         className="pl-9 h-10 rounded-xl border border-border bg-background/30"
                       />
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60" />
@@ -168,7 +185,7 @@ export function ContactClient() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Email Address *</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{lang === "hi" ? "ईमेल पता *" : lang === "kn" ? "ಇಮೇಲ್ ವಿಳಾಸ *" : "Email Address *"}</label>
                     <div className="relative">
                       <Input
                         type="email"
@@ -186,7 +203,7 @@ export function ContactClient() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Phone Number</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{lang === "hi" ? "फ़ोन नंबर" : lang === "kn" ? "ದೂರವಾಣಿ ಸಂಖ್ಯೆ" : "Phone Number"}</label>
                     <div className="relative">
                       <Input
                         type="tel"
@@ -201,14 +218,14 @@ export function ContactClient() {
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Subject</label>
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{lang === "hi" ? "विषय" : lang === "kn" ? "ವಿಷಯ" : "Subject"}</label>
                     <div className="relative">
                       <Input
                         type="text"
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
-                        placeholder="Inquiry Topic"
+                        placeholder={lang === "hi" ? "पूछताछ का विषय" : lang === "kn" ? "ವಿಚಾರಣೆಯ ವಿಷಯ" : "Inquiry Topic"}
                         className="pl-9 h-10 rounded-xl border border-border bg-background/30"
                       />
                       <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground/60" />
@@ -217,21 +234,25 @@ export function ContactClient() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Your Message *</label>
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{lang === "hi" ? "आपका संदेश *" : lang === "kn" ? "ನಿಮ್ಮ ಸಂದೇಶ *" : "Your Message *"}</label>
                   <textarea
                     name="message"
                     required
                     rows={4}
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="How can KrishiAI support your farming operations?"
+                    placeholder={lang === "hi" ? "कृषिAI आपके कृषि कार्यों का समर्थन कैसे कर सकता है?" : lang === "kn" ? "KrishiAI ನಿಮ್ಮ ಕೃಷಿ ಚಟುವಟಿಕೆಗಳಿಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?" : "How can KrishiAI support your farming operations?"}
                     className="w-full rounded-xl border border-border bg-background/30 p-3 text-xs placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200"
                   />
                 </div>
 
                 {status === 'error' && (
                   <p className="text-xs text-red-500 font-semibold">
-                    Please fill out all required fields (Name, Email, Message).
+                    {lang === "hi"
+                      ? "कृपया सभी आवश्यक फ़ील्ड (नाम, ईमेल, संदेश) भरें।"
+                      : lang === "kn"
+                        ? "ದಯವಿಟ್ಟು ಎಲ್ಲಾ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳನ್ನು (ಹೆಸರು, ಇಮೇಲ್, ಸಂದೇಶ) ಭರ್ತಿ ಮಾಡಿ."
+                        : "Please fill out all required fields (Name, Email, Message)."}
                   </p>
                 )}
 
@@ -241,10 +262,10 @@ export function ContactClient() {
                   className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:brightness-105 text-white font-bold h-10 px-5 flex items-center justify-center gap-2 mt-2 shadow-lg shadow-emerald-500/10"
                 >
                   {status === 'submitting' ? (
-                    'Sending...'
+                    lang === "hi" ? "भेजा जा रहा है..." : lang === "kn" ? "ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ..." : 'Sending...'
                   ) : (
                     <>
-                      <span>Send Message</span>
+                      <span>{lang === "hi" ? "संदेश भेजें" : lang === "kn" ? "ಸಂದೇಶ ಕಳುಹಿಸಿ" : "Send Message"}</span>
                       <Send className="h-3.5 w-3.5" />
                     </>
                   )}
