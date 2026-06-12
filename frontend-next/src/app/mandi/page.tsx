@@ -278,7 +278,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
 /*  Main Page Component                                                */
 /* ------------------------------------------------------------------ */
 export default function MandiPage() {
-  const { t } = useLanguage()
+  const { t, lang: appLang } = useLanguage()
   const [crops, setCrops] = useState<MandiCrop[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -287,8 +287,12 @@ export default function MandiPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
-  const [lang, setLang] = useState<"en" | "hi" | "kn">("hi")
+  const [lang, setLang] = useState<"en" | "hi" | "kn">(appLang)
   const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setLang(appLang)
+  }, [appLang])
 
   useEffect(() => {
     setMounted(true)

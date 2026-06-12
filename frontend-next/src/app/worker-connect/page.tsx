@@ -82,8 +82,13 @@ function workTypeLabel(wt: WorkType, lang: Language): string {
 }
 
 export default function JobsPage() {
-  const [language, setLanguage] = useState<Language>("auto")
+  const { t, lang } = useLanguage()
+  const [language, setLanguage] = useState<Language>(lang)
   const [mode, setMode] = useState<Mode>("hire")
+
+  useEffect(() => {
+    setLanguage(lang)
+  }, [lang])
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">

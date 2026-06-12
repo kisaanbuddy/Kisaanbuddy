@@ -6,7 +6,7 @@ import {
   Bug, CheckCircle2, AlertTriangle, Leaf,
   Upload, FlaskConical,
 } from "lucide-react"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { type AssistantRequest, type Language, streamMessage } from "@/lib/assistant-api"
 
@@ -27,8 +27,13 @@ const PROMPT_FALLBACK: Record<Language, string> = {
 }
 
 export default function DiseasePortal() {
-  const { t } = useLanguage()
-  const [language, setLanguage]     = useState<Language>("hi")
+  const { t, lang } = useLanguage()
+  const [language, setLanguage]     = useState<Language>(lang)
+  
+  useEffect(() => {
+    setLanguage(lang)
+  }, [lang])
+
   const [crop, setCrop]             = useState("")
   const [symptom, setSymptom]       = useState("")
   const [imageDataUrl, setImage]    = useState<string | null>(null)
