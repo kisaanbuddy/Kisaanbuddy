@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 /**
  * SensorAutoFill — auto-fills Temperature & Humidity in the Crop Predictor
@@ -38,6 +39,7 @@ type Props = {
 }
 
 export function SensorAutoFill({ onApply }: Props) {
+  const { t } = useLanguage()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [reading, setReading] = useState<LatestReading | null>(null)
@@ -81,7 +83,7 @@ export function SensorAutoFill({ onApply }: Props) {
     <div className="rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/10 via-transparent to-transparent p-4 mb-5">
       <div className="flex items-center gap-2 mb-3">
         <Cpu className="h-4 w-4 text-sky-500" />
-        <span className="text-sm font-semibold">Auto-fill from field sensor</span>
+        <span className="text-sm font-semibold">{t("sensor_autofill.auto_fill_from_field")}</span>
         <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
           temp · humidity (live)
         </span>

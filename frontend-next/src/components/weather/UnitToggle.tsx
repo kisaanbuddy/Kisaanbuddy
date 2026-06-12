@@ -1,13 +1,15 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import { useUnit } from "./unit-context"
 
 export function UnitToggle({ className = "" }: { className?: string }) {
+  const { t } = useLanguage()
   const { unit, setUnit } = useUnit()
   return (
     <div
       role="group"
-      aria-label="Temperature unit"
+      aria-label={t("weather.temperature_unit")}
       className={`inline-flex items-center rounded-full border border-white/15 bg-white/10 p-0.5 text-sm backdrop-blur-sm dark:bg-black/20 ${className}`}
     >
       {(["C", "F"] as const).map((u) => {

@@ -19,7 +19,7 @@ export function Footer() {
                 <Sprout className="h-4.5 w-4.5 text-white" />
               </div>
               <span className="font-display font-extrabold text-lg tracking-tight text-foreground">
-                Krishi<span className="text-emerald-500">AI</span>
+                Krishi<span className="text-emerald-500">{t("footer.ai")}</span>
               </span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">

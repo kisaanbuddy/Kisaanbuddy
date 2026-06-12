@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import { useEffect, useRef, useState } from "react"
 import { Youtube, Loader2, ExternalLink } from "lucide-react"
@@ -17,6 +18,7 @@ function parseYouTube(url?: string | null): { videoId: string; embedUrl: string 
 }
 
 export function SchemeVideo({ url, title = "Scheme guide video" }: Props) {
+  const { t } = useLanguage()
   const parsed = parseYouTube(url)
   const [loaded, setLoaded] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
@@ -66,7 +68,7 @@ export function SchemeVideo({ url, title = "Scheme guide video" }: Props) {
           className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:border-red-500 transition-colors group"
         >
           <Youtube className="h-4 w-4 shrink-0 text-red-500" />
-          <span className="flex-1">Watch tutorial on YouTube</span>
+          <span className="flex-1">{t("scheme_video.watch_tutorial_on_youtube")}</span>
           <ExternalLink className="h-3.5 w-3.5 shrink-0 opacity-60 group-hover:opacity-100" />
         </a>
       ) : (

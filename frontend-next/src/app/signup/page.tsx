@@ -71,6 +71,7 @@ const localTranslations = {
 };
 
 export default function SignupPage() {
+  const { t } = useLanguage()
   const { lang } = useLanguage();
   const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
@@ -202,7 +203,7 @@ export default function SignupPage() {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Rahul Kumar"
+                  placeholder={t("signup.rahul_kumar")}
                   disabled={loading}
                   className="w-full h-11 bg-white/[0.03] hover:bg-white/[0.05] focus:bg-white/[0.05] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 text-sm text-white placeholder-muted-foreground/50 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                 />
@@ -246,7 +247,7 @@ export default function SignupPage() {
               {password && (
                 <div className="mt-2.5 px-1 animate-fade-in">
                   <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 mb-1">
-                    <span>Password Strength</span>
+                    <span>{t("signup.password_strength")}</span>
                     <span className="text-emerald-400">{strengthLabel}</span>
                   </div>
                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">

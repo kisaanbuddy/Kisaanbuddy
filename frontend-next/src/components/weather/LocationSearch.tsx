@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import { useEffect, useRef, useState } from "react"
 import { MapPin, Search, Loader2, LocateFixed } from "lucide-react"
@@ -15,6 +16,7 @@ interface Props {
 const DEBOUNCE_MS = 250
 
 export function LocationSearch({
+  const { t } = useLanguage()
   onSelect,
   onUseCurrentLocation,
   placeholder = "Search city…",
@@ -107,7 +109,7 @@ export function LocationSearch({
           onKeyDown={handleKey}
           placeholder={placeholder}
           className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          aria-label="Search for a city"
+          aria-label={t("weather.search_for_a_city")}
           autoComplete="off"
         />
         {loading && <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />}
@@ -115,7 +117,7 @@ export function LocationSearch({
           <button
             type="button"
             onClick={onUseCurrentLocation}
-            title="Use my current location"
+            title={t("weather.use_my_current_location")}
             className="shrink-0 rounded-full p-1 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
           >
             <LocateFixed className="h-4 w-4" />

@@ -59,6 +59,7 @@ const localTranslations = {
 };
 
 export default function LoginPage() {
+  const { t } = useLanguage()
   const { lang } = useLanguage();
   const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
@@ -276,7 +277,7 @@ export default function LoginPage() {
               ) : (
                 <div className="w-full h-11 border border-white/10 rounded-xl bg-white/[0.01] flex items-center justify-center gap-2 text-xs text-muted-foreground select-none">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground/60" />
-                  <span>Loading Google Auth...</span>
+                  <span>{t("login.loading_google_auth")}</span>
                 </div>
               )}
             </div>

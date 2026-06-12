@@ -29,6 +29,7 @@ const NAV_LINK_DEFS = [
 const PUBLIC_ROUTES = ['/', '/login', '/signup', '/hardware', '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/cookie-policy'];
 
 function LangFlag({ lang }: { lang: Lang }) {
+  const { t } = useLanguage()
   if (lang === 'en') {
     return (
       <svg className="h-3.5 w-5 rounded-sm shrink-0 border border-black/10 dark:border-white/10" viewBox="0 0 60 30" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -126,7 +127,7 @@ export function Header() {
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-display font-extrabold text-lg tracking-tight">
-              Krishi<span className="text-emerald-500 dark:text-emerald-400">AI</span>
+              Krishi<span className="text-emerald-500 dark:text-emerald-400">{t("header.ai")}</span>
             </span>
             {isPublic && !user && (
               <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/80">
@@ -172,7 +173,7 @@ export function Header() {
             </button>
             {langOpen && (
               <>
-                <button className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} aria-label="Close" />
+                <button className="fixed inset-0 z-40" onClick={() => setLangOpen(false)} aria-label={t("header.close")} />
                 <div className="absolute right-0 top-11 z-50 w-38 rounded-xl border border-border/40 bg-popover/90 backdrop-blur-md shadow-xl overflow-hidden animate-fade-in p-1">
                   {(Object.keys(LANG_NAMES) as Lang[]).map((l) => (
                     <button
@@ -230,7 +231,7 @@ export function Header() {
                 {user.profile_image ? (
                   <img
                     src={user.profile_image}
-                    alt="Profile"
+                    alt={t("header.profile")}
                     className="h-5 w-5 rounded-full object-cover shrink-0 border border-emerald-500/10"
                   />
                 ) : (
@@ -244,7 +245,7 @@ export function Header() {
               </Link>
               <button
                 onClick={handleLogout}
-                title="Sign out"
+                title={t("header.sign_out")}
                 className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground border border-transparent
                   hover:bg-red-500/10 hover:border-red-500/15 hover:text-red-500 transition-colors duration-200"
               >
@@ -275,7 +276,7 @@ export function Header() {
           {/* Backdrop */}
           <button
             type="button"
-            aria-label="Close menu"
+            aria-label={t("header.close_menu")}
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-md lg:hidden cursor-default transition-all duration-300"
             onClick={() => setOpen(false)}
           />
@@ -283,7 +284,7 @@ export function Header() {
           {/* Drawer panel */}
           <nav
             className="fixed top-[4.5rem] left-3 right-3 z-50 lg:hidden glass-panel rounded-2xl p-4 flex flex-col gap-1.5 animate-slide-up max-h-[82vh] overflow-y-auto border-emerald-500/10 shadow-2xl"
-            aria-label="Mobile navigation"
+            aria-label={t("header.mobile_navigation")}
           >
             {showFullNav ? (
               <>
@@ -296,7 +297,7 @@ export function Header() {
                   {user?.profile_image ? (
                     <img
                       src={user.profile_image}
-                      alt="Profile"
+                      alt={t("header.profile")}
                       className="h-9 w-9 rounded-full object-cover shrink-0 border border-emerald-500/10"
                     />
                   ) : (

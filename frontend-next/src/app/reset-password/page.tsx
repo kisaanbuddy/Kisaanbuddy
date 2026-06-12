@@ -49,6 +49,7 @@ const localTranslations = {
 };
 
 function ResetPasswordForm() {
+  const { t } = useLanguage()
   const { lang } = useLanguage();
   const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
@@ -131,7 +132,7 @@ function ResetPasswordForm() {
             <div className="flex items-start gap-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-xs text-emerald-400 leading-relaxed">
               <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5 animate-pulse-glow" />
               <div>
-                <span className="font-bold block text-white mb-1 font-display">Success!</span>
+                <span className="font-bold block text-white mb-1 font-display">{t("reset_password.success")}</span>
                 <span>{t.successMsg}</span>
               </div>
             </div>
@@ -208,7 +209,7 @@ export default function ResetPasswordPage() {
       <Suspense fallback={
         <div className="flex flex-col items-center gap-4 text-center">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-          <p className="text-xs text-muted-foreground">Initializing Reset Page...</p>
+          <p className="text-xs text-muted-foreground">{t("reset_password.initializing_reset_page")}</p>
         </div>
       }>
         <ResetPasswordForm />

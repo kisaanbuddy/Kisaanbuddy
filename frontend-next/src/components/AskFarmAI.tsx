@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 /**
  * AskFarmAI — "Crop Suitability AI" panel.
@@ -61,6 +62,7 @@ const EXAMPLES = [
 ]
 
 export function AskFarmAI({ params }: Props) {
+  const { t } = useLanguage()
   const [query, setQuery] = useState("")
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<CropCheckResponse | null>(null)
@@ -106,7 +108,7 @@ export function AskFarmAI({ params }: Props) {
       <CardHeader className="border-b border-white/[0.06] bg-slate-950/40 px-6 py-4">
         <CardTitle className="text-lg font-bold font-display text-white flex items-center gap-2">
           <MessageSquareText className="h-5 w-5 text-emerald-400" />
-          <span>Ask Your Farm AI</span>
+          <span>{t("ask_farm_ai.ask_your_farm_ai")}</span>
           <span className="ml-auto text-[9px] uppercase tracking-widest text-muted-foreground font-black px-2.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.05]">
             Crop Suitability AI
           </span>
@@ -118,7 +120,7 @@ export function AskFarmAI({ params }: Props) {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask about your farm... (e.g. 'Wheat ugana sahi rahega?')"
+            placeholder={t("ask_farm_ai.ask_about_your_farm")}
             className="flex-1 h-12 bg-slate-950/40 border-white/[0.08] focus:border-emerald-500/40 focus:ring-emerald-500/10 rounded-xl px-4 text-sm"
             disabled={loading}
           />
@@ -130,12 +132,12 @@ export function AskFarmAI({ params }: Props) {
             {loading ? (
               <>
                 <Loader2 className="h-4.5 w-4.5 animate-spin" />
-                <span>Analyzing...</span>
+                <span>{t("ask_farm_ai.analyzing")}</span>
               </>
             ) : (
               <>
                 <Sparkles className="h-4.5 w-4.5" />
-                <span>Check Suitability</span>
+                <span>{t("ask_farm_ai.check_suitability")}</span>
               </>
             )}
           </Button>
@@ -210,7 +212,7 @@ function ResultCard({ result }: { result: CropCheckResponse }) {
         {result.reason?.length > 0 && (
           <Section
             icon={<CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" />}
-            title="Analysis verdict basis"
+            title={t("ask_farm_ai.analysis_verdict_basis")}
             items={result.reason}
           />
         )}
@@ -219,7 +221,7 @@ function ResultCard({ result }: { result: CropCheckResponse }) {
         {result.suggestions?.length > 0 && (
           <Section
             icon={<Lightbulb className="h-4.5 w-4.5 text-amber-400" />}
-            title="Agronomist suggestions"
+            title={t("ask_farm_ai.agronomist_suggestions")}
             items={result.suggestions}
           />
         )}
@@ -230,7 +232,7 @@ function ResultCard({ result }: { result: CropCheckResponse }) {
         <div className="pt-2">
           <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-wider font-extrabold text-muted-foreground/80">
             <Repeat className="h-4 w-4 text-teal-400" />
-            <span>Alternative Crop Matches</span>
+            <span>{t("ask_farm_ai.alternative_crop_matches")}</span>
           </div>
           <div className="flex flex-wrap gap-2.5">
             {result.alternatives.map((alt) => (
@@ -286,7 +288,7 @@ function ConfidenceBar({
   return (
     <div className="mt-3">
       <div className="mb-1 flex items-baseline justify-between text-xs">
-        <span className="font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">Suitability Score</span>
+        <span className="font-semibold text-muted-foreground text-[10px] uppercase tracking-wider">{t("ask_farm_ai.suitability_score")}</span>
         <span className={`font-extrabold ${tone.confTextCls}`}>{pct}%</span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-900 border border-white/[0.04]">

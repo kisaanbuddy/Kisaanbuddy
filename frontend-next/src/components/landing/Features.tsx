@@ -75,11 +75,7 @@ export function Features() {
             </span>
           </h2>
           <p className="text-xs md:text-sm text-muted-foreground/80 max-w-lg mx-auto leading-relaxed font-semibold">
-            {lang === "hi" 
-              ? "सटीक कृषि मेट्रिक्स और मशीन लर्निंग सेवाओं को तुरंत एक्सेस करें।" 
-              : lang === "kn" 
-                ? "ನಿಖರವಾದ ಕೃಷಿ ಮಾಪನಗಳು ಮತ್ತು ಯಂತ್ರ ಕಲಿಕೆ ಸೇವೆಗಳನ್ನು ತಕ್ಷಣವೇ ಪ್ರವೇಶಿಸಿ." 
-                : "Access highly accurate agricultural metrics and machine learning services instantly."}
+            {t("landing_features.access_highly_accurate_agricultural")}
           </p>
         </div>
 
@@ -103,14 +99,14 @@ export function Features() {
                           <f.icon className="h-5 w-5" />
                         </div>
                         <span className="rounded-full bg-emerald-500/10 text-emerald-500 text-[9px] font-bold px-2 py-0.5 select-none opacity-0 group-hover:opacity-100 transition-opacity">
-                          {lang === "hi" ? "टूल शुरू करें" : lang === "kn" ? "ಉಪಕರಣ ಪ್ರಾರಂಭಿಸಿ" : "Launch Tool"}
+                          {t("landing_features.launch_tool")}
                         </span>
                       </div>
                       <h3 className="mb-2 text-base font-display font-bold text-foreground">{translation.title}</h3>
                       <p className="text-xs text-muted-foreground/85 leading-relaxed mb-6 font-medium">{translation.body}</p>
                     </div>
                     <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-0.5 transition-transform mt-auto">
-                      {lang === "hi" ? "अभी प्रयास करें" : lang === "kn" ? "ಈಗ ಪ್ರಯತ್ನಿಸಿ" : "Try Now"} <ChevronRight className="h-3 w-3" />
+                      {t("landing_features.try_now")} <ChevronRight className="h-3 w-3" />
                     </span>
                   </div>
                 </Link>

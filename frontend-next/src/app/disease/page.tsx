@@ -116,7 +116,7 @@ export default function DiseasePortal() {
             <div className="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider">
               <Bug className="h-4.5 w-4.5" /> AI-Powered Crop Care
             </div>
-            <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight">Disease Detection</h1>
+            <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight">{t("disease.disease_detection")}</h1>
             <p className="text-muted-foreground/90 text-xs md:text-sm max-w-xl leading-relaxed">
               {language === "hi"
                 ? "Patti ya paude ki photo bhejo — bimari, dose, organic aur chemical treatment sab milega"
@@ -125,7 +125,7 @@ export default function DiseasePortal() {
           </div>
           <div className="hidden md:flex flex-col items-center justify-center bg-[#060b18]/45 backdrop-blur-sm rounded-2xl p-5 text-center border border-red-500/10 shrink-0 shadow-lg">
             <div className="text-3xl font-display font-black text-red-500">95%</div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">Detection Accuracy</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">{t("disease.detection_accuracy")}</div>
           </div>
         </div>
       </motion.div>
@@ -146,11 +146,11 @@ export default function DiseasePortal() {
             {imageDataUrl ? (
               <div className="relative mt-2 overflow-hidden rounded-2xl border-2 border-emerald-500/20 shadow-lg group select-none">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageDataUrl} alt="Selected leaf" className="aspect-square w-full object-cover rounded-2xl brightness-95" />
+                <img src={imageDataUrl} alt={t("disease.selected_leaf")} className="aspect-square w-full object-cover rounded-2xl brightness-95" />
                 <button
                   type="button" onClick={() => setImage(null)}
                   className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-xl bg-black/70 text-white hover:bg-red-500/90 hover:scale-105 active:scale-95 transition-all"
-                  title="Remove image"
+                  title={t("disease.remove_image")}
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -177,14 +177,14 @@ export default function DiseasePortal() {
                   className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/40 bg-background/50 p-4 text-sm text-muted-foreground hover:border-emerald-500/20 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all duration-200 active:scale-95 shadow-sm"
                 >
                   <ImagePlus className="h-5 w-5 text-emerald-500" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Gallery</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">{t("disease.gallery")}</span>
                 </button>
                 <button
                   type="button" onClick={() => camRef.current?.click()}
                   className="flex flex-col items-center justify-center gap-2 rounded-xl border border-border/40 bg-background/50 p-4 text-sm text-muted-foreground hover:border-emerald-500/20 hover:text-emerald-500 hover:bg-emerald-500/5 transition-all duration-200 active:scale-95 shadow-sm"
                 >
                   <Camera className="h-5 w-5 text-emerald-500" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider">Camera</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">{t("disease.camera")}</span>
                 </button>
 
                 <input ref={fileRef} type="file" accept="image/*" className="hidden"
@@ -202,7 +202,7 @@ export default function DiseasePortal() {
             </label>
             <input
               value={crop} onChange={e => setCrop(e.target.value)}
-              placeholder="e.g. Tomato, Cotton, Paddy, Wheat"
+              placeholder={t("disease.e_g_tomato_cotton")}
               className="input-base"
             />
           </div>

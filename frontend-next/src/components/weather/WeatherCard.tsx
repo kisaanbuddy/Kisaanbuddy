@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from '@/lib/language'
 
 import { motion } from "framer-motion"
 import {
@@ -28,6 +29,7 @@ interface Props {
 }
 
 export function WeatherCard({ data, loading, error, onRetry }: Props) {
+  const { t } = useLanguage()
   const { unit } = useUnit()
 
   return (
@@ -115,33 +117,33 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
               <div className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-3 md:w-auto md:grid-cols-2">
                 <Stat
                   icon={<Wind className="h-4.5 w-4.5 text-sky-400" />}
-                  label="Wind"
+                  label={t("weather.wind")}
                   value={`${data.current.wind_kph.toFixed(1)} km/h`}
                   hint={data.current.wind_dir ?? undefined}
                 />
                 <Stat
                   icon={<Droplet className="h-4.5 w-4.5 text-teal-400" />}
-                  label="Humidity"
+                  label={t("weather.humidity")}
                   value={`${data.current.humidity}%`}
                 />
                 {data.current.pressure_mb != null && (
                   <Stat
                     icon={<Gauge className="h-4.5 w-4.5 text-indigo-400" />}
-                    label="Pressure"
+                    label={t("weather.pressure")}
                     value={`${Math.round(data.current.pressure_mb)} mb`}
                   />
                 )}
                 {data.current.visibility_km != null && (
                   <Stat
                     icon={<Eye className="h-4.5 w-4.5 text-emerald-400" />}
-                    label="Visibility"
+                    label={t("weather.visibility")}
                     value={`${data.current.visibility_km.toFixed(1)} km`}
                   />
                 )}
                 {data.current.uv_index != null && (
                   <Stat
                     icon={<SunIcon className="h-4.5 w-4.5 text-amber-400 animate-pulse-glow rounded-full" />}
-                    label="UV Index"
+                    label={t("weather.uv_index")}
                     value={`${data.current.uv_index.toFixed(1)}`}
                   />
                 )}

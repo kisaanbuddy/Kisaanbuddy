@@ -152,7 +152,7 @@ export default function KhetDiaryPage() {
               Digital Ledger · खेती का हिसाब
             </div>
             <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white">
-              Khet <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">Diary</span>
+              Khet <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">{t("khet_diary.diary")}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
               Log daily activities: sowing timelines, irrigation logs, fertilizer doses, harvest quantities, and soil observations. Kept locally in browser context.
@@ -163,7 +163,7 @@ export default function KhetDiaryPage() {
             className="rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-11 px-5 shadow-lg shadow-emerald-500/15 shrink-0 flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
-            <span>Naya Entry</span>
+            <span>{t("khet_diary.naya_entry")}</span>
           </Button>
         </div>
       </motion.div>
@@ -177,8 +177,8 @@ export default function KhetDiaryPage() {
       >
         {[
           { label: "Total Entries", value: entries.length, icon: <BookOpen className="h-5 w-5 text-emerald-400" />, border: "border-emerald-500/10 bg-emerald-500/5 text-emerald-400" },
-          { label: "This Month", value: entries.filter(e => e.date.startsWith(new Date().toISOString().slice(0, 7))).length, icon: <Calendar className="h-5 w-5 text-blue-400" />, border: "border-blue-500/10 bg-blue-500/5 text-blue-400" },
-          { label: "Crops Tracked", value: new Set(entries.map(e => e.crop).filter(Boolean)).size, icon: <Sprout className="h-5 w-5 text-amber-400" />, border: "border-amber-500/10 bg-amber-500/5 text-amber-400" },
+          { label: "This Month", value: entries.filter(e =>{t("khet_diary.e_date_startswith_new")}<Calendar className="h-5 w-5 text-blue-400" />, border: "border-blue-500/10 bg-blue-500/5 text-blue-400" },
+          { label: "Crops Tracked", value: new Set(entries.map(e =>{t("khet_diary.e_crop_filter_boolean")}<Sprout className="h-5 w-5 text-amber-400" />, border: "border-amber-500/10 bg-amber-500/5 text-amber-400" },
         ].map((s) => (
           <div key={s.label} className={`rounded-2xl border ${s.border} p-4 backdrop-blur-md shadow-sm`}>
             <div className="mb-1.5">{s.icon}</div>
@@ -196,7 +196,7 @@ export default function KhetDiaryPage() {
             onChange={(e) => setFilterActivity(e.target.value as ActivityType | "")}
             className="text-xs rounded-xl border border-white/[0.08] bg-slate-950/40 px-3.5 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all cursor-pointer font-semibold"
           >
-            <option value="" className="bg-slate-900">All Activities</option>
+            <option value="" className="bg-slate-900">{t("khet_diary.all_activities")}</option>
             {ACTIVITY_TYPES.map((a) => (
               <option key={a} value={a} className="bg-slate-900">{ACTIVITY_LABEL[a].emoji} {ACTIVITY_LABEL[a].label}</option>
             ))}
@@ -204,7 +204,7 @@ export default function KhetDiaryPage() {
           <Input
             value={filterCrop}
             onChange={(e) => setFilterCrop(e.target.value)}
-            placeholder="Filter by crop..."
+            placeholder={t("khet_diary.filter_by_crop")}
             className="h-9 w-44 rounded-xl border-white/[0.08] bg-slate-950/40 text-foreground px-4 text-xs font-semibold focus-visible:ring-emerald-500/30 text-white placeholder:text-muted-foreground/60"
           />
           {(filterActivity || filterCrop) && (
@@ -337,17 +337,17 @@ function EntryForm({ onAdd, onClose }: { onAdd: (e: DiaryEntry) => void; onClose
         <div className="grid grid-cols-2 gap-4">
           {/* Crop */}
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Fasal / Crop</Label>
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("khet_diary.fasal_crop")}</Label>
             <Input
               value={crop}
               onChange={(e) => setCrop(e.target.value)}
-              placeholder="e.g. Wheat, Paddy"
+              placeholder={t("khet_diary.e_g_wheat_paddy")}
               className="h-11 rounded-xl border-white/[0.08] bg-slate-900/60 text-foreground px-4 text-xs font-semibold focus-visible:ring-emerald-500/30 text-white"
             />
           </div>
           {/* Date */}
           <div className="space-y-2">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Date</Label>
+            <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("khet_diary.date")}</Label>
             <Input
               type="date"
               value={date}
@@ -359,7 +359,7 @@ function EntryForm({ onAdd, onClose }: { onAdd: (e: DiaryEntry) => void; onClose
 
         {/* Weather selection */}
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Mausam / Weather (optional)</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("khet_diary.mausam_weather_optional")}</Label>
           <div className="flex gap-2 flex-wrap">
             {["☀️ Sunny", "🌧️ Rainy", "⛅ Cloudy", "🌬️ Windy"].map((w) => (
               <button
@@ -380,27 +380,27 @@ function EntryForm({ onAdd, onClose }: { onAdd: (e: DiaryEntry) => void; onClose
 
         {/* Notes */}
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Notes / Description</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("khet_diary.notes_description")}</Label>
           <textarea
             rows={3}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            placeholder="Aaj kya kiya? Feed metrics, pest observations, chemical measurements..."
+            placeholder={t("khet_diary.aaj_kya_kiya_feed")}
             className="w-full rounded-xl border border-white/[0.08] bg-slate-900/60 px-3.5 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all resize-none placeholder:text-muted-foreground/60 text-white"
           />
         </div>
 
         {/* Photo Upload */}
         <div className="space-y-2">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">Photo (optional)</Label>
+          <Label className="text-xs uppercase tracking-wider text-muted-foreground/80 font-bold block">{t("khet_diary.photo_optional")}</Label>
           {imageDataUrl ? (
             <div className="relative rounded-2xl overflow-hidden border border-white/[0.08]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageDataUrl} alt="entry preview" className="w-full h-36 object-cover" />
+              <img src={imageDataUrl} alt={t("khet_diary.entry_preview")} className="w-full h-36 object-cover" />
               <button
                 onClick={() => setImage(undefined)}
                 className="absolute top-2.5 right-2.5 rounded-full bg-slate-950/80 hover:bg-slate-900 p-1.5 text-white transition-colors"
-                title="Remove image"
+                title={t("khet_diary.remove_image")}
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -497,7 +497,7 @@ function DiaryCard({ entry, onDelete, index }: { entry: DiaryEntry; onDelete: (i
                   <div className="rounded-2xl overflow-hidden border border-white/[0.08] max-w-md">
                     <img
                       src={entry.imageDataUrl}
-                      alt="field observation attachment"
+                      alt={t("khet_diary.field_observation_attachment")}
                       className="w-full max-h-52 object-cover"
                     />
                   </div>

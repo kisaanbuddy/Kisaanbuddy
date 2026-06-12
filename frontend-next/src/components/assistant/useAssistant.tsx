@@ -48,12 +48,12 @@ export interface UseAssistantReturn {
   language: Language
   setLanguage: (lang: Language) => void
   location: LocationHint | null
-  shareLocation: () => Promise<boolean>
+  shareLocation: () =>{t("common.promise")}<boolean>
   clearLocation: () => void
 
-  send: (text: string, imageBase64?: string) => Promise<void>
+  send: (text: string, imageBase64?: string) =>{t("common.promise")}<void>
   cancel: () => void
-  reset: () => Promise<void>
+  reset: () =>{t("common.promise")}<void>
 
   isSending: boolean
   lastError: string | null
@@ -375,6 +375,7 @@ interface EventHandlers {
 }
 
 function handleEvent(evt: StreamEvent, h: EventHandlers) {
+  const { t } = useLanguage()
   switch (evt.type) {
     case "session":
       h.onSession(evt.session_id, evt.language)
