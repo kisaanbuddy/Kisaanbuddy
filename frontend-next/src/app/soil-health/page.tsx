@@ -20,7 +20,7 @@ import {
   TestTube,
   Zap,
 } from "lucide-react"
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { streamMessage, type Language } from "@/lib/assistant-api"
 import { Card, GlassCard, CardHeader } from "@/components/ui/card"
