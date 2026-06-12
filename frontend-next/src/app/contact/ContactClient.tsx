@@ -86,18 +86,19 @@ export function ContactClient() {
 
             <div className="space-y-4">
               {[
-                { name: "Aditya Ishwar", role: "Founder & CEO", email: "adityaoutlier5@gmail.com" },
-                { name: "Utkarsh Sinha", role: "Managing Director", email: "utkarsh.sinha.dev@gmail.com" },
-                { name: "Ravi Sinha", role: "Operations & Partnerships", email: "sinharavi7088@gmail.com" }
+                { name: "Aditya Ishwar", role: "Founder & CEO", shortRole: "Founder", email: "adityaoutlier5@gmail.com" },
+                { name: "Utkarsh Sinha", role: "Managing Director", shortRole: "MD", email: "utkarsh.sinha.dev@gmail.com" },
+                { name: "Sanidhya Sharma", role: "CTO", shortRole: "CTO", email: "sanidhyasharma.dev@gmail.com" },
+                { name: "Yash Singh", role: "Co-Founder & CMO", shortRole: "Co-Founder", email: "yashkumaryashsingh384@gmail.com" }
               ].map((c) => (
                 <a
                   key={c.email}
                   href={`mailto:${c.email}`}
-                  className="block rounded-xl border border-border/20 bg-card/25 p-4 hover:border-emerald-500/20 hover:bg-card/45 transition-all duration-300 group"
+                  className="block rounded-xl border border-border/20 bg-card/25 p-4 hover:border-emerald-500/20 hover:bg-card/45 hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 group"
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] uppercase tracking-wider text-emerald-500 dark:text-emerald-400 font-extrabold">
-                      {c.name.split(" ")[0]} &middot; {c.role.split(" ")[0]}
+                      {c.name.split(" ")[0]} &middot; {c.shortRole}
                     </span>
                     <Mail className="h-4 w-4 text-muted-foreground group-hover:text-emerald-500 transition-colors" />
                   </div>
@@ -110,7 +111,7 @@ export function ContactClient() {
             <div className="rounded-xl border border-border/20 bg-muted/10 p-5 space-y-3.5 text-xs text-muted-foreground">
               <div className="flex items-center gap-3">
                 <MapPin className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-                <span>Patna, Bihar, India &amp; Pune, Maharashtra, India</span>
+                <span>Patna, Bihar, India</span>
               </div>
               <div className="flex items-center gap-3">
                 <Globe className="h-4.5 w-4.5 text-emerald-500 shrink-0" />

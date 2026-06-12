@@ -34,27 +34,19 @@ const FOUNDERS: Founder[] = [
     gradient: "from-blue-400 to-indigo-600",
   },
   {
-    name: "Ravi Sinha",
-    role: "Operations Manager",
-    email: "sinharavi7088@gmail.com",
-    bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
-    initials: "RS",
-    gradient: "from-amber-400 to-orange-600",
-  },
-  {
-    name: "Anant Kumar",
-    role: "Product Designer",
-    email: "anant97715@gmail.com",
-    bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
-    initials: "AK",
+    name: "Sanidhya Sharma",
+    role: "Chief Technology Officer",
+    email: "sanidhyasharma.dev@gmail.com",
+    bio: "Steers KrishiAI's technical roadmap, cloud infrastructure, and large-scale system architecture. Specializes in building highly scalable microservices and robust, real-time engines for millions of Kisans.",
+    initials: "SS",
     gradient: "from-purple-400 to-fuchsia-600",
   },
   {
-    name: "Pranit Powar",
-    role: "Customer Support Specialist",
-    email: "pranitpowar1248@gmail.com",
-    bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
-    initials: "PP",
+    name: "Yash Singh",
+    role: "Co-Founder & CMO",
+    email: "yashkumaryashsingh384@gmail.com",
+    bio: "Co-Founder and Chief Marketing Officer. Drives brand growth, strategic outreach, and community-led marketing campaigns. Passionate about bringing smart agricultural tech directly to India's rural heartlands.",
+    initials: "YS",
     gradient: "from-rose-400 to-pink-600",
   },
 ];
@@ -158,13 +150,13 @@ export function AboutClient() {
 
       {/* FOUNDERS GRID */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold font-display text-foreground">Meet the Founders</h2>
             <p className="text-xs text-muted-foreground mt-2">The development team behind KrishiAI</p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {FOUNDERS.map((f, i) => (
               <motion.div 
                 key={f.email}
@@ -172,18 +164,21 @@ export function AboutClient() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
               >
-                <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-border/40 bg-card/20 hover:border-emerald-500/30 hover:shadow-lg transition-all duration-300 p-6">
+                <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-border/40 bg-card/25 hover:border-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-500/5 hover:-translate-y-2 transition-all duration-300 p-6">
                   {/* Accent Line */}
                   <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${f.gradient}`} />
                   
-                  <div>
+                  {/* Glow effect on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                  <div className="relative z-10">
                     <div className="flex justify-between items-center mb-4">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} text-base font-black text-white shadow-sm`}>
+                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} text-base font-black text-white shadow-md shadow-emerald-500/10`}>
                         {f.initials}
                       </div>
                     </div>
-                    <h3 className="text-base font-bold text-foreground font-display">{f.name}</h3>
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent">
+                    <h3 className="text-base font-bold text-foreground font-display transition-colors group-hover:text-emerald-400">{f.name}</h3>
+                    <p className="text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent mt-0.5">
                       {f.role}
                     </p>
                     <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground/90 font-medium">
@@ -191,13 +186,13 @@ export function AboutClient() {
                     </p>
                   </div>
 
-                  <div className="mt-5 pt-3 border-t border-border/20">
+                  <div className="mt-5 pt-3 border-t border-border/20 relative z-10">
                     <a
                       href={`mailto:${f.email}`}
-                      className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-background/50 border border-border/30 hover:bg-muted/50 text-xs font-semibold text-foreground transition-all"
+                      className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-background/50 border border-border/30 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-xs font-semibold text-foreground transition-all duration-200"
                     >
-                      <Mail className="h-3.5 w-3.5 text-emerald-500" />
-                      <span>Email Founder</span>
+                      <Mail className="h-3.5 w-3.5 text-emerald-500 group-hover:text-white transition-colors" />
+                      <span>Email {f.role.includes("Founder") ? "Founder" : "Team Member"}</span>
                     </a>
                   </div>
                 </GlassCard>
