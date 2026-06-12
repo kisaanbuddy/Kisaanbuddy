@@ -231,7 +231,7 @@ export default function DashboardPage() {
           <h1 className="text-xl md:text-2xl font-black font-display text-white flex items-center gap-2">
             KrishiAI Operating Console
             <span className="text-[9px] font-black tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full uppercase">
-              UNICORN DEMO V2.0
+              ENTERPRISE PRODUCTION
             </span>
           </h1>
           <p className="text-[10px] text-muted-foreground font-semibold">
