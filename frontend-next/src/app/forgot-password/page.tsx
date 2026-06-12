@@ -42,9 +42,8 @@ const localTranslations = {
 };
 
 export default function ForgotPasswordPage() {
-  const { t } = useLanguage()
-  const { lang } = useLanguage();
-  const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t, lang } = useLanguage();
+  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,11 +54,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
 
     if (!email) {
-      setError(t.requiredFields);
+      setError(lt.requiredFields);
       return;
     }
     if (!email.includes("@") || !email.includes(".")) {
-      setError(t.invalidEmail);
+      setError(lt.invalidEmail);
       return;
     }
 
@@ -99,10 +98,10 @@ export default function ForgotPasswordPage() {
               <Sparkles className="h-6 w-6" />
             </div>
             <h1 className="text-2xl font-bold font-display text-white tracking-tight">
-              {t.forgotPassword}
+              {lt.forgotPassword}
             </h1>
             <p className="text-xs text-muted-foreground/80 mt-1.5 max-w-[320px] leading-relaxed">
-              {t.enterEmailText}
+              {lt.enterEmailText}
             </p>
           </div>
 
@@ -120,7 +119,7 @@ export default function ForgotPasswordPage() {
                 <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5 animate-pulse-glow" />
                 <div>
                   <span className="font-bold block text-white mb-1">{t("forgot_password.link_sent_successfully")}</span>
-                  <span>{t.successMsg}</span>
+                  <span>{lt.successMsg}</span>
                 </div>
               </div>
 
@@ -129,14 +128,14 @@ export default function ForgotPasswordPage() {
                 className="w-full h-11 rounded-xl border border-white/10 hover:bg-white/5 text-sm font-semibold text-white transition-all flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span>{t.backToLogin}</span>
+                <span>{lt.backToLogin}</span>
               </Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                  {t.emailLabel}
+                  {lt.emailLabel}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -160,10 +159,10 @@ export default function ForgotPasswordPage() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{t.sending}</span>
+                    <span>{lt.sending}</span>
                   </>
                 ) : (
-                  <span>{t.sendLinkBtn}</span>
+                  <span>{lt.sendLinkBtn}</span>
                 )}
               </button>
 
@@ -174,7 +173,7 @@ export default function ForgotPasswordPage() {
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>{t.backToLogin}</span>
+                  <span>{lt.backToLogin}</span>
                 </Link>
               </div>
             </form>

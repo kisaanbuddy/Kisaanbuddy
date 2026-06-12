@@ -65,9 +65,8 @@ const localTranslations = {
 };
 
 export default function ProfilePage() {
-  const { t } = useLanguage()
-  const { lang } = useLanguage();
-  const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t, lang } = useLanguage();
+  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
   const { user, ready } = useAuth();
 
@@ -103,7 +102,7 @@ export default function ProfilePage() {
 
   // Filter out the SQLite placeholder phone numbers (e.g. google_xxxx or email_xxxx)
   const isPlaceholderPhone = user.phone_number?.startsWith("google_") || user.phone_number?.startsWith("email_");
-  const displayPhone = isPlaceholderPhone ? t.notProvided : user.phone_number;
+  const displayPhone = isPlaceholderPhone ? lt.notProvided : user.phone_number;
 
   const joinedDate = user.created_at
     ? new Date(user.created_at).toLocaleDateStringt("profile.en_us"), {
@@ -111,7 +110,7 @@ export default function ProfilePage() {
         month: "long",
         day: "numeric",
       })
-    : t.notProvided;
+    : lt.notProvided;
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4 animate-fade-in">
@@ -122,7 +121,7 @@ export default function ProfilePage() {
           className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-emerald-500 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>{t.backToDashboard}</span>
+          <span>{lt.backToDashboard}</span>
         </Link>
       </div>
 
@@ -155,10 +154,10 @@ export default function ProfilePage() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   </span>
-                  {t.accountActive}
+                  {lt.accountActive}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground/80 mt-1">{t.farmProfile}</p>
+              <p className="text-xs text-muted-foreground/80 mt-1">{lt.farmProfile}</p>
             </div>
 
             <button
@@ -166,7 +165,7 @@ export default function ProfilePage() {
               className="mt-4 sm:mt-0 flex items-center justify-center gap-2 h-10 px-4 rounded-xl text-xs font-semibold text-red-400 border border-red-500/10 hover:bg-red-500/5 hover:border-red-500/20 transition-all select-none"
             >
               <LogOut className="h-4 w-4" />
-              <span>{t.logout}</span>
+              <span>{lt.logout}</span>
             </button>
           </div>
 
@@ -176,7 +175,7 @@ export default function ProfilePage() {
             <div className="rounded-2xl border border-white/5 bg-white/[0.01] p-5 space-y-4">
               <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2 flex items-center gap-2">
                 <User className="h-4 w-4" />
-                <span>{t.personalInfo}</span>
+                <span>{lt.personalInfo}</span>
               </h3>
 
               <div className="space-y-3">
@@ -184,12 +183,12 @@ export default function ProfilePage() {
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t("profile.email_address")}</span>
                   <span className="text-sm text-white font-medium flex items-center gap-2 mt-0.5 break-all">
                     <Mail className="h-3.5 w-3.5 text-muted-foreground/60" />
-                    {user.email || t.notProvided}
+                    {user.email || lt.notProvided}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t.phone}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{lt.phone}</span>
                   <span className="text-sm text-white font-medium flex items-center gap-2 mt-0.5">
                     <Phone className="h-3.5 w-3.5 text-muted-foreground/60" />
                     {displayPhone}
@@ -207,7 +206,7 @@ export default function ProfilePage() {
 
               <div className="space-y-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t.role}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{lt.role}</span>
                   <span className="text-sm text-white font-medium flex items-center gap-2 mt-0.5">
                     <Shield className="h-3.5 w-3.5 text-muted-foreground/60" />
                     {user.role}
@@ -215,10 +214,10 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t.provider}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{lt.provider}</span>
                   <span className="text-sm text-white font-medium flex items-center gap-2 mt-0.5">
                     <Key className="h-3.5 w-3.5 text-muted-foreground/60" />
-                    {user.provider === "google" ? t.providerGoogle : t.providerEmail}
+                    {user.provider === "google" ? lt.providerGoogle : lt.providerEmail}
                   </span>
                 </div>
               </div>
@@ -232,7 +231,7 @@ export default function ProfilePage() {
                     <Calendar className="h-5 w-5" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{t.joinedDate}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 block">{lt.joinedDate}</span>
                     <span className="text-sm text-white font-semibold">{joinedDate}</span>
                   </div>
                 </div>
@@ -252,7 +251,7 @@ export default function ProfilePage() {
                             month: "short",
                             day: "numeric",
                           })
-                        : t.notProvided}
+                        : lt.notProvided}
                     </span>
                   </div>
                 </div>

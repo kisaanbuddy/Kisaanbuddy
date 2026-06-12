@@ -71,9 +71,8 @@ const localTranslations = {
 };
 
 export default function SignupPage() {
-  const { t } = useLanguage()
-  const { lang } = useLanguage();
-  const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t, lang } = useLanguage();
+  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
   const { user, ready } = useAuth();
 
@@ -112,37 +111,37 @@ export default function SignupPage() {
     setStrength(score);
 
     if (score <= 1) {
-      setStrengthLabel(t.strengthWeak);
+      setStrengthLabel(lt.strengthWeak);
       setStrengthColor("bg-red-500 w-1/4");
     } else if (score === 2) {
-      setStrengthLabel(t.strengthFair);
+      setStrengthLabel(lt.strengthFair);
       setStrengthColor("bg-amber-500 w-2/4");
     } else if (score === 3) {
-      setStrengthLabel(t.strengthGood);
+      setStrengthLabel(lt.strengthGood);
       setStrengthColor("bg-emerald-400 w-3/4");
     } else {
-      setStrengthLabel(t.strengthStrong);
+      setStrengthLabel(lt.strengthStrong);
       setStrengthColor("bg-emerald-500 w-full");
     }
-  }, [password, t]);
+  }, [password, lt]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name || !email || !password || !confirmPassword) {
-      setError(t.requiredFields);
+      setError(lt.requiredFields);
       return;
     }
     if (!email.includes("@") || !email.includes(".")) {
-      setError(t.invalidEmail);
+      setError(lt.invalidEmail);
       return;
     }
     if (password.length < 4) {
-      setError(t.passwordTooShort);
+      setError(lt.passwordTooShort);
       return;
     }
     if (password !== confirmPassword) {
-      setError(t.passwordsDoNotMatch);
+      setError(lt.passwordsDoNotMatch);
       return;
     }
 
@@ -176,10 +175,10 @@ export default function SignupPage() {
               <Sparkles className="h-6 w-6" />
             </div>
             <h1 className="text-2xl font-bold font-display text-white tracking-tight">
-              {t.createAccount}
+              {lt.createAccount}
             </h1>
             <p className="text-xs text-muted-foreground/80 mt-1.5 max-w-[280px]">
-              {t.joinKrishiAI}
+              {lt.joinKrishiAI}
             </p>
           </div>
 
@@ -195,7 +194,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                {t.nameLabel}
+                {lt.nameLabel}
               </label>
               <div className="relative">
                 <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -212,7 +211,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                {t.emailLabel}
+                {lt.emailLabel}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -229,7 +228,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                {t.passwordLabel}
+                {lt.passwordLabel}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -259,7 +258,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                {t.confirmPasswordLabel}
+                {lt.confirmPasswordLabel}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -283,11 +282,11 @@ export default function SignupPage() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{t.signingUp}</span>
+                  <span>{lt.signingUp}</span>
                 </>
               ) : (
                 <>
-                  <span>{t.signUpBtn}</span>
+                  <span>{lt.signUpBtn}</span>
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
@@ -299,12 +298,12 @@ export default function SignupPage() {
 
           {/* Signin Link */}
           <div className="text-center text-xs text-muted-foreground/85">
-            <span>{t.alreadyHaveAccount} </span>
+            <span>{lt.alreadyHaveAccount} </span>
             <Link
               href="/login"
               className="font-bold text-emerald-400 hover:text-emerald-300 hover:underline transition-all"
             >
-              {t.signIn}
+              {lt.signIn}
             </Link>
           </div>
         </div>

@@ -59,9 +59,8 @@ const localTranslations = {
 };
 
 export default function LoginPage() {
-  const { t } = useLanguage()
-  const { lang } = useLanguage();
-  const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t, lang } = useLanguage();
+  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
   const { user, ready } = useAuth();
 
@@ -123,7 +122,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError(t.requiredFields);
+      setError(lt.requiredFields);
       return;
     }
 
@@ -163,10 +162,10 @@ export default function LoginPage() {
                 <Sparkles className="h-6 w-6" />
               </div>
               <h1 className="text-2xl font-bold font-display text-white tracking-tight">
-                {t.welcomeBack}
+                {lt.welcomeBack}
               </h1>
               <p className="text-xs text-muted-foreground/80 mt-1.5 max-w-[280px]">
-                {t.signInToAccess}
+                {lt.signInToAccess}
               </p>
             </div>
 
@@ -182,7 +181,7 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                  {t.emailLabel}
+                  {lt.emailLabel}
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -200,13 +199,13 @@ export default function LoginPage() {
               <div>
                 <div className="flex justify-between items-center mb-1.5 pl-1">
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    {t.passwordLabel}
+                    {lt.passwordLabel}
                   </label>
                   <Link
                     href="/forgot-password"
                     className="text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
-                    {t.forgotPassword}
+                    {lt.forgotPassword}
                   </Link>
                 </div>
                 <div className="relative">
@@ -236,7 +235,7 @@ export default function LoginPage() {
                   htmlFor="remember-me"
                   className="text-xs text-muted-foreground/80 cursor-pointer font-medium hover:text-muted-foreground"
                 >
-                  {t.rememberMe}
+                  {lt.rememberMe}
                 </label>
               </div>
 
@@ -249,11 +248,11 @@ export default function LoginPage() {
                 {loading ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>{t.signingIn}</span>
+                    <span>{lt.signingIn}</span>
                   </>
                 ) : (
                   <>
-                    <span>{t.signInBtn}</span>
+                    <span>{lt.signInBtn}</span>
                     <ArrowRight className="h-4 w-4" />
                   </>
                 )}
@@ -266,7 +265,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-white/5" />
               </div>
               <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-widest text-muted-foreground/60">
-                <span className="bg-[#040814]/90 px-3">{t.orContinueWith}</span>
+                <span className="bg-[#040814]/90 px-3">{lt.orContinueWith}</span>
               </div>
             </div>
 
@@ -284,12 +283,12 @@ export default function LoginPage() {
 
             {/* Signup Link */}
             <div className="text-center text-xs text-muted-foreground/85">
-              <span>{t.noAccount} </span>
+              <span>{lt.noAccount} </span>
               <Link
                 href="/signup"
                 className="font-bold text-emerald-400 hover:text-emerald-300 hover:underline transition-all"
               >
-                {t.signUpFree}
+                {lt.signUpFree}
               </Link>
             </div>
           </div>
