@@ -1,4 +1,5 @@
 "use client"
+import { useLanguage } from "@/lib/language"
 /**
  * KrishiAI — Worker Connect portal
  *
