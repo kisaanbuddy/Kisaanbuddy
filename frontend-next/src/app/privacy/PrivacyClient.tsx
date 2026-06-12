@@ -47,7 +47,7 @@ export function PrivacyClient() {
             {t("privacy.1_introduction")}
           </h2>
           <p>
-            {t("privacy.welcome_to_krishiai")we\", \"our\", \"us\"). We operate the KrishiAI smart agriculture platform accessible at https://krishiaiindia.vercel.app. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this policy or our practices, please contact us at adityaoutlier5@gmail.com."}
+            {t("privacy.welcome_to_krishiai")}
           </p>
           <p>
             {t("privacy.this_privacy_policy_applies")}
