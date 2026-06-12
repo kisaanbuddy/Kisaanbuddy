@@ -49,9 +49,8 @@ const localTranslations = {
 };
 
 function ResetPasswordForm() {
-  const { t } = useLanguage()
-  const { lang } = useLanguage();
-  const t = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t, lang } = useLanguage();
+  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -59,22 +58,22 @@ function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(token ? null : t.invalidToken);
+  const [error, setError] = useState<string | null>(token ? null : lt.invalidToken);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!token) {
-      setError(t.invalidToken);
+      setError(lt.invalidToken);
       return;
     }
     if (!password || !confirmPassword) {
-      setError(t.requiredFields);
+      setError(lt.requiredFields);
       return;
     }
     if (password !== confirmPassword) {
-      setError(t.passwordsDoNotMatch);
+      setError(lt.passwordsDoNotMatch);
       return;
     }
 
@@ -112,10 +111,10 @@ function ResetPasswordForm() {
             <Sparkles className="h-6 w-6" />
           </div>
           <h1 className="text-2xl font-bold font-display text-white tracking-tight">
-            {t.resetPassword}
+            {lt.resetPassword}
           </h1>
           <p className="text-xs text-muted-foreground/80 mt-1.5 max-w-[320px]">
-            {t.enterNewPasswordText}
+            {lt.enterNewPasswordText}
           </p>
         </div>
 
@@ -133,7 +132,7 @@ function ResetPasswordForm() {
               <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5 animate-pulse-glow" />
               <div>
                 <span className="font-bold block text-white mb-1 font-display">{t("reset_password.success")}</span>
-                <span>{t.successMsg}</span>
+                <span>{lt.successMsg}</span>
               </div>
             </div>
 
@@ -141,7 +140,7 @@ function ResetPasswordForm() {
               href="/login"
               className="w-full h-11 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-sm font-semibold text-white shadow-lg flex items-center justify-center gap-2 hover:shadow-glow-primary active:scale-[0.98] transition-all"
             >
-              <span>{t.backToLogin}</span>
+              <span>{lt.backToLogin}</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -149,7 +148,7 @@ function ResetPasswordForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                {t.passwordLabel}
+                {lt.passwordLabel}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -166,7 +165,7 @@ function ResetPasswordForm() {
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
-                {t.confirmPasswordLabel}
+                {lt.confirmPasswordLabel}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
@@ -190,10 +189,10 @@ function ResetPasswordForm() {
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{t.reseting}</span>
+                  <span>{lt.reseting}</span>
                 </>
               ) : (
-                <span>{t.resetBtn}</span>
+                <span>{lt.resetBtn}</span>
               )}
             </button>
           </form>
