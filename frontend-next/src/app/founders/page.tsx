@@ -24,7 +24,7 @@ const FOUNDERS: Founder[] = [
     bio: "Drives the technical vision of KrishiAI — full-stack architecture, AI integrations, and production deployment. Believes technology should reach every farmer's pocket.",
     initials: "AI",
     gradient: "from-emerald-400 to-green-600",
-    stake: "Founder (100% Stake)",
+    stake: "Founder",
   },
   {
     name: "Utkarsh Sinha",
@@ -33,34 +33,25 @@ const FOUNDERS: Founder[] = [
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
     gradient: "from-blue-400 to-indigo-600",
-    stake: "Employee",
+    stake: "Managing Director",
   },
   {
-    name: "Ravi Sinha",
-    role: "Operations Manager (Reporting to CEO)",
-    email: "sinharavi7088@gmail.com",
-    bio: "Leads partnerships, outreach, and on-ground operations. Connects KrishiAI to farming communities and government schemes.",
-    initials: "RS",
-    gradient: "from-amber-400 to-orange-600",
-    stake: "Employee",
-  },
-  {
-    name: "Anant Kumar",
-    role: "Product Designer (Reporting to CEO)",
-    email: "anant97715@gmail.com",
-    bio: "Shapes the user experience and product direction. Focuses on making complex agricultural information accessible to farmers across India.",
-    initials: "AK",
+    name: "Sanidhya Sharma",
+    role: "Chief Technology Officer",
+    email: "sanidhyasharma.dev@gmail.com",
+    bio: "Steers KrishiAI's technical roadmap, cloud infrastructure, and large-scale system architecture. Specializes in building highly scalable microservices and robust, real-time engines for millions of Kisans.",
+    initials: "SS",
     gradient: "from-purple-400 to-fuchsia-600",
-    stake: "Employee",
+    stake: "CTO",
   },
   {
-    name: "Pranit Powar",
-    role: "Customer Support Specialist (Reporting to CEO)",
-    email: "pranitpowar1248@gmail.com",
-    bio: "Leads farmer onboarding, support, and feedback loops. Makes sure every farmer query is heard and resolved — from sign-up to harvest day.",
-    initials: "PP",
+    name: "Yash Singh",
+    role: "Co-Founder & CMO",
+    email: "yashkumaryashsingh384@gmail.com",
+    bio: "Co-Founder and Chief Marketing Officer. Drives brand growth, strategic outreach, and community-led marketing campaigns. Passionate about bringing smart agricultural tech directly to India's rural heartlands.",
+    initials: "YS",
     gradient: "from-rose-400 to-pink-600",
-    stake: "Employee",
+    stake: "Co-Founder",
   },
 ]
 
@@ -103,8 +94,8 @@ export default function FoundersPage() {
 
       {/* FOUNDERS GRID =================================================== */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {FOUNDERS.map((f, i) => (
               <motion.div 
                 key={f.email}
@@ -121,21 +112,21 @@ export default function FoundersPage() {
 
       {/* CONTACT ========================================================= */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-5xl rounded-3xl border border-white/[0.08] bg-gradient-to-r from-emerald-950/20 via-slate-950 to-teal-950/15 p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <div className="mx-auto max-w-6xl rounded-3xl border border-white/[0.08] bg-gradient-to-r from-emerald-950/20 via-slate-950 to-teal-950/15 p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[200px] h-[200px] rounded-full bg-emerald-500/10 blur-[80px] pointer-events-none -z-10" />
           
-          <div className="max-w-3xl text-center mx-auto space-y-4">
+          <div className="max-w-4xl text-center mx-auto space-y-4">
             <h2 className="text-3xl font-black text-white font-display">Get in touch with us</h2>
             <p className="text-sm text-muted-foreground max-w-lg mx-auto leading-relaxed">
               Have questions, feedback, or interest in partnership opportunities? Drop us a line.
             </p>
 
-            <div className="mt-10 grid gap-4 sm:grid-cols-3 text-left pt-4">
-              {FOUNDERS.slice(0, 3).map((f) => (
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-left pt-4">
+              {FOUNDERS.map((f) => (
                 <a
                   key={f.email}
                   href={`mailto:${f.email}`}
-                  className="flex flex-col gap-2 rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.04] px-5 py-4 hover:border-emerald-500/20 transition-all group"
+                  className="flex flex-col gap-2 rounded-2xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.04] px-5 py-4 hover:border-emerald-500/20 transition-all duration-300 group"
                 >
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-extrabold">{f.name.split(" ")[0]}</span>
@@ -177,26 +168,34 @@ export default function FoundersPage() {
 }
 
 function FounderCard({ founder }: { founder: Founder }) {
+  const isFounder = founder.stake.includes("Founder");
+  const badgeColorClass = isFounder 
+    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse-glow" 
+    : "bg-blue-500/10 border-blue-500/20 text-blue-400";
+
   return (
-    <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/20 backdrop-blur-md shadow-lg hover:shadow-2xl transition-all duration-300 p-6 md:p-8">
+    <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/40 hover:-translate-y-2 hover:scale-[1.01] backdrop-blur-md shadow-lg hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300 p-6 md:p-8">
       {/* Top accent bar */}
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${founder.gradient}`} />
 
-      <div>
+      {/* Glow effect on hover */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      <div className="relative z-10">
         {/* Initials badge & Stake Badge */}
         <div className="flex justify-between items-center mb-6">
           <div
-            className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${founder.gradient} text-lg font-black text-white shadow-lg`}
+            className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${founder.gradient} text-lg font-black text-white shadow-lg shadow-emerald-500/10`}
           >
             {founder.initials}
           </div>
-          <span className="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 animate-pulse-glow">
+          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold border ${badgeColorClass}`}>
             {founder.stake}
           </span>
         </div>
 
         {/* Name + role */}
-        <h3 className="text-xl font-bold tracking-tight text-white font-display">{founder.name}</h3>
+        <h3 className="text-xl font-bold tracking-tight text-white font-display group-hover:text-emerald-400 transition-colors">{founder.name}</h3>
         <p className="mt-1 text-[11px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
           {founder.role}
         </p>
@@ -206,13 +205,13 @@ function FounderCard({ founder }: { founder: Founder }) {
       </div>
 
       {/* Action button email */}
-      <div className="mt-6 pt-4 border-t border-white/[0.04] space-y-3">
+      <div className="mt-6 pt-4 border-t border-white/[0.04] space-y-3 relative z-10">
         <a
           href={`mailto:${founder.email}`}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-white/[0.05] text-xs font-bold text-white transition-all"
+          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-xs font-bold text-white transition-all duration-200"
         >
-          <Mail className="h-4 w-4 text-emerald-400" />
-          <span>{founder.stake.includes("Founder") ? "Email Founder" : "Email Employee"}</span>
+          <Mail className="h-4 w-4 text-emerald-400 group-hover:text-white transition-colors" />
+          <span>Email {founder.stake}</span>
         </a>
         <div className="text-[10px] font-mono text-muted-foreground/50 text-center truncate">{founder.email}</div>
       </div>
