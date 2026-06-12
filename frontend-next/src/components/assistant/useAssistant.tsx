@@ -48,12 +48,12 @@ export interface UseAssistantReturn {
   language: Language
   setLanguage: (lang: Language) => void
   location: LocationHint | null
-  shareLocation: () =>{t("common.promise")}<boolean>
+  shareLocation: () => Promise<boolean>
   clearLocation: () => void
 
-  send: (text: string, imageBase64?: string) =>{t("common.promise")}<void>
+  send: (text: string, imageBase64?: string) => Promise<void>
   cancel: () => void
-  reset: () =>{t("common.promise")}<void>
+  reset: () => Promise<void>
 
   isSending: boolean
   lastError: string | null

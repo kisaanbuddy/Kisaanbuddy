@@ -177,8 +177,8 @@ export default function KhetDiaryPage() {
       >
         {[
           { label: "Total Entries", value: entries.length, icon: <BookOpen className="h-5 w-5 text-emerald-400" />, border: "border-emerald-500/10 bg-emerald-500/5 text-emerald-400" },
-          { label: "This Month", value: entries.filter(e =>{t("khet_diary.e_date_startswith_new")}<Calendar className="h-5 w-5 text-blue-400" />, border: "border-blue-500/10 bg-blue-500/5 text-blue-400" },
-          { label: "Crops Tracked", value: new Set(entries.map(e =>{t("khet_diary.e_crop_filter_boolean")}<Sprout className="h-5 w-5 text-amber-400" />, border: "border-amber-500/10 bg-amber-500/5 text-amber-400" },
+          { label: "This Month", value: entries.filter(e => e.date.startsWith(new Date().toISOString().slice(0, 7))).length, icon: <Calendar className="h-5 w-5 text-blue-400" />, border: "border-blue-500/10 bg-blue-500/5 text-blue-400" },
+          { label: "Crops Tracked", value: new Set(entries.map(e => e.crop).filter(Boolean)).size, icon: <Sprout className="h-5 w-5 text-amber-400" />, border: "border-amber-500/10 bg-amber-500/5 text-amber-400" },
         ].map((s) => (
           <div key={s.label} className={`rounded-2xl border ${s.border} p-4 backdrop-blur-md shadow-sm`}>
             <div className="mb-1.5">{s.icon}</div>
