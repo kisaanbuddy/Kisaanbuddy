@@ -81,7 +81,7 @@ export interface UseSpeechReturn {
   speaking: boolean
 
   /** Start capturing speech. Returns true if capture actually started. */
-  startListening: () =>{t("common.promise")}<boolean>
+  startListening: () => Promise<boolean>
   /** Stop listening immediately and commit any partial as final (if supported). */
   stopListening: () => void
   /** Hard-abort listening without committing. */
