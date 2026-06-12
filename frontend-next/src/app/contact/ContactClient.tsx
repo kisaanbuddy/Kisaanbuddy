@@ -87,8 +87,8 @@ export function ContactClient() {
             <div className="space-y-4">
               {[
                 { name: "Aditya Ishwar", role: "Founder & CEO", shortRole: "Founder", email: "adityaoutlier5@gmail.com" },
-                { name: "Utkarsh Sinha", role: "Managing Director", shortRole: "MD", email: "utkarsh.sinha.dev@gmail.com" },
-                { name: "Sanidhya Sharma", role: "CTO", shortRole: "CTO", email: "sanidhyasharma.dev@gmail.com" },
+                { name: "Utkarsh Sinha", role: "Co-Founder & Managing Director", shortRole: "Co-Founder", email: "utkarsh.sinha.dev@gmail.com" },
+                { name: "Sanidhya Sharma", role: "Co-Founder & CTO", shortRole: "Co-Founder", email: "sanidhyasharma.dev@gmail.com" },
                 { name: "Yash Singh", role: "Co-Founder & CMO", shortRole: "Co-Founder", email: "yashkumaryashsingh384@gmail.com" }
               ].map((c) => (
                 <a

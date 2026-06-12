@@ -27,7 +27,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Utkarsh Sinha",
-    role: "Managing Director",
+    role: "Co-Founder & Managing Director",
     email: "utkarsh.sinha.dev@gmail.com",
     bio: "Owns the ML pipeline — crop recommendation models, disease detection accuracy, and the curated agronomy knowledge base. Turns raw farm data into actionable insights.",
     initials: "US",
@@ -35,7 +35,7 @@ const FOUNDERS: Founder[] = [
   },
   {
     name: "Sanidhya Sharma",
-    role: "Chief Technology Officer",
+    role: "Co-Founder & CTO",
     email: "sanidhyasharma.dev@gmail.com",
     bio: "Steers KrishiAI's technical roadmap, cloud infrastructure, and large-scale system architecture. Specializes in building highly scalable microservices and robust, real-time engines for millions of Kisans.",
     initials: "SS",
