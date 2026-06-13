@@ -7,20 +7,39 @@ import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/c
 import type { DayPoint } from "@/lib/weather-api"
 import { useUnit, pickTemp } from "./unit-context"
 import { ConditionIcon } from "./weather-icons"
+import { useLanguage } from "@/lib/language"
+import { WEATHER_T, translateCondition, type Lang } from "@/lib/weather-translations"
 
 interface Props {
   days: DayPoint[]
   loading?: boolean
 }
 
-function dayLabel(date: string, index: number) {
-  if (index === 0) return "Today"
-  if (index === 1) return "Tomorrow"
+function dayLabel(date: string, index: number, lang: Lang) {
+  const t = WEATHER_T[lang] || WEATHER_T.hi
+  if (index === 0) return t.today
+  if (index === 1) return t.tomorrow
   const d = new Date(date + "T12:00:00")
-  return d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })
+  
+  if (lang === "hi") {
+    const weekdays = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"]
+    const months = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
+    return `${weekdays[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`
+  }
+  
+  // Default format
+  return d.toLocaleDateString(lang === "en" ? "en-US" : undefined, { 
+    weekday: "short", 
+    day: "numeric", 
+    month: "short" 
+  })
 }
 
 export function DailyForecast({ days, loading }: Props) {
+  const { lang } = useLanguage()
+  const activeLang = (lang as Lang) in WEATHER_T ? (lang as Lang) : "hi"
+  const t = WEATHER_T[activeLang]
+
   const { unit } = useUnit()
 
   // Range for the bar scaling.
@@ -34,14 +53,16 @@ export function DailyForecast({ days, loading }: Props) {
   return (
     <GlassCard className="bg-gradient-to-br from-teal-500/5 via-sky-500/2 to-transparent border-teal-500/10">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xs md:text-sm font-display text-foreground font-bold">{days.length || 5}-Day Forecast</CardTitle>
+        <CardTitle className="text-xs md:text-sm font-display text-foreground font-bold">
+          {t.day_forecast.replace("{days}", String(days.length || 5))}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {loading && days.length === 0 ? (
           <SkeletonList count={5} />
         ) : days.length === 0 ? (
           <p className="py-6 text-center text-xs text-muted-foreground">
-            No forecast data available.
+            {t.no_daily}
           </p>
         ) : (
           <ul className="divide-y divide-border/20">
@@ -56,9 +77,11 @@ export function DailyForecast({ days, loading }: Props) {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="grid grid-cols-[92px_40px_1fr_88px] items-center gap-3 py-3.5 text-xs md:grid-cols-[120px_48px_1fr_120px] select-none"
+                  className="grid grid-cols-[100px_40px_1fr_88px] items-center gap-3 py-3.5 text-xs md:grid-cols-[140px_48px_1fr_120px] select-none"
                 >
-                  <span className="font-semibold text-foreground/90">{dayLabel(d.date, i)}</span>
+                  <span className="font-semibold text-foreground/90 leading-tight">
+                    {dayLabel(d.date, i, activeLang)}
+                  </span>
                   <ConditionIcon
                     condition={d.condition}
                     className="h-5 w-5 text-sky-400 animate-float"
@@ -77,20 +100,22 @@ export function DailyForecast({ days, loading }: Props) {
                     <span className="text-foreground">{Math.round(tMax)}°</span>
                   </div>
                   {(d.chance_of_rain != null || d.wind_kph != null) && (
-                    <div className="col-span-full flex items-center justify-end gap-3.5 pr-1 text-[10px] font-medium text-muted-foreground/80">
+                    <div className="col-span-full flex flex-wrap items-center justify-end gap-3.5 pr-1 text-[10px] font-medium text-muted-foreground/80 mt-1">
                       {d.chance_of_rain != null && d.chance_of_rain > 0 && (
                         <span className="flex items-center gap-1 text-teal-400">
                           <Droplet className="h-3 w-3" />
-                          {d.chance_of_rain}% chance of rain
+                          {d.chance_of_rain}% {t.rain_chance_desc}
                         </span>
                       )}
                       {d.wind_kph != null && (
                         <span className="flex items-center gap-1">
                           <Wind className="h-3 w-3 text-sky-400" />
-                          {d.wind_kph.toFixed(0)} km/h wind
+                          {d.wind_kph.toFixed(0)} km/h {t.wind_desc}
                         </span>
                       )}
-                      <span className="capitalize font-semibold text-foreground/70">{d.condition}</span>
+                      <span className="font-semibold text-foreground/70">
+                        {translateCondition(d.condition, activeLang)}
+                      </span>
                     </div>
                   )}
                 </motion.li>

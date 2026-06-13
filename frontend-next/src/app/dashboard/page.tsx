@@ -5,7 +5,7 @@ import { motion } from "framer-motion"
 import {
   CloudSun, Sprout, Bug, TrendingUp, Users, Landmark, Activity,
   BookOpen, ChevronRight, Thermometer, Droplets, Mic, MessageCircle,
-  Phone, AlertTriangle, CheckCircle2, Cpu, Volume2, Loader2
+  Phone, AlertTriangle, Cpu, Volume2, Loader2
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -105,8 +105,8 @@ const localDict: Record<Lang, Record<string, string>> = {
     sensorStatus: "ಸೆನ್ಸರ್ ಸಂಪರ್ಕ:",
     connected: "ಸೆನ್ಸರ್ ಆನ್ ಆಗಿದೆ 🟢",
     disconnected: "ಸೆನ್ಸರ್ ಆಫ್ ಆಗಿದೆ 🔴",
-    voiceReadBtn: "📢 ಹೊಲದ ಸ್ಥಿತಿಯನ್ನು ಧ್ವನಿಯಲ್ಲಿ ಕೇಳಿ",
-    voiceQueryBtn: "🎙️ ಧ್ವನಿಯ ಮೂಲಕ ಸಮಸ್ಯೆ ಕೇಳಿ",
+    voiceReadBtn: "📢 ಹೊಲದ ಸ್ಥيتಿಯನ್ನು ಧ್ವನಿಯಲ್ಲಿ ಕೇಳಿ",
+    voiceQueryBtn: "🎙️ ಧ್ವನಿಯ ಮೂಲಕ समस्या ಕೇಳಿ",
     voiceQuerySub: "ಉದಾಹರಣೆಗೆ: 'ಗೋಧಿಗೆ ಯಾವ ಗೊಬ್ಬರ ಹಾಕಬೇಕು?'",
     whatsAppShareBtn: "💬 ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ವರದಿ ಕಳುಹಿಸಿ",
     whatsAppSupportBtn: "🟢 ವಾಟ್ಸಾಪ್ ಸಹಾಯ ತಂಡ",
@@ -118,11 +118,11 @@ const localDict: Record<Lang, Record<string, string>> = {
     phLabel: "🧪 ಮಣ್ಣಿನ ಆರೋಗ್ಯ (pH)",
     nitrogen: "ಸಾರಜನಕ (ಯೂರಿಯಾ ಗೊಬ್ಬರ)",
     phosphorus: "ರಂಜಕ (ಸೂಪರ್ ಗೊಬ್ಬರ)",
-    potassium: "ಪೊಟ್ಯಾಸಿಯಮ್ (ಪೊಟ್ಯಾಶ್ ಗೊಬ್ಬರ)",
+    potassium: "ਪੋਟਾਸ਼ੀਅਮ (ਪੋਟਾਸ਼ ಗೊಬ್ಬರ)",
     moistureLow: "ನೆಲ ಒಣಗಿದೆ, ಈಗಲೇ ನೀರು ಹಾಕಿ! ❌",
-    moistureGood: "ತೇವಾಂಶ ಸರಿಯಾಗಿದೆ, ನೀರು ಹಾಕುವ ಅಗತ್ಯವಿಲ್ಲ. ✅",
+    moistureGood: "ತೇവാಂಶ ಸರಿಯಾಗಿದೆ, ನೀರು ಹಾಕುವ ಅಗತ್ಯವಿಲ್ಲ. ✅",
     moistureHigh: "ನೀರು ಹೆಚ್ಚಾಗಿದೆ, ನೀರು ಹೊರಹಾಕಿ. ⚠️",
-    tempLow: "ಚಳಿ ಹೆಚ್ಚಾಗಿದೆ, ಬೆಳೆಗಳನ್ನು ರಕ್ಷಿಸಿ. ❄️",
+    tempLow: "ਚੜ੍ਹੀ ਚੜ੍ਹ ਹੈ, ਪਿਕਾਂ ਦੀ ਦੇਖਭਾਲ ਕਰੋ। ❄️",
     tempGood: "ತಾಪಮಾನ ಬೆಳೆಗೆ ಸೂಕ್ತವಾಗಿದೆ. ✅",
     tempHigh: "ಬಿಸಿಲು ಹೆಚ್ಚಾಗಿದೆ, ಮಣ್ಣಿನಲ್ಲಿ ತೇವಾಂಶ ಇರಿಸಿ. ⚠️",
     humidityHigh: "ಗಾಳಿಯಲ್ಲಿ ತೇವಾಂಶ ಹೆಚ್ಚಾಗಿದೆ, ಕೀಟಗಳ ಅಪಾಯವಿದೆ! ⚠️",
@@ -388,11 +388,11 @@ export default function DashboardPage() {
   // Welcome Greetings State
   const [greeting, setGreeting] = useState("Namaste")
   
-  // Real-Time Sensor Mock states (adjustable by sliders)
-  const [sensorOnline, setSensorOnline] = useState(true)
-  const [moisture, setMoisture] = useState(42) // %
-  const [temp, setTemp] = useState(28) // °C
-  const [humidity, setHumidity] = useState(65) // %
+  // Real-Time Sensor states (fetched dynamically from real ESP32 database)
+  const [sensorOnline, setSensorOnline] = useState(false)
+  const [moisture, setMoisture] = useState(0) // %
+  const [temp, setTemp] = useState(0) // °C
+  const [humidity, setHumidity] = useState(0) // %
   const [nitrogen, setNitrogen] = useState(72) // mg/kg
   const [phosphorus, setPhosphorus] = useState(46) // mg/kg
   const [potassium, setPotassium] = useState(148) // mg/kg
@@ -406,12 +406,40 @@ export default function DashboardPage() {
     return localDict[lang as Lang] || localDict.hi
   }, [lang])
 
+  // Poll real-time sensor data from physical backend database every 5 seconds
+  const fetchLatestSensor = async () => {
+    try {
+      const res = await fetch("/api/sensor/latest")
+      if (res.ok) {
+        const data = await res.json()
+        setMoisture(Math.round(data.soil_moisture ?? 42))
+        setTemp(Math.round(data.temperature ?? data.soil_temperature ?? 28))
+        setHumidity(Math.round(data.humidity ?? 65))
+        if (data.nitrogen) setNitrogen(data.nitrogen)
+        if (data.phosphorus) setPhosphorus(data.phosphorus)
+        if (data.potassium) setPotassium(data.potassium)
+        if (data.ph_level) setPh(data.ph_level)
+        setSensorOnline(true)
+      } else {
+        setSensorOnline(false)
+      }
+    } catch (err) {
+      setSensorOnline(false)
+    }
+  }
+
   useEffect(() => {
     setMounted(true)
     const hrs = new Date().getHours()
     if (hrs < 12) setGreeting(t("goodMorning"))
     else if (hrs < 17) setGreeting(t("goodAfternoon"))
     else setGreeting(t("goodEvening"))
+
+    // Initial fetch
+    fetchLatestSensor()
+    // Poll every 5 seconds
+    const interval = setInterval(fetchLatestSensor, 5000)
+    return () => clearInterval(interval)
   }, [t])
 
   // Redirect to login if unauthenticated
@@ -421,7 +449,7 @@ export default function DashboardPage() {
     }
   }, [ready, user, router])
 
-  // Chart data built dynamically from active sensor slider inputs
+  // Chart data built dynamically from active sensor readings
   const simulatedChartData = useMemo(() => {
     return [
       { day: "Mon", Moisture: 38, Temp: 26, Humidity: 60 },
@@ -442,30 +470,38 @@ export default function DashboardPage() {
     let txt = ""
     if (lang === "hi") {
       txt = `नमस्ते, ${user?.name || "किसान भाई"}। आपके खेत का हाल इस प्रकार है। `
-      txt += `मिट्टी की नमी ${moisture} प्रतिशत है। `
-      if (moisture < 30) txt += `खेत सूखा है, अभी पानी डालें। `
-      else if (moisture > 55) txt += `पानी ज्यादा है, पानी बाहर निकालें। `
-      else txt += `नमी बिल्कुल सही है। `
+      if (!sensorOnline) {
+        txt += `सेंसर डिवाइस अभी बंद है। कृपया अपने खेत का लाइव डेटा प्राप्त करने के लिए सेंसर हब को चालू करें।`
+      } else {
+        txt += `मिट्टी की नमी ${moisture} प्रतिशत है। `
+        if (moisture < 30) txt += `खेत सूखा है, अभी पानी डालें। `
+        else if (moisture > 55) txt += `पानी ज्यादा है, पानी बाहर निकालें। `
+        else txt += `नमी बिल्कुल सही है। `
 
-      txt += `तापमान ${temp} डिग्री सेल्सियस है। `
-      if (temp > 35) txt += `गर्मी बहुत ज्यादा है, खेत में नमी बनाए रखें। `
-      else if (temp < 15) txt += `ठंड अधिक है। `
-      else txt += `तापमान अनुकूल है। `
+        txt += `तापमान ${temp} डिग्री सेल्सियस है। `
+        if (temp > 35) txt += `गर्मी बहुत ज्यादा है, खेत में नमी बनाए रखें। `
+        else if (temp < 15) txt += `ठंड अधिक है। `
+        else txt += `तापमान अनुकूल है। `
 
-      txt += `मिट्टी में नाइट्रोजन ${nitrogen}, फास्फोरस ${phosphorus}, और पोटाश ${potassium} मिलीग्राम प्रति किलोग्राम है। मिट्टी उपजाऊ और स्वस्थ है।`
+        txt += `मिट्टी में नाइट्रोजन ${nitrogen}, फास्फोरस ${phosphorus}, और पोटाश ${potassium} मिलीग्राम प्रति किलोग्राम है। मिट्टी उपजाऊ और स्वस्थ है।`
+      }
     } else {
       txt = `Hello, ${user?.name || "Farmer"}. Here is your farm status report. `
-      txt += `Soil moisture is ${moisture} percent. `
-      if (moisture < 30) txt += `Soil is dry, irrigation is needed immediately. `
-      else if (moisture > 55) txt += `Water level is high. `
-      else txt += `Moisture is healthy. `
+      if (!sensorOnline) {
+        txt += `Your sensor device is currently offline. Please turn on your sensor hub to receive live readings.`
+      } else {
+        txt += `Soil moisture is ${moisture} percent. `
+        if (moisture < 30) txt += `Soil is dry, irrigation is needed immediately. `
+        else if (moisture > 55) txt += `Water level is high. `
+        else txt += `Moisture is healthy. `
 
-      txt += `Temperature is ${temp} degrees Celsius. `
-      if (temp > 35) txt += `Heat stress is high, maintain moisture. `
-      else if (temp < 15) txt += `Cold stress is high. `
-      else txt += `Temperature is optimal. `
+        txt += `Temperature is ${temp} degrees Celsius. `
+        if (temp > 35) txt += `Heat stress is high, maintain moisture. `
+        else if (temp < 15) txt += `Cold stress is high. `
+        else txt += `Temperature is optimal. `
 
-      txt += `Soil nutrients are: Nitrogen ${nitrogen}, Phosphorus ${phosphorus}, and Potassium ${potassium}. Soil quality is very good.`
+        txt += `Soil nutrients are: Nitrogen ${nitrogen}, Phosphorus ${phosphorus}, and Potassium ${potassium}. Soil quality is very good.`
+      }
     }
 
     const utterance = new SpeechSynthesisUtterance(txt)
@@ -519,14 +555,18 @@ export default function DashboardPage() {
     let text = `🌾 *कृषि रिपोर्ट (KrishiAI)* 🌾\n`
     text += `👤 *किसान:* ${user?.name || "किसान भाई"}\n`
     text += `📅 *दिनांक:* ${new Date().toLocaleDateString()}\n\n`
-    text += `💧 *मिट्टी की नमी:* ${moisture}% (${moisture < 30 ? "सूखा है" : moisture > 55 ? "ज्यादा पानी" : "बिल्कुल सही"})\n`
-    text += `☀️ *तापमान:* ${temp}°C\n`
-    text += `💨 *हवा की नमी:* ${humidity}%\n`
-    text += `🧪 *मिट्टी स्वास्थ्य (pH):* ${ph}\n\n`
-    text += `🧪 *मुख्य पोषक तत्व (NPK):*\n`
-    text += `  • नाइट्रोजन: ${nitrogen} mg/kg\n`
-    text += `  • फास्फोरस: ${phosphorus} mg/kg\n`
-    text += `  • पोटाश: ${potassium} mg/kg\n\n`
+    if (!sensorOnline) {
+      text += `🚨 *सेंसर वर्तमान में ऑफ़लाइन है।*\n`
+    } else {
+      text += `💧 *मिट्टी की नमी:* ${moisture}% (${moisture < 30 ? "सूखा है" : moisture > 55 ? "ज्यादा पानी" : "बिल्कुल सही"})\n`
+      text += `☀️ *तापमान:* ${temp}°C\n`
+      text += `💨 *हवा की नमी:* ${humidity}%\n`
+      text += `🧪 *मिट्टी स्वास्थ्य (pH):* ${ph}\n\n`
+      text += `🧪 *मुख्य पोषक तत्व (NPK):*\n`
+      text += `  • नाइट्रोजन: ${nitrogen} mg/kg\n`
+      text += `  • फास्फोरस: ${phosphorus} mg/kg\n`
+      text += `  • पोटाश: ${potassium} mg/kg\n\n`
+    }
     text += `📲 *KrishiAI से प्राप्त रिपोर्ट*`
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
@@ -535,7 +575,10 @@ export default function DashboardPage() {
 
   // Open WhatsApp directly for help
   const openWhatsAppSupport = () => {
-    const text = `नमस्ते! मुझे KrishiAI कृषि सलाहकार से बात करनी है। मेरे खेत में नमी ${moisture}%, तापमान ${temp}°C है।`
+    let text = `नमस्ते! मुझे KrishiAI कृषि सलाहकार से बात करनी है। `
+    if (sensorOnline) {
+      text += `मेरे खेत में नमी ${moisture}%, तापमान ${temp}°C है।`
+    }
     const url = `https://wa.me/919876543210?text=${encodeURIComponent(text)}`
     window.open(url, "_blank")
   }
@@ -572,12 +615,7 @@ export default function DashboardPage() {
         <div className="absolute top-0 right-0 w-[180px] h-[180px] rounded-full bg-emerald-500/5 blur-[80px] pointer-events-none -z-10" />
         
         <div className="space-y-1.5 flex-1">
-          <div className="inline-flex items-center gap-2">
-            <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full select-none">
-              {sensorOnline ? lt.connected : lt.disconnected}
-            </span>
-          </div>
-          <h1 className="text-3xl font-black text-white mt-2 font-display">
+          <h1 className="text-3xl font-black text-white font-display">
             {greeting}, <span className="bg-gradient-to-r from-emerald-400 via-amber-300 to-green-500 bg-clip-text text-transparent">{user.name}</span>
           </h1>
           <p className="text-sm text-muted-foreground font-semibold">
@@ -586,22 +624,19 @@ export default function DashboardPage() {
         </div>
 
         {/* Device Switch Button (Simplified terminology) */}
-        <div className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 shrink-0 w-full md:w-auto justify-between">
+        <div className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 shrink-0 w-full md:w-auto justify-between select-none">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/25 flex items-center justify-center">
+            <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${sensorOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25" : "bg-rose-500/10 text-rose-400 border-rose-500/25"}`}>
               <Cpu className="h-5 w-5" />
             </div>
             <div>
               <div className="text-[10px] uppercase font-bold text-muted-foreground">{lt.sensorStatus}</div>
-              <div className="text-xs font-extrabold text-white">{sensorOnline ? lt.connected.replace(" 🟢", "") : lt.disconnected.replace(" 🔴", "")}</div>
+              <div className={`text-xs font-black flex items-center gap-1.5 ${sensorOnline ? "text-emerald-400" : "text-rose-400"}`}>
+                <span className={`h-1.5 w-1.5 rounded-full bg-current ${sensorOnline ? "animate-pulse" : ""}`} />
+                {sensorOnline ? lt.connected : lt.disconnected}
+              </div>
             </div>
           </div>
-          <button 
-            onClick={() => setSensorOnline(!sensorOnline)} 
-            className={`h-7 w-12 rounded-full transition-all duration-300 relative border ${sensorOnline ? "bg-emerald-500/80 border-emerald-500" : "bg-zinc-800 border-zinc-700"}`}
-          >
-            <div className={`h-5 w-5 rounded-full bg-white absolute top-[1px] transition-all duration-300 ${sensorOnline ? "left-[24px]" : "left-[2px]"}`} />
-          </button>
         </div>
       </motion.div>
 
@@ -625,7 +660,7 @@ export default function DashboardPage() {
               : "bg-gradient-to-r from-amber-600 to-orange-600 hover:shadow-amber-600/15 border-amber-500/20 hover:brightness-105"
           }`}
         >
-          <Mic className="h-5.5 w-5.5 animate-pulse-glow" />
+          <Mic className="h-5.5 w-5.5" />
           <div>
             <span>{isListening ? lt.listening : lt.voiceQueryBtn}</span>
             {!isListening && <div className="text-[10px] font-normal text-white/80">{lt.voiceQuerySub}</div>}
@@ -633,173 +668,159 @@ export default function DashboardPage() {
         </button>
       </motion.div>
 
-      {/* ─── 3. FARM STATUS SLIDER CARDS (ACTIONABLE RECOMMENDATIONS) ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Metric A: Soil Moisture Card */}
+      {/* ─── 3. FARM STATUS SLIDER CARDS / OFFLINE BANNER (REAL HARDWARE CHECK) ─── */}
+      {!sensorOnline ? (
         <motion.div {...fadeUp(0.05)}>
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
-            <div className="flex justify-between items-start">
-              <span className="text-sm font-bold text-muted-foreground">{lt.moistureLabel}</span>
-              <Droplets className="h-6 w-6 text-sky-400" />
+          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-8 rounded-3xl text-center flex flex-col items-center justify-center space-y-4">
+            <div className="h-16 w-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+              <AlertTriangle className="h-8 w-8 animate-pulse" />
             </div>
+            <h3 className="text-xl font-black text-white">सेंसर डिवाइस बंद है (ऑफ़लाइन)</h3>
+            <p className="text-sm text-muted-foreground/80 max-w-md leading-relaxed">
+              आपका KrishiAI स्मार्ट हब (सेंसर डिवाइस) अभी कनेक्टेड नहीं है। जैसे ही आप अपने खेत में लगे डिवाइस को चालू करेंगे, मिट्टी की नमी और तापमान की लाइव जानकारी यहाँ अपने आप दिखाई देने लगेगी।
+            </p>
+            <div className="inline-flex items-center gap-1.5 text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 rounded-full font-bold select-none animate-pulse">
+              डिवाइस कनेक्शन की लगातार जांच की जा रही है...
+            </div>
+          </GlassCard>
+        </motion.div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <div className="my-5 text-center">
-              <span className="text-5xl font-black text-white font-display">{sensorOnline ? moisture : "--"}%</span>
-            </div>
+            {/* Metric A: Soil Moisture Card */}
+            <motion.div {...fadeUp(0.05)}>
+              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start">
+                  <span className="text-sm font-bold text-muted-foreground">{lt.moistureLabel}</span>
+                  <Droplets className="h-6 w-6 text-sky-400" />
+                </div>
+                
+                <div className="my-5 text-center">
+                  <span className="text-5xl font-black text-white font-display">{moisture}%</span>
+                </div>
 
-            {/* Advice Box */}
-            <div className={`rounded-xl border p-3.5 text-xs text-center font-bold mb-4 ${sensorOnline ? moistureColor : "border-white/5 bg-white/[0.01] text-muted-foreground"}`}>
-              {sensorOnline ? moistureAdvice : "सेंसर कनेक्शन की जाँच करें"}
-            </div>
+                {/* Advice Box */}
+                <div className={`rounded-xl border p-3.5 text-xs text-center font-bold ${moistureColor}`}>
+                  {moistureAdvice}
+                </div>
+              </GlassCard>
+            </motion.div>
 
-            {/* Thick Slider track for easy touch */}
-            <input
-              type="range"
-              min="10"
-              max="90"
-              value={moisture}
-              onChange={(e) => setMoisture(Number(e.target.value))}
-              disabled={!sensorOnline}
-              className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 disabled:opacity-30"
-            />
-          </GlassCard>
-        </motion.div>
+            {/* Metric B: Temperature Card */}
+            <motion.div {...fadeUp(0.08)}>
+              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start">
+                  <span className="text-sm font-bold text-muted-foreground">{lt.tempLabel}</span>
+                  <Thermometer className="h-6 w-6 text-orange-400" />
+                </div>
+                
+                <div className="my-5 text-center">
+                  <span className="text-5xl font-black text-white font-display">{temp}°C</span>
+                </div>
 
-        {/* Metric B: Temperature Card */}
-        <motion.div {...fadeUp(0.08)}>
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
-            <div className="flex justify-between items-start">
-              <span className="text-sm font-bold text-muted-foreground">{lt.tempLabel}</span>
-              <Thermometer className="h-6 w-6 text-orange-400" />
-            </div>
+                {/* Advice Box */}
+                <div className={`rounded-xl border p-3.5 text-xs text-center font-bold ${tempColor}`}>
+                  {tempAdvice}
+                </div>
+              </GlassCard>
+            </motion.div>
+
+            {/* Metric C: Air Moisture Card */}
+            <motion.div {...fadeUp(0.12)}>
+              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start">
+                  <span className="text-sm font-bold text-muted-foreground">{lt.humidityLabel}</span>
+                  <CloudSun className="h-6 w-6 text-teal-400" />
+                </div>
+                
+                <div className="my-5 text-center">
+                  <span className="text-5xl font-black text-white font-display">{humidity}%</span>
+                </div>
+
+                {/* Advice Box */}
+                <div className={`rounded-xl border p-3.5 text-xs text-center font-bold ${humidityColor}`}>
+                  {humidityAdvice}
+                </div>
+              </GlassCard>
+            </motion.div>
+          </div>
+
+          {/* ─── 4. SOIL QUALITY & HEALTH CARD (FARMER FRIENDLY TERMS) ─── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
-            <div className="my-5 text-center">
-              <span className="text-5xl font-black text-white font-display">{sensorOnline ? temp : "--"}°C</span>
-            </div>
+            {/* Soil Nutrients (NPK) */}
+            <motion.div {...fadeUp(0.15)} className="md:col-span-2">
+              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between">
+                <CardHeader className="pb-3 border-b border-white/[0.04] p-0 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sprout className="h-5 w-5 text-emerald-400" />
+                    {lt.npkLabel}
+                  </CardTitle>
+                  <span className="text-[10px] text-muted-foreground font-bold">{lt.npkSub}</span>
+                </CardHeader>
+                <CardContent className="p-0 pt-4 space-y-4">
+                  
+                  {/* Nitrogen */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold">
+                      <span className="text-muted-foreground">{lt.nitrogen}</span>
+                      <span className="text-emerald-400">{nitrogen} mg/kg (सही मात्रा)</span>
+                    </div>
+                    <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(nitrogen / 140) * 100}%` }} />
+                    </div>
+                  </div>
 
-            {/* Advice Box */}
-            <div className={`rounded-xl border p-3.5 text-xs text-center font-bold mb-4 ${sensorOnline ? tempColor : "border-white/5 bg-white/[0.01] text-muted-foreground"}`}>
-              {sensorOnline ? tempAdvice : "सेंसर कनेक्शन की जाँच करें"}
-            </div>
+                  {/* Phosphorus */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold">
+                      <span className="text-muted-foreground">{lt.phosphorus}</span>
+                      <span className="text-emerald-400">{phosphorus} mg/kg (सही मात्रा)</span>
+                    </div>
+                    <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-teal-500 rounded-full" style={{ width: `${(phosphorus / 100) * 100}%` }} />
+                    </div>
+                  </div>
 
-            {/* Thick Slider track */}
-            <input
-              type="range"
-              min="15"
-              max="45"
-              value={temp}
-              onChange={(e) => setTemp(Number(e.target.value))}
-              disabled={!sensorOnline}
-              className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 disabled:opacity-30"
-            />
-          </GlassCard>
-        </motion.div>
+                  {/* Potassium */}
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold">
+                      <span className="text-muted-foreground">{lt.potassium}</span>
+                      <span className="text-emerald-400">{potassium} mg/kg (सही मात्रा)</span>
+                    </div>
+                    <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden">
+                      <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(potassium / 280) * 100}%` }} />
+                    </div>
+                  </div>
 
-        {/* Metric C: Air Humidity Card */}
-        <motion.div {...fadeUp(0.12)}>
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
-            <div className="flex justify-between items-start">
-              <span className="text-sm font-bold text-muted-foreground">{lt.humidityLabel}</span>
-              <CloudSun className="h-6 w-6 text-teal-400" />
-            </div>
-            
-            <div className="my-5 text-center">
-              <span className="text-5xl font-black text-white font-display">{sensorOnline ? humidity : "--"}%</span>
-            </div>
+                </CardContent>
+              </GlassCard>
+            </motion.div>
 
-            {/* Advice Box */}
-            <div className={`rounded-xl border p-3.5 text-xs text-center font-bold mb-4 ${sensorOnline ? humidityColor : "border-white/5 bg-white/[0.01] text-muted-foreground"}`}>
-              {sensorOnline ? humidityAdvice : "सेंसर कनेक्शन की जाँच करें"}
-            </div>
-
-            {/* Thick Slider track */}
-            <input
-              type="range"
-              min="30"
-              max="95"
-              value={humidity}
-              onChange={(e) => setHumidity(Number(e.target.value))}
-              disabled={!sensorOnline}
-              className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 disabled:opacity-30"
-            />
-          </GlassCard>
-        </motion.div>
-      </div>
-
-      {/* ─── 4. SOIL QUALITY & HEALTH CARD (FARMER FRIENDLY TERMS) ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* Soil Nutrients (NPK) */}
-        <motion.div {...fadeUp(0.15)} className="md:col-span-2">
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between">
-            <CardHeader className="pb-3 border-b border-white/[0.04] p-0 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
-                <Sprout className="h-5 w-5 text-emerald-400" />
-                {lt.npkLabel}
-              </CardTitle>
-              <span className="text-[10px] text-muted-foreground font-bold">{lt.npkSub}</span>
-            </CardHeader>
-            <CardContent className="p-0 pt-4 space-y-4">
-              
-              {/* Nitrogen */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-muted-foreground">{lt.nitrogen}</span>
-                  <span className="text-emerald-400">{sensorOnline ? nitrogen : "--"} mg/kg (सही मात्रा)</span>
-                </div>
-                <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${sensorOnline ? (nitrogen / 140) * 100 : 0}%` }} />
-                </div>
-              </div>
-
-              {/* Phosphorus */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-muted-foreground">{lt.phosphorus}</span>
-                  <span className="text-emerald-400">{sensorOnline ? phosphorus : "--"} mg/kg (सही मात्रा)</span>
-                </div>
-                <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-teal-500 rounded-full" style={{ width: `${sensorOnline ? (phosphorus / 100) * 100 : 0}%` }} />
-                </div>
-              </div>
-
-              {/* Potassium */}
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs font-bold">
-                  <span className="text-muted-foreground">{lt.potassium}</span>
-                  <span className="text-emerald-400">{sensorOnline ? potassium : "--"} mg/kg (सही मात्रा)</span>
-                </div>
-                <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden">
-                  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${sensorOnline ? (potassium / 280) * 100 : 0}%` }} />
-                </div>
-              </div>
-
-            </CardContent>
-          </GlassCard>
-        </motion.div>
-
-        {/* Soil Health (pH) */}
-        <motion.div {...fadeUp(0.18)} className="md:col-span-1">
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between">
-            <CardHeader className="pb-3 border-b border-white/[0.04] p-0 flex flex-row items-center justify-between">
-              <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
-                <Activity className="h-5 w-5 text-emerald-400" />
-                {lt.phLabel}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 pt-6 space-y-4 text-center">
-              <div className="text-5xl font-black text-white font-display">{sensorOnline ? ph : "--"}</div>
-              <div className="text-xs text-emerald-400 font-extrabold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl inline-block">
-                उपजाऊ मिट्टी (सामान्य) 🌱
-              </div>
-              <p className="text-[10px] text-muted-foreground leading-normal mt-2">
-                {lt.phSub}।
-              </p>
-            </CardContent>
-          </GlassCard>
-        </motion.div>
-      </div>
+            {/* Soil Health (pH) */}
+            <motion.div {...fadeUp(0.18)} className="md:col-span-1">
+              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between">
+                <CardHeader className="pb-3 border-b border-white/[0.04] p-0 flex flex-row items-center justify-between">
+                  <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-emerald-400" />
+                    {lt.phLabel}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 pt-6 space-y-4 text-center">
+                  <div className="text-5xl font-black text-white font-display">{ph}</div>
+                  <div className="text-xs text-emerald-400 font-extrabold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl inline-block">
+                    उपजाऊ मिट्टी (सामान्य) 🌱
+                  </div>
+                  <p className="text-[10px] text-muted-foreground leading-normal mt-2">
+                    {lt.phSub}।
+                  </p>
+                </CardContent>
+              </GlassCard>
+            </motion.div>
+          </div>
+        </>
+      )}
 
       {/* ─── 5. WHATSAPP & EXPERT COORDINATION BUTTONS ─── */}
       <motion.div {...fadeUp(0.2)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -865,53 +886,55 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* ─── 7. SIMPLIFIED PAST WEATHER TREND CHART ─── */}
-      <motion.div {...fadeUp(0.25)}>
-        <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 rounded-3xl overflow-hidden">
-          <CardHeader className="pb-3 border-b border-white/[0.04]">
-            <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-400" />
-              {lt.historyTitle}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="h-64 w-full text-[10px] font-mono">
-              {mounted && (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={simulatedChartData}
-                    margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient id="moistGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                    <XAxis dataKey="day" stroke="#64748b" />
-                    <YAxis stroke="#64748b" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: "rgba(4, 8, 20, 0.95)", 
-                        borderColor: "rgba(255,255,255,0.08)",
-                        borderRadius: "16px"
-                      }}
-                      labelStyle={{ color: "#fff", fontWeight: "bold" }}
-                    />
-                    <Area type="monotone" dataKey="Moisture" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#moistGrad)" name={lt.moistureLabel.split(" (")[0]} />
-                    <Area type="monotone" dataKey="Temp" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#tempGrad)" name={lt.tempLabel.split(" (")[0]} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </GlassCard>
-      </motion.div>
+      {/* ─── 7. SIMPLIFIED PAST WEATHER TREND CHART (ONLY SHOW WHEN ONLINE) ─── */}
+      {sensorOnline && (
+        <motion.div {...fadeUp(0.25)}>
+          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 rounded-3xl overflow-hidden">
+            <CardHeader className="pb-3 border-b border-white/[0.04]">
+              <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-emerald-400" />
+                {lt.historyTitle}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="h-64 w-full text-[10px] font-mono">
+                {mounted && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={simulatedChartData}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient id="moistGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="tempGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+                      <XAxis dataKey="day" stroke="#64748b" />
+                      <YAxis stroke="#64748b" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: "rgba(4, 8, 20, 0.95)", 
+                          borderColor: "rgba(255,255,255,0.08)",
+                          borderRadius: "16px"
+                        }}
+                        labelStyle={{ color: "#fff", fontWeight: "bold" }}
+                      />
+                      <Area type="monotone" dataKey="Moisture" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#moistGrad)" name={lt.moistureLabel.split(" (")[0]} />
+                      <Area type="monotone" dataKey="Temp" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#tempGrad)" name={lt.tempLabel.split(" (")[0]} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+            </CardContent>
+          </GlassCard>
+        </motion.div>
+      )}
 
     </div>
   )

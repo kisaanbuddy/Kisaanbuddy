@@ -12,6 +12,8 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
+  Sunrise,
+  Sunset,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,16 +22,21 @@ import type { UnifiedWeather } from "@/lib/weather-api"
 import { useUnit, pickTemp } from "./unit-context"
 import { ConditionIcon } from "./weather-icons"
 import { UnitToggle } from "./UnitToggle"
+import { WEATHER_T, translateCondition, translateWindDir, type Lang } from "@/lib/weather-translations"
 
 interface Props {
   data: UnifiedWeather | null
   loading?: boolean
   error?: string | null
   onRetry?: () => void
+  sunrise?: string | null
+  sunset?: string | null
 }
 
-export function WeatherCard({ data, loading, error, onRetry }: Props) {
-  const { t } = useLanguage()
+export function WeatherCard({ data, loading, error, onRetry, sunrise, sunset }: Props) {
+  const { lang } = useLanguage()
+  const activeLang = (lang as Lang) in WEATHER_T ? (lang as Lang) : "hi"
+  const t = WEATHER_T[activeLang]
   const { unit } = useUnit()
 
   return (
@@ -42,7 +49,7 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
               isDay={data?.current.is_day ?? true}
               className="h-5 w-5 text-sky-400 animate-float"
             />
-            Current Weather
+            {t.current_weather}
           </CardTitle>
           <UnitToggle />
         </div>
@@ -60,7 +67,7 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
             <AlertCircle className="h-8 w-8 text-red-400 animate-bounce" />
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground/90">
-                Couldn&apos;t load weather details
+                {t.load_fail}
               </p>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
                 {error}
@@ -69,7 +76,7 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
             </div>
             {onRetry && (
               <Button variant="outline" size="sm" onClick={onRetry} className="mt-2 text-xs h-8 border-border/60 hover:bg-emerald-500/5 hover:text-emerald-500">
-                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Retry
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> {t.retry}
               </Button>
             )}
           </div>
@@ -93,10 +100,10 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
                 </div>
                 <div className="space-y-1">
                   <p className="text-lg font-semibold capitalize text-foreground">
-                    {data.current.condition}
+                    {translateCondition(data.current.condition, activeLang)}
                   </p>
                   <p className="text-xs text-muted-foreground/80">
-                    Feels like{" "}
+                    {t.feels_like}{" "}
                     <strong className="text-foreground font-semibold">
                       {Math.round(
                         pickTemp(data.current.feels_like_c, data.current.feels_like_f, unit)
@@ -114,37 +121,52 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
                 </div>
               </div>
 
-              <div className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-3 md:w-auto md:grid-cols-2">
+              {/* Grid of Weather Stats */}
+              <div className="grid w-full grid-cols-2 gap-2.5 sm:grid-cols-3 md:w-auto md:grid-cols-2 lg:grid-cols-3">
                 <Stat
                   icon={<Wind className="h-4.5 w-4.5 text-sky-400" />}
-                  label={t("weather.wind")}
-                  value={`${data.current.wind_kph.toFixed(1)} km/h`}
-                  hint={data.current.wind_dir ?? undefined}
+                  label={t.wind_speed}
+                  value={`${data.current.wind_kph.toFixed(0)} km/h`}
+                  hint={translateWindDir(data.current.wind_dir, activeLang) || undefined}
                 />
                 <Stat
                   icon={<Droplet className="h-4.5 w-4.5 text-teal-400" />}
-                  label={t("weather.humidity")}
+                  label={t.humidity}
                   value={`${data.current.humidity}%`}
                 />
                 {data.current.pressure_mb != null && (
                   <Stat
                     icon={<Gauge className="h-4.5 w-4.5 text-indigo-400" />}
-                    label={t("weather.pressure")}
+                    label={t.pressure}
                     value={`${Math.round(data.current.pressure_mb)} mb`}
                   />
                 )}
                 {data.current.visibility_km != null && (
                   <Stat
                     icon={<Eye className="h-4.5 w-4.5 text-emerald-400" />}
-                    label={t("weather.visibility")}
-                    value={`${data.current.visibility_km.toFixed(1)} km`}
+                    label={t.visibility}
+                    value={`${data.current.visibility_km.toFixed(0)} km`}
                   />
                 )}
                 {data.current.uv_index != null && (
                   <Stat
-                    icon={<SunIcon className="h-4.5 w-4.5 text-amber-400 animate-pulse-glow rounded-full" />}
-                    label={t("weather.uv_index")}
-                    value={`${data.current.uv_index.toFixed(1)}`}
+                    icon={<SunIcon className="h-4.5 w-4.5 text-amber-400 animate-pulse rounded-full" />}
+                    label={t.uv_index}
+                    value={`${data.current.uv_index.toFixed(0)}`}
+                  />
+                )}
+                {sunrise && (
+                  <Stat
+                    icon={<Sunrise className="h-4.5 w-4.5 text-amber-500" />}
+                    label={t.sunrise}
+                    value={sunrise}
+                  />
+                )}
+                {sunset && (
+                  <Stat
+                    icon={<Sunset className="h-4.5 w-4.5 text-orange-500" />}
+                    label={t.sunset}
+                    value={sunset}
                   />
                 )}
               </div>
@@ -152,19 +174,19 @@ export function WeatherCard({ data, loading, error, onRetry }: Props) {
 
             <div className="mt-6 flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground/60 select-none">
               <span className="rounded-lg bg-background/50 border border-border/30 px-2 py-1 font-semibold">
-                Provider: <span className="text-foreground">{data.provider}</span>
+                {t.data_source}: <span className="text-foreground">{data.provider}</span>
               </span>
               {data.cached ? (
                 <span className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-2 py-1 text-amber-500 font-bold">
-                  Cached
+                  {t.cached}
                 </span>
               ) : (
                 <span className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-emerald-500 font-bold">
-                  Live
+                  {t.live}
                 </span>
               )}
               {data.current.observed_at && (
-                <span className="font-semibold">Observed {new Date(data.current.observed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span className="font-semibold">{t.observed_at} {new Date(data.current.observed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               )}
             </div>
           </motion.div>
@@ -186,11 +208,11 @@ function Stat({
   hint?: string
 }) {
   return (
-    <div className="flex flex-col items-center rounded-xl border border-border/40 bg-background/30 p-3 backdrop-blur-sm hover:border-primary/20 transition-all duration-300">
+    <div className="flex flex-col items-center rounded-xl border border-border/40 bg-background/30 p-2.5 backdrop-blur-sm hover:border-primary/20 transition-all duration-300">
       <div className="mb-1.5 flex h-7 w-7 items-center justify-center rounded-lg bg-background/50 border border-border/20 shadow-inner">{icon}</div>
       <span className="text-xs font-semibold text-foreground tracking-tight">{value}</span>
-      <span className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground/85 mt-0.5">{label}</span>
-      {hint && <span className="text-[9px] text-muted-foreground/60">{hint}</span>}
+      <span className="text-[9px] uppercase font-bold tracking-wider text-muted-foreground/85 mt-0.5 text-center leading-none">{label}</span>
+      {hint && <span className="text-[9px] text-muted-foreground/60 mt-0.5 font-semibold">{hint}</span>}
     </div>
   )
 }
