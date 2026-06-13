@@ -124,7 +124,7 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: "en",
+  lang: "hi",
   setLang: () => {},
   t: (key) => {
     const parts = key.split(".")
@@ -144,7 +144,7 @@ const LanguageContext = createContext<LanguageContextType>({
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en")
+  const [lang, setLangState] = useState<Lang>("hi")
 
   useEffect(() => {
     const saved = localStorage.getItem("krishiai_lang") as Lang | null
