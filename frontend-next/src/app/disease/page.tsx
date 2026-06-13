@@ -28,10 +28,10 @@ const PROMPT_FALLBACK: Record<Language, string> = {
 
 export default function DiseasePortal() {
   const { t, lang } = useLanguage()
-  const [language, setLanguage]     = useState<Language>(lang)
+  const [language, setLanguage]     = useState<Language>(["en", "hi", "kn"].includes(lang) ? lang as Language : "en")
   
   useEffect(() => {
-    setLanguage(lang)
+    setLanguage(["en", "hi", "kn"].includes(lang) ? lang as Language : "en")
   }, [lang])
 
   const [crop, setCrop]             = useState("")

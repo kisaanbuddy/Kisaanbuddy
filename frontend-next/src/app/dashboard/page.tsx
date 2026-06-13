@@ -354,7 +354,8 @@ export default function DashboardPage() {
                             </button>
                           ))}
                         </div>
-                      </GlassCard>
+                      </CardContent>
+                    </GlassCard>
 
                       {/* Router logs */}
                       <GlassCard className="bg-slate-950/40 border border-white/[0.05]">
@@ -372,7 +373,6 @@ export default function DashboardPage() {
                         </CardContent>
                       </GlassCard>
                     </div>
-                  </div>
 
                   {/* Right: AI Chat UI */}
                   <div className="md:col-span-2 flex flex-col h-[480px]">

@@ -5,7 +5,7 @@ import { Sprout, Users, Landmark, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function Vision() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const pillars = [
     { 

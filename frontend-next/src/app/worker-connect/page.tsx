@@ -84,11 +84,11 @@ function workTypeLabel(wt: WorkType, lang: Language): string {
 
 export default function JobsPage() {
   const { t, lang } = useLanguage()
-  const [language, setLanguage] = useState<Language>(lang)
+  const [language, setLanguage] = useState<Language>((lang === "hi" || lang === "kn") ? lang : "en")
   const [mode, setMode] = useState<Mode>("hire")
 
   useEffect(() => {
-    setLanguage(lang)
+    setLanguage((lang === "hi" || lang === "kn") ? lang : "en")
   }, [lang])
 
   return (
@@ -781,6 +781,7 @@ function JobCard({
   distance_km?: number
   match_score?: number
 }) {
+  const { t } = useLanguage()
   const lblEn = (en: string, hi: string, kn: string) =>
     language === "hi" ? hi : language === "kn" ? kn : en
 

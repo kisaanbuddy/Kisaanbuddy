@@ -52,6 +52,7 @@ const SUGGESTIONS: Record<Lang, { text: string; icon: string }[]> = {
 }
 
 function ChatbotInner() {
+  const { t } = useLanguage()
   const searchParams = useSearchParams()
   const [lang, setLang] = useState<Lang>("hi-IN")
   const [messages, setMessages] = useState<Message[]>([
@@ -119,7 +120,7 @@ function ChatbotInner() {
   const toggleListen = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SR) {
-      alertt("chatbot.voice_not_supported_in")
+      alert(t("chatbot.voice_not_supported_in"))
       return
     }
 

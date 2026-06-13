@@ -459,7 +459,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
   const [permGranted, setPermGranted] = useState(false)
   const [checking, setChecking] = useState(false)
   
-  const currentLang = ALERT_LANG[lang] || ALERT_LANG.en
+  const activeAlertLang = (lang === "hi" || lang === "kn") ? lang : "en"
+  const currentLang = ALERT_LANG[activeAlertLang]
 
   useEffect(() => { if (typeof window !== "undefined" && "Notification" in window) setPermGranted(Notification.permission === "granted") }, [])
   
@@ -546,7 +547,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
               }`}
             >
               <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
-              <span>{translateData(alert.cropName, lang)} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
+              <span>{translateData(alert.cropName, activeAlertLang)} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
               <button 
                 onClick={() => removeAlert(alert.id)} 
                 className="hover:text-white transition-colors"
@@ -569,7 +570,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
               className="w-full sm:w-48 rounded-xl border border-white/[0.08] bg-slate-950 px-3 py-2 text-xs text-white focus:outline-none"
             >
               <option value="" className="bg-slate-900">{currentLang.selectCommodity}</option>
-              {uniqueCrops.map((c) => <option key={c} value={c} className="bg-slate-900">{translateData(c, lang)}</option>)}
+              {uniqueCrops.map((c) => <option key={c} value={c} className="bg-slate-900">{translateData(c, activeAlertLang)}</option>)}
             </select>
           </div>
           <div className="space-y-1">
@@ -627,11 +628,11 @@ export default function MandiPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
-  const [lang, setLang] = useState<"en" | "hi" | "kn">(appLang)
+  const [lang, setLang] = useState<"en" | "hi" | "kn">((appLang === "hi" || appLang === "kn") ? appLang : "en")
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setLang(appLang)
+    setLang((appLang === "hi" || appLang === "kn") ? appLang : "en")
   }, [appLang])
 
   useEffect(() => {
@@ -1032,6 +1033,7 @@ export default function MandiPage() {
 
 /* ---- Crop Card ---- */
 function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: "en" | "hi" | "kn" }) {
+  const { t } = useLanguage()
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }} 
@@ -1126,6 +1128,7 @@ function BuySellPanel({
   lang: "en" | "hi" | "kn"
   onLangChange: (l: "en" | "hi" | "kn") => void
 }) {
+  const { t } = useLanguage()
   return (
     <div className="space-y-6">
       {/* Choose action */}

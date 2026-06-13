@@ -177,6 +177,7 @@ export function AskFarmAI({ params }: Props) {
 // Result card
 // ---------------------------------------------------------------------------
 function ResultCard({ result }: { result: CropCheckResponse }) {
+  const { t } = useLanguage()
   const suit = result.suitability
   const tone = TONE_FOR[suit] ?? TONE_FOR.Moderate
 
@@ -284,6 +285,7 @@ function ConfidenceBar({
   value: number
   tone: ToneSpec
 }) {
+  const { t } = useLanguage()
   const pct = Math.max(0, Math.min(100, value))
   return (
     <div className="mt-3">

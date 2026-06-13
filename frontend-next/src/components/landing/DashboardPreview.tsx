@@ -6,8 +6,7 @@ import { Sprout, Bug, TrendingUp, CloudSun, Check, Sparkles, Upload, AlertCircle
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function DashboardPreview() {
-  const { t } = useLanguage()
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
   const [activeTab, setActiveTab] = useState('predictor');
 
   const tabs = [

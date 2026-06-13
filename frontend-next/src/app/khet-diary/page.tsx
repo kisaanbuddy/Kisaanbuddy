@@ -265,6 +265,7 @@ export default function KhetDiaryPage() {
 // ─── Entry Form ───────────────────────────────────────────────────────────────
 
 function EntryForm({ onAdd, onClose }: { onAdd: (e: DiaryEntry) => void; onClose: () => void }) {
+  const { t } = useLanguage()
   const [activity, setActivity] = useState<ActivityType>("observation")
   const [crop, setCrop] = useState("")
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10))
@@ -435,6 +436,7 @@ function EntryForm({ onAdd, onClose }: { onAdd: (e: DiaryEntry) => void; onClose
 // ─── Diary Card ───────────────────────────────────────────────────────────────
 
 function DiaryCard({ entry, onDelete, index }: { entry: DiaryEntry; onDelete: (id: string) => void; index: number }) {
+  const { t } = useLanguage()
   const [expanded, setExpanded] = useState(false)
   const info = ACTIVITY_LABEL[entry.activity]
 

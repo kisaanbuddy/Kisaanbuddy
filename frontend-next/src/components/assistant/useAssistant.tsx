@@ -73,13 +73,13 @@ export function useAssistant(
   const [messages, setMessages] = useState<AssistantMessage[]>([])
   const [streamingText, setStreamingText] = useState<string>("")
   const [activeTool, setActiveTool] = useState<string | null>(null)
-  const [languageState, setLanguageState] = useState<Language>(lang)
+  const [languageState, setLanguageState] = useState<Language>((lang === "hi" || lang === "kn") ? lang : "en")
   const [location, setLocation] = useState<LocationHint | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [lastError, setLastError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLanguageState(lang)
+    setLanguageState((lang === "hi" || lang === "kn") ? lang : "en")
   }, [lang])
 
   const abortRef = useRef<AbortController | null>(null)

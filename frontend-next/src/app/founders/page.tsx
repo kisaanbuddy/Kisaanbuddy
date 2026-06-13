@@ -18,7 +18,7 @@ type Founder = {
 }
 
 export default function FoundersPage() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const founders: Founder[] = [
     {
@@ -176,6 +176,7 @@ export default function FoundersPage() {
 }
 
 function FounderCard({ founder, lang }: { founder: Founder; lang: string }) {
+  const { t } = useLanguage();
   const badgeColorClass = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse-glow";
 
   return (

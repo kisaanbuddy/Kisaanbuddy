@@ -42,6 +42,81 @@ export const LANG_FLAGS: Record<Lang, string> = {
 
 export const T: Record<Lang, any> = { en, hi, kn, ta, te, ml, mr, bn, pa, gu }
 
+const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
+  dashboard: {
+    en: "Dashboard",
+    hi: "डैशबोर्ड",
+    kn: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    ta: "டாஷ்போர்டு",
+    te: "డాష్‌బోర్డ్",
+    ml: "ഡാഷ്‌ബോർഡ്",
+    mr: "डॅशबोर्ड",
+    bn: "ড্যাশবোর্ড",
+    pa: "ਡੈਸ਼ਬੋਰਡ",
+    gu: "ડેશબોર્ડ"
+  },
+  weather: {
+    en: "Weather",
+    hi: "मौसम",
+    kn: "ಹವಾಮಾನ",
+    ta: "வானிலை",
+    te: "హవామానం",
+    ml: "കാലാവസ്ഥ",
+    mr: "हवामान",
+    bn: "আবহাওয়া",
+    pa: "ਮੌਸਮ",
+    gu: "હવામાન"
+  },
+  mandi: {
+    en: "Mandi",
+    hi: "मंडी",
+    kn: "ಮಂಡಿ",
+    ta: "மண்டி விலைகள்",
+    te: "మండి ధరలు",
+    ml: "മണ്ടി നിരക്കുകൾ",
+    mr: "मंडी दर",
+    bn: "মান্ডি দর",
+    pa: "ਮੰਡੀ ਰੇਟ",
+    gu: "મંડી દર"
+  },
+  schemes: {
+    en: "Schemes",
+    hi: "योजनाएं",
+    kn: "ಯೋಜನೆಗಳು",
+    ta: "திட்டங்கள்",
+    te: "పథకాలు",
+    ml: "പദ്ധതികൾ",
+    mr: "योजना",
+    bn: "প্রকল্প",
+    pa: "ਯੋਜਨਾਵਾਂ",
+    gu: "યોજનાઓ"
+  },
+  founders: {
+    en: "Founders",
+    hi: "संस्थापक",
+    kn: "ಸ್ಥಾಪಕರು",
+    ta: "நிறுவனர்கள்",
+    te: "వ్యవస్థాపకులు",
+    ml: "സ്ഥാപകർ",
+    mr: "संस्थापक",
+    bn: "প্রতিষ্ঠাতা",
+    pa: "ਸੰਸਥਾਪਕ",
+    gu: "સ્થાપક"
+  },
+  hardware: {
+    en: "Smart Hub",
+    hi: "स्मार्ट हब",
+    kn: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
+    ta: "ஸ்மார்ட் ஹப்",
+    te: "స్మార్ట్ హబ్",
+    ml: "സ്മാർട്ട് ഹബ്",
+    mr: "स्मार्ट हब",
+    bn: "স্মার্ট হাব",
+    pa: "ਸਮਾਰਟ ਹੱਬ",
+    gu: "સ્માર્ટ હબ"
+  }
+}
+
 interface LanguageContextType {
   lang: Lang
   setLang: (l: Lang) => void
@@ -60,6 +135,9 @@ const LanguageContext = createContext<LanguageContextType>({
       } else {
         return key
       }
+    }
+    if (current && typeof current === "object" && key in NAMESPACE_TITLES) {
+      return NAMESPACE_TITLES[key]["en"]
     }
     return current
   },
@@ -91,7 +169,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         break
       }
     }
-    if (current !== undefined) return current
+    if (current !== undefined) {
+      if (current && typeof current === "object" && key in NAMESPACE_TITLES) {
+        return NAMESPACE_TITLES[key][lang] ?? NAMESPACE_TITLES[key]["en"]
+      }
+      return current
+    }
 
     // Fallback to English
     current = T.en
@@ -102,6 +185,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         current = undefined
         break
       }
+    }
+    if (current && typeof current === "object" && key in NAMESPACE_TITLES) {
+      return NAMESPACE_TITLES[key][lang] ?? NAMESPACE_TITLES[key]["en"]
     }
     return current ?? key
   }

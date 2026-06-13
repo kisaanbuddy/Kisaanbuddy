@@ -16,12 +16,12 @@ interface Props {
 const DEBOUNCE_MS = 250
 
 export function LocationSearch({
-  const { t } = useLanguage()
   onSelect,
   onUseCurrentLocation,
   placeholder = "Search city…",
   className = "",
 }: Props) {
+  const { t } = useLanguage()
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<LocationHit[]>([])
   const [loading, setLoading] = useState(false)
