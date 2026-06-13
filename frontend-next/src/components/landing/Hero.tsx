@@ -43,7 +43,7 @@ export function Hero() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-            <Link href="/signup">
+            <Link href="/login">
               <button className="btn-primary flex items-center gap-2 group text-sm h-11 px-6">
                 {t("landing_hero.get_started")}
                 <ArrowRight className="h-4.5 w-4.5 transition-transform duration-300 group-hover:translate-x-1" />

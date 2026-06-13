@@ -76,12 +76,14 @@ function writeSession(user: AuthUser | null, token: string | null) {
 export async function registerUser(
   email: string,
   password: string,
-  name: string
+  name?: string,
+  phone_number?: string
 ): Promise<RegisterResult> {
   const cleanEmail = email.trim().toLowerCase();
-  const cleanName = name.trim();
-  if (!cleanEmail || !password || !cleanName) {
-    return { ok: false, error: "All fields are required." };
+  const cleanName = name ? name.trim() : "";
+  const cleanPhone = phone_number ? phone_number.trim() : "";
+  if (!cleanEmail || !password) {
+    return { ok: false, error: "Email and password are required." };
   }
   if (!cleanEmail.includes("@") || !cleanEmail.includes(".")) {
     return { ok: false, error: "Please enter a valid email address." };
@@ -94,7 +96,12 @@ export async function registerUser(
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: cleanEmail, password, name: cleanName }),
+      body: JSON.stringify({
+        email: cleanEmail,
+        password,
+        name: cleanName || undefined,
+        phone_number: cleanPhone || undefined,
+      }),
     });
 
     const data = await response.json();
@@ -172,15 +179,21 @@ export function getCurrentUser(): AuthUser | null {
 
 /** React hook — returns the current session (or null) and re-renders on change. */
 export function useAuth(): { user: AuthUser | null; ready: boolean } {
-  // Bypassed login: always return a mock logged-in user so the pages function without requiring auth
-  const mockUser: AuthUser = {
-    id: 1,
-    email: "adityaoutlier5@gmail.com",
-    name: "Aditya",
-    phone_number: "9876543210",
-    role: "Farmer",
-    provider: "email",
-    created_at: "2026-06-04T10:23:00Z"
-  };
-  return { user: mockUser, ready: true };
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    setUser(readSession());
+    setReady(true);
+
+    const handleAuthChange = () => {
+      setUser(readSession());
+    };
+    window.addEventListener(EVENT_NAME, handleAuthChange);
+    return () => {
+      window.removeEventListener(EVENT_NAME, handleAuthChange);
+    };
+  }, []);
+
+  return { user, ready };
 }

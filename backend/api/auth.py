@@ -48,9 +48,10 @@ COOKIE_NAME = "krishiai_session"
 # Schemas
 # ===========================================================================
 class UserRegister(BaseModel):
-    name: str = Field(..., min_length=2, max_length=100)
+    name: Optional[str] = Field(None, max_length=100)
     email: EmailStr
     password: str = Field(..., min_length=4)
+    phone_number: Optional[str] = Field(None, max_length=50)
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -158,21 +159,32 @@ def register(request: Request, data: UserRegister, db: Session = Depends(get_db)
             detail="An account with this email already exists. Please log in instead.",
         )
 
-    # Generate a unique placeholder phone number to satisfy SQLite schema constraints
-    email_hash = hashlib.md5(clean_email.encode()).hexdigest()[:15]
-    placeholder_phone = f"email_{email_hash}"
-
-    # Verify placeholder_phone is unique (extremely rare collision)
-    while db.query(User).filter(User.phone_number == placeholder_phone).first():
-        email_hash = hashlib.md5(f"{clean_email}{time.time()}".encode()).hexdigest()[:15]
+    # Generate unique phone number or use provided one
+    if data.phone_number and data.phone_number.strip():
+        phone_to_use = data.phone_number.strip()
+        existing_phone = db.query(User).filter(User.phone_number == phone_to_use).first()
+        if existing_phone:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="An account with this phone number already exists.",
+            )
+    else:
+        # Generate a unique placeholder phone number to satisfy SQLite schema constraints
+        email_hash = hashlib.md5(clean_email.encode()).hexdigest()[:15]
         placeholder_phone = f"email_{email_hash}"
+
+        # Verify placeholder_phone is unique (extremely rare collision)
+        while db.query(User).filter(User.phone_number == placeholder_phone).first():
+            email_hash = hashlib.md5(f"{clean_email}{time.time()}".encode()).hexdigest()[:15]
+            placeholder_phone = f"email_{email_hash}"
+        phone_to_use = placeholder_phone
 
     try:
         user = User(
-            name=data.name.strip(),
+            name=data.name.strip() if (data.name and data.name.strip()) else None,
             email=clean_email,
             password_hash=hash_password(data.password),
-            phone_number=placeholder_phone,
+            phone_number=phone_to_use,
             provider="email",
             role="Farmer",
             is_active=True
