@@ -374,13 +374,6 @@ export function Header() {
                   Login
                 </Link>
                 <Link
-                  href="/signup"
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl border border-emerald-500/30 px-4 py-3 text-center text-xs font-semibold text-emerald-500 hover:bg-emerald-500/5 transition-colors"
-                >
-                  Sign Up Free
-                </Link>
-                <Link
                   href="/founders"
                   onClick={() => setOpen(false)}
                   className="rounded-xl px-4 py-3 text-center text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
