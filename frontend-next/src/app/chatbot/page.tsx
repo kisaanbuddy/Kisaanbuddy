@@ -65,10 +65,17 @@ function ChatbotInner() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
 
-  // Auto-fill from homepage voice demo (?q=...)
+  // Auto-fill and auto-send from homepage/dashboard voice demo (?q=...)
   useEffect(() => {
     const q = searchParams.get("q")
-    if (q) setInput(decodeURIComponent(q))
+    if (q) {
+      const decoded = decodeURIComponent(q)
+      setInput(decoded)
+      const timer = setTimeout(() => {
+        handleSend(undefined, decoded)
+      }, 300)
+      return () => clearTimeout(timer)
+    }
   }, [searchParams])
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
