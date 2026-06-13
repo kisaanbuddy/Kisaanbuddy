@@ -5,7 +5,7 @@ import { Star, Quote } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function Testimonials() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const testimonials = [
     {

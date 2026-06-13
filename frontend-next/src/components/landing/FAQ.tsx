@@ -6,7 +6,7 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function FAQ() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqs = [

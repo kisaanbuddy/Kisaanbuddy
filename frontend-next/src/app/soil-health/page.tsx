@@ -266,10 +266,10 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 
 export default function SoilHealthPage() {
   const { t, lang } = useLanguage()
-  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: lang }))
+  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
   
   useEffect(() => {
-    setForm((f) => ({ ...f, language: lang }))
+    setForm((f) => ({ ...f, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
   }, [lang])
 
   const [response, setResponse] = useState("")
@@ -313,7 +313,7 @@ export default function SoilHealthPage() {
 
   const reset = () => {
     abortRef.current?.abort()
-    setForm(INITIAL)
+    setForm({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" })
     setResponse("")
     setDone(false)
     setError(null)

@@ -203,6 +203,7 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useLanguage();
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 -mt-4 py-8">
       <Suspense fallback={

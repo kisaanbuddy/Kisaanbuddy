@@ -5,7 +5,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export function WhyUs() {
-  const { lang } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const stats = [
     {
