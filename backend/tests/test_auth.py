@@ -151,5 +151,42 @@ class TestAuthSystem(unittest.TestCase):
         # Note: TestClient cookies handling might vary, but verify response details
         self.assertIn("Logged out successfully", response.json()["message"])
 
+    def test_register_optional_name_success(self):
+        payload = {
+            "email": "noname@example.com",
+            "password": "securepassword123"
+        }
+        response = self.client.post("/api/auth/register", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIsNone(data["name"])
+
+    def test_register_with_custom_phone_success(self):
+        payload = {
+            "email": "customphone@example.com",
+            "password": "securepassword123",
+            "phone_number": "9876543210"
+        }
+        response = self.client.post("/api/auth/register", json=payload)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data["phone_number"], "9876543210")
+
+    def test_register_duplicate_custom_phone(self):
+        payload1 = {
+            "email": "customphone1@example.com",
+            "password": "securepassword123",
+            "phone_number": "9876543210"
+        }
+        payload2 = {
+            "email": "customphone2@example.com",
+            "password": "securepassword123",
+            "phone_number": "9876543210"
+        }
+        self.client.post("/api/auth/register", json=payload1)
+        response = self.client.post("/api/auth/register", json=payload2)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("phone number already exists", response.json()["detail"])
+
 if __name__ == "__main__":
     unittest.main()

@@ -4,14 +4,15 @@ import { useLanguage } from "@/lib/language";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Sparkles, User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Loader2, Sparkles, User, Mail, Lock, AlertCircle, ArrowRight, CheckCircle2, Phone } from "lucide-react";
 import { useAuth, registerUser } from "@/lib/auth";
 
 const localTranslations = {
   en: {
     createAccount: "Create Account",
     joinKrishiAI: "Join KrishiAI to unlock premium farming insights",
-    nameLabel: "Full Name",
+    nameLabel: "Full Name (Optional)",
+    phoneLabel: "Phone Number (Optional)",
     emailLabel: "Email Address",
     passwordLabel: "Password",
     confirmPasswordLabel: "Confirm Password",
@@ -31,7 +32,8 @@ const localTranslations = {
   hi: {
     createAccount: "खाता बनाएं",
     joinKrishiAI: "प्रीमियम कृषि जानकारी अनलॉक करने के लिए KrishiAI से जुड़ें",
-    nameLabel: "पूरा नाम",
+    nameLabel: "पूरा नाम (वैकल्पिक)",
+    phoneLabel: "फ़ोन नंबर (वैकल्पिक)",
     emailLabel: "ईमेल पता",
     passwordLabel: "पासवर्ड",
     confirmPasswordLabel: "पासवर्ड की पुष्टि करें",
@@ -51,7 +53,8 @@ const localTranslations = {
   kn: {
     createAccount: "ಖಾತೆ ತೆರೆಯಿರಿ",
     joinKrishiAI: "ಪ್ರೀಮಿಯಂ ಕೃಷಿ ಒಳನೋಟಗಳನ್ನು ಅನ್‌ಲಾಕ್ ಮಾಡಲು KrishiAI ಸೇರಿ",
-    nameLabel: "ಪೂರ್ಣ ಹೆಸರು",
+    nameLabel: "ಪೂರ್ಣ ಹೆಸರು (ಐಚ್ಛಿಕ)",
+    phoneLabel: "ದೂರವಾಣಿ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)",
     emailLabel: "ಇಮೇಲ್ ವಿಳಾಸ",
     passwordLabel: "ಪಾಸ್‌ವರ್ಡ್",
     confirmPasswordLabel: "ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ",
@@ -77,6 +80,7 @@ export default function SignupPage() {
   const { user, ready } = useAuth();
 
   const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -128,7 +132,7 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword) {
       setError(lt.requiredFields);
       return;
     }
@@ -149,7 +153,7 @@ export default function SignupPage() {
     setError(null);
 
     try {
-      const res = await registerUser(email, password, name);
+      const res = await registerUser(email, password, name || undefined, phone || undefined);
       if (res.ok) {
         router.replace("/dashboard");
       } else {
@@ -203,6 +207,23 @@ export default function SignupPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder={t("signup.rahul_kumar")}
+                  disabled={loading}
+                  className="w-full h-11 bg-white/[0.03] hover:bg-white/[0.05] focus:bg-white/[0.05] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 text-sm text-white placeholder-muted-foreground/50 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5 pl-1">
+                {lt.phoneLabel}
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="9876543210"
                   disabled={loading}
                   className="w-full h-11 bg-white/[0.03] hover:bg-white/[0.05] focus:bg-white/[0.05] border border-white/10 focus:border-emerald-500/50 rounded-xl pl-10 pr-4 text-sm text-white placeholder-muted-foreground/50 transition-all focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
                 />
