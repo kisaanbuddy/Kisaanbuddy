@@ -147,7 +147,7 @@ export function PrivacyClient() {
           </p>
           <div className="rounded-xl border border-border/20 bg-muted/15 p-4 space-y-1 font-semibold text-foreground max-w-sm mt-2">
             <p>{t("privacy.krishiai_development_team")}</p>
-            <p className="font-mono text-xs text-muted-foreground">Email: adityaoutlier5@gmail.com</p>
+            <p className="font-mono text-xs text-muted-foreground">Email: founders@krishiaiindia.com</p>
             <p className="font-mono text-xs text-muted-foreground">{t("privacy.url_https_krishiaiindia_vercel")}</p>
           </div>
         </section>

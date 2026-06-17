@@ -32,7 +32,7 @@ echo   Done. Check Vercel dashboard for deploy.
 echo ============================================
 echo.
 echo Vercel will rebuild in ~2 minutes.
-echo Then open https://krishiai-steel.vercel.app on your phone.
+echo Then open https://kisaanbuddy.com on your phone.
 echo You will see a hamburger menu (3 lines) on the top-right.
 echo Tap it - all navigation links will appear.
 echo.

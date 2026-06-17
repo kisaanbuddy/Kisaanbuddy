@@ -7,7 +7,7 @@ shareable URL. Total time: ~30 minutes.
 
 | Piece | Host | URL |
 |---|---|---|
-| Frontend (Next.js) | Vercel | `https://krishiai.vercel.app` |
+| Frontend (Next.js) | Vercel | `https://kisaanbuddy.com` |
 | Backend (FastAPI) | Render | `https://krishiai-api.onrender.com` |
 | Keep-alive ping | UptimeRobot | pings `/health` every 5 min |
 
@@ -99,7 +99,7 @@ package in `requirements.txt`. Push a fix and Render auto-rebuilds.
 6. Done — you'll see your live URL: `https://krishiai-XXXX.vercel.app`
 
 **Custom subdomain on Vercel** (optional, free):
-   - Project → Settings → Domains → Add → `krishiai.vercel.app`
+   - Project → Settings → Domains → Add → `kisaanbuddy.com`
      (if available — Vercel reserves common names)
    - Or use any `<anything>.vercel.app`
 
@@ -113,7 +113,7 @@ picked a custom domain (e.g. krishiai.in), update the env var:
 1. Render dashboard → `krishiai-api` → Environment
 2. Edit `ALLOWED_ORIGINS`:
    ```
-   ["https://krishiai.vercel.app","https://krishiai.in","http://localhost:3000"]
+   ["https://kisaanbuddy.com","https://krishiai.in","http://localhost:3000"]
    ```
 3. Save → service redeploys
 
@@ -165,7 +165,7 @@ something nicer:
 
 | Option | Cost | Setup time |
 |---|---|---|
-| Stick with `krishiai.vercel.app` | Free | done |
+| Stick with `kisaanbuddy.com` | Free | done |
 | `krishiai.duckdns.org` | Free | 5 min — duckdns.org → claim subdomain → Vercel: add custom domain |
 | `.xyz` domain (e.g. `krishi.xyz`) | ~₹100 first year | 15 min — Namecheap signup, point to Vercel |
 | `.me` via GitHub Student Pack | Free with `.edu` email | education.github.com/pack |

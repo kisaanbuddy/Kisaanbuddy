@@ -58,7 +58,7 @@ if %ERRORLEVEL% EQU 0 (
     echo ============================================
     echo.
     echo Vercel auto-redeploys in ~2-3 minutes.
-    echo Then hard-refresh: https://krishiai-steel.vercel.app
+    echo Then hard-refresh: https://kisaanbuddy.com
 ) else (
     echo ============================================
     echo   PUSH FAILED - Try manual fix below

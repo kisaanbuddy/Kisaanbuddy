@@ -36,7 +36,7 @@ if %ERRORLEVEL% EQU 0 (
     echo   SUCCESS! All changes pushed.
     echo ============================================
     echo   Vercel auto-deploys in ~2-3 minutes.
-    echo   https://krishiai-steel.vercel.app
+    echo   https://kisaanbuddy.com
 ) else (
     echo Push failed. Try running FIX-GIT-AUTH.bat first.
 )

@@ -377,3 +377,24 @@
   border-color: rgba(16, 185, 129, 0.35);
   box-shadow: 0 0 35px rgba(16, 185, 129, 0.12), var(--glass-shadow);
 }
+
+/* ============================================================
+   MOBILE PERFORMANCE & WCAG ACCESSIBILITY OVERRIDES
+   ============================================================ */
+@media (max-width: 1023px) {
+  body {
+    background-attachment: scroll !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

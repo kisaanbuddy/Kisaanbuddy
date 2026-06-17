@@ -75,7 +75,7 @@ echo ============================================
 echo.
 echo Vercel auto-redeploys in ~2-3 minutes.
 echo Then hard-refresh (Ctrl+F5) on:
-echo   https://krishiai-steel.vercel.app/dashboard
+echo   https://kisaanbuddy.com/dashboard
 echo.
 echo What's new:
 echo   - Dark premium hero on homepage

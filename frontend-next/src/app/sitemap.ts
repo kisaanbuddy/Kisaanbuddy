@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://krishiaiindia.vercel.app'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://kisaanbuddy.com'
   const pages = [
     { url: '', changeScore: 1.0, changefreq: 'daily' as const },
     { url: '/weather', changeScore: 0.8, changefreq: 'daily' as const },

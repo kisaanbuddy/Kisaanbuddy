@@ -5,7 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
+      disallow: ['/dashboard', '/api'],
     },
-    sitemap: 'https://krishiaiindia.vercel.app/sitemap.xml',
+    sitemap: `${process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://kisaanbuddy.com'}/sitemap.xml`,
   }
 }

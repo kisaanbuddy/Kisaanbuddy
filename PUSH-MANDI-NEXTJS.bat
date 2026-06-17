@@ -24,7 +24,7 @@ echo.
 if %ERRORLEVEL% EQU 0 (
     echo ============================================
     echo   DONE! After Vercel deploys (~2 min):
-    echo   Test: https://krishiai-steel.vercel.app/api/mandi/health
+    echo   Test: https://kisaanbuddy.com/api/mandi/health
     echo ============================================
 ) else (
     echo Push failed. Run FIX-GIT-AUTH.bat first.

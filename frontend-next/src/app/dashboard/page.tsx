@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { useLanguage, Lang } from "@/lib/language"
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CircularGauge } from "@/components/dashboard/CircularGauge"
+import { ActionableAdvisory } from "@/components/dashboard/ActionableAdvisory"
 
 // Recharts components
 import {
@@ -400,6 +402,7 @@ export default function DashboardPage() {
 
   const [mounted, setMounted] = useState(false)
   const [isListening, setIsListening] = useState(false)
+  const [isSimulated, setIsSimulated] = useState(false)
 
   // Localized dictionary selector
   const lt = useMemo(() => {
@@ -408,6 +411,7 @@ export default function DashboardPage() {
 
   // Poll real-time sensor data from physical backend database every 5 seconds
   const fetchLatestSensor = async () => {
+    if (isSimulated) return
     try {
       const res = await fetch("/api/sensor/latest")
       if (res.ok) {
@@ -679,72 +683,83 @@ export default function DashboardPage() {
             <p className="text-sm text-muted-foreground/80 max-w-md leading-relaxed">
               आपका KrishiAI स्मार्ट हब (सेंसर डिवाइस) अभी कनेक्टेड नहीं है। जैसे ही आप अपने खेत में लगे डिवाइस को चालू करेंगे, मिट्टी की नमी और तापमान की लाइव जानकारी यहाँ अपने आप दिखाई देने लगेगी।
             </p>
-            <div className="inline-flex items-center gap-1.5 text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 rounded-full font-bold select-none animate-pulse">
+            <div className="inline-flex items-center gap-1.5 text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 rounded-full font-bold select-none animate-pulse mb-2">
               डिवाइस कनेक्शन की लगातार जांच की जा रही है...
+            </div>
+            <div className="pt-2">
+              <button
+                onClick={() => {
+                  setIsSimulated(true)
+                  setMoisture(42)
+                  setTemp(28)
+                  setHumidity(65)
+                  setSensorOnline(true)
+                }}
+                className="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                🔬 सेंसर डेटा सिम्युलेट करें (चेक करने के लिए) / Simulate Sensor Data
+              </button>
             </div>
           </GlassCard>
         </motion.div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {/* Metric A: Soil Moisture Card */}
+            {/* Metric A: Soil Moisture Gauge */}
             <motion.div {...fadeUp(0.05)}>
-              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
-                <div className="flex justify-between items-start">
-                  <span className="text-sm font-bold text-muted-foreground">{lt.moistureLabel}</span>
-                  <Droplets className="h-6 w-6 text-sky-400" />
-                </div>
-                
-                <div className="my-5 text-center">
-                  <span className="text-5xl font-black text-white font-display">{moisture}%</span>
-                </div>
-
-                {/* Advice Box */}
-                <div className={`rounded-xl border p-3.5 text-xs text-center font-bold ${moistureColor}`}>
-                  {moistureAdvice}
-                </div>
-              </GlassCard>
+              <CircularGauge
+                value={moisture}
+                label={lt.moistureLabel.split(" (")[0]}
+                unit="%"
+                icon={Droplets}
+                iconColor="text-sky-400"
+                strokeColor="stroke-sky-500"
+                glowColor="bg-sky-500"
+                advice={moistureAdvice}
+                adviceClass={moistureColor}
+              />
             </motion.div>
 
-            {/* Metric B: Temperature Card */}
+            {/* Metric B: Soil Temp Gauge */}
             <motion.div {...fadeUp(0.08)}>
-              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
-                <div className="flex justify-between items-start">
-                  <span className="text-sm font-bold text-muted-foreground">{lt.tempLabel}</span>
-                  <Thermometer className="h-6 w-6 text-orange-400" />
-                </div>
-                
-                <div className="my-5 text-center">
-                  <span className="text-5xl font-black text-white font-display">{temp}°C</span>
-                </div>
-
-                {/* Advice Box */}
-                <div className={`rounded-xl border p-3.5 text-xs text-center font-bold ${tempColor}`}>
-                  {tempAdvice}
-                </div>
-              </GlassCard>
+              <CircularGauge
+                value={temp}
+                label={lt.tempLabel.split(" (")[0]}
+                unit="°C"
+                icon={Thermometer}
+                iconColor="text-orange-400"
+                strokeColor="stroke-orange-500"
+                glowColor="bg-orange-500"
+                advice={tempAdvice}
+                adviceClass={tempColor}
+              />
             </motion.div>
 
-            {/* Metric C: Air Moisture Card */}
+            {/* Metric C: Air Moisture/Humidity Gauge */}
             <motion.div {...fadeUp(0.12)}>
-              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl flex flex-col justify-between h-full">
-                <div className="flex justify-between items-start">
-                  <span className="text-sm font-bold text-muted-foreground">{lt.humidityLabel}</span>
-                  <CloudSun className="h-6 w-6 text-teal-400" />
-                </div>
-                
-                <div className="my-5 text-center">
-                  <span className="text-5xl font-black text-white font-display">{humidity}%</span>
-                </div>
-
-                {/* Advice Box */}
-                <div className={`rounded-xl border p-3.5 text-xs text-center font-bold ${humidityColor}`}>
-                  {humidityAdvice}
-                </div>
-              </GlassCard>
+              <CircularGauge
+                value={humidity}
+                label={lt.humidityLabel.split(" (")[0]}
+                unit="%"
+                icon={CloudSun}
+                iconColor="text-teal-400"
+                strokeColor="stroke-teal-500"
+                glowColor="bg-teal-500"
+                advice={humidityAdvice}
+                adviceClass={humidityColor}
+              />
             </motion.div>
           </div>
+
+          {/* Actionable advisories section */}
+          <motion.div {...fadeUp(0.13)}>
+            <ActionableAdvisory
+              moisture={moisture}
+              temp={temp}
+              humidity={humidity}
+              lang={lang}
+            />
+          </motion.div>
 
           {/* ─── 4. SOIL QUALITY & HEALTH CARD (FARMER FRIENDLY TERMS) ─── */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
