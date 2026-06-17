@@ -1,4 +1,4 @@
-export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu"
+export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
 export const WEATHER_T: Record<Lang, Record<string, string>> = {
   en: {
@@ -641,6 +641,70 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_thunder: "વીજળી સાથે તોફાન",
     cond_snow: "બરફવર્ષા",
   },
+  hi_en: {
+    weather_title: "Mausam ka Haal",
+    weather_subtitle: "Aapke khet ke mausam ka sateek poorvanuman aur krishi salah",
+    detecting_loc: "Aapke sthan ka pata lagaya ja raha hai...",
+    gps_loc: "Aapke mobile/GPS sthan ka upayog kiya ja raha hai",
+    ip_loc: "Internet network se aapke sthan ka anuman lagaya gaya hai",
+    manual_loc: "{city} ke mausam ki jaankari dikhai ja rahi hai",
+    blocked_loc: "GPS sthan band hai. Kripya sateek mausam ke liye GPS on karein ya neeche shehar khojein.",
+    gps_retry_btn: "Sthan (GPS) chalu karein",
+    current_weather: "Abhi ka mausam",
+    feels_like: "Mehsus hone wala tapmaan",
+    observed_at: "Samay",
+    data_source: "Data srot",
+    live: "Live",
+    cached: "Surakshit data",
+    retry: "Phir se koshish karein",
+    load_fail: "Mausam ki jaankari load nahi ho saki",
+    
+    // Stats
+    wind_speed: "Hawa ki gati",
+    humidity: "Hawa mein nami (paani)",
+    pressure: "Vayu dabaav",
+    visibility: "Saaf dikhne ki doori",
+    uv_index: "Dhoop ki teevrata (UV)",
+    wind_dir: "Hawa ki disha",
+    sunrise: "Suryoday",
+    sunset: "Suryast",
+    
+    // Forecasts
+    hourly_forecast: "Agle kuch ghanton ka mausam",
+    no_hourly: "Ghantewar mausam uplabdh nahi hai",
+    day_forecast: "Agle {days} dinon ka mausam",
+    no_daily: "Mausam poorvanuman uplabdh nahi hai",
+    chance_of_rain: "Baarish ki sambhavna",
+    rain_chance_desc: "baarish ki sambhavna",
+    wind_desc: "hawa ki gati",
+    today: "Aaj",
+    tomorrow: "Kal",
+
+    // Advice
+    farmer_advice_title: "Mausam salah (Kisanon ke liye vishesh)",
+    listen_btn: "Salah bolkar sunein",
+    stop_btn: "Aawaz band karein",
+    whatsapp_btn: "WhatsApp par share karein",
+
+    // Advice statements
+    adv_wind: "⚠️ Chetavni: Hawa ki gati tez hai ({speed} km/h). Dawai (keetnashak) ka chidkaw abhi na karein, warna hawa mein ud jayegi.",
+    adv_rain: "🌧️ Savdhani: Agle kuch dinon mein baarish ki sambhavna hai ({chance}%). Sinchai rok dein taaki paani aur mehnati bache aur fasal na gale.",
+    adv_heat: "☀️ Chetavni: Tapmaan bahut adhik hai ({temp}°C). Faslon ko dopahar ke bajaye subah-subah ya shaam ko paani dein.",
+    adv_humidity: "💧 Savdhani: Hawa mein nami ({humidity}%) adhik hai. Faslon mein fungus (ulli) rog lagne ka khatra hai. Patton ki nigrani karein.",
+    adv_optimal: "✅ Salah: Mausam bahut achha aur anukool hai. Khaad dalne, nirai-gudai aur buwai ke liye uttam samay hai.",
+    
+    // Conditions
+    cond_clear: "Saaf dhoop",
+    cond_cloudy: "Halke baadal",
+    cond_overcast: "Ghane baadal (chhayadar)",
+    cond_mist: "Halki dhundh",
+    cond_fog: "Ghana kohra",
+    cond_rain: "Baarish",
+    cond_light_rain: "Halki boondabaandi",
+    cond_heavy_rain: "Bhaari baarish",
+    cond_thunder: "Bijli aur garaj",
+    cond_snow: "Barafbaari",
+  },
 }
 
 /**
@@ -673,14 +737,14 @@ export function translateWindDir(dir: string | undefined | null, lang: Lang): st
   const d = dir.toUpperCase().trim()
   
   const translations: Record<string, Record<Lang, string>> = {
-    N: { en: "North Wind", hi: "उत्तरी हवा", kn: "ಉತ್ತರ ಗಾಳಿ", ta: "வடக்கு காற்று", te: "ఉత్తర గాలి", ml: "വടക്കൻ കാറ്റ്", mr: "उत्तरी वारा", bn: "উত্তুরে হাওয়া", pa: "ਉੱਤਰੀ ਹਵਾ", gu: "ઉત્તરી પવન" },
-    S: { en: "South Wind", hi: "दक्षिणी हवा", kn: "ದಕ್ಷಿಣ ಗಾಳಿ", ta: "தெற்கு காற்று", te: "దక్షిణ గాలి", ml: "തെക്കൻ കാറ്റ്", mr: "दक्षिणी वारा", bn: "দখিনা হাওয়া", pa: "ਦੱਖਣੀ ਹਵਾ", gu: "દક્ષિણી પવન" },
-    E: { en: "East Wind", hi: "पूर्वी हवा", kn: "ಪೂರ್ವ ಗಾಳಿ", ta: "கிழக்கு காற்று", te: "తూర్పు గాలి", ml: "കിഴക്കൻ കാറ്റ്", mr: "पूर्वी वारा", bn: "পুবালি হাওয়া", pa: "ਪੂਰਬੀ ਹਵਾ", gu: "પૂર્વી પવન" },
-    W: { en: "West Wind", hi: "पश्चिमी हवा", kn: "ಪಶ್ಚಿಮ ಗಾಳಿ", ta: "மேற்கு காற்று", te: "పడమర గాలి", ml: "പടിഞ്ഞാറൻ കാറ്റ്", mr: "पश्चिमी वारा", bn: "পশ্চিমা হাওয়া", pa: "ਪੱਛਮੀ ਹਵਾ", gu: "પશ્ચિમી પવન" },
-    NE: { en: "North-East", hi: "उत्तर-पूर्वी हवा", kn: "ಈಶಾನ್ಯ ಗಾಳಿ", ta: "வடகிழக்கு காற்று", te: "ఈశాన్య గాలి", ml: "വടക്ക്-കിഴക്കൻ കാറ്റ്", mr: "ईशान्य वारा", bn: "উত্তর-পূর্বের হাওয়া", pa: "ਉੱਤਰ-ਪੂਰਬੀ ਹਵਾ", gu: "ઉત્તર-પૂર્વી પવન" },
-    NW: { en: "North-West", hi: "उत्तर-पश्चिमी हवा", kn: "ವಾಯುವ್ಯ ಗಾಳಿ", ta: "வடமேற்கு காற்று", te: "ವಾಯುವ్య గాలి", ml: "വടക്ക്-പടിഞ്ഞാറൻ കാറ്റ്", mr: "वायव्य वारा", bn: "উত্তর-পশ্চিমের হাওয়া", pa: "ਉੱਤਰ-ਪੱਛਮੀ ਹਵਾ", gu: "ઉત્તર-પશ્ચિમી પવન" },
-    SE: { en: "South-East", hi: "दक्षिण-पूर्वी हवा", kn: "ಆಗ್ನೇಯ ಗಾಳಿ", ta: "தென்கிழக்கு காற்று", te: "ఆగ్నేయ గాలి", ml: "തെക്ക്-കിഴക്കൻ കാറ്റ്", mr: "आग्नेय वारा", bn: "দক্ষিণ-পূর্বের হাওয়া", pa: "ਦੱਖਣ-ਪੂਰਬੀ ਹਵਾ", gu: "દક્ષিণ-પૂર્વી પવન" },
-    SW: { en: "South-West", hi: "दक्षिण-पश्चिमी हवा", kn: "ਨੈਰੁਰਤ್ಯ ಗಾಳಿ", ta: "தென்மேற்கு காற்று", te: "నైరుతి గాలి", ml: "തെക്ക്-പടിഞ്ഞാറൻ കാറ്റ്", mr: "नैऋत्य वारा", bn: "দক্ষিণ-পশ্চিমের হাওয়া", pa: "ਦੱਖਣ-ਪੱਛਮੀ ਹਵਾ", gu: "દક્ષিণ-પશ્ચિમી પવન" },
+    N: { en: "North Wind", hi: "उत्तरी हवा", kn: "ಉತ್ತರ ಗಾಳಿ", ta: "வடக்கு காற்று", te: "ఉత్తర గాలి", ml: "വടക്കൻ കാറ്റ്", mr: "उत्तरी वारा", bn: "উত্তুরে হাওয়া", pa: "ਉੱਤਰੀ ਹਵਾ", gu: "ઉત્તરી પવન", hi_en: "Uttari hawa" },
+    S: { en: "South Wind", hi: "दक्षिणी हवा", kn: "ದಕ್ಷಿಣ ಗಾಳಿ", ta: "தெற்கு காற்று", te: "దక్షిణ గాలి", ml: "തെക്കൻ കാറ്റ്", mr: "दक्षिणी वारा", bn: "দখিনা হাওয়া", pa: "ਦੱਖਣੀ ਹਵਾ", gu: "દક્ષિણી પવન", hi_en: "Dakshini hawa" },
+    E: { en: "East Wind", hi: "पूर्वी हवा", kn: "ಪೂರ್ವ ಗಾಳಿ", ta: "கிழக்கு காற்று", te: "తూర్పు గాలి", ml: "കിഴക്കൻ കാറ്റ്", mr: "पूर्वी वारा", bn: "পুবালি হাওয়া", pa: "ਪੂਰਬੀ ਹਵਾ", gu: "પૂર્વી પવન", hi_en: "Poorvi hawa" },
+    W: { en: "West Wind", hi: "पश्चिमी हवा", kn: "ਪաշਚิม ಗಾಳಿ", ta: "மேற்கு காற்று", te: "పడమర గాలి", ml: "പടിഞ്ഞാറൻ കാറ്റ്", mr: "पश्चिमी वारा", bn: "পশ্চিমা হাওয়া", pa: "ਪੱਛਮੀ ਹਵਾ", gu: "પશ્ચિમી પવન", hi_en: "Pashchimi hawa" },
+    NE: { en: "North-East", hi: "उत्तर-पूर्वी हवा", kn: "ಈಶಾನ್ಯ ಗಾಳಿ", ta: "வடகிழக்கு காற்று", te: "ఈశాన్య గాలి", ml: "വടക്ക്-കിഴക്കൻ കാറ്റ്", mr: "ईशान्य वारा", bn: "উত্তর-পূর্বের হাওয়া", pa: "ਉੱਤਰ-ਪੂਰਬੀ ਹਵਾ", gu: "ઉત્તર-પૂર્વી પવન", hi_en: "Uttar-Poorvi hawa" },
+    NW: { en: "North-West", hi: "उत्तर-पश्चिमी हवा", kn: "ವಾಯುವ್ಯ ಗಾಳಿ", ta: "வடமேற்கு காற்று", te: "ವಾಯುವ್ಯ గాలి", ml: "വടക്ക്-പടിഞ്ഞാറൻ കാറ്റ്", mr: "वायव्य वारा", bn: "উত্তর-पश्चिमের হাওয়া", pa: "ਉੱਤਰ-ਪੱਛਮੀ ਹਵਾ", gu: "ઉત્તર-પશ્ચિમી પવન", hi_en: "Uttar-Pashchimi hawa" },
+    SE: { en: "South-East", hi: "दक्षिण-पूर्वी हवा", kn: "ಆಗ್ನೇય ಗಾಳಿ", ta: "தென்கிழக்கு காற்று", te: "ఆగ్నేయ గాలి", ml: "തെക്ക്-കിഴക്കൻ കാറ്റ്", mr: "आग्नेय वारा", bn: "দক্ষিণ-পূর্বের হাওয়া", pa: "ਦੱਖਣ-ਪੂਰਬੀ ਹਵਾ", gu: "દક્ષિણ-પૂર્વી પવન", hi_en: "Dakshin-Poorvi hawa" },
+    SW: { en: "South-West", hi: "दक्षिण-पश्चिमी हवा", kn: "ਨੈਰੁਰত্য ಗಾಳಿ", ta: "தென்மேற்கு காற்று", te: "నైరుతి గాలి", ml: "തെക്ക്-പടിഞ്ഞാറൻ കാറ്റ്", mr: "नैऋत्य वारा", bn: "দক্ষিণ-পশ্চিমের হাওয়া", pa: "ਦੱਖਣ-ਪੱਛਮੀ ਹਵਾ", gu: "દક્ષિણ-પશ્ચિમી પવન", hi_en: "Dakshin-Pashchimi hawa" },
   }
 
   // Look for exact match or general prefix match (e.g. NNE -> North-East / NE)

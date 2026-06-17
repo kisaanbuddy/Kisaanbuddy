@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import en from "./locales/en.json"
 
-export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu"
+export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
 export const LANG_NAMES: Record<Lang, string> = {
   en: "English",
@@ -16,6 +16,7 @@ export const LANG_NAMES: Record<Lang, string> = {
   bn: "বাংলা",
   pa: "ਪੰਜਾਬੀ",
   gu: "ગુજરાતી",
+  hi_en: "Hinglish",
 }
 
 export const LANG_FLAGS: Record<Lang, string> = {
@@ -29,6 +30,7 @@ export const LANG_FLAGS: Record<Lang, string> = {
   bn: "🇮🇳",
   pa: "🇮🇳",
   gu: "🇮🇳",
+  hi_en: "🇮🇳",
 }
 
 // We only keep en statically
@@ -45,7 +47,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     mr: "डॅशबोर्ड",
     bn: "ড্যাশবোর্ড",
     pa: "ਡੈਸ਼ਬੋਰਡ",
-    gu: "ડેશબોર્ડ"
+    gu: "ડેશબોર્ડ",
+    hi_en: "Dashboard"
   },
   weather: {
     en: "Weather",
@@ -57,7 +60,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     mr: "हवामान",
     bn: "আবহাওয়া",
     pa: "ਮੌਸਮ",
-    gu: "હવામાન"
+    gu: "હવામાન",
+    hi_en: "Mausam"
   },
   mandi: {
     en: "Mandi",
@@ -69,7 +73,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     mr: "मंडी दर",
     bn: "মান্ডি দর",
     pa: "ਮੰਡੀ ਰੇਟ",
-    gu: "મંડી દર"
+    gu: "મંડી દર",
+    hi_en: "Mandi"
   },
   schemes: {
     en: "Schemes",
@@ -81,7 +86,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     mr: "योजना",
     bn: "প্রকল্প",
     pa: "ਯੋਜਨਾਵਾਂ",
-    gu: "યોજનાઓ"
+    gu: "યોજનાઓ",
+    hi_en: "Yojanaayein"
   },
   founders: {
     en: "Founders",
@@ -92,8 +98,9 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     ml: "സ്ഥാപകർ",
     mr: "संस्थापक",
     bn: "প্রতিষ্ঠাতা",
-    pa: "ਸੰਸਥाਪਕ",
-    gu: "સ્થાપક"
+    pa: "ਸੰਸਥਾਪਕ",
+    gu: "સ્થાપક",
+    hi_en: "Founders"
   },
   hardware: {
     en: "Smart Hub",
@@ -105,7 +112,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     mr: "स्मार्ट हब",
     bn: "স্মার্ট হাব",
     pa: "ਸਮਾਰਟ ਹੱਬ",
-    gu: "સ્માર્ટ હબ"
+    gu: "સ્માર્ટ હબ",
+    hi_en: "Smart Hub"
   }
 }
 
@@ -136,15 +144,15 @@ const LanguageContext = createContext<LanguageContextType>({
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("hi")
+  const [lang, setLangState] = useState<Lang>("hi_en")
   const [translations, setTranslations] = useState<any>(en)
 
   useEffect(() => {
     const saved = localStorage.getItem("krishiai_lang") as Lang | null
-    if (saved && saved !== "en") {
+    if (saved) {
       setLangState(saved)
-    } else if (!saved) {
-      setLangState("hi")
+    } else {
+      setLangState("hi_en")
     }
   }, [])
 
