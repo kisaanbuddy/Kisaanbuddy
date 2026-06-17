@@ -1,51 +1,51 @@
 'use client';
 
 import { useLanguage } from '@/lib/language';
-import { Sprout, Bug, CloudSun, TrendingUp, Landmark, MessageSquare, ChevronRight } from 'lucide-react';
+import { CloudSun, TrendingUp, Bug, FlaskConical, MessageSquare, Landmark, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const FEATURE_METADATA = [
   {
-    icon: Sprout,
-    href: "/crop-predictor",
-    index: 7, // index in t("features")
-    accent: "hover:border-emerald-500/30 hover:shadow-emerald-950/5 dark:hover:shadow-emerald-950/20",
-    color: "text-emerald-500 bg-emerald-500/10",
-  },
-  {
-    icon: Bug,
-    href: "/disease",
-    index: 0, // index in t("features")
-    accent: "hover:border-red-500/30 hover:shadow-red-950/5 dark:hover:shadow-red-950/20",
-    color: "text-red-500 bg-red-500/10",
-  },
-  {
     icon: CloudSun,
     href: "/weather",
-    index: 5, // index in t("features")
-    accent: "hover:border-sky-500/30 hover:shadow-sky-950/5 dark:hover:shadow-sky-950/20",
-    color: "text-sky-500 bg-sky-500/10",
+    index: 5, // Weather Alert
+    accent: "hover:border-primary/40 hover:shadow-primary/5 dark:hover:shadow-primary/20",
+    color: "text-primary bg-primary/10",
   },
   {
     icon: TrendingUp,
     href: "/mandi",
-    index: 2, // index in t("features")
-    accent: "hover:border-amber-500/30 hover:shadow-amber-950/5 dark:hover:shadow-amber-950/20",
-    color: "text-amber-500 bg-amber-500/10",
+    index: 2, // Live Mandi Prices
+    accent: "hover:border-primary/40 hover:shadow-primary/5 dark:hover:shadow-primary/20",
+    color: "text-primary bg-primary/10",
   },
   {
-    icon: Landmark,
-    href: "/schemes",
-    index: 6, // index in t("features")
-    accent: "hover:border-indigo-500/30 hover:shadow-indigo-950/5 dark:hover:shadow-indigo-950/20",
-    color: "text-indigo-500 bg-indigo-500/10",
+    icon: Bug,
+    href: "/disease",
+    index: 0, // Crop Disease AI
+    accent: "hover:border-[#2ECC71]/40 hover:shadow-[#2ECC71]/5 dark:hover:shadow-[#2ECC71]/20",
+    color: "text-[#2ECC71] bg-[#2ECC71]/10",
+  },
+  {
+    icon: FlaskConical,
+    href: "/soil-health",
+    index: 3, // Soil Health AI
+    accent: "hover:border-primary/40 hover:shadow-primary/5 dark:hover:shadow-primary/20",
+    color: "text-primary bg-primary/10",
   },
   {
     icon: MessageSquare,
     href: "/chatbot",
-    index: 1, // index in t("features")
-    accent: "hover:border-teal-500/30 hover:shadow-teal-950/5 dark:hover:shadow-teal-950/20",
-    color: "text-teal-500 bg-teal-500/10",
+    index: 1, // Hindi Voice AI
+    accent: "hover:border-[#2ECC71]/40 hover:shadow-[#2ECC71]/5 dark:hover:shadow-[#2ECC71]/20",
+    color: "text-[#2ECC71] bg-[#2ECC71]/10",
+  },
+  {
+    icon: Landmark,
+    href: "/schemes",
+    index: 6, // Govt Schemes
+    accent: "hover:border-primary/40 hover:shadow-primary/5 dark:hover:shadow-primary/20",
+    color: "text-primary bg-primary/10",
   },
 ];
 

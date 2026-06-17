@@ -122,12 +122,13 @@ export function Header() {
           onClick={() => setOpen(false)}
           className="flex items-center gap-2.5 shrink-0 group select-none"
         >
-          <div className="relative flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-md shadow-emerald-500/25 group-hover:scale-105 group-hover:shadow-glow-primary transition-all duration-300">
-            <Leaf className="h-4.5 w-4.5 text-white" style={{ height: '1.1rem', width: '1.1rem' }} />
+          <div className="relative flex h-8.5 w-8.5 items-center justify-center rounded-xl bg-slate-950/20 border border-white/10 group-hover:scale-105 group-hover:border-emerald-500/30 transition-all duration-300 overflow-hidden p-1">
+            <img src="/icon-logo.png" alt="Kisaan Buddy Icon" className="h-full w-full object-contain dark:brightness-110" />
           </div>
           <div className="flex flex-col leading-none">
-            <span className="font-display font-extrabold text-lg tracking-tight">
-              Krishi<span className="text-emerald-500 dark:text-emerald-400">{t("header.ai")}</span>
+            <span className="font-display text-lg tracking-tight">
+              <span className="font-black text-foreground">Kisaan</span>
+              <span className="font-light text-primary">Buddy</span>
             </span>
             {isPublic && !user && (
               <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/80">

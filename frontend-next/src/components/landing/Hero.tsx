@@ -13,10 +13,10 @@ export function Hero() {
       
       {/* Background Gradients */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute top-[-10%] left-[-15%] w-[60%] h-[60%] bg-emerald-500/10 rounded-full blur-[140px] dark:bg-emerald-500/[0.04]" />
-        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-green-500/10 rounded-full blur-[130px] dark:bg-green-500/[0.03]" />
+        <div className="absolute top-[-10%] left-[-15%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[140px] dark:bg-primary/[0.04]" />
+        <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-accent/10 rounded-full blur-[130px] dark:bg-accent/[0.03]" />
       </div>
-
+ 
       <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 md:px-8 lg:grid-cols-2">
         
         {/* Left Text Column */}
@@ -26,32 +26,32 @@ export function Hero() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} 
           className="flex flex-col gap-6 text-center lg:text-left"
         >
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 dark:bg-emerald-500/5 px-4 py-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 mx-auto lg:mx-0 select-none shadow-sm animate-pulse-glow">
-            <Sparkles className="h-3.5 w-3.5" />
+          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/20 bg-primary/10 dark:bg-primary/5 px-4 py-1.5 text-xs font-bold text-primary dark:text-primary mx-auto lg:mx-0 select-none shadow-sm animate-pulse-glow">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span>{t("landing_hero.india_s_first_ai")}</span>
           </div>
-
+ 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold leading-[1.08] tracking-tight text-foreground">
             {t("heroTitle1")}<br />
-            <span className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-green-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#00C896] via-[#2ECC71] to-[#0F5132] bg-clip-text text-transparent">
               {t("heroTitle2")}
             </span>
           </h1>
-
+ 
           <p className="text-sm md:text-base text-muted-foreground/90 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
             {t("heroSubtitle")}
           </p>
-
+ 
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
             <Link href="#features">
-              <button className="btn-primary flex items-center gap-2 group text-sm h-11 px-6">
+              <button className="bg-primary hover:bg-[#00b084] text-white flex items-center gap-2 group text-sm font-bold h-11 px-6 rounded-xl shadow-lg shadow-primary/15 transition-all duration-300 hover:shadow-glow-primary active:scale-95">
                 {t("landing_hero.get_started")}
                 <ArrowRight className="h-4.5 w-4.5 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
             </Link>
             <Link href="/chatbot">
               <button className="flex items-center gap-2 rounded-xl border border-border bg-card/60 px-6 py-2.5 text-sm font-bold text-foreground backdrop-blur-md transition-all hover:bg-muted/50 hover:border-border/60 active:scale-95 shadow-sm h-11">
-                <MessageSquare className="h-4.5 w-4.5 text-emerald-500" />
+                <MessageSquare className="h-4.5 w-4.5 text-primary" />
                 {t("aiChatbot")}
               </button>
             </Link>

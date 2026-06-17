@@ -37,12 +37,12 @@ export function Testimonials() {
         
         {/* Title */}
         <div className="text-center mb-16 space-y-4">
-          <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+          <span className="inline-block rounded-full bg-primary/10 border border-primary/20 px-4 py-1 text-xs font-bold text-primary">
             {t("landing_testimonials.success_stories")}
           </span>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground">
             {t("landing_testimonials.trusted_by")}{' '}
-            <span className="bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-primary to-[#0F5132] dark:to-[#2ECC71] bg-clip-text text-transparent">
               {t("landing_testimonials.indian_kisans")}
             </span>
           </h2>
@@ -50,7 +50,7 @@ export function Testimonials() {
             {t("landing_testimonials.see_how_farmers_across")}
           </p>
         </div>
-
+ 
         {/* Testimonials Grid */}
         <div className="grid gap-6 md:grid-cols-3">
           {testimonials.map((t, idx) => (
@@ -71,20 +71,20 @@ export function Testimonials() {
                 </div>
                 
                 {/* Quote Icon */}
-                <Quote className="h-8 w-8 text-emerald-500/15 absolute top-6 right-6" />
-
+                <Quote className="h-8 w-8 text-primary/15 absolute top-6 right-6" />
+ 
                 <p className="text-xs md:text-sm text-muted-foreground leading-relaxed italic font-medium">
                   &ldquo;{t.text}&rdquo;
                 </p>
               </div>
-
+ 
               {/* Author Info */}
               <div className="mt-6 pt-4 border-t border-border/20 flex items-center justify-between">
                 <div className="flex flex-col">
                   <span className="text-xs font-extrabold text-foreground">{t.name}</span>
                   <span className="text-[10px] text-muted-foreground/80 font-bold">{t.location}</span>
                 </div>
-                <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/10 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase">
+                <span className="bg-primary/10 text-primary border border-primary/10 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase">
                   {t.crop}
                 </span>
               </div>
