@@ -91,10 +91,10 @@ export function ContactClient() {
 
             <div className="space-y-4">
               {[
-                { name: "Aditya Ishwar", role: "Founder & CEO", shortRole: t("contact.founder"), email: "aditya@krishiaiindia.com" },
-                { name: "Utkarsh Sinha", role: "Co-Founder & Managing Director", shortRole: t("contact.co_founder"), email: "utkarsh@krishiaiindia.com" },
-                { name: "Sanidhya Sharma", role: "Co-Founder & CTO", shortRole: t("contact.co_founder"), email: "sanidhya@krishiaiindia.com" },
-                { name: "Yash Singh", role: "Co-Founder & CMO", shortRole: t("contact.co_founder"), email: "yash@krishiaiindia.com" }
+                { name: "Aditya Ishwar", role: "Founder & CEO", shortRole: t("contact.founder"), email: "Team@kisaanbuddy.com" },
+                { name: "Utkarsh Sinha", role: "Co-Founder & Managing Director", shortRole: t("contact.co_founder"), email: "Team@kisaanbuddy.com" },
+                { name: "Sanidhya Sharma", role: "Co-Founder & CTO", shortRole: t("contact.co_founder"), email: "Team@kisaanbuddy.com" },
+                { name: "Yash Singh", role: "Co-Founder & CMO", shortRole: t("contact.co_founder"), email: "Team@kisaanbuddy.com" }
               ].map((c) => (
                 <a
                   key={c.email}

@@ -26,7 +26,7 @@ export default function ContactPage() {
     'description': 'Contact page for KrishiAI with co-founders emails, support details, and inquiry form.',
     'contactPoint': {
       '@type': 'ContactPoint',
-      'email': 'founders@krishiaiindia.com',
+      'email': 'Team@kisaanbuddy.com',
       'contactType': 'customer support',
       'availableLanguage': ['English', 'Hindi', 'Kannada']
     }
