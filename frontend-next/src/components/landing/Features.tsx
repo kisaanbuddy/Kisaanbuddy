@@ -56,7 +56,7 @@ export function Features() {
   const featuresList = (t("features") || []) as { title: string; body: string }[];
 
   return (
-    <section className="py-20 bg-muted/10 relative border-b border-border/20">
+    <section id="features" className="py-20 bg-muted/10 relative border-b border-border/20">
       
       {/* Visual Accents */}
       <div className="absolute inset-x-0 top-1/4 h-[30%] bg-[#10b981] opacity-[0.01] rounded-full blur-[100px] pointer-events-none" />

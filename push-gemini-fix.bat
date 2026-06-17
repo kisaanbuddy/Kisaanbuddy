@@ -36,6 +36,6 @@ echo     Google's OpenAI-compatible endpoint instead of OpenRouter.
 echo   - Model name auto-corrected to "gemini-2.0-flash".
 echo.
 echo After Render redeploys, test the chatbot at:
-echo   https://krishiai-steel.vercel.app/chatbot
+echo   https://kisaanbuddy.com/chatbot
 echo.
 pause

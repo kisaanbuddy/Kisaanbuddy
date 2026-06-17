@@ -12,7 +12,7 @@
 | **Product name** | KrishiAI |
 | **Tagline** | AI Smart Farmer Decision Intelligence |
 | **Mission** | Make Indian farmers — especially rural, low-literacy, low-connectivity — as informed as a PhD agronomist, in their own language, for free |
-| **Live URL** | https://krishiai-steel.vercel.app |
+| **Live URL** | https://kisaanbuddy.com |
 | **GitHub** | https://github.com/adityaoutlier5-dotcom/krishiai |
 | **Primary users** | Smallholder farmers across India (Hindi, Kannada, English speakers) |
 | **Monetisation** | None (free public good); future: SaaS B2B for agri-input companies |
@@ -45,7 +45,7 @@
                         │ REST + SSE (Server-Sent Events)
 ┌───────────────────────▼─────────────────────────────────────────────┐
 │  FRONTEND  (Next.js 14 · React 18 · TypeScript · Tailwind CSS)      │
-│  Deployed on Vercel  ·  https://krishiai-steel.vercel.app           │
+│  Deployed on Vercel  ·  https://kisaanbuddy.com           │
 │                                                                     │
 │  Pages: /  /dashboard  /crop-predictor  /disease  /weather         │
 │         /mandi  /schemes  /chatbot  /worker-connect  /founders      │

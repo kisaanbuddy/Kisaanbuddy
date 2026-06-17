@@ -31,7 +31,7 @@ echo.
 if %ERRORLEVEL% EQU 0 (
     echo ============================================
     echo   SUCCESS! Vercel redeploys in ~2-3 min
-    echo   https://krishiai-steel.vercel.app
+    echo   https://kisaanbuddy.com
     echo ============================================
 ) else (
     echo Push failed. Run FIX-GIT-AUTH.bat first.

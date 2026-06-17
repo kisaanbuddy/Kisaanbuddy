@@ -14,6 +14,7 @@ type Founder = {
   bio: string;
   initials: string;
   gradient: string;
+  image: string;
 };
 
 export function AboutClient() {
@@ -23,34 +24,38 @@ export function AboutClient() {
     {
       name: "Aditya Ishwar",
       role: t("about.founder_ceo_chief_architect"),
-      email: "adityaoutlier5@gmail.com",
+      email: "aditya@krishiaiindia.com",
       bio: t("about.drives_the_technical_vision"),
       initials: "AI",
       gradient: "from-emerald-400 to-green-600",
+      image: "/aditya.png",
     },
     {
       name: "Utkarsh Sinha",
       role: t("about.co_founder_managing_director"),
-      email: "utkarsh.sinha.dev@gmail.com",
+      email: "utkarsh@krishiaiindia.com",
       bio: t("about.owns_the_ml_pipeline"),
       initials: "US",
       gradient: "from-blue-400 to-indigo-600",
+      image: "/utkarsh.png",
     },
     {
       name: "Sanidhya Sharma",
       role: t("about.co_founder_cto"),
-      email: "sanidhyasharma.dev@gmail.com",
+      email: "sanidhya@krishiaiindia.com",
       bio: t("about.steers_krishiai_s_technical"),
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
+      image: "/sanidhya.png",
     },
     {
       name: "Yash Singh",
       role: t("about.co_founder_cmo"),
-      email: "yashkumaryashsingh384@gmail.com",
+      email: "yash@krishiaiindia.com",
       bio: t("about.co_founder_and_chief"),
       initials: "YS",
       gradient: "from-rose-400 to-pink-600",
+      image: "/yash.png",
     },
   ];
 
@@ -194,9 +199,19 @@ export function AboutClient() {
 
                   <div className="relative z-10">
                     <div className="flex justify-between items-center mb-4">
-                      <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} text-base font-black text-white shadow-md shadow-emerald-500/10`}>
-                        {f.initials}
-                      </div>
+                      {f.image ? (
+                        <div className="relative h-12 w-12 rounded-xl overflow-hidden border border-white/[0.15] shadow-md shadow-emerald-500/10 transition-all duration-300 group-hover:scale-105">
+                          <img
+                            src={f.image}
+                            alt={f.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} text-base font-black text-white shadow-md shadow-emerald-500/10`}>
+                          {f.initials}
+                        </div>
+                      )}
                     </div>
                     <h3 className="text-base font-bold text-foreground font-display transition-colors group-hover:text-emerald-400">{f.name}</h3>
                     <p className="text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent mt-0.5">

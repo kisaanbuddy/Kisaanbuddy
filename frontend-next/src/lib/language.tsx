@@ -2,15 +2,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react"
 import en from "./locales/en.json"
-import hi from "./locales/hi.json"
-import kn from "./locales/kn.json"
-import ta from "./locales/ta.json"
-import te from "./locales/te.json"
-import ml from "./locales/ml.json"
-import mr from "./locales/mr.json"
-import bn from "./locales/bn.json"
-import pa from "./locales/pa.json"
-import gu from "./locales/gu.json"
 
 export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu"
 
@@ -40,7 +31,8 @@ export const LANG_FLAGS: Record<Lang, string> = {
   gu: "🇮🇳",
 }
 
-export const T: Record<Lang, any> = { en, hi, kn, ta, te, ml, mr, bn, pa, gu }
+// We only keep en statically
+export const T: Record<string, any> = { en }
 
 const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
   dashboard: {
@@ -48,7 +40,7 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     hi: "डैशबोर्ड",
     kn: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
     ta: "டாஷ்போர்டு",
-    te: "డాష్‌బోర్డ్",
+    te: "దాష్‌బోర్డ్",
     ml: "ഡാഷ്‌ബോർഡ്",
     mr: "डॅशबोर्ड",
     bn: "ড্যাশবোর্ড",
@@ -100,7 +92,7 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     ml: "സ്ഥാപകർ",
     mr: "संस्थापक",
     bn: "প্রতিষ্ঠাতা",
-    pa: "ਸੰਸਥਾਪਕ",
+    pa: "ਸੰਸਥाਪਕ",
     gu: "સ્થાપક"
   },
   hardware: {
@@ -109,7 +101,7 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     kn: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
     ta: "ஸ்மார்ட் ஹப்",
     te: "స్మార్ట్ హబ్",
-    ml: "സ്മാർട്ട് ഹബ്",
+    ml: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
     mr: "स्मार्ट हब",
     bn: "স্মার্ট হাব",
     pa: "ਸਮਾਰਟ ਹੱਬ",
@@ -145,11 +137,35 @@ const LanguageContext = createContext<LanguageContextType>({
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLangState] = useState<Lang>("hi")
+  const [translations, setTranslations] = useState<any>(en)
 
   useEffect(() => {
     const saved = localStorage.getItem("krishiai_lang") as Lang | null
-    if (saved && saved in T) setLangState(saved)
+    if (saved && saved !== "en") {
+      setLangState(saved)
+    } else if (!saved) {
+      setLangState("hi")
+    }
   }, [])
+
+  useEffect(() => {
+    if (lang === "en") {
+      setTranslations(en)
+      return
+    }
+    import(`./locales/${lang}.json`)
+      .then((module) => {
+        setTranslations(module.default)
+      })
+      .catch((err) => {
+        console.error("Failed to load locale", lang, err)
+        setTranslations(en)
+      })
+  }, [lang])
+
+  useEffect(() => {
+    document.documentElement.lang = lang
+  }, [lang])
 
   const setLang = (l: Lang) => {
     setLangState(l)
@@ -160,7 +176,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     const parts = key.split(".")
     
     // Attempt translation in active language
-    let current: any = T[lang]
+    let current: any = translations
     for (const part of parts) {
       if (current && typeof current === "object" && part in current) {
         current = current[part]
@@ -177,7 +193,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Fallback to English
-    current = T.en
+    current = en
     for (const part of parts) {
       if (current && typeof current === "object" && part in current) {
         current = current[part]

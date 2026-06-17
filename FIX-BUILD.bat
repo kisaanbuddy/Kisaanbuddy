@@ -23,7 +23,7 @@ echo.
 if %ERRORLEVEL% EQU 0 (
     echo ============================================
     echo   DONE! Vercel will redeploy in ~2-3 min
-    echo   https://krishiai-steel.vercel.app
+    echo   https://kisaanbuddy.com
     echo ============================================
 ) else (
     echo Push failed. Check if you are logged in.

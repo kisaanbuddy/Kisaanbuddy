@@ -48,7 +48,7 @@ echo ============================================
 echo.
 echo Render + Vercel auto-redeploy in ~2-3 min.
 echo Then HARD-REFRESH (Ctrl+F5) and visit:
-echo   https://krishiai-steel.vercel.app/schemes
+echo   https://kisaanbuddy.com/schemes
 echo.
 echo Each scheme card now shows an embedded video below the description.
 echo To replace a video, edit "youtubeLink" in backend/api/schemes.py.

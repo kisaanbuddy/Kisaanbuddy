@@ -43,7 +43,7 @@ export function Hero() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-            <Link href="/login">
+            <Link href="#features">
               <button className="btn-primary flex items-center gap-2 group text-sm h-11 px-6">
                 {t("landing_hero.get_started")}
                 <ArrowRight className="h-4.5 w-4.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -185,8 +185,8 @@ export function Hero() {
             transition={{ delay: 0.6 }} 
             className="absolute -top-4 -right-4 rounded-2xl glass-panel px-4 py-2.5 shadow-xl border-emerald-500/10 bg-background/80"
           >
-            <div className="text-xl font-display font-extrabold text-emerald-500">95%</div>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{t("landing_hero.prediction_accuracy")}</div>
+            <div className="text-xl font-display font-extrabold text-emerald-500">100%</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{t("landing_hero.free_forever")}</div>
           </motion.div>
 
           <motion.div 
@@ -195,8 +195,8 @@ export function Hero() {
             transition={{ delay: 0.75 }} 
             className="absolute -bottom-4 -left-4 rounded-2xl glass-panel px-4 py-2.5 shadow-xl border-emerald-500/10 bg-background/80"
           >
-            <div className="text-lg font-display font-extrabold text-teal-400">9+</div>
-            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{t("landing_hero.ai_intelligence_tools")}</div>
+            <div className="text-lg font-display font-extrabold text-teal-400">10+</div>
+            <div className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">{t("landing_hero.indian_languages")}</div>
           </motion.div>
         </motion.div>
 
