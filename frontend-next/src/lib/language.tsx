@@ -124,7 +124,7 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: "hi",
+  lang: "en",
   setLang: () => {},
   t: (key) => {
     const parts = key.split(".")
@@ -144,7 +144,7 @@ const LanguageContext = createContext<LanguageContextType>({
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("hi_en")
+  const [lang, setLangState] = useState<Lang>("en")
   const [translations, setTranslations] = useState<any>(en)
 
   useEffect(() => {
@@ -152,7 +152,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (saved) {
       setLangState(saved)
     } else {
-      setLangState("hi_en")
+      setLangState("en")
     }
   }, [])
 
