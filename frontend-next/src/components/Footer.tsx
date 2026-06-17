@@ -15,11 +15,12 @@ export function Footer() {
           {/* Column 1: Brand details */}
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow shadow-emerald-500/20">
-                <Sprout className="h-4.5 w-4.5 text-white" />
+              <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950/20 border border-border overflow-hidden p-1 shadow shadow-primary/10">
+                <img src="/icon-logo.png" alt="Kisaan Buddy Icon" className="h-full w-full object-contain dark:brightness-110" />
               </div>
-              <span className="font-display font-extrabold text-lg tracking-tight text-foreground">
-                Krishi<span className="text-emerald-500">{t("footer.ai")}</span>
+              <span className="font-display text-lg tracking-tight">
+                <span className="font-black text-foreground">Kisaan</span>
+                <span className="font-light text-primary">Buddy</span>
               </span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
@@ -33,26 +34,26 @@ export function Footer() {
 
           {/* Column 2: Platform Features */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("platformFeatures")}
             </h4>
             <div className="flex flex-col gap-2.5 text-xs font-semibold text-muted-foreground">
-              <Link href="/disease" className="hover:text-emerald-500 transition-colors flex items-center gap-1.5">
-                <Leaf className="h-3 w-3" /> {t("diseaseDetect")}
+              <Link href="/disease" className="hover:text-primary transition-colors flex items-center gap-1.5">
+                <Leaf className="h-3 w-3 text-primary" /> {t("diseaseDetect")}
               </Link>
-              <Link href="/mandi" className="hover:text-emerald-500 transition-colors">
+              <Link href="/mandi" className="hover:text-primary transition-colors">
                 {t("mandi")}
               </Link>
-              <Link href="/chatbot" className="hover:text-emerald-500 transition-colors">
+              <Link href="/chatbot" className="hover:text-primary transition-colors">
                 {t("aiChatbot")}
               </Link>
-              <Link href="/soil-health" className="hover:text-emerald-500 transition-colors">
+              <Link href="/soil-health" className="hover:text-primary transition-colors">
                 {t("soilHealth")}
               </Link>
-              <Link href="/khet-diary" className="hover:text-emerald-500 transition-colors">
+              <Link href="/khet-diary" className="hover:text-primary transition-colors">
                 {t("khetDiary")}
               </Link>
-              <Link href="/schemes" className="hover:text-emerald-500 transition-colors">
+              <Link href="/schemes" className="hover:text-primary transition-colors">
                 {t("schemes")}
               </Link>
             </div>
@@ -60,20 +61,20 @@ export function Footer() {
 
           {/* Column 3: Company */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("company")}
             </h4>
             <div className="flex flex-col gap-2.5 text-xs font-semibold text-muted-foreground">
-              <Link href="/about" className="hover:text-emerald-500 transition-colors">
+              <Link href="/about" className="hover:text-primary transition-colors">
                 {t("aboutUs")}
               </Link>
-              <Link href="/founders" className="hover:text-emerald-500 transition-colors">
+              <Link href="/founders" className="hover:text-primary transition-colors">
                 {t("founders")}
               </Link>
-              <Link href="/hardware" className="hover:text-emerald-500 transition-colors">
+              <Link href="/hardware" className="hover:text-primary transition-colors">
                 {t("hardware")}
               </Link>
-              <Link href="/contact" className="hover:text-emerald-500 transition-colors">
+              <Link href="/contact" className="hover:text-primary transition-colors">
                 {t("contactUs")}
               </Link>
             </div>
@@ -81,20 +82,20 @@ export function Footer() {
 
           {/* Column 4: Legal & Policies */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("legal")}
             </h4>
             <div className="flex flex-col gap-2.5 text-xs font-semibold text-muted-foreground">
-              <Link href="/privacy" className="hover:text-emerald-500 transition-colors">
+              <Link href="/privacy" className="hover:text-primary transition-colors">
                 {t("privacyPolicy")}
               </Link>
-              <Link href="/terms" className="hover:text-emerald-500 transition-colors">
+              <Link href="/terms" className="hover:text-primary transition-colors">
                 {t("termsConditions")}
               </Link>
-              <Link href="/disclaimer" className="hover:text-emerald-500 transition-colors">
+              <Link href="/disclaimer" className="hover:text-primary transition-colors">
                 {t("disclaimerLabel")}
               </Link>
-              <Link href="/cookie-policy" className="hover:text-emerald-500 transition-colors">
+              <Link href="/cookie-policy" className="hover:text-primary transition-colors">
                 {t("cookiePolicy")}
               </Link>
             </div>
@@ -107,9 +108,9 @@ export function Footer() {
 
         {/* Bottom copyright row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-muted-foreground/60 font-medium">
-          <p>&copy; {new Date().getFullYear()} KrishiAI &middot; {t("allRightsReserved")}</p>
+          <p>&copy; {new Date().getFullYear()} Kisaan Buddy &middot; {t("allRightsReserved")}</p>
           <div className="flex items-center gap-4">
-            <span className="bg-emerald-500/10 text-emerald-500 px-2.5 py-1 rounded-full text-[9px] font-bold border border-emerald-500/20">
+            <span className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-[9px] font-bold border border-primary/20">
               Google AdSense Compliant
             </span>
           </div>

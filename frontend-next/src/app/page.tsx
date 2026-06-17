@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Hero } from '@/components/landing/Hero';
 import { TrustPanel } from '@/components/landing/TrustPanel';
+import { Founders } from '@/components/landing/Founders';
 import { Features } from '@/components/landing/Features';
 import { HowItWorks } from '@/components/landing/HowItWorks';
 import { WhyUs } from '@/components/landing/WhyUs';
@@ -11,13 +12,13 @@ import { FAQ } from '@/components/landing/FAQ';
 import { FinalCTA } from '@/components/landing/FinalCTA';
 
 export const metadata: Metadata = {
-  title: 'KrishiAI - Smart Agriculture Advisor | किसान सलाहकार',
+  title: 'Kisaan Buddy - Smart Agriculture Advisor | किसान सलाहकार',
   description: "India's Hindi-first farming intelligence platform. Real-time crop recommendations, eNAM mandi rates, local weather advisories, and crop disease detection.",
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'KrishiAI - Smart Agriculture Advisor | किसान सलाहकार',
+    title: 'Kisaan Buddy - Smart Agriculture Advisor | किसान सलाहकार',
     description: "India's Hindi-first farming intelligence platform. Real-time crop recommendations, eNAM mandi rates, local weather advisories, and crop disease detection.",
     url: '/',
     type: 'website',
@@ -34,28 +35,31 @@ export default function LandingPage() {
       {/* Trust Panel */}
       <TrustPanel />
 
-      {/* 2. Features Section */}
+      {/* 2. Founder Section */}
+      <Founders />
+
+      {/* 3. Features Section */}
       <Features />
 
-      {/* 3. How It Works Section */}
+      {/* 4. How It Works Section */}
       <HowItWorks />
 
-      {/* 4. Why KrishiAI Statistics Section */}
+      {/* 5. Why Kisaan Buddy Statistics Section */}
       <WhyUs />
 
-      {/* 5. Interactive Demo Dashboard Preview */}
+      {/* 6. Interactive Demo Dashboard Preview */}
       <DashboardPreview />
 
-      {/* 6. Farmer Testimonials */}
+      {/* 7. Farmer Testimonials */}
       <Testimonials />
 
-      {/* 7. Vision Statement Section */}
+      {/* 8. About Section */}
       <Vision />
 
-      {/* 8. Frequently Asked Questions Accordion */}
+      {/* 9. Frequently Asked Questions Accordion */}
       <FAQ />
 
-      {/* 9. Final Call-to-Action Banner */}
+      {/* 10. Final Call-to-Action Banner */}
       <FinalCTA />
 
     </div>
