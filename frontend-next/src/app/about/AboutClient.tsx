@@ -46,7 +46,7 @@ export function AboutClient() {
       bio: t("about.steers_krishiai_s_technical"),
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
-      image: "/sanidhya.png",
+      image: "",
     },
     {
       name: "Yash Singh",

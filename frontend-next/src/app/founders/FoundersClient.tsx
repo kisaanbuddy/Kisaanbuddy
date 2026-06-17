@@ -54,7 +54,7 @@ export default function FoundersPage() {
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
       stake: t("founders.co_founder"),
-      image: "/sanidhya.png",
+      image: "",
     },
     {
       name: "Yash Singh",
