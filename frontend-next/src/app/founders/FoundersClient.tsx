@@ -26,7 +26,7 @@ export default function FoundersPage() {
     {
       name: "Aditya Ishwar",
       role: t("founders.founder_ceo_chief_architect"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/aditya-ishwar",
       bio: t("founders.drives_the_technical_vision"),
       initials: "AI",
@@ -37,7 +37,7 @@ export default function FoundersPage() {
     {
       name: "Utkarsh Sinha",
       role: t("founders.co_founder_managing_director"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/utkarsh-sinha",
       bio: t("founders.owns_the_ml_pipeline"),
       initials: "US",
@@ -48,7 +48,7 @@ export default function FoundersPage() {
     {
       name: "Sanidhya Sharma",
       role: t("founders.co_founder_cto"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/sanidhya-sharma",
       bio: t("founders.steers_krishiai_s_technical"),
       initials: "SS",
@@ -59,7 +59,7 @@ export default function FoundersPage() {
     {
       name: "Yash Singh",
       role: t("founders.co_founder_cmo"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/yash-singh",
       bio: t("founders.co_founder_and_chief"),
       initials: "YS",
