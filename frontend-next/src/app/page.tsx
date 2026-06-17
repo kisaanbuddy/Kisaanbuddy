@@ -1,14 +1,10 @@
 import type { Metadata } from 'next';
 import { Hero } from '@/components/landing/Hero';
-import { TrustPanel } from '@/components/landing/TrustPanel';
 import { Founders } from '@/components/landing/Founders';
 import { Features } from '@/components/landing/Features';
 import { HowItWorks } from '@/components/landing/HowItWorks';
-import { WhyUs } from '@/components/landing/WhyUs';
 import { DashboardPreview } from '@/components/landing/DashboardPreview';
-import { Testimonials } from '@/components/landing/Testimonials';
 import { Vision } from '@/components/landing/Vision';
-import { FAQ } from '@/components/landing/FAQ';
 import { FinalCTA } from '@/components/landing/FinalCTA';
 
 export const metadata: Metadata = {
@@ -32,9 +28,6 @@ export default function LandingPage() {
       {/* 1. Hero Section */}
       <Hero />
 
-      {/* Trust Panel */}
-      <TrustPanel />
-
       {/* 2. Founder Section */}
       <Founders />
 
@@ -44,22 +37,13 @@ export default function LandingPage() {
       {/* 4. How It Works Section */}
       <HowItWorks />
 
-      {/* 5. Why Kisaan Buddy Statistics Section */}
-      <WhyUs />
-
-      {/* 6. Interactive Demo Dashboard Preview */}
+      {/* 5. Interactive Demo Dashboard Preview */}
       <DashboardPreview />
 
-      {/* 7. Farmer Testimonials */}
-      <Testimonials />
-
-      {/* 8. About Section */}
+      {/* 6. About Section */}
       <Vision />
 
-      {/* 9. Frequently Asked Questions Accordion */}
-      <FAQ />
-
-      {/* 10. Final Call-to-Action Banner */}
+      {/* 7. Final Call-to-Action Banner */}
       <FinalCTA />
 
     </div>
