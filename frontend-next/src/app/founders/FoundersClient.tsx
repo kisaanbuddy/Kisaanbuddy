@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight } from "lucide-react"
+import { Mail, Sprout, ArrowLeft, Sparkles, Check, ArrowRight, Linkedin } from "lucide-react"
 import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ type Founder = {
   name: string
   role: string
   email: string
+  linkedin: string
   bio: string
   initials: string
   gradient: string
@@ -26,6 +27,7 @@ export default function FoundersPage() {
       name: "Aditya Ishwar",
       role: t("founders.founder_ceo_chief_architect"),
       email: "aditya@krishiaiindia.com",
+      linkedin: "https://www.linkedin.com/in/aditya-ishwar",
       bio: t("founders.drives_the_technical_vision"),
       initials: "AI",
       gradient: "from-emerald-400 to-green-600",
@@ -36,6 +38,7 @@ export default function FoundersPage() {
       name: "Utkarsh Sinha",
       role: t("founders.co_founder_managing_director"),
       email: "utkarsh@krishiaiindia.com",
+      linkedin: "https://www.linkedin.com/in/utkarsh-sinha",
       bio: t("founders.owns_the_ml_pipeline"),
       initials: "US",
       gradient: "from-blue-400 to-indigo-600",
@@ -46,6 +49,7 @@ export default function FoundersPage() {
       name: "Sanidhya Sharma",
       role: t("founders.co_founder_cto"),
       email: "sanidhya@krishiaiindia.com",
+      linkedin: "https://www.linkedin.com/in/sanidhya-sharma",
       bio: t("founders.steers_krishiai_s_technical"),
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
@@ -56,6 +60,7 @@ export default function FoundersPage() {
       name: "Yash Singh",
       role: t("founders.co_founder_cmo"),
       email: "yash@krishiaiindia.com",
+      linkedin: "https://www.linkedin.com/in/yash-singh",
       bio: t("founders.co_founder_and_chief"),
       initials: "YS",
       gradient: "from-rose-400 to-pink-600",
@@ -182,60 +187,73 @@ export default function FoundersPage() {
 
 function FounderCard({ founder, lang }: { founder: Founder; lang: string }) {
   const { t } = useLanguage();
-  const badgeColorClass = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 animate-pulse-glow";
+  const badgeColorClass = "bg-emerald-500/10 border-emerald-500/20 text-emerald-400";
 
   return (
-    <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.08] bg-slate-950/20 hover:border-emerald-500/40 hover:-translate-y-2 hover:scale-[1.01] backdrop-blur-md shadow-lg hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300 p-6 md:p-8">
+    <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-white/[0.06] bg-slate-950/40 hover:border-emerald-500/30 hover:-translate-y-1.5 backdrop-blur-xl shadow-xl hover:shadow-2xl hover:shadow-emerald-500/5 transition-all duration-300 p-6 md:p-8 rounded-2xl text-center">
       {/* Top accent bar */}
-      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${founder.gradient}`} />
+      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${founder.gradient}`} />
 
       {/* Glow effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/[0.015] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <div className="relative z-10">
-        {/* Initials/Portrait & Stake Badge */}
-        <div className="flex justify-between items-center mb-6">
-          {founder.image ? (
-            <div className="relative h-14 w-14 rounded-2xl overflow-hidden border border-white/[0.15] shadow-lg shadow-emerald-500/10 transition-all duration-300 group-hover:scale-105">
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Stake Badge */}
+        <span className={`absolute top-0 right-0 inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-widest border ${badgeColorClass}`}>
+          {founder.stake}
+        </span>
+
+        {/* Large Circular Profile Image */}
+        <div className="relative mt-4 mb-6">
+          <div className="absolute -inset-1 rounded-full bg-gradient-to-tr from-emerald-500 to-teal-400 opacity-20 blur-sm group-hover:opacity-40 transition-opacity duration-500" />
+          <div className="relative h-28 w-28 rounded-full overflow-hidden border border-white/10 group-hover:border-emerald-400/50 shadow-2xl transition-all duration-300 bg-slate-900">
+            {founder.image ? (
               <img
                 src={founder.image}
                 alt={founder.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
-            </div>
-          ) : (
-            <div
-              className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${founder.gradient} text-lg font-black text-white shadow-lg shadow-emerald-500/10`}
-            >
-              {founder.initials}
-            </div>
-          )}
-          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold border ${badgeColorClass}`}>
-            {founder.stake}
-          </span>
+            ) : (
+              <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${founder.gradient} text-2xl font-black text-white`}>
+                {founder.initials}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Name + role */}
-        <h3 className="text-xl font-bold tracking-tight text-white font-display group-hover:text-emerald-400 transition-colors">{founder.name}</h3>
-        <p className="mt-1 text-[11px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
+        <h3 className="text-lg font-bold tracking-tight text-white font-display group-hover:text-emerald-400 transition-colors duration-300">
+          {founder.name}
+        </h3>
+        <p className="mt-1 text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-400 to-green-500 bg-clip-text text-transparent">
           {founder.role}
         </p>
 
         {/* Bio */}
-        <p className="mt-4 text-xs leading-relaxed text-muted-foreground font-medium">{founder.bio}</p>
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground font-medium min-h-[96px]">
+          {founder.bio}
+        </p>
       </div>
 
-      {/* Action button email */}
-      <div className="mt-6 pt-4 border-t border-white/[0.04] space-y-3 relative z-10">
+      {/* Action buttons (LinkedIn primary + Mail secondary) */}
+      <div className="mt-6 pt-4 border-t border-white/[0.04] flex gap-2.5 relative z-10">
+        <a
+          href={founder.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex h-10 items-center justify-center gap-2 rounded-xl bg-slate-900/60 border border-white/10 hover:border-emerald-400/40 hover:bg-emerald-500/10 text-xs font-bold text-slate-300 hover:text-emerald-400 active:scale-[0.98] transition-all duration-200"
+        >
+          <Linkedin className="h-4 w-4 text-emerald-400" />
+          <span>LinkedIn</span>
+        </a>
         <a
           href={`mailto:${founder.email}`}
-          className="flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-white/[0.02] border border-white/[0.08] hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-xs font-bold text-white transition-all duration-200"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900/60 border border-white/10 hover:border-emerald-400/40 hover:bg-emerald-500/10 text-slate-300 hover:text-emerald-400 active:scale-[0.98] transition-all duration-200"
+          title={`Email ${founder.name.split(" ")[0]}`}
         >
-          <Mail className="h-4 w-4 text-emerald-400 group-hover:text-white transition-colors" />
-          <span>{t("founders.email_founder_stake")}</span>
+          <Mail className="h-4 w-4 text-muted-foreground group-hover:text-emerald-400 transition-colors" />
         </a>
-        <div className="text-[10px] font-mono text-muted-foreground/50 text-center truncate">{founder.email}</div>
       </div>
     </GlassCard>
-  )
+  );
 }
