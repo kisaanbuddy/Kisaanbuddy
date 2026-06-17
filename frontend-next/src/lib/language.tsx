@@ -74,7 +74,7 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     bn: "মান্ডি দর",
     pa: "ਮੰਡੀ ਰੇਟ",
     gu: "મંડી દર",
-    hi_en: "Mandi"
+    hi_en: "Mandi Rates"
   },
   schemes: {
     en: "Schemes",
@@ -87,7 +87,7 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     bn: "প্রকল্প",
     pa: "ਯੋਜਨਾਵਾਂ",
     gu: "યોજનાઓ",
-    hi_en: "Yojanaayein"
+    hi_en: "Govt Schemes"
   },
   founders: {
     en: "Founders",
