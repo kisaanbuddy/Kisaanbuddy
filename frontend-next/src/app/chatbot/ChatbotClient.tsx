@@ -52,7 +52,7 @@ const SUGGESTIONS: Record<Lang, { text: string; icon: string }[]> = {
 }
 
 function ChatbotInner() {
-  const { t } = useLanguage()
+  const { t, lang: globalLang } = useLanguage()
   const searchParams = useSearchParams()
   const [lang, setLang] = useState<Lang>("hi-IN")
   const [messages, setMessages] = useState<Message[]>([
@@ -64,6 +64,17 @@ function ChatbotInner() {
   const [interimText, setInterimText] = useState("")
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
+
+  // Sync with global language on mount / change
+  useEffect(() => {
+    if (globalLang === "en") {
+      switchLang("en-IN")
+    } else if (globalLang === "kn") {
+      switchLang("kn-IN")
+    } else if (globalLang === "hi" || globalLang === "hi_en") {
+      switchLang("hi-IN")
+    }
+  }, [globalLang])
 
   // Auto-fill and auto-send from homepage/dashboard voice demo (?q=...)
   useEffect(() => {
