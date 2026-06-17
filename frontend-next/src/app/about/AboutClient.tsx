@@ -24,7 +24,7 @@ export function AboutClient() {
     {
       name: "Aditya Ishwar",
       role: t("about.founder_ceo_chief_architect"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       bio: t("about.drives_the_technical_vision"),
       initials: "AI",
       gradient: "from-emerald-400 to-green-600",
@@ -33,7 +33,7 @@ export function AboutClient() {
     {
       name: "Utkarsh Sinha",
       role: t("about.co_founder_managing_director"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       bio: t("about.owns_the_ml_pipeline"),
       initials: "US",
       gradient: "from-blue-400 to-indigo-600",
@@ -42,7 +42,7 @@ export function AboutClient() {
     {
       name: "Sanidhya Sharma",
       role: t("about.co_founder_cto"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       bio: t("about.steers_krishiai_s_technical"),
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
@@ -51,7 +51,7 @@ export function AboutClient() {
     {
       name: "Yash Singh",
       role: t("about.co_founder_cmo"),
-      email: "Team@kisaanbuddy.com",
+      email: "info@kisaanbuddy.com",
       bio: t("about.co_founder_and_chief"),
       initials: "YS",
       gradient: "from-rose-400 to-pink-600",
