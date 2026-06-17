@@ -122,7 +122,7 @@ export function Header() {
           onClick={() => setOpen(false)}
           className="flex items-center gap-2.5 shrink-0 group select-none"
         >
-          <div className="relative flex h-8.5 w-8.5 items-center justify-center rounded-xl bg-slate-950/20 border border-white/10 group-hover:scale-105 group-hover:border-emerald-500/30 transition-all duration-300 overflow-hidden p-1">
+          <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950/20 border border-white/10 group-hover:scale-105 group-hover:border-primary/30 transition-all duration-300 overflow-hidden p-1">
             <img src="/icon-logo.png" alt="Kisaan Buddy Icon" className="h-full w-full object-contain dark:brightness-110" />
           </div>
           <div className="flex flex-col leading-none">
