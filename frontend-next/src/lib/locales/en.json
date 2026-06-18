@@ -87,10 +87,30 @@
     "free_forever_mobile_responsive": "Free forever, mobile responsive, and fully localized in multi-language scripts.",
     "get_started_free": "Get Started Free",
     "learn_more": "Learn More",
-    "email_founder_stake": "Email ${founder.stake}"
+    "email_founder_stake": "Email ${founder.stake}",
+    "heading": "Built by RVCE Engineers for Indian Farmers 🇮🇳",
+    "subheading": "Confidently building the future of Indian agriculture using state-of-the-art AI technology."
   },
   "login": {
-    "loading_google_auth": "Loading Google Auth..."
+    "loading_google_auth": "Loading Google Auth...",
+    "welcomeBack": "Welcome to KrishiAI",
+    "signInToAccess": "Enter your mobile number to access your dashboard",
+    "phoneLabel": "Mobile Number",
+    "phonePlaceholder": "Enter 10-digit mobile number",
+    "sendOtp": "Send OTP Verification",
+    "sendingOtp": "Sending OTP...",
+    "otpLabel": "Verify OTP",
+    "otpPlaceholder": "Enter 6-digit OTP",
+    "verifyOtp": "Verify & Enter Dashboard",
+    "verifyingOtp": "Verifying...",
+    "nameLabel": "Your Name",
+    "namePlaceholder": "Enter your full name",
+    "completeRegistration": "Complete Registration",
+    "devModeNotice": "Demo Mode: Use code 123456 to test",
+    "phoneError": "Please enter a valid 10-digit mobile number",
+    "otpError": "Please enter the 6-digit OTP",
+    "nameError": "Please enter your name to complete signup",
+    "incorrectOtp": "Incorrect OTP. Please try again."
   },
   "logout": "Sign out",
   "signUp": "Sign Up Free",
@@ -781,7 +801,16 @@
     "disease_detection": "Disease Detection"
   },
   "forgot_password": {
-    "link_sent_successfully": "Link Sent Successfully!"
+    "link_sent_successfully": "Link Sent Successfully",
+    "forgotPassword": "Forgot Password",
+    "enterEmailText": "Enter your email address to receive a secure password reset link in the console logs.",
+    "emailLabel": "Email Address",
+    "sendLinkBtn": "Send Reset Link",
+    "sending": "Sending...",
+    "backToLogin": "Back to Sign In",
+    "successMsg": "Reset link has been generated! Check the FastAPI terminal/console output to retrieve your secure reset link.",
+    "requiredFields": "Please enter your email address",
+    "invalidEmail": "Please enter a valid email address"
   },
   "khet_diary": {
     "field_observation_attachment": "field observation attachment",
@@ -803,7 +832,18 @@
   },
   "reset_password": {
     "initializing_reset_page": "Initializing Reset Page...",
-    "success": "Success!"
+    "success": "Success",
+    "resetPassword": "Reset Password",
+    "enterNewPasswordText": "Create a new secure password for your KrishiAI account.",
+    "passwordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm New Password",
+    "resetBtn": "Reset Password",
+    "successMsg": "Your password has been successfully reset! You can now log in using your new credentials.",
+    "requiredFields": "Please fill in both password fields",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "invalidToken": "The password reset token is missing. Please request a new link.",
+    "initializingResetPage": "Initializing Reset Page...",
+    "reseting": "Resetting..."
   },
   "signup": {
     "password_strength": "Password Strength",
@@ -901,5 +941,57 @@
     "new_conversation": "New conversation",
     "krishiai_assistant": "Kisaan Buddy assistant",
     "promise": "Promise"
+  },
+  "hero": {
+    "title": "India's AI Copilot for Farmers",
+    "subtitle": "Get crop recommendations, disease detection, weather intelligence, mandi prices and government schemes powered by Artificial Intelligence.",
+    "start_free": "Start Free",
+    "watch_demo": "Watch Demo",
+    "trust_farmers": "50,000+ Farmers Served",
+    "trust_predictions": "1M+ Crop Predictions",
+    "trust_languages": "10+ Indian Languages",
+    "trust_accuracy": "95% Accuracy",
+    "title_line1": "India's AI Copilot for",
+    "title_line2": "Farmers"
+  },
+  "dashboard_mockup": {
+    "crop_recommendation": "Crop Recommendation",
+    "optimal": "Optimal",
+    "recommended_crop": "Recommended Crop",
+    "basmati_rice": "Premium Basmati Rice",
+    "yield_increase": "Estimated yield increase: +22%",
+    "disease_scanner": "Disease Scanner",
+    "alert": "Alert",
+    "early_blight_detected": "Early Blight detected",
+    "confidence_potato": "Confidence: 98% (Potato)",
+    "remedy_copper": "Remedy: Apply Copper Fungicide",
+    "soil_health_analysis": "Soil Health Analysis",
+    "nitrogen": "Nitrogen (N)",
+    "phosphorus": "Phosphorus (P)",
+    "potassium": "Potassium (K)",
+    "moisture_optimal": "Moisture Density: 42% (Optimal)",
+    "ph_neutral: 6.5 (Neutral)": "pH Level: 6.5 (Neutral)",
+    "ph_neutral": "pH Level: 6.5 (Neutral)",
+    "weather_advisory": "Weather Advisory",
+    "rain_predicted": "Rain predicted in 2 hours",
+    "urea_warning": "Postpone urea application to prevent run-off. Cover harvested crops.",
+    "mandi_live": "Live Mandi Prices",
+    "unam_live": "eNAM Live",
+    "agra_potato": "Agra (Potato)",
+    "delhi_wheat": "Delhi (Wheat)"
+  },
+  "loginLabel": "Login",
+  "technology": {
+    "badge": "Agritech Architecture",
+    "title": "Real-time Agri-Intelligence Flow",
+    "subtitle": "KisaanBuddy ingests raw environmental data, processes it via advanced machine learning models, and outputs real-time action plans.",
+    "satellite_data": "Satellite Monitoring",
+    "satellite_desc": "Multi-spectral satellite imagery monitoring soil moisture levels and crop health indices.",
+    "weather_apis": "Live Weather Analytics",
+    "weather_desc": "Hyper-local weather warnings and rain forecast predictions ingested every hour.",
+    "ai_models": "Agritech AI Pipeline",
+    "ai_desc": "Deep Learning models predicting crop yields and diagnostic computer vision for disease detection.",
+    "farmer_ui": "Localized UI Dashboard",
+    "farmer_desc": "Intuitive offline-capable dashboard displaying actions and alerts in 10+ local Indian languages."
   }
 }

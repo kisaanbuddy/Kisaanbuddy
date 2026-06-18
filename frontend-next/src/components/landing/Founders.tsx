@@ -3,6 +3,7 @@
 import { Mail, Linkedin, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { GlassCard } from '@/components/ui/card';
+import { useLanguage } from '@/lib/language';
 
 type Founder = {
   name: string;
@@ -15,31 +16,33 @@ type Founder = {
 };
 
 export function Founders() {
+  const { t } = useLanguage();
+
   const founders: Founder[] = [
     {
       name: "Aditya Ishwar",
-      role: "Founder & Chief Architect",
+      role: t("founders.founder_ceo_chief_architect"),
       email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/aditya-ishwar",
-      bio: "RVCE Computer Science student driving the platform architecture, multi-language speech pipelines, and Core AI systems.",
+      bio: t("founders.drives_the_technical_vision"),
       image: "/aditya.png",
       gradient: "from-emerald-500 to-teal-700",
     },
     {
       name: "Utkarsh Sinha",
-      role: "Co-Founder & ML Lead",
+      role: t("founders.co_founder_managing_director"),
       email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/utkarsh-sinha",
-      bio: "RVCE student owning the machine learning pipeline, agronomic recommendation systems, and edge IoT integrations.",
+      bio: t("founders.owns_the_ml_pipeline"),
       image: "/utkarsh.png",
       gradient: "from-emerald-400 to-emerald-600",
     },
     {
       name: "Yash Singh",
-      role: "Co-Founder & CMO",
+      role: t("founders.co_founder_cmo"),
       email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/yash-singh",
-      bio: "RVCE student spearheading regional community growth, brand partnerships, and rural farmer outreach campaigns.",
+      bio: t("founders.co_founder_and_chief"),
       image: "/yash.png",
       gradient: "from-teal-400 to-emerald-600",
     },
@@ -60,16 +63,16 @@ export function Founders() {
         <div className="text-center mb-16 space-y-4">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 text-xs font-bold text-emerald-400 select-none shadow-lg shadow-emerald-500/5">
             <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
-            Our Vision
+            {t("founders.meet_the_team")}
           </span>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-white">
-            Meet the{" "}
+            {t('founders.heading').split(' Indian')[0]}{" "}
             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              Founders
+              {t('founders.heading').includes('Indian') ? 'Indian Farmers 🇮🇳' : t('founders.heading')}
             </span>
           </h2>
           <p className="text-xs md:text-sm text-gray-400 max-w-lg mx-auto leading-relaxed font-semibold">
-            Confidently building the future of Indian agriculture using state-of-the-art AI technology.
+            {t('founders.subheading')}
           </p>
         </div>
 

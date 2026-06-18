@@ -9,9 +9,30 @@
   "mandi": "மண்டி விலைகள்",
   "workers": "தொழிலாளர்கள்",
   "aiChatbot": "AI அரட்டை",
-  "founders": "நிறுவனர்கள்",
+  "founders": {
+    "heading": "இந்திய விவசாயிகளுக்காக RVCE பொறியாளர்களால் உருவாக்கப்பட்டது 🇮🇳",
+    "subheading": "அதிநவீன AI தொழில்நுட்பத்தைப் பயன்படுத்தி இந்திய விவசாயத்தின் எதிர்காலத்தை நம்பிக்கையுடன் உருவாக்குதல்."
+  },
   "login": {
-    "loading_google_auth": "Loading Google Auth..."
+    "loading_google_auth": "Loading Google Auth...",
+    "welcomeBack": "Welcome to KrishiAI",
+    "signInToAccess": "Enter your mobile number to access your dashboard",
+    "phoneLabel": "Mobile Number",
+    "phonePlaceholder": "Enter 10-digit mobile number",
+    "sendOtp": "Send OTP Verification",
+    "sendingOtp": "Sending OTP...",
+    "otpLabel": "Verify OTP",
+    "otpPlaceholder": "Enter 6-digit OTP",
+    "verifyOtp": "Verify & Enter Dashboard",
+    "verifyingOtp": "Verifying...",
+    "nameLabel": "Your Name",
+    "namePlaceholder": "Enter your full name",
+    "completeRegistration": "Complete Registration",
+    "devModeNotice": "Demo Mode: Use code 123456 to test",
+    "phoneError": "Please enter a valid 10-digit mobile number",
+    "otpError": "Please enter the 6-digit OTP",
+    "nameError": "Please enter your name to complete signup",
+    "incorrectOtp": "Incorrect OTP. Please try again."
   },
   "logout": "Sign out",
   "signUp": "Sign Up Free",
@@ -594,7 +615,16 @@
     "disease_detection": "Disease Detection"
   },
   "forgot_password": {
-    "link_sent_successfully": "Link Sent Successfully!"
+    "link_sent_successfully": "Link Sent Successfully",
+    "forgotPassword": "Forgot Password",
+    "enterEmailText": "Enter your email address to receive a secure password reset link in the console logs.",
+    "emailLabel": "Email Address",
+    "sendLinkBtn": "Send Reset Link",
+    "sending": "Sending...",
+    "backToLogin": "Back to Sign In",
+    "successMsg": "Reset link has been generated! Check the FastAPI terminal/console output to retrieve your secure reset link.",
+    "requiredFields": "Please enter your email address",
+    "invalidEmail": "Please enter a valid email address"
   },
   "khet_diary": {
     "field_observation_attachment": "field observation attachment",
@@ -616,7 +646,17 @@
   },
   "reset_password": {
     "initializing_reset_page": "Initializing Reset Page...",
-    "success": "Success!"
+    "success": "Success",
+    "resetPassword": "Reset Password",
+    "enterNewPasswordText": "Create a new secure password for your KrishiAI account.",
+    "passwordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm New Password",
+    "resetBtn": "Reset Password",
+    "successMsg": "Your password has been successfully reset! You can now log in using your new credentials.",
+    "requiredFields": "Please fill in both password fields",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "invalidToken": "The password reset token is missing. Please request a new link.",
+    "initializingResetPage": "Initializing Reset Page..."
   },
   "signup": {
     "password_strength": "Password Strength",
@@ -714,5 +754,56 @@
     "new_conversation": "New conversation",
     "krishiai_assistant": "Kisaan Buddy assistant",
     "promise": "Promise"
+  },
+  "hero": {
+    "title": "விவசாயிகளுக்கான இந்தியாவின் AI கோபிலட்",
+    "subtitle": "செயற்கை நுண்ணறிவு (AI) மூலம் பயிர் பரிந்துரைகள், நோய் கண்டறிதல், வானிலை நுண்ணறிவு, மண்டி விலைகள் மற்றும் அரசு திட்டங்களைப் பெறுங்கள்.",
+    "start_free": "இலவசமாகத் தொடங்குங்கள்",
+    "watch_demo": "டெমো பாருங்கள்",
+    "trust_farmers": "50,000+ பயனடைந்த விவசாயிகள்",
+    "trust_predictions": "10 லட்சம்+ பயிர் கணிப்புகள்",
+    "trust_languages": "10+ இந்திய மொழிகள்",
+    "trust_accuracy": "95% துல்லியம்",
+    "title_line1": "விவசாயிகளுக்கான இந்தியாவின்",
+    "title_line2": "AI கோபிலாட்"
+  },
+  "dashboard_mockup": {
+    "crop_recommendation": "பயிர் பரிந்துரை",
+    "optimal": "சிறந்த",
+    "recommended_crop": "பரிந்துரைக்கப்பட்ட பயிர்",
+    "basmati_rice": "பிரீமியம் பாசுமதி அரிசி",
+    "yield_increase": "மதிப்பிடப்பட்ட மகசூல் அதிகரிப்பு: +22%",
+    "disease_scanner": "நோய் ஸ்கேனர்",
+    "alert": "எச்சரிக்கை",
+    "early_blight_detected": "துவக்க கால கருகல் நோய் கண்டறியப்பட்டது",
+    "confidence_potato": "துல்லியம்: 98% (உருளைக்கிழங்கு)",
+    "remedy_copper": "தீர்வு: தாமிர பூஞ்சைக் கொல்லியைப் பயன்படுத்துங்கள்",
+    "soil_health_analysis": "மண் வள பகுப்பாய்வு",
+    "nitrogen": "நைட்ரஜன் (N)",
+    "phosphorus": "பாஸ்பரஸ் (P)",
+    "potassium": "பொட்டாசியம் (K)",
+    "moisture_optimal": "ஈரப்பதம்: 42% (சரியான அளவு)",
+    "ph_neutral": "pH அளவு: 6.5 (நடுநிலை)",
+    "weather_advisory": "வானிலை ஆலோசனைகள்",
+    "rain_predicted": "2 மணி நேரத்தில் மழை பெய்யக்கூடும்",
+    "urea_warning": "ஈரப்பதம் காரணமாக யூரியா இடுவதைத் தள்ளிப்போடுங்கள். அறுவடை செய்த பயிர்களை மூடி வையுங்கள்.",
+    "mandi_live": "நேரடி மண்டி விலைகள்",
+    "unam_live": "eNAM நேரடி",
+    "agra_potato": "ஆக்ரா (உருளைக்கிழங்கு)",
+    "delhi_wheat": "டெல்லி (கோதுமை)"
+  },
+  "loginLabel": "உள்நுழை",
+  "technology": {
+    "badge": "Agritech Architecture",
+    "title": "Real-time Agri-Intelligence Flow",
+    "subtitle": "KisaanBuddy ingests raw environmental data, processes it via advanced machine learning models, and outputs real-time action plans.",
+    "satellite_data": "Satellite Monitoring",
+    "satellite_desc": "Multi-spectral satellite imagery monitoring soil moisture levels and crop health indices.",
+    "weather_apis": "Live Weather Analytics",
+    "weather_desc": "Hyper-local weather warnings and rain forecast predictions ingested every hour.",
+    "ai_models": "Agritech AI Pipeline",
+    "ai_desc": "Deep Learning models predicting crop yields and diagnostic computer vision for disease detection.",
+    "farmer_ui": "Localized UI Dashboard",
+    "farmer_desc": "Intuitive offline-capable dashboard displaying actions and alerts in 10+ local Indian languages."
   }
 }

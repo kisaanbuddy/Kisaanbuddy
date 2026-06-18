@@ -9,9 +9,30 @@
   "mandi": "मंडी भाव",
   "workers": "मजूर",
   "aiChatbot": "AI चॅटबॉट",
-  "founders": "संस्थापक",
+  "founders": {
+    "heading": "भारतीय शेतकऱ्यांसाठी RVCE अभियंत्यांद्वारे निर्मित 🇮🇳",
+    "subheading": "अत्याधुनिक एआय तंत्रज्ञानाचा वापर करून भारतीय शेतीच्या भविष्याची आत्मविश्वासाने उभारणी करणे।"
+  },
   "login": {
-    "loading_google_auth": "Loading Google Auth..."
+    "loading_google_auth": "Loading Google Auth...",
+    "welcomeBack": "Welcome to KrishiAI",
+    "signInToAccess": "Enter your mobile number to access your dashboard",
+    "phoneLabel": "Mobile Number",
+    "phonePlaceholder": "Enter 10-digit mobile number",
+    "sendOtp": "Send OTP Verification",
+    "sendingOtp": "Sending OTP...",
+    "otpLabel": "Verify OTP",
+    "otpPlaceholder": "Enter 6-digit OTP",
+    "verifyOtp": "Verify & Enter Dashboard",
+    "verifyingOtp": "Verifying...",
+    "nameLabel": "Your Name",
+    "namePlaceholder": "Enter your full name",
+    "completeRegistration": "Complete Registration",
+    "devModeNotice": "Demo Mode: Use code 123456 to test",
+    "phoneError": "Please enter a valid 10-digit mobile number",
+    "otpError": "Please enter the 6-digit OTP",
+    "nameError": "Please enter your name to complete signup",
+    "incorrectOtp": "Incorrect OTP. Please try again."
   },
   "logout": "Sign out",
   "signUp": "Sign Up Free",
@@ -594,7 +615,16 @@
     "disease_detection": "Disease Detection"
   },
   "forgot_password": {
-    "link_sent_successfully": "Link Sent Successfully!"
+    "link_sent_successfully": "Link Sent Successfully",
+    "forgotPassword": "Forgot Password",
+    "enterEmailText": "Enter your email address to receive a secure password reset link in the console logs.",
+    "emailLabel": "Email Address",
+    "sendLinkBtn": "Send Reset Link",
+    "sending": "Sending...",
+    "backToLogin": "Back to Sign In",
+    "successMsg": "Reset link has been generated! Check the FastAPI terminal/console output to retrieve your secure reset link.",
+    "requiredFields": "Please enter your email address",
+    "invalidEmail": "Please enter a valid email address"
   },
   "khet_diary": {
     "field_observation_attachment": "field observation attachment",
@@ -616,7 +646,17 @@
   },
   "reset_password": {
     "initializing_reset_page": "Initializing Reset Page...",
-    "success": "Success!"
+    "success": "Success",
+    "resetPassword": "Reset Password",
+    "enterNewPasswordText": "Create a new secure password for your KrishiAI account.",
+    "passwordLabel": "New Password",
+    "confirmPasswordLabel": "Confirm New Password",
+    "resetBtn": "Reset Password",
+    "successMsg": "Your password has been successfully reset! You can now log in using your new credentials.",
+    "requiredFields": "Please fill in both password fields",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "invalidToken": "The password reset token is missing. Please request a new link.",
+    "initializingResetPage": "Initializing Reset Page..."
   },
   "signup": {
     "password_strength": "Password Strength",
@@ -714,5 +754,56 @@
     "new_conversation": "New conversation",
     "krishiai_assistant": "Kisaan Buddy assistant",
     "promise": "Promise"
+  },
+  "hero": {
+    "title": "शेतकऱ्यांसाठी भारताचा एआय कोपायलट",
+    "subtitle": "कृत्रिम बुद्धिमत्ता (AI) द्वारे पीक शिफारसी, रोग शोधणे, हवामान अंदाज, मंडी दर आणि सरकारी योजनांची माहिती मिळवा.",
+    "start_free": "मोफत सुरू करा",
+    "watch_demo": "डेमो पहा",
+    "trust_farmers": "50,000+ समाधानी शेतकरी",
+    "trust_predictions": "10 लाख+ पीक अंदाज",
+    "trust_languages": "10+ भारतीय भाषा",
+    "trust_accuracy": "95% अचूकता",
+    "title_line1": "शेतकऱ्यांसाठी भारताचा",
+    "title_line2": "एआय कोपायलट"
+  },
+  "dashboard_mockup": {
+    "crop_recommendation": "पीक शिफारस",
+    "optimal": "योग्य",
+    "recommended_crop": "शिफारस केलेले पीक",
+    "basmati_rice": "प्रीमियम बासमती तांदूळ",
+    "yield_increase": "अंदाजे पीक वाढ: +22%",
+    "disease_scanner": "रोग स्कॅनर",
+    "alert": "इशारा",
+    "early_blight_detected": "लवकर येणारा करपा रोग आढळला",
+    "confidence_potato": "अचूकता: 98% (बटाटा)",
+    "remedy_copper": "उपाय: कॉपर बुरशीनाशक वापरा",
+    "soil_health_analysis": "माती आरोग्य विश्लेषण",
+    "nitrogen": "नायट्रोजन (N)",
+    "phosphorus": "फॉस्फरस (P)",
+    "potassium": "पोटॅशियम (K)",
+    "moisture_optimal": "ओलावा: 42% (योग्य)",
+    "ph_neutral": "pH पातळी: 6.5 (तटस्थ)",
+    "weather_advisory": "हवामान अंदाज सल्ला",
+    "rain_predicted": "2 तासात पावसाचा अंदाज",
+    "urea_warning": "खत वाहून जाण्यापासून रोखण्यासाठी युरियाचा वापर पुढे ढकला. काढणी केलेले पीक झाकून ठेवा.",
+    "mandi_live": "थेट मंडी दर",
+    "unam_live": "ई-नाम थेट",
+    "agra_potato": "आगरा (बटाटा)",
+    "delhi_wheat": "दिल्ली (गहू)"
+  },
+  "loginLabel": "लॉगिन",
+  "technology": {
+    "badge": "Agritech Architecture",
+    "title": "Real-time Agri-Intelligence Flow",
+    "subtitle": "KisaanBuddy ingests raw environmental data, processes it via advanced machine learning models, and outputs real-time action plans.",
+    "satellite_data": "Satellite Monitoring",
+    "satellite_desc": "Multi-spectral satellite imagery monitoring soil moisture levels and crop health indices.",
+    "weather_apis": "Live Weather Analytics",
+    "weather_desc": "Hyper-local weather warnings and rain forecast predictions ingested every hour.",
+    "ai_models": "Agritech AI Pipeline",
+    "ai_desc": "Deep Learning models predicting crop yields and diagnostic computer vision for disease detection.",
+    "farmer_ui": "Localized UI Dashboard",
+    "farmer_desc": "Intuitive offline-capable dashboard displaying actions and alerts in 10+ local Indian languages."
   }
 }

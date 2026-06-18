@@ -1,74 +1,56 @@
 'use client';
 
-import { Users, Store, ShieldCheck } from 'lucide-react';
+import { Users, Sparkles, Languages, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/lib/language';
 
 export function TrustPanel() {
-  const { lang } = useLanguage();
+  const { t } = useLanguage();
 
-  const hiStats = [
+  const stats = [
     {
       icon: Users,
-      value: "2 लाख+",
-      label: "संतुष्ट भारतीय किसान",
-      color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20"
+      value: t("hero.trust_farmers"),
+      color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
     },
     {
-      icon: Store,
-      value: "eNAM सत्यापित",
-      label: "ताज़ा मंडी भाव जानकारी",
-      color: "text-amber-500 bg-amber-500/10 border-amber-500/20"
+      icon: Sparkles,
+      value: t("hero.trust_predictions"),
+      color: "text-teal-400 bg-teal-500/10 border-teal-500/20"
+    },
+    {
+      icon: Languages,
+      value: t("hero.trust_languages"),
+      color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20"
     },
     {
       icon: ShieldCheck,
-      value: "ICAR फसल डेटाबेस",
-      label: "कृषि विज्ञान आधारित सलाह",
-      color: "text-sky-500 bg-sky-500/10 border-sky-500/20"
+      value: t("hero.trust_accuracy"),
+      color: "text-teal-400 bg-teal-500/10 border-teal-500/20"
     }
   ];
-
-  const enStats = [
-    {
-      icon: Users,
-      value: "2 Lakhs+",
-      label: "Happy Indian Farmers",
-      color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20"
-    },
-    {
-      icon: Store,
-      value: "eNAM Verified",
-      label: "Live Market Rates",
-      color: "text-amber-500 bg-amber-500/10 border-amber-500/20"
-    },
-    {
-      icon: ShieldCheck,
-      value: "ICAR Crop DB",
-      label: "Scientific Agriculture Advisories",
-      color: "text-sky-500 bg-sky-500/10 border-sky-500/20"
-    }
-  ];
-
-  const stats = lang === 'hi' ? hiStats : enStats;
 
   return (
-    <section className="relative z-20 py-8 border-y border-border/10 bg-background/50 backdrop-blur-md">
+    <section className="relative z-20 py-10 border-y border-emerald-500/10 bg-[#040814]/40 backdrop-blur-xl">
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-teal-500/5 pointer-events-none" />
       <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
           {stats.map((item, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-center gap-4 p-4 rounded-2xl border border-white/[0.04] bg-card/25 hover:bg-card/40 hover:border-border/30 transition-all duration-300 shadow-sm"
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-center gap-3.5 p-4 md:p-5 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-emerald-500/20 transition-all duration-300 shadow-lg group"
             >
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border ${item.color}`}>
-                <item.icon className="h-6 w-6" />
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border group-hover:scale-105 transition-transform duration-300 ${item.color}`}>
+                <item.icon className="h-5.5 w-5.5" />
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-display font-extrabold text-foreground">{item.value}</span>
-                <span className="text-xs text-muted-foreground/80 font-medium">{item.label}</span>
+                <span className="text-sm md:text-base font-display font-extrabold text-white tracking-tight leading-snug">
+                  {item.value}
+                </span>
               </div>
             </motion.div>
           ))}

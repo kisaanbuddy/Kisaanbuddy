@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Hero } from '@/components/landing/Hero';
+import { TrustPanel } from '@/components/landing/TrustPanel';
 import { Founders } from '@/components/landing/Founders';
 import { Features } from '@/components/landing/Features';
-import { HowItWorks } from '@/components/landing/HowItWorks';
-import { DashboardPreview } from '@/components/landing/DashboardPreview';
-import { Vision } from '@/components/landing/Vision';
+import { Testimonials } from '@/components/landing/Testimonials';
+import { Technology } from '@/components/landing/Technology';
 import { FinalCTA } from '@/components/landing/FinalCTA';
 
 export const metadata: Metadata = {
@@ -28,20 +28,20 @@ export default function LandingPage() {
       {/* 1. Hero Section */}
       <Hero />
 
-      {/* 2. Founder Section */}
+      {/* 2. Trust Metrics Section */}
+      <TrustPanel />
+
+      {/* 3. Founder Section */}
       <Founders />
 
-      {/* 3. Features Section */}
+      {/* 4. Features Section */}
       <Features />
 
-      {/* 4. How It Works Section */}
-      <HowItWorks />
+      {/* 5. Testimonials Section */}
+      <Testimonials />
 
-      {/* 5. Interactive Demo Dashboard Preview */}
-      <DashboardPreview />
-
-      {/* 6. About Section */}
-      <Vision />
+      {/* 6. Technology Flow Section */}
+      <Technology />
 
       {/* 7. Final Call-to-Action Banner */}
       <FinalCTA />
