@@ -47,6 +47,7 @@ class Settings(BaseSettings):
         "http://localhost:3002",
         "http://127.0.0.1:3002",
         "https://kisaanbuddy.com",
+        "https://www.kisaanbuddy.com",
     ]
     # Regex pattern for allowed origins — covers Vercel preview deploys
     # like https://krishiai-git-feature-branch-username.vercel.app
