@@ -43,10 +43,6 @@ export function FAQ() {
       a: t("landing_faq.khet_diary_is_a"),
     },
     {
-      q: t("landing_faq.what_is_the_smart"),
-      a: t("landing_faq.it_demonstrates_integrations_with"),
-    },
-    {
       q: t("landing_faq.how_do_i_get"),
       a: t("landing_faq.you_can_get_started"),
     },
