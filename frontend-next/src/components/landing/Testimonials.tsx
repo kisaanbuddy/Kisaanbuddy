@@ -11,7 +11,7 @@ type Review = {
   location: string;
   crop: string;
   text: string;
-  stars: int;
+  stars: number;
   created_at: string;
 };
 
