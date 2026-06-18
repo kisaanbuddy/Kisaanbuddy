@@ -63,9 +63,9 @@ export function Founders() {
             Our Vision
           </span>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-white">
-            Built by RVCE Students for{" "}
+            Meet the{" "}
             <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-              Indian Farmers 🇮🇳
+              Founders
             </span>
           </h2>
           <p className="text-xs md:text-sm text-gray-400 max-w-lg mx-auto leading-relaxed font-semibold">
