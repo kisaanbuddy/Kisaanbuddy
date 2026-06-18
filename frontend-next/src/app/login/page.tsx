@@ -6,72 +6,28 @@ import { useRouter } from "next/navigation";
 import { Loader2, Sparkles, Phone, ShieldCheck, AlertCircle, ArrowRight, Check } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
-const localTranslations = {
-  en: {
-    welcomeBack: "Welcome to KrishiAI",
-    signInToAccess: "Enter your mobile number to access your dashboard",
-    phoneLabel: "Mobile Number",
-    phonePlaceholder: "Enter 10-digit mobile number",
-    sendOtp: "Send OTP Verification",
-    sendingOtp: "Sending OTP...",
-    otpLabel: "Verify OTP",
-    otpPlaceholder: "Enter 6-digit OTP",
-    verifyOtp: "Verify & Enter Dashboard",
-    verifyingOtp: "Verifying...",
-    nameLabel: "Your Name",
-    namePlaceholder: "Enter your full name",
-    completeRegistration: "Complete Registration",
-    devModeNotice: "Demo Mode: Use code 123456 to test",
-    phoneError: "Please enter a valid 10-digit mobile number",
-    otpError: "Please enter the 6-digit OTP",
-    nameError: "Please enter your name to complete signup",
-    incorrectOtp: "Incorrect OTP. Please try again.",
-  },
-  hi: {
-    welcomeBack: "KrishiAI में आपका स्वागत है",
-    signInToAccess: "डैशबोर्ड तक पहुँचने के लिए अपना मोबाइल नंबर दर्ज करें",
-    phoneLabel: "मोबाइल नंबर",
-    phonePlaceholder: "10-अंकीय मोबाइल नंबर लिखें",
-    sendOtp: "ओटीपी (OTP) भेजें",
-    sendingOtp: "ओटीपी भेज रहे हैं...",
-    otpLabel: "ओटीपी सत्यापित करें",
-    otpPlaceholder: "6-अंकीय ओटीपी दर्ज करें",
-    verifyOtp: "सत्यापित करें और प्रवेश करें",
-    verifyingOtp: "सत्यापित कर रहे हैं...",
-    nameLabel: "आपका नाम",
-    namePlaceholder: "अपना पूरा नाम लिखें",
-    completeRegistration: "पंजीकरण पूरा करें",
-    devModeNotice: "डेमो मोड: परीक्षण के लिए कोड 123456 दर्ज करें",
-    phoneError: "कृपया एक सही 10-अंकीय मोबाइल नंबर दर्ज करें",
-    otpError: "कृपया 6-अंकीय ओटीपी दर्ज करें",
-    nameError: "पंजीकरण पूरा करने के लिए अपना नाम लिखें",
-    incorrectOtp: "गलत ओटीपी। कृपया पुनः प्रयास करें।",
-  },
-  kn: {
-    welcomeBack: "KrishiAI ಗೆ ಸ್ವಾಗತ",
-    signInToAccess: "ನಿಮ್ಮ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಪ್ರವೇಶಿಸಲು ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
-    phoneLabel: "ಮೊಬೈಲ್ ಸಂಖ್ಯೆ",
-    phonePlaceholder: "10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಬರೆಯಿರಿ",
-    sendOtp: "ಒಟಿಪಿ ಕಳುಹಿಸಿ",
-    sendingOtp: "ಒಟಿಪಿ ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...",
-    otpLabel: "ಒಟಿಪಿ ಪರಿಶೀಲಿಸಿ",
-    otpPlaceholder: "6-ಅಂಕಿಯ ಒಟಿಪಿ ನಮೂದಿಸಿ",
-    verifyOtp: "ಪರಿಶೀಲಿಸಿ ಮತ್ತು ಪ್ರವೇಶಿಸಿ",
-    verifyingOtp: "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...",
-    nameLabel: "ನಿಮ್ಮ ಹೆಸರು",
-    namePlaceholder: "ನಿಮ್ಮ ಪೂರ್ಣ ಹೆಸರನ್ನು ಬರೆಯಿರಿ",
-    completeRegistration: "ನೋಂದಣಿ ಪೂರ್ಣಗೊಳಿಸಿ",
-    devModeNotice: "ಡೆಮೊ ಮೋಡ್: ಪರೀಕ್ಷಿಸಲು ಕೋಡ್ 123456 ಬಳಸಿ",
-    phoneError: "ದಯವಿಟ್ಟು ಸರಿಯಾದ 10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ",
-    otpError: "ದಯವಿಟ್ಟು 6-ಅಂಕಿಯ ಒಟಿಪಿ ನಮೂದಿಸಿ",
-    nameError: "ನೋಂದಣಿ ಪೂರ್ಣಗೊಳಿಸಲು ನಿಮ್ಮ ಹೆಸರನ್ನು ಬರೆಯಿರಿ",
-    incorrectOtp: "ತಪ್ಪಾದ ಒಟಿಪಿ. ದಯವಿಟ್ಟು ಮತ್ತೊಮ್ಮೆ ಪ್ರಯತ್ನಿಸಿ.",
-  }
-};
-
 export default function LoginPage() {
-  const { lang } = useLanguage();
-  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t } = useLanguage();
+  const lt = {
+    welcomeBack: t("login.welcomeBack"),
+    signInToAccess: t("login.signInToAccess"),
+    phoneLabel: t("login.phoneLabel"),
+    phonePlaceholder: t("login.phonePlaceholder"),
+    sendOtp: t("login.sendOtp"),
+    sendingOtp: t("login.sendingOtp"),
+    otpLabel: t("login.otpLabel"),
+    otpPlaceholder: t("login.otpPlaceholder"),
+    verifyOtp: t("login.verifyOtp"),
+    verifyingOtp: t("login.verifyingOtp"),
+    nameLabel: t("login.nameLabel"),
+    namePlaceholder: t("login.namePlaceholder"),
+    completeRegistration: t("login.completeRegistration"),
+    devModeNotice: t("login.devModeNotice"),
+    phoneError: t("login.phoneError"),
+    otpError: t("login.otpError"),
+    nameError: t("login.nameError"),
+    incorrectOtp: t("login.incorrectOtp"),
+  };
   const router = useRouter();
   const { user, ready } = useAuth();
 

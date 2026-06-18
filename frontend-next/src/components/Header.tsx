@@ -210,7 +210,7 @@ export function Header() {
                 bg-gradient-to-r from-emerald-500 to-teal-500
                 hover:shadow-glow-primary hover:brightness-105 active:scale-95 select-none"
             >
-              Login
+              {t("loginLabel")}
             </Link>
           )}
 
@@ -334,10 +334,8 @@ export function Header() {
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-white/20 dark:hover:bg-white/5 transition-all duration-200"
                 >
                   <Star className="h-4 w-4 shrink-0 text-amber-500" />
-                  Founders
+                  {t("founders")}
                 </Link>
-
-
 
                 <div className="my-2 divider-gradient" />
 
@@ -346,7 +344,7 @@ export function Header() {
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-xs font-semibold text-red-500 hover:bg-red-500/5 border border-transparent hover:border-red-500/10 transition-all duration-200"
                 >
                   <LogOut className="h-4 w-4 shrink-0 text-red-500" />
-                  Sign out
+                  {t("logout")}
                 </button>
               </>
             ) : (
@@ -356,21 +354,14 @@ export function Header() {
                   onClick={() => setOpen(false)}
                   className="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3 text-center text-xs font-semibold text-white shadow-lg shadow-emerald-500/25"
                 >
-                  Login
+                  {t("loginLabel")}
                 </Link>
                 <Link
                   href="/founders"
                   onClick={() => setOpen(false)}
                   className="rounded-xl px-4 py-3 text-center text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
                 >
-                  <Star className="h-4 w-4 text-amber-500" /> Meet the Founders
-                </Link>
-                <Link
-                  href="/hardware"
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3 text-center text-xs font-semibold text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Cpu className="h-4 w-4 text-emerald-500" /> Smart Farm Hub
+                  <Star className="h-4 w-4 text-amber-500" /> {t("founders")}
                 </Link>
               </>
             )}

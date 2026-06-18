@@ -152,7 +152,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (saved) {
       setLangState(saved)
     } else {
-      setLangState("en")
+      const browserLang = navigator.language.split("-")[0] as Lang
+      const supportedLangs: Lang[] = ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu"]
+      if (supportedLangs.includes(browserLang)) {
+        setLangState(browserLang)
+      } else {
+        setLangState("en")
+      }
     }
   }, [])
 

@@ -6,51 +6,21 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Sparkles, Lock, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 
-const localTranslations = {
-  en: {
-    resetPassword: "Reset Password",
-    enterNewPasswordText: "Create a new secure password for your KrishiAI account.",
-    passwordLabel: "New Password",
-    confirmPasswordLabel: "Confirm New Password",
-    resetBtn: "Reset Password",
-    reseting: "Resetting...",
-    backToLogin: "Back to Sign In",
-    successMsg: "Your password has been successfully reset! You can now log in using your new credentials.",
-    requiredFields: "Please fill in both password fields",
-    passwordsDoNotMatch: "Passwords do not match",
-    invalidToken: "The password reset token is missing. Please request a new link.",
-  },
-  hi: {
-    resetPassword: "पासवर्ड रीसेट करें",
-    enterNewPasswordText: "अपने KrishiAI खाते के लिए एक नया सुरक्षित पासवर्ड बनाएं।",
-    passwordLabel: "नया पासवर्ड",
-    confirmPasswordLabel: "नए पासवर्ड की पुष्टि करें",
-    resetBtn: "पासवर्ड रीसेट करें",
-    reseting: "रीसेट हो रहा है...",
-    backToLogin: "साइन इन पर वापस जाएं",
-    successMsg: "आपका पासवर्ड सफलतापूर्वक रीसेट हो गया है! अब आप अपने नए क्रेडेंशियल्स का उपयोग करके लॉग इन कर सकते हैं।",
-    requiredFields: "कृपया दोनों पासवर्ड फ़ील्ड भरें",
-    passwordsDoNotMatch: "पासवर्ड मेल नहीं खाते",
-    invalidToken: "पासवर्ड रीसेट टोकन गायब है। कृपया एक नया लिंक अनुरोध करें।",
-  },
-  kn: {
-    resetPassword: "ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ",
-    enterNewPasswordText: "ನಿಮ್ಮ KrishiAI ಖಾತೆಗಾಗಿ ಹೊಸ ಸುರಕ್ಷಿತ ಪಾಸ್‌ವರ್ಡ್ ರಚಿಸಿ.",
-    passwordLabel: "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್",
-    confirmPasswordLabel: "ಹೊಸ ಪಾಸ್‌ವರ್ಡ್ ದೃಢೀಕರಿಸಿ",
-    resetBtn: "ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸಿ",
-    reseting: "ಮರುಹೊಂದಿಸಲಾಗುತ್ತಿದೆ...",
-    backToLogin: "ಸೈನ್ ಇನ್‌ಗೆ ಹಿಂತಿರುಗಿ",
-    successMsg: "ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಯಶಸ್ವಿಯಾಗಿ ಮರುಹೊಂದಿಸಲಾಗಿದೆ! ನಿಮ್ಮ ಹೊಸ ವಿವರಗಳೊಂದಿಗೆ ಈಗ ಸೈನ್ ಇನ್ ಮಾಡಿ.",
-    requiredFields: "ದಯವಿಟ್ಟು ಎರಡೂ ಪಾಸ್‌ವರ್ಡ್ ಕ್ಷೇತ್ರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ",
-    passwordsDoNotMatch: "ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ",
-    invalidToken: "ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಟೋಕನ್ ಇಲ್ಲ. ದಯವಿಟ್ಟು ಹೊಸ ಲಿಂಕ್ ವಿನಂತಿಸಿ.",
-  }
-};
-
 function ResetPasswordForm() {
-  const { t, lang } = useLanguage();
-  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t } = useLanguage();
+  const lt = {
+    resetPassword: t("reset_password.resetPassword"),
+    enterNewPasswordText: t("reset_password.enterNewPasswordText"),
+    passwordLabel: t("reset_password.passwordLabel"),
+    confirmPasswordLabel: t("reset_password.confirmPasswordLabel"),
+    resetBtn: t("reset_password.resetBtn"),
+    reseting: t("reset_password.reseting"),
+    backToLogin: t("reset_password.backToLogin") || t("forgot_password.backToLogin") || "Back to Sign In",
+    successMsg: t("reset_password.successMsg"),
+    requiredFields: t("reset_password.requiredFields"),
+    passwordsDoNotMatch: t("reset_password.passwordsDoNotMatch"),
+    invalidToken: t("reset_password.invalidToken"),
+  };
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");

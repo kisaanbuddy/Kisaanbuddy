@@ -5,45 +5,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { Loader2, Sparkles, Mail, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 
-const localTranslations = {
-  en: {
-    forgotPassword: "Forgot Password",
-    enterEmailText: "Enter your email address to receive a secure password reset link in the console logs.",
-    emailLabel: "Email Address",
-    sendLinkBtn: "Send Reset Link",
-    sending: "Sending...",
-    backToLogin: "Back to Sign In",
-    successMsg: "Reset link has been generated! Check the FastAPI terminal/console output to retrieve your secure reset link.",
-    requiredFields: "Please enter your email address",
-    invalidEmail: "Please enter a valid email address",
-  },
-  hi: {
-    forgotPassword: "पासवर्ड भूल गए",
-    enterEmailText: "कंसोल लॉग में एक सुरक्षित पासवर्ड रीसेट लिंक प्राप्त करने के लिए अपना ईमेल पता दर्ज करें।",
-    emailLabel: "ईमेल पता",
-    sendLinkBtn: "रीसेट लिंक भेजें",
-    sending: "भेजा जा रहा है...",
-    backToLogin: "साइन इन पर वापस जाएं",
-    successMsg: "रीसेट लिंक जनरेट हो गया है! अपना सुरक्षित रीसेट लिंक प्राप्त करने के लिए FastAPI टर्मिनल/कंसोल आउटपुट की जाँच करें।",
-    requiredFields: "कृपया अपना ईमेल दर्ज करें",
-    invalidEmail: "कृपया एक मान्य ईमेल दर्ज करें",
-  },
-  kn: {
-    forgotPassword: "ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿರಾ",
-    enterEmailText: "ಕನ್ಸೋಲ್ ಲಾಗ್‌ಗಳಲ್ಲಿ ಸುರಕ್ಷಿತ ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಲಿಂಕ್ ಪಡೆಯಲು ನಿಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ.",
-    emailLabel: "ಇಮೇಲ್ ವಿಳಾಸ",
-    sendLinkBtn: "ಮರುಹೊಂದಿಸುವ ಲಿಂಕ್ ಕಳುಹಿಸಿ",
-    sending: "ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...",
-    backToLogin: "ಸೈನ್ ಇನ್‌ಗೆ ಹಿಂತಿರುಗಿ",
-    successMsg: "ಮರುಹೊಂದಿಸುವ ಲಿಂಕ್ ರಚಿಸಲಾಗಿದೆ! ನಿಮ್ಮ ಸುರಕ್ಷಿತ ಲಿಂಕ್ ಪಡೆಯಲು FastAPI ಟರ್ಮಿನಲ್/ಕನ್ಸೋಲ್ ಪರಿಶೀಲಿಸಿ.",
-    requiredFields: "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಇಮೇಲ್ ನಮೂದಿಸಿ",
-    invalidEmail: "ದಯವಿಟ್ಟು ಮಾನ್ಯ ಇಮೇಲ್ ನಮೂದಿಸಿ",
-  }
-};
-
 export default function ForgotPasswordPage() {
-  const { t, lang } = useLanguage();
-  const lt = localTranslations[lang as "en" | "hi" | "kn"] || localTranslations.en;
+  const { t } = useLanguage();
+  const lt = {
+    forgotPassword: t("forgot_password.forgotPassword"),
+    enterEmailText: t("forgot_password.enterEmailText"),
+    emailLabel: t("forgot_password.emailLabel"),
+    sendLinkBtn: t("forgot_password.sendLinkBtn"),
+    sending: t("forgot_password.sending"),
+    backToLogin: t("forgot_password.backToLogin"),
+    successMsg: t("forgot_password.successMsg"),
+    requiredFields: t("forgot_password.requiredFields"),
+    invalidEmail: t("forgot_password.invalidEmail"),
+  };
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
