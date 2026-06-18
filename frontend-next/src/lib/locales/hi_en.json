@@ -991,5 +991,19 @@
     "ai_desc": "Deep Learning models predicting crop yields and diagnostic computer vision for disease detection.",
     "farmer_ui": "Localized UI Dashboard",
     "farmer_desc": "Intuitive offline-capable dashboard displaying actions and alerts in 10+ local Indian languages."
+  },
+  "testimonials": {
+    "write_review": "Share Your Feedback",
+    "submit": "Submit Review",
+    "submitting": "Submitting...",
+    "name_label": "Your Name",
+    "name_placeholder": "Enter full name",
+    "location_label": "Location",
+    "location_placeholder": "e.g., Patna, Bihar",
+    "crop_label": "Crop/Activity",
+    "crop_placeholder": "e.g., Wheat Farmer",
+    "text_label": "Your Review",
+    "text_placeholder": "Describe your experience with KisaanBuddy...",
+    "success_alert": "Thank you! Your review has been published successfully."
   }
 }
