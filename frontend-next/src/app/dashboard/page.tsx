@@ -913,7 +913,6 @@ export default function DashboardPage() {
             { href: "/disease", label: t("dashboard.disease_detect"), icon: Bug, color: "text-rose-400 bg-rose-500/10 border-rose-500/25", emoji: "🐛", desc: "रोग की पहचान" },
             { href: "/soil-health", label: t("dashboard.soil_health"), icon: Activity, color: "text-teal-400 bg-teal-500/10 border-teal-500/25", emoji: "🧪", desc: "खाद की सलाह" },
             { href: "/chatbot", label: t("dashboard.ai_chatbot"), icon: Mic, color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/25", emoji: "🤖", desc: "AI सहायक (बोलें)" },
-            { href: "/khet-diary", label: t("dashboard.khet_diary"), icon: BookOpen, color: "text-amber-400 bg-amber-500/10 border-amber-500/25", emoji: "📒", desc: "रोज का लेखा-जोखा" },
             { href: "/mandi", label: t("dashboard.mandi_rates"), icon: TrendingUp, color: "text-orange-400 bg-orange-500/10 border-orange-500/25", emoji: "📈", desc: "मंडी के भाव" },
             { href: "/worker-connect", label: t("dashboard.workers"), icon: Users, color: "text-sky-400 bg-sky-500/10 border-sky-500/25", emoji: "🚜", desc: "मजदूर और मशीन" },
             { href: "/schemes", label: t("dashboard.schemes"), icon: Landmark, color: "text-purple-400 bg-purple-500/10 border-purple-500/25", emoji: "🏛️", desc: "सरकारी योजनाएं" },

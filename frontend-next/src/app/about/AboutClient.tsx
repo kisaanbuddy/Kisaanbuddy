@@ -154,11 +154,7 @@ export function AboutClient() {
               { 
                 icon: Landmark, 
                 title: t("about.sarkari_yojnayein"), 
-                desc: t("about.easy_check_for_pm")},
-              { 
-                icon: BookOpen, 
-                title: t("about.khet_diary"), 
-                desc: t("about.keep_dynamic_logs_of")}
+                desc: t("about.easy_check_for_pm")}
             ].map((f, idx) => (
               <div key={idx} className="flex gap-4 p-4 rounded-xl border border-border/20 bg-background/50 hover:border-emerald-500/30 transition-all duration-300">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">

@@ -39,10 +39,6 @@ export function FAQ() {
       a: t("landing_faq.by_inputting_details_like"),
     },
     {
-      q: t("landing_faq.what_is_the_khet"),
-      a: t("landing_faq.khet_diary_is_a"),
-    },
-    {
       q: t("landing_faq.how_do_i_get"),
       a: t("landing_faq.you_can_get_started"),
     },
