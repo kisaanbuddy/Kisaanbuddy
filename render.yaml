@@ -25,7 +25,7 @@ services:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_ORIGINS
-        value: '["https://krishiai.vercel.app","http://localhost:3000"]'
+        value: '["https://kisaanbuddy.com","https://www.kisaanbuddy.com","https://krishiai.vercel.app","http://localhost:3000"]'
       - key: ALLOWED_ORIGIN_REGEX
         value: 'https://.*\.vercel\.app'
       - key: OPENWEATHERMAP_API_KEY
