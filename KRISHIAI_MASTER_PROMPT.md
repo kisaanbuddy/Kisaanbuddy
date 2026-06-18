@@ -13,7 +13,7 @@
 | **Tagline** | AI Smart Farmer Decision Intelligence |
 | **Mission** | Make Indian farmers — especially rural, low-literacy, low-connectivity — as informed as a PhD agronomist, in their own language, for free |
 | **Live URL** | https://kisaanbuddy.com |
-| **GitHub** | https://github.com/adityaoutlier5-dotcom/krishiai |
+| **GitHub** | https://github.com/kisaanbuddy/Kisaanbuddy |
 | **Primary users** | Smallholder farmers across India (Hindi, Kannada, English speakers) |
 | **Monetisation** | None (free public good); future: SaaS B2B for agri-input companies |
 

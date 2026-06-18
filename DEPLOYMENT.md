@@ -41,9 +41,9 @@ git status
 git add .
 git commit -m "Deploy: prod-ready config (Vercel + Render + UptimeRobot)"
 
-# Create a new empty repo on github.com/new — name it "krishiai"
+# Create a new empty repo on github.com/new — name it "Kisaanbuddy"
 # Then connect and push:
-git remote add origin https://github.com/<YOUR_USERNAME>/krishiai.git
+git remote add origin https://github.com/<YOUR_USERNAME>/Kisaanbuddy.git
 git push -u origin main
 ```
 
@@ -56,7 +56,7 @@ If git asks for credentials, use a GitHub Personal Access Token
 
 1. Open https://render.com → **Sign up with GitHub**
 2. Click **New +** → **Blueprint**
-3. Connect your `krishiai` repository
+3. Connect your `Kisaanbuddy` repository
 4. Render auto-detects `render.yaml` at the project root → click **Apply**
 5. Wait ~3 min for the first build (it pip-installs requirements.txt)
 6. Go to the new `krishiai-api` service → **Environment** tab → add these keys:
@@ -83,7 +83,7 @@ package in `requirements.txt`. Push a fix and Render auto-rebuilds.
 ## 3. Deploy frontend on Vercel (5 min)
 
 1. Open https://vercel.com → **Sign up with GitHub**
-2. Click **Add New** → **Project** → import the `krishiai` repo
+2. Click **Add New** → **Project** → import the `Kisaanbuddy` repo
 3. Configure:
    - **Framework Preset**: Next.js (auto-detected)
    - **Root Directory**: `frontend-next`
