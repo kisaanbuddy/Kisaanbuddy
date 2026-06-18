@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {
   Leaf, Menu, X, LogOut, User as UserIcon,
   LayoutDashboard, CloudSun, Sprout, Bug,
-  FileText, TrendingUp, Users, MessageSquare,
+  FileText, TrendingUp, Users, MessageSquare, Mic,
   Star, ChevronDown, BookOpen, FlaskConical, Landmark, Cpu,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -23,7 +23,7 @@ const NAV_LINK_DEFS = [
   { href: '/schemes',        key: 'schemes',        icon: Landmark        },
   { href: '/mandi',          key: 'mandi',          icon: TrendingUp      },
   { href: '/worker-connect', key: 'workers',        icon: Users           },
-  { href: '/chatbot',        key: 'aiChatbot',      icon: MessageSquare   },
+  { href: '/chatbot',        key: 'aiChatbot',      icon: Mic   },
 ] as const;
 
 const PUBLIC_ROUTES = ['/', '/login', '/signup', '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/cookie-policy'];

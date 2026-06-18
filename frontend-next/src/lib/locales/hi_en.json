@@ -1005,5 +1005,23 @@
     "text_label": "Your Review",
     "text_placeholder": "Describe your experience with KisaanBuddy...",
     "success_alert": "Thank you! Your review has been published successfully."
+  },
+  "voice_assistant": {
+    "badge": "Voice Copilot",
+    "title": "Talk to KisaanBuddy",
+    "status_idle": "Tap microphone to speak",
+    "status_listening": "Listening... Tap to stop",
+    "status_thinking": "AI is thinking...",
+    "status_speaking": "Speaking response...",
+    "add_photo": "Add Photo",
+    "send_query": "Send voice query",
+    "history": "Recent Conversations",
+    "clear_history": "Clear History",
+    "play_audio": "Play Audio",
+    "pause_audio": "Pause Audio",
+    "upload_photo_first": "Select photo of crop disease first",
+    "disease_photo": "Disease photo attached",
+    "speech_not_supported": "Voice speech recognition is not supported in this browser. Please use Chrome on Android.",
+    "success_submit": "Spoken query sent"
   }
 }
