@@ -18,7 +18,6 @@ const NAV_LINK_DEFS = [
   { href: '/weather',        key: 'weather',        icon: CloudSun        },
   { href: '/crop-predictor', key: 'aiPredictor',    icon: Sprout          },
   { href: '/disease',        key: 'diseaseDetect',  icon: Bug             },
-  { href: '/khet-diary',     key: 'khetDiary',      icon: BookOpen        },
   { href: '/soil-health',    key: 'soilHealth',     icon: FlaskConical    },
   { href: '/schemes',        key: 'schemes',        icon: Landmark        },
   { href: '/mandi',          key: 'mandi',          icon: TrendingUp      },

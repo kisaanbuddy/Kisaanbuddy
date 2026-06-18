@@ -109,15 +109,5 @@ if Column is not None:
         stars = Column(Integer, default=5)
         created_at = Column(String(50))
 
-    class DiaryEntry(Base):  # type: ignore[misc]
-        __tablename__ = "diary_entries"
-        id = Column(String(50), primary_key=True, index=True)
-        user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-        date = Column(String(50), nullable=False)
-        activity = Column(String(50), nullable=False)
-        crop = Column(String(100), nullable=False)
-        notes = Column(Text, nullable=True)
-        image_data_url = Column(Text, nullable=True)
-        weather = Column(String(100), nullable=True)
-        created_at = Column(DateTime, default=datetime.utcnow)
+
 

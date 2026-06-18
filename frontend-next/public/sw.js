@@ -14,7 +14,6 @@ const PRECACHE = [
   "/disease",
   "/worker-connect",
   "/schemes",
-  "/khet-diary",
   "/soil-health",
   "/crop-predictor",
   "/manifest.json",

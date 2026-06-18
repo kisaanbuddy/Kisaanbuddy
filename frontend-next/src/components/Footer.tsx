@@ -50,9 +50,6 @@ export function Footer() {
               <Link href="/soil-health" className="hover:text-primary transition-colors">
                 {t("soilHealth")}
               </Link>
-              <Link href="/khet-diary" className="hover:text-primary transition-colors">
-                {t("khetDiary")}
-              </Link>
               <Link href="/schemes" className="hover:text-primary transition-colors">
                 {t("schemes")}
               </Link>
