@@ -7,7 +7,7 @@ echo ============================================
 echo.
 echo Problem: Wrong GitHub account saved in Windows.
 echo          Saved: irfandarvan07-del
-echo          Needed: adityaoutlier5-dotcom
+echo          Needed: kisaanbuddy
 echo.
 
 echo [Step 1] Removing saved GitHub credentials from Windows...
@@ -39,7 +39,7 @@ echo   NOW PUSHING...
 echo ============================================
 echo.
 echo A browser window OR a login popup will open.
-echo LOGIN WITH: adityaoutlier5-dotcom
+echo LOGIN WITH: kisaanbuddy
 echo (NOT irfandarvan07-del)
 echo.
 echo If it asks for password: use a GitHub Personal
@@ -67,7 +67,7 @@ if %ERRORLEVEL% EQU 0 (
     echo MANUAL FIX OPTIONS:
     echo.
     echo Option A - Use Token in URL ^(most reliable^):
-    echo   git remote set-url origin https://YOUR_TOKEN@github.com/adityaoutlier5-dotcom/krishiai.git
+    echo   git remote set-url origin https://YOUR_TOKEN@github.com/kisaanbuddy/Kisaanbuddy.git
     echo   git push
     echo.
     echo Option B - Windows Credential Manager:

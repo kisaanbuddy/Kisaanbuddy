@@ -74,15 +74,15 @@ echo.
 echo NEXT STEPS:
 echo.
 echo 1. Open https://github.com/new in your browser
-echo 2. Create a new repo named: krishiai
+echo 2. Create a new repo named: Kisaanbuddy
 echo    - Owner: your GitHub username
 echo    - Public or Private (your choice)
 echo    - DO NOT add README, .gitignore, or license (we have them)
 echo 3. After creating, GitHub will show you a URL like:
-echo      https://github.com/YOUR_USERNAME/krishiai.git
+echo      https://github.com/YOUR_USERNAME/Kisaanbuddy.git
 echo.
 echo 4. Come back here and paste that URL when asked, then run:
-echo      git remote add origin https://github.com/YOUR_USERNAME/krishiai.git
+echo      git remote add origin https://github.com/YOUR_USERNAME/Kisaanbuddy.git
 echo      git push -u origin main
 echo.
 echo 5. If git asks for password: use a GitHub Personal Access Token
