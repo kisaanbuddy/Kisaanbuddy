@@ -1,144 +1,318 @@
 "use client"
-import { useLanguage } from '@/lib/language'
 
-import { useState, useRef, useEffect, Suspense } from "react"
+import { useLanguage } from '@/lib/language'
+import { useState, useRef, useEffect, Suspense, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Mic, Send, Bot, User, RefreshCw, MicOff, Sparkles, Check, ArrowRight, ShieldAlert } from "lucide-react"
+import { 
+  Mic, 
+  MicOff, 
+  Volume2, 
+  VolumeX, 
+  Play, 
+  Pause, 
+  Camera, 
+  Trash2, 
+  Database, 
+  RefreshCw, 
+  Check, 
+  X, 
+  Sparkles,
+  ShieldAlert,
+  History
+} from "lucide-react"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 
-type Message = { id: number; text: string; sender: "bot" | "user" }
-type Lang = "hi-IN" | "en-IN" | "kn-IN"
-
-const LANG_LABELS: Record<Lang, string> = {
-  "hi-IN": "हिंदी (Hindi)",
-  "en-IN": "English",
-  "kn-IN": "ಕನ್ನಡ (Kannada)",
+type Message = { 
+  id: string; 
+  text: string; 
+  sender: "bot" | "user";
+  language: string;
+  audioUrl?: string;
+  imageUrl?: string;
+  isPlaying?: boolean;
 }
 
-const WELCOME: Record<Lang, string> = {
-  "hi-IN": "Namaste! Main aapka KrishiAI sahayak hoon. Apni fasal, mitti, mausam ya koi bhi kheti ki samasya poochh sakte hain — Hindi mein bilkul.",
-  "en-IN": "Hello! I am your KrishiAI assistant. Ask me anything about crops, soil, weather, or farming — in Hindi, English, or Kannada.",
-  "kn-IN": "Namaskara! Nanu nimma KrishiAI sahayaka. Bele, manu, havamana athava yavarade krishi samasye keli — Kannada alli.",
+type Lang = "hi" | "en" | "kn" | "te" | "ta" | "bn" | "mr"
+
+const LANG_CONFIG: Record<Lang, { label: string; speechCode: string; welcome: string; placeholder: string }> = {
+  hi: {
+    label: "हिंदी (Hindi)",
+    speechCode: "hi-IN",
+    welcome: "नमस्ते! मैं आपका किसान मित्र एआई सहायक हूँ। बोलने के लिए नीचे दिए गए माइक को दबाएं।",
+    placeholder: "बोलने के लिए माइक दबाएं..."
+  },
+  kn: {
+    label: "ಕನ್ನಡ (Kannada)",
+    speechCode: "kn-IN",
+    welcome: "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಕಿಸಾನ್ ಮಿತ್ರ ಎಐ ಸಹಾಯಕ. ಮಾತನಾಡಲು ಕೆಳಗಿನ ಮೈಕ್ ಒತ್ತಿರಿ.",
+    placeholder: "ಮಾತನಾಡಲು ಮೈಕ್ರೋಫೋನ್ ಒತ್ತಿರಿ..."
+  },
+  en: {
+    label: "English",
+    speechCode: "en-US",
+    welcome: "Hello! I am your KisaanBuddy AI assistant. Tap the microphone below to talk to me.",
+    placeholder: "Tap microphone to speak..."
+  },
+  te: {
+    label: "తెలుగు (Telugu)",
+    speechCode: "te-IN",
+    welcome: "నమస్తే! నేను మీ కిసాన్ మిత్ర ఎఐ సహాయకుడిని. మాట్లాడటానికి మైక్రోఫోన్ నొక్కండి.",
+    placeholder: "మాట్లాడటానికి మైక్రోఫోన్ నొక్కండి..."
+  },
+  ta: {
+    label: "தமிழ் (Tamil)",
+    speechCode: "ta-IN",
+    welcome: "வணக்கம்! நான் உங்கள் கிசான் மித்ரா எஐ உதவியாளர். பேச மைக்ரோஃபோனைத் தட்டவும்.",
+    placeholder: "பேச மைக்ரோஃபோனைத் தட்டவும்..."
+  },
+  bn: {
+    label: "বাংলা (Bengali)",
+    speechCode: "bn-IN",
+    welcome: "নমস্কার! আমি আপনার কিষাণ মিত্র এআই সহকারী। কথা বলতে নিচের মাইক টিপুন।",
+    placeholder: "কথা বলতে মাইক টিপুন..."
+  },
+  mr: {
+    label: "मराठी (Marathi)",
+    speechCode: "mr-IN",
+    welcome: "नमस्कार! मी तुमचा किसान मित्र एआय सहाय्यक आहे. बोलण्यासाठी खालील माइक दाबा.",
+    placeholder: "बोलण्यासाठी माइक दाबा..."
+  }
 }
 
-const PLACEHOLDER: Record<Lang, string> = {
-  "hi-IN": "Hindi mein poochho... jaise 'tamatar ke patte peele pad rahe hain'",
-  "en-IN": "Ask in English... like 'my tomato leaves are yellowing'",
-  "kn-IN": "Kannada nalli keli...",
-}
-
-const SUGGESTIONS: Record<Lang, { text: string; icon: string }[]> = {
-  "hi-IN": [
-    { text: "Tamatar ke patte peele pad rahe hain, kya karein?", icon: "🍅" },
-    { text: "Agle 3 dino ka mausam kaisa rahega?", icon: "🌦️" },
-    { text: "Dhan ki fasal ke liye kaunsi khad sabse achhi hai?", icon: "🌾" },
-    { text: "PM Kisan Yojana ke liye eligibility kya hai?", icon: "📋" },
-  ],
-  "en-IN": [
-    { text: "My tomato leaves are turning yellow, what should I do?", icon: "🍅" },
-    { text: "What is the weather forecast for the next 3 days?", icon: "🌦️" },
-    { text: "Which fertilizer is best for paddy cultivation?", icon: "🌾" },
-    { text: "What are the eligibility criteria for PM Kisan scheme?", icon: "📋" },
-  ],
-  "kn-IN": [
-    { text: "ಟೊಮೆಟೊ ಎಲೆಗಳು ಹಳದಿಯಾಗುತ್ತಿವೆ, ಏನು ಮಾಡಬೇಕು?", icon: "🍅" },
-    { text: "ಮುಂದಿನ 3 ದಿನಗಳ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಏನು?", icon: "🌦️" },
-    { text: "ಭತ್ತದ ಬೆಳೆಗೆ ಯಾವ ಗೊಬ್ಬರ ಉತ್ತಮ?", icon: "🌾" },
-    { text: "ಪಿಎಂ ಕಿಸಾನ್ ಯೋಜನೆಯ ಅರ್ಹತಾ ಮಾನದಂಡಗಳು ಯಾವುವು?", icon: "📋" },
-  ],
-}
+const CACHE_NAME = "kisaanbuddy-tts-audio-cache"
 
 function ChatbotInner() {
   const { t, lang: globalLang } = useLanguage()
   const searchParams = useSearchParams()
-  const [lang, setLang] = useState<Lang>("hi-IN")
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: WELCOME["hi-IN"], sender: "bot" }
-  ])
-  const [input, setInput] = useState("")
-  const [isTyping, setIsTyping] = useState(false)
+
+  const [activeLang, setActiveLang] = useState<Lang>("hi")
+  const [messages, setMessages] = useState<Message[]>([])
+  
   const [isListening, setIsListening] = useState(false)
   const [interimText, setInterimText] = useState("")
+  const [isThinking, setIsThinking] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  
+  // Camera & Image state
+  const [attachedImage, setAttachedImage] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null)
 
-  // Sync with global language on mount / change
+  // Map global UI language to our local voice assistant languages
   useEffect(() => {
-    if (globalLang === "en") {
-      switchLang("en-IN")
-    } else if (globalLang === "kn") {
-      switchLang("kn-IN")
-    } else if (globalLang === "hi" || globalLang === "hi_en") {
-      switchLang("hi-IN")
-    }
+    if (globalLang === "kn") setActiveLang("kn")
+    else if (globalLang === "en") setActiveLang("en")
+    else if (globalLang === "te") setActiveLang("te")
+    else if (globalLang === "ta") setActiveLang("ta")
+    else if (globalLang === "bn") setActiveLang("bn")
+    else if (globalLang === "mr") setActiveLang("mr")
+    else setActiveLang("hi")
   }, [globalLang])
 
-  // Auto-fill and auto-send from homepage/dashboard voice demo (?q=...)
+  // Pre-load welcome message
   useEffect(() => {
-    const q = searchParams.get("q")
-    if (q) {
-      const decoded = decodeURIComponent(q)
-      setInput(decoded)
-      const timer = setTimeout(() => {
-        handleSend(undefined, decoded)
-      }, 300)
-      return () => clearTimeout(timer)
+    setMessages([
+      {
+        id: "welcome",
+        text: LANG_CONFIG[activeLang].welcome,
+        sender: "bot",
+        language: activeLang
+      }
+    ])
+  }, [activeLang])
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+  
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages, isThinking])
+
+  // Stop current audio playback
+  const stopCurrentAudio = () => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause()
+      currentAudioRef.current = null
     }
-  }, [searchParams])
-
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  useEffect(() => scrollToBottom(), [messages, isTyping])
-
-  // Update welcome message when lang changes
-  const switchLang = (newLang: Lang) => {
-    setLang(newLang)
-    setMessages([{ id: Date.now(), text: WELCOME[newLang], sender: "bot" }])
+    setMessages(prev => prev.map(m => ({ ...m, isPlaying: false })))
+    setIsSpeaking(false)
   }
 
-  const handleSend = async (e?: React.FormEvent, overrideText?: string) => {
-    e?.preventDefault()
-    const userMsg = (overrideText || input).trim()
-    if (!userMsg) return
+  // Play synthetic TTS audio (either cached locally, retrieved from backend, or browser fallback)
+  const playAudio = async (text: string, language: string, msgId: string) => {
+    stopCurrentAudio()
+    
+    try {
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: true } : m))
+      setIsSpeaking(true)
 
-    setInput("")
-    setInterimText("")
-    setMessages(prev => [...prev, { id: Date.now(), text: userMsg, sender: "user" }])
-    setIsTyping(true)
+      // 1. Try Cache API first
+      const cache = await caches.open(CACHE_NAME)
+      const cacheKey = `/api/chat/tts?text=${encodeURIComponent(text)}&lang=${language}`
+      const cachedResponse = await cache.match(cacheKey)
+
+      let audioUrl = ""
+
+      if (cachedResponse) {
+        const blob = await cachedResponse.blob()
+        audioUrl = URL.createObjectURL(blob)
+      } else {
+        // 2. Fetch from Backend
+        const res = await fetch("/api/chat/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: text,
+            language: language,
+            prefer_browser: false
+          })
+        })
+
+        if (!res.ok) throw new Error("TTS endpoint error")
+
+        const contentType = res.headers.get("content-type") || ""
+        if (contentType.includes("json")) {
+          const data = await res.json()
+          if (data.browser) {
+            // Browser speech synthesis fallback
+            speakViaBrowser(text, data.voice_suggestion || "hi-IN", msgId)
+            return
+          }
+        }
+
+        // Cache the successful audio response
+        const responseClone = res.clone()
+        await cache.put(cacheKey, responseClone)
+
+        const blob = await res.blob()
+        audioUrl = URL.createObjectURL(blob)
+      }
+
+      // Play the audio
+      const audio = new Audio(audioUrl)
+      currentAudioRef.current = audio
+      audio.onended = () => {
+        setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
+        setIsSpeaking(false)
+      }
+      audio.onerror = () => {
+        // Fallback if audio file fails to load
+        speakViaBrowser(text, language === "hi" ? "hi-IN" : language === "kn" ? "kn-IN" : "en-US", msgId)
+      }
+      audio.play()
+
+    } catch (err) {
+      console.warn("TTS backend error, falling back to Web Speech Synthesis API:", err)
+      speakViaBrowser(text, language === "hi" ? "hi-IN" : language === "kn" ? "kn-IN" : "en-US", msgId)
+    }
+  }
+
+  // Browser speech synthesis utility
+  const speakViaBrowser = (text: string, voiceCode: string, msgId: string) => {
+    if (typeof window === "undefined" || !window.speechSynthesis) {
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
+      setIsSpeaking(false)
+      return
+    }
+
+    window.speechSynthesis.cancel() // Stop any current speaking
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.lang = voiceCode
+    utterance.onend = () => {
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
+      setIsSpeaking(false)
+    }
+    utterance.onerror = () => {
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
+      setIsSpeaking(false)
+    }
+    window.speechSynthesis.speak(utterance)
+  }
+
+  // Send spoken query to LLM Brain
+  const sendQuery = async (queryText: string, imageBase64: string | null) => {
+    if (!queryText.trim()) return
+    
+    stopCurrentAudio()
+    
+    const userMsgId = Date.now().toString()
+    const botMsgId = (Date.now() + 1).toString()
+
+    // Add user message with attached photo if exists
+    setMessages(prev => [
+      ...prev,
+      {
+        id: userMsgId,
+        text: queryText,
+        sender: "user",
+        language: activeLang,
+        imageUrl: imageBase64 || undefined
+      }
+    ])
+    
+    setAttachedImage(null) // Reset attached crop photo
+    setIsThinking(true)
 
     try {
-      const res = await fetch("/api/chat/", {
+      const response = await fetch("/api/chat/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMsg, language: lang }),
+        body: JSON.stringify({
+          message: queryText,
+          language: activeLang,
+          stream: false,
+          image_base64: imageBase64 || undefined
+        })
       })
-      if (res.ok) {
-        const data = await res.json()
-        setMessages(prev => [...prev, { id: Date.now() + 1, text: data.reply, sender: "bot" }])
+
+      if (response.ok) {
+        const data = await response.json()
+        const botReply = data.content || data.reply || "Sorry, I could not generate a reply."
+        
+        setMessages(prev => [
+          ...prev,
+          {
+            id: botMsgId,
+            text: botReply,
+            sender: "bot",
+            language: activeLang
+          }
+        ])
+        
+        setIsThinking(false)
+        // Automatically play TTS for bot response
+        playAudio(botReply, activeLang, botMsgId)
       } else {
-        setMessages(prev => [...prev, {
-          id: Date.now() + 1,
-          text: t("chatbot.could_not_connect_to"),
-          sender: "bot"
-        }])
+        throw new Error("API responded with error")
       }
-    } catch {
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        text: t("chatbot.could_not_connect_to"),
-        sender: "bot"
-      }])
-    } finally {
-      setIsTyping(false)
+    } catch (error) {
+      console.error("Chat Error:", error)
+      const errorMsg = "माफ़ कीजिये, अभी संपर्क नहीं हो पा रहा है। कृपया दोबारा प्रयास करें।"
+      setMessages(prev => [
+        ...prev,
+        {
+          id: botMsgId,
+          text: errorMsg,
+          sender: "bot",
+          language: activeLang
+        }
+      ])
+      setIsThinking(false)
+      speakViaBrowser(errorMsg, "hi-IN", botMsgId)
     }
   }
 
+  // Handle Web Speech API Speech Recognition
   const toggleListen = () => {
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!SR) {
-      alert(t("chatbot.voice_not_supported_in"))
+      alert("Voice speech recognition is not supported in this browser. Please use Chrome on Android.")
       return
     }
 
@@ -147,253 +321,329 @@ function ChatbotInner() {
       return
     }
 
+    stopCurrentAudio()
+
     const recognition = new SR()
     recognitionRef.current = recognition
-    recognition.lang = lang
+    recognition.lang = LANG_CONFIG[activeLang].speechCode
     recognition.interimResults = true
     recognition.maxAlternatives = 1
     recognition.continuous = false
 
-    recognition.onstart = () => setIsListening(true)
+    recognition.onstart = () => {
+      setIsListening(true)
+      setInterimText("")
+    }
 
     recognition.onresult = (event: any) => {
       let interim = ""
       let final = ""
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript
-        if (event.results[i].isFinal) final += t
-        else interim += t
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) final += transcript
+        else interim += transcript
       }
+      
       if (final) {
-        setInput(prev => prev + final)
-        setInterimText("")
+        setInterimText(final)
       } else {
         setInterimText(interim)
       }
     }
 
-    recognition.onerror = () => {
+    recognition.onerror = (err: any) => {
+      console.error("Speech Recognition Error:", err)
       setIsListening(false)
       setInterimText("")
     }
 
     recognition.onend = () => {
       setIsListening(false)
-      setInterimText("")
+      // Send the query automatically when speaking ends
+      if (interimText.trim()) {
+        sendQuery(interimText, attachedImage)
+      }
     }
 
     recognition.start()
   }
 
+  // Photo uploads
+  const triggerCamera = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image is too large. Choose a file under 5MB.")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setAttachedImage(reader.result)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeAttachedImage = () => {
+    setAttachedImage(null)
+  }
+
+  const handleLangSelect = (code: Lang) => {
+    stopCurrentAudio()
+    setActiveLang(code)
+  }
+
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] max-w-4xl mx-auto relative pb-4">
-      {/* Decorative Blur Blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[300px] h-[300px] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none -z-10" />
-      <div className="absolute bottom-[20%] right-[-10%] w-[250px] h-[250px] rounded-full bg-teal-500/5 blur-[80px] pointer-events-none -z-10" />
+    <div className="flex flex-col h-[calc(100vh-120px)] max-w-4xl mx-auto relative pb-2 px-3 md:px-0">
+      {/* Decorative Blurs */}
+      <div className="absolute top-0 left-[-20%] w-[350px] h-[350px] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[10%] right-[-20%] w-[350px] h-[350px] rounded-full bg-teal-500/5 blur-[120px] pointer-events-none -z-10" />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4 border-b border-white/[0.06] pb-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10">
-            <Bot className="h-5.5 w-5.5" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold font-display text-white flex items-center gap-2">
-              Voice AI Assistant
-              <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Agent Live
-              </span>
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              Speak or type in your regional language
-            </p>
-          </div>
-        </div>
-
-        {/* Language selector tabs */}
-        <div className="flex rounded-xl border border-white/[0.08] bg-slate-950/40 p-1 gap-1">
-          {(Object.keys(LANG_LABELS) as Lang[]).map((l) => (
+      {/* Language Switcher bar */}
+      <div className="flex overflow-x-auto gap-1.5 py-3 custom-scrollbar scrollbar-none shrink-0 border-b border-white/[0.06] mb-3">
+        {(Object.keys(LANG_CONFIG) as Lang[]).map((code) => {
+          const isSelected = activeLang === code
+          return (
             <button
-              key={l}
-              onClick={() => switchLang(l)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
-                lang === l
-                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/15"
-                  : "text-muted-foreground hover:text-white"
+              key={code}
+              onClick={() => handleLangSelect(code)}
+              className={`px-3 py-2 rounded-2xl text-xs font-bold transition-all duration-300 whitespace-nowrap border ${
+                isSelected
+                  ? "bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-500/15 scale-105"
+                  : "bg-white/[0.02] border-white/[0.04] text-muted-foreground hover:text-white"
               }`}
             >
-              {LANG_LABELS[l].split(" ")[0]}
+              {LANG_CONFIG[code].label}
             </button>
-          ))}
-        </div>
+          )
+        })}
       </div>
 
-      {/* Chat Container */}
-      <GlassCard className="flex-1 overflow-hidden flex flex-col border border-white/[0.08] backdrop-blur-md shadow-2xl bg-slate-950/20 rounded-3xl relative">
-        {/* Chat Messages */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar">
-          <AnimatePresence initial={false}>
-            {messages.map((msg) => {
-              const isBot = msg.sender === "bot"
-              return (
-                <motion.div
-                  key={msg.id}
-                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                  layout
-                  className={`flex gap-3 max-w-[85%] ${isBot ? "mr-auto" : "ml-auto flex-row-reverse"}`}
-                >
-                  {/* Avatar */}
-                  <div className={`mt-1.5 flex-shrink-0 h-9 w-9 rounded-xl flex items-center justify-center shadow-md relative ${
-                    isBot
-                      ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400"
-                      : "bg-teal-500/10 border border-teal-500/20 text-teal-400"
-                  }`}>
-                    {isBot ? <Bot className="h-4.5 w-4.5" /> : <User className="h-4.5 w-4.5" />}
-                    {isBot && (
-                      <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-slate-950" />
-                    )}
-                  </div>
+      {/* Main layout split (Top: Giant mic, Bottom: bubble list) */}
+      <div className="flex-1 flex flex-col justify-between overflow-hidden gap-4">
+        
+        {/* UPPER PORTION: Voice control panel */}
+        <div className="flex flex-col items-center justify-center py-6 relative select-none">
+          
+          {/* Audio ripples */}
+          <div className="relative h-44 w-44 flex items-center justify-center">
+            <AnimatePresence>
+              {isListening && (
+                <>
+                  <motion.div
+                    initial={{ scale: 1, opacity: 0.6 }}
+                    animate={{ scale: 2.2, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut" }}
+                    className="absolute inset-0 rounded-full bg-emerald-500/15 border border-emerald-500/30"
+                  />
+                  <motion.div
+                    initial={{ scale: 1, opacity: 0.6 }}
+                    animate={{ scale: 1.7, opacity: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut", delay: 0.5 }}
+                    className="absolute inset-0 rounded-full bg-emerald-500/10 border border-emerald-500/20"
+                  />
+                </>
+              )}
+            </AnimatePresence>
 
-                  {/* Message Bubble */}
-                  <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm relative group transition-all duration-300 ${
-                    isBot
-                      ? "bg-white/[0.03] border border-white/[0.04] text-white/90 rounded-tl-sm"
-                      : "bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-tr-sm font-medium shadow-lg shadow-emerald-500/10"
-                  }`}>
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-                  </div>
-                </motion.div>
-              )
-            })}
-          </AnimatePresence>
-
-          {isTyping && (
-            <motion.div 
-              initial={{ opacity: 0, y: 5 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              className="flex gap-3 max-w-[85%] mr-auto"
-            >
-              <div className="flex-shrink-0 h-9 w-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                <Bot className="h-4.5 w-4.5 animate-pulse" />
-              </div>
-              <div className="bg-white/[0.03] border border-white/[0.04] p-4 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-11">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "300ms" }} />
-              </div>
-            </motion.div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Suggestion Chips - Only display when the welcome message is the only one */}
-        {messages.length === 1 && !isTyping && (
-          <div className="px-6 pb-2 pt-4 border-t border-white/[0.04] bg-slate-950/20 backdrop-blur-sm">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-black flex items-center gap-1.5 mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-              Suggested topics
-            </span>
-            <div className="grid gap-2 sm:grid-cols-2">
-              {SUGGESTIONS[lang]?.map((chip, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(undefined, chip.text)}
-                  className="flex items-center justify-between text-left p-3 rounded-xl border border-white/[0.05] bg-white/[0.01] hover:bg-white/[0.04] text-xs text-white/80 hover:text-white font-medium hover:border-emerald-500/20 transition-all group"
-                >
-                  <span className="flex items-center gap-2 truncate">
-                    <span>{chip.icon}</span>
-                    <span className="truncate">{chip.text}</span>
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-emerald-400 transition-colors shrink-0 ml-2 opacity-0 group-hover:opacity-100" />
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Chat Input Bar */}
-        <div className="p-4 border-t border-white/[0.06] bg-slate-950/40 backdrop-blur-3xl m-2 rounded-2xl shadow-inner">
-          <form onSubmit={handleSend} className="flex gap-2">
-            {/* Mic voice record */}
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              title={lang === "hi-IN" ? (isListening ? "Band karein" : "Hindi mein bolein") : (isListening ? "Stop" : "Speak")}
-              className={`h-12 w-12 rounded-xl flex-shrink-0 transition-all border-white/[0.08] relative overflow-hidden ${
-                isListening
-                  ? "bg-rose-500/20 text-rose-500 border-rose-500/40 hover:bg-rose-500/30 ring-2 ring-rose-500/20"
-                  : "bg-slate-900/60 hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20 text-muted-foreground"
-              }`}
+            {/* Microphone primary button */}
+            <motion.button
+              whileTap={{ scale: 0.93 }}
               onClick={toggleListen}
+              className={`h-32 w-32 rounded-full border flex flex-col items-center justify-center relative z-10 transition-all duration-300 shadow-2xl ${
+                isListening
+                  ? "bg-gradient-to-tr from-rose-500 to-red-400 border-rose-400 text-white ring-4 ring-rose-500/25"
+                  : isSpeaking
+                  ? "bg-gradient-to-tr from-sky-500 to-indigo-500 border-sky-400 text-white animate-pulse"
+                  : attachedImage
+                  ? "bg-gradient-to-tr from-emerald-500 to-teal-400 border-emerald-400 text-white ring-4 ring-emerald-500/10"
+                  : "bg-slate-900 border-white/[0.08] hover:border-emerald-500/30 text-emerald-400 hover:text-emerald-300"
+              }`}
             >
               {isListening ? (
-                <>
-                  <MicOff className="h-5 w-5 relative z-10" />
-                  <span className="absolute inset-0 bg-rose-500/15 animate-ping rounded-xl" />
-                </>
+                <MicOff className="h-10 w-10 animate-bounce" />
               ) : (
-                <Mic className="h-5 w-5" />
+                <Mic className="h-10 w-10" />
               )}
-            </Button>
+            </motion.button>
 
-            {/* Input fields */}
-            <div className="flex-1 relative">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={isListening
-                  ? t("chatbot.listening")
-                  : PLACEHOLDER[lang]}
-                className="h-12 bg-slate-950/60 border border-white/[0.08] focus:border-emerald-500/40 rounded-xl px-4 focus-visible:ring-emerald-500/10 focus-visible:ring-offset-0 text-sm shadow-sm w-full text-white placeholder:text-muted-foreground/60"
-                disabled={isListening}
-              />
-              {interimText && (
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-muted-foreground/60 pointer-events-none truncate max-w-[85%]">
-                  {interimText}
-                </div>
-              )}
-            </div>
-
-            {/* Send Message Button */}
+            {/* Photo upload camera floating button */}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+            />
             <Button
-              type="submit"
-              id="send-btn"
-              disabled={!input.trim() || isTyping}
-              className="h-12 w-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/10 flex-shrink-0 p-0 flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40"
+              onClick={triggerCamera}
+              className={`absolute bottom-0 right-0 h-11 w-11 rounded-full p-0 flex items-center justify-center z-20 border transition-all duration-300 hover:scale-110 ${
+                attachedImage 
+                  ? "bg-emerald-500 text-white border-emerald-400 shadow-lg" 
+                  : "bg-slate-800 border-white/[0.08] hover:bg-slate-700 text-muted-foreground hover:text-white"
+              }`}
             >
-              <Send className="h-4.5 w-4.5 ml-0.5" />
+              <Camera className="h-4.5 w-4.5" />
             </Button>
-          </form>
+          </div>
 
-          {/* Listening State Audio Waves simulation */}
-          {isListening && (
-            <motion.div 
-              initial={{ opacity: 0, y: 5 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              className="mt-3 flex items-center justify-center gap-2 bg-rose-500/5 border border-rose-500/15 rounded-xl p-2"
-            >
-              <div className="flex items-center gap-0.5 h-3">
-                <span className="w-0.5 h-1.5 bg-rose-500 rounded animate-[pulse_0.6s_infinite_alternate]" />
-                <span className="w-0.5 h-3 bg-rose-500 rounded animate-[pulse_0.4s_infinite_alternate_0.1s]" />
-                <span className="w-0.5 h-2 bg-rose-500 rounded animate-[pulse_0.5s_infinite_alternate_0.2s]" />
-                <span className="w-0.5 h-1.5 bg-rose-500 rounded animate-[pulse_0.6s_infinite_alternate]" />
+          {/* Attached Image Thumbnail */}
+          {attachedImage && (
+            <div className="mt-4 flex items-center gap-2 bg-slate-900 border border-white/[0.06] rounded-xl p-1.5 pr-3 animate-fade-in shadow-lg">
+              <img src={attachedImage} className="h-10 w-10 object-cover rounded-lg border border-white/[0.08]" alt="Attached leaf" />
+              <div className="text-[10px] text-white/90 font-semibold flex flex-col">
+                <span>Photo attached</span>
+                <span className="text-muted-foreground">Tap mic to speak question</span>
               </div>
-              <span className="text-[10px] text-rose-400 font-bold">
-                {t("chatbot.recording_voice_processing_will")}
-              </span>
-            </motion.div>
+              <button onClick={removeAttachedImage} className="p-1 rounded-full hover:bg-white/[0.08] text-muted-foreground hover:text-white ml-2">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
           )}
 
-          {/* Footer disclaimer */}
-          <div className="text-center mt-3 flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60">
-            <ShieldAlert className="h-3.5 w-3.5 shrink-0" />
-            <span>{t("chatbot.ai_advisor_metrics_always")}</span>
+          {/* Subtitle instructions / transcripts */}
+          <div className="text-center mt-6 min-h-12 max-w-md px-4">
+            {isListening ? (
+              <span className="text-rose-400 font-bold text-sm animate-pulse flex items-center gap-1.5 justify-center">
+                <span className="h-2 w-2 rounded-full bg-rose-500 animate-ping" />
+                {interimText || LANG_CONFIG[activeLang].placeholder}
+              </span>
+            ) : isThinking ? (
+              <span className="text-emerald-400 font-bold text-sm animate-pulse">
+                {t("voice_assistant.status_thinking")}
+              </span>
+            ) : isSpeaking ? (
+              <span className="text-sky-400 font-bold text-sm flex items-center gap-2 justify-center">
+                <Volume2 className="h-4.5 w-4.5 animate-bounce" />
+                {t("voice_assistant.status_speaking")}
+              </span>
+            ) : (
+              <p className="text-muted-foreground text-xs font-semibold leading-relaxed">
+                {LANG_CONFIG[activeLang].placeholder}
+              </p>
+            )}
           </div>
         </div>
-      </GlassCard>
+
+        {/* LOWER PORTION: WhatsApp style Conversation bubbles */}
+        <GlassCard className="flex-1 overflow-hidden flex flex-col border border-white/[0.08] backdrop-blur-md shadow-2xl bg-slate-950/20 rounded-3xl relative">
+          
+          <div className="px-5 py-3 border-b border-white/[0.04] bg-slate-950/40 backdrop-blur-md flex items-center justify-between shrink-0">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-black flex items-center gap-1.5">
+              <History className="w-3.5 h-3.5 text-emerald-400" />
+              {t("voice_assistant.history")}
+            </span>
+            {messages.length > 1 && (
+              <button 
+                onClick={() => setMessages([{ id: "welcome", text: LANG_CONFIG[activeLang].welcome, sender: "bot", language: activeLang }])}
+                className="text-[10px] text-muted-foreground hover:text-white font-bold flex items-center gap-1 bg-white/[0.02] border border-white/[0.04] px-2.5 py-1 rounded-xl transition-all"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* List scroll panel */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 custom-scrollbar">
+            <AnimatePresence initial={false}>
+              {messages.map((msg) => {
+                const isBot = msg.sender === "bot"
+                const showPlay = isBot && msg.id !== "welcome"
+                
+                return (
+                  <motion.div
+                    key={msg.id}
+                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex items-start gap-2 max-w-[85%] ${isBot ? "mr-auto" : "ml-auto flex-row-reverse"}`}
+                  >
+                    {/* Message Bubble wrapper */}
+                    <div className={`rounded-2xl p-3 text-xs md:text-sm leading-relaxed relative flex flex-col gap-2 transition-all duration-300 shadow-md ${
+                      isBot
+                        ? "bg-slate-900/60 border border-white/[0.04] text-white/90 rounded-tl-sm"
+                        : "bg-gradient-to-tr from-emerald-600 to-teal-500 text-white rounded-tr-sm font-semibold"
+                    }`}>
+                      
+                      {/* Optional attached query image */}
+                      {msg.imageUrl && (
+                        <div className="rounded-lg overflow-hidden border border-white/10 max-h-40 overflow-hidden mb-1">
+                          <img src={msg.imageUrl} className="w-full object-cover max-h-40" alt="Query reference crop" />
+                        </div>
+                      )}
+
+                      {/* Text content block */}
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                      {/* Audio voice note button */}
+                      {showPlay && (
+                        <div className="flex items-center gap-2 pt-1.5 border-t border-white/[0.05] mt-1 shrink-0">
+                          <button
+                            onClick={() => msg.isPlaying ? stopCurrentAudio() : playAudio(msg.text, msg.language, msg.id)}
+                            className={`h-7 w-7 rounded-full flex items-center justify-center transition-all ${
+                              msg.isPlaying 
+                                ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" 
+                                : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30"
+                            }`}
+                          >
+                            {msg.isPlaying ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current ml-0.5" />}
+                          </button>
+                          
+                          {/* Animated voice sound waves visualization */}
+                          {msg.isPlaying ? (
+                            <div className="flex items-center gap-0.5 h-3 px-1">
+                              <span className="w-0.5 h-2 bg-emerald-400 rounded animate-[pulse_0.4s_infinite_alternate]" />
+                              <span className="w-0.5 h-3 bg-emerald-400 rounded animate-[pulse_0.3s_infinite_alternate_0.1s]" />
+                              <span className="w-0.5 h-1.5 bg-emerald-400 rounded animate-[pulse_0.5s_infinite_alternate_0.2s]" />
+                              <span className="w-0.5 h-2 bg-emerald-400 rounded animate-[pulse_0.4s_infinite_alternate]" />
+                            </div>
+                          ) : (
+                            <span className="text-[9px] text-muted-foreground font-semibold">
+                              Tap to hear response
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+
+            {isThinking && (
+              <motion.div 
+                initial={{ opacity: 0, y: 5 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className="flex items-start gap-2 max-w-[85%] mr-auto"
+              >
+                <div className="bg-slate-900/60 border border-white/[0.04] p-3 rounded-2xl rounded-tl-sm flex items-center gap-1.5 h-9">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </motion.div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Footer warning */}
+          <div className="p-3 border-t border-white/[0.04] bg-slate-950/40 text-center flex items-center justify-center gap-1.5 text-[9px] text-muted-foreground/60 shrink-0">
+            <ShieldAlert className="h-3 w-3 shrink-0" />
+            <span>AI advisor recommendations. Always cross-verify with local agronomists.</span>
+          </div>
+
+        </GlassCard>
+
+      </div>
     </div>
   )
 }
@@ -401,7 +651,12 @@ function ChatbotInner() {
 export default function ChatbotPage() {
   const { t } = useLanguage()
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64 text-muted-foreground font-semibold">{t("chatbot.configuring_voice_ai_pipeline")}</div>}>
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center h-64 gap-3 text-muted-foreground font-semibold">
+        <RefreshCw className="h-8 w-8 animate-spin text-emerald-400" />
+        <span>Configuring Voice-First AI Pipeline...</span>
+      </div>
+    }>
       <ChatbotInner />
     </Suspense>
   )

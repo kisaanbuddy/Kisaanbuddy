@@ -1007,5 +1007,23 @@
     "text_label": "आपकी समीक्षा",
     "text_placeholder": "KisaanBuddy के साथ अपना अनुभव लिखें...",
     "success_alert": "धन्यवाद! आपकी समीक्षा सफलतापूर्वक प्रकाशित कर दी गई है।"
+  },
+  "voice_assistant": {
+    "badge": "एआई वॉयस कोपायलट",
+    "title": "KisaanBuddy से बात करें",
+    "status_idle": "बोलने के लिए माइक दबाएं",
+    "status_listening": "सुन रहे हैं... रोकने के लिए दबाएं",
+    "status_thinking": "एआई सोच रहा है...",
+    "status_speaking": "जवाब दे रहे हैं...",
+    "add_photo": "फोटो जोड़ें",
+    "send_query": "वॉयस क्वेरी भेजें",
+    "history": "हालिया बातचीत",
+    "clear_history": "इतिहास साफ करें",
+    "play_audio": "ऑडियो बजाएं",
+    "pause_audio": "ऑडियो रोकें",
+    "upload_photo_first": "पहले फसल रोग की फोटो चुनें",
+    "disease_photo": "रोग की फोटो संलग्न है",
+    "speech_not_supported": "इस ब्राउज़र में वॉयस स्पीच रिकग्निशन समर्थित नहीं है। कृपया एंड्रॉइड पर क्रोम का उपयोग करें।",
+    "success_submit": "मौखिक प्रश्न भेजा गया"
   }
 }

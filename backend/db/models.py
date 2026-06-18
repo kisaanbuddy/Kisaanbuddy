@@ -98,3 +98,26 @@ if Column is not None:
         wage = Column(String(100))
         contact_number = Column(String(20), nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow)
+
+    class Review(Base):  # type: ignore[misc]
+        __tablename__ = "reviews"
+        id = Column(String(50), primary_key=True, index=True)
+        name = Column(String(100), nullable=False)
+        location = Column(String(255), nullable=False)
+        crop = Column(String(100), nullable=False)
+        text = Column(Text, nullable=False)
+        stars = Column(Integer, default=5)
+        created_at = Column(String(50))
+
+    class DiaryEntry(Base):  # type: ignore[misc]
+        __tablename__ = "diary_entries"
+        id = Column(String(50), primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+        date = Column(String(50), nullable=False)
+        activity = Column(String(50), nullable=False)
+        crop = Column(String(100), nullable=False)
+        notes = Column(Text, nullable=True)
+        image_data_url = Column(Text, nullable=True)
+        weather = Column(String(100), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow)
+

@@ -1,10 +1,12 @@
 "use client"
 import { useLanguage } from '@/lib/language'
+import { useAuth } from "@/lib/auth"
+import Link from "next/link"
 /**
  * KrishiAI — Khet Diary (Farm Activity Log)
  *
  * Farmers can log daily activities: sowing, irrigation, spraying, harvest,
- * notes, and optional photos. All data stored in localStorage.
+ * notes, and optional photos. Persistent storage is synced with the cloud database.
  * Timeline sorted newest-first with date + weather context.
  */
 import {
@@ -24,6 +26,8 @@ import {
   Tractor,
   X,
   Sparkles,
+  Database,
+  ShieldAlert,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -31,6 +35,7 @@ import { Card, GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -94,29 +99,130 @@ function saveEntries(entries: DiaryEntry[]) {
 
 export default function KhetDiaryPage() {
   const { t } = useLanguage()
+  const { user, ready } = useAuth()
   const [entries, setEntries] = useState<DiaryEntry[]>([])
   const [showForm, setShowForm] = useState(false)
   const [filterActivity, setFilterActivity] = useState<ActivityType | "">("")
   const [filterCrop, setFilterCrop] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [syncing, setSyncing] = useState(false)
 
-  useEffect(() => { setEntries(readEntries()) }, [])
+  // Sync / Load logic
+  useEffect(() => {
+    if (!ready) return
 
-  const addEntry = useCallback((entry: DiaryEntry) => {
-    setEntries((prev) => {
-      const updated = [entry, ...prev]
-      saveEntries(updated)
-      return updated
-    })
+    const loadData = async () => {
+      setLoading(true)
+      try {
+        const local = readEntries()
+        
+        if (user) {
+          // If we have a user logged in, check if there are local entries to sync
+          if (local.length > 0) {
+            setSyncing(true)
+            try {
+              const res = await fetch("/api/diary/sync", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${window.localStorage.getItem("krishi_token")}`
+                },
+                body: JSON.stringify(local)
+              })
+              if (res.ok) {
+                // Clear localStorage once synced successfully
+                window.localStorage.removeItem(STORAGE_KEY)
+              }
+            } catch (err) {
+              console.error("Failed to sync local entries with cloud", err)
+            } finally {
+              setSyncing(false)
+            }
+          }
+
+          // Fetch entries from cloud
+          const res = await fetch("/api/diary", {
+            headers: {
+              "Authorization": `Bearer ${window.localStorage.getItem("krishi_token")}`
+            }
+          })
+          if (res.ok) {
+            const data = await res.json()
+            setEntries(data)
+          } else {
+            // Fallback to local if fetch failed
+            setEntries(local)
+          }
+        } else {
+          // Guest mode - load local only
+          setEntries(local)
+        }
+      } catch (err) {
+        console.error("Error loading entries", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [user, ready])
+
+  const addEntry = useCallback(async (entry: DiaryEntry) => {
+    // Optimistic update
+    setEntries((prev) => [entry, ...prev])
     setShowForm(false)
-  }, [])
 
-  const deleteEntry = useCallback((id: string) => {
-    setEntries((prev) => {
-      const updated = prev.filter((e) => e.id !== id)
-      saveEntries(updated)
-      return updated
-    })
-  }, [])
+    if (user) {
+      try {
+        const res = await fetch("/api/diary", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${window.localStorage.getItem("krishi_token")}`
+          },
+          body: JSON.stringify(entry)
+        })
+        if (!res.ok) {
+          throw new Error("Failed to save entry to cloud")
+        }
+      } catch (err) {
+        console.error(err)
+        // If save fails, we queue it in local storage as a fallback to sync later
+        const local = readEntries()
+        saveEntries([entry, ...local])
+      }
+    } else {
+      const local = readEntries()
+      saveEntries([entry, ...local])
+    }
+  }, [user])
+
+  const deleteEntry = useCallback(async (id: string) => {
+    // Optimistic update
+    setEntries((prev) => prev.filter((e) => e.id !== id))
+
+    if (user) {
+      try {
+        const res = await fetch(`/api/diary/${id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${window.localStorage.getItem("krishi_token")}`
+          }
+        })
+        if (!res.ok) {
+          throw new Error("Failed to delete entry from cloud")
+        }
+      } catch (err) {
+        console.error(err)
+        // Fallback: delete it locally as well just in case
+        const local = readEntries()
+        saveEntries(local.filter((e) => e.id !== id))
+      }
+    } else {
+      const local = readEntries()
+      saveEntries(local.filter((e) => e.id !== id))
+    }
+  }, [user])
 
   const filtered = entries.filter((e) => {
     if (filterActivity && e.activity !== filterActivity) return false
@@ -132,11 +238,36 @@ export default function KhetDiaryPage() {
     return acc
   }, {})
 
+
   return (
     <div className="space-y-8 max-w-4xl mx-auto pb-12 relative">
       {/* Decorative Blob */}
       <div className="absolute top-[-10%] right-[10%] w-[350px] h-[350px] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none -z-10" />
       <div className="absolute bottom-[20%] left-[5%] w-[300px] h-[300px] rounded-full bg-teal-500/5 blur-[100px] pointer-events-none -z-10" />
+
+      {/* Guest Mode Banner */}
+      {!user && ready && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex items-center justify-between rounded-2xl bg-amber-500/10 border border-amber-500/20 px-5 py-3.5 text-xs text-amber-400 font-semibold shadow-lg shadow-amber-500/5"
+        >
+          <div className="flex items-center gap-2.5">
+            <ShieldAlert className="h-4.5 w-4.5 shrink-0 text-amber-400" />
+            <span>You are logging as Guest. Sign in to save your logs to Vercel/Cloud storage persistently and never lose data.</span>
+          </div>
+          <Link href="/login" className="underline hover:text-amber-300 font-bold ml-4 whitespace-nowrap">
+            Sign In &rarr;
+          </Link>
+        </motion.div>
+      )}
+
+      {syncing && (
+        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-xs text-emerald-400 font-semibold w-fit">
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          Syncing guest logs with database...
+        </div>
+      )}
 
       {/* Header Banner */}
       <motion.div 
@@ -147,15 +278,25 @@ export default function KhetDiaryPage() {
       >
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 mb-3">
-              <BookOpen className="h-3.5 w-3.5" />
-              Digital Ledger · खेती का हिसाब
-            </div>
+            {user ? (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-400 mb-3">
+                <Database className="h-3.5 w-3.5 animate-pulse" />
+                <span>Cloud Connected (Vercel Postgres/SQLite)</span>
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-semibold text-amber-400 mb-3">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                <span>Guest mode: stored in browser only</span>
+              </div>
+            )}
             <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-white">
               Khet <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">{t("khet_diary.diary")}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
-              Log daily activities: sowing timelines, irrigation logs, fertilizer doses, harvest quantities, and soil observations. Kept locally in browser context.
+              {user 
+                ? "Log daily activities: sowing timelines, irrigation logs, fertilizer doses, harvest quantities, and soil observations. Automatically backed up to KisaanBuddy Cloud."
+                : "Log daily activities: sowing timelines, irrigation logs, fertilizer doses, harvest quantities, and soil observations. Log in to sync to cloud database."
+              }
             </p>
           </div>
           <Button
@@ -168,95 +309,104 @@ export default function KhetDiaryPage() {
         </div>
       </motion.div>
 
-      {/* Stats bar */}
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
-        className="grid grid-cols-3 gap-4"
-      >
-        {[
-          { label: "Total Entries", value: entries.length, icon: <BookOpen className="h-5 w-5 text-emerald-400" />, border: "border-emerald-500/10 bg-emerald-500/5 text-emerald-400" },
-          { label: "This Month", value: entries.filter(e => e.date.startsWith(new Date().toISOString().slice(0, 7))).length, icon: <Calendar className="h-5 w-5 text-blue-400" />, border: "border-blue-500/10 bg-blue-500/5 text-blue-400" },
-          { label: "Crops Tracked", value: new Set(entries.map(e => e.crop).filter(Boolean)).size, icon: <Sprout className="h-5 w-5 text-amber-400" />, border: "border-amber-500/10 bg-amber-500/5 text-amber-400" },
-        ].map((s) => (
-          <div key={s.label} className={`rounded-2xl border ${s.border} p-4 backdrop-blur-md shadow-sm`}>
-            <div className="mb-1.5">{s.icon}</div>
-            <div className="text-2xl font-black text-white font-display">{s.value}</div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{s.label}</div>
-          </div>
-        ))}
-      </motion.div>
-
-      {/* Filters */}
-      {entries.length > 0 && (
-        <div className="flex flex-wrap gap-3 items-center">
-          <select
-            value={filterActivity}
-            onChange={(e) => setFilterActivity(e.target.value as ActivityType | "")}
-            className="text-xs rounded-xl border border-white/[0.08] bg-slate-950/40 px-3.5 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all cursor-pointer font-semibold"
-          >
-            <option value="" className="bg-slate-900">{t("khet_diary.all_activities")}</option>
-            {ACTIVITY_TYPES.map((a) => (
-              <option key={a} value={a} className="bg-slate-900">{ACTIVITY_LABEL[a].emoji} {ACTIVITY_LABEL[a].label}</option>
-            ))}
-          </select>
-          <Input
-            value={filterCrop}
-            onChange={(e) => setFilterCrop(e.target.value)}
-            placeholder={t("khet_diary.filter_by_crop")}
-            className="h-9 w-44 rounded-xl border-white/[0.08] bg-slate-950/40 text-foreground px-4 text-xs font-semibold focus-visible:ring-emerald-500/30 text-white placeholder:text-muted-foreground/60"
-          />
-          {(filterActivity || filterCrop) && (
-            <Button
-              onClick={() => { setFilterActivity(""); setFilterCrop("") }}
-              variant="outline"
-              className="h-9 text-xs rounded-xl border-white/[0.08] hover:bg-white/[0.03] text-muted-foreground hover:text-white px-3.5 font-bold"
-            >
-              Clear filters
-            </Button>
-          )}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+          <span className="text-xs text-muted-foreground font-semibold">Loading farm logs from Cloud Database...</span>
         </div>
-      )}
-
-      {/* Entry form modal */}
-      <AnimatePresence>
-        {showForm && (
-          <EntryForm onAdd={addEntry} onClose={() => setShowForm(false)} />
-        )}
-      </AnimatePresence>
-
-      {/* Timeline */}
-      {filtered.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="rounded-2xl border border-dashed border-white/[0.08] bg-slate-950/20 p-12 text-center"
-        >
-          <div className="text-4xl mb-3">📔</div>
-          <p className="text-muted-foreground text-sm font-semibold">
-            {entries.length === 0
-              ? "Abhi tak koi diary entry nahi hai. Nayi entry shuru karein!"
-              : "No records found matching filters."}
-          </p>
-        </motion.div>
       ) : (
-        <div className="space-y-8">
-          {Object.entries(groups)
-            .sort((a, b) => b[0].localeCompare(a[0]))
-            .map(([month, monthEntries]) => (
-              <div key={month} className="space-y-4">
-                <div className="text-xs font-black text-emerald-400 bg-emerald-500/5 border border-emerald-500/10 px-3 py-1 rounded-lg w-fit font-mono">
-                  📅 {new Date(month + "-01").toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
-                </div>
-                <div className="relative pl-6 border-l border-white/[0.08] space-y-4 ml-3">
-                  {monthEntries.map((entry, i) => (
-                    <DiaryCard key={entry.id} entry={entry} onDelete={deleteEntry} index={i} />
-                  ))}
-                </div>
+        <>
+          {/* Stats bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="grid grid-cols-3 gap-4"
+          >
+            {[
+              { label: "Total Entries", value: entries.length, icon: <BookOpen className="h-5 w-5 text-emerald-400" />, border: "border-emerald-500/10 bg-emerald-500/5 text-emerald-400" },
+              { label: "This Month", value: entries.filter(e => e.date.startsWith(new Date().toISOString().slice(0, 7))).length, icon: <Calendar className="h-5 w-5 text-blue-400" />, border: "border-blue-500/10 bg-blue-500/5 text-blue-400" },
+              { label: "Crops Tracked", value: new Set(entries.map(e => e.crop).filter(Boolean)).size, icon: <Sprout className="h-5 w-5 text-amber-400" />, border: "border-amber-500/10 bg-amber-500/5 text-amber-400" },
+            ].map((s) => (
+              <div key={s.label} className={`rounded-2xl border ${s.border} p-4 backdrop-blur-md shadow-sm`}>
+                <div className="mb-1.5">{s.icon}</div>
+                <div className="text-2xl font-black text-white font-display">{s.value}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{s.label}</div>
               </div>
             ))}
-        </div>
+          </motion.div>
+
+          {/* Filters */}
+          {entries.length > 0 && (
+            <div className="flex flex-wrap gap-3 items-center">
+              <select
+                value={filterActivity}
+                onChange={(e) => setFilterActivity(e.target.value as ActivityType | "")}
+                className="text-xs rounded-xl border border-white/[0.08] bg-slate-950/40 px-3.5 py-2.5 text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all cursor-pointer font-semibold"
+              >
+                <option value="" className="bg-slate-900">{t("khet_diary.all_activities")}</option>
+                {ACTIVITY_TYPES.map((a) => (
+                  <option key={a} value={a} className="bg-slate-900">{ACTIVITY_LABEL[a].emoji} {ACTIVITY_LABEL[a].label}</option>
+                ))}
+              </select>
+              <Input
+                value={filterCrop}
+                onChange={(e) => setFilterCrop(e.target.value)}
+                placeholder={t("khet_diary.filter_by_crop")}
+                className="h-9 w-44 rounded-xl border-white/[0.08] bg-slate-950/40 text-foreground px-4 text-xs font-semibold focus-visible:ring-emerald-500/30 text-white placeholder:text-muted-foreground/60"
+              />
+              {(filterActivity || filterCrop) && (
+                <Button
+                  onClick={() => { setFilterActivity(""); setFilterCrop("") }}
+                  variant="outline"
+                  className="h-9 text-xs rounded-xl border-white/[0.08] hover:bg-white/[0.03] text-muted-foreground hover:text-white px-3.5 font-bold"
+                >
+                  Clear filters
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Entry form modal */}
+          <AnimatePresence>
+            {showForm && (
+              <EntryForm onAdd={addEntry} onClose={() => setShowForm(false)} />
+            )}
+          </AnimatePresence>
+
+          {/* Timeline */}
+          {filtered.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="rounded-2xl border border-dashed border-white/[0.08] bg-slate-950/20 p-12 text-center"
+            >
+              <div className="text-4xl mb-3">📔</div>
+              <p className="text-muted-foreground text-sm font-semibold">
+                {entries.length === 0
+                  ? "Abhi tak koi diary entry nahi hai. Nayi entry shuru karein!"
+                  : "No records found matching filters."}
+              </p>
+            </motion.div>
+          ) : (
+            <div className="space-y-8">
+              {Object.entries(groups)
+                .sort((a, b) => b[0].localeCompare(a[0]))
+                .map(([month, monthEntries]) => (
+                  <div key={month} className="space-y-4">
+                    <div className="text-xs font-black text-emerald-400 bg-emerald-500/5 border border-emerald-500/10 px-3 py-1 rounded-lg w-fit font-mono">
+                      📅 {new Date(month + "-01").toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+                    </div>
+                    <div className="relative pl-6 border-l border-white/[0.08] space-y-4 ml-3">
+                      {monthEntries.map((entry, i) => (
+                        <DiaryCard key={entry.id} entry={entry} onDelete={deleteEntry} index={i} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
