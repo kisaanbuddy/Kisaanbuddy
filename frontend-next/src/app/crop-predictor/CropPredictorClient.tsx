@@ -415,8 +415,6 @@ export default function CropPredictor() {
       >
         <AskFarmAI params={params} />
       </motion.div>
-        <AskFarmAI params={params} />
-      </motion.div>
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-white/[0.08] pt-10 select-none">
