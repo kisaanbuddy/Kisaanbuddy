@@ -1,4 +1,4 @@
-﻿{
+{
   "dashboard": {
     "iot_node_not_connected": "IoT नोड कनेक्ट नहीं है",
     "esp32_sensor_online": "ESP32 सेंसर ऑनलाइन",
@@ -335,6 +335,7 @@
   "footerTagline": "AI से भारतीय किसानों को सशक्त बनाना",
   "madeInIndia": "भारत में प्यार से बनाया",
   "aboutUs": "हमारे बारे में",
+  "impact": "प्रभाव डैशबोर्ड",
   "contactUs": "संपर्क करें",
   "privacyPolicy": "गोपनीयता नीति",
   "termsConditions": "नियम और शर्तें",
