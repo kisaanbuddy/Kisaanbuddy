@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { useLanguage } from '@/lib/language'
 
 /**
@@ -6,7 +6,7 @@ import { useLanguage } from '@/lib/language'
  * Crop Predictor based on the user's current GPS location or a searched city.
  *
  * Sources:
- *   - Temperature & Humidity: KrishiAI weather backend (multi-provider).
+ *   - Temperature & Humidity: KisaanBuddy weather backend (multi-provider).
  *   - Rainfall (mm, last 30 days): Open-Meteo historical API (free, no key).
  *
  * The component is purely additive — it calls back via `onApply(...)` which

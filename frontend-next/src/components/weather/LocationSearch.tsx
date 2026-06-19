@@ -1,10 +1,9 @@
 "use client"
 import { useLanguage } from '@/lib/language'
-
 import { useEffect, useRef, useState } from "react"
 import { MapPin, Search, Loader2, LocateFixed } from "lucide-react"
-
 import { searchLocations, type LocationHit } from "@/lib/weather-api"
+import { trackEvent } from '@/lib/analytics'
 
 interface Props {
   onSelect: (hit: LocationHit) => void
@@ -75,6 +74,7 @@ export function LocationSearch({
   }, [])
 
   function choose(hit: LocationHit) {
+    trackEvent({ type: 'weather_search', query: hit.display_name, lang: 'hi' })
     onSelect(hit)
     setQuery(hit.display_name)
     setOpen(false)

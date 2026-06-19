@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useLanguage } from '@/lib/language';
 import Link from 'next/link';
@@ -30,7 +30,7 @@ export function FinalCTA() {
         <div className="flex flex-wrap justify-center gap-4 pt-2">
           <Link href="/signup">
             <Button className="rounded-xl bg-primary hover:bg-[#00b084] text-white font-bold h-11 px-6 shadow-lg shadow-primary/15 flex items-center gap-2 group border-none transition-all duration-300">
-              <span>{t("landing_final_cta.launch_krishiai")}</span>
+              <span>{t("landing_final_cta.launch_KisaanBuddy")}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </Link>

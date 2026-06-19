@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useLanguage } from '@/lib/language';
 import { CheckCircle2 } from 'lucide-react';
@@ -37,7 +37,7 @@ export function WhyUs() {
         {/* Title Block */}
         <div className="text-center mb-16 space-y-4">
           <span className="inline-block rounded-full bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-            {t("landing_why_us.why_choose_krishiai")}
+            {t("landing_why_us.why_choose_KisaanBuddy")}
           </span>
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground">
             {t("landing_why_us.the_trust_standard_in")}{' '}

@@ -1,11 +1,11 @@
-"use client"
+﻿"use client"
 import { useLanguage } from '@/lib/language'
 
 /**
  * SensorAutoFill — auto-fills Temperature & Humidity in the Crop Predictor
  * from the live ESP32 field sensor node.
  *
- * Source: KrishiAI backend  GET /api/sensor/latest  (fed by the ESP32 via
+ * Source: KisaanBuddy backend  GET /api/sensor/latest  (fed by the ESP32 via
  * POST /api/sensor/ingest). Requests go through the Next.js rewrite, so a
  * relative path works in dev and prod.
  *

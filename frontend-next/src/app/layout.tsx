@@ -23,28 +23,28 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kisaanbuddy.com'),
-  title: 'KrishiAI | Smart Agriculture Platform',
-  description: 'AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts and more.',
-  keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan'],
+  title: 'KisaanBuddy — AI for Every Farmer | Smart Agriculture Platform',
+  description: 'AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts, khet diary and more.',
+  keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan', 'KisaanBuddy'],
   icons: { icon: '/favicon.ico', apple: '/icon-192.svg' },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'KrishiAI',
+    title: 'KisaanBuddy',
   },
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'KrishiAI - Smart Agriculture Platform',
+    title: 'KisaanBuddy — AI for Every Farmer',
     description: 'Empowering Indian farmers with AI-powered tools',
     type: 'website',
     url: '/',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KrishiAI | Smart Agriculture Platform',
+    title: 'KisaanBuddy — AI for Every Farmer',
     description: 'Empowering Indian farmers with AI-powered tools',
   },
   other: {

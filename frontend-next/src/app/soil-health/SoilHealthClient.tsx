@@ -1,11 +1,11 @@
 "use client"
 import { useLanguage } from '@/lib/language'
 /**
- * KrishiAI — Soil Health & Fertilizer Recommendation
+ * KisaanBuddy — Soil Health & Fertilizer Recommendation
  *
  * Farmer inputs soil test card values (N, P, K, pH, OC) + crop selection.
  * AI gives precise fertilizer recommendations + organic amendments.
- * Results streamed from the KrishiAI assistant backend.
+ * Results streamed from the KisaanBuddy assistant backend.
  */
 import {
   AlertTriangle,
@@ -119,7 +119,7 @@ const INITIAL: SoilForm = {
 
 function buildPrompt(f: SoilForm): string {
   const lang = f.language === "hi" ? "Hindi" : f.language === "kn" ? "Kannada" : "English"
-  return `You are KrishiAI's expert agronomist. Based on the soil health card readings below, give a precise fertilizer recommendation.
+  return `You are KisaanBuddy's expert agronomist. Based on the soil health card readings below, give a precise fertilizer recommendation.
 
 Soil Report:
 - Crop: ${f.crop}
@@ -647,6 +647,195 @@ export default function SoilHealthPage() {
           </GlassCard>
         </motion.div>
       </div>
+
+      {/* ── Educational Guide Section ── */}
+      <section className="mt-12 border-t border-white/[0.08] pt-10 select-none">
+        {lang === "hi" ? (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 मिट्टी का स्वास्थ्य क्या है और इसे कैसे सुधारें?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                मिट्टी का स्वास्थ्य (Soil Health) भूमि की वह जैविक और भौतिक क्षमता है जिससे वह फसलों को आवश्यक पोषक तत्व, हवा और पानी प्रदान कर सके। एक स्वस्थ मिट्टी न केवल अधिक पैदावार देती है बल्कि सूखे और बीमारियों के प्रभाव को भी कम करती है। मिट्टी की उर्वरता का सही आंकलन करने के लिए मुख्य तीन तत्वों <strong>N (नाइट्रोजन)</strong>, <strong>P (फास्फोरस)</strong>, और <strong>K (पोटेशियम)</strong> का संतुलन समझना आवश्यक है।
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-teal-400 font-display">🧪 NPK और मिट्टी का पीएच (pH) मान समझना</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <strong>N (नाइट्रोजन):</strong> पत्तों की हरियाली और वानस्पतिक विकास बढ़ाता है। इसकी कमी से पत्ते पीले पड़ जाते हैं।<br />
+                  <strong>P (फास्फोरस):</strong> जड़ों का मजबूत विकास और समय पर फूल-फल बनना सुनिश्चित करता है।<br />
+                  <strong>K (पोटेशियम):</strong> फसलों को रोगों से लड़ने और सूखे को सहन करने की क्षमता प्रदान करता है। अनाज का दाना मजबूत बनता है।<br />
+                  <strong>pH मान:</strong> मिट्टी का पीएच (6.5 से 7.5) उदासीन माना जाता है जो अधिकांश फसलों के लिए सर्वोत्तम है। अम्लीय मिट्टी (&lt; 6.0) को सुधारने के लिए चूना (Lime) डालें। क्षारीय मिट्टी (&gt; 8.0) को सुधारने के लिए जिप्सम (Gypsum) का प्रयोग करें।
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-teal-400 font-display">🌱 जैविक कार्बन (Organic Carbon) और खाद प्रबंधन</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  जैविक कार्बन मिट्टी की आत्मा है। एक आदर्श मिट्टी में जैविक कार्बन का स्तर 0.8% से अधिक होना चाहिए। इसे सुधारने के लिए रासायनिक उर्वरकों का उपयोग घटाएं और हरी खाद (जैसे ढैंचा या सनई), केंचुआ खाद (Vermicompost) और गोबर की सड़ी खाद (FYM) को खेत में मिलाएं। हरी खाद उगाने के बाद उसे फूल आने से पहले मिट्टी में पलट देने से नाइट्रोजन और जैविक कार्बन की मात्रा तेजी से बढ़ती है।
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-teal-500/10 bg-teal-500/[0.02] space-y-4">
+              <h3 className="text-lg font-bold text-teal-400 font-display">📋 मिट्टी परीक्षण (Soil Testing) की सही प्रक्रिया</h3>
+              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="space-y-2 border-r border-white/[0.06] pr-4">
+                  <h4 className="font-extrabold text-white">1. वी-आकार (V-Shape) का कट</h4>
+                  <p>खेत में 8-10 अलग-अलग स्थानों से ऊपरी घास साफ कर 15 सेमी (6 इंच) गहरा 'V' आकार का गड्ढा बनाएं। गड्ढे के दोनों किनारों से एक-एक इंच मोटी मिट्टी की परत काट लें।</p>
+                </div>
+                <div className="space-y-2 border-r border-white/[0.06] px-4">
+                  <h4 className="font-extrabold text-white">2. मिश्रण और सुखाना</h4>
+                  <p>एकत्रित सभी स्थानों की मिट्टी को साफ प्लास्टिक शीट पर अच्छी तरह मिलाएं। फिर मिट्टी को गोल फैलाकर चार हिस्सों में बांटें, आमने-सामने के दो हिस्से फेंक दें। यह प्रक्रिया तब तक दोहराएं जब तक आधा किलो मिट्टी न बचे। इसे छांव में सुखाएं।</p>
+                </div>
+                <div className="space-y-2 pl-4">
+                  <h4 className="font-extrabold text-white">3. लैब भेजना</h4>
+                  <p>मिट्टी को सूती थैली में डालें। थैली पर अपना नाम, मोबाइल नंबर, खेत का खसरा नंबर और पहले बोई गई व आगे बोई जाने वाली फसल का नाम लिखकर नजदीकी मिट्टी जांच प्रयोगशाला में भेजें।</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-white">❓ मिट्टी के स्वास्थ्य और परीक्षण के बारे में FAQs</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q1. मिट्टी की जांच कितने समय में करवानी चाहिए?</h4>
+                  <p>हर दो से तीन साल में एक बार, फसल की कटाई के बाद और अगली बुवाई से पहले मिट्टी की जांच जरूर करवानी चाहिए।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q2. क्षारीय मिट्टी (Alkaline Soil) के क्या लक्षण हैं?</h4>
+                  <p>क्षारीय मिट्टी का पीएच 8.5 से अधिक होता है। ऐसी मिट्टी में पानी सोखने की क्षमता कम हो जाती है और सूखने पर जमीन पर सफेद नमक की परत दिखने लगती है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q3. जैविक कार्बन बढ़ाने का सबसे त्वरित तरीका क्या है?</h4>
+                  <p>खेत में प्रति एकड़ 5-10 टन गोबर की सड़ी खाद डालना या खरीफ सीजन से पहले ढैंचा उगाकर उसे मिट्टी में रोटावेटर से मिलाना (हरी खाद) सबसे प्रभावी है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q4. मिट्टी का आदर्श पीएच (pH) मान क्या होना चाहिए?</h4>
+                  <p>ज्यादातर फसलों (जैसे गेहूं, धान, मक्का) के लिए 6.5 से 7.2 का पीएच मान सर्वोत्तम माना जाता है क्योंकि इस रेंज में सभी पोषक तत्व आसानी से उपलब्ध होते हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q5. नाइट्रोजन (N) की कमी को यूरिया के बिना कैसे दूर करें?</h4>
+                  <p>दलहनी फसलें (जैसे मूंग, उड़द, चना, सोयाबीन) लगाएं। इनकी जड़ों में राइजोबियम बैक्टीरिया होते हैं जो हवा से नाइट्रोजन लेकर मिट्टी में स्थिर करते हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q6. क्या खेत के पेड़ों के नीचे से मिट्टी का नमूना ले सकते हैं?</h4>
+                  <p>नहीं, पेड़ों के नीचे, मेड़ों के पास, खाद के ढेर के नजदीक या सिंचाई नाली के पास से कभी भी मिट्टी का नमूना नहीं लेना चाहिए, इससे गलत रिपोर्ट आती है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q7. एसएसपी (SSP) और डीएपी (DAP) खाद में क्या अंतर है?</h4>
+                  <p>एसएसपी (सिंगल सुपर फास्फेट) में केवल फास्फोरस और सल्फर होता है, जबकि डीएपी (डाई अमोनियम फास्फेट) में फास्फोरस के साथ 18% नाइट्रोजन भी होता है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q8. क्या लवणीय (Saline) मिट्टी में सामान्य पानी देना चाहिए?</h4>
+                  <p>लवणीय मिट्टी में अच्छे निकास की व्यवस्था होनी चाहिए। पानी भरकर नमक को बहाने (Leaching) से और जैविक खादों के अधिक उपयोग से लाभ होता है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q9. माइक्रोन्यूट्रिएंट्स (Micronutrients) क्या हैं?</h4>
+                  <p>लोहा, जस्ता (Zinc), तांबा, बोरॉन और मैंगनीज सूक्ष्म पोषक तत्व हैं। ये मिट्टी में बहुत कम मात्रा में चाहिए होते हैं लेकिन फलों की चमक और वजन के लिए जरूरी हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q10. KisaanBuddy उर्वरक कैलकुलेटर कैसे काम करता है?</h4>
+                  <p>KisaanBuddy आपके द्वारा दर्ज किए गए मिट्टी परीक्षण डेटा या लक्षित फसल के आधार पर वैज्ञानिक एनपीके संतुलन की गणना कर सटीक खाद की मात्रा बताता है।</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 What is Soil Health and How Can Farmers Improve It?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                Soil health refers to the continuous capacity of soil to function as a vital living ecosystem that sustains plants, animals, and humans. A healthy soil profile provides critical crop nutrition, resists compaction, and retains water. To correctly balance soil fertility, understanding the primary macro-nutrients—<strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, and <strong>Potassium (K)</strong>—is vital.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-teal-400 font-display">🧪 Deciphering NPK Ratios and Soil pH Levels</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <strong>Nitrogen (N):</strong> Promotes lush leaf growth and vegetative structure. Deficiencies lead to leaf chlorosis (yellowing).<br />
+                  <strong>Phosphorus (P):</strong> Essential for robust root establishment, cell division, and early flower and seed setting.<br />
+                  <strong>Potassium (K):</strong> Strengthens crop stems, improves drought tolerance, and activates enzyme systems to fight diseases.<br />
+                  <strong>pH Level:</strong> A soil pH between 6.5 and 7.5 is neutral and optimal for plant nutrient uptake. Reclaim acidic soils (&lt; 6.0) using agricultural lime. Counteract alkaline soils (&gt; 8.0) using gypsum.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-teal-400 font-display">🌱 The Power of Organic Carbon (OC) and Fertilizer Schedules</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Organic Carbon is the foundation of biological soil fertility. Healthy arable land should sustain an organic carbon level above 0.8%. Farmers can raise OC by shifting from pure chemical fertilization to integrated systems incorporating Vermicompost, farmyard manure (FYM), and green manures (like Dhaincha or Sunn hemp). Sowing green manure and tilling it back during flowering cycles rapidly locks nitrogen into the topsoil.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-teal-500/10 bg-teal-500/[0.02] space-y-4">
+              <h3 className="text-lg font-bold text-teal-400 font-display">📋 Scientific Soil Sampling Process</h3>
+              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="space-y-2 border-r border-white/[0.06] pr-4">
+                  <h4 className="font-extrabold text-white">1. V-Shaped Digging</h4>
+                  <p>Clear surface vegetation at 8-10 random grid points in your field. Dig a V-shaped hole exactly 15 cm (6 inches) deep. Slice a uniform 1-inch thick slice of soil along the inner face.</p>
+                </div>
+                <div className="space-y-2 border-r border-white/[0.06] px-4">
+                  <h4 className="font-extrabold text-white">2. Quartering Technique</h4>
+                  <p>Mix the collected soil inside a clean container. Place it on a clean sheet, form a circle, and divide it into four quadrants. Discard opposite quarters. Repeat this process until 500g of dry composite sample remains.</p>
+                </div>
+                <div className="space-y-2 pl-4">
+                  <h4 className="font-extrabold text-white">3. Dispatching to Lab</h4>
+                  <p>Pack the soil in a dry cotton bag. Label it with your name, village name, survey number, previous crop, and intended crop, then submit it to the nearest state soil testing laboratory.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-white">❓ Soil Health & Testing FAQs</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q1. How often should soil analysis be conducted?</h4>
+                  <p>Once every 2 to 3 years, preferably after harvesting a crop and before sowing the next cycle.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q2. What are the signs of saline/alkaline soils?</h4>
+                  <p>Saline soils display white crusty salt patches on the dry surface, low water penetration rates, and stunted plant roots.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q3. What is the fastest method to increase Soil Organic Carbon?</h4>
+                  <p>Incorporating green manure (like Dhaincha) before the monsoon season or applying 5-10 tons of well-composted farmyard manure per acre.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q4. What is the optimal pH range for arable crop fields?</h4>
+                  <p>A pH range between 6.5 and 7.2 is perfect, as it maximizes the availability of both macronutrients and micronutrients.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q5. How can I correct nitrogen deficiency without synthetic urea?</h4>
+                  <p>Cultivate leguminous crops like chickpeas, lentils, or mung beans, which host symbiotic Rhizobium bacteria that fix atmospheric nitrogen in root nodules.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q6. Can soil samples be collected from under trees?</h4>
+                  <p>No. Avoid collecting soil near trees, fences, compost heaps, irrigation canals, or farm boundaries, as these yield unrepresentative results.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q7. What is the difference between SSP and DAP?</h4>
+                  <p>Single Super Phosphate (SSP) supplies Phosphorus, Calcium, and Sulfur, whereas Di-Ammonium Phosphate (DAP) provides both Nitrogen (18%) and Phosphorus (46%).</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q8. How does organic carbon benefit sandy soils?</h4>
+                  <p>It acts like a sponge, gluing sandy particles together to significantly improve water holding capacity and prevent nutrient leaching.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q9. What are micronutrients and why are they necessary?</h4>
+                  <p>Zinc, Iron, Boron, Copper, and Manganese. While required in trace amounts, they are crucial for fruit set, grain filling, and crop disease resistance.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q10. How does the KisaanBuddy NPK advisor work?</h4>
+                  <p>KisaanBuddy calculates optimal crop fertilizing ratios based on local soil test values compared to crop nutrition benchmarks.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

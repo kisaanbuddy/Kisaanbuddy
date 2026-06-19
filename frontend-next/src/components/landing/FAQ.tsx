@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useLanguage } from '@/lib/language';
 import { useState } from 'react';
@@ -11,20 +11,20 @@ export function FAQ() {
 
   const faqs = [
     {
-      q: t("landing_faq.what_is_krishiai"),
-      a: t("landing_faq.krishiai_is_an_ai"),
+      q: t("landing_faq.what_is_KisaanBuddy"),
+      a: t("landing_faq.KisaanBuddy_is_an_ai"),
     },
     {
       q: t("landing_faq.how_does_the_crop"),
       a: t("landing_faq.you_simply_take_a"),
     },
     {
-      q: t("landing_faq.is_krishiai_free_to"),
-      a: t("landing_faq.yes_krishiai_is_currently"),
+      q: t("landing_faq.is_KisaanBuddy_free_to"),
+      a: t("landing_faq.yes_KisaanBuddy_is_currently"),
     },
     {
-      q: t("landing_faq.does_krishiai_support_local"),
-      a: t("landing_faq.absolutely_krishiai_features_full"),
+      q: t("landing_faq.does_KisaanBuddy_support_local"),
+      a: t("landing_faq.absolutely_KisaanBuddy_features_full"),
     },
     {
       q: t("landing_faq.how_accurate_are_the"),
@@ -35,7 +35,7 @@ export function FAQ() {
       a: t("landing_faq.yes_the_mandi_pricing"),
     },
     {
-      q: t("landing_faq.how_does_krishiai_help"),
+      q: t("landing_faq.how_does_KisaanBuddy_help"),
       a: t("landing_faq.by_inputting_details_like"),
     },
     {

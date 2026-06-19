@@ -1,5 +1,5 @@
-/**
- * Typed client for KrishiAI Worker Connect — rural job marketplace.
+﻿/**
+ * Typed client for KisaanBuddy Worker Connect — rural job marketplace.
  *
  * All calls go through the Next.js rewrite (/api/worker-connect/* -> :8000).
  * Mirrors backend/schemas/worker_connect.py.

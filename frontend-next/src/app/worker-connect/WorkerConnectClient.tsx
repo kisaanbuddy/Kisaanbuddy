@@ -1,7 +1,7 @@
 "use client"
 import { useLanguage } from "@/lib/language"
 /**
- * KrishiAI — Worker Connect portal
+ * KisaanBuddy — Worker Connect portal
  *
  * Two modes side-by-side via tabs:
  *   1. "Hire workers" (farmer)  — form to post a job
@@ -172,6 +172,157 @@ export default function JobsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Educational Guide Section ── */}
+      <section className="mt-12 border-t border-white/[0.08] pt-10 select-none">
+        {language === "hi" ? (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 वर्कर कनेक्ट क्या है और यह किसानों की मदद कैसे करता है?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                वर्कर कनेक्ट (Worker Connect) KisaanBuddy द्वारा शुरू किया गया एक ग्रामीण रोजगार मंच है। इसका मुख्य उद्देश्य किसानों और खेतिहर मजदूरों के बीच की दूरी को मिटाना है। इसके माध्यम से किसान अपनी फसल कटाई, बुवाई या निराई के लिए सीधे स्थानीय मजदूरों से संपर्क कर सकते हैं, और मजदूर अपने लिए पास के खेतों में काम ढूंढ सकते हैं।
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-emerald-400 font-display">👷 किसान मजदूरों को कैसे काम पर रखें?</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <strong>1. काम की जानकारी पोस्ट करें:</strong> 'काम ढूंढें / पोस्ट करें' फॉर्म पर जाएं, काम का प्रकार (जैसे कटाई, रोपाई), आवश्यक दिनों की संख्या, प्रति दिन की मजदूरी और अपना मोबाइल नंबर दर्ज करें।<br />
+                  <strong>2. सीधा संपर्क:</strong> पोस्ट होते ही यह जानकारी आस-पास के मजदूरों और ठेकेदारों को दिखाई देगी। वे आपसे सीधे फोन या व्हाट्सएप (WhatsApp) के जरिए संपर्क करेंगे।<br />
+                  <strong>3. बिचौलियों की छुट्टी:</strong> आढ़तियों और बिचौलियों के न होने से किसानों के भर्ती खर्च में 15% से 20% तक की कमी आती है और मजदूरों को उनकी मेहनत का पूरा पैसा मिलता है।
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-emerald-400 font-display">🛡️ सुरक्षा, सत्यापन और सरकारी नियम</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  खेती के कार्यों में सुरक्षा सर्वोपरि है। किसानों को सलाह दी जाती है कि वे किसी भी अपरिचित मजदूर को काम पर रखने से पहले उसका आधार कार्ड या सरकारी पहचान पत्र जरूर देखें। मजदूरी का भुगतान दैनिक या साप्ताहिक आधार पर तय शर्तों के अनुसार करें। किसी भी दुर्घटना से बचने के लिए खेत पर प्राथमिक उपचार किट जरूर रखें और खतरनाक कृषि उपकरणों के उपयोग के समय विशेष सावधानी बरतें।
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-white">❓ मजदूर भर्ती और रोजगार के बारे में FAQs</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q1. क्या वर्कर कनेक्ट का उपयोग करने के लिए कोई फीस देनी होती है?</h4>
+                  <p>नहीं, यह सेवा किसानों और खेतिहर मजदूरों दोनों के लिए पूरी तरह से निःशुल्क है। KisaanBuddy इस सेवा के लिए कोई शुल्क या कमिशन नहीं लेता।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q2. मैं मजदूरों को काम पर रखने के लिए अपनी पोस्ट कैसे हटाऊं?</h4>
+                  <p>जैसे ही आपके खेत का काम पूरा हो जाए या आवश्यक मजदूर मिल जाएं, आप अपनी प्रोफाइल में जाकर पोस्ट को 'बंद' (Close) कर सकते हैं ताकि और कॉल न आएं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q3. न्यूनतम कृषि मजदूरी दरें क्या हैं?</h4>
+                  <p>कृषि मजदूरी दरें अलग-अलग राज्यों (जैसे पंजाब, बिहार, कर्नाटक) और काम के प्रकार के अनुसार राज्य सरकारों द्वारा तय की जाती हैं। आम तौर पर यह ₹350 से ₹500 प्रति दिन होती है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q4. मजदूरों को एडवांस (पेशगी) देने के क्या नियम हैं?</h4>
+                  <p>सुरक्षा के लिहाज से काम शुरू करने से पहले कोई भी बड़ा एडवांस देने से बचें। यदि आवश्यक हो, तो केवल पहचान सत्यापित करने के बाद ही छोटी राशि एडवांस में दें।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q5. क्या इस मंच पर ट्रैक्टर ऑपरेटर और बागवानी विशेषज्ञ भी मिलते हैं?</h4>
+                  <p>हाँ, काम पोस्ट करते समय आप विशिष्ट श्रेणियों जैसे ट्रैक्टर चालक, कीटनाशक छिड़काव विशेषज्ञ, बागवानी माली या फसल कटाई मजदूर चुन सकते हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q6. दुर्घटना की स्थिति में किसान की क्या जिम्मेदारी होती है?</h4>
+                  <p>खेत मालिक के रूप में किसान को काम के दौरान प्राथमिक चिकित्सा सुनिश्चित करनी चाहिए। सुरक्षित कार्य वातावरण प्रदान करना और रासायनिक छिड़काव के समय मास्क-ग्लव्स देना जरूरी है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q7. क्या ठेकेदार (Contractors) भी मजदूरों की टोली पोस्ट कर सकते हैं?</h4>
+                  <p>हाँ, लेबर ठेकेदार (Labour Contractors) अपनी टीम की उपलब्धता और दैनिक मजदूरी दर दर्ज कर बड़े पैमाने पर काम ढूंढने के लिए पोस्ट कर सकते हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q8. मुझे अपने जिले में कोई मजदूर नहीं मिल रहा, क्या करें?</h4>
+                  <p>मजदूरी दर को थोड़ा बढ़ाएं, या काम की अवधि स्पष्ट करें। इसके अतिरिक्त आप पड़ोसी जिलों या राज्यों के प्रवासी मजदूरों से संपर्क के लिए 'खोज सीमा' बढ़ा सकते हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q9. मजदूरों के भुगतान में विवाद होने पर क्या करें?</h4>
+                  <p>काम शुरू करने से पहले ही मजदूरी दर, कार्य के घंटे और भोजन की व्यवस्था के बारे में लिखित या स्पष्ट मौखिक सहमति बना लें ताकि बाद में विवाद न हो।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q10. क्या KisaanBuddy मजदूरों की पहचान सत्यापित करता है?</h4>
+                  <p>KisaanBuddy केवल एक संपर्क मंच प्रदान करता है। काम पर रखने से पहले मजदूरों के दस्तावेजों (जैसे आधार कार्ड) की भौतिक जांच करना पूरी तरह से किसान की जिम्मेदारी है।</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 What is Worker Connect and How Does It Support Farmers?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                Worker Connect is a local rural labor exchange platform designed by KisaanBuddy. Its primary objective is to bridge the communication gap between landowners and agricultural workers. By leveraging localized directory searches, farmers can hire harvesters, planters, or weeders, while rural laborers can discover consistent wages close to home.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-emerald-400 font-display">👷 How Can Farmers Recruit Local Farmhands?</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <strong>1. Create a Job Posting:</strong> Head to the 'Hire' tab, specify the work category (e.g. harvesting, manual weeding), required crew size, days of employment, daily wages, and your phone number.<br />
+                  <strong>2. Direct Contact:</strong> Once posted, nearby laborers and labor contractors can view the listing and contact you directly via phone call or WhatsApp.<br />
+                  <strong>3. No Middlemen Commissions:</strong> Direct contact saves 15% to 20% in commission fees typically taken by sub-contractors, ensuring workers get paid their full worth.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                <h3 className="text-lg font-bold text-emerald-400 font-display">🛡️ Safety, ID Verification, and Best Practices</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Safety in agricultural operations is paramount. Farmers are advised to physically inspect Aadhaar cards or other state IDs before hiring new laborers. Ensure wages are settled daily or weekly according to pre-agreed rates. Keep a basic first-aid kit in the field and supply protective gloves and masks during chemical sprays or mechanical harvesting.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-white">❓ Farm Labor and Hiring FAQs</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q1. Is there a fee to use the Worker Connect platform?</h4>
+                  <p>No, the service is 100% free for both farmers and laborers. KisaanBuddy does not extract any transaction commission or booking fees.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q2. How do I delete my job posting once I find workers?</h4>
+                  <p>Once you have recruited the required number of workers, mark the job status as 'Closed' in your profile to stop receiving phone inquiries.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q3. What are the average daily wages for farm work?</h4>
+                  <p>Agricultural minimum wages vary by state (e.g. Punjab, Bihar, Karnataka) and skill level, generally ranging from ₹350 to ₹500 per day.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q4. Should I pay advances to farm workers?</h4>
+                  <p>Avoid paying large advance sums to unverified workers. Settling wages at the end of each working day is the safest industry standard.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q5. Can I hire tractor drivers and sprayers through this tab?</h4>
+                  <p>Yes, you can select specialized job categories including tractor operations, pesticide sprayers, horticultural specialists, and general farm labor.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q6. What are the farmer's safety liabilities during field work?</h4>
+                  <p>Landowners must provide a safe working environment, clean drinking water, and first-aid access. Provide personal protective equipment (PPE) for chemical spraying.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q7. Can labor groups or gang leaders post team availability?</h4>
+                  <p>Yes, labor contractors and gang leaders can post their team size, location, and daily rates to secure bulk farm contracts.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q8. What should I do if no workers respond in my district?</h4>
+                  <p>Try adjusting your daily wage offer to match market trends, clarify the work hours, and double-check that your phone number is correct.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q9. How do we resolve payment disputes?</h4>
+                  <p>Establish clear verbal or written agreements regarding daily wages, task completion expectations, and meal arrangements before starting the work.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q10. Does KisaanBuddy verify worker backgrounds?</h4>
+                  <p>KisaanBuddy acts as a directory network. Verifying identity documents (such as Aadhaar cards) remains the sole responsibility of the farmer.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useLanguage } from '@/lib/language';
 import { useState } from 'react';
@@ -32,7 +32,7 @@ export function DashboardPreview() {
           <h2 className="text-3xl md:text-4xl font-display font-extrabold text-foreground">
             {t("landing_dashboard.explore_the")}{' '}
             <span className="bg-gradient-to-r from-emerald-500 to-green-500 bg-clip-text text-transparent">
-              {t("landing_dashboard.krishiai_dashboard")}
+              {t("landing_dashboard.KisaanBuddy_dashboard")}
             </span>
           </h2>
           <p className="text-xs md:text-sm text-muted-foreground/80 max-w-md mx-auto leading-relaxed font-semibold">

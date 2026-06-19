@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { AlertTriangle, ArrowLeft, Leaf, CloudSun, TrendingUp, ShieldAlert } from 'lucide-react';
@@ -96,7 +96,7 @@ export function DisclaimerClient() {
           <ul className="list-disc pl-5 space-y-1">
             <li>{t("disclaimer.the_prices_displayed_might")}</li>
             <li>{t("disclaimer.set_target_notifications_are")}</li>
-            <li>{t("disclaimer.krishiai_does_not_guarantee")}</li>
+            <li>{t("disclaimer.KisaanBuddy_does_not_guarantee")}</li>
           </ul>
         </section>
 
@@ -105,11 +105,11 @@ export function DisclaimerClient() {
             🏛️ {t("disclaimer.5_government_schemes_eligibility")}
           </h2>
           <p>
-            {t("disclaimer.krishiai_offers_an_interactive")}
+            {t("disclaimer.KisaanBuddy_offers_an_interactive")}
           </p>
           <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
             <strong>{t("disclaimer.government_representation_disclaimer")}</strong>{' '}
-            {t("disclaimer.krishiai_is_a_private")}
+            {t("disclaimer.KisaanBuddy_is_a_private")}
           </div>
         </section>
 

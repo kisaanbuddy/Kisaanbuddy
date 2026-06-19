@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 import { useLanguage } from '@/lib/language'
 /**
  * The expanded chat panel — mounted by the floating widget.
@@ -196,7 +196,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
       className="glass-panel fixed bottom-24 right-4 z-[60] flex h-[min(600px,calc(100vh-8rem))] w-[min(380px,calc(100vw-2rem))] flex-col overflow-hidden border border-white/[0.08] backdrop-blur-xl bg-slate-950/70 shadow-2xl rounded-3xl"
       role="dialog"
-      aria-label={t("common.krishiai_assistant")}
+      aria-label={t("common.KisaanBuddy_assistant")}
     >
       {/* Header */}
       <div className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] bg-slate-950/40 px-4 py-3">
@@ -206,7 +206,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
           </div>
           <div className="min-w-0">
             <div className="text-xs font-bold text-white leading-none font-display">
-              KrishiAI Assistant
+              KisaanBuddy Assistant
             </div>
             <div className="text-[9px] text-muted-foreground leading-none mt-1 flex items-center gap-1 font-semibold">
               <span className={`h-1.5 w-1.5 rounded-full ${activeTool || isSending ? "bg-amber-400 animate-pulse" : "bg-emerald-400 animate-pulse"}`} />
@@ -297,10 +297,10 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             
             <div className="text-xs font-bold text-white font-display mt-1">
               {language === "hi"
-                ? "Namaste! Main KrishiAI sahayak hoon."
+                ? "Namaste! Main KisaanBuddy sahayak hoon."
                 : language === "kn"
-                ? "Namaskara! Nanu KrishiAI."
-                : "Namaste! I'm your KrishiAI Assistant."}
+                ? "Namaskara! Nanu KisaanBuddy."
+                : "Namaste! I'm your KisaanBuddy Assistant."}
             </div>
             
             <div className="text-[11px] text-muted-foreground leading-relaxed max-w-[240px]">

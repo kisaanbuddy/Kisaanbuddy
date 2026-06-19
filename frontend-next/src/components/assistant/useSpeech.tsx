@@ -1,7 +1,7 @@
-"use client"
+﻿"use client"
 import { useLanguage } from '@/lib/language'
 /**
- * Browser speech primitives for the KrishiAI voice assistant.
+ * Browser speech primitives for the KisaanBuddy voice assistant.
  *
  * Features:
  *   - Browser SpeechRecognition (Web Speech API) for zero-latency mic input

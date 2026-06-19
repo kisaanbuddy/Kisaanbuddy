@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Lock, ArrowLeft, Shield, ShieldCheck, Eye, Cookie } from 'lucide-react';
@@ -47,7 +47,7 @@ export function PrivacyClient() {
             {t("privacy.1_introduction")}
           </h2>
           <p>
-            {t("privacy.welcome_to_krishiai")}
+            {t("privacy.welcome_to_KisaanBuddy")}
           </p>
           <p>
             {t("privacy.this_privacy_policy_applies")}
@@ -146,9 +146,9 @@ export function PrivacyClient() {
             {t("privacy.if_you_have_questions")}
           </p>
           <div className="rounded-xl border border-border/20 bg-muted/15 p-4 space-y-1 font-semibold text-foreground max-w-sm mt-2">
-            <p>{t("privacy.krishiai_development_team")}</p>
+            <p>{t("privacy.KisaanBuddy_development_team")}</p>
             <p className="font-mono text-xs text-muted-foreground">Email: privacy@kisaanbuddy.com</p>
-            <p className="font-mono text-xs text-muted-foreground">{t("privacy.url_https_krishiaiindia_vercel")}</p>
+            <p className="font-mono text-xs text-muted-foreground">{t("privacy.url_https_KisaanBuddyindia_vercel")}</p>
           </div>
         </section>
 

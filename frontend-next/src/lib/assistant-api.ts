@@ -1,5 +1,5 @@
-/**
- * Typed client + SSE parser for the KrishiAI assistant backend.
+﻿/**
+ * Typed client + SSE parser for the KisaanBuddy assistant backend.
  *
  * All calls go through the Next.js rewrite (/api/chat/* -> :8000/api/chat/*).
  * Streaming uses fetch + ReadableStream (EventSource doesn't support POST bodies).

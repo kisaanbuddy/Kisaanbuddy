@@ -11,6 +11,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { useLanguage, Lang } from "@/lib/language"
+import { trackEvent } from "@/lib/analytics"
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CircularGauge } from "@/components/dashboard/CircularGauge"
 import { ActionableAdvisory } from "@/components/dashboard/ActionableAdvisory"
@@ -591,7 +592,7 @@ export default function DashboardPage() {
 
   // Share report on WhatsApp
   const shareOnWhatsApp = () => {
-    let text = `🌾 *कृषि रिपोर्ट (KrishiAI)* 🌾\n`
+    let text = `🌾 *कृषि रिपोर्ट (KisaanBuddy)* 🌾\n`
     text += `👤 *किसान:* ${user?.name || "किसान भाई"}\n`
     text += `📅 *दिनांक:* ${new Date().toLocaleDateString()}\n\n`
     if (!sensorOnline) {
@@ -606,15 +607,16 @@ export default function DashboardPage() {
       text += `  • फास्फोरस: ${phosphorus} mg/kg\n`
       text += `  • पोटाश: ${potassium} mg/kg\n\n`
     }
-    text += `📲 *KrishiAI से प्राप्त रिपोर्ट*`
+    text += `📲 *KisaanBuddy से प्राप्त रिपोर्ट*`
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
+    trackEvent({ type: 'whatsapp_share', url: url, title: 'Dashboard Farm Sensor Report' })
     window.open(url, "_blank")
   }
 
   // Open WhatsApp directly for help
   const openWhatsAppSupport = () => {
-    let text = `नमस्ते! मुझे KrishiAI कृषि सलाहकार से बात करनी है। `
+    let text = `नमस्ते! मुझे KisaanBuddy कृषि सलाहकार से बात करनी है। `
     if (sensorOnline) {
       text += `मेरे खेत में नमी ${moisture}%, तापमान ${temp}°C है।`
     }
@@ -716,7 +718,7 @@ export default function DashboardPage() {
             </div>
             <h3 className="text-xl font-black text-white">सेंसर डिवाइस बंद है (ऑफ़लाइन)</h3>
             <p className="text-sm text-muted-foreground/80 max-w-md leading-relaxed">
-              आपका KrishiAI स्मार्ट हब (सेंसर डिवाइस) अभी कनेक्टेड नहीं है। जैसे ही आप अपने खेत में लगे डिवाइस को चालू करेंगे, मिट्टी की नमी और तापमान की लाइव जानकारी यहाँ अपने आप दिखाई देने लगेगी।
+              आपका KisaanBuddy स्मार्ट हब (सेंसर डिवाइस) अभी कनेक्टेड नहीं है। जैसे ही आप अपने खेत में लगे डिवाइस को चालू करेंगे, मिट्टी की नमी और तापमान की लाइव जानकारी यहाँ अपने आप दिखाई देने लगेगी।
             </p>
             <div className="inline-flex items-center gap-1.5 text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1 rounded-full font-bold select-none animate-pulse mb-2">
               डिवाइस कनेक्शन की लगातार जांच की जा रही है...

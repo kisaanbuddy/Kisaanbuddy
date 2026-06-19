@@ -1,8 +1,8 @@
-/**
- * KrishiAI Service Worker — offline-first cache strategy
+﻿/**
+ * KisaanBuddy Service Worker — offline-first cache strategy
  * Caches static pages + assets; falls back gracefully.
  */
-const CACHE = "krishiai-v1"
+const CACHE = "KisaanBuddy-v1"
 const OFFLINE_URL = "/"
 
 // Pages to pre-cache

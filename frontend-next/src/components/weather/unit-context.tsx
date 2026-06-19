@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react"
 
@@ -12,7 +12,7 @@ interface UnitContextValue {
 
 const UnitContext = createContext<UnitContextValue | null>(null)
 
-const STORAGE_KEY = "krishiai.weather.unit"
+const STORAGE_KEY = "KisaanBuddy.weather.unit"
 
 export function UnitProvider({ children }: { children: ReactNode }) {
   const [unit, setUnitState] = useState<TempUnit>("C")
