@@ -1,4 +1,4 @@
-﻿{
+{
   "dashboard": {
     "iot_node_not_connected": "IoT Node Not Connected",
     "esp32_sensor_online": "ESP32 Sensor Online",
@@ -335,6 +335,7 @@
   "footerTagline": "Empowering Indian farmers with AI",
   "madeInIndia": "Made with love in India",
   "aboutUs": "About Us",
+  "impact": "Impact Dashboard",
   "contactUs": "Contact Us",
   "privacyPolicy": "Privacy Policy",
   "termsConditions": "Terms & Conditions",
