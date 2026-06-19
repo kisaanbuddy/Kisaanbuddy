@@ -1,7 +1,8 @@
-"use client"
+﻿"use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
 import en from "./locales/en.json"
+import hi from "./locales/hi.json"
 
 export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
@@ -33,8 +34,8 @@ export const LANG_FLAGS: Record<Lang, string> = {
   hi_en: "🇮🇳",
 }
 
-// We only keep en statically
-export const T: Record<string, any> = { en }
+// We keep en and hi statically
+export const T: Record<string, any> = { en, hi }
 
 const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
   dashboard: {
@@ -144,11 +145,20 @@ const LanguageContext = createContext<LanguageContextType>({
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en")
-  const [translations, setTranslations] = useState<any>(en)
+  const [lang, setLangState] = useState<Lang>("hi")
+  const [translations, setTranslations] = useState<any>(hi)
 
   useEffect(() => {
-    const saved = localStorage.getItem("krishiai_lang") as Lang | null
+    // Local storage key migration layer
+    let saved = localStorage.getItem("kisaanbuddy_lang") as Lang | null
+    if (!saved) {
+      saved = localStorage.getItem("KisaanBuddy_lang") as Lang | null
+      if (saved) {
+        localStorage.setItem("kisaanbuddy_lang", saved)
+        localStorage.removeItem("KisaanBuddy_lang")
+      }
+    }
+
     if (saved) {
       setLangState(saved)
     } else {
@@ -157,7 +167,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       if (supportedLangs.includes(browserLang)) {
         setLangState(browserLang)
       } else {
-        setLangState("en")
+        setLangState("hi") // Default to Hindi as per V2 specifications
       }
     }
   }, [])
@@ -167,13 +177,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       setTranslations(en)
       return
     }
+    if (lang === "hi") {
+      setTranslations(hi)
+      return
+    }
     import(`./locales/${lang}.json`)
       .then((module) => {
         setTranslations(module.default)
       })
       .catch((err) => {
         console.error("Failed to load locale", lang, err)
-        setTranslations(en)
+        setTranslations(hi) // Fall back to Hindi
       })
   }, [lang])
 
@@ -183,7 +197,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLang = (l: Lang) => {
     setLangState(l)
-    localStorage.setItem("krishiai_lang", l)
+    localStorage.setItem("kisaanbuddy_lang", l)
+    localStorage.removeItem("KisaanBuddy_lang") // Clean up old reference
   }
 
   const t = (key: string) => {

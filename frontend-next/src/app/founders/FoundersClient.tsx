@@ -6,6 +6,7 @@ import { motion } from "framer-motion"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/language"
+import TrustTestimonials from "@/components/TrustTestimonials"
 
 type Founder = {
   name: string
@@ -50,7 +51,7 @@ export default function FoundersPage() {
       role: t("founders.co_founder_cto"),
       email: "info@kisaanbuddy.com",
       linkedin: "https://www.linkedin.com/in/sanidhya-sharma",
-      bio: t("founders.steers_krishiai_s_technical"),
+      bio: t("founders.steers_KisaanBuddy_s_technical"),
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
       stake: t("founders.co_founder"),
@@ -99,7 +100,7 @@ export default function FoundersPage() {
           <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight text-white leading-tight">
             {t("founders.the_minds_behind")}{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">
-              {t("founders.krishiai")}
+              {t("founders.KisaanBuddy")}
             </span>
           </h1>
           <p className="mt-4 max-w-2xl text-sm md:text-base text-muted-foreground leading-relaxed">
@@ -123,6 +124,13 @@ export default function FoundersPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* VERIFIED IMPACT & TESTIMONIALS ================================== */}
+      <section className="px-6 md:px-12 py-16 border-t border-white/[0.06] bg-slate-900/5">
+        <div className="mx-auto max-w-5xl">
+          <TrustTestimonials />
         </div>
       </section>
 
@@ -162,7 +170,7 @@ export default function FoundersPage() {
       <section className="px-6 md:px-12 py-10 md:py-16 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
           <h2 className="text-3xl font-black font-display text-white">
-            {t("founders.ready_to_try_krishiai")}
+            {t("founders.ready_to_try_KisaanBuddy")}
           </h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
             {t("founders.free_forever_mobile_responsive")}

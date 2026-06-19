@@ -1,5 +1,5 @@
-/**
- * Typed client for the KrishiAI weather backend.
+﻿/**
+ * Typed client for the KisaanBuddy weather backend.
  *
  * All requests go through the Next.js rewrite (/api/weather/*  ->  :8000/api/weather/*).
  * Every function throws on non-2xx with a friendly message so callers can just

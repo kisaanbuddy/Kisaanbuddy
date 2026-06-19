@@ -1,4 +1,4 @@
-export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
+﻿export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
 export const WEATHER_T: Record<Lang, Record<string, string>> = {
   en: {

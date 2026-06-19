@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Sprout, Sparkles, Brain, CloudSun, TrendingUp, Users, Mail, ArrowRight, Shield, Bug, Landmark, BookOpen, FlaskConical, Cpu } from 'lucide-react';
@@ -43,7 +43,7 @@ export function AboutClient() {
       name: "Sanidhya Sharma",
       role: t("about.co_founder_cto"),
       email: "info@kisaanbuddy.com",
-      bio: t("about.steers_krishiai_s_technical"),
+      bio: t("about.steers_KisaanBuddy_s_technical"),
       initials: "SS",
       gradient: "from-purple-400 to-fuchsia-600",
       image: "",
@@ -81,11 +81,11 @@ export function AboutClient() {
           <h1 className="text-4xl md:text-6xl font-black font-display tracking-tight text-foreground leading-tight">
             {t("about.empowering_agriculture_with")}{' '}
             <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-green-500 bg-clip-text text-transparent">
-              {t("about.krishiai")}
+              {t("about.KisaanBuddy")}
             </span>
           </h1>
           <p className="mt-4 max-w-3xl text-sm md:text-base text-muted-foreground leading-relaxed">
-            {t("about.krishiai_is_an_ai")}
+            {t("about.KisaanBuddy_is_an_ai")}
           </p>
         </div>
       </section>
@@ -130,7 +130,7 @@ export function AboutClient() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold font-display text-foreground">{t("about.advanced_agricultural_features")}</h2>
-            <p className="text-xs text-muted-foreground mt-2">{t("about.what_makes_krishiai_the")}</p>
+            <p className="text-xs text-muted-foreground mt-2">{t("about.what_makes_KisaanBuddy_the")}</p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -224,7 +224,11 @@ export function AboutClient() {
                       className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-background/50 border border-border/30 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-xs font-semibold text-foreground transition-all duration-200"
                     >
                       <Mail className="h-3.5 w-3.5 text-emerald-500 group-hover:text-white transition-colors" />
-                      <span>{t("about.email_f_role_includes")}</span>
+                      <span>
+                        {t("about.email_f_role_includes")
+                          .replace('${f.role.includes("Founder") ? "Founder" : "Team Member"}', f.initials === "AI" ? "Founder" : "Co-Founder")
+                        }
+                      </span>
                     </a>
                   </div>
                 </GlassCard>

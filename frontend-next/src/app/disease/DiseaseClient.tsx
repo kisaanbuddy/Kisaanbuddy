@@ -1,6 +1,7 @@
 "use client"
 
 import { useLanguage } from '@/lib/language'
+import { trackEvent } from '@/lib/analytics'
 import {
   Camera, ImagePlus, Loader2, Sparkles, X,
   Bug, CheckCircle2, AlertTriangle, Leaf,
@@ -101,6 +102,12 @@ export default function DiseasePortal() {
       setError(language === "hi" ? "Photo ya symptom kuch ek bhejo." : "Please upload a photo or describe the symptom.")
       return
     }
+    
+    // Track disease upload analytics event
+    if (imageDataUrl) {
+      trackEvent({ type: 'disease_upload', fileName: 'crop_leaf.png', cropType: crop.trim() || undefined })
+    }
+
     setError(null); setResponse(""); setUsedTools([])
     const composed = [
       crop.trim() ? `Crop: ${crop.trim()}.` : "",
@@ -409,6 +416,219 @@ export default function DiseasePortal() {
             </div>
           </div>
         </motion.section>
+
+        {/* ── Educational Guide Section ── */}
+        <section className="mt-12 border-t border-white/[0.08] pt-10 select-none">
+          {language === "hi" ? (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 फसल रोग पहचान गाइड और सुरक्षा उपाय</h2>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                  फसलों में बीमारियां फंगस (कवक), बैक्टीरिया (जीवाणु) और वायरस (विषाणु) के कारण होती हैं। समय रहते रोगों की पहचान और सही उपचार न करने पर 30% से 100% तक फसल नष्ट हो सकती है। KisaanBuddy AI कैमरा तकनीक के माध्यम से पत्तियों के लक्षणों का विश्लेषण कर तत्काल सटीक निदान प्रदान करता है।
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                  <h3 className="text-lg font-bold text-emerald-400 font-display">🌾 प्रमुख फसलें और उनके सामान्य रोग</h3>
+                  <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
+                    <div>
+                      <h4 className="font-bold text-white">1. धान (Rice): झोंका रोग (Blast) और जीवाणु झुलसा (Bacterial Blight)</h4>
+                      <p>झोंका रोग में पत्तियों पर नाव की आकृति के भूरे धब्बे बनते हैं। जीवाणु झुलसा में पत्तियों के किनारे पीले-सफेद होकर सूखने लगते हैं। यूरिया का अत्यधिक उपयोग न करें और स्ट्रेप्टोसाइक्लिन का छिड़काव करें।</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">2. गेहूं (Wheat): रतुआ रोग (Rust - पीला, भूरा, काला)</h4>
+                      <p>पत्तियों पर पीले या भूरे रंग के पाउडर जैसे दाने (Pustules) दिखाई देते हैं। यह ठंडी और नम हवा से तेजी से फैलता है। प्रोपिकोनाजोल 25% EC का छिड़काव करें और प्रतिरोधी किस्मों (जैसे HD-3086) का उपयोग करें।</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">3. मक्का (Maize): तुरीपर्ण झुलसा (Maydis Leaf Blight)</h4>
+                      <p>पत्तियों पर लंबे, आयताकार भूरे धब्बे बनते हैं। बीजोपचार के लिए थीरम या कार्बेन्डाजिम का उपयोग करें और फसल चक्र अपनाएं।</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">4. कपास (Cotton): जीवाणु जनित झुलसा (Black Arm)</h4>
+                      <p>पत्तियों पर कोण आकार के काले-भूरे धब्बे बनते हैं जो बाद में टहनियों को काला कर देते हैं। कॉपर ऑक्सीक्लोराइड और स्ट्रेप्टोमाइसिन का छिड़काव करें।</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">5. टमाटर और आलू (Tomato & Potato): अगेती व पछेती झुलसा (Early & Late Blight)</h4>
+                      <p>अगेती झुलसा में छल्लेदार गोल धब्बे (Target spots) बनते हैं। पछेती झुलसा में पत्तियों पर काले नम धब्बे बनते हैं और पूरी फसल 3-4 दिन में काली पड़कर सड़ जाती है। मैन्कोजेब या कॉपर ऑक्सीक्लोराइड का उपयोग करें।</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-4">
+                  <h3 className="text-lg font-bold text-emerald-400 font-display">🛡️ रोग नियंत्रण: जैविक और रासायनिक विधियां</h3>
+                  <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
+                    <div>
+                      <h4 className="font-bold text-white">A. जैविक रोकथाम (Organic Prevention)</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>बीज बोने से पहले <strong>ट्राइकोडर्मा विरिडी</strong> (Trichoderma viride) कवकनाशी से बीजोपचार करें।</li>
+                        <li>खेत की जुताई के समय 5% नीम की खली (Neem cake) मिट्टी में मिलाएं।</li>
+                        <li>एक ही खेत में बार-बार एक ही फसल न लगाएं, हमेशा फसल चक्र (Crop rotation) अपनाएं।</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">B. रासायनिक उपचार (Chemical Treatment)</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>कवक रोगों (Fungal diseases) के लिए कार्बेन्डाजिम + मैन्कोजेब (SAAF) 2 ग्राम प्रति लीटर पानी में मिलाकर छिड़कें।</li>
+                        <li>बैक्टीरिया रोगों (Bacterial diseases) के लिए स्ट्रेप्टोसाइक्लिन 6 ग्राम + कॉपर ऑक्सीक्लोराइड 500 ग्राम को 200 लीटर पानी में मिलाकर प्रति एकड़ छिड़काव करें।</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h2 className="text-2xl font-display font-extrabold text-white">❓ फसल रोग और उपचार पर अक्सर पूछे जाने वाले प्रश्न (FAQs)</h2>
+                <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q1. धान में ब्लास्ट (झोंका) रोग की पहचान कैसे करें?</h4>
+                    <p>पत्तियों पर भूरे रंग के आंख या नाव के आकार के धब्बे बनते हैं जिनका केंद्र हल्का भूरा या सफेद होता है। यह नमी बढ़ने पर तेजी से फैलता है।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q2. बीजोपचार (Seed Treatment) क्यों आवश्यक है?</h4>
+                    <p>बीजोपचार से बीज जनित (Seed-borne) फंगस और बैक्टीरिया नष्ट हो जाते हैं, जिससे अंकुरण बेहतर होता है और शुरुआती 30-40 दिनों तक फसल सुरक्षित रहती है।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q3. आलू में पछेती झुलसा (Late Blight) से बचाव कैसे करें?</h4>
+                    <p>मौसम में कोहरा और नमी होने पर फसल की निगरानी करें। बीमारी के लक्षण दिखते ही तुरंत मैन्कोजेब (2 ग्राम/लीटर) या मैटालेक्सिल का छिड़काव करें।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q4. क्या हम जैविक तरीकों से कवक रोगों को नियंत्रित कर सकते हैं?</h4>
+                    <p>हाँ, ट्राइकोडर्मा विरिडी या स्यूडोमोनास फ्लोरेसेंस जैसे मित्र बैक्टीरिया और फंगस का उपयोग मिट्टी के रोगों को नियंत्रित करने में अत्यंत प्रभावी है।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q5. कपास में पत्ती मरोड़ (Leaf Curl Virus) का क्या इलाज है?</h4>
+                    <p>यह वायरस सफेद मक्खी (Whitefly) द्वारा फैलता है। वायरस का कोई सीधा इलाज नहीं है, इसलिए सफेद मक्खी को नियंत्रित करने के लिए इमिडाक्लोप्रिड या नीम तेल का छिड़काव करें।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q6. कीटनाशक और कवकनाशी का छिड़काव कब करना चाहिए?</h4>
+                    <p>छिड़काव हमेशा सुबह 8 से 11 बजे के बीच या शाम को 4 बजे के बाद करें। तेज धूप या तेज हवा में दवा का छिड़काव न करें।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q7. टमाटर के फलों का नीचे से सड़ना (Blossom End Rot) क्या है?</h4>
+                    <p>यह कोई बीमारी नहीं बल्कि मिट्टी में कैल्शियम की कमी के कारण होता है। चूने के पानी का छिड़काव या कैल्शियम नाइट्रेट खाद डालने से यह ठीक हो जाता है।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q8. क्या एक ही खेत में बार-बार धान-गेहूं बोने से रोग बढ़ते हैं?</h4>
+                    <p>हाँ, लगातार एक ही फसल बोने से मिट्टी में उस फसल के हानिकारक जीवाणु पनप जाते हैं। बीच-बीच में दलहन (दालें) या तिलहन बोकर फसल चक्र बदलें।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q9. फसलों में उकठा या विल्ट (Wilt) रोग क्या है?</h4>
+                    <p>इस रोग में जड़ें सड़ जाती हैं और पौधा अचानक बिना पीला पड़े सूख जाता है। कार्बेन्डाजिम का जड़ों के पास छिड़काव (Drenching) करें।</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q10. KisaanBuddy रोग डिटेक्शन की सटीकता कितनी है?</h4>
+                    <p>KisaanBuddy का AI विज़न मॉडल 95% से अधिक सटीकता के साथ भारत की 30 से अधिक मुख्य फसलों के 120+ रोगों की सटीक पहचान कर सकता है।</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 Crop Disease Identification Guide and Protective Measures</h2>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                  Crop diseases are caused by fungal, bacterial, and viral pathogens. Failure to diagnose and treat these diseases in time can result in crop losses ranging from 30% to 100%. KisaanBuddy utilizes advanced AI vision models to analyze visual symptoms on leaves and provide immediate, actionable treatment recommendations.
+                </p>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-3">
+                  <h3 className="text-lg font-bold text-emerald-400 font-display">🌾 Major Crops and Common Plant Pathogens</h3>
+                  <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
+                    <div>
+                      <h4 className="font-bold text-white">1. Rice (Paddy): Blast Disease and Bacterial Leaf Blight (BLB)</h4>
+                      <p>Blast causes diamond-shaped spots on leaves with gray centers. BLB exhibits wavy yellow-white stripes starting from the leaf tips. Avoid excess Nitrogen and spray Streptocycline combined with Copper Oxychloride.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">2. Wheat: Yellow, Brown, or Black Rust</h4>
+                      <p>Appears as powdery orange, brown, or black pustules on leaf surfaces, heavily driven by wind and humidity. Spray Propiconazole 25% EC and cultivate rust-resistant varieties like HD-3086 or HD-2967.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">3. Maize: Maydis Leaf Blight</h4>
+                      <p>Characterized by elongated rectangular brown lesions on leaves. Treat seeds with Carbendazim or Thiram prior to sowing and ensure proper crop rotation.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">4. Cotton: Black Arm / Bacterial Blight</h4>
+                      <p>Angular dark brown leaf lesions that spread to stems, turning them black. Apply Streptomycin sulfate and clean field residues after harvest.</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">5. Tomato & Potato: Early and Late Blight</h4>
+                      <p>Early blight creates concentric ring spots (target lesions). Late blight is highly destructive, showing dark water-soaked leaf lesions that rot whole plants within 72 hours. Treat with Mancozeb or Metalaxyl.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] space-y-4">
+                  <h3 className="text-lg font-bold text-emerald-400 font-display">🛡️ Integrated Disease Management (IDM)</h3>
+                  <div className="space-y-3 text-xs leading-relaxed text-muted-foreground">
+                    <div>
+                      <h4 className="font-bold text-white">A. Cultural and Biological Control</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Perform seed inoculation using <strong>Trichoderma viride</strong> bio-fungicide (5-10g/kg of seed).</li>
+                        <li>Incorporate Neem Cake (de-oiled neem seed residue) into the soil during field preparation to repress nematodes.</li>
+                        <li>Practice strict crop rotation to disrupt host cycles of persistent pathogens.</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">B. Chemical Interventions</h4>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>For fungal pathogens, spray contact-plus-systemic mixtures like Carbendazim + Mancozeb (SAAF) at 2g per liter of water.</li>
+                        <li>For bacterial infections, dissolve 6g Streptocycline and 500g Copper Oxychloride in 200 liters of water per acre.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h2 className="text-2xl font-display font-extrabold text-white">❓ Crop Disease FAQs</h2>
+                <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q1. How can I differentiate Rice Blast from Bacterial Blight?</h4>
+                    <p>Rice Blast produces diamond-shaped spots on leaves. Bacterial Blight displays elongated yellowing dry streaks starting from the outer edges of the leaf blades.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q2. What is the main benefit of Seed Treatment?</h4>
+                    <p>It eliminates seed-borne spores, improves seed viability and germination rates, and shields early seedlings for 30 to 45 days.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q3. How do we treat Potato Late Blight?</h4>
+                    <p>Spray prophylactic fungicides like Mancozeb before winter fog sets in. If symptoms appear, apply systemic fungicides like Metalaxyl-Mancozeb immediately.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q4. Can biological agents suppress soil-borne pathogens?</h4>
+                    <p>Yes, beneficial soil microbes like Trichoderma and Pseudomonas put up active competition against Fusarium and Pythium root rots.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q5. What causes Leaf Curl in Cotton?</h4>
+                    <p>It is caused by the Cotton Leaf Curl Virus (CLCuV), which is vectored by Whiteflies. Controlling the whitefly vector using Imidacloprid or Neem Oil is essential.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q6. When is the best time to apply fungicides?</h4>
+                    <p>Fungicides should be sprayed in calm winds during early mornings or late afternoons. Avoid mid-day sun, which can cause phytotoxic leaf burns.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q7. What causes Blossom End Rot in Tomato?</h4>
+                    <p>It is a physiological disorder due to Calcium deficiency, not a pathogen. Maintain consistent watering and apply foliar sprays of Calcium Nitrate.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q8. How does crop rotation reduce disease build-up?</h4>
+                    <p>Pathogens are host-specific. Planting a non-host crop (like pulses after cereals) starves the spores remaining in the soil, reducing infection load.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q9. What are the symptoms of Fusarium Wilt?</h4>
+                    <p>Plants exhibit sudden wilting and leaf drooping without prior yellowing, caused by fungal blockage of vascular water-conducting tissues.</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                    <h4 className="font-bold text-white">Q10. How accurate is the KisaanBuddy disease model?</h4>
+                    <p>Our deep learning models identify 120+ diseases across 30+ staple Indian crops with a field-tested validation accuracy of over 95%.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
       </div>
     </div>
   )

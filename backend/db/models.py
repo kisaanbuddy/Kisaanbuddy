@@ -109,5 +109,62 @@ if Column is not None:
         stars = Column(Integer, default=5)
         created_at = Column(String(50))
 
+    class FarmerProfile(Base):
+        __tablename__ = "farmer_profiles"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+        village_name = Column(String(100), index=True)
+        block_name = Column(String(100))
+        district_name = Column(String(100), index=True)
+        state_name = Column(String(100), index=True)
+        experience_years = Column(Integer, default=0)
+        primary_crop = Column(String(100))
+        land_holding_acres = Column(Float, default=0.0)
+        has_irrigation = Column(Boolean, default=False)
+        has_tractor = Column(Boolean, default=False)
+        created_at = Column(DateTime, default=datetime.utcnow)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+        user = relationship("User")
+
+    class ActivityLog(Base):
+        __tablename__ = "activity_logs"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), index=True)
+        activity_type = Column(String(100), index=True)
+        details = Column(Text)
+        ip_address = Column(String(50))
+        device_info = Column(String(255))
+        logged_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    class Notification(Base):
+        __tablename__ = "notifications"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), index=True)
+        title = Column(String(255))
+        message = Column(Text)
+        is_read = Column(Boolean, default=False, index=True)
+        category = Column(String(50), index=True)
+        created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    class SavedArticle(Base):
+        __tablename__ = "saved_articles"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), index=True)
+        article_slug = Column(String(255), index=True)
+        article_title = Column(String(255))
+        saved_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    class Feedback(Base):
+        __tablename__ = "feedback"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+        name = Column(String(100))
+        email = Column(String(255))
+        rating = Column(Integer)
+        category = Column(String(50), index=True)
+        comment = Column(Text, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
 
 

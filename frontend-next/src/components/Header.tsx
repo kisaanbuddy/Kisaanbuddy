@@ -6,12 +6,15 @@ import {
   LayoutDashboard, CloudSun, Sprout, Bug,
   FileText, TrendingUp, Users, MessageSquare, Mic,
   Star, ChevronDown, BookOpen, FlaskConical, Landmark, Cpu,
+  Search
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useLanguage, LANG_NAMES, type Lang } from '@/lib/language';
 import { useAuth, logoutUser } from '@/lib/auth';
+import SearchModal from '@/components/SearchModal';
+import { trackEvent } from '@/lib/analytics';
 
 const NAV_LINK_DEFS = [
   { href: '/dashboard',      key: 'dashboard',      icon: LayoutDashboard },
@@ -63,10 +66,23 @@ export function Header() {
   const { user, ready }           = useAuth()
   const { lang, setLang, t }        = useLanguage()
   const [langOpen, setLangOpen]     = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
   const NAV_LINKS = NAV_LINK_DEFS.map(d => ({ href: d.href, label: t(d.key as any) as string, icon: d.icon }));
 
   /* close drawer on route change */
   useEffect(() => { setOpen(false); }, [pathname]);
+
+  /* Ctrl+K keyboard shortcut to toggle search modal */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   /* body scroll lock when drawer open */
   useEffect(() => {
@@ -159,6 +175,16 @@ export function Header() {
 
         {/* ── Right side ── */}
         <div className="flex items-center gap-1.5 md:gap-2">
+          {/* Site-wide Search Trigger Button */}
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            title="Search KisaanBuddy (Ctrl+K)"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-muted-foreground border border-border/40 bg-background/30 hover:bg-muted/40 hover:text-emerald-500 transition-colors duration-200 cursor-pointer"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+          
           <ThemeToggle />
 
           {/* Language selector */}
@@ -178,7 +204,11 @@ export function Header() {
                   {(Object.keys(LANG_NAMES) as Lang[]).map((l) => (
                     <button
                       key={l}
-                      onClick={() => { setLang(l); setLangOpen(false) }}
+                      onClick={() => {
+                        trackEvent({ type: 'language_switch', from: lang, to: l });
+                        setLang(l);
+                        setLangOpen(false);
+                      }}
                       className={"w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors " + (lang === l ? "bg-emerald-500/10 text-emerald-500 font-semibold" : "text-foreground hover:bg-muted/50")}
                     >
                       <LangFlag lang={l} /> <span>{LANG_NAMES[l]}</span>
@@ -367,6 +397,9 @@ export function Header() {
           </nav>
         </>
       )}
+
+      {/* Global Search Modal Overlay */}
+      <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

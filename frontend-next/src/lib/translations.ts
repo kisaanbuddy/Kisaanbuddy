@@ -1,4 +1,4 @@
-export const translations: Record<string, Record<string, string>> = {
+﻿export const translations: Record<string, Record<string, string>> = {
   en: {
     // Nav
     dashboard: "Dashboard",
@@ -25,7 +25,7 @@ export const translations: Record<string, Record<string, string>> = {
     good_morning: "Good Morning",
     good_afternoon: "Good Afternoon",
     good_evening: "Good Evening",
-    welcome: "Welcome to KrishiAI",
+    welcome: "Welcome to KisaanBuddy",
     today_weather: "Today's Weather",
     temperature: "Temperature",
     humidity: "Humidity",
@@ -72,7 +72,7 @@ export const translations: Record<string, Record<string, string>> = {
     benefit: "Benefit",
 
     // Chatbot
-    ask_krishiai: "Ask KrishiAI",
+    ask_KisaanBuddy: "Ask KisaanBuddy",
     type_message: "Type your message...",
     send: "Send",
     listening: "Listening...",
@@ -105,7 +105,7 @@ export const translations: Record<string, Record<string, string>> = {
     good_morning: "सुप्रभात",
     good_afternoon: "नमस्कार",
     good_evening: "शुभ संध्या",
-    welcome: "KrishiAI में आपका स्वागत है",
+    welcome: "KisaanBuddy में आपका स्वागत है",
     today_weather: "आज का मौसम",
     temperature: "तापमान",
     humidity: "आर्द्रता",
@@ -152,7 +152,7 @@ export const translations: Record<string, Record<string, string>> = {
     benefit: "लाभ",
 
     // Chatbot
-    ask_krishiai: "KrishiAI से पूछें",
+    ask_KisaanBuddy: "KisaanBuddy से पूछें",
     type_message: "अपना संदेश लिखें...",
     send: "भेजें",
     listening: "सुन रहा हूँ...",
@@ -185,7 +185,7 @@ export const translations: Record<string, Record<string, string>> = {
     good_morning: "ಶುಭೋದಯ",
     good_afternoon: "ನಮಸ್ಕಾರ",
     good_evening: "ಶುಭ ಸಂಜೆ",
-    welcome: "KrishiAI ಗೆ ಸ್ವಾಗತ",
+    welcome: "KisaanBuddy ಗೆ ಸ್ವಾಗತ",
     today_weather: "ಇಂದಿನ ಹವಾಮಾನ",
     temperature: "ತಾಪಮಾನ",
     humidity: "ಆರ್ದ್ರತೆ",
@@ -232,7 +232,7 @@ export const translations: Record<string, Record<string, string>> = {
     benefit: "ಪ್ರಯೋಜನ",
 
     // Chatbot
-    ask_krishiai: "KrishiAI ಅನ್ನು ಕೇಳಿ",
+    ask_KisaanBuddy: "KisaanBuddy ಅನ್ನು ಕೇಳಿ",
     type_message: "ನಿಮ್ಮ ಸಂದೇಶ ಟೈಪ್ ಮಾಡಿ...",
     send: "ಕಳುಹಿಸಿ",
     listening: "ಕೇಳುತ್ತಿದ್ದೇನೆ...",

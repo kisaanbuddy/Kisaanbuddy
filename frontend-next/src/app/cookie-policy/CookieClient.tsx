@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Cookie, ArrowLeft, Shield, Eye, Settings } from 'lucide-react';
@@ -54,7 +54,7 @@ export function CookieClient() {
         <section className="space-y-2">
           <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
             <Eye className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-            {t("cookie_policy.2_how_krishiai_uses")}
+            {t("cookie_policy.2_how_KisaanBuddy_uses")}
           </h2>
           <p>
             {t("cookie_policy.we_use_both_first")}

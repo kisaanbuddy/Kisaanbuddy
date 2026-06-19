@@ -1,6 +1,6 @@
-"use client"
+﻿"use client"
 /**
- * Session + streaming orchestration for the KrishiAI assistant.
+ * Session + streaming orchestration for the KisaanBuddy assistant.
  *
  * Responsibilities:
  *   - Persist chosen language, session id, and last-known geolocation to
@@ -60,9 +60,9 @@ export interface UseAssistantReturn {
 }
 
 // ---------- Constants ----------
-const LS_SESSION = "krishiai.assistant.sessionId"
-const LS_LANG = "krishiai.assistant.language"
-const LS_LOC = "krishiai.assistant.location"
+const LS_SESSION = "KisaanBuddy.assistant.sessionId"
+const LS_LANG = "KisaanBuddy.assistant.language"
+const LS_LOC = "KisaanBuddy.assistant.location"
 
 // ---------- Hook ----------
 export function useAssistant(

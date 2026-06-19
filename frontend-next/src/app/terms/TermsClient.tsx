@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { Scale, ArrowLeft, Shield, AlertTriangle, HelpCircle } from 'lucide-react';
@@ -60,7 +60,7 @@ export function TermsClient() {
             {t("terms.2_ai_agricultural_predictions")}
           </h2>
           <p>
-            {t("terms.krishiai_provides_crop_recommendation")}
+            {t("terms.KisaanBuddy_provides_crop_recommendation")}
           </p>
           <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-xs font-medium text-amber-600 dark:text-amber-400">
             <strong>{t("terms.critical_advisory")}</strong>{' '}
@@ -91,7 +91,7 @@ export function TermsClient() {
             📂 {t("terms.5_intellectual_property")}
           </h2>
           <p>
-            {t("terms.the_krishiai_brand_logos")}
+            {t("terms.the_KisaanBuddy_brand_logos")}
           </p>
         </section>
 

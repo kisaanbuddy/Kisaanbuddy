@@ -80,9 +80,9 @@ export default function LoginPage() {
         const existingUserRaw = window.localStorage.getItem(`user_${phone}`);
         if (existingUserRaw) {
           const sessionUser = JSON.parse(existingUserRaw);
-          window.localStorage.setItem("krishi_user", JSON.stringify(sessionUser));
-          window.localStorage.setItem("krishi_token", "otp_token_" + Date.now());
-          window.dispatchEvent(new Event("krishi-auth-change"));
+          window.localStorage.setItem("kisaanbuddy_user", JSON.stringify(sessionUser));
+          window.localStorage.setItem("kisaanbuddy_token", "otp_token_" + Date.now());
+          window.dispatchEvent(new Event("kisaanbuddy-auth-change"));
           router.replace("/dashboard");
         } else {
           setStep("register");
@@ -107,7 +107,7 @@ export default function LoginPage() {
     setTimeout(() => {
       const newUser = {
         id: Date.now(),
-        email: `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, "")}@krishiai.com`,
+        email: `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, "")}@KisaanBuddy.com`,
         name: cleanName,
         phone_number: phone,
         role: "Farmer",
@@ -117,9 +117,9 @@ export default function LoginPage() {
 
       // Save user to system registry and set active session
       window.localStorage.setItem(`user_${phone}`, JSON.stringify(newUser));
-      window.localStorage.setItem("krishi_user", JSON.stringify(newUser));
-      window.localStorage.setItem("krishi_token", "otp_token_" + Date.now());
-      window.dispatchEvent(new Event("krishi-auth-change"));
+      window.localStorage.setItem("kisaanbuddy_user", JSON.stringify(newUser));
+      window.localStorage.setItem("kisaanbuddy_token", "otp_token_" + Date.now());
+      window.dispatchEvent(new Event("kisaanbuddy-auth-change"));
       setLoading(false);
       router.replace("/dashboard");
     }, 1000);

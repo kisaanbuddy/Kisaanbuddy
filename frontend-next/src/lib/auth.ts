@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const SESSION_KEY = "krishi_user";
-const TOKEN_KEY = "krishi_token";
-const EVENT_NAME = "krishi-auth-change";
+const SESSION_KEY = "kisaanbuddy_user";
+const TOKEN_KEY = "kisaanbuddy_token";
+const EVENT_NAME = "kisaanbuddy-auth-change";
 
 export type AuthUser = {
   id: number;
@@ -30,7 +30,14 @@ export function getAuthHeaders(): Record<string, string> {
     "Content-Type": "application/json",
   };
   if (typeof window !== "undefined") {
-    const token = window.localStorage.getItem(TOKEN_KEY);
+    let token = window.localStorage.getItem(TOKEN_KEY);
+    if (!token) {
+      token = window.localStorage.getItem("krishi_token");
+      if (token) {
+        window.localStorage.setItem(TOKEN_KEY, token);
+        window.localStorage.removeItem("krishi_token");
+      }
+    }
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -51,7 +58,19 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
 function readSession(): AuthUser | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = window.localStorage.getItem(SESSION_KEY);
+    let raw = window.localStorage.getItem(SESSION_KEY);
+    if (!raw) {
+      raw = window.localStorage.getItem("krishi_user");
+      if (raw) {
+        window.localStorage.setItem(SESSION_KEY, raw);
+        window.localStorage.removeItem("krishi_user");
+        const token = window.localStorage.getItem("krishi_token");
+        if (token) {
+          window.localStorage.setItem(TOKEN_KEY, token);
+          window.localStorage.removeItem("krishi_token");
+        }
+      }
+    }
     if (!raw) return null;
     return JSON.parse(raw) as AuthUser;
   } catch {
@@ -67,6 +86,8 @@ function writeSession(user: AuthUser | null, token: string | null) {
   } else {
     window.localStorage.removeItem(SESSION_KEY);
     window.localStorage.removeItem(TOKEN_KEY);
+    window.localStorage.removeItem("krishi_user");
+    window.localStorage.removeItem("krishi_token");
   }
   window.dispatchEvent(new Event(EVENT_NAME));
 }

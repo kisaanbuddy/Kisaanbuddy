@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 /**
  * Floating assistant FAB — mounted once in the root layout.
  * Clicking toggles the ChatPanel with a spring animation.
@@ -44,7 +44,7 @@ export function AssistantWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-expanded={open}
-        aria-label={open ? "Close KrishiAI assistant" : "Open KrishiAI assistant"}
+        aria-label={open ? "Close KisaanBuddy assistant" : "Open KisaanBuddy assistant"}
         className="fixed bottom-6 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white shadow-xl shadow-green-500/30 hover:shadow-2xl"
       >
         <AnimatePresence mode="wait" initial={false}>

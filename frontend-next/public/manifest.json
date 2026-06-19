@@ -1,6 +1,6 @@
 {
-  "name": "KrishiAI — Smart Farming Assistant",
-  "short_name": "KrishiAI",
+  "name": "KisaanBuddy — AI for Every Farmer",
+  "short_name": "KisaanBuddy",
   "description": "AI-powered farming assistant: mandi prices, weather, crop advice, disease detection, worker connect.",
   "start_url": "/",
   "display": "standalone",

@@ -1,5 +1,7 @@
 "use client"
 import { useLanguage } from '@/lib/language'
+import { trackEvent } from '@/lib/analytics'
+import { TermTooltip } from '@/components/ui/TermTooltip'
 
 import { useState, useEffect, useMemo, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -444,7 +446,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 /* ------------------------------------------------------------------ */
 /*  Price Alert System                                                 */
 /* ------------------------------------------------------------------ */
-const ALERT_KEY = "krishiai_mandi_alerts"
+const ALERT_KEY = "KisaanBuddy_mandi_alerts"
 interface PriceAlert { id: string; cropName: string; threshold: number; direction: "above" | "below"; createdAt: number; fired?: boolean }
 function readAlerts(): PriceAlert[] { if (typeof window === "undefined") return []; try { return JSON.parse(localStorage.getItem(ALERT_KEY) || "[]") } catch { return [] } }
 function saveAlerts(a: PriceAlert[]) { if (typeof window !== "undefined") localStorage.setItem(ALERT_KEY, JSON.stringify(a)) }
@@ -481,8 +483,11 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       if (!match) return alert
       const triggered = alert.direction === "above" ? match.modal_price >= alert.threshold : match.modal_price <= alert.threshold
       if (triggered && !alert.fired) { 
-        const notifTitle = t("mandi.krishiai_mandi_alert");
-        const notifBody = t("mandi.translatedata_match_name_lang");
+        const notifTitle = t("mandi.KisaanBuddy_mandi_alert");
+        const cropTranslated = translateData(match.name, activeAlertLang);
+        const notifBody = t("mandi.translatedata_match_name_lang")
+          .replace("${translateData(match.name, lang)}", cropTranslated)
+          .replace("${match.modal_price}", match.modal_price.toString());
         
         new Notification(notifTitle, { 
           body: notifBody, 
@@ -848,7 +853,10 @@ export default function MandiPage() {
                     key={crop.id}
                     crop={crop}
                     index={i}
-                    onClick={() => setSelectedCrop(crop)}
+                    onClick={() => {
+                      trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang });
+                      setSelectedCrop(crop);
+                    }}
                     lang={lang}
                   />
                 ))}
@@ -1307,6 +1315,189 @@ function BuySellPanel({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Educational Guide Section ── */}
+      <section className="mt-12 border-t border-white/[0.08] pt-10 select-none">
+        {lang === "hi" ? (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 मंडी भाव क्या हैं और <TermTooltip term="MSP" lang={lang}>न्यूनतम समर्थन मूल्य (MSP)</TermTooltip> कैसे काम करता है?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                कृषि क्षेत्र में मंडी भाव का तात्पर्य उन दरों से है जिन पर कृषि उपज (जैसे अनाज, दलहन, तिलहन और सब्जियां) विभिन्न थोक बाजारों (कृषि उपज विपणन समितियों या APMC) में बेची जाती हैं। मंडी भाव दैनिक मांग और आपूर्ति के आधार पर उतार-चढ़ाव करते हैं। फसलों के विपणन को स्थिरता देने के लिए भारत सरकार <TermTooltip term="MSP" lang={lang}>न्यूनतम समर्थन मूल्य (MSP)</TermTooltip> लागू करती है।
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.02] transition-colors space-y-3">
+                <h3 className="text-lg font-bold text-amber-400 font-display">📈 <TermTooltip term="MSP" lang={lang}>न्यूनतम समर्थन मूल्य (MSP)</TermTooltip> और इसकी आवश्यकता</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  सरकार प्रत्येक फसल सीजन से पहले कृषि लागत और मूल्य आयोग (CACP) की सिफारिशों पर 22 अनिवार्य फसलों के लिए <TermTooltip term="MSP" lang={lang}>न्यूनतम समर्थन मूल्य (MSP)</TermTooltip> की घोषणा करती है। यह किसानों के लिए एक सुरक्षा कवच है, जिससे बाजार में कीमतों में भारी गिरावट आने पर भी वे अपनी फसल एक निश्चित दर पर सरकार को बेच सकें। यह उत्तर प्रदेश, पंजाब और हरियाणा के गेहूं और धान उत्पादक किसानों के लिए विशेष रूप से सहायक है।
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.02] transition-colors space-y-3">
+                <h3 className="text-lg font-bold text-amber-400 font-display">💻 राष्ट्रीय कृषि बाजार (eNAM) क्या है?</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  eNAM (इलेक्ट्रॉनिक नेशनल एग्रीकल्चर मार्केट) भारत सरकार द्वारा शुरू किया गया एक अखिल भारतीय इलेक्ट्रॉनिक ट्रेडिंग पोर्टल है। यह पोर्टल मौजूदा APMC मंडियों को एक नेटवर्क में जोड़कर किसानों को अपनी उपज की ऑनलाइन नीलामी करने की सुविधा देता है। इससे बिचौलियों की भूमिका कम होती है और राजस्थान या मध्य प्रदेश का किसान भी सीधे देश के किसी भी कोने के खरीदार से बेहतर मूल्य प्राप्त कर सकता है।
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] space-y-4">
+              <h3 className="text-lg font-bold text-emerald-400 font-display">📊 मंडी में बेहतर मूल्य प्राप्त करने की गाइड</h3>
+              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="space-y-2 border-r border-white/[0.06] pr-4">
+                  <h4 className="font-extrabold text-white">1. ग्रेडिंग और छंटाई</h4>
+                  <p>فसल बेचने से पहले उसकी सफाई और छंटाई जरूर करें। कंकड़-पत्थर और टूटे दाने अलग करने से मंडी में 10% से 15% तक अधिक दाम मिलता है।</p>
+                </div>
+                <div className="space-y-2 border-r border-white/[0.06] px-4">
+                  <h4 className="font-extrabold text-white">2. नमी की जांच</h4>
+                  <p>मंडियों में अनाज में नमी का स्तर मापा जाता है। मानक नमी (आमतौर पर 12-14%) से अधिक होने पर दाम घटा दिए जाते हैं। फसल को धूप में अच्छी तरह सुखाकर ही मंडी ले जाएं।</p>
+                </div>
+                <div className="space-y-2 pl-4">
+                  <h4 className="font-extrabold text-white">3. ऑफ-सीजन बिक्री</h4>
+                  <p>कटाई के तुरंत बाद सभी किसान एक साथ मंडी में फसल लाते हैं, जिससे आपूर्ति बढ़ने के कारण दाम गिर जाते हैं। यदि संभव हो तो उपज का भंडारण करें और 2-3 महीने बाद बेचें जब कीमतें बढ़ती हैं।</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-white">❓ अक्सर पूछे जाने वाले प्रश्न (FAQs)</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q1. न्यूनतम समर्थन मूल्य (MSP) कौन निर्धारित करता है?</h4>
+                  <p>भारत सरकार का कृषि लागत और मूल्य आयोग (CACP) लागत और विभिन्न कारकों का विश्लेषण कर MSP की सिफारिश करता है, और इसे आर्थिक मामलों की कैबिनेट समिति द्वारा मंजूरी दी जाती है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q2. मंडी में मेरी फसल का भुगतान कब और कैसे होता है?</h4>
+                  <p>APMC नियमों के अनुसार आढ़ती या व्यापारी को तौल के दिन ही या अधिकतम 24-48 घंटों के भीतर सीधे किसान के बैंक खाते में आरटीजीएस/ऑनलाइन माध्यम से भुगतान करना होता है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q3. eNAM पोर्टल पर पंजीकरण कैसे करें?</h4>
+                  <p>किसान नजदीकी मंडी कार्यालय में जाकर या सीधे eNAM की वेबसाइट पर अपना आधार, बैंक विवरण और भूमि दस्तावेज अपलोड कर निःशुल्क पंजीकरण करा सकते हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q4. मॉडल प्राइस (Modal Price) का क्या अर्थ है?</h4>
+                  <p>मॉडल प्राइस का अर्थ है वह औसत दर जिस पर मंडी में उस दिन उस फसल की सबसे अधिक मात्रा बेची गई। यह न तो अधिकतम मूल्य होता है और न ही न्यूनतम मूल्य।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q5. यदि कोई व्यापारी MSP से कम पर फसल खरीदे तो क्या करें?</h4>
+                  <p>MSP सरकारी खरीद केंद्रों (जैसे FCI, NAFED) पर ही लागू होता है। निजी मंडियों या व्यापारियों पर इसे कानूनी रूप से थोपा नहीं जा सकता, इसलिए सरकारी खरीद केंद्रों पर ही उपज बेचने का प्रयास करें।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q6. क्या सब्जियों और फलों पर भी MSP मिलता है?</h4>
+                  <p>नहीं, वर्तमान में केवल 22 खरीफ और रबी फसलों पर ही केंद्र सरकार द्वारा MSP घोषित किया जाता है। सब्जियां और फल खराब होने वाली श्रेणी में आते हैं और इनका मूल्य मांग पर निर्भर होता है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q7. मंडी में आढ़त शुल्क (Commission) कौन देता है?</h4>
+                  <p>नए नियमों के तहत आढ़त या कमिशन का भुगतान खरीदार (व्यापारी) करता है। किसानों से किसी भी तरह का आढ़त शुल्क काटना अवैध है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q8. क्या दूसरे राज्य की मंडी में फसल बेचना संभव है?</h4>
+                  <p>हाँ, eNAM पोर्टल और 'एक देश, एक बाजार' नीति के तहत किसान देश की किसी भी मंडी में अपनी फसल बेचने के लिए स्वतंत्र हैं।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q9. फसल के कबाड़ (Trash) या डंठल को कैसे साफ करें?</h4>
+                  <p>फसलों की मड़ाई (Threshing) और ओसाई (Winnowing) के आधुनिक यंत्रों का उपयोग कर हवा की मदद से हल्के तिनकों को फसल से आसानी से अलग किया जा सकता है।</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q10. क्या KisaanBuddy पर भाव वास्तविक समय में अपडेट होते हैं?</h4>
+                  <p>हाँ, KisaanBuddy भारत सरकार के विपणन और निरीक्षण निदेशालय (AGMARKNET) के सर्वरों से जुड़े लाइव एपीआई के माध्यम से हर दिन के मंडी भाव अपडेट करता है।</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white">🌾 What Are Mandi Prices and How Does Minimum Support Price (MSP) Work?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                Mandi prices refer to the wholesale market rates at which agricultural produce (such as cereals, oilseeds, pulses, and fresh vegetables) are traded inside Agricultural Produce Market Committees (APMCs). These rates fluctuate daily based on supply and demand dynamics. To protect farm revenues, the Government of India institutes the Minimum Support Price (MSP) framework.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.02] transition-colors space-y-3">
+                <h3 className="text-lg font-bold text-amber-400 font-display">📈 Minimum Support Price (MSP) and Farm Protection</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  MSP is declared by the central government prior to each sowing cycle based on recommendations from the Commission for Agricultural Costs and Prices (CACP) for 22 mandated crops. It acts as an economic safety net, guaranteeing that farmers can sell their harvests at a baseline price even if open market rates crash. This is especially vital for wheat and paddy cultivators in Punjab, Haryana, and Uttar Pradesh.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/[0.06] bg-white/[0.01] hover:bg-white/[0.02] transition-colors space-y-3">
+                <h3 className="text-lg font-bold text-amber-400 font-display">💻 What is the eNAM Digital Trade Portal?</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  eNAM (Electronic National Agriculture Market) is an all-India online trading portal launched by the central government. It links existing physical APMC mandies into a single digital market, allowing farmers to auction their products online. By eliminating middlemen commissions, it enables cultivators from states like Rajasthan or Madhya Pradesh to secure maximum payouts from buyers nationwide.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-emerald-500/10 bg-emerald-500/[0.02] space-y-4">
+              <h3 className="text-lg font-bold text-emerald-400 font-display">📊 Mandi Profit Optimization Guide</h3>
+              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="space-y-2 border-r border-white/[0.06] pr-4">
+                  <h4 className="font-extrabold text-white">1. Grading & Cleaning</h4>
+                  <p>Sort and grade your grains to remove chaff, stones, and broken seeds. Clean bags fetch 10% to 15% higher bids in auctions compared to uncleaned lots.</p>
+                </div>
+                <div className="space-y-2 border-r border-white/[0.06] px-4">
+                  <h4 className="font-extrabold text-white">2. Moisture Control</h4>
+                  <p>Mandi agents measure moisture percentages. Anything above standard limits (typically 12-14%) results in price deductions. Air-dry your grains under the sun before dispatch.</p>
+                </div>
+                <div className="space-y-2 pl-4">
+                  <h4 className="font-extrabold text-white">3. Off-Season Supply</h4>
+                  <p>Avoid dumping crops immediately after harvest when supplies peak and prices drop. If storage facilities are accessible, delay sales by 2 to 3 months to sell during peak market demand.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-white">❓ Mandi Prices FAQs</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q1. Who calculates the MSP rate?</h4>
+                  <p>It is recommended by the CACP based on cost of cultivation and domestic/international demand, and approved by the Cabinet Committee on Economic Affairs (CCEA).</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q2. What is the standard payment duration in mandis?</h4>
+                  <p>Under APMC acts, commission agents must settle payments directly to the farmer's bank account via RTGS/online transfer within 24 to 48 hours of weighing.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q3. How do I register on the eNAM platform?</h4>
+                  <p>Farmers can sign up online for free via the eNAM official portal or by visiting their local APMC office with their bank account, Aadhaar card, and land patta.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q4. What does "Modal Price" mean?</h4>
+                  <p>Modal Price is the most frequently occurring rate at which the highest volume of a specific crop was sold in the mandi during that day.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q5. Can I demand MSP from a private trader?</h4>
+                  <p>No, MSP is only legally binding for government procurement agencies. Private traders buy based on open-market demand, which is why utilizing government silos is recommended.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q6. Are fruits and vegetables covered under MSP?</h4>
+                  <p>No, currently only 22 grains, pulses, oilseeds, and cotton are covered under the central government's MSP framework.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q7. Who pays the commission agent's fee?</h4>
+                  <p>The buyer (trader) is responsible for commission fees. Deducting commission or mandi fee from the farmer's payout is strictly illegal.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q8. Is it possible to sell crops to other states?</h4>
+                  <p>Yes, eNAM and inter-state trade permits allow selling to buyers located anywhere in India.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q9. How do we remove dirt and stones from paddy?</h4>
+                  <p>Run grain pre-cleaners or perform manual winnowing to let wind carry away empty husks and light dirt particles.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/[0.04] bg-white/[0.005] space-y-2">
+                  <h4 className="font-bold text-white">Q10. Where does KisaanBuddy get its mandi prices from?</h4>
+                  <p>We aggregate mandi prices daily through live connections to the Ministry of Agriculture's AGMARKNET databases.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   )
 }

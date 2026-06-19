@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KisaanBuddy.com — Complete AdSense & Website Audit Report</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a2e;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --accent: #059669;
+    --accent-light: #d1fae5;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --red-bg: #fef2f2;
+    --yellow: #d97706;
+    --yellow-light: #fef3c7;
+    --yellow-bg: #fffbeb;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --green-bg: #ecfdf5;
+    --blue: #2563eb;
+    --blue-light: #dbeafe;
+    --blue-bg: #eff6ff;
+    --purple: #7c3aed;
+    --surface: #f8fafc;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 10.5pt;
+    background: var(--bg);
+  }
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+  }
+
+  .page-break { page-break-before: always; }
+
+  /* ─── Cover Page ─── */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    text-align: center;
+    page-break-after: always;
+  }
+  .cover-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #059669, #10b981);
+    color: white;
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 9pt;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .cover h1 {
+    font-size: 32pt;
+    font-weight: 900;
+    line-height: 1.15;
+    background: linear-gradient(135deg, #1a1a2e 30%, #059669);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 12px;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+    font-weight: 400;
+  }
+  .cover-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 40px;
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 32px;
+    font-size: 9.5pt;
+    max-width: 500px;
+  }
+  .cover-meta dt { color: var(--text-muted); font-weight: 500; }
+  .cover-meta dd { font-weight: 600; color: var(--text); margin-bottom: 8px; }
+
+  .cover-scores {
+    margin-top: 40px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .score-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    min-width: 110px;
+  }
+  .score-pill .label { font-size: 7.5pt; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .score-pill .value { font-size: 22pt; font-weight: 800; margin: 2px 0; }
+  .score-pill .value.red { color: var(--red); }
+  .score-pill .value.yellow { color: var(--yellow); }
+  .score-pill .value.green { color: var(--green); }
+
+  /* ─── Section Headers ─── */
+  h1.section-title {
+    font-size: 20pt;
+    font-weight: 800;
+    color: var(--text);
+    margin: 32px 0 6px 0;
+    padding-bottom: 8px;
+    border-bottom: 3px solid var(--accent);
+    display: inline-block;
+  }
+  h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: var(--text);
+    margin: 22px 0 8px 0;
+  }
+  h3 {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #334155;
+    margin: 16px 0 6px 0;
+  }
+  h4 {
+    font-size: 10pt;
+    font-weight: 600;
+    color: #475569;
+    margin: 12px 0 4px 0;
+  }
+
+  p { margin: 6px 0; }
+
+  /* ─── Tables ─── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px 0;
+    font-size: 9.5pt;
+  }
+  thead th {
+    background: #0f172a;
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  thead th:first-child { border-radius: 6px 0 0 0; }
+  thead th:last-child { border-radius: 0 6px 0 0; }
+  tbody td {
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) { background: #f8fafc; }
+  tbody tr:hover { background: #f1f5f9; }
+
+  /* ─── Alert Boxes ─── */
+  .alert {
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size: 9.5pt;
+    line-height: 1.6;
+    border-left: 4px solid;
+  }
+  .alert-caution {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: #991b1b;
+  }
+  .alert-warning {
+    background: var(--yellow-bg);
+    border-color: var(--yellow);
+    color: #92400e;
+  }
+  .alert-important {
+    background: var(--blue-bg);
+    border-color: var(--blue);
+    color: #1e40af;
+  }
+  .alert-tip {
+    background: var(--green-bg);
+    border-color: var(--green);
+    color: #065f46;
+  }
+  .alert-title {
+    font-weight: 700;
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  /* ─── Code ─── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 9pt;
+    color: #be185d;
+  }
+  pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5pt;
+    overflow-x: auto;
+    margin: 8px 0 14px 0;
+    line-height: 1.6;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+
+  /* ─── Lists ─── */
+  ul, ol { padding-left: 22px; margin: 6px 0; }
+  li { margin: 3px 0; }
+  li::marker { color: var(--accent); }
+
+  /* ─── Verdict Badges ─── */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .badge-red { background: var(--red-light); color: var(--red); }
+  .badge-yellow { background: var(--yellow-light); color: var(--yellow); }
+  .badge-green { background: var(--green-light); color: var(--green); }
+
+  /* ─── Score Bars ─── */
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 6px 0;
+  }
+  .score-label { font-weight: 500; min-width: 160px; font-size: 9.5pt; }
+  .score-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: #e2e8f0;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+  .score-bar {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.3s;
+  }
+  .score-bar.red { background: linear-gradient(90deg, #ef4444, #dc2626); }
+  .score-bar.yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  .score-bar.green { background: linear-gradient(90deg, #10b981, #059669); }
+  .score-val { font-weight: 700; font-size: 10pt; min-width: 45px; text-align: right; }
+
+  /* ─── Emoji icons ─── */
+  .icon { font-size: 14pt; margin-right: 6px; vertical-align: middle; }
+
+  /* ─── Dividers ─── */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .card h4 { margin-top: 0; }
+
+  .footer-note {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 8.5pt;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .toc { margin: 20px 0; }
+  .toc a { color: var(--text); text-decoration: none; font-weight: 500; }
+  .toc li { margin: 5px 0; font-size: 10pt; }
+  .toc li::marker { color: var(--accent); font-weight: 700; }
+
+  .stamp {
+    display: inline-block;
+    border: 3px solid var(--red);
+    color: var(--red);
+    padding: 6px 18px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 16pt;
+    transform: rotate(-8deg);
+    margin: 14px 0;
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════ COVER PAGE ═══════════════════════ -->
+<div class="cover">
+  <div class="cover-badge">Confidential Audit Report</div>
+  <h1>KisaanBuddy.com<br>Complete Website &amp; AdSense Audit</h1>
+  <p class="subtitle">Google AdSense Eligibility · Technical SEO · UX · Competitive Analysis</p>
+
+  <dl class="cover-meta">
+    <dt>Audit Date</dt><dd>June 19, 2026</dd>
+    <dt>Domain</dt><dd>kisaanbuddy.com</dd>
+    <dt>Tech Stack</dt><dd>Next.js 14 + Python + Vercel</dd>
+    <dt>Reviewer Role</dt><dd>AdSense Reviewer &amp; SEO Auditor</dd>
+    <dt>Pages Crawled</dt><dd>17+ pages</dd>
+    <dt>Report Version</dt><dd>v1.0</dd>
+  </dl>
+
+  <div class="cover-scores">
+    <div class="score-pill"><span class="label">Overall</span><span class="value yellow">62</span><span class="label">/100</span></div>
+    <div class="score-pill"><span class="label">SEO</span><span class="value yellow">58</span><span class="label">/100</span></div>
+    <div class="score-pill"><span class="label">AdSense</span><span class="value red">38</span><span class="label">/100</span></div>
+    <div class="score-pill"><span class="label">Trust</span><span class="value yellow">55</span><span class="label">/100</span></div>
+    <div class="score-pill"><span class="label">Farmer UX</span><span class="value green">72</span><span class="label">/100</span></div>
+  </div>
+
+  <div class="stamp">NOT READY FOR ADSENSE</div>
+</div>
+
+<!-- ═══════════════════════ TABLE OF CONTENTS ═══════════════════════ -->
+<h1 class="section-title">📑 Table of Contents</h1>
+<ol class="toc">
+  <li><a href="#s1">Google AdSense Eligibility Audit</a></li>
+  <li><a href="#s2">Website Structure Audit</a></li>
+  <li><a href="#s3">Required Pages Audit</a></li>
+  <li><a href="#s4">Content Audit</a></li>
+  <li><a href="#s5">SEO Audit</a></li>
+  <li><a href="#s6">Technical Audit</a></li>
+  <li><a href="#s7">Trust &amp; Monetization Audit</a></li>
+  <li><a href="#s8">Farmer-Specific UX Review</a></li>
+  <li><a href="#s9">Competitive Analysis</a></li>
+  <li><a href="#s10">Action Plan &amp; Recommendations</a></li>
+</ol>
+
+<hr>
+
+<!-- ═══════════════════════ EXECUTIVE SCORECARD ═══════════════════════ -->
+<h1 class="section-title">📊 Executive Scorecard</h1>
+
+<div class="score-row"><span class="score-label">Overall Website</span><div class="score-bar-bg"><div class="score-bar yellow" style="width:62%"></div></div><span class="score-val" style="color:var(--yellow)">62/100</span></div>
+<div class="score-row"><span class="score-label">SEO Score</span><div class="score-bar-bg"><div class="score-bar yellow" style="width:58%"></div></div><span class="score-val" style="color:var(--yellow)">58/100</span></div>
+<div class="score-row"><span class="score-label">AdSense Readiness</span><div class="score-bar-bg"><div class="score-bar red" style="width:38%"></div></div><span class="score-val" style="color:var(--red)">38/100</span></div>
+<div class="score-row"><span class="score-label">Trust Score</span><div class="score-bar-bg"><div class="score-bar yellow" style="width:55%"></div></div><span class="score-val" style="color:var(--yellow)">55/100</span></div>
+<div class="score-row"><span class="score-label">Farmer Experience</span><div class="score-bar-bg"><div class="score-bar green" style="width:72%"></div></div><span class="score-val" style="color:var(--green)">72/100</span></div>
+
+<div class="alert alert-caution" style="margin-top:18px">
+  <div class="alert-title">⛔ CAUTION — Current AdSense Approval Probability: ~15–20%</div>
+  Your site will almost certainly be rejected in its current state. The primary rejection reasons will be <strong>"Low-value content"</strong>, <strong>"Insufficient content"</strong>, and <strong>"site under construction" signals</strong>. Read on for the full breakdown and exact fixes needed.
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 1: ADSENSE ELIGIBILITY ═══════════════════════ -->
+<h1 class="section-title" id="s1">1. 🎯 Google AdSense Eligibility</h1>
+<h2>Approval Chances: <span style="color:var(--red);font-size:16pt">15–20%</span> — WILL BE REJECTED</h2>
+
+<h3>✅ Reasons It COULD Get Approved (Strengths)</h3>
+<table>
+  <thead><tr><th>#</th><th>Strength</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Custom TLD domain — <code>kisaanbuddy.com</code></td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>2</td><td>HTTPS active via Vercel SSL</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>3</td><td>ads.txt correctly configured</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>4</td><td>Google Search Console verification file present</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>5</td><td>AdSense meta tag &amp; script embedded in layout</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>6</td><td>All 4 mandatory legal pages exist (Privacy, Terms, Disclaimer, Cookie)</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>7</td><td>Clear niche focus — Agriculture / Farming</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+    <tr><td>8</td><td>Legitimate founding team with LinkedIn profiles</td><td><span class="badge badge-green">✅ PASS</span></td></tr>
+  </tbody>
+</table>
+
+<h3>🔴 Reasons It WILL Get REJECTED (Critical Failures)</h3>
+
+<h4>A. "Low-value content" / "Thin content" — THE #1 REJECTION REASON</h4>
+<table>
+  <thead><tr><th>Page</th><th>Indexable Text</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td><code>/</code> Homepage</td><td>~300 words</td><td><span class="badge badge-yellow">⚠️ Thin</span></td></tr>
+    <tr><td><code>/weather</code></td><td>~30 words + "not available"</td><td><span class="badge badge-red">🔴 EMPTY</span></td></tr>
+    <tr><td><code>/mandi</code></td><td>~20 words + "Synchronizing..."</td><td><span class="badge badge-red">🔴 EMPTY</span></td></tr>
+    <tr><td><code>/chatbot</code></td><td>~0 words (nav+footer only)</td><td><span class="badge badge-red">🔴 BLANK</span></td></tr>
+    <tr><td><code>/disease</code></td><td>~60 words</td><td><span class="badge badge-red">🔴 Extremely thin</span></td></tr>
+    <tr><td><code>/soil-health</code></td><td>~40 words</td><td><span class="badge badge-red">🔴 Extremely thin</span></td></tr>
+    <tr><td><code>/crop-predictor</code></td><td>~40 words</td><td><span class="badge badge-red">🔴 Extremely thin</span></td></tr>
+    <tr><td><code>/worker-connect</code></td><td>~30 words</td><td><span class="badge badge-red">🔴 Extremely thin</span></td></tr>
+    <tr><td><code>/khet-diary</code></td><td>~30 words</td><td><span class="badge badge-red">🔴 Extremely thin</span></td></tr>
+    <tr><td><code>/schemes</code></td><td>~200 words</td><td><span class="badge badge-yellow">⚠️ Thin</span></td></tr>
+    <tr><td><code>/about</code></td><td>~350 words</td><td><span class="badge badge-yellow">⚠️ Below target</span></td></tr>
+    <tr><td><code>/privacy</code></td><td>~500 words</td><td><span class="badge badge-green">✅ Acceptable</span></td></tr>
+    <tr><td><code>/disclaimer</code></td><td>~400 words</td><td><span class="badge badge-green">✅ Acceptable</span></td></tr>
+  </tbody>
+</table>
+
+<div class="alert alert-caution">
+  <div class="alert-title">⛔ Critical Content Gap</div>
+  Google requires <strong>20–30 pages with 800–1500+ words</strong> of original, informative content. Your entire site has fewer than <strong>2,500 words</strong> of indexable body content across ALL pages combined. This is catastrophically insufficient.
+</div>
+
+<h4>B. "Site Under Construction" Signals — AUTOMATIC REJECTION</h4>
+<ul>
+  <li><strong>/weather</strong> — Shows "Hourly data not available" and "Daily forecast not available"</li>
+  <li><strong>/mandi</strong> — Shows "Synchronizing Mandi Pricing Index..." (a loading state as content)</li>
+  <li><strong>/chatbot</strong> — Renders ZERO content between header and footer</li>
+  <li><strong>/khet-diary</strong> — Shows "Abhi tak koi diary entry nahi hai" (empty state only)</li>
+  <li><strong>/worker-connect</strong> — Shows "Complete criteria to dispatch notification matching algorithm" (developer jargon)</li>
+  <li><strong>/soil-health</strong> — Shows "Interactive analysis meter of parameters" (placeholder text)</li>
+</ul>
+
+<div class="alert alert-warning">
+  <div class="alert-title">⚠️ WARNING</div>
+  A Google AdSense reviewer will see <strong>at least 6 pages that appear broken, empty, or under construction</strong>. This is a guaranteed rejection trigger.
+</div>
+
+<h4>C. AI-Generated Content Risk — MEDIUM-HIGH</h4>
+<ul>
+  <li>Legal pages follow identical structural patterns with emoji-prefixed headers (🛡️, 👤, ⚠️, 📂) — a strong AI generation fingerprint</li>
+  <li>Content reads formulaic with no unique organizational voice</li>
+  <li>Google's SpamBrain algorithm flags uniform template-generated content</li>
+</ul>
+
+<h4>D. Template Rendering Bug</h4>
+<p>On the <code>/about</code> page, email links render as raw JavaScript:</p>
+<pre><code>Email ${f.role.includes("Founder") ? "Founder" : "Team Member"}</code></pre>
+<p>This is a critical professionalism failure visible on the live site.</p>
+
+<h4>E. Branding Inconsistency</h4>
+<ul>
+  <li>Domain: <code>kisaanbuddy.com</code> — uses "Kisaan Buddy"</li>
+  <li>Page titles alternate between "KrishiAI" and "Kisaan Buddy"</li>
+  <li>Google sees inconsistent branding as a trust signal failure</li>
+</ul>
+
+<h4>F. E-E-A-T Analysis</h4>
+<table>
+  <thead><tr><th>Signal</th><th>Score</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Experience</strong></td><td><span class="badge badge-red">3/10</span></td><td>No evidence of actual farming experience. No case studies or farmer stories</td></tr>
+    <tr><td><strong>Expertise</strong></td><td><span class="badge badge-red">4/10</span></td><td>Founders are tech-focused; no agriculture credentials shown</td></tr>
+    <tr><td><strong>Authoritativeness</strong></td><td><span class="badge badge-red">2/10</span></td><td>No press mentions, partnerships, or citations</td></tr>
+    <tr><td><strong>Trustworthiness</strong></td><td><span class="badge badge-red">4/10</span></td><td>Template bug, brand inconsistency, no physical address or phone</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 2: WEBSITE STRUCTURE ═══════════════════════ -->
+<h1 class="section-title" id="s2">2. 🏗️ Website Structure</h1>
+
+<table>
+  <thead><tr><th>Aspect</th><th>Score</th><th>Assessment</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Navigation Quality</strong></td><td>6/10</td><td>Two different nav layouts (homepage vs tool pages) — disorienting. No search functionality.</td></tr>
+    <tr><td><strong>Internal Linking</strong></td><td>5/10</td><td>Footer has comprehensive links but zero cross-linking between feature pages. No breadcrumbs.</td></tr>
+    <tr><td><strong>User Flow</strong></td><td>4/10</td><td>Anonymous users land on empty tool pages. No onboarding. "Watch Demo" button has no target.</td></tr>
+    <tr><td><strong>Homepage Effectiveness</strong></td><td>6/10</td><td>Strong hero &amp; features section, but "Trusted by Kisans" section lacks actual testimonials.</td></tr>
+    <tr><td><strong>Mobile Responsiveness</strong></td><td>7/10</td><td>Viewport configured correctly, responsive breakpoints used. Large images hurt mobile load.</td></tr>
+    <tr><td><strong>Accessibility</strong></td><td>6/10</td><td>"Skip to Content" in Hindi+English ✅, but no ARIA labels, no alt text, no keyboard nav testing.</td></tr>
+  </tbody>
+</table>
+
+<!-- ═══════════════════════ SECTION 3: REQUIRED PAGES ═══════════════════════ -->
+<h1 class="section-title" id="s3">3. 📄 Required Pages</h1>
+
+<table>
+  <thead><tr><th>Page</th><th>Exists?</th><th>In Footer?</th><th>Quality</th><th>AdSense OK?</th></tr></thead>
+  <tbody>
+    <tr><td>About Us</td><td>✅ <code>/about</code></td><td>✅</td><td>⚠️ Template bug, thin</td><td><span class="badge badge-yellow">Needs Fix</span></td></tr>
+    <tr><td>Contact Us</td><td>✅ <code>/contact</code></td><td>✅</td><td>⚠️ Email-only, no form</td><td><span class="badge badge-yellow">Minimal</span></td></tr>
+    <tr><td>Privacy Policy</td><td>✅ <code>/privacy</code></td><td>✅</td><td>✅ Has AdSense section</td><td><span class="badge badge-green">Pass</span></td></tr>
+    <tr><td>Terms &amp; Conditions</td><td>✅ <code>/terms</code></td><td>✅</td><td>⚠️ Thin (7 sections)</td><td><span class="badge badge-yellow">Barely Pass</span></td></tr>
+    <tr><td>Disclaimer</td><td>✅ <code>/disclaimer</code></td><td>✅</td><td>✅ Covers AI advisory</td><td><span class="badge badge-green">Pass</span></td></tr>
+    <tr><td>Cookie Policy</td><td>✅ <code>/cookie-policy</code></td><td>✅</td><td>✅ Has AdSense section</td><td><span class="badge badge-green">Pass</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Critical Issues</h3>
+<ul>
+  <li><strong>About page</strong> — Template literal <code>${f.role.includes...}</code> renders raw code in production</li>
+  <li><strong>Contact page</strong> — All founders share one email. Should have a working contact FORM</li>
+  <li><strong>No physical address</strong> anywhere — Google prefers seeing a real-world address</li>
+  <li><strong>No phone number</strong> — another trust signal Google looks for</li>
+</ul>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 4: CONTENT AUDIT ═══════════════════════ -->
+<h1 class="section-title" id="s4">4. 📝 Content Audit</h1>
+
+<h3>Indexable Pages Summary</h3>
+<table>
+  <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Pages in sitemap</td><td>10</td></tr>
+    <tr><td>Total crawlable pages discovered</td><td>17+</td></tr>
+    <tr><td>Pages missing from sitemap</td><td>13+ (legal, about, contact, auth pages)</td></tr>
+  </tbody>
+</table>
+
+<div class="alert alert-warning">
+  <div class="alert-title">⚠️ Sitemap Gap</div>
+  13+ public pages are missing from <code>sitemap.xml</code>. Missing pages = missing from Google's index.
+</div>
+
+<h3>Content Quality Scores</h3>
+<div class="score-row"><span class="score-label">Content Quality</span><div class="score-bar-bg"><div class="score-bar red" style="width:30%"></div></div><span class="score-val" style="color:var(--red)">3/10</span></div>
+<div class="score-row"><span class="score-label">Originality</span><div class="score-bar-bg"><div class="score-bar yellow" style="width:50%"></div></div><span class="score-val" style="color:var(--yellow)">5/10</span></div>
+<div class="score-row"><span class="score-label">Farmer Usefulness</span><div class="score-bar-bg"><div class="score-bar yellow" style="width:60%"></div></div><span class="score-val" style="color:var(--yellow)">6/10</span></div>
+<div class="score-row"><span class="score-label">Content Depth</span><div class="score-bar-bg"><div class="score-bar red" style="width:20%"></div></div><span class="score-val" style="color:var(--red)">2/10</span></div>
+<div class="score-row"><span class="score-label">Duplicate Content Risk</span><div class="score-bar-bg"><div class="score-bar green" style="width:85%"></div></div><span class="score-val" style="color:var(--green)">LOW</span></div>
+
+<h3>Pages Needing Urgent Improvement</h3>
+<table>
+  <thead><tr><th>Priority</th><th>Page</th><th>Issue</th><th>Fix Required</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge badge-red">P0</span></td><td><code>/chatbot</code></td><td>Completely blank — zero content</td><td>Add 800+ words of educational content</td></tr>
+    <tr><td><span class="badge badge-red">P0</span></td><td><code>/weather</code></td><td>"data not available" visible</td><td>Add static content + SSR fallback</td></tr>
+    <tr><td><span class="badge badge-red">P0</span></td><td><code>/mandi</code></td><td>"Synchronizing..." loading state</td><td>Add mandi pricing educational content</td></tr>
+    <tr><td><span class="badge badge-red">P0</span></td><td><code>/khet-diary</code></td><td>Empty-state message only</td><td>Add usage guide content</td></tr>
+    <tr><td><span class="badge badge-red">P1</span></td><td><code>/disease</code></td><td>Only 60 words</td><td>Add crop disease education (800+ words)</td></tr>
+    <tr><td><span class="badge badge-red">P1</span></td><td><code>/soil-health</code></td><td>Only 40 words</td><td>Add soil health guide (800+ words)</td></tr>
+    <tr><td><span class="badge badge-red">P1</span></td><td><code>/crop-predictor</code></td><td>Only 40 words</td><td>Add methodology explanation</td></tr>
+    <tr><td><span class="badge badge-red">P1</span></td><td><code>/worker-connect</code></td><td>Developer jargon as content</td><td>Add user-facing content</td></tr>
+    <tr><td><span class="badge badge-yellow">P2</span></td><td><code>/schemes</code></td><td>Has content but thin</td><td>Expand each scheme with details</td></tr>
+    <tr><td><span class="badge badge-yellow">P2</span></td><td><code>/about</code></td><td>Template bug + thin</td><td>Fix bug, add milestones &amp; journey</td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 5: SEO AUDIT ═══════════════════════ -->
+<h1 class="section-title" id="s5">5. 🔎 SEO Audit</h1>
+
+<h3>Meta Titles — 7/10</h3>
+<table>
+  <thead><tr><th>Page</th><th>Title</th><th>Len</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td><code>/</code></td><td>Kisaan Buddy - Smart Agriculture Advisor | किसान सलाहकार</td><td>57</td><td><span class="badge badge-green">✅ Great</span></td></tr>
+    <tr><td><code>/weather</code></td><td>Farm Weather Forecast | KrishiAI</td><td>34</td><td><span class="badge badge-green">✅ Good</span></td></tr>
+    <tr><td><code>/mandi</code></td><td>Live Mandi Prices &amp; Market Rates | मंडी भाव</td><td>47</td><td><span class="badge badge-green">✅ Excellent</span></td></tr>
+    <tr><td><code>/disease</code></td><td>Crop Leaf Disease Detection | फसल की बीमारी…</td><td>55</td><td><span class="badge badge-green">✅ Excellent</span></td></tr>
+    <tr><td><code>/about</code></td><td>About Us | KrishiAI</td><td>20</td><td><span class="badge badge-yellow">⚠️ Too short</span></td></tr>
+  </tbody>
+</table>
+<p>⚠️ <strong>Branding inconsistency:</strong> Some titles use "KrishiAI", homepage uses "Kisaan Buddy".</p>
+
+<h3>Meta Descriptions — 8/10</h3>
+<p>✅ All major pages have unique, descriptive meta descriptions with Hindi keywords. Good length (120–160 chars).</p>
+<p>⚠️ <code>/khet-diary</code> uses the generic fallback: "Empowering Indian farmers with AI-powered tools"</p>
+
+<h3>Heading Structure — 5/10</h3>
+<ul>
+  <li>✅ Each page has a single <code>&lt;h1&gt;</code></li>
+  <li>🔴 Heading hierarchy violations: jumps from H1 to H3/H4 on multiple pages (skipping H2)</li>
+  <li>🔴 Footer uses H4 headings — not ideal for SEO</li>
+</ul>
+
+<h3>Sitemap &amp; Robots — 6.5/10</h3>
+<table>
+  <thead><tr><th>Element</th><th>Status</th><th>Issues</th></tr></thead>
+  <tbody>
+    <tr><td>sitemap.xml</td><td><span class="badge badge-yellow">⚠️ Partial</span></td><td>Only 10 URLs — missing 13+ pages</td></tr>
+    <tr><td>robots.txt</td><td><span class="badge badge-green">✅ Good</span></td><td>Correctly blocks /dashboard, /api</td></tr>
+  </tbody>
+</table>
+
+<h3>Open Graph Tags — 7/10</h3>
+<ul>
+  <li>✅ Present on all pages with title, description, url, type</li>
+  <li>🔴 <strong>No OG images</strong> on any page — social shares show no preview image</li>
+  <li>🔴 No <code>og:site_name</code> specified</li>
+</ul>
+
+<h3>Schema Markup — 4/10</h3>
+<table>
+  <thead><tr><th>Schema Type</th><th>Present?</th><th>Where</th></tr></thead>
+  <tbody>
+    <tr><td>Organization</td><td>✅</td><td><code>/about</code></td></tr>
+    <tr><td>AboutPage</td><td>✅</td><td><code>/about</code></td></tr>
+    <tr><td>ContactPage + ContactPoint</td><td>✅</td><td><code>/contact</code></td></tr>
+    <tr><td>WebSite + SearchAction</td><td>🔴 Missing</td><td>Should be on homepage</td></tr>
+    <tr><td>WebApplication</td><td>🔴 Missing</td><td>Should be on tool pages</td></tr>
+    <tr><td>BreadcrumbList</td><td>🔴 Missing</td><td>All inner pages</td></tr>
+    <tr><td>FAQPage</td><td>🔴 Missing</td><td>Tool pages (huge opportunity)</td></tr>
+  </tbody>
+</table>
+
+<h3>Core Web Vitals (Estimated)</h3>
+<table>
+  <thead><tr><th>Metric</th><th>Estimate</th><th>Target</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td>LCP (Largest Contentful Paint)</td><td>~2.5–3.5s</td><td>&lt;2.5s</td><td><span class="badge badge-yellow">⚠️ At risk</span></td></tr>
+    <tr><td>INP (Interaction to Next Paint)</td><td>~100–200ms</td><td>&lt;200ms</td><td><span class="badge badge-yellow">⚠️ At risk</span></td></tr>
+    <tr><td>CLS (Cumulative Layout Shift)</td><td>~0.05–0.15</td><td>&lt;0.1</td><td><span class="badge badge-yellow">⚠️ At risk</span></td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 6: TECHNICAL AUDIT ═══════════════════════ -->
+<h1 class="section-title" id="s6">6. ⚙️ Technical Audit</h1>
+
+<h3>Performance Issues</h3>
+<table>
+  <thead><tr><th>Issue</th><th>Severity</th><th>Details</th></tr></thead>
+  <tbody>
+    <tr><td>Unoptimized images</td><td><span class="badge badge-red">HIGH</span></td><td><code>hero_farmer.png</code> (805KB), <code>utkarsh.png</code> (889KB) — should be WebP &lt;100KB</td></tr>
+    <tr><td>Heavy JS bundle</td><td><span class="badge badge-yellow">MEDIUM</span></td><td>framer-motion + recharts + Radix UI adds significant bundle weight</td></tr>
+    <tr><td>AdSense script on ALL pages</td><td><span class="badge badge-yellow">MEDIUM</span></td><td><code>adsbygoogle.js</code> loads everywhere, even without ad placements</td></tr>
+  </tbody>
+</table>
+
+<h3>Loading Speed (Estimated)</h3>
+<table>
+  <thead><tr><th>Connection</th><th>Estimated Load Time</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td>Desktop / Fiber</td><td>2.5–3.5s</td><td><span class="badge badge-yellow">Acceptable</span></td></tr>
+    <tr><td>Mobile 3G</td><td>5–8s</td><td><span class="badge badge-red">Poor for rural India</span></td></tr>
+    <tr><td>Mobile 2G</td><td>10–15s+</td><td><span class="badge badge-red">Unusable</span></td></tr>
+  </tbody>
+</table>
+
+<h3>JavaScript Rendering — CRITICAL</h3>
+<div class="alert alert-important">
+  <div class="alert-title">ℹ️ IMPORTANT</div>
+  Google crawls with JS rendering, but it's unreliable and delayed. Tool pages that are entirely client-side rendered appear empty/broken to Google's indexer AND to AdSense reviewers. You <strong>MUST</strong> add server-side rendered static content to every page.
+</div>
+<table>
+  <thead><tr><th>Page</th><th>Issue</th></tr></thead>
+  <tbody>
+    <tr><td><code>/weather</code></td><td>Requires JS + geolocation — crawler sees "data not available"</td></tr>
+    <tr><td><code>/mandi</code></td><td>Requires JS + API call — crawler sees "Synchronizing..."</td></tr>
+    <tr><td><code>/chatbot</code></td><td>100% client-rendered — crawler sees NOTHING</td></tr>
+    <tr><td><code>/disease</code></td><td>Upload interface is JS-only — minimal content visible</td></tr>
+    <tr><td><code>/crop-predictor</code></td><td>Slider inputs are JS-only — minimal content visible</td></tr>
+  </tbody>
+</table>
+
+<h3>Security Headers</h3>
+<table>
+  <thead><tr><th>Header</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr><td>HTTPS</td><td><span class="badge badge-green">✅ Active</span></td></tr>
+    <tr><td>X-Content-Type-Options: nosniff</td><td><span class="badge badge-green">✅ Set</span></td></tr>
+    <tr><td>X-Frame-Options: DENY</td><td><span class="badge badge-green">✅ Set</span></td></tr>
+    <tr><td>Referrer-Policy</td><td><span class="badge badge-green">✅ Set</span></td></tr>
+    <tr><td>Content Security Policy</td><td><span class="badge badge-red">🔴 MISSING</span></td></tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 7: TRUST & MONETIZATION ═══════════════════════ -->
+<h1 class="section-title" id="s7">7. 💰 Trust &amp; Monetization</h1>
+
+<h3>AdSense Readiness Checklist</h3>
+<table>
+  <thead><tr><th>Requirement</th><th>Met?</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>20–30 content-rich pages</td><td><span class="badge badge-red">NO</span></td><td>~3 pages have &gt;200 words</td></tr>
+    <tr><td>800+ words per page</td><td><span class="badge badge-red">NO</span></td><td>Not a single page meets this</td></tr>
+    <tr><td>ads.txt configured</td><td><span class="badge badge-green">YES</span></td><td>Correct format</td></tr>
+    <tr><td>Privacy policy with ad disclosure</td><td><span class="badge badge-green">YES</span></td><td>Section 3 covers AdSense</td></tr>
+    <tr><td>No "under construction" pages</td><td><span class="badge badge-red">NO</span></td><td>6+ pages appear broken/empty</td></tr>
+    <tr><td>Original, non-AI content</td><td><span class="badge badge-red">NO</span></td><td>Content appears template-generated</td></tr>
+  </tbody>
+</table>
+
+<h3>User Trust Signals</h3>
+<table>
+  <thead><tr><th>Signal</th><th>Present?</th></tr></thead>
+  <tbody>
+    <tr><td>Real team with LinkedIn profiles</td><td><span class="badge badge-green">✅</span></td></tr>
+    <tr><td>Physical address</td><td><span class="badge badge-red">🔴 Missing</span></td></tr>
+    <tr><td>Phone number</td><td><span class="badge badge-red">🔴 Missing</span></td></tr>
+    <tr><td>Working contact form</td><td><span class="badge badge-red">🔴 Missing</span></td></tr>
+    <tr><td>User reviews / testimonials</td><td><span class="badge badge-yellow">⚠️ Section exists, no real content</span></td></tr>
+    <tr><td>Press mentions / awards</td><td><span class="badge badge-red">🔴 None</span></td></tr>
+    <tr><td>App store listing</td><td><span class="badge badge-red">🔴 PWA only</span></td></tr>
+  </tbody>
+</table>
+
+<h3>Recommended Monetization Methods Besides AdSense</h3>
+<ol>
+  <li><strong>Google AdMob</strong> — Publish native Android app (better for rural audience)</li>
+  <li><strong>Affiliate marketing</strong> — Partner with seed/fertilizer companies</li>
+  <li><strong>Premium features</strong> — Khet Diary cloud sync, advanced AI, bulk mandi alerts</li>
+  <li><strong>B2B API access</strong> — Sell mandi price / weather API to other agritech apps</li>
+  <li><strong>Sponsored content</strong> — Agri-input companies pay for featured scheme listings</li>
+  <li><strong>Freemium SMS alerts</strong> — Charge for SMS-based mandi alerts (non-smartphone users)</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 8: FARMER UX ═══════════════════════ -->
+<h1 class="section-title" id="s8">8. 👨‍🌾 Farmer-Specific UX Review</h1>
+
+<table>
+  <thead><tr><th>Criterion</th><th>Score</th><th>Assessment</th></tr></thead>
+  <tbody>
+    <tr><td>Understandable for rural farmers</td><td>5/10</td><td>Complex English tech jargon ("Real-time commodity valuation indexes", "dispatching notification matching algorithm")</td></tr>
+    <tr><td>Low-literacy farmer usability</td><td>4/10</td><td>Default language is English. A low-literacy farmer won't know to switch</td></tr>
+    <tr><td>Voice assistant effectiveness</td><td>6/10</td><td>Voice AI exists (Hindi, English, Kannada) — but chatbot page renders blank!</td></tr>
+    <tr><td>Language accessibility</td><td>8/10</td><td><strong>11 languages</strong> supported (en, hi, bn, gu, kn, ml, mr, pa, ta, te, hi+en) — excellent</td></tr>
+    <tr><td>Hindi / regional support</td><td>7/10</td><td>Locale files are comprehensive. Legal pages are English-only though</td></tr>
+    <tr><td>Mobile in low-network</td><td>5/10</td><td>PWA exists but 805KB hero + heavy JS fails on 2G</td></tr>
+  </tbody>
+</table>
+
+<h3>Critical Farmer UX Issues</h3>
+<ol>
+  <li>🔴 <strong>Default language is English</strong> — 60%+ target users speak Hindi. Site should auto-detect and default to Hindi</li>
+  <li>🔴 <strong>Tech jargon</strong> — "NPK", "OC", "APMC", "eNAM" used without explanation</li>
+  <li>🔴 <strong>No offline content</strong> — Service worker caches shell only, not content</li>
+  <li>🔴 <strong>Large assets</strong> — 805KB image costs ~₹0.15 on ₹19/day data plans</li>
+  <li>⚠️ <strong>No WhatsApp integration</strong> — Most rural farmers use WhatsApp, not browsers</li>
+  <li>⚠️ <strong>Complex forms</strong> — Soil health asks for lab values a farmer may not know</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 9: COMPETITIVE ANALYSIS ═══════════════════════ -->
+<h1 class="section-title" id="s9">9. 🏆 Competitive Analysis</h1>
+
+<table>
+  <thead><tr><th>Feature</th><th>Kisaan Buddy</th><th>Kisan Suvidha</th><th>AgriApp</th><th>Plantix</th><th>DeHaat</th><th>AgroStar</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Platform</strong></td><td>Web PWA</td><td>Mobile</td><td>Mobile</td><td>Mobile</td><td>Mobile+</td><td>Mobile</td></tr>
+    <tr><td><strong>Disease AI</strong></td><td>✅</td><td>❌</td><td>⚠️</td><td>✅ Best</td><td>✅</td><td>⚠️</td></tr>
+    <tr><td><strong>Weather</strong></td><td>✅</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td><td>⚠️</td></tr>
+    <tr><td><strong>Mandi Prices</strong></td><td>✅</td><td>✅</td><td>✅</td><td>❌</td><td>✅</td><td>✅</td></tr>
+    <tr><td><strong>Crop Prediction</strong></td><td>✅ ML</td><td>❌</td><td>⚠️</td><td>❌</td><td>✅</td><td>❌</td></tr>
+    <tr><td><strong>Govt Schemes</strong></td><td>✅ 12+</td><td>✅ Official</td><td>⚠️</td><td>❌</td><td>✅</td><td>❌</td></tr>
+    <tr><td><strong>Voice AI</strong></td><td>✅</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td><td>❌</td></tr>
+    <tr><td><strong>Marketplace</strong></td><td>❌</td><td>❌</td><td>✅</td><td>❌</td><td>✅ Full</td><td>✅</td></tr>
+    <tr><td><strong>Languages</strong></td><td>11</td><td>7</td><td>8</td><td>18</td><td>12+</td><td>6+</td></tr>
+    <tr><td><strong>User Base</strong></td><td>New</td><td>10M+</td><td>5M+</td><td>15M+</td><td>2M+</td><td>5M+</td></tr>
+    <tr><td><strong>Content Depth</strong></td><td><span class="badge badge-red">Very thin</span></td><td>⚠️</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+  </tbody>
+</table>
+
+<h3>KisaanBuddy's Advantages</h3>
+<ol>
+  <li><strong>Web-first</strong> — No download required (good for low-storage phones)</li>
+  <li><strong>11-language support</strong> — Strong regional reach</li>
+  <li><strong>All-in-one platform</strong> — Weather + Mandi + Disease + Soil + Schemes + Workers + Chatbot</li>
+  <li><strong>Voice AI chatbot</strong> — Unique differentiator</li>
+</ol>
+
+<h3>KisaanBuddy's Weaknesses</h3>
+<ol>
+  <li>🔴 <strong>No mobile app</strong> — All competitors are mobile-first</li>
+  <li>🔴 <strong>No content ecosystem</strong> — Competitors have blogs, tutorials, community forums. KisaanBuddy has ZERO</li>
+  <li>🔴 <strong>No marketplace</strong> — DeHaat, AgriApp, AgroStar let farmers buy inputs</li>
+  <li>🔴 <strong>No physical presence</strong> — DeHaat has 15,000+ micro-centers</li>
+  <li>🔴 <strong>No user community</strong> — Plantix has massive farmer photo-sharing community</li>
+</ol>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ SECTION 10: ACTION PLAN ═══════════════════════ -->
+<h1 class="section-title" id="s10">10. 🛠️ Action Plan</h1>
+
+<h2 style="color:var(--red)">🔴 CRITICAL — Must Fix Before AdSense Application</h2>
+<table>
+  <thead><tr><th>#</th><th>Issue</th><th>Fix</th><th>Effort</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Empty/broken tool pages</td><td>Add 800–1500 words of SSR educational content to EVERY tool page</td><td>3–5 days</td></tr>
+    <tr><td>2</td><td>Template literal bug on /about</td><td>Fix <code>${f.role.includes(...)}</code> in locale files</td><td>30 min</td></tr>
+    <tr><td>3</td><td>No blog / knowledge base</td><td>Create 15–20 original farming articles (800–1500+ words each) in Hindi &amp; English</td><td>2–3 weeks</td></tr>
+    <tr><td>4</td><td>Branding inconsistency</td><td>Choose ONE name — "Kisaan Buddy" or "KrishiAI" — use everywhere</td><td>2 hours</td></tr>
+    <tr><td>5</td><td>No OG images</td><td>Create <code>og:image</code> for every page (1200×630px branded cards)</td><td>1 day</td></tr>
+    <tr><td>6</td><td>Incomplete sitemap</td><td>Add ALL public pages to sitemap.xml</td><td>1 hour</td></tr>
+    <tr><td>7</td><td>No physical address</td><td>Add real address to Contact page and Footer</td><td>30 min</td></tr>
+  </tbody>
+</table>
+
+<h2 style="color:var(--yellow)">🟡 IMPORTANT — Significantly Improves Chances</h2>
+<table>
+  <thead><tr><th>#</th><th>Issue</th><th>Fix</th><th>Effort</th></tr></thead>
+  <tbody>
+    <tr><td>8</td><td>No contact form</td><td>Implement working contact form</td><td>4 hours</td></tr>
+    <tr><td>9</td><td>Missing schemas</td><td>Add WebSite, BreadcrumbList, WebApplication, FAQPage schemas</td><td>1 day</td></tr>
+    <tr><td>10</td><td>Unoptimized images</td><td>Convert PNGs to WebP, compress to &lt;100KB</td><td>4 hours</td></tr>
+    <tr><td>11</td><td>No breadcrumbs</td><td>Implement breadcrumb navigation on all inner pages</td><td>4 hours</td></tr>
+    <tr><td>12</td><td>Heading hierarchy issues</td><td>Fix H1→H2→H3 structure on all pages</td><td>2 hours</td></tr>
+    <tr><td>13</td><td>English-first default</td><td>Auto-detect browser language, default Hindi for Indian users</td><td>4 hours</td></tr>
+    <tr><td>14</td><td>Missing CSP headers</td><td>Add Content Security Policy</td><td>2 hours</td></tr>
+    <tr><td>15</td><td>English-only legal pages</td><td>Translate Privacy, Terms, Disclaimer to Hindi</td><td>2 days</td></tr>
+    <tr><td>16</td><td>No real testimonials</td><td>Collect 5–10 farmer testimonials with names, photos, villages</td><td>1 week</td></tr>
+  </tbody>
+</table>
+
+<h2 style="color:var(--green)">🟢 NICE-TO-HAVE — Polish &amp; Growth</h2>
+<table>
+  <thead><tr><th>#</th><th>Issue</th><th>Fix</th><th>Effort</th></tr></thead>
+  <tbody>
+    <tr><td>17</td><td>No FAQ sections</td><td>Add 5–10 FAQs per tool page with FAQPage schema</td><td>3 days</td></tr>
+    <tr><td>18</td><td>No WhatsApp integration</td><td>Add share buttons &amp; WhatsApp chatbot</td><td>1 week</td></tr>
+    <tr><td>19</td><td>No offline content</td><td>Cache schemes, prices, weather in service worker</td><td>3 days</td></tr>
+    <tr><td>20</td><td>No Play Store listing</td><td>Wrap PWA in TWA, publish to Google Play</td><td>1 week</td></tr>
+    <tr><td>21</td><td>Heavy JS bundle</td><td>Code-split framer-motion, recharts; lazy-load</td><td>2 days</td></tr>
+    <tr><td>22</td><td>No video content</td><td>Create Hindi video tutorials for each tool</td><td>2 weeks</td></tr>
+    <tr><td>23</td><td>No community</td><td>Add discussion forum or Telegram/WhatsApp groups</td><td>2 weeks</td></tr>
+    <tr><td>24</td><td>No SMS alerts</td><td>Premium mandi price SMS for non-smartphone users</td><td>2 weeks</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>📈 Estimated AdSense Approval After Fixes</h2>
+<table>
+  <thead><tr><th>Fixes Applied</th><th>Approval Probability</th></tr></thead>
+  <tbody>
+    <tr><td>Current state (no fixes)</td><td><strong style="color:var(--red)">15–20%</strong></td></tr>
+    <tr><td>After P0 critical fixes only</td><td><strong style="color:var(--yellow)">55–65%</strong></td></tr>
+    <tr><td>After P0 + P1 important fixes</td><td><strong style="color:var(--green)">80–85%</strong></td></tr>
+    <tr><td>After all P0 + P1 + P2 fixes</td><td><strong style="color:var(--green)">90–95%</strong></td></tr>
+  </tbody>
+</table>
+
+<div class="alert alert-tip">
+  <div class="alert-title">💡 Fastest Path to AdSense Approval</div>
+  <ol>
+    <li>Fix the template bug (30 min)</li>
+    <li>Unify branding (2 hours)</li>
+    <li>Add 800+ words of static educational content to each tool page (3–5 days)</li>
+    <li>Write 15 original blog articles about farming in Hindi (2–3 weeks)</li>
+    <li>Add OG images + expand sitemap + add address (1 day)</li>
+    <li>Wait 2–4 weeks for Google to re-crawl and index</li>
+    <li>Apply for AdSense</li>
+  </ol>
+  <p><strong>Estimated timeline to approval-ready: 4–6 weeks of focused work.</strong></p>
+</div>
+
+<div class="page-break"></div>
+
+<!-- ═══════════════════════ FINAL VERDICT ═══════════════════════ -->
+<h1 class="section-title">🏁 Final Verdict</h1>
+
+<h3>What You've Built Well</h3>
+<p>Your platform concept is <strong>genuinely impressive</strong> — an all-in-one AI-powered agriculture platform with 11 languages, voice AI, disease detection, mandi prices, weather, and government schemes. The tech stack is solid (Next.js + Python ML). The PWA approach is smart. You have a real founding team. The vision is clear.</p>
+
+<h3>What's Killing Your AdSense Application</h3>
+<p><strong>You've built a tool, not a content website.</strong> Google AdSense is designed for content-rich websites. Your site has brilliant interactive tools but essentially <strong>zero written content</strong>. A Google reviewer will open your site, see empty loading states and 30-word pages, and reject it within 60 seconds.</p>
+
+<div class="alert alert-important">
+  <div class="alert-title">THE CORE PROBLEM</div>
+  Your site is an <strong>application</strong> trying to be a <strong>content website</strong> for AdSense purposes. You need to add a robust content layer (blog, guides, tutorials, FAQs) on top of your existing tools.
+</div>
+
+<h3>Score Projection: Before vs After</h3>
+<table>
+  <thead><tr><th>Metric</th><th>Current</th><th>After Fixes</th></tr></thead>
+  <tbody>
+    <tr><td>Overall Website Score</td><td><strong style="color:var(--yellow)">62/100</strong></td><td><strong style="color:var(--green)">82/100</strong></td></tr>
+    <tr><td>SEO Score</td><td><strong style="color:var(--yellow)">58/100</strong></td><td><strong style="color:var(--green)">80/100</strong></td></tr>
+    <tr><td>AdSense Score</td><td><strong style="color:var(--red)">38/100</strong></td><td><strong style="color:var(--green)">85/100</strong></td></tr>
+    <tr><td>Trust Score</td><td><strong style="color:var(--yellow)">55/100</strong></td><td><strong style="color:var(--green)">78/100</strong></td></tr>
+    <tr><td>Farmer Experience Score</td><td><strong style="color:var(--green)">72/100</strong></td><td><strong style="color:var(--green)">88/100</strong></td></tr>
+  </tbody>
+</table>
+
+<p style="margin-top:24px;text-align:center;font-size:12pt;font-weight:600;color:var(--accent)">
+  The good news: Your platform's underlying value proposition is strong, your tech is solid, and the fixes are achievable. The gap is primarily <strong>content, not technology</strong>. Fill the content gap and you'll have a very strong AdSense-ready website.
+</p>
+
+<div class="footer-note">
+  <p>Generated by AI Audit System · KisaanBuddy.com · June 19, 2026</p>
+  <p>This report is for internal use only. Scores are estimations based on publicly available data and current Google AdSense guidelines.</p>
+</div>
+
+</body>
+</html>
