@@ -1,4 +1,4 @@
-# 🌾 KrishiAI — Smart Farmer Decision Intelligence
+# 🌾 Kisaanbuddy — Smart Farmer Decision Intelligence
 
 AI-first platform for Indian farmers: crop disease detection, yield/price prediction, government schemes, multilingual voice chatbot, and real-time weather.
 
