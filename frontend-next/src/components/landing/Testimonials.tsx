@@ -1,7 +1,7 @@
 'use client';
 
 import { useLanguage } from '@/lib/language';
-import { Star, Quote, MessageSquare, Loader2, CheckCircle2, User, MapPin, Tag } from 'lucide-react';
+import { Star, Quote, MessageSquare, Loader2, CheckCircle2, User, MapPin, Tag, AlertTriangle, XCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
@@ -31,6 +31,14 @@ export function Testimonials() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "warning" } | null>(null);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   // Load reviews on mount
   useEffect(() => {
@@ -54,7 +62,9 @@ export function Testimonials() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !location.trim() || !crop.trim() || !text.trim()) {
-      setError("All fields are required");
+      const errVal = "Validation Error: All fields are required";
+      setError(errVal);
+      setToast({ message: errVal, type: "error" });
       return;
     }
 
@@ -86,14 +96,31 @@ export function Testimonials() {
         setCrop("");
         setText("");
         setStars(5);
+        
+        // Dynamic alert based on API/fallback response
+        if (newReview.id?.startsWith("fallback-")) {
+          setToast({ 
+            message: "API Offline: Review saved locally in session cache.", 
+            type: "warning" 
+          });
+        } else {
+          setToast({ 
+            message: t("testimonials.success_alert") || "Review published successfully!", 
+            type: "success" 
+          });
+        }
         // Hide success alert after 5s
         setTimeout(() => setSuccess(false), 5000);
       } else {
         const data = await res.json();
-        setError(data.detail || "Failed to submit review");
+        const errMsg = data.detail || "Failed to submit review";
+        setError(errMsg);
+        setToast({ message: `Submission Error: ${errMsg}`, type: "error" });
       }
     } catch (err) {
-      setError("Network error. Please try again later.");
+      const netMsg = "Network error: Connection to API endpoint failed.";
+      setError(netMsg);
+      setToast({ message: netMsg, type: "error" });
     } finally {
       setSubmitting(false);
     }
@@ -130,7 +157,8 @@ export function Testimonials() {
   const displayedReviews = reviews.length > 0 ? reviews : defaultTestimonials;
 
   return (
-    <section className="py-24 bg-[#040814]/40 relative border-b border-border/10">
+    <>
+      <section className="py-24 bg-[#040814]/40 relative border-b border-border/10">
       
       {/* Background glow glows */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-emerald-500/[0.015] blur-[120px] pointer-events-none" />
@@ -345,5 +373,37 @@ export function Testimonials() {
 
       </div>
     </section>
+    
+    {/* Floating Toast Notification Overlay */}
+    <AnimatePresence>
+      {toast && (
+        <motion.div
+          initial={{ opacity: 0, y: 30, x: 0, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 20, scale: 0.95 }}
+          className="fixed bottom-6 right-6 z-50 max-w-sm rounded-2xl border p-4 shadow-2xl backdrop-blur-md flex items-start gap-3 bg-[#0a1224]/95 select-none"
+          style={{
+            borderColor: toast.type === "success" ? "rgba(16, 185, 129, 0.3)" : toast.type === "warning" ? "rgba(245, 158, 11, 0.3)" : "rgba(239, 68, 68, 0.3)",
+          }}
+        >
+          {toast.type === "success" ? (
+            <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
+          ) : toast.type === "warning" ? (
+            <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
+          ) : (
+            <XCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+          )}
+          <div className="space-y-0.5">
+            <h4 className="text-xs font-bold text-white">
+              {toast.type === "success" ? "Success" : toast.type === "warning" ? "API Warning" : "Error"}
+            </h4>
+            <p className="text-[11px] text-gray-300 leading-relaxed font-semibold">
+              {toast.message}
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </>
   );
 }
