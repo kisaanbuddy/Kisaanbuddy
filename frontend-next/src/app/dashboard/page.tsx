@@ -646,17 +646,21 @@ export default function DashboardPage() {
   const humidityColor = humidity > 80 ? "border-amber-500/35 bg-amber-500/5 text-amber-400" : "border-emerald-500/35 bg-emerald-500/5 text-emerald-400"
 
   return (
-    <div className="flex flex-col gap-6 pb-12 select-none text-white max-w-5xl mx-auto px-1">
-      
+    <div className="flex flex-col gap-6 pb-12 select-none text-white max-w-5xl mx-auto px-1 relative">
+      {/* Ambient background blur blobs */}
+      <div className="absolute top-[5%] left-[10%] w-[300px] h-[300px] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-[40%] right-[5%] w-[250px] h-[250px] rounded-full bg-amber-500/5 blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[10%] left-[5%] w-[280px] h-[280px] rounded-full bg-teal-500/5 blur-[110px] pointer-events-none -z-10" />
+
       {/* ─── 1. FARM WELCOME HEADER BANNER (WARM AGRICULTURAL COLORS) ─── */}
       <motion.div 
         {...fadeUp(0)}
-        className="relative overflow-hidden rounded-3xl border border-amber-500/20 bg-gradient-to-br from-amber-950/20 via-[#0a0f0a] to-[#121c10]/30 p-6 md:p-8 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
+        className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-gradient-to-br from-slate-950/40 via-emerald-950/10 to-teal-950/20 p-6 md:p-8 backdrop-blur-xl shadow-xl shadow-black/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
       >
         <div className="absolute top-0 right-0 w-[180px] h-[180px] rounded-full bg-emerald-500/5 blur-[80px] pointer-events-none -z-10" />
         
         <div className="space-y-1.5 flex-1">
-          <h1 className="text-3xl font-black text-white font-display">
+          <h1 className="text-3xl font-black text-white font-display leading-tight">
             {greeting}, <span className="bg-gradient-to-r from-emerald-400 via-amber-300 to-green-500 bg-clip-text text-transparent">{user.name}</span>
           </h1>
           <p className="text-sm text-muted-foreground font-semibold">
@@ -665,7 +669,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Device Switch Button (Simplified terminology) */}
-        <div className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.05] rounded-2xl p-4 shrink-0 w-full md:w-auto justify-between select-none">
+        <div className="flex items-center gap-4 bg-white/[0.02] border border-white/[0.06] backdrop-blur-md rounded-2xl p-4 shrink-0 w-full md:w-auto justify-between select-none">
           <div className="flex items-center gap-3">
             <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${sensorOnline ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/25" : "bg-rose-500/10 text-rose-400 border-rose-500/25"}`}>
               <Cpu className="h-5 w-5" />
@@ -680,13 +684,13 @@ export default function DashboardPage() {
           </div>
         </div>
       </motion.div>
-
+ 
       {/* ─── 2. READ-ALOUD & VOICE SUPPORT ROW (WHATSAPP STYLE USABILITY) ─── */}
       <motion.div {...fadeUp(0.02)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Read-Aloud Voice Button */}
         <button
           onClick={speakStatus}
-          className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 text-base font-bold text-white shadow-lg hover:shadow-emerald-600/15 active:scale-[0.98] transition-all hover:brightness-105 border border-emerald-500/20"
+          className="flex h-14 items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 text-base font-bold text-white shadow-lg shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-[0.98] transition-all duration-300 hover:brightness-105 border border-emerald-500/20 hover:scale-[1.01] hover:-translate-y-0.5"
         >
           <Volume2 className="h-5.5 w-5.5" />
           <span>{lt.voiceReadBtn}</span>
@@ -695,10 +699,10 @@ export default function DashboardPage() {
         {/* Voice Query Microphone Button */}
         <button
           onClick={handleVoiceQuery}
-          className={`flex h-14 items-center justify-center gap-3 rounded-2xl text-base font-bold text-white shadow-lg active:scale-[0.98] transition-all border ${
+          className={`flex h-14 items-center justify-center gap-3 rounded-2xl text-base font-bold text-white shadow-lg active:scale-[0.98] transition-all duration-300 border hover:scale-[1.01] hover:-translate-y-0.5 ${
             isListening 
               ? "bg-rose-600 animate-pulse border-rose-500" 
-              : "bg-gradient-to-r from-amber-600 to-orange-600 hover:shadow-amber-600/15 border-amber-500/20 hover:brightness-105"
+              : "bg-gradient-to-r from-amber-600 to-orange-600 hover:shadow-amber-600/10 hover:shadow-amber-600/20 border-amber-500/20 hover:brightness-105"
           }`}
         >
           <Mic className="h-5.5 w-5.5" />
@@ -708,11 +712,11 @@ export default function DashboardPage() {
           </div>
         </button>
       </motion.div>
-
+ 
       {/* ─── 3. FARM STATUS SLIDER CARDS / OFFLINE BANNER (REAL HARDWARE CHECK) ─── */}
       {!sensorOnline ? (
         <motion.div {...fadeUp(0.05)}>
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-8 rounded-3xl text-center flex flex-col items-center justify-center space-y-4">
+          <GlassCard className="border border-white/[0.06] bg-slate-950/40 backdrop-blur-xl shadow-xl shadow-black/20 p-8 rounded-3xl text-center flex flex-col items-center justify-center space-y-4">
             <div className="h-16 w-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
               <AlertTriangle className="h-8 w-8 animate-pulse" />
             </div>
@@ -756,7 +760,7 @@ export default function DashboardPage() {
                 adviceClass={moistureColor}
               />
             </motion.div>
-
+ 
             {/* Metric B: Soil Temp Gauge */}
             <motion.div {...fadeUp(0.08)}>
               <CircularGauge
@@ -771,7 +775,7 @@ export default function DashboardPage() {
                 adviceClass={tempColor}
               />
             </motion.div>
-
+ 
             {/* Metric C: Air Moisture/Humidity Gauge */}
             <motion.div {...fadeUp(0.12)}>
               <CircularGauge
@@ -787,7 +791,7 @@ export default function DashboardPage() {
               />
             </motion.div>
           </div>
-
+ 
           {/* Actionable advisories section */}
           <motion.div {...fadeUp(0.13)}>
             <ActionableAdvisory
@@ -797,13 +801,13 @@ export default function DashboardPage() {
               lang={lang}
             />
           </motion.div>
-
+ 
           {/* ─── 4. SOIL QUALITY & HEALTH CARD (FARMER FRIENDLY TERMS) ─── */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             
             {/* Soil Nutrients (NPK) */}
             <motion.div {...fadeUp(0.15)} className="md:col-span-2">
-              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between">
+              <GlassCard className="border border-white/[0.06] bg-slate-950/40 backdrop-blur-xl shadow-xl shadow-black/20 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-emerald-500/5 hover:border-emerald-500/20 transition-all duration-300">
                 <CardHeader className="pb-3 border-b border-white/[0.04] p-0 flex flex-row items-center justify-between">
                   <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
                     <Sprout className="h-5 w-5 text-emerald-400" />
@@ -823,7 +827,7 @@ export default function DashboardPage() {
                       <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(nitrogen / 140) * 100}%` }} />
                     </div>
                   </div>
-
+ 
                   {/* Phosphorus */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs font-bold">
@@ -834,7 +838,7 @@ export default function DashboardPage() {
                       <div className="h-full bg-teal-500 rounded-full" style={{ width: `${(phosphorus / 100) * 100}%` }} />
                     </div>
                   </div>
-
+ 
                   {/* Potassium */}
                   <div className="space-y-1">
                     <div className="flex justify-between text-xs font-bold">
@@ -845,14 +849,14 @@ export default function DashboardPage() {
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(potassium / 280) * 100}%` }} />
                     </div>
                   </div>
-
+ 
                 </CardContent>
               </GlassCard>
             </motion.div>
-
+ 
             {/* Soil Health (pH) */}
             <motion.div {...fadeUp(0.18)} className="md:col-span-1">
-              <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between">
+              <GlassCard className="border border-white/[0.06] bg-slate-950/40 backdrop-blur-xl shadow-xl shadow-black/20 p-5 rounded-3xl overflow-hidden h-full flex flex-col justify-between hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-emerald-500/5 hover:border-emerald-500/20 transition-all duration-300">
                 <CardHeader className="pb-3 border-b border-white/[0.04] p-0 flex flex-row items-center justify-between">
                   <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
                     <Activity className="h-5 w-5 text-emerald-400" />
@@ -873,37 +877,37 @@ export default function DashboardPage() {
           </div>
         </>
       )}
-
+ 
       {/* ─── 5. WHATSAPP & EXPERT COORDINATION BUTTONS ─── */}
       <motion.div {...fadeUp(0.2)} className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* WhatsApp Share Button */}
         <button
           onClick={shareOnWhatsApp}
-          className="flex h-12 items-center justify-center gap-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/30 text-sm font-bold text-white transition-all active:scale-[0.98]"
+          className="flex h-12 items-center justify-center gap-2.5 rounded-xl bg-white/[0.03] border border-white/10 hover:border-emerald-500/30 text-sm font-bold text-white transition-all active:scale-[0.98] hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-emerald-500/5"
         >
           <MessageCircle className="h-5 w-5 text-emerald-400" />
           <span>{lt.whatsAppShareBtn}</span>
         </button>
-
+ 
         {/* WhatsApp Support Button */}
         <button
           onClick={openWhatsAppSupport}
-          className="flex h-12 items-center justify-center gap-2.5 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 hover:border-[#25D366]/40 text-sm font-bold text-[#25D366] transition-all active:scale-[0.98]"
+          className="flex h-12 items-center justify-center gap-2.5 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 hover:border-[#25D366]/40 text-sm font-bold text-[#25D366] transition-all active:scale-[0.98] hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-emerald-500/5"
         >
           <MessageCircle className="h-5 w-5 text-[#25D366]" />
           <span>{lt.whatsAppSupportBtn}</span>
         </button>
-
+ 
         {/* Phone Call support */}
         <a
           href="tel:919876543210"
-          className="flex h-12 items-center justify-center gap-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/40 text-sm font-bold text-blue-400 transition-all active:scale-[0.98]"
+          className="flex h-12 items-center justify-center gap-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/40 text-sm font-bold text-blue-400 transition-all active:scale-[0.98] hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-emerald-500/5"
         >
           <Phone className="h-5 w-5 text-blue-400" />
           <span>{lt.agriAdvisorBtn}</span>
         </a>
       </motion.div>
-
+ 
       {/* ─── 6. FARM TOOLS NAVIGATION GRID (LARGE TOUCH TARGETS & EMOJIS) ─── */}
       <motion.div {...fadeUp(0.22)} className="space-y-4">
         <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground/60 pl-1">
@@ -921,7 +925,7 @@ export default function DashboardPage() {
           ].map((item, idx) => {
             return (
               <Link key={idx} href={item.href}>
-                <GlassCard className="border border-white/[0.06] hover:border-emerald-500/30 bg-[#0c0f0a]/50 p-4.5 rounded-2xl hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 h-full flex flex-col justify-between group">
+                <GlassCard className="border border-white/[0.06] bg-slate-950/40 backdrop-blur-xl shadow-xl shadow-black/20 p-4.5 rounded-2xl hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-emerald-500/5 hover:border-emerald-500/20 transition-all duration-300 h-full flex flex-col justify-between group">
                   <div className="flex items-start justify-between">
                     <span className="text-2xl select-none">{item.emoji}</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
@@ -936,11 +940,11 @@ export default function DashboardPage() {
           })}
         </div>
       </motion.div>
-
+ 
       {/* ─── 7. SIMPLIFIED PAST WEATHER TREND CHART (ONLY SHOW WHEN ONLINE) ─── */}
       {sensorOnline && (
         <motion.div {...fadeUp(0.25)}>
-          <GlassCard className="border border-white/[0.06] bg-[#0c0f0a]/50 rounded-3xl overflow-hidden">
+          <GlassCard className="border border-white/[0.06] bg-slate-950/40 backdrop-blur-xl shadow-xl shadow-black/20 rounded-3xl overflow-hidden hover:scale-[1.01] hover:-translate-y-0.5 hover:shadow-emerald-500/5 hover:border-emerald-500/20 transition-all duration-300">
             <CardHeader className="pb-3 border-b border-white/[0.04]">
               <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-emerald-400" />
@@ -964,6 +968,13 @@ export default function DashboardPage() {
                           <stop offset="5%" stopColor="#f97316" stopOpacity={0.2}/>
                           <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
                         </linearGradient>
+                        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feGaussianBlur stdDeviation="3" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
                       <XAxis dataKey="day" stroke="#64748b" />
@@ -976,8 +987,8 @@ export default function DashboardPage() {
                         }}
                         labelStyle={{ color: "#fff", fontWeight: "bold" }}
                       />
-                      <Area type="monotone" dataKey="Moisture" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#moistGrad)" name={lt.moistureLabel.split(" (")[0]} />
-                      <Area type="monotone" dataKey="Temp" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#tempGrad)" name={lt.tempLabel.split(" (")[0]} />
+                      <Area type="monotone" dataKey="Moisture" stroke="#10b981" strokeWidth={2.5} fillOpacity={1} fill="url(#moistGrad)" filter="url(#glow)" name={lt.moistureLabel.split(" (")[0]} />
+                      <Area type="monotone" dataKey="Temp" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#tempGrad)" filter="url(#glow)" name={lt.tempLabel.split(" (")[0]} />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
@@ -986,7 +997,7 @@ export default function DashboardPage() {
           </GlassCard>
         </motion.div>
       )}
-
+ 
     </div>
   )
 }
