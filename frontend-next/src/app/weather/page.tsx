@@ -59,7 +59,7 @@ export default function WeatherPage() {
           </p>
           <p>
             By monitoring these indices, farmers can apply preventive organic formulations (like neem oil or Trichoderma viride) or targeted crop protectors before the disease manifests visually. 
-            Spraying crop protection chemicals during high wind speeds (>15 km/h) or active rainfall must be avoided, as it leads to chemical drift and runoff, rendering the treatment ineffective.
+            Spraying crop protection chemicals during high wind speeds (&gt;15 km/h) or active rainfall must be avoided, as it leads to chemical drift and runoff, rendering the treatment ineffective.
           </p>
         </section>
 
