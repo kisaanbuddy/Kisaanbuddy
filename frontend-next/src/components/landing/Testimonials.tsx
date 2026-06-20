@@ -47,7 +47,7 @@ export function Testimonials() {
 
   const fetchReviews = async () => {
     try {
-      const res = await fetch("/api/reviews");
+      const res = await fetch("/api/testimonials");
       if (res.ok) {
         const data = await res.json();
         setReviews(data);
@@ -73,7 +73,7 @@ export function Testimonials() {
     setSuccess(false);
 
     try {
-      const res = await fetch("/api/reviews", {
+      const res = await fetch("/api/testimonials", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
