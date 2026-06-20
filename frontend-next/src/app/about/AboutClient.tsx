@@ -225,11 +225,7 @@ export function AboutClient() {
                     >
                       <Mail className="h-3.5 w-3.5 text-emerald-500 group-hover:text-white transition-colors" />
                       <span>
-                        {t("about.email_f_role_includes")
-                          .replace('{role}', f.initials === "AI" ? "Founder" : "Co-Founder")
-                          .replace('${f.role.includes("Founder") ? "Founder" : "Team Member"}', f.initials === "AI" ? "Founder" : "Co-Founder")
-                          .replace('${f.role.includes(\"Founder\") ? \"Founder\" : \"Team Member\"}', f.initials === "AI" ? "Founder" : "Co-Founder")
-                        }
+                        {t("about.email_f_role_includes").replace('{role}', f.initials === "AI" ? "Founder" : "Co-Founder")}
                       </span>
                     </a>
                   </div>
