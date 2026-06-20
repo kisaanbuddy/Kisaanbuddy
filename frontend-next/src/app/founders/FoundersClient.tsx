@@ -61,7 +61,7 @@ export default function FoundersPage() {
       name: "Yash Singh",
       role: t("founders.co_founder_cmo"),
       email: "info@kisaanbuddy.com",
-      linkedin: "https://www.linkedin.com/in/yash-singh",
+      linkedin: "https://www.linkedin.com/in/yash-singh-33553b2a5",
       bio: t("founders.co_founder_and_chief"),
       initials: "YS",
       gradient: "from-rose-400 to-pink-600",

@@ -41,7 +41,7 @@ export function Founders() {
       name: "Yash Singh",
       role: t("founders.co_founder_cmo"),
       email: "info@kisaanbuddy.com",
-      linkedin: "https://www.linkedin.com/in/yash-singh",
+      linkedin: "https://www.linkedin.com/in/yash-singh-33553b2a5",
       bio: t("founders.co_founder_and_chief"),
       image: "/yash.png",
       gradient: "from-teal-400 to-emerald-600",
