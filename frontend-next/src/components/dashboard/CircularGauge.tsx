@@ -34,7 +34,7 @@ export function CircularGauge({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="rounded-3xl border border-white/[0.06] bg-[#0c0f0a]/50 p-6 flex flex-col justify-between h-full relative overflow-hidden group hover:border-white/10 transition-all duration-300">
+    <div className="rounded-3xl border border-white/[0.06] bg-slate-950/40 backdrop-blur-xl shadow-xl shadow-black/20 p-6 flex flex-col justify-between h-full relative overflow-hidden group hover:scale-[1.02] hover:-translate-y-0.5 hover:shadow-emerald-500/5 hover:border-emerald-500/20 transition-all duration-300">
       {/* Background radial accent glow */}
       <div className={`absolute -right-10 -top-10 w-24 h-24 rounded-full blur-[40px] opacity-[0.05] pointer-events-none transition-all duration-500 group-hover:scale-110 ${glowColor}`} />
 
