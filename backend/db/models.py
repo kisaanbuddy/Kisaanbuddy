@@ -107,7 +107,9 @@ if Column is not None:
         crop = Column(String(100), nullable=False)
         text = Column(Text, nullable=False)
         stars = Column(Integer, default=5)
+        status = Column(String(50), default="pending")
         created_at = Column(String(50))
+        updated_at = Column(String(50))
 
     class FarmerProfile(Base):
         __tablename__ = "farmer_profiles"

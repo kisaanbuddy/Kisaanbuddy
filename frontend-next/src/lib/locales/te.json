@@ -1,4 +1,4 @@
-﻿{
+{
   "dashboard": "డ్యాష్‌బోర్డ్",
   "weather": "వాతావరణం",
   "aiPredictor": "AI ప్రిడిక్టర్",
@@ -292,7 +292,7 @@
     "keep_dynamic_logs_of": "Keep dynamic logs of farm activity, daily expenditure, and localized weather.",
     "meet_the_founders": "Meet the Founders",
     "the_development_team_behind": "The development team behind Kisaan Buddy",
-    "email_f_role_includes": "Email ${f.role.includes(\"Founder\") ? \"Founder\" : \"Team Member\"}",
+    "email_f_role_includes": "Email {role}",
     "optimize_your_harvesting_operations": "Optimize Your Harvesting Operations Today",
     "register_a_free_account": "Register a free account, test your crop disease models, and start keeping logs in Khet Diary.",
     "join_free": "Join Free",

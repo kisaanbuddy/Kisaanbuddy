@@ -63,9 +63,25 @@ def run_migrations():
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL")
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_provider ON users(provider, provider_id) WHERE provider_id IS NOT NULL")
 
+        # Migrate reviews table
+        cursor.execute("PRAGMA table_info(reviews)")
+        rev_columns = [row[1] for row in cursor.fetchall()]
+        
+        new_rev_cols = [
+            ("status", "VARCHAR(50) DEFAULT 'pending'"),
+            ("updated_at", "VARCHAR(50) DEFAULT NULL"),
+        ]
+        
+        for name, col_type in new_rev_cols:
+            if name not in rev_columns:
+                stmt = f"ALTER TABLE reviews ADD COLUMN {name} {col_type}"
+                log.info("Executing migration: %s", stmt)
+                cursor.execute(stmt)
+                altered = True
+
         conn.commit()
         if altered:
-            log.info("Database schema updated with auth fields.")
+            log.info("Database schema updated with auth/review fields.")
         else:
             log.info("Database schema is up to date.")
     except Exception as e:

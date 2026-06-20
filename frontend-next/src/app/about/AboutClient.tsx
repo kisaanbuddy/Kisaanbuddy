@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { Sprout, Sparkles, Brain, CloudSun, TrendingUp, Users, Mail, ArrowRight, Shield, Bug, Landmark, BookOpen, FlaskConical, Cpu } from 'lucide-react';
@@ -226,7 +226,9 @@ export function AboutClient() {
                       <Mail className="h-3.5 w-3.5 text-emerald-500 group-hover:text-white transition-colors" />
                       <span>
                         {t("about.email_f_role_includes")
+                          .replace('{role}', f.initials === "AI" ? "Founder" : "Co-Founder")
                           .replace('${f.role.includes("Founder") ? "Founder" : "Team Member"}', f.initials === "AI" ? "Founder" : "Co-Founder")
+                          .replace('${f.role.includes(\"Founder\") ? \"Founder\" : \"Team Member\"}', f.initials === "AI" ? "Founder" : "Co-Founder")
                         }
                       </span>
                     </a>
