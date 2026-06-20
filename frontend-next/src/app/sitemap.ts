@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { BLOG_POSTS } from '@/lib/blog-data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://kisaanbuddy.com'
@@ -24,7 +25,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/cookie-policy', changeScore: 0.3, changefreq: 'monthly' as const },
   ]
 
-  return pages.map((page) => ({
+  const blogPages = BLOG_POSTS.map((post) => ({
+    url: `/blog/${post.slug}`,
+    changeScore: 0.6,
+    changefreq: 'weekly' as const,
+  }))
+
+  const allPages = [...pages, ...blogPages]
+
+  return allPages.map((page) => ({
     url: `${baseUrl}${page.url}`,
     lastModified: new Date(),
     changeFrequency: page.changefreq,
