@@ -37,8 +37,8 @@ export default function LandingPage() {
       {/* 4. Features Section */}
       <Features />
 
-      {/* 5. Testimonials Section */}
-      <Testimonials />
+      {/* 5. Testimonials Section - Hidden for AdSense compliance until 3-5 genuine reviews exist */}
+      {/* <Testimonials /> */}
 
       {/* 6. Technology Flow Section */}
       <Technology />

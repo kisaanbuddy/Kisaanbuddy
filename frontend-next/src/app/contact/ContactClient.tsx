@@ -125,10 +125,6 @@ export function ContactClient() {
                 <Globe className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
                 <span>{t("contact.https_KisaanBuddyindia_vercel_app")}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-                <span>+91 9876543210 ({t("contact.founding_support_helpline")})</span>
-              </div>
               
               <a 
                 href="https://wa.me/919876543210?text=Hello%20KisaanBuddy%20Support%2C%20I%20need%20help%20with..."
