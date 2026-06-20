@@ -70,3 +70,6 @@ backend.log
 backend.log.err
 frontend.log
 frontend.log.err
+
+# --- Claude / Agent Workspaces ---
+.claude/
