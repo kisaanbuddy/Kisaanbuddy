@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function WorkerConnectPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy Worker Connect",
+    "url": "https://kisaanbuddy.com/worker-connect",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "description": "Multilingual Farm Labor and Job Marketplace. Connects local farm owners with agricultural workers, helping post jobs for sowing, weeding, harvesting, and machinery operations."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the peak labor season in Indian agriculture?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Peak labor demand occurs twice a year during sowing (June-July) and harvesting (October-November for Kharif, April-May for Rabi) cycles."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the safety standards for chemical spraying?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sprayers should wear personal protective equipment (PPE) like gloves and masks, and spray in the direction of the wind to avoid inhalation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How are agricultural wages determined?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Wages depend on skill levels, local labor supply, and state-declared minimum agricultural wage guidelines. Skilled operators command a premium daily rate."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does Worker Connect benefit farmers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It provides a direct matching platform to find local or seasonal workers without paying commission fees to intermediary contractors."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <WorkerConnectClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

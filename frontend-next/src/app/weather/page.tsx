@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function WeatherPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy Farm Weather Forecast",
+    "url": "https://kisaanbuddy.com/weather",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5. Requires location access.",
+    "description": "Hyper-local Farm Weather Forecasting Tool. Get real-time agricultural weather forecasts, humidity, wind speed, and tailored spray advisories."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why is weather forecasting important for crops?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It helps in planning sowing, irrigation, fertilizer application, pesticide spraying, and harvesting to minimize crop damage and optimize costs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it right or wrong to apply urea immediately after rain?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Wrong. Heavy rain washes away urea or washes it deep into the soil, away from the root zone, causing wastage."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When is the best time for pesticide spraying?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Morning or evening when wind speeds are calm and solar radiation is low to avoid chemical drift and leaf scorching."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How to protect crops from frost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Create smoke boundaries around the field or practice light evening irrigation to raise local temperatures and reduce frost impact."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <WeatherClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

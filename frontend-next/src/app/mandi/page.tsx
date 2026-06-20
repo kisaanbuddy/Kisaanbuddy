@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function MandiPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy Live Mandi Prices Index",
+    "url": "https://kisaanbuddy.com/mandi",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "description": "Live APMC Mandi Market Prices Tracker. Get real-time commodity trading rates, daily models, volumes, and MSP benchmarks across Indian states."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is Minimum Support Price (MSP) in mandi trading?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "MSP is the guaranteed price floor set by the government to buy crops from farmers, ensuring they do not suffer losses if open market rates crash."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does eNAM portal benefit farmers?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "eNAM integrates APMC mandis across India online, encouraging transparent auctions, accurate weighing, and direct electronic payouts."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the Modal Price in daily mandi reports?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Modal Price is the most frequently occurring transaction price for a commodity in a specific mandi on a given day."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How can farmers fetch premium rates for grains in mandis?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "By drying grains to 12-14% moisture content and removing foreign matter (stones, chaff) before bringing them to the auction."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <MandiClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}
