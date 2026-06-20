@@ -1,4 +1,4 @@
-﻿{
+{
   "dashboard": {
     "iot_node_not_connected": "IoT ನೋಡ್ ಸಂಪರ್ಕಗೊಂಡಿಲ್ಲ",
     "esp32_sensor_online": "ESP32 ಸಂವೇदಕ ಆನ್‌ಲೈನ್",
@@ -500,7 +500,7 @@
     "feel_free_to_write": "ಬೆಂಬಲ ಅಥವಾ ಪ್ರಶ್ನೆಗಳಿಗಾಗಿ ನಮ್ಮ ತಂಡದ ಯಾವುದೇ ಸದಸ್ಯರಿಗೆ ಬರೆಯಲು ಮುಕ್ತವಾಗಿರಿ.",
     "founder": "ಸಂಸ್ಥಾಪಕ",
     "co_founder": "ಸಹ-ಸಂಸ್ಥಾಪಕ",
-    "patna_bihar_india": "ಪಾಟ್ನಾ, ಬಿಹಾರ್, ಭಾರತ",
+    "patna_bihar_india": "ಪಾಟಲಿಪುತ್ರ ಕೈಗಾರಿಕಾ ಪ್ರದೇಶ, ಪಾಟ್ನಾ, ಬಿಹಾರ್ - 800013",
     "founding_support_helpline": "ಸಂಸ್ಥಾಪಕ ಸಹಾಯ ಸಹಾಯವಾಣಿ",
     "send_a_message": "ಒಂದು ಸಂದೇಶ ಕಳುಹಿಸಿ",
     "message_sent_successfully": "ಸಂದೇಶವನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ!",

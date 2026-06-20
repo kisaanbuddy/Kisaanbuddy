@@ -1,4 +1,4 @@
-﻿{
+{
   "dashboard": {
     "iot_node_not_connected": "IoT nod kanekt naheen hai",
     "esp32_sensor_online": "ESP32 sensar ऑnalaain",
@@ -500,7 +500,7 @@
     "feel_free_to_write": "samarthan yaa prashnon ke lie hamaaree teem ke kisee bhee sadasy ko likhane men snkoch n karen.",
     "founder": "snsthaapak",
     "co_founder": "sah-snsthaapak",
-    "patna_bihar_india": "patanaa, bihaar, Bharat",
+    "patna_bihar_india": "Patliputra Industrial Area, Patna, Bihar - 800013",
     "founding_support_helpline": "snsthaapak sahaayataa helpalaain",
     "send_a_message": "ek sndesh bhejen",
     "message_sent_successfully": "sndesh saphalataapoorvak bhejaa gayaa!",

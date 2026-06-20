@@ -28,7 +28,7 @@ export function Footer() {
             </p>
             <div className="text-[10px] text-muted-foreground/80 leading-relaxed space-y-0.5 mt-1 font-medium">
               <p>🏢 Noida: H-12, Sector 63, Noida, UP - 201301</p>
-              <p>📍 Patna: APMC Market Yard, Patna, BH - 800007</p>
+              <p>📍 Patna: Patliputra Industrial Area, Patna, BH - 800013</p>
               <p>✉️ <a href="mailto:info@kisaanbuddy.com" className="hover:text-primary transition-colors">info@kisaanbuddy.com</a></p>
             </div>
             <div className="flex items-center gap-1 text-[10px] text-muted-foreground/60 font-semibold mt-2">
