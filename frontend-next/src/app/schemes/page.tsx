@@ -33,34 +33,34 @@ export default function SchemesPage() {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Who is not eligible for the PM-Kisan scheme?",
+        "name": "पीएम-किसान (PM-Kisan) योजना के लिए कौन पात्र नहीं है?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Institutional landholders, income tax payers, serving or retired government employees (except Group D/Class IV), and pensioners receiving over Rs 10,000 per month are not eligible."
+          "text": "कोई भी किसान परिवार जिसके पास खेती योग्य भूमि नहीं है, संस्थागत भूमि धारक, सरकारी कर्मचारी (चतुर्थ श्रेणी को छोड़कर), आयकरदाता, या प्रति माह ₹10,000 से अधिक पेंशन प्राप्त करने वाले सेवानिवृत्त व्यक्ति इस योजना के पात्र नहीं हैं।"
         }
       },
       {
         "@type": "Question",
-        "name": "How to claim crop insurance under PMFBY?",
+        "name": "पीएम फसल बीमा योजना (PMFBY) के तहत दावा (Claim) कैसे करें?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "In case of crop loss due to localized calamities (hailstorms, waterlogging, etc.), the farmer must notify the insurance company or local agriculture officer within 72 hours."
+          "text": "फसल के नुकसान की स्थिति में किसान को आपदा (ओलावृष्टि, जलभराव, बादल फटना आदि) के 72 घंटे के भीतर संबंधित बीमा कंपनी, स्थानीय कृषि अधिकारी या PMFBY हेल्प डेस्क पर इसकी सूचना देनी अनिवार्य है।"
         }
       },
       {
         "@type": "Question",
-        "name": "What is the loan limit under the Kisan Credit Card (KCC) scheme?",
+        "name": "किसान क्रेडिट कार्ड (KCC) के तहत कितना ऋण मिल सकता है?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The loan limit is decided based on land acreage, crops cultivated, and past credit history. KCC loans up to Rs 1.60 Lakh do not require collateral."
+          "text": "ऋण सीमा भूमि के आकार, बोई जाने वाली फसलों (Scale of Finance) और पिछले ऋण चुकाने के इतिहास के आधार पर तय होती है। ₹1.60 लाख तक का केसीसी लोन बिना किसी गारंटी (Collateral-Free) के मिल जाता है।"
         }
       },
       {
         "@type": "Question",
-        "name": "How do you apply for solar pump subsidy under PM-KUSUM?",
+        "name": "पीएम-कुसुम (PM-KUSUM) योजना के तहत सोलर पंप के लिए आवेदन कैसे करें?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Farmers can apply online via the official portal of their respective state new & renewable energy departments (e.g. UPNEDA, HAREDA, RRECL)."
+          "text": "किसान अपने राज्य के नवीन एवं नवीकरणीय ऊर्जा विभाग (जैसे HAREDA, UPNEDA, RRECL) की आधिकारिक राज्य-स्तरीय कुसुम वेबसाइट पर जाकर ऑनलाइन आवेदन जमा कर सकते हैं।"
         }
       }
     ]

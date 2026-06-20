@@ -88,6 +88,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             })
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "KisaanBuddy",
+              "url": "https://kisaanbuddy.com",
+              "logo": "https://kisaanbuddy.com/icon-192.svg",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "email": "info@kisaanbuddy.com",
+                "contactType": "customer support"
+              },
+              "sameAs": [
+                "https://github.com/kisaanbuddy/Kisaanbuddy",
+                "https://www.linkedin.com/in/aditya-ishwar",
+                "https://www.linkedin.com/in/utkarsh-sinha",
+                "https://www.linkedin.com/in/sanidhya-sharma",
+                "https://www.linkedin.com/in/yash-singh-33553b2a5"
+              ]
+            })
+          }}
+        />
       </head>
       <body className={`${inter.className} min-h-screen antialiased`}>
         <Providers>

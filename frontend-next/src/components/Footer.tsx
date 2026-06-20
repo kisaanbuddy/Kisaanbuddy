@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Sprout, Heart, Leaf } from 'lucide-react';
+import { Sprout, Heart, Leaf, Github, Linkedin } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
 export function Footer() {
@@ -112,9 +112,27 @@ export function Footer() {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[10px] text-muted-foreground/60 font-medium">
           <p>&copy; {new Date().getFullYear()} Kisaan Buddy &middot; {t("allRightsReserved")}</p>
           <div className="flex items-center gap-4">
-            <span className="bg-primary/10 text-primary px-2.5 py-1 rounded-full text-[9px] font-bold border border-primary/20">
-              Google AdSense Compliant
-            </span>
+            <a
+              href="https://github.com/kisaanbuddy/Kisaanbuddy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1.5"
+              title="GitHub"
+            >
+              <Github className="h-3.5 w-3.5" />
+              <span>GitHub</span>
+            </a>
+            <span className="text-muted-foreground/30">|</span>
+            <a
+              href="https://www.linkedin.com/in/yash-singh-33553b2a5"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors flex items-center gap-1.5"
+              title="LinkedIn"
+            >
+              <Linkedin className="h-3.5 w-3.5" />
+              <span>LinkedIn</span>
+            </a>
           </div>
         </div>
 

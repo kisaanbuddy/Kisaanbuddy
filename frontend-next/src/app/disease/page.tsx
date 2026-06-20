@@ -33,34 +33,34 @@ export default function DiseasePage() {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "Why is early crop disease detection critical?",
+        "name": "पत्तियों पर काले धब्बे दिखने का क्या कारण हो सकता है?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Early detection stops pathogens from colonizing plant vascular systems and spreading to healthy fields, saving yields and reducing treatment costs."
+          "text": "पत्तियों पर काले या भूरे धब्बे आमतौर पर फंगस (Fungal) संक्रमण जैसे अगेती झुलसा (Early Blight) या लीफ स्पॉट के कारण होते हैं। यह अधिक नमी और तापमान के कारण तेजी से फैलता है।"
         }
       },
       {
         "@type": "Question",
-        "name": "What are the visual symptoms of Rice Blast?",
+        "name": "पीले रतुआ (Yellow Rust) की पहचान कैसे करें?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Rice Blast appears as spindle-shaped or diamond-like spots on leaves, showing gray centers and brown borders."
+          "text": "गेहूं के पत्तों पर पीले रंग की पाउडर जैसी लंबी धारियां (पस्ट्यूल) दिखाई देती हैं। हाथ लगाने पर यह पीला पाउडर उंगलियों पर लग जाता है। यह ठंडे और नम मौसम में ज्यादा फैलता है।"
         }
       },
       {
         "@type": "Question",
-        "name": "How does Integrated Pest Management (IPM) work?",
+        "name": "क्या बोर्डो मिश्रण (Bordeaux Mixture) एक जैविक उपाय है?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "IPM is an ecological approach combining cultural methods (crop rotation), biological controls (neem oil, Trichoderma), and targeted chemical interventions as a last resort."
+          "text": "बोर्डो मिश्रण चूने और तांबे (कॉपर सल्फेट) का एक पारंपरिक मिश्रण है। यह पूरी तरह से जैविक नहीं है, लेकिन इसे पर्यावरण के लिए सुरक्षित फफूंदनाशी माना जाता है और जैविक खेती में सीमित उपयोग की अनुमति है।"
         }
       },
       {
         "@type": "Question",
-        "name": "What chemical is recommended for Potato Late Blight control?",
+        "name": "फंगस वाले पत्तों को खेत में गिरने से कैसे रोकें?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Metalaxyl combined with Mancozeb spray at 2g per Liter of water is widely recommended for early control."
+          "text": "संक्रमित पत्तियों या पौधों को तुरंत काटकर खेत से दूर ले जाकर जला देना चाहिए या गहरे गड्ढे में दबा देना चाहिए। इन्हें खेत में सड़ने देने से फंगस के बीजाणु हवा और पानी से स्वस्थ पौधों में फैल जाते हैं।"
         }
       }
     ]
