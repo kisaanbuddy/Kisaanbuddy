@@ -62,8 +62,66 @@ export default function KhetDiaryPage() {
   const totalIncome = logs.filter(l => l.category === 'income').reduce((sum, l) => sum + l.amount, 0)
   const netProfit = totalIncome - totalExpense
 
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy Khet Diary",
+    "url": "https://kisaanbuddy.com/khet-diary",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "description": "Digital Farm Logbook and Ledger. Record daily farm tasks, input costs (seeds, fertilizers, diesel), harvest sales revenues, and calculate crop net profit."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What entries should be made in Khet Diary?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Record sowing dates, fertilizer/pesticide costs, irrigation and fuel bills, harvest yields, and APMC mandi sale prices."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can you export Khet Diary data to Excel or PDF?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, upcoming features in KisaanBuddy will allow one-click PDF and Excel ledger report downloads."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the digital ledger assist in getting bank credit (KCC)?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, having structured farming logs of production costs and cash flows builds bank credibility and facilitates loan processing."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my farm ledger data shared publicly?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, your farm diary entries are private, encrypted, and accessible only on your personal KisaanBuddy account."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       {/* Background Blobs */}
       <div className="absolute top-[-10%] left-[20%] w-[300px] h-[300px] rounded-full bg-emerald-500/10 blur-[120px] pointer-events-none -z-10" />
       <div className="absolute bottom-[20%] right-[10%] w-[250px] h-[250px] rounded-full bg-teal-500/5 blur-[100px] pointer-events-none -z-10" />

@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function SoilHealthPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy AI Soil Health & Fertilizer Advisor",
+    "url": "https://kisaanbuddy.com/soil-health",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "description": "AI-powered Soil Health Card Analyst. Enter your soil N-P-K nutrient values, organic carbon, and pH to receive custom scientific fertilizer recommendations and organic soil amendments advice."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why is soil testing important for crops?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Soil testing measures nutrient levels, organic carbon, and pH to avoid under- or over-application of chemical fertilizers, optimizing input costs and soil structure."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is organic carbon (O.C.) in soil?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Organic carbon represents the organic matter content in soil that fuels soil microbial activity. Healthy soil should have O.C. above 0.75%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is sulphur critical for crops?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sulphur is a secondary plant nutrient essential for oilseed crops (like mustard and soybean) to synthesize oils, proteins, and chlorophyll."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How is Urea (46% N) fertilizer dosage calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Urea contains 46% nitrogen. Therefore, to supply 46 kg of nitrogen to one hectare of land, a farmer needs to apply exactly 100 kg of Urea."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <SoilHealthClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

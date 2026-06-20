@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function SchemesPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy Govt Schemes Advisor",
+    "url": "https://kisaanbuddy.com/schemes",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "description": "Indian Government Agricultural Schemes Database. Check eligibility, benefits, and documents required for schemes like PM-Kisan, KCC, PM-Kusum, and PMFBY."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Who is not eligible for the PM-Kisan scheme?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Institutional landholders, income tax payers, serving or retired government employees (except Group D/Class IV), and pensioners receiving over Rs 10,000 per month are not eligible."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How to claim crop insurance under PMFBY?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In case of crop loss due to localized calamities (hailstorms, waterlogging, etc.), the farmer must notify the insurance company or local agriculture officer within 72 hours."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the loan limit under the Kisan Credit Card (KCC) scheme?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The loan limit is decided based on land acreage, crops cultivated, and past credit history. KCC loans up to Rs 1.60 Lakh do not require collateral."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you apply for solar pump subsidy under PM-KUSUM?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Farmers can apply online via the official portal of their respective state new & renewable energy departments (e.g. UPNEDA, HAREDA, RRECL)."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <SchemesClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

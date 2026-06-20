@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function ChatbotPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy AI Agronomist Chatbot",
+    "url": "https://kisaanbuddy.com/chatbot",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5. Requires microphone access.",
+    "description": "Multilingual AI Agricultural Chatbot and Voice Assistant. Speak or type crop protection, soil health, pesticide dosage, and schemes queries in 11 Indian languages."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do you use the KisaanBuddy AI Agronomist Chatbot?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Press the microphone icon to speak your agricultural questions in your regional language, or type your query inside the chat box."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Which languages are supported by the AI Chatbot?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The AI Agronomist chatbot supports 11 Indian languages including Hindi, English, Kannada, Telugu, Tamil, and Hinglish."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are the pesticide remedies suggested by the AI safe?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, the AI only suggests pesticides registered under the Central Insecticides Board (CIBRC), prioritising organic inputs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there any fee to use the virtual agronomist?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, this AI consulting service is completely free and available 24/7 for farmers."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <ChatbotClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

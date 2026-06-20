@@ -39,9 +39,9 @@ export function Footer() {
 
           {/* Column 2: Platform Features */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("platformFeatures")}
-            </h4>
+            </p>
             <div className="flex flex-col gap-2.5 text-xs font-semibold text-muted-foreground">
               <Link href="/disease" className="hover:text-primary transition-colors flex items-center gap-1.5">
                 <Leaf className="h-3 w-3 text-primary" /> {t("diseaseDetect")}
@@ -63,9 +63,9 @@ export function Footer() {
 
           {/* Column 3: Company */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("company")}
-            </h4>
+            </p>
             <div className="flex flex-col gap-2.5 text-xs font-semibold text-muted-foreground">
               <Link href="/about" className="hover:text-primary transition-colors">
                 {t("aboutUs")}
@@ -84,9 +84,9 @@ export function Footer() {
 
           {/* Column 4: Legal & Policies */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
               {t("legal")}
-            </h4>
+            </p>
             <div className="flex flex-col gap-2.5 text-xs font-semibold text-muted-foreground">
               <Link href="/privacy" className="hover:text-primary transition-colors">
                 {t("privacyPolicy")}

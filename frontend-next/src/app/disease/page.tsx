@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function DiseasePage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy AI Crop Leaf Disease Detector",
+    "url": "https://kisaanbuddy.com/disease",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5. Requires camera access.",
+    "description": "AI-powered Crop Disease Detection Tool. Upload or capture photos of damaged crop leaves to instantly diagnose plant pathogens and receive remedy options."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why is early crop disease detection critical?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Early detection stops pathogens from colonizing plant vascular systems and spreading to healthy fields, saving yields and reducing treatment costs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What are the visual symptoms of Rice Blast?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Rice Blast appears as spindle-shaped or diamond-like spots on leaves, showing gray centers and brown borders."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does Integrated Pest Management (IPM) work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "IPM is an ecological approach combining cultural methods (crop rotation), biological controls (neem oil, Trichoderma), and targeted chemical interventions as a last resort."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What chemical is recommended for Potato Late Blight control?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Metalaxyl combined with Mancozeb spray at 2g per Liter of water is widely recommended for early control."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <DiseaseClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

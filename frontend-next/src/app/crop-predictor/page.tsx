@@ -16,8 +16,66 @@ export const metadata: Metadata = {
 };
 
 export default function CropPredictorPage() {
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "KisaanBuddy AI Crop Predictor",
+    "url": "https://kisaanbuddy.com/crop-predictor",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript. Requires HTML5.",
+    "description": "AI-powered Crop Selection Tool. Enter your N-P-K soil values, pH, temperature, and rainfall parameters to predict the most profitable crop for your farmland."
+  };
+
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the role of Nitrogen (N) in crop selection?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nitrogen is critical for vegetative growth and leaf health. Crops like Paddy and Maize require higher nitrogen to support green growth and crop yield."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do you correct acidic soil?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "If soil pH is below 5.5, adding agricultural lime (calcium carbonate) during land preparation reduces acidity and unlocks nutrients."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why do pulses and legumes require less nitrogen fertilizer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Pulses like chickpeas and lentils form symbiotic relationships with Rhizobium bacteria, allowing them to fix atmospheric nitrogen directly into the soil, reducing the need for chemical nitrogen inputs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can you get good crop yields in hot temperatures?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, by selecting high-temperature tolerant crop varieties and using moisture conservation techniques like organic mulching and drip irrigation to minimize evaporation."
+        }
+      }
+    ]
+  };
+
   return (
     <div className="space-y-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <CropPredictorClient />
 
       {/* SSR Static SEO & Educational Content for AdSense / Search Engine indexing */}

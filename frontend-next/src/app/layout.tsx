@@ -7,8 +7,9 @@ import { Footer } from '@/components/Footer';
 import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
 import { SwRegister } from '@/components/SwRegister';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import Script from 'next/script';
-
+ 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
@@ -41,11 +42,20 @@ export const metadata: Metadata = {
     description: 'Empowering Indian farmers with AI-powered tools',
     type: 'website',
     url: '/',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'KisaanBuddy — AI for Every Farmer',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'KisaanBuddy — AI for Every Farmer',
     description: 'Empowering Indian farmers with AI-powered tools',
+    images: ['/logo.png'],
   },
   other: {
     'google-adsense-account': 'ca-pub-3770486100255800',
@@ -64,7 +74,21 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
-      <head />
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "KisaanBuddy",
+              "url": "https://kisaanbuddy.com",
+              "description": "AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts, khet diary and more.",
+              "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu"]
+            })
+          }}
+        />
+      </head>
       <body className={`${inter.className} min-h-screen antialiased`}>
         <Providers>
           <a
@@ -76,6 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="relative flex min-h-screen flex-col">
             <Header />
             <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 pt-10 md:pt-14 pb-6">
+              <Breadcrumbs />
               {children}
             </main>
             <Footer />
