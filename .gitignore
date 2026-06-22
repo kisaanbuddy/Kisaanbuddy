@@ -53,6 +53,7 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 *.db
+*.db.bak
 krishiai.db
 
 # --- Coverage ---

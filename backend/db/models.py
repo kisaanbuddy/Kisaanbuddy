@@ -169,4 +169,52 @@ if Column is not None:
         created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
 
+    class UserOTP(Base):  # type: ignore[misc]
+        __tablename__ = "user_otps"
+        id = Column(Integer, primary_key=True, index=True)
+        phone_number = Column(String(50), nullable=False, index=True)
+        hashed_otp = Column(String(255), nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow)
+        expires_at = Column(DateTime, nullable=False)
+        attempts = Column(Integer, default=0)
+        is_verified = Column(Boolean, default=False)
+
+
+    class UserSession(Base):  # type: ignore[misc]
+        __tablename__ = "user_sessions"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+        session_token = Column(String(255), unique=True, nullable=False, index=True)
+        created_at = Column(DateTime, default=datetime.utcnow)
+        expires_at = Column(DateTime, nullable=False)
+        last_active_at = Column(DateTime, default=datetime.utcnow)
+        ip_address = Column(String(100), nullable=True)
+        user_agent = Column(String(255), nullable=True)
+        is_revoked = Column(Boolean, default=False)
+        phone_number = Column(String(50), nullable=True)
+        device_type = Column(String(50), nullable=True)
+        browser = Column(String(50), nullable=True)
+        os = Column(String(50), nullable=True)
+
+        user = relationship("User")
+
+
+    class UserSecurityState(Base):  # type: ignore[misc]
+        __tablename__ = "user_security_state"
+        id = Column(Integer, primary_key=True, index=True)
+        phone_number = Column(String(50), unique=True, nullable=False, index=True)
+        failed_attempts = Column(Integer, default=0)
+        locked_until = Column(DateTime, nullable=True)
+        request_count = Column(Integer, default=0)
+        last_request_at = Column(DateTime, nullable=True)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+    class SystemJob(Base):  # type: ignore[misc]
+        __tablename__ = "system_jobs"
+        job_name = Column(String(100), primary_key=True, index=True)
+        last_run_at = Column(DateTime, nullable=False)
+
+
+
 

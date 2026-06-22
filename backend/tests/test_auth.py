@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from main import app
 from db.session import get_db, Base
 from db.models import User
+from api.auth import limiter
 
 # Test Database setup
 TEST_DB_URL = "sqlite:///./test_auth.db"
@@ -24,15 +25,16 @@ def override_get_db():
     finally:
         db.close()
 
-# Override the get_db dependency in the FastAPI application
-app.dependency_overrides[get_db] = override_get_db
+# We will configure get_db overrides in setUp and tearDown below
 
 class TestAuthSystem(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Create test database tables
         Base.metadata.create_all(bind=engine)
-        cls.client = TestClient(app)
+        if limiter:
+            limiter.enabled = False
+        cls.client = TestClient(app, base_url="https://testserver")
 
     @classmethod
     def tearDownClass(cls):
@@ -43,11 +45,15 @@ class TestAuthSystem(unittest.TestCase):
             os.remove("./test_auth.db")
 
     def setUp(self):
+        app.dependency_overrides[get_db] = override_get_db
         # Clear users table before each test
         db = TestingSessionLocal()
         db.query(User).delete()
         db.commit()
         db.close()
+
+    def tearDown(self):
+        app.dependency_overrides.clear()
 
     def test_register_user_success(self):
         payload = {
@@ -134,11 +140,8 @@ class TestAuthSystem(unittest.TestCase):
             "password": "password123"
         }
         login_response = self.client.post("/api/auth/login", json=login_payload)
-        token = login_response.json()["token"]
-
-        # Call get_me with Authorization header
-        headers = {"Authorization": f"Bearer {token}"}
-        me_response = self.client.get("/api/auth/me", headers=headers)
+        # Call get_me with cookie authentication
+        me_response = self.client.get("/api/auth/me", cookies=login_response.cookies)
         self.assertEqual(me_response.status_code, 200)
         self.assertEqual(me_response.json()["email"], "profile@example.com")
 

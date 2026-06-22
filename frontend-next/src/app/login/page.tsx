@@ -3,8 +3,8 @@
 import { useLanguage } from "@/lib/language";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Sparkles, Phone, ShieldCheck, AlertCircle, ArrowRight, Check } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { Loader2, Sparkles, Phone, ShieldCheck, AlertCircle, ArrowRight, Check, RefreshCw } from "lucide-react";
+import { useAuth, sendOtp, verifyOtp, completeOtpRegistration } from "@/lib/auth";
 
 export default function LoginPage() {
   const { t } = useLanguage();
@@ -37,6 +37,8 @@ export default function LoginPage() {
   const [step, setStep] = useState<"phone" | "otp" | "register">("phone");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [registrationToken, setRegistrationToken] = useState("");
 
   useEffect(() => {
     if (ready && user) {
@@ -44,22 +46,57 @@ export default function LoginPage() {
     }
   }, [ready, user, router]);
 
+  // Countdown timer for OTP resend
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanPhone = phone.trim().replace(/[^0-9]/g, "");
-    if (cleanPhone.length !== 10) {
-      setError(lt.phoneError);
+    const indianPhoneRegex = /^[6-9]\d{9}$/;
+    const fakeNumbers = [
+      "0000000000",
+      "1111111111",
+      "2222222222",
+      "3333333333",
+      "4444444444",
+      "5555555555",
+      "1234567890"
+    ];
+    if (!indianPhoneRegex.test(cleanPhone) || fakeNumbers.includes(cleanPhone)) {
+      setError("Please enter a valid Indian mobile number.");
       return;
     }
 
     setLoading(true);
     setError(null);
 
-    // Simulate OTP generation (standard Firebase verification trigger simulation)
-    setTimeout(() => {
-      setLoading(false);
+    const res = await sendOtp(cleanPhone);
+    setLoading(false);
+    if (res.ok) {
       setStep("otp");
-    }, 1200);
+      setResendCooldown(30);
+    } else {
+      setError(res.error || "Failed to send OTP. Please try again.");
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendCooldown > 0) return;
+    setLoading(true);
+    setError(null);
+    const res = await sendOtp(phone);
+    setLoading(false);
+    if (res.ok) {
+      setResendCooldown(30);
+    } else {
+      setError(res.error || "Failed to resend OTP.");
+    }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
@@ -73,24 +110,18 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    setTimeout(() => {
-      setLoading(false);
-      if (cleanOtp === "123456") {
-        // Check if user already exists in storage or default list
-        const existingUserRaw = window.localStorage.getItem(`user_${phone}`);
-        if (existingUserRaw) {
-          const sessionUser = JSON.parse(existingUserRaw);
-          window.localStorage.setItem("kisaanbuddy_user", JSON.stringify(sessionUser));
-          window.localStorage.setItem("kisaanbuddy_token", "otp_token_" + Date.now());
-          window.dispatchEvent(new Event("kisaanbuddy-auth-change"));
-          router.replace("/dashboard");
-        } else {
-          setStep("register");
-        }
+    const res = await verifyOtp(phone, cleanOtp);
+    setLoading(false);
+    if (res.ok) {
+      if (res.registered) {
+        router.replace("/dashboard");
       } else {
-        setError(lt.incorrectOtp);
+        setRegistrationToken(res.registrationToken);
+        setStep("register");
       }
-    }, 1000);
+    } else {
+      setError(res.error || "Incorrect OTP. Please try again.");
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -104,26 +135,16 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    setTimeout(() => {
-      const newUser = {
-        id: Date.now(),
-        email: `${cleanName.toLowerCase().replace(/[^a-z0-9]/g, "")}@KisaanBuddy.com`,
-        name: cleanName,
-        phone_number: phone,
-        role: "Farmer",
-        provider: "phone_otp",
-        created_at: new Date().toISOString()
-      };
-
-      // Save user to system registry and set active session
-      window.localStorage.setItem(`user_${phone}`, JSON.stringify(newUser));
-      window.localStorage.setItem("kisaanbuddy_user", JSON.stringify(newUser));
-      window.localStorage.setItem("kisaanbuddy_token", "otp_token_" + Date.now());
-      window.dispatchEvent(new Event("kisaanbuddy-auth-change"));
-      setLoading(false);
+    const res = await completeOtpRegistration(registrationToken, cleanName);
+    setLoading(false);
+    if (res.ok) {
       router.replace("/dashboard");
-    }, 1000);
+    } else {
+      setError(res.error || "Registration failed. Please try again.");
+    }
   };
+
+  const isLocked = error?.toLowerCase().includes("lock") || error?.toLowerCase().includes("too many");
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 -mt-4 py-8">
@@ -141,21 +162,25 @@ export default function LoginPage() {
             </h1>
             <p className="text-xs text-muted-foreground/80 mt-1.5 max-w-[280px]">
               {step === "phone" && lt.signInToAccess}
-              {step === "otp" && `${lt.otpLabel} (Sent to +91 ${phone.substring(0,2)}******${phone.substring(8,10)})`}
+              {step === "otp" && `${lt.otpLabel} (Sent to +91 ${phone.substring(0, 2)}******${phone.substring(8, 10)})`}
               {step === "register" && lt.namePlaceholder}
             </p>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-6 flex items-start gap-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 p-3.5 text-xs text-red-400">
+            <div className={`mb-6 flex items-start gap-2.5 rounded-2xl p-3.5 text-xs ${
+              isLocked 
+                ? "bg-amber-500/10 border border-amber-500/20 text-amber-400" 
+                : "bg-red-500/10 border border-red-500/20 text-red-400"
+            }`}>
               <AlertCircle className="h-4.5 w-4.5 shrink-0 mt-0.5" />
               <span className="font-medium">{error}</span>
             </div>
           )}
 
           {/* Dev Mode Notice */}
-          {step === "otp" && (
+          {step === "otp" && !error && (
             <div className="mb-6 flex items-center gap-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-400 font-bold justify-center">
               <ShieldCheck className="h-4 w-4 shrink-0" />
               <span>{lt.devModeNotice}</span>
@@ -226,14 +251,31 @@ export default function LoginPage() {
                 />
               </div>
 
-              <div className="flex justify-between items-center px-1">
+              <div className="flex justify-between items-center px-1 text-xs">
                 <button
                   type="button"
+                  disabled={loading}
                   onClick={() => { setStep("phone"); setError(null); }}
-                  className="text-xs text-muted-foreground hover:text-white transition-colors"
+                  className="text-muted-foreground hover:text-white transition-colors disabled:opacity-50"
                 >
                   ← Change Number
                 </button>
+
+                {resendCooldown > 0 ? (
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <RefreshCw className="h-3 w-3 animate-spin text-emerald-400" />
+                    Resend in {resendCooldown}s
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResendOtp}
+                    disabled={loading}
+                    className="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors disabled:opacity-50 flex items-center gap-1"
+                  >
+                    Resend OTP
+                  </button>
+                )}
               </div>
 
               <button

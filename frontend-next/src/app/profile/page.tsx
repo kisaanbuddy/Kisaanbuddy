@@ -220,6 +220,19 @@ export default function ProfilePage() {
                     {user.provider === "google" ? lt.providerGoogle : lt.providerEmail}
                   </span>
                 </div>
+
+                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+                    {lang === "hi" ? "सत्र क्रियाएं" : lang === "kn" ? "ಸೆಷನ್ ಕ್ರಿಯೆಗಳು" : "Session Actions"}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold text-red-400 border border-red-500/10 hover:bg-red-500/5 hover:border-red-500/20 transition-all select-none"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    <span>{lt.logout}</span>
+                  </button>
+                </div>
               </div>
             </div>
 
