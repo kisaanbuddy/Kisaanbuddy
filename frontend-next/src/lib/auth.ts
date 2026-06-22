@@ -24,9 +24,9 @@ export type LoginResult =
   | { ok: true; name?: string; user: AuthUser }
   | { ok: false; error: string };
 
-// Helper to get authorization headers
+// Helper to get request headers (no Bearer token)
 export function getAuthHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
+  return {
     "Content-Type": "application/json",
   };
   if (typeof window !== "undefined") {
@@ -50,7 +50,44 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
     ...getAuthHeaders(),
     ...(options.headers || {}),
   };
-  return fetch(url, { ...options, headers });
+  let response = await fetch(url, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
+
+  if (response.status === 401) {
+    try {
+      const refreshRes = await fetch("/api/auth/refresh-session", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (refreshRes.status === 200) {
+        // Retry original request with cookies
+        response = await fetch(url, {
+          ...options,
+          headers,
+          credentials: "include",
+        });
+
+        // Sync local session user cache if success
+        const meRes = await fetch("/api/auth/me", {
+          headers: getAuthHeaders(),
+          credentials: "include",
+        });
+        if (meRes.status === 200) {
+          const user = await meRes.json();
+          writeSession(user);
+        }
+      } else {
+        writeSession(null);
+      }
+    } catch (e) {
+      console.error("Silent refresh failed:", e);
+    }
+  }
+
+  return response;
 }
 
 // ---------------------- low-level storage helpers ----------------------
@@ -80,16 +117,72 @@ function readSession(): AuthUser | null {
 
 function writeSession(user: AuthUser | null, token: string | null) {
   if (typeof window === "undefined") return;
-  if (user && token) {
+
+  initPromise = null;
+
+  if (user) {
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-    window.localStorage.setItem(TOKEN_KEY, token);
+
+    if (token) {
+      window.localStorage.setItem(TOKEN_KEY, token);
+    }
   } else {
     window.localStorage.removeItem(SESSION_KEY);
     window.localStorage.removeItem(TOKEN_KEY);
-    window.localStorage.removeItem("krishi_user");
-    window.localStorage.removeItem("krishi_token");
   }
+
   window.dispatchEvent(new Event(EVENT_NAME));
+}
+
+let initPromise: Promise<AuthUser | null> | null = null;
+
+export function verifySessionOnLoad(): Promise<AuthUser | null> {
+  if (initPromise) return initPromise;
+
+  initPromise = (async () => {
+    try {
+      const res = await fetch("/api/auth/me", {
+        headers: getAuthHeaders(),
+        credentials: "include",
+      });
+      if (res.status === 200) {
+        const user = await res.json();
+        writeSession(user);
+        return user;
+      }
+
+      if (res.status === 401) {
+        const refreshRes = await fetch("/api/auth/refresh-session", {
+          method: "POST",
+          credentials: "include",
+        });
+        if (refreshRes.status === 200) {
+          const retryRes = await fetch("/api/auth/me", {
+            headers: getAuthHeaders(),
+            credentials: "include",
+          });
+          if (retryRes.status === 200) {
+            const user = await retryRes.json();
+            writeSession(user);
+            return user;
+          }
+        }
+      }
+
+      if (res.status === 401 || res.status === 403) {
+        writeSession(null);
+        return null;
+      }
+
+      console.warn("Transient server error during session verification:", res.status);
+      return readSession();
+    } catch (err) {
+      console.error("Failed to verify session on load:", err);
+      return readSession();
+    }
+  })();
+
+  return initPromise;
 }
 
 // ---------------------- public API -------------------------------------
@@ -116,13 +209,14 @@ export async function registerUser(
   try {
     const response = await fetch("/api/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({
         email: cleanEmail,
         password,
         name: cleanName || undefined,
         phone_number: cleanPhone || undefined,
       }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -130,7 +224,6 @@ export async function registerUser(
       return { ok: false, error: data.detail || "Registration failed. Please try again." };
     }
 
-    // Auto-login the new user after successful registration
     return await verifyAndLogin(cleanEmail, password);
   } catch (error) {
     return { ok: false, error: "Network error. Please try again later." };
@@ -146,8 +239,9 @@ export async function verifyAndLogin(email: string, password: string): Promise<L
   try {
     const response = await fetch("/api/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ email: cleanEmail, password }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -155,8 +249,8 @@ export async function verifyAndLogin(email: string, password: string): Promise<L
       return { ok: false, error: data.detail || "Invalid email or password." };
     }
 
-    const { token, user } = data;
-    writeSession(user, token);
+    const { user } = data;
+    writeSession(user);
     return { ok: true, name: user.name, user };
   } catch (error) {
     return { ok: false, error: "Network error. Please try again later." };
@@ -167,8 +261,9 @@ export async function googleLogin(credential: string): Promise<LoginResult> {
   try {
     const response = await fetch("/api/auth/google", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify({ credential }),
+      credentials: "include",
     });
 
     const data = await response.json();
@@ -176,9 +271,79 @@ export async function googleLogin(credential: string): Promise<LoginResult> {
       return { ok: false, error: data.detail || "Google authentication failed." };
     }
 
-    const { token, user } = data;
-    writeSession(user, token);
+    const { user } = data;
+    writeSession(user);
     return { ok: true, name: user.name, user };
+  } catch (error) {
+    return { ok: false, error: "Network error. Please try again later." };
+  }
+}
+
+export async function sendOtp(phone: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const response = await fetch("/api/auth/send-otp", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ phone_number: phone }),
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.detail || "Failed to send OTP." };
+    }
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, error: "Network error. Please try again later." };
+  }
+}
+
+export type VerifyOtpResult =
+  | { ok: true; registered: true; user: AuthUser }
+  | { ok: true; registered: false; registrationToken: string }
+  | { ok: false; error: string };
+
+export async function verifyOtp(phone: string, otp: string): Promise<VerifyOtpResult> {
+  try {
+    const response = await fetch("/api/auth/verify-otp", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ phone_number: phone, otp }),
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.detail || "Invalid OTP code." };
+    }
+
+    if (data.registered) {
+      writeSession(data.user);
+      return { ok: true, registered: true, user: data.user };
+    } else {
+      return { ok: true, registered: false, registrationToken: data.registration_token };
+    }
+  } catch (error) {
+    return { ok: false, error: "Network error. Please try again later." };
+  }
+}
+
+export async function completeOtpRegistration(
+  registrationToken: string,
+  name: string
+): Promise<{ ok: boolean; user?: AuthUser; error?: string }> {
+  try {
+    const response = await fetch("/api/auth/verify-otp", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ registration_token: registrationToken, name }),
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return { ok: false, error: data.detail || "Registration failed." };
+    }
+
+    writeSession(data.user);
+    return { ok: true, user: data.user };
   } catch (error) {
     return { ok: false, error: "Network error. Please try again later." };
   }
@@ -190,7 +355,7 @@ export async function logoutUser() {
   } catch (error) {
     console.error("Logout request failed", error);
   } finally {
-    writeSession(null, null);
+    writeSession(null);
   }
 }
 
@@ -204,8 +369,14 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setUser(readSession());
-    setReady(true);
+    const cached = readSession();
+    setUser(cached);
+    setReady(cached !== null);
+
+    verifySessionOnLoad().then((verifiedUser) => {
+      setUser(verifiedUser);
+      setReady(true);
+    });
 
     const handleAuthChange = () => {
       setUser(readSession());

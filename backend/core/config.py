@@ -70,6 +70,22 @@ class Settings(BaseSettings):
     # --- Geolocation ---
     GEOIP_PROVIDER_URL: str = "http://ip-api.com/json"  # free, no key, 45 req/min
 
+    # --- SMS / OTP Provider Settings ---
+    OTP_PROVIDER: str = "console"
+    TWOFACTOR_API_KEY: Optional[str] = None
+    OTP_EXPIRY_MINUTES: int = 5
+    OTP_RESEND_SECONDS: int = 30
+    MAX_OTP_ATTEMPTS: int = 5
+    OTP_RATE_LIMIT: int = 3
+    OTP_RATE_WINDOW_MINUTES: int = 10
+    SESSION_DAYS: int = 30
+
+    # --- Production Feature Flags ---
+    ENABLE_OTP_AUTH: bool = True
+    ENABLE_SMS_PROVIDER: bool = True
+    ENABLE_MULTI_DEVICE: bool = True
+    ENABLE_SECURITY_LOCKS: bool = True
+
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE,
         env_file_encoding="utf-8",
