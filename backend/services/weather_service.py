@@ -37,6 +37,7 @@ from services.providers import (
     TomorrowIoProvider,
     WeatherAPIProvider,
     WeatherProvider,
+    DemoWeatherProvider,
 )
 from services import weather_cache
 
@@ -71,6 +72,7 @@ class WeatherOrchestrator:
             WeatherAPIProvider(settings.WEATHERAPI_API_KEY, self._client),
             TomorrowIoProvider(settings.TOMORROWIO_API_KEY, self._client),
             AccuWeatherProvider(settings.ACCUWEATHER_API_KEY, self._client),
+            DemoWeatherProvider(None, self._client),
         ]
 
         configured = [p for p in candidates if p.is_configured]

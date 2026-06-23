@@ -8,6 +8,7 @@ from .openweathermap import OpenWeatherMapProvider
 from .weatherapi import WeatherAPIProvider
 from .tomorrowio import TomorrowIoProvider
 from .accuweather import AccuWeatherProvider
+from .demo import DemoWeatherProvider
 
 __all__ = [
     "WeatherProvider",
@@ -17,4 +18,5 @@ __all__ = [
     "WeatherAPIProvider",
     "TomorrowIoProvider",
     "AccuWeatherProvider",
+    "DemoWeatherProvider",
 ]
