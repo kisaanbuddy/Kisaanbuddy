@@ -112,6 +112,10 @@ _cors_kwargs = dict(
 )
 if settings.ALLOWED_ORIGIN_REGEX:
     _cors_kwargs["allow_origin_regex"] = settings.ALLOWED_ORIGIN_REGEX
+log.info("===== CORS DEBUG =====")
+log.info("ALLOWED_ORIGINS = %r", settings.ALLOWED_ORIGINS)
+log.info("ALLOWED_ORIGIN_REGEX = %r", settings.ALLOWED_ORIGIN_REGEX)
+log.info("CORS KWARGS = %r", _cors_kwargs)
 app.add_middleware(CORSMiddleware, **_cors_kwargs)
 
 
