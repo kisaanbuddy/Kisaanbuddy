@@ -131,6 +131,14 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
         content={"detail": detail, "path": request.url.path, "error_type": type(exc).__name__},
     )
 
+@app.get("/debug/cors")
+async def debug_cors(request: Request):
+    return {
+        "origin": request.headers.get("origin"),
+        "allowed_origins": settings.ALLOWED_ORIGINS,
+        "allowed_origin_regex": settings.ALLOWED_ORIGIN_REGEX,
+    }
+
 
 app.include_router(weather.router, prefix="/api/weather", tags=["Weather"])
 app.include_router(schemes.router, prefix="/api/schemes", tags=["Schemes"])
