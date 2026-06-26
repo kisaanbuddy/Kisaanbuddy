@@ -321,7 +321,7 @@ export async function verifyOtp(phone: string, otp: string): Promise<VerifyOtpRe
     }
 
     if (data.registered) {
-      writeSession(data.user);
+      writeSession(data.user,null);
       return { ok: true, registered: true, user: data.user };
     } else {
       return { ok: true, registered: false, registrationToken: data.registration_token };
@@ -347,7 +347,7 @@ export async function completeOtpRegistration(
       return { ok: false, error: data.detail || "Registration failed." };
     }
 
-    writeSession(data.user);
+    writeSession(data.user,null);
     return { ok: true, user: data.user };
   } catch (error) {
     return { ok: false, error: "Network error. Please try again later." };
