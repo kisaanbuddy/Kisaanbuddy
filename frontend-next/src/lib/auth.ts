@@ -26,22 +26,27 @@ export type LoginResult =
 
 // Helper to get request headers (no Bearer token)
 export function getAuthHeaders(): Record<string, string> {
-  return {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
+
   if (typeof window !== "undefined") {
     let token = window.localStorage.getItem(TOKEN_KEY);
+
     if (!token) {
-      token = window.localStorage.getItem("krishi_token");
-      if (token) {
-        window.localStorage.setItem(TOKEN_KEY, token);
+      const oldToken = window.localStorage.getItem("krishi_token");
+      if (oldToken) {
+        token = oldToken;
+        window.localStorage.setItem(TOKEN_KEY, oldToken);
         window.localStorage.removeItem("krishi_token");
       }
     }
+
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
   }
+
   return headers;
 }
 
