@@ -82,10 +82,10 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
         });
         if (meRes.status === 200) {
           const user = await meRes.json();
-          writeSession(user);
+          writeSession(user,null);
         }
       } else {
-        writeSession(null);
+        writeSession(null,null);
       }
     } catch (e) {
       console.error("Silent refresh failed:", e);
@@ -152,7 +152,7 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
       });
       if (res.status === 200) {
         const user = await res.json();
-        writeSession(user);
+        writeSession(user,null);
         return user;
       }
 
@@ -168,14 +168,14 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
           });
           if (retryRes.status === 200) {
             const user = await retryRes.json();
-            writeSession(user);
+            writeSession(user,null);
             return user;
           }
         }
       }
 
       if (res.status === 401 || res.status === 403) {
-        writeSession(null);
+        writeSession(null,null);
         return null;
       }
 
@@ -255,7 +255,7 @@ export async function verifyAndLogin(email: string, password: string): Promise<L
     }
 
     const { user } = data;
-    writeSession(user);
+    writeSession(user,null);
     return { ok: true, name: user.name, user };
   } catch (error) {
     return { ok: false, error: "Network error. Please try again later." };
@@ -277,7 +277,7 @@ export async function googleLogin(credential: string): Promise<LoginResult> {
     }
 
     const { user } = data;
-    writeSession(user);
+    writeSession(user,null);
     return { ok: true, name: user.name, user };
   } catch (error) {
     return { ok: false, error: "Network error. Please try again later." };
@@ -360,7 +360,7 @@ export async function logoutUser() {
   } catch (error) {
     console.error("Logout request failed", error);
   } finally {
-    writeSession(null);
+    writeSession(null,null);
   }
 }
 
