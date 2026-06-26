@@ -1,4 +1,4 @@
-"""KrishiAI knowledge base — lightweight RAG over curated agri markdown.
+"""KisaanBuddy knowledge base — lightweight RAG over curated agri markdown.
 
 Design:
   * Loads all markdown files from backend/data/knowledge/ at startup.

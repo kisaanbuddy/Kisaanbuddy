@@ -19,38 +19,15 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 
-try:
-    from slowapi import Limiter
-    from slowapi.util import get_remote_address
-    _HAS_SLOWAPI = True
-except ImportError:
-    _HAS_SLOWAPI = False
-
 from core.config import settings
+from core.limiter import rate_limit
 from schemas.weather import HealthResponse
 from services.weather_service import orchestrator
 from utils.geolocation import geolocate_ip, get_client_ip
 
 log = logging.getLogger(__name__)
 
-# slowapi Limiter is owned by main.py; we import the decorator-style limit
-# from there at import time if available. To keep this file loose-coupled,
-# we define decorators that the parent app can attach.
-if _HAS_SLOWAPI:
-    limiter = Limiter(key_func=get_remote_address, default_limits=[])
-else:
-    limiter = None
-
 router = APIRouter()
-
-
-def _rate_limit(spec: str):
-    """Decorator that no-ops if slowapi isn't installed."""
-    def wrap(fn):
-        if limiter is None:
-            return fn
-        return limiter.limit(spec)(fn)
-    return wrap
 
 
 _DEFAULT_LIMIT = f"{settings.RATE_LIMIT_PER_MINUTE}/minute"
@@ -60,7 +37,7 @@ _DEFAULT_LIMIT = f"{settings.RATE_LIMIT_PER_MINUTE}/minute"
 # CURRENT WEATHER
 # ----------------------------------------------------------------------
 @router.get("/current")
-@_rate_limit(_DEFAULT_LIMIT)
+@rate_limit(_DEFAULT_LIMIT)
 async def get_current(
     request: Request,
     lat: Optional[float] = Query(None, ge=-90, le=90),
@@ -101,7 +78,7 @@ async def get_current(
 # FORECAST (hourly + daily)
 # ----------------------------------------------------------------------
 @router.get("/forecast")
-@_rate_limit(_DEFAULT_LIMIT)
+@rate_limit(_DEFAULT_LIMIT)
 async def get_forecast(
     request: Request,
     lat: Optional[float] = Query(None, ge=-90, le=90),
@@ -142,7 +119,7 @@ async def get_forecast(
 # LOCATION AUTOCOMPLETE
 # ----------------------------------------------------------------------
 @router.get("/search")
-@_rate_limit(f"{settings.RATE_LIMIT_PER_MINUTE * 2}/minute")  # lenient — typed per keystroke
+@rate_limit(f"{settings.RATE_LIMIT_PER_MINUTE * 2}/minute")  # lenient — typed per keystroke
 async def search_locations(
     request: Request,
     q: str = Query(..., min_length=2, max_length=100),
@@ -157,7 +134,7 @@ async def search_locations(
 # IP GEOLOCATION (fallback when browser geolocation is blocked)
 # ----------------------------------------------------------------------
 @router.get("/geoip")
-@_rate_limit(_DEFAULT_LIMIT)
+@rate_limit(_DEFAULT_LIMIT)
 async def geoip(request: Request):
     """Returns the caller's approximate location from their IP."""
     ip = get_client_ip(request)

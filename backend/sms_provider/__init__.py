@@ -6,7 +6,7 @@ from .twofactor_provider import TwoFactorProvider
 from .msg91_provider import Msg91Provider
 from .twilio_provider import TwilioProvider
 
-log = logging.getLogger("krishiai.sms_provider")
+log = logging.getLogger("kisaanbuddy.sms_provider")
 
 def get_sms_provider() -> SMSProvider:
     # If SMS provider flag is disabled in configuration, always fallback to ConsoleProvider

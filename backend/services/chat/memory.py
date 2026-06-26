@@ -1,4 +1,4 @@
-"""Conversation memory for the KrishiAI assistant.
+"""Conversation memory for the KisaanBuddy assistant.
 
 Identical dual-backend pattern as services/weather_cache.py:
   * Redis (if REDIS_URL is set) — shared across replicas, survives restarts.
@@ -96,7 +96,7 @@ class _RedisBackend:
 
     @staticmethod
     def _key(sid: str) -> str:
-        return f"krishiai:chat:session:{sid}"
+        return f"kisaanbuddy:chat:session:{sid}"
 
     async def get(self, sid: str) -> Optional[Dict[str, Any]]:
         try:

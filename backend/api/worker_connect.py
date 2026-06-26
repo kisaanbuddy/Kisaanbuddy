@@ -1,5 +1,5 @@
 """
-KrishiAI Worker Connect — REST API.
+KisaanBuddy Worker Connect — REST API.
 
 Mounted at /api/worker-connect (see backend/main.py).
 

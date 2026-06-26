@@ -1,4 +1,4 @@
-# KrishiAI — Hardware Shopping List
+# KisaanBuddy — Hardware Shopping List
 
 > Sab components ESP32 ke saath compatible hain aur ek dusre ke saath bina conflict ke chalenge. Total budget ke andar hai.
 

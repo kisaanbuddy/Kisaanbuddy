@@ -3,7 +3,7 @@ REM Adds YouTube video integration to Government Schemes cards.
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Schemes YouTube Integration
+echo   KisaanBuddy - Schemes YouTube Integration
 echo ============================================
 echo.
 

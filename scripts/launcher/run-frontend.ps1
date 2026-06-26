@@ -1,13 +1,13 @@
-# KrishiAI — frontend launcher (PowerShell)
-# Run from anywhere:  powershell -ExecutionPolicy Bypass -File "C:\Users\Aditya\Downloads\KrishiAI\run-frontend.ps1"
+# KisaanBuddy — frontend launcher (PowerShell)
+# Run from anywhere:  powershell -ExecutionPolicy Bypass -File "C:\Users\Aditya\Downloads\KisaanBuddy\run-frontend.ps1"
 # Or double-click run-frontend.bat.
 
 $ErrorActionPreference = "Stop"
 
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $frontend    = Join-Path $projectRoot "frontend-next"
 
-Write-Host "==> KrishiAI frontend" -ForegroundColor Cyan
+Write-Host "==> KisaanBuddy frontend" -ForegroundColor Cyan
 Write-Host "    project  : $projectRoot"
 Write-Host "    frontend : $frontend"
 

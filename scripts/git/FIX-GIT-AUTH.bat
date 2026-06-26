@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Fix GitHub Auth (403 Error)
+echo   KisaanBuddy - Fix GitHub Auth (403 Error)
 echo ============================================
 echo.
 echo Problem: Wrong GitHub account saved in Windows.
@@ -23,7 +23,7 @@ git config --global credential.helper manager
 
 echo [Step 4] Setting correct user in this repo...
 git config user.email "utkarsh.sinha.dev@gmail.com"
-git config user.name "KrishiAI"
+git config user.name "KisaanBuddy"
 
 echo [Step 5] Clearing git lock files...
 for %%L in (index.lock HEAD.lock MERGE_HEAD.lock) do (

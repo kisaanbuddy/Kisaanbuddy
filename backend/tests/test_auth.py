@@ -106,7 +106,7 @@ class TestAuthSystem(unittest.TestCase):
         self.assertEqual(data["user"]["email"], "user@example.com")
         
         # Verify cookie is set
-        self.assertIn("krishiai_session", response.cookies)
+        self.assertIn("kisaanbuddy_session", response.cookies)
 
     def test_login_invalid_credentials(self):
         # Register user

@@ -1,4 +1,4 @@
-# KrishiAI - all-in-one launcher (PowerShell)
+# KisaanBuddy - all-in-one launcher (PowerShell)
 #   1. Kills any stale process on ports 8000 / 3000
 #   2. Starts backend with a log file
 #   3. Polls /health until backend is live
@@ -15,7 +15,7 @@ $frontendLog = Join-Path $projectRoot "frontend.log"
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  KrishiAI - one-click launcher" -ForegroundColor Cyan
+Write-Host "  KisaanBuddy - one-click launcher" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -136,7 +136,7 @@ Start-Process "http://localhost:3000"
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Green
-Write-Host "  KrishiAI is running!" -ForegroundColor Green
+Write-Host "  KisaanBuddy is running!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Frontend : http://localhost:3000"          -ForegroundColor White

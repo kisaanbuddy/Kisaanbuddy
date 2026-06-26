@@ -8,13 +8,6 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy.orm import Session
 
-try:
-    from slowapi import Limiter
-    from slowapi.util import get_remote_address
-    _HAS_SLOWAPI = True
-except ImportError:
-    _HAS_SLOWAPI = False
-
 import secrets
 from sqlalchemy import func
 from user_agents import parse as parse_ua
@@ -29,26 +22,14 @@ from services.auth_service import (
     decode_access_token,
 )
 from core.config import settings
+from core.limiter import rate_limit, limiter
 
-log = logging.getLogger("krishiai.auth")
-
-if _HAS_SLOWAPI:
-    limiter = Limiter(key_func=get_remote_address, default_limits=[])
-else:
-    limiter = None
-
-def _rate_limit(spec: str):
-    """Decorator that no-ops if slowapi isn't installed."""
-    def wrap(fn):
-        if limiter is None:
-            return fn
-        return limiter.limit(spec)(fn)
-    return wrap
+log = logging.getLogger("kisaanbuddy.auth")
 
 router = APIRouter()
 
-COOKIE_NAME = "krishiai_session"
-REFRESH_COOKIE_NAME = "krishiai_refresh_session"
+COOKIE_NAME = "kisaanbuddy_session"
+REFRESH_COOKIE_NAME = "kisaanbuddy_refresh_session"
 
 # ===========================================================================
 # Schemas
@@ -323,7 +304,7 @@ async def get_current_user(
 # Routes
 # ===========================================================================
 @router.post("/register", response_model=UserResponse)
-@_rate_limit("10/minute")
+@rate_limit("10/minute")
 def register(request: Request, data: UserRegister, db: Session = Depends(get_db)):
     """Registers a new farmer using email + password."""
     clean_email = data.email.strip().lower()
@@ -380,7 +361,7 @@ def register(request: Request, data: UserRegister, db: Session = Depends(get_db)
         )
 
 @router.post("/send-otp")
-@_rate_limit("5/minute")
+@rate_limit("5/minute")
 def send_otp(request: Request, data: SendOtpRequest, db: Session = Depends(get_db)):
     """Generates a 6-digit OTP, hashes it, and stores it. Sends via SMS provider."""
     if not settings.ENABLE_OTP_AUTH:
@@ -495,7 +476,7 @@ def send_otp(request: Request, data: SendOtpRequest, db: Session = Depends(get_d
 
 
 @router.post("/verify-otp", response_model=VerifyOtpResponse)
-@_rate_limit("10/minute")
+@rate_limit("10/minute")
 def verify_otp(
     request: Request,
     data: VerifyOtpRequest,
@@ -640,7 +621,7 @@ def verify_otp(
 
 
 @router.post("/login", response_model=LoginResponse)
-@_rate_limit("10/minute")
+@rate_limit("10/minute")
 def login(request: Request, data: UserLogin, response: Response, db: Session = Depends(get_db)):
     """Authenticates a user with email + password and sets secure session cookies."""
     clean_email = data.email.strip().lower()
@@ -663,7 +644,7 @@ def login(request: Request, data: UserLogin, response: Response, db: Session = D
 
 
 @router.post("/google", response_model=LoginResponse)
-@_rate_limit("10/minute")
+@rate_limit("10/minute")
 async def google_login(request: Request, data: GoogleLoginRequest, response: Response, db: Session = Depends(get_db)):
     """Verifies Google Sign-In credentials, creates or logs in user, and sets secure session cookies."""
     tokeninfo_url = f"https://oauth2.googleapis.com/tokeninfo?id_token={data.credential}"
@@ -932,7 +913,7 @@ def get_admin_analytics(db: Session = Depends(get_db), current_user: User = Depe
     }
 
 @router.post("/forgot-password")
-@_rate_limit("5/minute")
+@rate_limit("5/minute")
 def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session = Depends(get_db)):
     """Generates a secure password reset link and prints it to backend logs."""
     clean_email = data.email.strip().lower()
@@ -960,7 +941,7 @@ def forgot_password(request: Request, data: ForgotPasswordRequest, db: Session =
     return {"ok": True, "message": "If an email exists, a reset link has been logged."}
 
 @router.post("/reset-password")
-@_rate_limit("5/minute")
+@rate_limit("5/minute")
 def reset_password(request: Request, data: ResetPasswordRequest, db: Session = Depends(get_db)):
     """Validates the reset token and updates the user's password."""
     payload = decode_access_token(data.token)

@@ -1,5 +1,5 @@
 """
-KrishiAI — Live sensor ingestion routes.
+KisaanBuddy — Live sensor ingestion routes.
 
 Hardware (ESP32 sensor node) POSTs field readings here; the Crop Predictor
 frontend reads the latest values to auto-fill its temperature / humidity
@@ -49,7 +49,7 @@ ONLINE_WINDOW_S = 120
 # ---------------------------------------------------------------------------
 class SensorReading(BaseModel):
     """Payload the ESP32 sensor node POSTs to /api/sensor/ingest."""
-    device_id: str = Field("krishiai-node-1", max_length=64,
+    device_id: str = Field("kisaanbuddy-node-1", max_length=64,
                            description="Unique id for this sensor node")
     temperature: Optional[float] = Field(
         None, ge=-40, le=85, description="Air temperature °C (DHT22)")

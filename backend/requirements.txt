@@ -1,4 +1,4 @@
-# --- KrishiAI backend dependencies ---
+# --- KisaanBuddy backend dependencies ---
 
 # Web framework
 fastapi>=0.110.0

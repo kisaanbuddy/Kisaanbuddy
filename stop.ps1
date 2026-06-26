@@ -1,4 +1,4 @@
-# KrishiAI — clean shutdown of both servers
+# KisaanBuddy — clean shutdown of both servers
 # Kills anything listening on ports 8000 / 3000.
 
 $ErrorActionPreference = "Continue"
@@ -19,7 +19,7 @@ function Stop-PortOwner($port, $label) {
     }
 }
 
-Write-Host "Stopping KrishiAI..." -ForegroundColor Cyan
+Write-Host "Stopping KisaanBuddy..." -ForegroundColor Cyan
 Stop-PortOwner 8000 "backend"
 Stop-PortOwner 3000 "frontend"
 Write-Host "Done." -ForegroundColor Green

@@ -1,10 +1,10 @@
-# KrishiAI - remove auto-start task and shortcuts.
+# KisaanBuddy - remove auto-start task and shortcuts.
 
 $ErrorActionPreference = "Continue"
-$taskName = "KrishiAI"
+$taskName = "KisaanBuddy"
 
 Write-Host ""
-Write-Host "Removing KrishiAI auto-start..." -ForegroundColor Cyan
+Write-Host "Removing KisaanBuddy auto-start..." -ForegroundColor Cyan
 
 # Scheduled task
 $t = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
@@ -19,8 +19,8 @@ if ($t) {
 $desktop   = [Environment]::GetFolderPath("Desktop")
 $startMenu = [Environment]::GetFolderPath("StartMenu")
 foreach ($link in @(
-    (Join-Path $desktop   "KrishiAI.lnk"),
-    (Join-Path $startMenu "Programs\KrishiAI.lnk")
+    (Join-Path $desktop   "KisaanBuddy.lnk"),
+    (Join-Path $startMenu "Programs\KisaanBuddy.lnk")
 )) {
     if (Test-Path $link) {
         Remove-Item $link -Force

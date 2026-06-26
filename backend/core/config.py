@@ -11,11 +11,11 @@ _ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file_
 
 class Settings(BaseSettings):
     # --- App ---
-    PROJECT_NAME: str = "KrishiAI API"
+    PROJECT_NAME: str = "KisaanBuddy API"
     DEBUG: bool = False
 
     # --- Authentication & Session Security ---
-    JWT_SECRET: str = "krishiai_production_grade_secret_key_change_me_later"
+    JWT_SECRET: str = "kisaanbuddy_production_grade_secret_key_change_me_later"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
@@ -50,7 +50,7 @@ class Settings(BaseSettings):
         "https://www.kisaanbuddy.com",
     ]
     # Regex pattern for allowed origins — covers Vercel preview deploys
-    # like https://krishiai-git-feature-branch-username.vercel.app
+    # like https://kisaanbuddy-git-feature-branch-username.vercel.app
     # Default permits any *.vercel.app subdomain. Set to "" to disable.
     ALLOWED_ORIGIN_REGEX: str = r"https://.*\.vercel\.app"
 

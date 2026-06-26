@@ -1,4 +1,4 @@
-"""KrishiAI multilingual voice assistant services.
+"""KisaanBuddy multilingual voice assistant services.
 
 Public entry points:
     chat_service.get_orchestrator()   — ChatOrchestrator singleton

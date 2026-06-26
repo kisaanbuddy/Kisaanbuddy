@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - AGMARKNET Live Mandi Push
+echo   KisaanBuddy - AGMARKNET Live Mandi Push
 echo ============================================
 echo.
 
@@ -26,11 +26,11 @@ if %ERRORLEVEL% EQU 0 (
     echo ============================================
     echo.
     echo Go to Vercel manually:
-    echo  1. vercel.com - your krishiai project
+    echo  1. vercel.com - your KisaanBuddy project
     echo  2. Settings - Environment Variables
     echo  3. Add New:
     echo     Name:  DATA_GOV_API_KEY
-    echo     Value: [DATA_GOV_API_KEY]
+    echo     Value: [YOUR_DATA_GOV_API_KEY]
     echo  4. Save and Redeploy
     echo.
     echo OR run SET-VERCEL-ENV.bat if Vercel CLI is installed

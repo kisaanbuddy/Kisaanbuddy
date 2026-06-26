@@ -1,7 +1,7 @@
 import logging
 from .provider_interface import SMSProvider
 
-log = logging.getLogger("krishiai.sms_provider.msg91")
+log = logging.getLogger("kisaanbuddy.sms_provider.msg91")
 
 class Msg91Provider(SMSProvider):
     def send_otp(self, phone_number: str, otp: str) -> bool:

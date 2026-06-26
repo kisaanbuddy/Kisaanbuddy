@@ -1,5 +1,5 @@
 """
-KrishiAI Worker Connect — JSON-file-backed job marketplace service.
+KisaanBuddy Worker Connect — JSON-file-backed job marketplace service.
 
 Why a flat JSON file?
   * Zero infra: works without a DB.

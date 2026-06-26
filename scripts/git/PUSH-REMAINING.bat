@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Push Remaining Changes
+echo   KisaanBuddy - Push Remaining Changes
 echo ============================================
 echo.
 
@@ -15,8 +15,8 @@ del /f /q ".git\HEAD.lock" 2>nul
 echo [2] Staging files...
 git add frontend-next/next-env.d.ts
 git add frontend-next/src/app/chatbot/page.tsx
-git add hardware/krishiai_sensor_node/krishiai_sensor_node.ino
-git add KRISHIAI_MASTER_PROMPT.md
+git add hardware/kisaanbuddy_sensor_node/kisaanbuddy_sensor_node.ino
+git add KISAANBUDDY_MASTER_PROMPT.md
 git add FIX-GIT-AUTH.bat
 git add PUSH-UI-UPGRADE.bat
 git add PUSH-NOW.bat

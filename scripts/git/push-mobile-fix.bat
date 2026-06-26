@@ -1,12 +1,12 @@
 @echo off
-REM KrishiAI - Push mobile responsive nav fix to GitHub
+REM KisaanBuddy - Push mobile responsive nav fix to GitHub
 REM Vercel will auto-deploy in ~2 min after push.
 
 setlocal
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Mobile Nav Fix Deploy
+echo   KisaanBuddy - Mobile Nav Fix Deploy
 echo ============================================
 echo.
 

@@ -1,5 +1,5 @@
 """
-KrishiAI — ML / agronomy recommendation routes.
+KisaanBuddy — ML / agronomy recommendation routes.
 
 Endpoints:
   POST /api/ml/recommend     — rule-based crop recommendation (legacy)

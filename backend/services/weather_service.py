@@ -63,7 +63,7 @@ class WeatherOrchestrator:
         self._client = httpx.AsyncClient(
             timeout=httpx.Timeout(settings.API_TIMEOUT, connect=3.0),
             limits=httpx.Limits(max_connections=50, max_keepalive_connections=20),
-            headers={"User-Agent": "KrishiAI/1.0"},
+            headers={"User-Agent": "KisaanBuddy/1.0"},
         )
 
         candidates: List[WeatherProvider] = [

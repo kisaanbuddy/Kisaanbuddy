@@ -1,14 +1,14 @@
-# KrishiAI — weather diagnostic
+# KisaanBuddy — weather diagnostic
 # Runs end-to-end checks and writes a log to diagnose-weather.log
 # Run with: powershell -ExecutionPolicy Bypass -File diagnose-weather.ps1
 
 $ErrorActionPreference = "Continue"
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $backend = Join-Path $projectRoot "backend"
 $logFile = Join-Path $projectRoot "diagnose-weather.log"
 
 # Clear old log
-"=== KrishiAI weather diagnostic — $(Get-Date) ===" | Out-File $logFile
+"=== KisaanBuddy weather diagnostic — $(Get-Date) ===" | Out-File $logFile
 
 function Log($msg, $color = "White") {
     Write-Host $msg -ForegroundColor $color

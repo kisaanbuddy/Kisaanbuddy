@@ -108,5 +108,5 @@
 
 ---
 
-# How KrishiAI should use this
+# How KisaanBuddy should use this
 When a user mentions their state / district / city, match against this list and tailor advice — e.g. Karnataka user asking about dryland crops → promote ragi + Krishi Bhagya; Maharashtra cotton farmer → drip + pink bollworm IPM; Kerala coconut farmer → root wilt + tissue culture.

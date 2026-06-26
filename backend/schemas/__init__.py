@@ -1,6 +1,6 @@
 """Pydantic schemas for request/response validation.
 
-Per KrishiAI Blueprint Phase 12.
+Per KisaanBuddy Blueprint Phase 12.
 """
 from .weather import WeatherResponse, ForecastResponse, ForecastDay
 from .chatbot import ChatQuery, ChatResponse

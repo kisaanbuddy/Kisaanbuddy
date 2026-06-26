@@ -1,5 +1,5 @@
 """
-KrishiAI — Government Mandi API
+KisaanBuddy — Government Mandi API
 Real data from AGMARKNET via data.gov.in
 Fallback to curated mock data if API key not set or request fails.
 """

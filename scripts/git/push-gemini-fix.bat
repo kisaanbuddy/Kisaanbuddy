@@ -1,12 +1,12 @@
 @echo off
-REM KrishiAI - Push Gemini direct-key routing fix to GitHub
+REM KisaanBuddy - Push Gemini direct-key routing fix to GitHub
 REM Render will auto-redeploy in ~2 min after push.
 
 setlocal
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Gemini API Routing Fix
+echo   KisaanBuddy - Gemini API Routing Fix
 echo ============================================
 echo.
 

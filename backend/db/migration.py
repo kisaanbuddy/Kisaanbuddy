@@ -3,10 +3,10 @@ import shutil
 import sqlite3
 import logging
 
-log = logging.getLogger("krishiai.db.migration")
+log = logging.getLogger("kisaanbuddy.db.migration")
 
 # Path to local sqlite file
-DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "krishiai.db")
+DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "kisaanbuddy.db")
 
 def run_migrations():
     """Verifies table schema and appends missing auth columns to 'users' table in SQLite."""

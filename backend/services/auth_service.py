@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict
 from core.config import settings
 
-log = logging.getLogger("krishiai.auth_service")
+log = logging.getLogger("kisaanbuddy.auth_service")
 
 def hash_password(password: str) -> str:
     """Hashes a plaintext password using bcrypt (12 rounds)."""

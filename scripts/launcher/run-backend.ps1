@@ -1,15 +1,15 @@
-# KrishiAI — backend launcher (PowerShell)
-# Run from anywhere:  powershell -ExecutionPolicy Bypass -File "C:\Users\Aditya\Downloads\KrishiAI\run-backend.ps1"
+# KisaanBuddy — backend launcher (PowerShell)
+# Run from anywhere:  powershell -ExecutionPolicy Bypass -File "C:\Users\Aditya\Downloads\KisaanBuddy\run-backend.ps1"
 # Or double-click run-backend.bat (which just wraps this).
 
 $ErrorActionPreference = "Stop"
 
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $backend     = Join-Path $projectRoot "backend"
 $venvPy      = Join-Path $backend "venv\Scripts\python.exe"
 $reqs        = Join-Path $backend "requirements.txt"
 
-Write-Host "==> KrishiAI backend" -ForegroundColor Cyan
+Write-Host "==> KisaanBuddy backend" -ForegroundColor Cyan
 Write-Host "    project : $projectRoot"
 Write-Host "    backend : $backend"
 

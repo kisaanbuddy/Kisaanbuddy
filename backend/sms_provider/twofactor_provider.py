@@ -3,7 +3,7 @@ import httpx
 from core.config import settings
 from .provider_interface import SMSProvider
 
-log = logging.getLogger("krishiai.sms_provider.2factor")
+log = logging.getLogger("kisaanbuddy.sms_provider.2factor")
 
 class TwoFactorProvider(SMSProvider):
     def send_otp(self, phone_number: str, otp: str) -> bool:

@@ -1,18 +1,18 @@
-# KrishiAI - install auto-start
+# KisaanBuddy - install auto-start
 #   1. Creates a Scheduled Task that runs start.ps1 every time the user logs in.
-#   2. Creates a KrishiAI shortcut on the Desktop (and Start Menu).
+#   2. Creates a KisaanBuddy shortcut on the Desktop (and Start Menu).
 #
 # Run as a normal user (NOT admin). You only need to run this ONCE.
 
 $ErrorActionPreference = "Stop"
-$projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path))
 $startPs1    = Join-Path $projectRoot "start.ps1"
 $startBat    = Join-Path $projectRoot "start.bat"
 $iconPath    = Join-Path $projectRoot "frontend-next\public\favicon.ico"
 
 Write-Host ""
 Write-Host "============================================" -ForegroundColor Cyan
-Write-Host "  KrishiAI - install auto-start" -ForegroundColor Cyan
+Write-Host "  KisaanBuddy - install auto-start" -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -25,7 +25,7 @@ if (-not (Test-Path $startPs1)) {
 # ------------------------------------------------------------------
 # 1. Scheduled Task - runs start.ps1 at user logon (silent)
 # ------------------------------------------------------------------
-$taskName = "KrishiAI"
+$taskName = "KisaanBuddy"
 
 Write-Host "[1/2] Creating Scheduled Task '$taskName'..." -ForegroundColor Cyan
 
@@ -65,7 +65,7 @@ Register-ScheduledTask `
     -Trigger $trigger `
     -Settings $settings `
     -Principal $principal `
-    -Description "Auto-starts KrishiAI backend + frontend at user login." | Out-Null
+    -Description "Auto-starts KisaanBuddy backend + frontend at user login." | Out-Null
 
 Write-Host "  OK - will now run on every login" -ForegroundColor Green
 
@@ -77,8 +77,8 @@ Write-Host "[2/2] Creating Desktop shortcut..." -ForegroundColor Cyan
 
 $desktop   = [Environment]::GetFolderPath("Desktop")
 $startMenu = [Environment]::GetFolderPath("StartMenu")
-$linkPath1 = Join-Path $desktop   "KrishiAI.lnk"
-$linkPath2 = Join-Path $startMenu "Programs\KrishiAI.lnk"
+$linkPath1 = Join-Path $desktop   "KisaanBuddy.lnk"
+$linkPath2 = Join-Path $startMenu "Programs\KisaanBuddy.lnk"
 
 $wsh = New-Object -ComObject WScript.Shell
 
@@ -88,7 +88,7 @@ foreach ($link in @($linkPath1, $linkPath2)) {
     $s = $wsh.CreateShortcut($link)
     $s.TargetPath       = $startBat
     $s.WorkingDirectory = $projectRoot
-    $s.Description      = "Start KrishiAI (backend + frontend, opens browser)"
+    $s.Description      = "Start KisaanBuddy (backend + frontend, opens browser)"
     if (Test-Path $iconPath) { $s.IconLocation = $iconPath }
     $s.Save()
     Write-Host "  Created: $link" -ForegroundColor Green
@@ -99,12 +99,12 @@ Write-Host "============================================" -ForegroundColor Green
 Write-Host "  Done!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "  KrishiAI will now:" -ForegroundColor White
+Write-Host "  KisaanBuddy will now:" -ForegroundColor White
 Write-Host "   - Auto-start every time you log into Windows" -ForegroundColor White
-Write-Host "   - Be available as 'KrishiAI' shortcut on your Desktop" -ForegroundColor White
+Write-Host "   - Be available as 'KisaanBuddy' shortcut on your Desktop" -ForegroundColor White
 Write-Host ""
 Write-Host "  To start it RIGHT NOW (without reboot):" -ForegroundColor Yellow
-Write-Host "   double-click KrishiAI on your Desktop" -ForegroundColor Yellow
+Write-Host "   double-click KisaanBuddy on your Desktop" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  To disable auto-start later:" -ForegroundColor Gray
 Write-Host "   double-click uninstall-autostart.bat" -ForegroundColor Gray

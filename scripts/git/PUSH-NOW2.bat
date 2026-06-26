@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Fix Build + Analytics Push
+echo   KisaanBuddy - Fix Build + Analytics Push
 echo ============================================
 echo.
 

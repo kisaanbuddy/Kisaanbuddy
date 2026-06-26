@@ -1,12 +1,12 @@
 @echo off
-REM KrishiAI deployment prep — runs git init, add, commit locally.
+REM KisaanBuddy deployment prep — runs git init, add, commit locally.
 REM After this finishes, follow the on-screen instructions to push to GitHub.
 
 setlocal
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Deployment Prep
+echo   KisaanBuddy - Deployment Prep
 echo ============================================
 echo.
 
@@ -64,7 +64,7 @@ echo   %FILECOUNT% files
 echo.
 
 echo [5/5] Creating initial commit...
-git commit -m "KrishiAI: initial deployment-ready commit (Vercel + Render)" 2>&1
+git commit -m "KisaanBuddy: initial deployment-ready commit (Vercel + Render)" 2>&1
 echo.
 
 echo ============================================

@@ -1,23 +1,23 @@
 @echo off
-REM KrishiAI — one-click launcher
+REM KisaanBuddy — one-click launcher
 REM Opens backend (FastAPI) and frontend (Next.js) in two separate windows,
 REM then opens the site in your browser.
 
 echo.
 echo ==========================================
-echo   KrishiAI — starting backend + frontend
+echo   KisaanBuddy — starting backend + frontend
 echo ==========================================
 echo.
 
 REM --- Backend in its own window ---
-start "KrishiAI Backend" cmd /k "cd /d %~dp0 && powershell -NoProfile -ExecutionPolicy Bypass -File run-backend.ps1"
+start "KisaanBuddy Backend" cmd /k "cd /d %~dp0 && powershell -NoProfile -ExecutionPolicy Bypass -File run-backend.ps1"
 
 REM --- Give backend a few seconds to boot before frontend/browser ---
 echo Waiting 6 seconds for backend to boot...
 timeout /t 6 /nobreak >nul
 
 REM --- Frontend in its own window ---
-start "KrishiAI Frontend" cmd /k "cd /d %~dp0 && powershell -NoProfile -ExecutionPolicy Bypass -File run-frontend.ps1"
+start "KisaanBuddy Frontend" cmd /k "cd /d %~dp0 && powershell -NoProfile -ExecutionPolicy Bypass -File run-frontend.ps1"
 
 REM --- Give frontend a few seconds, then open browser ---
 echo Waiting 8 seconds for frontend to compile...

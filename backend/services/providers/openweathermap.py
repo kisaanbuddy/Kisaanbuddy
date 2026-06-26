@@ -1,4 +1,4 @@
-"""OpenWeatherMap provider — primary for KrishiAI.
+"""OpenWeatherMap provider — primary for KisaanBuddy.
 
 Uses free-tier endpoints:
   - Current:   /data/2.5/weather

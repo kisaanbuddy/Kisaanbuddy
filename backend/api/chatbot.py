@@ -20,14 +20,8 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import BaseModel, Field
 
-try:
-    from slowapi import Limiter
-    from slowapi.util import get_remote_address
-    _HAS_SLOWAPI = True
-except ImportError:
-    _HAS_SLOWAPI = False
-
 from core.config import settings
+from core.limiter import rate_limit
 from schemas.chatbot import (
     AssistantHealth,
     AssistantProvider,
@@ -44,22 +38,7 @@ from services.chat.memory import sessions
 log = logging.getLogger(__name__)
 router = APIRouter()
 
-
-# --- rate limiting (no-op if slowapi missing) ---
-if _HAS_SLOWAPI:
-    limiter = Limiter(key_func=get_remote_address, default_limits=[])
-else:
-    limiter = None
-
 _CHAT_LIMIT = f"{settings.CHAT_RATE_LIMIT_PER_MINUTE}/minute"
-
-
-def _rate_limit(spec: str):
-    def wrap(fn):
-        if limiter is None:
-            return fn
-        return limiter.limit(spec)(fn)
-    return wrap
 
 
 # --- LEGACY (keeps existing /chatbot page working) ---
@@ -68,7 +47,7 @@ class _LegacyChatRequest(BaseModel):
 
 
 @router.post("/")
-@_rate_limit(_CHAT_LIMIT)
+@rate_limit(_CHAT_LIMIT)
 async def legacy_chat(request: Request, body: _LegacyChatRequest):
     """Thin wrapper around the new orchestrator so the old /chatbot page
     shares the upgraded brain without any frontend changes."""
@@ -88,7 +67,7 @@ async def legacy_chat(request: Request, body: _LegacyChatRequest):
 
 # --- /message (SSE streaming) ---
 @router.post("/message")
-@_rate_limit(_CHAT_LIMIT)
+@rate_limit(_CHAT_LIMIT)
 async def assistant_message(request: Request, body: AssistantRequest):
     orchestrator = get_orchestrator()
 
@@ -123,7 +102,7 @@ async def assistant_message(request: Request, body: AssistantRequest):
 
 # --- /stt ---
 @router.post("/stt", response_model=STTResult)
-@_rate_limit(_CHAT_LIMIT)
+@rate_limit(_CHAT_LIMIT)
 async def stt_endpoint(
     request: Request,
     audio: UploadFile = File(..., description="audio/webm, audio/wav, audio/mp4, audio/mpeg"),
@@ -144,7 +123,7 @@ async def stt_endpoint(
 
 # --- /tts ---
 @router.post("/tts")
-@_rate_limit(_CHAT_LIMIT)
+@rate_limit(_CHAT_LIMIT)
 async def tts_endpoint(request: Request, body: TTSRequest):
     if body.prefer_browser:
         return JSONResponse({
@@ -217,7 +196,7 @@ def _fallback_reply(msg: str) -> str:
     # --- Greetings ---
     if any(x in m for x in ("hello", "hi", "namaste", "namaskar", "नमस्ते", "नमस्कार", "हेलो")):
         return (
-            "नमस्ते किसान भाई! 🙏 मैं KrishiAI हूं — आपका कृषि सहायक।\n\n"
+            "नमस्ते किसान भाई! 🙏 मैं KisaanBuddy हूं — आपका कृषि सहायक।\n\n"
             "आप मुझसे पूछ सकते हैं:\n"
             "• मंडी भाव (जैसे: गेहूं का भाव क्या है?)\n"
             "• सरकारी योजनाएं (PM-KISAN, PMFBY)\n"
@@ -338,7 +317,7 @@ def _fallback_reply(msg: str) -> str:
 
     # --- Default ---
     return (
-        "🌱 नमस्ते! मैं KrishiAI हूं — आपका AI कृषि सहायक।\n\n"
+        "🌱 नमस्ते! मैं KisaanBuddy हूं — आपका AI कृषि सहायक।\n\n"
         "आप मुझसे पूछ सकते हैं:\n"
         "• 🏪 मंडी भाव — \"गेहूं का भाव बताओ\"\n"
         "• 🏛️ सरकारी योजनाएं — \"PM KISAN के बारे में बताओ\"\n"

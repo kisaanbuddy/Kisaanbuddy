@@ -1,4 +1,4 @@
-# KrishiAI Disease Diagnosis Protocol
+# KisaanBuddy Disease Diagnosis Protocol
 
 ## When to Use This Protocol
 Activate this 10-step diagnostic format whenever a farmer:

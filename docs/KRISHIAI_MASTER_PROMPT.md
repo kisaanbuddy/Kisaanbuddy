@@ -1,7 +1,7 @@
-# KrishiAI — Developer Master Prompt
+# KisaanBuddy — Developer Master Prompt
 ### Industry-Level Complete Reference · Version 2.0 · May 2026
 
-> **How to use this document:** Paste the entire contents of this file into any LLM (Claude, GPT-4, Gemini, Cursor, Copilot) before asking it to build, debug, extend, or review any part of KrishiAI. This single file gives the AI enough context to act as a senior engineer who has read every line of the codebase.
+> **How to use this document:** Paste the entire contents of this file into any LLM (Claude, GPT-4, Gemini, Cursor, Copilot) before asking it to build, debug, extend, or review any part of KisaanBuddy. This single file gives the AI enough context to act as a senior engineer who has read every line of the codebase.
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Field | Value |
 |---|---|
-| **Product name** | KrishiAI |
+| **Product name** | KisaanBuddy |
 | **Tagline** | AI Smart Farmer Decision Intelligence |
 | **Mission** | Make Indian farmers — especially rural, low-literacy, low-connectivity — as informed as a PhD agronomist, in their own language, for free |
 | **Live URL** | https://kisaanbuddy.com |
@@ -30,7 +30,7 @@
                         │ HTTP JSON
 ┌───────────────────────▼─────────────────────────────────────────────┐
 │  BACKEND  (FastAPI · Python 3.11 · Uvicorn)                         │
-│  Deployed on Render  ·  https://krishiai-backend.onrender.com       │
+│  Deployed on Render  ·  https://kisaanbuddy-backend.onrender.com       │
 │                                                                     │
 │  /api/weather/*   /api/ml/*    /api/chat/*    /api/sensor/*         │
 │  /api/mandi/*     /api/schemes /api/worker-connect/*                │
@@ -68,7 +68,7 @@
 ## 2. COMPLETE FILE TREE (annotated)
 
 ```
-KrishiAI/
+KisaanBuddy/
 │
 ├── backend/                          ← FastAPI Python app
 │   ├── main.py                       ← App entry: CORS, rate-limit, router mount
@@ -174,12 +174,12 @@ KrishiAI/
 │           └── utils.ts              ← cn() (clsx + tailwind-merge)
 │
 ├── hardware/
-│   └── krishiai_sensor_node/
-│       └── krishiai_sensor_node.ino  ← Complete ESP32 Arduino firmware
+│   └── kisaanbuddy_sensor_node/
+│       └── kisaanbuddy_sensor_node.ino  ← Complete ESP32 Arduino firmware
 │
 ├── HARDWARE_SETUP.md                 ← Wiring diagrams, calibration, library list
 ├── SHOPPING_LIST.md                  ← Bill of materials with Amazon/Robu links
-├── KrishiAI_Hardware_Architecture_v1.0.docx  ← 88KB full IoT architecture doc
+├── KisaanBuddy_Hardware_Architecture_v1.0.docx  ← 88KB full IoT architecture doc
 ├── README.md                         ← Quickstart guide
 ├── render.yaml                       ← Render.com deployment spec
 ├── run-all.bat / start.bat / start.ps1  ← Local dev launchers
@@ -346,7 +346,7 @@ Storage is in-memory (bounded deque, 50 readings per device). A device is "onlin
 
 ## 4. DATABASE SCHEMA
 
-Engine: SQLite by default (`KrishiAI/backend/krishiai.db`). Switch to PostgreSQL by setting `DATABASE_URL` in `.env`.
+Engine: SQLite by default (`KisaanBuddy/backend/kisaanbuddy.db`). Switch to PostgreSQL by setting `DATABASE_URL` in `.env`.
 
 ```sql
 users (id PK, phone_number UNIQUE, name, language, lat, lon, created_at)
@@ -368,7 +368,7 @@ worker_jobs (id PK, work_type, location, workers_needed, wage, contact_number, c
 
 # App
 DEBUG=false
-PROJECT_NAME=KrishiAI API
+PROJECT_NAME=KisaanBuddy API
 
 # LLM — pick ONE approach:
 GEMINI_API_KEY=AIza...                # Google Gemini direct (PREFERRED for free tier)
@@ -383,7 +383,7 @@ TOMORROWIO_API_KEY=...
 ACCUWEATHER_API_KEY=...
 
 # Database (default: SQLite)
-DATABASE_URL=sqlite:///./krishiai.db
+DATABASE_URL=sqlite:///./kisaanbuddy.db
 # For Postgres: DATABASE_URL=postgresql://user:pass@host/dbname
 
 # Cache
@@ -435,7 +435,7 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/gcp.json
 Custom lightweight JWT auth (no NextAuth, no Supabase).
 
 **Client-side (`src/lib/auth.ts`):**
-- `useAuth()` hook — reads `localStorage.getItem("krishiai_user")`, returns `{user, ready}`
+- `useAuth()` hook — reads `localStorage.getItem("kisaanbuddy_user")`, returns `{user, ready}`
 - `loginUser(email, password)` — calls `POST /api/auth/login`, stores JWT in localStorage
 - `logoutUser()` — clears localStorage, redirects to `/`
 - User object shape: `{ id, name, email, token, phone? }`
@@ -460,7 +460,7 @@ Three layered prompts, combined per turn:
 
 ```
 1. BASE_SYSTEM_PROMPT          (always injected)
-   KrishiAI persona + full agri knowledge:
+   KisaanBuddy persona + full agri knowledge:
    - 7 seasonal crop calendars (Kharif/Rabi/Zaid)
    - Fertilizer doses per acre for 8 major crops
    - IPM pest management (with chemical doses + PPE rules)
@@ -526,7 +526,7 @@ Three layered prompts, combined per turn:
 ```css
 /* Light mode */
 --background: 140 15% 97%
---primary: 151 60% 38%        /* KrishiAI green */
+--primary: 151 60% 38%        /* KisaanBuddy green */
 --glass-bg: rgba(255,255,255,0.65)
 --glass-border: rgba(255,255,255,0.3)
 --gradient-brand: linear-gradient(135deg, #16a34a, #059669, #0d9488)
@@ -571,7 +571,7 @@ Three layered prompts, combined per turn:
 | DS18B20 waterproof | Soil temperature | GPIO 5 |
 | SSD1306 OLED 0.96" | Status display | I2C SDA=21 SCL=22 |
 
-### Firmware logic (`hardware/krishiai_sensor_node.ino`)
+### Firmware logic (`hardware/kisaanbuddy_sensor_node.ino`)
 ```
 setup():
   analogReadResolution(12)       // 0-4095 range
@@ -616,11 +616,11 @@ Adafruit SSD1306 + Adafruit GFX Library (for OLED)
 
 ### Frontend — Vercel
 ```
-Project: krishiai-steel
+Project: kisaanbuddy-steel
 Framework: Next.js 14
 Build: npm run build
 Root: frontend-next/
-Env: NEXT_PUBLIC_API_URL=https://krishiai-backend.onrender.com
+Env: NEXT_PUBLIC_API_URL=https://kisaanbuddy-backend.onrender.com
 ```
 Every push to `main` auto-deploys. Preview deploys on PRs.
 
@@ -629,7 +629,7 @@ Every push to `main` auto-deploys. Preview deploys on PRs.
 # render.yaml
 services:
   - type: web
-    name: krishiai-backend
+    name: kisaanbuddy-backend
     env: python
     buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
@@ -759,12 +759,12 @@ Or just double-click `run-all.bat` which does both.
 | `resolveUserLocation()` | `lib/weather-api.ts` | Browser GPS → if denied, IP geolocation fallback |
 | `streamMessage()` | `lib/assistant-api.ts` | Async generator that reads SSE stream from `/api/chat/stream` |
 | `useAuth()` | `lib/auth.ts` | Reads JWT from localStorage, decodes, returns `{user, ready}` |
-| `soilPercent()` | `hardware/krishiai_sensor_node.ino` | Maps ADC value → 0-100% moisture using calibrated min/max |
+| `soilPercent()` | `hardware/kisaanbuddy_sensor_node.ino` | Maps ADC value → 0-100% moisture using calibrated min/max |
 | `format_knowledge_context()` | `services/chat/knowledge.py` | RAG: embeds query, finds top-k chunks from .md knowledge base |
 
 ---
 
-## 17. HOW TO EXTEND KRISHIAI — PRACTICAL PATTERNS
+## 17. HOW TO EXTEND KISAANBUDDY — PRACTICAL PATTERNS
 
 ### Add a new backend route
 ```python
@@ -831,25 +831,25 @@ if name == "my_tool":
 
 ## 18. PROMPT TEMPLATES FOR COMMON TASKS
 
-Use these when asking an AI assistant to work on specific parts of KrishiAI:
+Use these when asking an AI assistant to work on specific parts of KisaanBuddy:
 
 ### Fix a bug
-> "I'm working on KrishiAI (context: KRISHIAI_MASTER_PROMPT.md). In `[file]`, the `[function]` function has this bug: `[describe bug]`. The expected behavior is `[expected]`. Current behavior: `[actual]`. Please fix it."
+> "I'm working on KisaanBuddy (context: KISAANBUDDY_MASTER_PROMPT.md). In `[file]`, the `[function]` function has this bug: `[describe bug]`. The expected behavior is `[expected]`. Current behavior: `[actual]`. Please fix it."
 
 ### Build a new feature
-> "In KrishiAI, I need to add `[feature name]`. It should work like: `[description]`. It needs to call `[endpoint]` and show `[UI description]`. Follow the existing patterns — use GlassCard for UI, async/await for API calls, Pydantic for backend schemas."
+> "In KisaanBuddy, I need to add `[feature name]`. It should work like: `[description]`. It needs to call `[endpoint]` and show `[UI description]`. Follow the existing patterns — use GlassCard for UI, async/await for API calls, Pydantic for backend schemas."
 
 ### Review code
-> "Review this KrishiAI code for correctness, security, and adherence to our conventions (see KRISHIAI_MASTER_PROMPT.md Section 14): `[paste code]`"
+> "Review this KisaanBuddy code for correctness, security, and adherence to our conventions (see KISAANBUDDY_MASTER_PROMPT.md Section 14): `[paste code]`"
 
 ### Debug an API error
-> "KrishiAI's `[endpoint]` is returning `[error]`. The handler is in `[file]`. The request body is `[json]`. What's wrong and how do I fix it?"
+> "KisaanBuddy's `[endpoint]` is returning `[error]`. The handler is in `[file]`. The request body is `[json]`. What's wrong and how do I fix it?"
 
 ### Extend the AI chatbot
-> "Add a new capability to KrishiAI's chatbot: when a user asks about [topic], it should [behavior]. The AI prompt is in `backend/services/chat/prompts.py`. Should I add a new tool, extend BASE_SYSTEM_PROMPT, or create a new specialist prompt like DISEASE_DIAGNOSIS_PROMPT?"
+> "Add a new capability to KisaanBuddy's chatbot: when a user asks about [topic], it should [behavior]. The AI prompt is in `backend/services/chat/prompts.py`. Should I add a new tool, extend BASE_SYSTEM_PROMPT, or create a new specialist prompt like DISEASE_DIAGNOSIS_PROMPT?"
 
 ---
 
-*This document was auto-generated from the KrishiAI codebase on 2026-05-28.*  
+*This document was auto-generated from the KisaanBuddy codebase on 2026-05-28.*  
 *Maintainer: Utkarsh Sinha (utkarsh.sinha.dev@gmail.com)*  
 *License: MIT — Free for use by any Indian farmer, NGO, or agri-tech company.*

@@ -1,7 +1,7 @@
 """SQLAlchemy session factory.
 
 Defaults to SQLite for local dev. Set DATABASE_URL in .env to switch to Postgres, e.g.
-    DATABASE_URL=postgresql+psycopg2://user:pass@localhost:5432/krishiai
+    DATABASE_URL=postgresql+psycopg2://user:pass@localhost:5432/kisaanbuddy
 """
 from typing import Generator
 import os
@@ -16,7 +16,7 @@ except ImportError:  # SQLAlchemy is optional until a real DB is wired up
     Session = None  # type: ignore
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./krishiai.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./kisaanbuddy.db")
 
 if create_engine:
     engine = create_engine(

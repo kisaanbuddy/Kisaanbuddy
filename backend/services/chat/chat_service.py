@@ -1,8 +1,8 @@
-"""KrishiAI chat orchestrator — the brain.
+"""KisaanBuddy chat orchestrator — the brain.
 
 Pipeline:
   1. Resolve session + language (script/keyword first, then langdetect).
-  2. Inject KrishiAI agri system prompt + language contract + (if present)
+  2. Inject KisaanBuddy agri system prompt + language contract + (if present)
      a user-location hint the model can use when calling weather tools.
   3. Call the LLM with tool schemas attached.
   4. If the LLM requests tools, execute them in parallel, append results,

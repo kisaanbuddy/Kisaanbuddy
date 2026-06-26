@@ -1,7 +1,7 @@
 import logging
 from .provider_interface import SMSProvider
 
-log = logging.getLogger("krishiai.sms_provider.twilio")
+log = logging.getLogger("kisaanbuddy.sms_provider.twilio")
 
 class TwilioProvider(SMSProvider):
     def send_otp(self, phone_number: str, otp: str) -> bool:

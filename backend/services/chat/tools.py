@@ -1,4 +1,4 @@
-"""Sandboxed tool dispatcher for the KrishiAI assistant.
+"""Sandboxed tool dispatcher for the KisaanBuddy assistant.
 
 Each tool calls the SAME internal service the HTTP routes use, so the
 assistant shares the exact fallback chain, cache, and data shape as the

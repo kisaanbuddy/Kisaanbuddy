@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ============================================
-echo   KrishiAI - Premium UI + IoT Push
+echo   KisaanBuddy - Premium UI + IoT Push
 echo ============================================
 echo.
 
@@ -22,7 +22,7 @@ echo   Locks cleared.
 echo.
 
 git config user.email "utkarsh.sinha.dev@gmail.com"
-git config user.name "KrishiAI"
+git config user.name "KisaanBuddy"
 
 echo [1/3] Staging all UI changes...
 git add frontend-next/src/app/globals.css
@@ -61,7 +61,7 @@ UI Changes:
 IoT Integration:
 - backend/api/sensor.py: POST /ingest (ESP32 pushes) + GET /latest + GET /health
 - SensorAutoFill component: Read live ESP32 data -> auto-fill crop predictor sliders
-- hardware/krishiai_sensor_node.ino: complete Arduino firmware for ESP32 + DHT22 + capacitive sensor"
+- hardware/kisaanbuddy_sensor_node.ino: complete Arduino firmware for ESP32 + DHT22 + capacitive sensor"
 
 echo.
 

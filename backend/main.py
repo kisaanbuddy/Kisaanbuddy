@@ -1,4 +1,4 @@
-"""KrishiAI — FastAPI entrypoint.
+"""KisaanBuddy — FastAPI entrypoint.
 
 Responsibilities:
   * Boot the WeatherOrchestrator (opens shared httpx client, picks providers)
@@ -50,7 +50,7 @@ logging.basicConfig(
     level=logging.DEBUG if settings.DEBUG else logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
-log = logging.getLogger("krishiai")
+log = logging.getLogger("kisaanbuddy")
 
 
 # ---------------------------------------------------------------------------
@@ -58,7 +58,7 @@ log = logging.getLogger("krishiai")
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    log.info("KrishiAI starting up...")
+    log.info("KisaanBuddy starting up...")
     await orchestrator.startup()
 
     try:
@@ -84,7 +84,7 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    log.info("KrishiAI shutting down...")
+    log.info("KisaanBuddy shutting down...")
     await orchestrator.shutdown()
 
 
@@ -174,4 +174,4 @@ def ping():
     immediately so external pings stay cheap and the free tier won't
     sleep when this URL is pinged every 5 minutes.
     """
-    return {"status": "ok", "service": "krishiai"}
+    return {"status": "ok", "service": "kisaanbuddy"}

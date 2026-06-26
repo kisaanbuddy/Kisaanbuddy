@@ -1,6 +1,6 @@
-# KrishiAI — Hardware Setup Guide (ESP32 Sensor Node)
+# KisaanBuddy — Hardware Setup Guide (ESP32 Sensor Node)
 
-Yeh guide ESP32 sensor node ko banane, flash karne, aur KrishiAI backend se jodne ke liye hai.
+Yeh guide ESP32 sensor node ko banane, flash karne, aur KisaanBuddy backend se jodne ke liye hai.
 Data flow:
 
 ```
@@ -64,7 +64,7 @@ WiFi aur HTTPClient ESP32 core ke saath aate hain — alag install nahi karna.
 
 ## 3. Firmware configure karo
 
-`hardware/krishiai_sensor_node.ino` kholo aur upar **CONFIG** block mein 4 cheezein badlo:
+`hardware/kisaanbuddy_sensor_node.ino` kholo aur upar **CONFIG** block mein 4 cheezein badlo:
 
 ```cpp
 const char* WIFI_SSID     = "YOUR_WIFI_NAME";
@@ -146,7 +146,7 @@ const int SOIL_WATER_VALUE = 1300;   // tumhara wet reading
 ```bash
 curl -X POST http://localhost:8000/api/sensor/ingest \
   -H "Content-Type: application/json" \
-  -d "{\"device_id\":\"krishiai-node-1\",\"temperature\":27.5,\"humidity\":61,\"soil_moisture\":40}"
+  -d "{\"device_id\":\"kisaanbuddy-node-1\",\"temperature\":27.5,\"humidity\":61,\"soil_moisture\":40}"
 
 curl http://localhost:8000/api/sensor/latest
 ```
@@ -167,7 +167,7 @@ API docs: http://localhost:8000/docs → **Sensors** section mein saare endpoint
 |--------|------|------|
 | POST | `/api/sensor/ingest` | ESP32 reading bhejta hai |
 | GET | `/api/sensor/latest` | Sabse nayi reading (frontend isse padhta hai). `?device_id=` optional |
-| GET | `/api/sensor/history?device_id=krishiai-node-1` | Recent readings (debug/graph) |
+| GET | `/api/sensor/history?device_id=kisaanbuddy-node-1` | Recent readings (debug/graph) |
 | GET | `/api/sensor/health` | Kaunse devices online hain |
 
 ---

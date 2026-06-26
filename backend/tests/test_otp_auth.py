@@ -126,8 +126,8 @@ class TestOTPAuthSystem(unittest.TestCase):
         self.assertEqual(data["user"]["phone_number"], "9876543210")
         
         # Verify cookies are set
-        self.assertIn("krishiai_session", response.cookies)
-        self.assertIn("krishiai_refresh_session", response.cookies)
+        self.assertIn("kisaanbuddy_session", response.cookies)
+        self.assertIn("kisaanbuddy_refresh_session", response.cookies)
 
     def test_verify_otp_incorrect_code(self):
         self.client.post("/api/auth/send-otp", json={"phone_number": "9876543210"})

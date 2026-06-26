@@ -1,5 +1,5 @@
 """
-Worker Connect schemas — KrishiAI rural job marketplace.
+Worker Connect schemas — KisaanBuddy rural job marketplace.
 
 These models power both:
   * REST routes  (backend/api/worker_connect.py)

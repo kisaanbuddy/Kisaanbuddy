@@ -1,4 +1,4 @@
-"""Fast, deterministic language detection for the KrishiAI assistant.
+"""Fast, deterministic language detection for the KisaanBuddy assistant.
 
 Strategy:
   1. Unicode script check — Devanagari => hi, Kannada block => kn.
