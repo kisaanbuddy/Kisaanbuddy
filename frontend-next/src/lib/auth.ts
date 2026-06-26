@@ -29,20 +29,6 @@ export function getAuthHeaders(): Record<string, string> {
   return {
     "Content-Type": "application/json",
   };
-  if (typeof window !== "undefined") {
-    let token = window.localStorage.getItem(TOKEN_KEY);
-    if (!token) {
-      token = window.localStorage.getItem("krishi_token");
-      if (token) {
-        window.localStorage.setItem(TOKEN_KEY, token);
-        window.localStorage.removeItem("krishi_token");
-      }
-    }
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-  }
-  return headers;
 }
 
 export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
@@ -115,7 +101,7 @@ function readSession(): AuthUser | null {
   }
 }
 
-function writeSession(user: AuthUser | null, token: string | null) {
+function writeSession(user: AuthUser | null, token?: string | null) {
   if (typeof window === "undefined") return;
 
   initPromise = null;
