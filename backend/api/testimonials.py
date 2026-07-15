@@ -55,7 +55,7 @@ async def get_optional_current_user(
 ) -> Optional[models.User]:
     """Optional authentication that returns None if user is not authenticated."""
     try:
-        return await get_current_user(request, authorization, db)
+        return await get_current_user(request, db)
     except Exception:
         return None
 

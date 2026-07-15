@@ -1,4 +1,4 @@
-# KrishiAI — weather diagnostic
+# KrishiAI - weather diagnostic
 # Runs end-to-end checks and writes a log to diagnose-weather.log
 # Run with: powershell -ExecutionPolicy Bypass -File diagnose-weather.ps1
 
@@ -8,7 +8,7 @@ $backend = Join-Path $projectRoot "backend"
 $logFile = Join-Path $projectRoot "diagnose-weather.log"
 
 # Clear old log
-"=== KrishiAI weather diagnostic — $(Get-Date) ===" | Out-File $logFile
+"=== KrishiAI weather diagnostic - $(Get-Date) ===" | Out-File $logFile
 
 function Log($msg, $color = "White") {
     Write-Host $msg -ForegroundColor $color
@@ -50,14 +50,14 @@ if ($owmKey) {
     try {
         $resp = Invoke-WebRequest -Uri "https://api.openweathermap.org/data/2.5/weather?q=Delhi&appid=$owmKey" -UseBasicParsing -TimeoutSec 10
         if ($resp.StatusCode -eq 200) {
-            Log "  OK  OWM returned 200 — key is VALID and ACTIVATED" "Green"
+            Log "  OK  OWM returned 200 - key is VALID and ACTIVATED" "Green"
         } else {
             Log "  !! OWM returned $($resp.StatusCode)" "Red"
         }
     } catch {
         $status = $_.Exception.Response.StatusCode.value__
         if ($status -eq 401) {
-            Log "  !! OWM returned 401 — key invalid OR not yet activated (new keys take ~10 min)" "Red"
+            Log "  !! OWM returned 401 - key invalid OR not yet activated (new keys take ~10 min)" "Red"
         } else {
             Log "  !! OWM call failed: $($_.Exception.Message)" "Red"
         }
@@ -76,7 +76,7 @@ if ($conn) {
 
 Log "`n[5/6] Importing backend Python modules..." "Cyan"
 Push-Location $backend
-$importCheck = & $venvPy -c @"
+$pythonScript = @"
 import sys, traceback
 try:
     from main import app
@@ -92,7 +92,8 @@ except Exception as e:
     print('!! IMPORT ERROR:', type(e).__name__, str(e))
     traceback.print_exc()
     sys.exit(1)
-"@ 2>&1
+"@
+$importCheck = & $venvPy -c $pythonScript 2>&1
 Pop-Location
 $importCheck | ForEach-Object { Log "  $_" }
 

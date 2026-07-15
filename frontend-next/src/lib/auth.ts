@@ -24,7 +24,7 @@ export type LoginResult =
   | { ok: true; name?: string; user: AuthUser }
   | { ok: false; error: string };
 
-// Helper to get request headers (no Bearer token)
+// Helper to get request headers (includes Bearer token if present)
 export function getAuthHeaders(): Record<string, string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -120,7 +120,7 @@ function readSession(): AuthUser | null {
   }
 }
 
-function writeSession(user: AuthUser | null, token: string | null) {
+function writeSession(user: AuthUser | null, token: string | null = null) {
   if (typeof window === "undefined") return;
 
   initPromise = null;

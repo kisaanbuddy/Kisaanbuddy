@@ -26,13 +26,59 @@ const nextConfig = {
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
     return [
+      // Auth
       {
-        source: '/api/:path*/',
-        destination: `${backendUrl}/api/:path*/` // Preserve trailing slash
+        source: '/api/auth/:path*/',
+        destination: `${backendUrl}/api/auth/:path*/`
       },
       {
-        source: '/api/:path*',
-        destination: `${backendUrl}/api/:path*` // Proxy to backend
+        source: '/api/auth/:path*',
+        destination: `${backendUrl}/api/auth/:path*`
+      },
+      // Weather
+      {
+        source: '/api/weather/:path*/',
+        destination: `${backendUrl}/api/weather/:path*/`
+      },
+      {
+        source: '/api/weather/:path*',
+        destination: `${backendUrl}/api/weather/:path*`
+      },
+      // ML
+      {
+        source: '/api/ml/:path*/',
+        destination: `${backendUrl}/api/ml/:path*/`
+      },
+      {
+        source: '/api/ml/:path*',
+        destination: `${backendUrl}/api/ml/:path*`
+      },
+      // Chat
+      {
+        source: '/api/chat/:path*/',
+        destination: `${backendUrl}/api/chat/:path*/`
+      },
+      {
+        source: '/api/chat/:path*',
+        destination: `${backendUrl}/api/chat/:path*`
+      },
+      // Worker Connect
+      {
+        source: '/api/worker-connect/:path*/',
+        destination: `${backendUrl}/api/worker-connect/:path*/`
+      },
+      {
+        source: '/api/worker-connect/:path*',
+        destination: `${backendUrl}/api/worker-connect/:path*`
+      },
+      // Sensor
+      {
+        source: '/api/sensor/:path*/',
+        destination: `${backendUrl}/api/sensor/:path*/`
+      },
+      {
+        source: '/api/sensor/:path*',
+        destination: `${backendUrl}/api/sensor/:path*`
       }
     ]
   }

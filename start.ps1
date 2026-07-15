@@ -45,13 +45,10 @@ if (-not (Test-Path $venvPy)) {
     Write-Host "  venv missing - creating..." -ForegroundColor Yellow
     Push-Location $backend
     python -m venv venv
-    & $venvPy -m pip install --quiet --disable-pip-version-check -r requirements.txt
     Pop-Location
 }
-if (-not (Test-Path $uvicorn)) {
-    Write-Host "  Installing deps..." -ForegroundColor Yellow
-    & $venvPy -m pip install --quiet --disable-pip-version-check -r (Join-Path $backend "requirements.txt")
-}
+Write-Host "  Installing/updating dependencies..." -ForegroundColor Yellow
+& $venvPy -m pip install --quiet --disable-pip-version-check -r (Join-Path $backend "requirements.txt")
 Write-Host "  OK" -ForegroundColor Green
 
 Write-Host ""
