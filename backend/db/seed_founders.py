@@ -26,13 +26,6 @@ FOUNDERS = [
         "password": "Admin@Utkarsh2026",
     },
     {
-        "name": "Sanidhya Sharma",
-        "email": "sanidhya@kisaanbuddy.com",
-        "phone_number": "9100000003",
-        "role": "Admin",
-        "password": "Admin@Sanidhya2026",
-    },
-    {
         "name": "Yash Singh",
         "email": "yash@kisaanbuddy.com",
         "phone_number": "9100000004",

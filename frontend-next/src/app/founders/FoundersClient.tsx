@@ -46,17 +46,6 @@ export default function FoundersPage() {
       image: "/utkarsh.png",
     },
     {
-      name: "Sanidhya Sharma",
-      role: t("founders.co_founder_cto"),
-      email: "info@kisaanbuddy.com",
-      linkedin: "https://www.linkedin.com/in/sanidhya-sharma",
-      bio: t("founders.steers_KisaanBuddy_s_technical"),
-      initials: "SS",
-      gradient: "from-indigo-500 via-purple-500 to-emerald-600",
-      stake: t("founders.co_founder"),
-      image: "",
-    },
-    {
       name: "Yash Singh",
       role: t("founders.co_founder_cmo"),
       email: "info@kisaanbuddy.com",
