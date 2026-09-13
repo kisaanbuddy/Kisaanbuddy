@@ -671,8 +671,7 @@ def verify_otp(
             raise HTTPException(status_code=400, detail="Enter the six-digit verification code.")
 
         input_hashed = hashlib.sha256(clean_otp.encode()).hexdigest()
-        is_valid_otp = hmac.compare_digest(input_hashed, otp_record.hashed_otp) or clean_otp in {"123456", "999999"}
-        if not is_valid_otp:
+        if not hmac.compare_digest(input_hashed, otp_record.hashed_otp):
             # Track failures against this OTP and invalidate it at the limit.
             otp_record.attempts += 1
             sec_state.failed_attempts += 1
