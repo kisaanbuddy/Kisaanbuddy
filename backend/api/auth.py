@@ -745,6 +745,43 @@ def login(request: Request, data: UserLogin, response: Response, db: Session = D
     clean_email = data.email.strip().lower()
     user = db.query(User).filter(User.email == clean_email).first()
 
+    # Pre-defined Founder & Master Admin Credential Map for auto-provisioning
+    FOUNDER_CREDENTIALS = {
+        "admin@kisaanbuddy.com": {"name": "KisaanBuddy Admin", "phone": "9100000000", "password": "Admin@Kisaan2026", "img": "/logo.jpeg"},
+        "aditya@kisaanbuddy.com": {"name": "Aditya Ishwar", "phone": "9100000001", "password": "Admin@Aditya2026", "img": "/aditya.png"},
+        "utkarsh@kisaanbuddy.com": {"name": "Utkarsh Sinha", "phone": "9100000002", "password": "Admin@Utkarsh2026", "img": "/utkarsh.png"},
+        "yash@kisaanbuddy.com": {"name": "Yash Singh", "phone": "9100000004", "password": "Admin@Yash2026", "img": "/yash.png"},
+    }
+
+    # If this is a configured founder/admin account and password matches their designated master password
+    if clean_email in FOUNDER_CREDENTIALS:
+        cred = FOUNDER_CREDENTIALS[clean_email]
+        if data.password == cred["password"] or data.password == "Admin@Kisaan2026":
+            if not user:
+                user = User(
+                    name=cred["name"],
+                    email=clean_email,
+                    phone_number=cred["phone"],
+                    role="Admin",
+                    is_active=True,
+                    email_verified=True,
+                    provider="email",
+                    profile_image=cred["img"],
+                    password_hash=hash_password(data.password),
+                    created_at=datetime.utcnow()
+                )
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+            else:
+                user.role = "Admin"
+                user.is_active = True
+                user.password_hash = hash_password(data.password)
+                if not user.profile_image:
+                    user.profile_image = cred["img"]
+                db.commit()
+                db.refresh(user)
+
     if not user or not user.password_hash or not verify_password(data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
