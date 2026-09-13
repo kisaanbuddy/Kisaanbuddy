@@ -16,6 +16,7 @@ FOUNDERS = [
         "email": "aditya@kisaanbuddy.com",
         "phone_number": "9100000001",
         "role": "Admin",
+        "profile_image": "/aditya.png",
         "password": "Admin@Aditya2026",
     },
     {
@@ -23,6 +24,7 @@ FOUNDERS = [
         "email": "utkarsh@kisaanbuddy.com",
         "phone_number": "9100000002",
         "role": "Admin",
+        "profile_image": "/utkarsh.png",
         "password": "Admin@Utkarsh2026",
     },
     {
@@ -30,6 +32,7 @@ FOUNDERS = [
         "email": "yash@kisaanbuddy.com",
         "phone_number": "9100000004",
         "role": "Admin",
+        "profile_image": "/yash.png",
         "password": "Admin@Yash2026",
     },
 ]
@@ -54,6 +57,7 @@ def seed_founders():
                     is_active=True,
                     email_verified=True,
                     provider="email",
+                    profile_image=f.get("profile_image"),
                     password_hash=hash_password(f["password"]),
                     created_at=datetime.utcnow(),
                 )
@@ -64,6 +68,8 @@ def seed_founders():
                 user.role = "Admin"
                 user.is_active = True
                 user.email_verified = True
+                if f.get("profile_image"):
+                    user.profile_image = f.get("profile_image")
                 if not user.password_hash:
                     user.password_hash = hash_password(f["password"])
                 log.info("Ensured founder has Admin role: %s (%s)", f["name"], f["email"])
