@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
@@ -163,8 +163,8 @@ const LanguageContext = createContext<LanguageContextType>({
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("hi")
-  const [translations, setTranslations] = useState<any>(hi)
+  const [lang, setLangState] = useState<Lang>("en")
+  const [translations, setTranslations] = useState<any>(en)
 
   useLayoutEffect(() => {
     // Local storage key migration layer
@@ -180,24 +180,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (saved && SELECTABLE_LANGS.includes(saved)) {
       setLangState(saved)
     } else {
-      const browserLang = navigator.language.split("-")[0] as Lang
-      if (SELECTABLE_LANGS.includes(browserLang)) {
-        setLangState(browserLang)
-      } else {
-        setLangState("hi") // Default to Hindi as per V2 specifications
-      }
+      setLangState("en")
     }
   }, [])
 
   useEffect(() => {
     let cancelled = false
     const load = async () => {
-      let base: any = hi
+      let base: any = en
       try {
-        if (lang === "en") base = en
-        else if (lang !== "hi") base = (await import(`./locales/${lang}.json`)).default
+        if (lang === "hi") base = hi
+        else if (lang !== "en") base = (await import(`./locales/${lang}.json`)).default
       } catch {
-        base = hi
+        base = en
       }
       try {
         const response = await fetch(`/api/content/${lang}`, { cache: "no-store" })

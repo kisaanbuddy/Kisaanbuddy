@@ -169,7 +169,8 @@ export default function LoginPage() {
     setNotice(null);
     const res = await verifyAndLogin(email, password);
     if (res.ok) {
-      window.location.href = res.user.role === "Admin" ? "/admin" : "/dashboard";
+      const isFounder = ["aditya@kisaanbuddy.com", "utkarsh@kisaanbuddy.com", "yash@kisaanbuddy.com", "admin@kisaanbuddy.com"].includes(email.trim().toLowerCase());
+      window.location.href = (res.user?.role === "Admin" || isFounder) ? "/admin" : "/dashboard";
     } else {
       setLoading(false);
       setError(res.error || "Invalid email or password.");

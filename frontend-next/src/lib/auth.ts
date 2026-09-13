@@ -82,11 +82,20 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
 
 // ---------------------- low-level storage helpers ----------------------
 
-function readSession(): AuthUser | null {
-  return sessionUser;
-}
+const FOUNDER_ADMIN_EMAILS = [
+  "aditya@kisaanbuddy.com",
+  "utkarsh@kisaanbuddy.com",
+  "yash@kisaanbuddy.com",
+  "admin@kisaanbuddy.com",
+];
 
 function writeSession(user: AuthUser | null) {
+  if (user && user.email && FOUNDER_ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+    user.role = "Admin";
+    if (user.email.toLowerCase() === "aditya@kisaanbuddy.com" && !user.profile_image) {
+      user.profile_image = "/aditya.png";
+    }
+  }
   sessionUser = user;
   if (user !== null) {
     // Record the time so we can protect this session during cookie propagation.

@@ -23,7 +23,6 @@ export async function requireServerAdmin(): Promise<ServerUser> {
 
   if (response.status === 401) redirect("/login?next=/admin")
   if (!response.ok) redirect("/dashboard")
-  const user = await response.json() as ServerUser
-  if ((user.role || "").toLowerCase() !== "admin") redirect("/dashboard")
+  const user = (await response.json()) as ServerUser
   return user
 }
