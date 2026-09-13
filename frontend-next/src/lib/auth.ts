@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 
 const EVENT_NAME = "kisaanbuddy-auth-change";
 let sessionUser: AuthUser | null = null;
+// Tracks when a session was last written so we can protect against clearing a
+// freshly-set session before the browser has had a chance to send the cookie.
+let _sessionWrittenAt = 0;
+const SESSION_GRACE_MS = 6000; // 6 s — enough for cookie propagation + /me round-trip
 
 export type AuthUser = {
   id: number;
@@ -84,6 +88,10 @@ function readSession(): AuthUser | null {
 
 function writeSession(user: AuthUser | null) {
   sessionUser = user;
+  if (user !== null) {
+    // Record the time so we can protect this session during cookie propagation.
+    _sessionWrittenAt = Date.now();
+  }
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(EVENT_NAME));
   }
@@ -107,6 +115,17 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
       }
 
       if (res.status === 401) {
+        // Grace-period check: if a session was written very recently (e.g. right
+        // after OTP verification), the browser may not have had time to attach the
+        // new cookie to this /me request yet.  In that case, trust the in-memory
+        // session and skip the writeSession(null) that would trigger a loop back to
+        // the login page.
+        const withinGrace = Date.now() - _sessionWrittenAt < SESSION_GRACE_MS;
+        const currentSession = readSession();
+        if (withinGrace && currentSession) {
+          return currentSession;
+        }
+
         const refreshRes = await fetch("/api/auth/refresh-session", {
           method: "POST",
           credentials: "include",
@@ -140,6 +159,7 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
 
   return initPromise;
 }
+
 
 // ---------------------- public API -------------------------------------
 
@@ -333,7 +353,11 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
   useEffect(() => {
     const cached = readSession();
     setUser(cached);
-    setReady(cached !== null);
+    // If we already have an in-memory user (e.g. right after OTP login), mark
+    // ready=true immediately so page guards don't fire on stale null state.
+    if (cached !== null) {
+      setReady(true);
+    }
 
     verifySessionOnLoad().then((verifiedUser) => {
       setUser(verifiedUser);
@@ -341,7 +365,10 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
     });
 
     const handleAuthChange = () => {
-      setUser(readSession());
+      const current = readSession();
+      setUser(current);
+      // An auth-change event means a definitive write happened; mark ready.
+      setReady(true);
     };
     window.addEventListener(EVENT_NAME, handleAuthChange);
     return () => {
@@ -351,3 +378,4 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
 
   return { user, ready };
 }
+

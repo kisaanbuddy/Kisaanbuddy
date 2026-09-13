@@ -117,15 +117,18 @@ export default function LoginPage() {
     setNotice(null);
 
     const res = await verifyOtp(phone, cleanOtp);
-    setLoading(false);
     if (res.ok) {
+      // Keep loading=true during navigation — prevents the form from briefly
+      // re-enabling and allows another submit before the new page lands.
       if (res.registered) {
         router.replace("/dashboard");
       } else {
         setRegistrationToken(res.registrationToken);
+        setLoading(false);
         setStep("register");
       }
     } else {
+      setLoading(false);
       setError(res.error || t("ui.auth.otp_incorrect"));
     }
   };
