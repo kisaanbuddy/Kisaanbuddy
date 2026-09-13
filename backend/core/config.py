@@ -94,7 +94,7 @@ class Settings(BaseSettings):
     # Comma-separated owner emails. This is server configuration only and is
     # never sent to the browser. Matching accounts are promoted to Admin when
     # they authenticate, so an initial owner can be designated without a UI.
-    ADMIN_EMAILS: str = ""
+    ADMIN_EMAILS: str = "aditya@kisaanbuddy.com,utkarsh@kisaanbuddy.com,sanidhya@kisaanbuddy.com,yash@kisaanbuddy.com,info@kisaanbuddy.com"
 
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE,

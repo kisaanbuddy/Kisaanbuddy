@@ -82,6 +82,11 @@ async def lifespan(app: FastAPI):
         if engine:
             Base.metadata.create_all(bind=engine)
             log.info("Database tables created/verified.")
+            try:
+                from db.seed_founders import seed_founders
+                seed_founders()
+            except Exception as se:
+                log.warning("Founder seeding warning: %s", se)
     except Exception as e:
         log.error("DB init error: %s", e)
 
