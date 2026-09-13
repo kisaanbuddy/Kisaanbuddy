@@ -12,6 +12,14 @@ log = logging.getLogger("krishiai.db.seed")
 
 FOUNDERS = [
     {
+        "name": "KisaanBuddy Admin",
+        "email": "admin@kisaanbuddy.com",
+        "phone_number": "9100000000",
+        "role": "Admin",
+        "profile_image": "/logo.jpeg",
+        "password": "Admin@Kisaan2026",
+    },
+    {
         "name": "Aditya Ishwar",
         "email": "aditya@kisaanbuddy.com",
         "phone_number": "9100000001",
