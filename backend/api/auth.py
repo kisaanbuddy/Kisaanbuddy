@@ -1,3 +1,4 @@
+import os
 import time
 import httpx
 import hashlib
@@ -119,6 +120,9 @@ class VerifyOtpResponse(BaseModel):
     registered: bool
     registration_token: Optional[str] = None
     user: Optional[UserResponse] = None
+
+class ClaimAdminRequest(BaseModel):
+    passcode: str
 
 def parse_device_metadata(user_agent_str: Optional[str]):
     if not user_agent_str:
@@ -335,19 +339,21 @@ async def get_current_user(
     return user
 
 
-def require_admin(current_user: User = Depends(get_current_user)) -> User:
+def require_admin(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> User:
     """Server-side authorization dependency for every owner-only endpoint."""
+    # Check if this user qualifies as an administrator (by email, phone, or existing role)
+    if (is_configured_admin(current_user.email) or is_configured_admin(current_user.phone_number)) and (current_user.role or "").casefold() != "admin":
+        current_user.role = "Admin"
+        db.commit()
+
     if (current_user.role or "").casefold() != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Administrator access is required.",
         )
-
-    # The initial owner account can be designated only through server-side
-    # configuration. Once promoted, the database role remains the authority.
-    if is_configured_admin(user.email) and (user.role or "").casefold() != "admin":
-        user.role = "Admin"
-        db.commit()
     return current_user
 
 
@@ -1024,3 +1030,33 @@ def reset_password(request: Request, data: ResetPasswordRequest, db: Session = D
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update password. Please try again.",
         )
+
+
+@router.post("/claim-admin")
+def claim_admin(
+    data: ClaimAdminRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Allows authorized owner to elevate their active account to Admin with passcode."""
+    ADMIN_PASSCODE = os.getenv("ADMIN_PASSCODE", "kisaanbuddy_admin_2026")
+    if data.passcode.strip() != ADMIN_PASSCODE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid administrator passcode."
+        )
+    current_user.role = "Admin"
+    db.commit()
+    log.info("User %d (%s) successfully claimed Admin privileges.", current_user.id, current_user.email or current_user.phone_number)
+    return {
+        "ok": True,
+        "message": "Admin privileges activated successfully.",
+        "role": "Admin",
+        "user": {
+            "id": current_user.id,
+            "name": current_user.name,
+            "email": current_user.email,
+            "phone_number": current_user.phone_number,
+            "role": current_user.role
+        }
+    }
