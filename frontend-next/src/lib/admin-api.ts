@@ -9,49 +9,45 @@ import type {
 } from "./admin-types";
 
 const FALLBACK_OVERVIEW: OverviewData = {
-  stats: {
-    total_users: 1420,
-    new_users_today: 18,
-    active_sessions: 42,
-    pending_reviews: 3,
-    total_media: 8,
-    published_content: 24,
-  },
-  charts: {
-    signups_7d: [
-      { date: "Mon", count: 12 },
-      { date: "Tue", count: 15 },
-      { date: "Wed", count: 22 },
-      { date: "Thu", count: 19 },
-      { date: "Fri", count: 28 },
-      { date: "Sat", count: 35 },
-      { date: "Sun", count: 24 },
-    ],
-    role_distribution: [
-      { name: "Farmers", value: 1380 },
-      { name: "Laborers", value: 36 },
-      { name: "Admins", value: 4 },
-    ],
-    reviews_rating: [
-      { rating: 5, count: 85 },
-      { rating: 4, count: 12 },
-      { rating: 3, count: 2 },
-      { rating: 2, count: 1 },
-      { rating: 1, count: 0 },
-    ],
-  },
-  recent_activity: [
-    {
-      id: 1,
-      user_id: 3,
-      user_name: "Aditya Ishwar",
-      user_email: "aditya@kisaanbuddy.com",
-      activity_type: "auth.login",
-      details: { role: "Founder / Admin", note: "VIP Founder sign in" },
-      created_at: new Date().toISOString(),
-    },
+  total_users: 1420,
+  new_users_7d: 18,
+  active_sessions: 42,
+  active_users_24h: 120,
+  otp_requests_24h: 45,
+  otp_verified_24h: 40,
+  otp_failed_24h: 5,
+  feature_events_7d: 310,
+  language_usage: [
+    { language: "hi", count: 850 },
+    { language: "en", count: 420 },
+    { language: "pa", count: 150 },
   ],
+  daily_registrations: [
+    { date: "Mon", count: 12 },
+    { date: "Tue", count: 15 },
+    { date: "Wed", count: 22 },
+    { date: "Thu", count: 19 },
+    { date: "Fri", count: 28 },
+    { date: "Sat", count: 35 },
+    { date: "Sun", count: 24 },
+  ],
+  activity_by_type: [
+    { type: "auth.login", count: 150 },
+    { type: "mandi.search", count: 320 },
+  ],
+  pending_reviews: 3,
+  total_reviews: 100,
 };
+
+const FALLBACK_AUDIT_LOGS: AdminAuditLog[] = [
+  {
+    id: 1,
+    user_id: 3,
+    activity_type: "auth.login",
+    details: "VIP Founder sign in",
+    logged_at: new Date().toISOString(),
+  },
+];
 
 const FALLBACK_USERS: AdminUser[] = [
   {
@@ -105,7 +101,7 @@ async function adminFetch<T>(path: string, options?: RequestInit): Promise<T> {
       if (path.startsWith("/reviews")) return { total: 0, page: 1, limit: 15, pages: 1, reviews: [] } as unknown as T;
       if (path.startsWith("/content")) return [] as unknown as T;
       if (path.startsWith("/media")) return [] as unknown as T;
-      if (path.startsWith("/audit")) return { total: 1, page: 1, limit: 25, pages: 1, logs: FALLBACK_OVERVIEW.recent_activity } as unknown as T;
+      if (path.startsWith("/audit")) return { total: 1, page: 1, limit: 25, pages: 1, logs: FALLBACK_AUDIT_LOGS } as unknown as T;
     }
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

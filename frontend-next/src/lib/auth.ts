@@ -106,6 +106,10 @@ function writeSession(user: AuthUser | null) {
   }
 }
 
+function readSession(): AuthUser | null {
+  return sessionUser;
+}
+
 let initPromise: Promise<AuthUser | null> | null = null;
 
 export function verifySessionOnLoad(): Promise<AuthUser | null> {
