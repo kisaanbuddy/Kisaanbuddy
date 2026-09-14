@@ -27,6 +27,9 @@ export const metadata: Metadata = {
   title: 'KisaanBuddy — AI for Every Farmer | Smart Agriculture Platform',
   description: 'AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts, khet diary and more.',
   keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan', 'KisaanBuddy'],
+  verification: {
+    google: 'Zj7cIm3Lzc1qehD6ThXe1akgMLDrRU5kRFK6ZYEISlI',
+  },
   icons: { icon: '/favicon.ico', apple: '/icon-192.svg' },
   manifest: '/manifest.json',
   appleWebApp: {
