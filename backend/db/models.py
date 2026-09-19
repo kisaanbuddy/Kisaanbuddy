@@ -257,5 +257,19 @@ if Column is not None:
         last_run_at = Column(DateTime, nullable=False)
 
 
+    class SensorReadingHistory(Base):  # type: ignore[misc]
+        """Historical persistence for ESP32 sensor node telemetry."""
+        __tablename__ = "sensor_readings_history"
+        id = Column(Integer, primary_key=True, index=True)
+        device_id = Column(String(64), nullable=False, index=True)
+        temperature = Column(Float, nullable=True)
+        humidity = Column(Float, nullable=True)
+        soil_temperature = Column(Float, nullable=True)
+        soil_moisture = Column(Float, nullable=True)
+        raw_moisture = Column(Integer, nullable=True)
+        received_at = Column(Float, nullable=False, index=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+
 
 

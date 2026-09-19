@@ -41,7 +41,7 @@ except ImportError:  # pragma: no cover
 # Orchestrator + routers
 # ---------------------------------------------------------------------------
 from services.weather_service import orchestrator
-from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, auth, reviews, testimonials, admin, content, media, health
+from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, auth, reviews, testimonials, admin, content, media, health, jobs
 from api import profile as farmer_profile, fields as farmer_fields
 from api import disease as disease_api
 
@@ -156,6 +156,7 @@ app.include_router(farmer_profile.router, prefix="/api/farmer", tags=["Farmer Pr
 app.include_router(farmer_fields.router, prefix="/api/farmer", tags=["Farmer Fields"])
 app.include_router(disease_api.router, prefix="/api/disease", tags=["Disease"])
 app.include_router(health.router, prefix="/health", tags=["Health"])
+app.include_router(jobs.router, prefix="/api/jobs", tags=["Async Jobs"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
