@@ -82,16 +82,8 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
 
 // ---------------------- low-level storage helpers ----------------------
 
-const FOUNDER_ADMIN_EMAILS = [
-  "aditya@kisaanbuddy.com",
-  "utkarsh@kisaanbuddy.com",
-  "yash@kisaanbuddy.com",
-  "admin@kisaanbuddy.com",
-];
-
 function writeSession(user: AuthUser | null) {
-  if (user && user.email && FOUNDER_ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-    user.role = "Admin";
+  if (user && user.email) {
     if (user.email.toLowerCase() === "aditya@kisaanbuddy.com" && !user.profile_image) {
       user.profile_image = "/aditya.png";
     }

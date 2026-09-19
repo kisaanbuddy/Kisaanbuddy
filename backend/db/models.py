@@ -55,10 +55,10 @@ if Column is not None:
     class FarmerField(Base):  # type: ignore[misc]
         __tablename__ = "farmer_fields"
         id = Column(Integer, primary_key=True, index=True)
-        user_id = Column(Integer, ForeignKey("users.id"))
+        user_id = Column(Integer, ForeignKey("users.id"), index=True)
         field_name = Column(String(255))
         polygon_geojson = Column(Text)  # store GeoJSON string for MVP
-        crop_id = Column(Integer, ForeignKey("crops.id"))
+        crop_id = Column(Integer, ForeignKey("crops.id"), index=True)
         sowing_date = Column(Date)
         soil_type = Column(String(50))
         acreage = Column(Float, nullable=True)
@@ -72,8 +72,8 @@ if Column is not None:
     class DiseaseDetection(Base):  # type: ignore[misc]
         __tablename__ = "disease_detections"
         id = Column(Integer, primary_key=True, index=True)
-        user_id = Column(Integer, ForeignKey("users.id"))
-        field_id = Column(Integer, ForeignKey("farmer_fields.id"))
+        user_id = Column(Integer, ForeignKey("users.id"), index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), index=True)
         image_url = Column(Text, nullable=False)
         detected_disease = Column(String(255))
         crop_name = Column(String(100), nullable=True)
@@ -85,7 +85,7 @@ if Column is not None:
     class ChatInteraction(Base):  # type: ignore[misc]
         __tablename__ = "chat_interactions"
         id = Column(Integer, primary_key=True, index=True)
-        user_id = Column(Integer, ForeignKey("users.id"))
+        user_id = Column(Integer, ForeignKey("users.id"), index=True)
         query_text = Column(Text)
         query_audio_url = Column(Text)
         response_text = Column(Text)
@@ -151,20 +151,22 @@ if Column is not None:
         content_key = Column(String(255), nullable=False, unique=True, index=True)
         value = Column(Text, nullable=False)
         is_published = Column(Boolean, default=True, nullable=False, index=True)
-        updated_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+        updated_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, nullable=False, onupdate=datetime.utcnow)
 
     class MediaAsset(Base):
-        """Owner-uploaded media stored durably with the application database."""
+        """Owner-uploaded media stored durably with metadata and storage references."""
         __tablename__ = "media_assets"
         id = Column(Integer, primary_key=True, index=True)
         filename = Column(String(255), nullable=False)
         content_type = Column(String(100), nullable=False)
-        data = Column(LargeBinary, nullable=False)
+        data = Column(LargeBinary, nullable=True)  # Retained as optional for backwards compatibility
+        storage_path = Column(String(512), nullable=True, index=True)  # Object storage key or local file path
+        public_url = Column(String(1024), nullable=True)  # Public URL / CDN location
         size_bytes = Column(Integer, nullable=False)
         is_published = Column(Boolean, default=True, nullable=False, index=True)
-        uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+        uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
     class Notification(Base):

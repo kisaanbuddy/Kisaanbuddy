@@ -15,8 +15,8 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # --- Authentication & Session Security ---
-    # Production must provide this explicitly; development may generate one at boot.
-    JWT_SECRET: str = ""
+    # Production must provide this explicitly; development uses a local fallback.
+    JWT_SECRET: str = "krishiai_dev_secret_key_change_in_production"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
@@ -52,9 +52,9 @@ class Settings(BaseSettings):
         "https://krishiai.vercel.app",
         "https://kisaanbuddy.vercel.app",
     ]
-    # Regex pattern for allowed origins — covers Vercel preview & production deploys
-    # like https://krishiai-git-feature-branch-username.vercel.app
-    ALLOWED_ORIGIN_REGEX: Optional[str] = r"^https:\/\/.*\.vercel\.app$"
+    # Regex pattern for allowed origins — strictly matches KisaanBuddy & KrishiAI Vercel previews & production deploys
+    # e.g. https://krishiai.vercel.app or https://kisaanbuddy-git-feature.vercel.app
+    ALLOWED_ORIGIN_REGEX: Optional[str] = r"^https:\/\/(kisaanbuddy|krishiai)(-[a-z0-9-]+)?\.vercel\.app$"
 
     # --- HTTP / perf ---
     API_TIMEOUT: float = 5.0  # per-provider request timeout
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
 
     # --- SMS / OTP Provider Settings ---
     OTP_PROVIDER: str = "2factor"
-    TWOFACTOR_API_KEY: Optional[str] = "3dee1f51-ace8-11f1-90d7-0200cd936042"
+    TWOFACTOR_API_KEY: Optional[str] = None
     OTP_EXPIRY_MINUTES: int = 5
     OTP_RESEND_SECONDS: int = 30
     MAX_OTP_ATTEMPTS: int = 5
@@ -114,16 +114,24 @@ def is_configured_admin(email: Optional[str]) -> bool:
 
 
 def validate_production_settings() -> None:
-    """Require a stable signing secret outside explicitly local development."""
+    """Require stable signing secrets and API keys outside explicitly local development."""
     insecure_values = {
         "",
         "change_me_to_a_random_secret",
         "krishiai_production_grade_secret_key_change_me_later",
     }
+    env_name = os.getenv("ENVIRONMENT", "development").lower()
+    is_production = env_name == "production" or not settings.DEBUG
+
     if not settings.JWT_SECRET or settings.JWT_SECRET.strip() in insecure_values:
-        if not settings.DEBUG:
-            raise RuntimeError("JWT_SECRET must be configured securely when DEBUG is false.")
+        if is_production:
+            raise RuntimeError("JWT_SECRET must be explicitly configured with a secure random secret when running in production.")
         import secrets
         settings.JWT_SECRET = secrets.token_urlsafe(48)
         import logging
-        logging.getLogger("krishiai").info("JWT_SECRET automatically initialized with secure token.")
+        logging.getLogger("krishiai").info("JWT_SECRET automatically initialized with secure token for local development.")
+
+    if is_production and settings.ENABLE_SMS_PROVIDER and not settings.TWOFACTOR_API_KEY:
+        import logging
+        logging.getLogger("krishiai").warning("TWOFACTOR_API_KEY is not set. SMS verification will be disabled until configured.")
+

@@ -21,6 +21,7 @@ from db import models
 from db.models import User, UserSession, ActivityLog, Review
 from db.session import get_db
 from services.audit import record_activity
+from services.storage import storage_service
 
 router = APIRouter(dependencies=[Depends(require_admin)])
 _CONTENT_KEY_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9_.-]{0,190}$")
@@ -594,8 +595,19 @@ async def upload_media(
     data = await file.read(MAX_MEDIA_BYTES + 1)
     if not data or len(data) > MAX_MEDIA_BYTES:
         raise HTTPException(status_code=413, detail="Image must be between 1 byte and 5 MB.")
-    asset = models.MediaAsset(filename=(file.filename or "upload")[:255], content_type=file.content_type,
-                               data=data, size_bytes=len(data), uploaded_by=admin.id)
+
+    filename = (file.filename or "upload")[:255]
+    storage_path, public_url = storage_service.save_file(filename, file.content_type, data)
+
+    asset = models.MediaAsset(
+        filename=filename,
+        content_type=file.content_type,
+        data=None,  # Decoupled binary data from DB
+        storage_path=storage_path,
+        public_url=public_url,
+        size_bytes=len(data),
+        uploaded_by=admin.id
+    )
     db.add(asset)
     db.flush()
     record_activity(db, "admin.media_uploaded", user_id=admin.id, details={"media_id": asset.id}, request=request)
@@ -613,6 +625,10 @@ def delete_media(
     asset = db.query(models.MediaAsset).filter(models.MediaAsset.id == media_id).first()
     if asset is None:
         raise HTTPException(status_code=404, detail="Media asset not found.")
+
+    if asset.storage_path:
+        storage_service.delete_file(asset.storage_path)
+
     db.delete(asset)
     record_activity(db, "admin.media_deleted", user_id=admin.id, details={"media_id": media_id}, request=request)
     db.commit()
