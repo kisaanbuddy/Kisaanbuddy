@@ -44,17 +44,26 @@ class JobService:
         self.client.set_json(f"job:{job_id}", job_data, ex=86400 * 3)  # 3 days TTL
         log.info("Created job %s for task_type '%s'", job_id, task_type)
 
-        # Trigger async execution task if handler registered
-        if task_type in self._handlers:
+        # Enqueue job_id to shared Redis task queue
+        if self.client.is_connected and self.client._client:
             try:
-                loop = asyncio.get_running_loop()
-                loop.create_task(self._execute_job(job_id, task_type, payload))
-            except RuntimeError:
-                # Synchronous thread environment fallback
-                try:
-                    asyncio.run(self._execute_job(job_id, task_type, payload))
-                except Exception as e:
-                    log.error("Failed to run async job task: %s", e)
+                self.client._client.rpush("queue:tasks", job_id)
+            except Exception as e:
+                log.error("Failed to push job_id %s to Redis queue:tasks: %s", job_id, e)
+        else:
+            self.client._memory_set("queue:tasks:next", job_id)
+
+        # Trigger async worker execution loop
+        from services.worker import WorkerRunner
+        worker_runner = WorkerRunner(client=self.client)
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(worker_runner.run_once())
+        except RuntimeError:
+            try:
+                asyncio.run(worker_runner.run_once())
+            except Exception as e:
+                log.error("Job execution error: %s", e)
 
         return job_id
 

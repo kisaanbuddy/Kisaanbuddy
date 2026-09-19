@@ -49,10 +49,29 @@ class StateService:
         key = f"session:revoked:{token}"
         return self.client.set(key, "1", ex=ttl_seconds)
 
-    def is_session_revoked(self, token: str) -> bool:
-        """Checks if a session token is revoked."""
+    def is_session_revoked(self, token: str, db: Optional[Any] = None) -> bool:
+        """Checks if a session token is revoked via Redis, with DB fallback when Redis is unavailable."""
         key = f"session:revoked:{token}"
-        return self.client.get(key) is not None
+        revoked_in_redis = self.client.get(key)
+        if revoked_in_redis is not None:
+            return True
+
+        # Fallback to PostgreSQL database query if Redis is disconnected or token not in Redis
+        if db is not None:
+            try:
+                from db import models
+                session_rec = db.query(models.UserSession).filter(
+                    models.UserSession.session_token == token,
+                    models.UserSession.is_revoked.is_(True)
+                ).first()
+                if session_rec is not None:
+                    # Cache back to Redis if connected
+                    self.revoke_session_token(token)
+                    return True
+            except Exception as e:
+                log.warning("DB session revocation fallback check error: %s", e)
+
+        return False
 
     # --- Distributed Rate Limiting Support ---
     def is_rate_limited(self, identifier: str, limit: int, window_seconds: int = 60) -> bool:
