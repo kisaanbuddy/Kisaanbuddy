@@ -86,3 +86,10 @@ def readiness_probe(db: Session = Depends(get_db), response: Response = None) ->
             response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
 
     return details
+
+
+@router.get("/metrics")
+def metrics_probe():
+    """Metrics probe: returns p50, p95, p99 route latencies and error rates."""
+    from core.metrics import get_metrics_summary
+    return get_metrics_summary()

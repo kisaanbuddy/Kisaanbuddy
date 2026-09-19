@@ -126,6 +126,9 @@ log.info("ALLOWED_ORIGIN_REGEX = %r", settings.ALLOWED_ORIGIN_REGEX)
 log.info("CORS KWARGS = %r", _cors_kwargs)
 app.add_middleware(CORSMiddleware, **_cors_kwargs)
 
+from middleware.observability import ObservabilityMiddleware
+app.add_middleware(ObservabilityMiddleware)
+
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
