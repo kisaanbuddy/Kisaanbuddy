@@ -18,8 +18,10 @@ slowapi>=0.1.9
 # Async Redis cache (falls back to in-memory if REDIS_URL is unset)
 redis>=5.0.0
 
-# Database (optional — only if you wire up db/models.py)
+# Database
 sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+alembic>=1.13.0
 
 # File uploads (disease detection endpoint)
 python-multipart>=0.0.9
