@@ -125,7 +125,7 @@ export default function LoginPage() {
       // Keep loading=true during navigation — prevents the form from briefly
       // re-enabling and allows another submit before the new page lands.
       if (res.registered) {
-        window.location.href = res.user.role === "Admin" ? "/admin" : "/dashboard";
+        router.replace(res.user.role === "Admin" ? "/admin" : "/dashboard");
       } else {
         setRegistrationToken(res.registrationToken);
         setLoading(false);
@@ -151,7 +151,7 @@ export default function LoginPage() {
 
     const res = await completeOtpRegistration(registrationToken, cleanName);
     if (res.ok) {
-      window.location.href = res.user?.role === "Admin" ? "/admin" : "/dashboard";
+      router.replace(res.user?.role === "Admin" ? "/admin" : "/dashboard");
     } else {
       setLoading(false);
       setError(res.error || "Registration failed. Please try again.");
@@ -170,7 +170,7 @@ export default function LoginPage() {
     const res = await verifyAndLogin(email, password);
     if (res.ok) {
       const isFounder = ["aditya@kisaanbuddy.com", "utkarsh@kisaanbuddy.com", "yash@kisaanbuddy.com", "admin@kisaanbuddy.com"].includes(email.trim().toLowerCase());
-      window.location.href = (res.user?.role === "Admin" || isFounder) ? "/admin" : "/dashboard";
+      router.replace((res.user?.role === "Admin" || isFounder) ? "/admin" : "/dashboard");
     } else {
       setLoading(false);
       setError(res.error || "Invalid email or password.");
