@@ -289,3 +289,34 @@ function speakText(text) {
         window.speechSynthesis.speak(utterance);
     }
 }
+
+// --- Mobile Menu ---
+function openMobileMenu() {
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const drawer = document.getElementById('mobile-menu-drawer');
+    if (!overlay || !drawer) return;
+    overlay.classList.remove('hidden');
+    drawer.classList.remove('hidden');
+    drawer.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileMenu() {
+    const overlay = document.getElementById('mobile-menu-overlay');
+    const drawer = document.getElementById('mobile-menu-drawer');
+    if (!overlay || !drawer) return;
+    overlay.classList.add('hidden');
+    drawer.classList.add('hidden');
+    drawer.classList.remove('flex');
+    document.body.style.overflow = '';
+}
+
+// Close mobile menu on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMobileMenu();
+});
+
+// Close mobile menu when resized to desktop
+window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768) closeMobileMenu();
+});

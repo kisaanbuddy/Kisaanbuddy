@@ -55,9 +55,9 @@
 
     <!-- Login Overlay -->
     <div id="login-overlay"
-        class="fixed inset-0 z-[1000] flex items-center justify-center bg-background/80 backdrop-blur-2xl transition-all duration-500">
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-background/80 backdrop-blur-2xl transition-all duration-500 px-4">
         <div
-            class="relative w-full max-w-md p-8 glass-panel rounded-3xl border border-glass-border shadow-2xl transform transition-all">
+            class="relative w-full max-w-md p-5 sm:p-8 glass-panel rounded-3xl border border-glass-border shadow-2xl transform transition-all">
             <div
                 class="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-primary/20 blur-2xl rounded-full pointer-events-none">
             </div>
@@ -103,7 +103,7 @@
 
     <!-- Navbar -->
     <nav
-        class="sticky top-4 z-50 mx-4 md:mx-auto max-w-7xl glass-panel border border-glass-border rounded-2xl px-6 py-4 flex items-center justify-between shadow-2xl backdrop-blur-xl bg-white/5">
+        class="sticky top-4 z-50 mx-4 md:mx-auto max-w-7xl glass-panel border border-glass-border rounded-2xl px-4 sm:px-6 py-4 flex items-center justify-between shadow-2xl backdrop-blur-xl bg-white/5">
         <div class="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
             <img src="logo.jpeg" alt="KisaanBuddy Logo" class="w-7 h-7 object-contain">
             Kisaan<span class="text-primary">Buddy</span>
@@ -120,16 +120,71 @@
                 class="hover:text-white hover:drop-shadow-[0_0_10px_rgba(255,255,255,0.3)] transition-all">AI
                 Chatbot</a>
         </div>
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
             <div
-                class="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 p-[2px] shadow-lg cursor-pointer hover:scale-105 transition-transform">
+                class="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-blue-500 p-[2px] shadow-lg cursor-pointer hover:scale-105 transition-transform">
                 <div class="w-full h-full bg-black rounded-full overflow-hidden border-2 border-transparent">
                     <img src="https://api.dicebear.com/6.x/avataaars/svg?seed=Farmer&backgroundColor=transparent"
                         alt="Profile" class="w-full h-full object-cover">
                 </div>
             </div>
+            <!-- Mobile Hamburger Button -->
+            <button id="mobile-menu-btn"
+                class="md:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-white/10 border border-white/10 text-white hover:bg-white/20 transition-all"
+                aria-label="Open menu" onclick="openMobileMenu()">
+                <i id="mobile-menu-icon" class="fa-solid fa-bars text-sm"></i>
+            </button>
         </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu-overlay"
+        class="hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+        onclick="closeMobileMenu()">
+    </div>
+
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-menu-drawer"
+        class="hidden fixed top-0 right-0 bottom-0 z-50 w-72 max-w-[85vw] bg-[#0d0d0d] border-l border-white/10 shadow-2xl md:hidden flex-col">
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between p-5 border-b border-white/10">
+            <div class="flex items-center gap-2 text-lg font-bold text-white">
+                <img src="logo.jpeg" alt="KisaanBuddy Logo" class="w-6 h-6 object-contain">
+                Kisaan<span class="text-primary">Buddy</span>
+            </div>
+            <button onclick="closeMobileMenu()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition-all">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+        <!-- Drawer Nav Links -->
+        <nav class="flex flex-col gap-1 p-4 flex-1">
+            <a href="#dashboard" onclick="closeMobileMenu()"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white bg-primary/10 border border-primary/20">
+                <i class="fa-solid fa-gauge-high text-primary w-4 text-center"></i>
+                Dashboard
+            </a>
+            <a href="#predictor" onclick="closeMobileMenu()"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                <i class="fa-solid fa-brain text-primary w-4 text-center"></i>
+                AI Predictor
+            </a>
+            <a href="#schemes" onclick="closeMobileMenu()"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                <i class="fa-solid fa-landmark text-primary w-4 text-center"></i>
+                Gov. Schemes
+            </a>
+            <a href="#chatbot" onclick="closeMobileMenu()"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all">
+                <i class="fa-solid fa-robot text-primary w-4 text-center"></i>
+                AI Chatbot
+            </a>
+        </nav>
+        <!-- Drawer Footer -->
+        <div class="p-4 border-t border-white/10">
+            <p class="text-xs text-gray-500 text-center">KisaanBuddy • Smart Agriculture</p>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 py-8 space-y-24 scroll-smooth">
@@ -351,7 +406,7 @@
         <!-- Chatbot -->
         <section id="chatbot" class="pt-12 pb-24 fade-in-up" style="animation-delay: 0.4s;">
             <div
-                class="glass-panel border border-glass-border rounded-3xl overflow-hidden shadow-2xl bg-[#0a0a0a]/80 backdrop-blur-2xl max-w-4xl mx-auto flex flex-col h-[600px] relative">
+                class="glass-panel border border-glass-border rounded-3xl overflow-hidden shadow-2xl bg-[#0a0a0a]/80 backdrop-blur-2xl max-w-4xl mx-auto flex flex-col h-[75vh] sm:h-[550px] md:h-[600px] relative">
                 <div
                     class="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent">
                 </div>
