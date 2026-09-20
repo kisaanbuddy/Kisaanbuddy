@@ -8,6 +8,7 @@ import { Analytics } from '@vercel/analytics/react';
 import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import Script from 'next/script';
+import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 /* ---------- System font stacks ----------
  * Replaced next/font/google to avoid build-time downloads from
@@ -131,7 +132,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </a>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-4 md:px-8 pt-10 md:pt-14 pb-6">
+            <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 md:px-8 pt-8 md:pt-14 pb-20 md:pb-6">
               <Breadcrumbs />
               {children}
             </main>
@@ -140,6 +141,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AssistantGate />
           <SwRegister />
           <Analytics />
+          <MobileBottomNav />
           <Script
             src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3770486100255800"
             strategy="lazyOnload"

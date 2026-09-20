@@ -70,7 +70,7 @@ export function Features() {
   const featuresList = (t("features") || []) as { title: string; body: string }[];
 
   return (
-    <section id="features" className="py-24 bg-background relative border-b border-border/50">
+    <section id="features" className="py-14 sm:py-24 bg-background relative border-b border-border/50">
       
       {/* Visual Ambient Glow */}
       <div className="absolute inset-x-0 top-1/3 h-[35%] bg-emerald-500/[0.03] rounded-full blur-[120px] pointer-events-none" />
@@ -97,7 +97,7 @@ export function Features() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURE_METADATA.map((f, i) => {
             const translation = featuresList[f.index] || { title: "", body: "" };
             return (
