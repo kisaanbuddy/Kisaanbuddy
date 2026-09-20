@@ -526,9 +526,15 @@ function ChatbotInner() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-120px)] max-w-4xl mx-auto relative pb-2 px-3 md:px-0">
+    <div className="flex h-[calc(100vh-132px)] max-w-4xl flex-col px-0 pb-2">
       {/* Language Switcher bar */}
-      <div className="flex overflow-x-auto gap-1.5 py-3 custom-scrollbar scrollbar-none shrink-0 border-b border-border/50 mb-3">
+      <div className="mb-3 flex shrink-0 flex-col gap-3 border-b border-border/60 pb-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="eyebrow"><Sparkles className="h-3.5 w-3.5" /> KisaanBuddy AI</p>
+          <h1 className="mt-1 text-xl font-bold">Your farming assistant</h1>
+          <p className="mt-1 text-xs text-muted-foreground">Ask by voice, or add a crop photo for more context.</p>
+        </div>
+        <div className="flex max-w-full overflow-x-auto gap-1.5 custom-scrollbar scrollbar-none">
         {(Object.keys(LANG_CONFIG) as Lang[]).map((code) => {
           const isSelected = activeLang === code
           return (
@@ -545,13 +551,14 @@ function ChatbotInner() {
             </button>
           )
         })}
+        </div>
       </div>
 
       {/* Main layout split (Top: Giant mic, Bottom: bubble list) */}
       <div className="flex-1 flex flex-col justify-between overflow-hidden gap-4">
         
         {/* UPPER PORTION: Voice control panel */}
-        <div className="flex flex-col items-center justify-center py-4 relative select-none">
+        <div className="relative flex flex-col items-center justify-center rounded-2xl border border-border bg-card/70 py-4 shadow-xs select-none">
           
           {/* Audio ripples */}
           <div className="relative h-40 w-40 flex items-center justify-center">

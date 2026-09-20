@@ -40,7 +40,7 @@ export function WeatherCard({ data, loading, error, onRetry, sunrise, sunset }: 
   const { unit } = useUnit()
 
   return (
-    <GlassCard className="h-full overflow-hidden bg-card border-border/50 shadow-sm">
+    <GlassCard className="h-full overflow-hidden border-border bg-card shadow-xs">
       <CardHeader className="pb-2 border-b border-border/40">
         <div className="flex items-start justify-between gap-4">
           <CardTitle className="flex items-center gap-2 text-xs md:text-sm font-display text-foreground font-bold">
@@ -93,7 +93,7 @@ export function WeatherCard({ data, loading, error, onRetry, sunrise, sunset }: 
             <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
               <div className="text-center md:text-left space-y-2">
                 <div className="flex items-baseline justify-center gap-0.5 md:justify-start">
-                  <h2 className="bg-gradient-to-r from-sky-400 via-blue-400 to-teal-400 bg-clip-text text-6xl md:text-7xl font-display font-black leading-none text-transparent">
+                  <h2 className="text-6xl font-display font-bold leading-none tracking-tight text-foreground md:text-7xl">
                     {Math.round(pickTemp(data.current.temp_c, data.current.temp_f, unit))}
                   </h2>
                   <span className="text-2xl font-light text-muted-foreground/80">°{unit}</span>

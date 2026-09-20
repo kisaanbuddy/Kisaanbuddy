@@ -132,7 +132,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </a>
           <div className="relative flex min-h-screen flex-col">
             <Header />
-            <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-3 sm:px-4 md:px-8 pt-8 md:pt-14 pb-20 md:pb-6">
+            <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 md:pt-10 pb-24 md:pb-10">
               <Breadcrumbs />
               {children}
             </main>

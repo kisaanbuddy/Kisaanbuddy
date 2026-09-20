@@ -238,3 +238,51 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* --------------------------------------------------------------------------
+   KisaanBuddy v2 design language: calm daylight surfaces and clear hierarchy.
+   These tokens intentionally override the older emerald-heavy foundation.
+   -------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --background: 42 33% 98%; --foreground: 157 24% 15%;
+    --card: 0 0% 100%; --card-foreground: 157 24% 15%;
+    --popover: 0 0% 100%; --popover-foreground: 157 24% 15%;
+    --primary: 158 54% 28%; --primary-foreground: 0 0% 100%;
+    --secondary: 39 46% 94%; --secondary-foreground: 157 38% 22%;
+    --muted: 42 22% 94%; --muted-foreground: 157 11% 39%;
+    --accent: 151 28% 92%; --accent-foreground: 157 47% 24%;
+    --destructive: 3 65% 48%; --destructive-foreground: 0 0% 100%;
+    --border: 39 17% 85%; --input: 39 17% 82%; --ring: 158 54% 28%;
+    --radius: .875rem; --surface-elevated: 0 0% 100%; --surface-sunken: 42 27% 96%;
+    --card-border: 39 17% 85%; --card-border-hover: 158 30% 63%;
+    --badge-bg: 151 29% 92%; --badge-text: 158 54% 25%;
+  }
+  .dark {
+    --background: 156 20% 8%; --foreground: 40 33% 96%;
+    --card: 156 18% 12%; --card-foreground: 40 33% 96%;
+    --popover: 156 18% 12%; --popover-foreground: 40 33% 96%;
+    --primary: 151 52% 49%; --primary-foreground: 155 24% 9%;
+    --secondary: 156 15% 17%; --secondary-foreground: 40 33% 96%;
+    --muted: 156 14% 16%; --muted-foreground: 42 14% 70%;
+    --accent: 156 19% 18%; --accent-foreground: 40 33% 96%;
+    --destructive: 4 69% 57%; --destructive-foreground: 0 0% 100%;
+    --border: 155 13% 23%; --input: 155 13% 25%; --ring: 151 52% 49%;
+    --surface-elevated: 156 18% 14%; --surface-sunken: 156 23% 7%;
+    --card-border: 155 13% 23%; --card-border-hover: 151 29% 42%;
+    --badge-bg: 151 31% 16%; --badge-text: 151 56% 68%;
+  }
+  body { font-feature-settings: "cv02", "cv03", "cv04", "cv11"; }
+  :focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+}
+
+@layer components {
+  .surface-card { @apply rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-xs transition-all duration-200; }
+  .surface-card:hover { border-color: hsl(var(--card-border-hover)); box-shadow: 0 8px 20px -16px rgba(24, 57, 42, .35); }
+  .eyebrow { @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.12em] text-primary; }
+  .section-heading { @apply text-2xl font-bold tracking-tight sm:text-3xl; }
+  .page-intro { @apply max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base; }
+  .input-base { @apply rounded-xl border-input bg-card focus:border-primary focus:ring-4 focus:ring-primary/10; }
+  .select-base { @apply rounded-xl border-input bg-card focus:border-primary focus:ring-4 focus:ring-primary/10; }
+  .btn-primary, .btn-secondary, .btn-ghost { @apply rounded-xl; }
+}

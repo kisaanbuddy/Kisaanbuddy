@@ -19,8 +19,8 @@ export function MobileBottomNav() {
   const isHi = lang === 'hi';
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white border-t border-gray-200 shadow-[0_-2px_16px_rgba(0,0,0,0.06)]">
-      <div className="flex items-center justify-around px-1 py-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-18px_rgba(24,57,42,.28)] backdrop-blur md:hidden">
+      <div className="flex items-center justify-around px-1 py-1.5">
         {NAV_ITEMS.map(({ href, icon: Icon, labelEn, labelHi }) => {
           const isActive = href === '/' ? pathname === '/' : pathname?.startsWith(href);
           return (
@@ -29,8 +29,8 @@ export function MobileBottomNav() {
               href={href}
               className={`relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-lg transition-colors ${
                 isActive
-                  ? 'text-emerald-700'
-                  : 'text-gray-500 hover:text-gray-800'
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Icon
@@ -41,7 +41,7 @@ export function MobileBottomNav() {
                 {isHi ? labelHi : labelEn}
               </span>
               {isActive && (
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-600" />
+                <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
               )}
             </Link>
           );

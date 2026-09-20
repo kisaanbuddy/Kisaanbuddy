@@ -180,8 +180,22 @@ export default function LoginPage() {
   const isLocked = error?.toLowerCase().includes("lock") || error?.toLowerCase().includes("too many");
 
   return (
-    <div className="flex min-h-[75vh] items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+    <div className="flex min-h-[76vh] items-center justify-center py-6 sm:py-10">
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_60px_-34px_rgba(24,57,42,.42)] md:grid-cols-[.9fr_1.1fr]">
+        <aside className="relative hidden overflow-hidden bg-primary p-8 text-primary-foreground md:flex md:flex-col">
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 text-sm font-bold"><span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15">🌱</span> KisaanBuddy</div>
+            <p className="mt-16 text-3xl font-bold leading-tight tracking-tight">{t("login.welcomeBack")}</p>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/75">One simple place for the information that matters on your farm.</p>
+          </div>
+          <div className="relative z-10 mt-auto rounded-2xl border border-white/15 bg-white/10 p-4 text-xs leading-relaxed text-white/85">
+            <p className="font-semibold text-white">{t("login.phoneLabel")}</p>
+            <p className="mt-1">Use a mobile number to sign in securely with a one-time password.</p>
+          </div>
+          <div className="absolute -bottom-20 -right-14 h-64 w-64 rounded-full border-[28px] border-white/10" />
+          <div className="absolute right-10 top-28 h-16 w-16 rounded-full bg-[#f3c76d]/80" />
+        </aside>
+        <div className="w-full p-6 sm:p-8 md:p-10">
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-3">
@@ -462,6 +476,7 @@ export default function LoginPage() {
             </button>
           </form>
         )}
+        </div>
       </div>
     </div>
   );

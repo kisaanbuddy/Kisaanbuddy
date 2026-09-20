@@ -40,10 +40,11 @@ export function Header() {
   const { lang, setLang, t }        = useLanguage();
   const [langOpen, setLangOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [toolsOpen, setToolsOpen]   = useState(false);
   const NAV_LINKS = NAV_LINK_DEFS.map(d => ({ href: d.href, label: t(d.key as any) as string, icon: d.icon }));
 
   /* close drawer on route change */
-  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => { setOpen(false); setToolsOpen(false); }, [pathname]);
 
   /* Ctrl+K keyboard shortcut to toggle search modal */
   useEffect(() => {
@@ -103,7 +104,7 @@ export function Header() {
             : 'bg-background/70 backdrop-blur-xs border-border/60'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex h-14 items-center justify-between px-4 md:px-8">
+        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
           {/* ── Logo ── */}
           <Link
             href={user ? '/dashboard' : '/'}
@@ -130,8 +131,8 @@ export function Header() {
 
           {/* ── Desktop Nav ── */}
           {showFullNav ? (
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-medium">
-              {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+            <nav className="hidden lg:flex items-center gap-1 text-xs font-medium" aria-label="Primary navigation">
+              {NAV_LINKS.slice(0, 4).map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}
@@ -145,11 +146,33 @@ export function Header() {
                   <span>{label}</span>
                 </Link>
               ))}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setToolsOpen(value => !value)}
+                  aria-expanded={toolsOpen}
+                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+                >
+                  <span>{lang === 'hi' ? 'और टूल' : 'More tools'}</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {toolsOpen && (
+                  <>
+                    <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
+                    <div className="absolute left-0 top-9 z-50 grid w-60 grid-cols-1 gap-1 rounded-xl border border-border bg-popover p-1.5 shadow-lg">
+                      {NAV_LINKS.slice(4).map(({ href, label, icon: Icon }) => (
+                        <Link key={href} href={href} onClick={() => setToolsOpen(false)} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${isActive(href) ? 'bg-primary/10 font-semibold text-primary' : 'text-foreground hover:bg-muted'}`}>
+                          <Icon className="h-3.5 w-3.5 text-primary" /><span>{label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </nav>
           ) : (
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold">
+            <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Public navigation">
               <Link href="/#features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "एक ही जगह सब कुछ" : "All In One Place"}
+                {lang === 'hi' ? "सुविधाएं" : "Features"}
               </Link>
               <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "मंडी भाव" : "Mandi"}
@@ -157,11 +180,11 @@ export function Header() {
               <Link href="/weather" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "मौसम" : "Weather"}
               </Link>
-              <Link href="/#technology" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "कृषि तकनीक आर्किटेक्चर" : "Agritech Architecture"}
+              <Link href="/schemes" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+                {lang === 'hi' ? "योजनाएं" : "Schemes"}
               </Link>
-              <Link href="/#founders" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "संस्थापक" : "Founders"}
+              <Link href="/about" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+                {lang === 'hi' ? "हमारे बारे में" : "About"}
               </Link>
             </nav>
           )}

@@ -1,110 +1,84 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CloudSun, Leaf, ScanLine, Sprout } from 'lucide-react';
+import { ArrowRight, CloudSun, Droplets, Leaf, MapPin, ScanLine, Sprout, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
 const capabilities = [
   { icon: CloudSun, key: 'weather', href: '/weather' },
   { icon: ScanLine, key: 'disease', href: '/disease' },
-  { icon: Sprout, key: 'crop', href: '/crop-predictor' },
+  { icon: TrendingUp, key: 'mandi', href: '/mandi' },
 ];
 
 export function Hero() {
   const { lang } = useLanguage();
   const isHi = lang === 'hi';
 
+  const label = (key: string) => {
+    if (key === 'weather') return isHi ? 'खेत का मौसम' : 'Farm weather';
+    if (key === 'disease') return isHi ? 'फसल की जांच' : 'Crop health check';
+    return isHi ? 'आज का मंडी भाव' : 'Today’s mandi prices';
+  };
+
   return (
-    <section className="relative overflow-hidden bg-background border-b border-border/60 py-8 sm:py-14 lg:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
-        
-        {/* Left Column: Heading + Description + CTAs */}
-        <div className="lg:col-span-7 flex flex-col items-start text-left">
-          {/* Badge */}
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-700 select-none">
-            <Leaf className="h-3 w-3 text-emerald-600" />
-            <span>
-              {isHi ? "भारतीय खेती के लिए व्यावहारिक उपकरण" : "Practical tools for Indian farming"}
-            </span>
+    <section className="relative overflow-hidden border-b border-border bg-[#f7f5ee] py-10 sm:py-16 lg:py-20 dark:bg-background">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-[radial-gradient(ellipse_at_75%_100%,rgba(108,144,78,.14),transparent_58%)]" />
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-14 lg:px-8">
+        <div className="lg:col-span-7">
+          <div className="eyebrow mb-5 rounded-full border border-primary/15 bg-primary/5 px-3 py-1.5 normal-case tracking-normal">
+            <Leaf className="h-3.5 w-3.5" />
+            <span>{isHi ? 'किसानों के रोज़ के फैसलों के लिए' : 'For everyday farm decisions'}</span>
           </div>
-
-          {/* Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-[54px] font-display font-bold tracking-tight text-foreground leading-[1.1]">
-            {isHi ? (
-              <>खेत के हर फैसले को दें<br />अधिक स्पष्टता।</>
-            ) : (
-              <>Make every farm<br />decision with more<br />clarity.</>
-            )}
+          <h1 className="max-w-3xl text-4xl font-bold leading-[1.07] tracking-[-.04em] text-foreground sm:text-5xl lg:text-6xl">
+            {isHi ? <>हर खेत के लिए<br /><span className="text-primary">साफ़, समय पर सलाह।</span></> : <>Clear, timely advice<br />for <span className="text-primary">every field.</span></>}
           </h1>
-
-          {/* Subtitle */}
-          <p className="mt-3 sm:mt-5 max-w-xl text-sm sm:text-lg text-muted-foreground leading-relaxed font-normal">
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {isHi
-              ? "किसान बडी फसल योजना, रोग जांच, स्थानीय मौसम, मंडी भाव और सरकारी योजनाओं को एक सरल मंच पर लाता है।"
-              : "Kisaan Buddy brings crop planning, disease checks, local weather, mandi prices, and government schemes into one simple place."}
+              ? 'मौसम, फसल की सेहत, मंडी भाव और सरकारी योजनाएं—आपकी भाषा में, एक भरोसेमंद जगह पर।'
+              : 'Weather, crop health, mandi prices and government schemes—brought together in one dependable place, in your language.'}
           </p>
-
-          {/* CTA Buttons */}
-          <div className="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-            <Link href="/signup" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto h-12 sm:h-11 px-6 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-sm transition-all">
-                <span>{isHi ? "किसान बडी शुरू करें" : "Start using Kisaan Buddy"}</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <Link href="/signup" className="btn-primary h-12 px-5 text-sm">
+              {isHi ? 'अभी शुरू करें' : 'Get started'} <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/weather" className="w-full sm:w-auto">
-              <button className="w-full sm:w-auto h-12 sm:h-11 px-5 rounded-xl border border-border bg-card hover:bg-muted/60 text-foreground text-sm font-semibold transition-all shadow-sm">
-                {isHi ? "खेत का मौसम देखें" : "Check farm weather"}
-              </button>
+            <Link href="/disease" className="btn-secondary h-12 px-5 text-sm">
+              <ScanLine className="h-4 w-4 text-primary" /> {isHi ? 'फसल की फोटो जांचें' : 'Check a crop photo'}
             </Link>
           </div>
-
-          {/* Subtext note */}
-          <p className="mt-3 text-xs text-muted-foreground font-normal">
-            {isHi ? "शुरू करने के लिए अपनी फसल और स्थान चुनें।" : "Use your own inputs and location to get started."}
-          </p>
+          <p className="mt-4 text-xs text-muted-foreground">{isHi ? 'मोबाइल पर इस्तेमाल करने के लिए बनाया गया' : 'Made to work beautifully on your phone'}</p>
         </div>
 
-        {/* Right Column: Built for the field Card */}
-        <div className="lg:col-span-5 w-full flex justify-center lg:justify-end mt-2 sm:mt-0">
-          <div className="w-full max-w-md rounded-2xl border border-border/80 bg-card p-2 shadow-sm">
-            <div className="rounded-xl border border-border/70 bg-background p-5 sm:p-7">
-              <p className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.14em] text-emerald-600">
-                {isHi ? "खेत के लिए निर्मित" : "BUILT FOR THE FIELD"}
-              </p>
-              <h2 className="mt-1.5 text-lg sm:text-2xl font-bold tracking-tight text-foreground">
-                {isHi ? "जरूरी चीजें, बिना किसी भटकाव के।" : "The essentials, without the clutter."}
-              </h2>
-
-              <div className="mt-4 divide-y divide-border border-y border-border">
-                {capabilities.map(({ icon: Icon, key, href }) => {
-                  const title = key === "weather"
-                    ? (isHi ? "आपके खेत का मौसम" : "Weather for your farm")
-                    : key === "disease"
-                    ? (isHi ? "फसल रोग पहचानें" : "Identify crop disease")
-                    : (isHi ? "अगली फसल की योजना" : "Plan the next crop");
-
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      className="group flex items-center gap-4 py-3.5 first:pt-3.5 last:pb-3.5 transition-colors cursor-pointer"
-                    >
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 group-hover:bg-emerald-500/20 transition-colors">
-                        <Icon className="h-4 w-4" />
-                      </span>
-                      <span className="flex-1 text-sm font-semibold text-foreground group-hover:text-emerald-600 transition-colors">
-                        {title}
-                      </span>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
-                    </Link>
-                  );
-                })}
+        <div className="lg:col-span-5">
+          <div className="overflow-hidden rounded-[1.4rem] border border-[#d8d5c9] bg-card shadow-[0_20px_50px_-30px_rgba(24,57,42,.45)] dark:border-border">
+            <div className="flex items-center justify-between border-b border-border bg-[#fbfaf6] px-5 py-4 dark:bg-card">
+              <div>
+                <p className="text-xs font-bold text-foreground">{isHi ? 'आज का खेत संक्षेप' : 'Today’s farm brief'}</p>
+                <p className="mt-0.5 flex items-center gap-1 text-[11px] text-muted-foreground"><MapPin className="h-3 w-3" /> {isHi ? 'अपना स्थान जोड़ें' : 'Add your location'}</p>
+              </div>
+              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">{isHi ? 'सुबह की जानकारी' : 'Morning update'}</span>
+            </div>
+            <div className="space-y-3 p-4 sm:p-5">
+              <div className="grid grid-cols-[1.1fr_.9fr] gap-3">
+                <div className="rounded-2xl bg-primary p-4 text-primary-foreground">
+                  <div className="flex items-center justify-between"><CloudSun className="h-5 w-5 text-[#f4c76e]" /><span className="text-[10px] font-medium opacity-80">Weather</span></div>
+                  <p className="mt-6 text-3xl font-bold tracking-tight">28°</p>
+                  <p className="mt-1 text-xs opacity-85">{isHi ? 'हल्की धूप · हवा शांत' : 'Mild sun · calm wind'}</p>
+                </div>
+                <div className="rounded-2xl border border-border bg-muted/50 p-4">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/10 text-sky-700"><Droplets className="h-4 w-4" /></div>
+                  <p className="mt-4 text-lg font-bold text-foreground">68%</p>
+                  <p className="text-[11px] leading-tight text-muted-foreground">{isHi ? 'मिट्टी की नमी' : 'Soil moisture'}</p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-[#dce5d7] bg-[#f4f8f0] p-4 dark:border-primary/20 dark:bg-primary/10">
+                <div className="flex gap-3"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-card text-primary shadow-xs"><Sprout className="h-4 w-4" /></span><div><p className="text-xs font-bold text-foreground">{isHi ? 'आज की सलाह' : 'Today’s advice'}</p><p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">{isHi ? 'मौसम शांत है—सुबह सिंचाई की योजना बनाने का अच्छा समय है।' : 'Calm weather: a good window to plan morning irrigation.'}</p></div></div>
+              </div>
+              <div className="divide-y divide-border rounded-xl border border-border bg-card px-4">
+                {capabilities.map(({ icon: Icon, key, href }) => <Link key={key} href={href} className="group flex items-center gap-3 py-3"><span className="text-primary"><Icon className="h-4 w-4" /></span><span className="flex-1 text-xs font-semibold text-foreground">{label(key)}</span><ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1" /></Link>)}
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </section>
   );
