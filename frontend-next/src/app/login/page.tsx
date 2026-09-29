@@ -4,7 +4,7 @@ import { useLanguage } from "@/lib/language";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Sparkles, Phone, AlertCircle, AlertTriangle, ArrowRight, Check, RefreshCw } from "lucide-react";
+import { Loader2, Sparkles, Phone, ArrowRight, Check, RefreshCw, AlertTriangle } from "lucide-react";
 import { useAuth, sendOtp, verifyOtp, completeOtpRegistration, verifyAndLogin } from "@/lib/auth";
 import { OtpInput } from "@/components/auth/OtpInput";
 
@@ -53,11 +53,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Only redirect if the session was already valid BEFORE the user reached
+  // this page (e.g. they typed /login in the address bar while logged in).
+  // Post-login handlers below use window.location.href — a full-page
+  // navigation — so the HttpOnly Set-Cookie header from /api/auth/verify-otp
+  // is committed to the browser jar BEFORE Next.js middleware calls
+  // /api/auth/me on the destination route.  router.replace() is a client-side
+  // SPA hop that races with cookie propagation and causes the OTP loop.
   useEffect(() => {
     if (ready && user) {
-      router.replace(postLoginPath(user.role));
+      window.location.replace(postLoginPath(user.role));
     }
-  }, [ready, user, router]);
+  }, [ready, user]);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -130,10 +137,10 @@ export default function LoginPage() {
 
     const res = await verifyOtp(phone, cleanOtp);
     if (res.ok) {
-      // Keep loading=true during navigation — prevents the form from briefly
-      // re-enabling and allows another submit before the new page lands.
       if (res.registered) {
-        router.replace(postLoginPath(res.user.role));
+        // Full-page navigation: browser flushes the Set-Cookie header from
+        // verify-otp BEFORE middleware validates the session on /dashboard.
+        window.location.href = postLoginPath(res.user.role);
       } else {
         setRegistrationToken(res.registrationToken);
         setLoading(false);
@@ -159,7 +166,8 @@ export default function LoginPage() {
 
     const res = await completeOtpRegistration(registrationToken, cleanName);
     if (res.ok) {
-      router.replace(postLoginPath(res.user?.role));
+      // Full-page navigation so cookie is committed before middleware runs.
+      window.location.href = postLoginPath(res.user?.role);
     } else {
       setLoading(false);
       setError(res.error || "Registration failed. Please try again.");
@@ -177,7 +185,8 @@ export default function LoginPage() {
     setNotice(null);
     const res = await verifyAndLogin(email, password);
     if (res.ok) {
-      router.replace(postLoginPath(res.user.role));
+      // Full-page navigation so cookie is committed before middleware runs.
+      window.location.href = postLoginPath(res.user.role);
     } else {
       setLoading(false);
       setError(res.error || "Invalid email or password.");
