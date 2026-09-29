@@ -8,6 +8,14 @@ import { Loader2, Sparkles, Phone, AlertCircle, AlertTriangle, ArrowRight, Check
 import { useAuth, sendOtp, verifyOtp, completeOtpRegistration, verifyAndLogin } from "@/lib/auth";
 import { OtpInput } from "@/components/auth/OtpInput";
 
+function postLoginPath(role?: string) {
+  if (role === "Admin") return "/admin";
+  if (typeof window === "undefined") return "/dashboard";
+  const next = new URLSearchParams(window.location.search).get("next");
+  // Only permit an in-app relative path; never make login an open redirect.
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+}
+
 export default function LoginPage() {
   const { t } = useLanguage();
   const lt = {
@@ -47,7 +55,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (ready && user) {
-      router.replace("/dashboard");
+      router.replace(postLoginPath(user.role));
     }
   }, [ready, user, router]);
 
@@ -125,7 +133,7 @@ export default function LoginPage() {
       // Keep loading=true during navigation — prevents the form from briefly
       // re-enabling and allows another submit before the new page lands.
       if (res.registered) {
-        router.replace(res.user.role === "Admin" ? "/admin" : "/dashboard");
+        router.replace(postLoginPath(res.user.role));
       } else {
         setRegistrationToken(res.registrationToken);
         setLoading(false);
@@ -151,7 +159,7 @@ export default function LoginPage() {
 
     const res = await completeOtpRegistration(registrationToken, cleanName);
     if (res.ok) {
-      router.replace(res.user?.role === "Admin" ? "/admin" : "/dashboard");
+      router.replace(postLoginPath(res.user?.role));
     } else {
       setLoading(false);
       setError(res.error || "Registration failed. Please try again.");
@@ -169,8 +177,7 @@ export default function LoginPage() {
     setNotice(null);
     const res = await verifyAndLogin(email, password);
     if (res.ok) {
-      const isFounder = ["aditya@kisaanbuddy.com", "utkarsh@kisaanbuddy.com", "yash@kisaanbuddy.com", "admin@kisaanbuddy.com"].includes(email.trim().toLowerCase());
-      router.replace((res.user?.role === "Admin" || isFounder) ? "/admin" : "/dashboard");
+      router.replace(postLoginPath(res.user.role));
     } else {
       setLoading(false);
       setError(res.error || "Invalid email or password.");
@@ -178,6 +185,19 @@ export default function LoginPage() {
   };
 
   const isLocked = error?.toLowerCase().includes("lock") || error?.toLowerCase().includes("too many");
+
+  // Do not flash the OTP form while the root auth provider validates the
+  // persistent HttpOnly-cookie session.
+  if (!ready || user) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center" role="status" aria-live="polite">
+        <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          {user ? "Opening your dashboard…" : "Checking your secure session…"}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-[76vh] items-center justify-center py-6 sm:py-10">

@@ -34,6 +34,11 @@ class TestAuthSystem(unittest.TestCase):
         Base.metadata.create_all(bind=engine)
         if limiter:
             limiter.enabled = False
+        # Authentication tests must use an explicit signing key; production
+        # correctly refuses an unset JWT secret.
+        from core.config import settings
+        cls._orig_jwt = settings.JWT_SECRET
+        settings.JWT_SECRET = "test_jwt_secret_key_for_testing_12345"
         cls.client = TestClient(app, base_url="https://testserver")
 
     @classmethod
@@ -43,6 +48,8 @@ class TestAuthSystem(unittest.TestCase):
         engine.dispose()
         if os.path.exists("./test_auth.db"):
             os.remove("./test_auth.db")
+        from core.config import settings
+        settings.JWT_SECRET = cls._orig_jwt
 
     def setUp(self):
         app.dependency_overrides[get_db] = override_get_db

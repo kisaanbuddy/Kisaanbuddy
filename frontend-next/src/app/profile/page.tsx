@@ -90,9 +90,9 @@ export default function ProfilePage() {
     );
   }
 
-  const handleLogout = () => {
-    logoutUser();
-    router.push("/");
+  const handleLogout = async () => {
+    await logoutUser();
+    router.replace("/login");
   };
 
   // Format initials

@@ -79,10 +79,10 @@ export function Header() {
     return pathname?.startsWith(href) ?? false;
   }
 
-  function handleLogout() {
-    logoutUser();
+  async function handleLogout() {
+    await logoutUser();
     setOpen(false);
-    router.push('/');
+    router.replace('/login');
   }
 
   /* user initials for avatar */
