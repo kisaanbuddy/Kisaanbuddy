@@ -1,0 +1,18 @@
+{
+  "mobilenet_v3_small": {
+    "in_distribution_mean_confidence": 0.578,
+    "ood_mean_confidence": 0.5807,
+    "ood_rejection_rate_softmax_p0.60": 0.5,
+    "false_rejection_rate_in_dist": 0.6105,
+    "ood_rejection_rate_entropy": 0.5,
+    "status": "OOD detection requires feature-space Mahalanobis/ReAct modeling in Phase 3B. Softmax alone is insufficient."
+  },
+  "efficientnet_v2_s": {
+    "in_distribution_mean_confidence": 0.5406,
+    "ood_mean_confidence": 0.6366,
+    "ood_rejection_rate_softmax_p0.60": 0.25,
+    "false_rejection_rate_in_dist": 0.7595,
+    "ood_rejection_rate_entropy": 0.0,
+    "status": "OOD detection requires feature-space Mahalanobis/ReAct modeling in Phase 3B. Softmax alone is insufficient."
+  }
+}
