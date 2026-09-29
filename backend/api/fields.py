@@ -4,7 +4,7 @@ from typing import Any, List
 
 from api.auth import get_current_user
 from db.session import get_db
-from db.models import FarmerField, User
+from db.models import Farm, FarmerField, User
 from schemas.farmer import FarmerFieldCreate, FarmerFieldUpdate, FarmerFieldResponse
 
 router = APIRouter()
@@ -25,6 +25,10 @@ def create_field(
     db: Session = Depends(get_db)
 ) -> Any:
     """Create a new field for the current user."""
+    if field_in.farm_id is not None:
+        farm = db.query(Farm).filter(Farm.id == field_in.farm_id, Farm.user_id == current_user.id).first()
+        if not farm:
+            raise HTTPException(status_code=404, detail="Farm not found")
     field = FarmerField(user_id=current_user.id, **field_in.model_dump())
     db.add(field)
     db.commit()
@@ -42,8 +46,13 @@ def update_field(
     field = db.query(FarmerField).filter(FarmerField.id == id, FarmerField.user_id == current_user.id).first()
     if not field:
         raise HTTPException(status_code=404, detail="Field not found")
+    values = field_in.model_dump(exclude_unset=True)
+    if "farm_id" in values and values["farm_id"] is not None:
+        farm = db.query(Farm).filter(Farm.id == values["farm_id"], Farm.user_id == current_user.id).first()
+        if not farm:
+            raise HTTPException(status_code=404, detail="Farm not found")
         
-    for var, value in field_in.model_dump(exclude_unset=True).items():
+    for var, value in values.items():
         setattr(field, var, value)
         
     db.commit()

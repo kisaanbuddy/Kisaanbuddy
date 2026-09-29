@@ -6,12 +6,13 @@ import { useLanguage } from "@/lib/language";
 type OtpInputProps = {
   value: string;
   onChange: (value: string) => void;
+  onComplete?: () => void;
   disabled?: boolean;
 };
 
 const OTP_LENGTH = 6;
 
-export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
+export function OtpInput({ value, onChange, onComplete, disabled = false }: OtpInputProps) {
   const { t } = useLanguage();
   const inputs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = Array.from({ length: OTP_LENGTH }, (_, index) => value[index] || "");
@@ -20,7 +21,15 @@ export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
     inputs.current[0]?.focus();
   }, []);
 
-  const setDigits = (next: string[]) => onChange(next.join("").replace(/\D/g, "").slice(0, OTP_LENGTH));
+  const setDigits = (next: string[]) => {
+    const newValue = next.join("").replace(/\D/g, "").slice(0, OTP_LENGTH);
+    onChange(newValue);
+    // Auto-submit when all 6 digits are filled
+    if (newValue.length === OTP_LENGTH && onComplete) {
+      // Small delay so React can flush the state update before form submission
+      setTimeout(() => onComplete(), 50);
+    }
+  };
   
   const fillFrom = (index: number, rawValue: string) => {
     const incoming = rawValue.replace(/\D/g, "").slice(0, OTP_LENGTH - index).split("");
@@ -51,6 +60,10 @@ export function OtpInput({ value, onChange, disabled = false }: OtpInputProps) {
     if (!pasted) return;
     onChange(pasted);
     inputs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus();
+    // Auto-submit on paste if all 6 digits received
+    if (pasted.length === OTP_LENGTH && onComplete) {
+      setTimeout(() => onComplete(), 50);
+    }
   };
 
   return (

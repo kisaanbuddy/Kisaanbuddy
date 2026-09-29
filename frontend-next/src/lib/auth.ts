@@ -7,7 +7,9 @@ let sessionUser: AuthUser | null = null;
 // Tracks when a session was last written so we can protect against clearing a
 // freshly-set session before the browser has had a chance to send the cookie.
 let _sessionWrittenAt = 0;
-const SESSION_GRACE_MS = 6000; // 6 s — enough for cookie propagation + /me round-trip
+// Raised to 30 s to cover Render.com cold-start delays (10-15 s) plus the
+// time needed for cookie propagation and the /me round-trip.
+const SESSION_GRACE_MS = 30000;
 
 export type AuthUser = {
   id: number;
@@ -153,6 +155,16 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
             writeSession(user);
             return user;
           }
+        }
+
+        // Re-check grace period after the refresh attempt — the refresh
+        // round-trip itself can take several seconds on cold-start servers.
+        // If we are still within the grace window, preserve the in-memory
+        // session rather than wiping it and sending the user back to /login.
+        const stillWithinGrace = Date.now() - _sessionWrittenAt < SESSION_GRACE_MS;
+        const sessionAfterRefresh = readSession();
+        if (stillWithinGrace && sessionAfterRefresh) {
+          return sessionAfterRefresh;
         }
       }
 

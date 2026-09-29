@@ -42,6 +42,7 @@ if Column is not None:
         last_seen_at = Column(DateTime, nullable=True)
 
         fields = relationship("FarmerField", back_populates="user")
+        farms = relationship("Farm", back_populates="user")
 
 
     class Crop(Base):  # type: ignore[misc]
@@ -64,9 +65,80 @@ if Column is not None:
         acreage = Column(Float, nullable=True)
         current_crop = Column(String(100), nullable=True)
         irrigation_type = Column(String(100), nullable=True)
+        farm_id = Column(Integer, ForeignKey("farms.id"), nullable=True, index=True)
+        area_unit = Column(String(20), default="acre")
+        location_text = Column(String(255), nullable=True)
+        water_source = Column(String(100), nullable=True)
+        crop_variety = Column(String(100), nullable=True)
+        season = Column(String(50), nullable=True)
+        previous_crop = Column(String(100), nullable=True)
+        expected_harvest = Column(Date, nullable=True)
+        notes = Column(Text, nullable=True)
 
         user = relationship("User", back_populates="fields")
         crop = relationship("Crop")
+        farm = relationship("Farm", back_populates="fields")
+        crop_cycles = relationship("FieldCrop", back_populates="field", cascade="all, delete-orphan")
+        activities = relationship("FarmActivity", back_populates="field", cascade="all, delete-orphan")
+
+
+    class Farm(Base):  # type: ignore[misc]
+        """A farmer-owned farm. Fields are the operational unit below it."""
+        __tablename__ = "farms"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        name = Column(String(150), nullable=False)
+        location_text = Column(String(255), nullable=True)
+        village_name = Column(String(100), nullable=True)
+        district_name = Column(String(100), nullable=True)
+        state_name = Column(String(100), nullable=True)
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+        user = relationship("User", back_populates="farms")
+        fields = relationship("FarmerField", back_populates="farm")
+
+
+    class FieldCrop(Base):  # type: ignore[misc]
+        """A crop cycle belonging to one field; preserves rotation history."""
+        __tablename__ = "field_crops"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=False, index=True)
+        crop_name = Column(String(100), nullable=False)
+        variety = Column(String(100), nullable=True)
+        season = Column(String(50), nullable=True)
+        sowing_date = Column(Date, nullable=True)
+        expected_harvest = Column(Date, nullable=True)
+        stage_override = Column(String(80), nullable=True)
+        is_current = Column(Boolean, default=True, nullable=False, index=True)
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+        field = relationship("FarmerField", back_populates="crop_cycles")
+
+
+    class FarmActivity(Base):  # type: ignore[misc]
+        """Persistent ledger entry. Amount is a cost or income only when supplied."""
+        __tablename__ = "farm_activities"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=True, index=True)
+        crop_cycle_id = Column(Integer, ForeignKey("field_crops.id"), nullable=True, index=True)
+        activity_date = Column(Date, nullable=False, index=True)
+        activity_type = Column(String(50), nullable=False, index=True)
+        title = Column(String(255), nullable=False)
+        category = Column(String(30), nullable=False, default="activity")
+        amount = Column(Float, nullable=True)
+        quantity = Column(Float, nullable=True)
+        unit = Column(String(30), nullable=True)
+        labour_count = Column(Integer, nullable=True)
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+        field = relationship("FarmerField", back_populates="activities")
 
 
     class DiseaseDetection(Base):  # type: ignore[misc]

@@ -388,7 +388,7 @@ export default function LoginPage() {
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {lt.otpPlaceholder}
               </label>
-              <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+              <OtpInput value={otp} onChange={setOtp} onComplete={() => { if (!loading) { const fakeEvent = { preventDefault: () => {} } as React.FormEvent; handleVerifyOtp(fakeEvent); } }} disabled={loading} />
             </div>
 
             <div className="flex justify-between items-center text-xs pt-1">

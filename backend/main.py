@@ -42,7 +42,7 @@ except ImportError:  # pragma: no cover
 # ---------------------------------------------------------------------------
 from services.weather_service import orchestrator
 from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, auth, reviews, testimonials, admin, content, media
-from api import profile as farmer_profile, fields as farmer_fields
+from api import profile as farmer_profile, fields as farmer_fields, farm as farm_api
 from api import disease as disease_api
 
 # ---------------------------------------------------------------------------
@@ -154,6 +154,7 @@ app.include_router(reviews.router, prefix="/api/reviews", tags=["Reviews"])
 app.include_router(testimonials.router, prefix="/api/testimonials", tags=["Testimonials"])
 app.include_router(farmer_profile.router, prefix="/api/farmer", tags=["Farmer Profile"])
 app.include_router(farmer_fields.router, prefix="/api/farmer", tags=["Farmer Fields"])
+app.include_router(farm_api.router, prefix="/api/farmer", tags=["Farm Context & Diary"])
 app.include_router(disease_api.router, prefix="/api/disease", tags=["Disease"])
 
 
