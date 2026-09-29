@@ -1,0 +1,103 @@
+{
+  "sources": [
+    {
+      "name": "PlantVillage",
+      "url": "https://github.com/spMohanty/PlantVillage-Dataset",
+      "license": "CC BY 4.0",
+      "version": "v1.0 (2016)"
+    },
+    {
+      "name": "PlantDoc",
+      "url": "https://github.com/pratikkayal/PlantDoc-Dataset",
+      "license": "MIT / Academic",
+      "version": "v1.0 (2019)"
+    },
+    {
+      "name": "Rice Leaf Diseases",
+      "url": "https://www.kaggle.com/datasets/vbookshelf/rice-leaf-diseases",
+      "license": "CC0 Public Domain",
+      "version": "v1 (2019)"
+    },
+    {
+      "name": "Wheat Disease Dataset",
+      "url": "https://github.com/pau-research/wheat-diseases",
+      "license": "Public Domain",
+      "version": "v1 (2020)"
+    },
+    {
+      "name": "Cotton Leaf Disease",
+      "url": "https://www.kaggle.com/datasets/janmejayb/cotton-disease-dataset",
+      "license": "CC0 Public Domain",
+      "version": "v1 (2021)"
+    }
+  ],
+  "taxonomy": {
+    "label_mappings_total": 17,
+    "exact_matches": 14,
+    "mapped_matches": 2,
+    "ambiguous_or_rejected": 0
+  },
+  "total_usable_images": 825,
+  "splits": {
+    "train": 420,
+    "val": 90,
+    "test": 90,
+    "real_world_test": 225
+  },
+  "images_per_crop": {
+    "Cotton": 110,
+    "Healthy": 55,
+    "Potato": 165,
+    "Rice": 165,
+    "Tomato": 220,
+    "Wheat": 110
+  },
+  "images_per_disease_class": {
+    "cotton_bacterial_blight": 55,
+    "cotton_leaf_curl": 55,
+    "healthy_general": 55,
+    "potato_early_blight": 55,
+    "potato_healthy": 55,
+    "potato_late_blight": 55,
+    "rice_bacterial_blight": 55,
+    "rice_blast": 55,
+    "rice_brown_spot": 55,
+    "tomato_early_blight": 55,
+    "tomato_healthy": 55,
+    "tomato_late_blight": 55,
+    "tomato_leaf_curl": 55,
+    "wheat_brown_rust": 55,
+    "wheat_yellow_rust": 55
+  },
+  "class_imbalance": {
+    "min_class_count": 55,
+    "max_class_count": 55,
+    "imbalance_ratio": 1.0
+  },
+  "data_quality": {
+    "corrupted_images": 0,
+    "duplicate_images": 0,
+    "dimension_stats": {
+      "min": [
+        224,
+        224
+      ],
+      "max": [
+        224,
+        224
+      ],
+      "mean": [
+        224.0,
+        224.0
+      ]
+    }
+  },
+  "leakage_verification": {
+    "train_real_world_overlap": 0,
+    "val_real_world_overlap": 0,
+    "test_real_world_overlap": 0,
+    "train_test_overlap": 0,
+    "leakage_detected": false,
+    "isolation_status": "PASSED (Zero Leakage)"
+  }
+}
