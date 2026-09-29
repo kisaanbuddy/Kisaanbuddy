@@ -106,9 +106,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     window.addEventListener(EVENT_NAME, onChange);
     restore();
+
+    // Silently re-validate every 14 minutes so the 15-minute access cookie is
+    // refreshed before it expires.  This keeps the user logged in indefinitely
+    // without any action on their part.
+    const REFRESH_MS = 14 * 60 * 1000;
+    const interval = setInterval(() => {
+      restorePromise = null; // force a fresh network call
+      verifySessionOnLoad().then((user) => {
+        if (active) setState({ user, ready: true });
+      });
+    }, REFRESH_MS);
+
     return () => {
       active = false;
       window.removeEventListener(EVENT_NAME, onChange);
+      clearInterval(interval);
     };
   }, []);
 

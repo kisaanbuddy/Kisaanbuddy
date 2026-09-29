@@ -48,8 +48,15 @@ export async function middleware(request: NextRequest) {
     if (!refresh.ok) return loginRedirect(request);
 
     const response = NextResponse.next();
-    const setCookie = refresh.headers.get("set-cookie");
-    if (setCookie) response.headers.append("set-cookie", setCookie);
+    // Forward ALL Set-Cookie headers from the refresh response.
+    // response.headers.get() returns only the first value; we need every
+    // cookie the backend sets (krishiai_session + krishiai_refresh_session).
+    const rawSetCookie = refresh.headers.getSetCookie
+      ? refresh.headers.getSetCookie()           // Node 18+ / Undici
+      : (refresh.headers.get("set-cookie") ?? "").split(/,(?=[^ ])/); // fallback
+    for (const cookie of rawSetCookie) {
+      if (cookie) response.headers.append("set-cookie", cookie);
+    }
     return response;
   } catch {
     // A route cannot be trusted if its authoritative session service is
