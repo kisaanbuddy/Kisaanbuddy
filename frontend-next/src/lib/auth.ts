@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 
 const EVENT_NAME = "kisaanbuddy-auth-change";
+const LS_KEY = "kb_user"; // localStorage key — stores non-sensitive user profile only (no tokens)
+
 let sessionUser: AuthUser | null = null;
 // Tracks when a session was last written so we can protect against clearing a
 // freshly-set session before the browser has had a chance to send the cookie.
@@ -28,6 +30,37 @@ export type RegisterResult = { ok: true } | { ok: false; error: string };
 export type LoginResult =
   | { ok: true; name?: string; user: AuthUser }
   | { ok: false; error: string };
+
+// ---------------------- localStorage persistence ----------------------
+// We persist the non-sensitive user profile in localStorage so the UI can
+// display the logged-in state immediately on page reload without waiting for
+// the /me round-trip (which can be slow on Render.com cold starts).
+// The actual auth tokens stay in HttpOnly cookies — localStorage only holds
+// display information and is validated against the server on every load.
+
+function persistUser(user: AuthUser | null) {
+  if (typeof window === "undefined") return;
+  try {
+    if (user) {
+      localStorage.setItem(LS_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(LS_KEY);
+    }
+  } catch {
+    // localStorage may be blocked in private/incognito mode — ignore silently
+  }
+}
+
+function loadPersistedUser(): AuthUser | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as AuthUser;
+  } catch {
+    return null;
+  }
+}
 
 // Authentication is cookie-only. Never persist bearer tokens in web storage.
 export function getAuthHeaders(): Record<string, string> {
@@ -103,12 +136,21 @@ function writeSession(user: AuthUser | null) {
     // Record the time so we can protect this session during cookie propagation.
     _sessionWrittenAt = Date.now();
   }
+  // Persist to localStorage so page reloads don't lose the logged-in state
+  persistUser(user);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new Event(EVENT_NAME));
   }
 }
 
 function readSession(): AuthUser | null {
+  // In-memory cache first; fall back to localStorage on fresh page load
+  if (sessionUser !== null) return sessionUser;
+  const persisted = loadPersistedUser();
+  if (persisted) {
+    // Restore into memory (without dispatching an event — caller will handle UI)
+    sessionUser = persisted;
+  }
   return sessionUser;
 }
 
@@ -141,6 +183,7 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
           return currentSession;
         }
 
+        // Try to refresh the access token using the long-lived refresh cookie
         const refreshRes = await fetch("/api/auth/refresh-session", {
           method: "POST",
           credentials: "include",
@@ -166,16 +209,25 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
         if (stillWithinGrace && sessionAfterRefresh) {
           return sessionAfterRefresh;
         }
-      }
 
-      if (res.status === 401 || res.status === 403) {
+        // Refresh token is also invalid — clear everything
         writeSession(null);
         return null;
       }
 
-      // Preserve the in-memory state only for transient failures.
+      if (res.status === 403) {
+        writeSession(null);
+        return null;
+      }
+
+      // For any other status (5xx, network errors handled by catch below),
+      // preserve the in-memory/localStorage state so the user isn't kicked out
+      // just because the backend is temporarily unreachable.
       return readSession();
     } catch (err) {
+      // Network error (Render.com sleeping, no internet, etc.) — keep the user
+      // logged in based on the persisted session. The next page load or action
+      // will re-verify once the server is back up.
       return readSession();
     } finally {
       initPromise = null;
@@ -376,14 +428,17 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
+    // Immediately restore from localStorage/in-memory cache so the UI shows
+    // the logged-in state right away without any loading flicker.
     const cached = readSession();
     setUser(cached);
-    // If we already have an in-memory user (e.g. right after OTP login), mark
-    // ready=true immediately so page guards don't fire on stale null state.
     if (cached !== null) {
       setReady(true);
     }
 
+    // Quietly verify the session against the server in the background.
+    // If verification succeeds, update the user with fresh data from the server.
+    // If verification fails (token expired etc.), clear state and redirect to login.
     verifySessionOnLoad().then((verifiedUser) => {
       setUser(verifiedUser);
       setReady(true);
@@ -403,4 +458,3 @@ export function useAuth(): { user: AuthUser | null; ready: boolean } {
 
   return { user, ready };
 }
-
