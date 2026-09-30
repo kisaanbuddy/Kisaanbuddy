@@ -27,6 +27,23 @@ const PROMPT_FALLBACK: Record<Language, string> = {
   kn:   "ಈ ಫೋಟೋ ನೋಡಿ ರೋಗವನ್ನು ಪತ್ತೆ ಮಾಡಿ — strict 10-section format ನಲ್ಲಿ ಉತ್ತರಿಸಿ।",
 }
 
+interface PredictionResult {
+  predicted_class: string
+  confidence: number
+  top_predictions: Array<{ class: string; confidence: number }>
+  model: string
+  status: "ok" | "uncertain"
+  note?: string
+}
+
+function formatClassName(name: string): string {
+  if (!name) return ""
+  return name
+    .split("_")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ")
+}
+
 export default function DiseasePortal() {
   const { t, lang } = useLanguage()
   const [language, setLanguage]     = useState<Language>(["en", "hi", "kn"].includes(lang) ? lang as Language : "en")
@@ -43,6 +60,8 @@ export default function DiseasePortal() {
   const [response, setResponse]     = useState<string>("")
   const [error, setError]           = useState<string | null>(null)
   const [usedTools, setUsedTools]   = useState<string[]>([])
+  const [mlResult, setMlResult]     = useState<PredictionResult | null>(null)
+  const [mlLoading, setMlLoading]   = useState<boolean>(false)
   const fileRef  = useRef<HTMLInputElement | null>(null)
   const camRef   = useRef<HTMLInputElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
@@ -54,6 +73,7 @@ export default function DiseasePortal() {
       return;
     }
     setError(null);
+    setMlResult(null);
     
     const reader = new FileReader();
     reader.onload = () => {
@@ -94,10 +114,11 @@ export default function DiseasePortal() {
     abortRef.current?.abort()
     abortRef.current = null
     setStreaming(false)
+    setMlLoading(false)
   }, [])
 
   const submit = useCallback(async () => {
-    if (isStreaming) return
+    if (isStreaming || mlLoading) return
     if (!imageDataUrl && !symptom.trim()) {
       setError(language === "hi" ? "Photo ya symptom kuch ek bhejo." : "Please upload a photo or describe the symptom.")
       return
@@ -108,7 +129,34 @@ export default function DiseasePortal() {
       trackEvent({ type: 'disease_upload', fileName: 'crop_leaf.png', cropType: crop.trim() || undefined })
     }
 
-    setError(null); setResponse(""); setUsedTools([])
+    setError(null); setResponse(""); setUsedTools([]); setMlResult(null)
+
+    // 1. Trigger Deep Learning Vision Model API (POST /api/disease/predict)
+    if (imageDataUrl) {
+      setMlLoading(true)
+      try {
+        const blob = await (await fetch(imageDataUrl)).blob()
+        const formData = new FormData()
+        formData.append("file", blob, "crop_leaf.jpg")
+
+        const predictRes = await fetch("/api/disease/predict", {
+          method: "POST",
+          body: formData,
+        })
+        if (predictRes.ok) {
+          const data: PredictionResult = await predictRes.json()
+          setMlResult(data)
+        } else {
+          console.warn("Disease model API non-200 response:", predictRes.status)
+        }
+      } catch (err) {
+        console.warn("Disease model API request error:", err)
+      } finally {
+        setMlLoading(false)
+      }
+    }
+
+    // 2. Stream Agronomy Diagnostic Assistant Advice
     const composed = [
       crop.trim() ? `Crop: ${crop.trim()}.` : "",
       symptom.trim() || PROMPT_FALLBACK[language],
@@ -134,7 +182,7 @@ export default function DiseasePortal() {
     } finally {
       setStreaming(false); abortRef.current = null
     }
-  }, [crop, symptom, language, imageDataUrl, isStreaming])
+  }, [crop, symptom, language, imageDataUrl, isStreaming, mlLoading])
 
   return (
     <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-8">
@@ -321,7 +369,103 @@ export default function DiseasePortal() {
             </div>
 
             {/* Content area */}
-            <div className="flex-1">
+            <div className="flex-1 space-y-4">
+              {/* Deep Learning Vision AI Result Card */}
+              {mlLoading && (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex items-center gap-3 animate-pulse">
+                  <Loader2 className="h-5 w-5 animate-spin text-emerald-600 dark:text-emerald-400" />
+                  <div className="text-xs">
+                    <p className="font-semibold text-foreground">Analyzing leaf with EfficientNetV2-S...</p>
+                    <p className="text-muted-foreground text-[11px]">Evaluating 15 disease taxonomy classes & computing confidence</p>
+                  </div>
+                </div>
+              )}
+
+              {mlResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="rounded-xl border border-emerald-500/30 bg-card p-4 space-y-3.5 shadow-sm"
+                >
+                  <div className="flex items-center justify-between border-b border-border/40 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <Bug className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Deep Learning Prediction
+                      </span>
+                    </div>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                        mlResult.status === "ok"
+                          ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400"
+                          : "bg-amber-500/10 text-amber-600 border-amber-500/30 dark:text-amber-400"
+                      }`}
+                    >
+                      {mlResult.status === "ok" ? "High Confidence" : "Uncertain (Review Advised)"}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <p className="text-[11px] text-muted-foreground">Predicted Condition</p>
+                      <h3 className="text-base font-bold font-display text-foreground">
+                        {formatClassName(mlResult.predicted_class)}
+                      </h3>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <p className="text-[11px] text-muted-foreground">Calibrated Confidence</p>
+                      <span className="text-lg font-black font-display text-emerald-600 dark:text-emerald-400">
+                        {(mlResult.confidence * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Top Predictions Breakdown */}
+                  {mlResult.top_predictions && mlResult.top_predictions.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-border/30">
+                      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                        Top Differential Predictions
+                      </p>
+                      <div className="space-y-1.5">
+                        {mlResult.top_predictions.map((pred, i) => (
+                          <div key={i} className="space-y-1">
+                            <div className="flex justify-between text-xs font-medium">
+                              <span className="text-foreground">{formatClassName(pred.class)}</span>
+                              <span className="text-muted-foreground font-mono">
+                                {(pred.confidence * 100).toFixed(1)}%
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full bg-muted/60 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  i === 0
+                                    ? mlResult.status === "ok"
+                                      ? "bg-emerald-500"
+                                      : "bg-amber-500"
+                                    : "bg-muted-foreground/30"
+                                }`}
+                                style={{ width: `${Math.max(pred.confidence * 100, 2)}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {mlResult.note && (
+                    <p className="text-[11px] text-muted-foreground/80 leading-relaxed italic pt-1">
+                      {mlResult.note}
+                    </p>
+                  )}
+
+                  <div className="text-[10px] text-muted-foreground/60 flex items-center justify-between pt-1 border-t border-border/20">
+                    <span>Model: {mlResult.model}</span>
+                    <span>15-Class Taxonomy</span>
+                  </div>
+                </motion.div>
+              )}
+
               <AnimatePresence mode="wait">
                 {response ? (
                   <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -344,7 +488,7 @@ export default function DiseasePortal() {
                       </p>
                     </div>
                   </motion.div>
-                ) : (
+                ) : !mlResult ? (
                   <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                     className="flex flex-col gap-6 text-muted-foreground select-none"
                   >
@@ -407,7 +551,7 @@ export default function DiseasePortal() {
                       ))}
                     </div>
                   </motion.div>
-                )}
+                ) : null}
               </AnimatePresence>
             </div>
           </div>
