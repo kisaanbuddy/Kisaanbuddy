@@ -1,0 +1,1822 @@
+{
+  "experiment": "Phase 4B - Controlled Focal Loss (gamma=2.0) vs Phase 3A Cross Entropy Baseline",
+  "dataset_summary": {
+    "num_classes": 15,
+    "train_samples": 3570,
+    "val_samples": 765,
+    "test_samples": 765,
+    "real_world_test_samples": 975
+  },
+  "models": {
+    "mobilenet_v3_small": {
+      "phase3a_cross_entropy": {
+        "epochs": 10,
+        "temperature": 1.25,
+        "test_calibrated": {
+          "accuracy": 0.4706,
+          "top1_accuracy": 0.4706,
+          "top3_accuracy": 0.9621,
+          "macro_precision": 0.4766,
+          "macro_recall": 0.472,
+          "macro_f1": 0.4609,
+          "weighted_f1": 0.4647,
+          "ece": 0.109,
+          "brier_score": 0.5442,
+          "per_class": {
+            "cotton_bacterial_blight": {
+              "precision": 0.375,
+              "recall": 0.4286,
+              "f1_score": 0.4
+            },
+            "cotton_leaf_curl": {
+              "precision": 0.381,
+              "recall": 0.1379,
+              "f1_score": 0.2025
+            },
+            "healthy_general": {
+              "precision": 0.375,
+              "recall": 0.1967,
+              "f1_score": 0.2581
+            },
+            "potato_early_blight": {
+              "precision": 0.3889,
+              "recall": 0.4286,
+              "f1_score": 0.4078
+            },
+            "potato_healthy": {
+              "precision": 0.3281,
+              "recall": 0.3962,
+              "f1_score": 0.359
+            },
+            "potato_late_blight": {
+              "precision": 0.4792,
+              "recall": 0.575,
+              "f1_score": 0.5227
+            },
+            "rice_bacterial_blight": {
+              "precision": 0.4286,
+              "recall": 0.3462,
+              "f1_score": 0.383
+            },
+            "rice_blast": {
+              "precision": 1.0,
+              "recall": 0.9661,
+              "f1_score": 0.9828
+            },
+            "rice_brown_spot": {
+              "precision": 0.9773,
+              "recall": 0.7544,
+              "f1_score": 0.8515
+            },
+            "tomato_early_blight": {
+              "precision": 0.4615,
+              "recall": 0.4898,
+              "f1_score": 0.4752
+            },
+            "tomato_healthy": {
+              "precision": 0.2973,
+              "recall": 0.5116,
+              "f1_score": 0.3761
+            },
+            "tomato_late_blight": {
+              "precision": 0.5278,
+              "recall": 0.3878,
+              "f1_score": 0.4471
+            },
+            "tomato_leaf_curl": {
+              "precision": 0.4186,
+              "recall": 0.7347,
+              "f1_score": 0.5333
+            },
+            "wheat_brown_rust": {
+              "precision": 0.3333,
+              "recall": 0.4,
+              "f1_score": 0.3636
+            },
+            "wheat_yellow_rust": {
+              "precision": 0.3778,
+              "recall": 0.3269,
+              "f1_score": 0.3505
+            }
+          },
+          "confusion_matrix": [
+            [
+              21,
+              0,
+              0,
+              3,
+              0,
+              1,
+              22,
+              0,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              8,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              50,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              12,
+              0,
+              23,
+              0,
+              0,
+              0,
+              0,
+              0,
+              26,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              21,
+              0,
+              1,
+              0,
+              0,
+              0,
+              26,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              12,
+              0,
+              21,
+              0,
+              0,
+              0,
+              1,
+              0,
+              19,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              1,
+              0,
+              23,
+              0,
+              0,
+              0,
+              0,
+              0,
+              15,
+              0,
+              0,
+              0
+            ],
+            [
+              30,
+              0,
+              0,
+              3,
+              0,
+              0,
+              18,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              57,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1
+            ],
+            [
+              0,
+              0,
+              1,
+              0,
+              6,
+              0,
+              0,
+              0,
+              43,
+              0,
+              7,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              23,
+              0,
+              0,
+              0,
+              0,
+              0,
+              24,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              7,
+              0,
+              14,
+              0,
+              0,
+              0,
+              0,
+              0,
+              22,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              3,
+              0,
+              23,
+              2,
+              0,
+              0,
+              0,
+              0,
+              19,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              13,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              36,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              18,
+              27
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              35,
+              17
+            ]
+          ]
+        },
+        "real_world_test": {
+          "accuracy": 0.4728,
+          "top1_accuracy": 0.4728,
+          "top3_accuracy": 0.9313,
+          "macro_precision": 0.4612,
+          "macro_recall": 0.4728,
+          "macro_f1": 0.4502,
+          "weighted_f1": 0.4502,
+          "ece": 0.1097,
+          "brier_score": 0.5847,
+          "per_class": {
+            "cotton_bacterial_blight": {
+              "precision": 0.4286,
+              "recall": 0.3231,
+              "f1_score": 0.3684
+            },
+            "cotton_leaf_curl": {
+              "precision": 0.5652,
+              "recall": 0.2,
+              "f1_score": 0.2955
+            },
+            "healthy_general": {
+              "precision": 0.3448,
+              "recall": 0.3077,
+              "f1_score": 0.3252
+            },
+            "potato_early_blight": {
+              "precision": 0.4048,
+              "recall": 0.2615,
+              "f1_score": 0.3178
+            },
+            "potato_healthy": {
+              "precision": 0.3019,
+              "recall": 0.2462,
+              "f1_score": 0.2712
+            },
+            "potato_late_blight": {
+              "precision": 0.4706,
+              "recall": 0.4923,
+              "f1_score": 0.4812
+            },
+            "rice_bacterial_blight": {
+              "precision": 0.4935,
+              "recall": 0.5846,
+              "f1_score": 0.5352
+            },
+            "rice_blast": {
+              "precision": 0.7303,
+              "recall": 1.0,
+              "f1_score": 0.8442
+            },
+            "rice_brown_spot": {
+              "precision": 0.6196,
+              "recall": 0.8769,
+              "f1_score": 0.7261
+            },
+            "tomato_early_blight": {
+              "precision": 0.3699,
+              "recall": 0.4154,
+              "f1_score": 0.3913
+            },
+            "tomato_healthy": {
+              "precision": 0.3333,
+              "recall": 0.2923,
+              "f1_score": 0.3115
+            },
+            "tomato_late_blight": {
+              "precision": 0.3056,
+              "recall": 0.3385,
+              "f1_score": 0.3212
+            },
+            "tomato_leaf_curl": {
+              "precision": 0.514,
+              "recall": 0.8462,
+              "f1_score": 0.6395
+            },
+            "wheat_brown_rust": {
+              "precision": 0.5294,
+              "recall": 0.2769,
+              "f1_score": 0.3636
+            },
+            "wheat_yellow_rust": {
+              "precision": 0.5062,
+              "recall": 0.6308,
+              "f1_score": 0.5616
+            }
+          },
+          "confusion_matrix": [
+            [
+              21,
+              0,
+              0,
+              2,
+              0,
+              1,
+              32,
+              0,
+              0,
+              4,
+              0,
+              5,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              13,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              52,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              20,
+              0,
+              17,
+              0,
+              0,
+              0,
+              12,
+              0,
+              16,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              17,
+              0,
+              1,
+              0,
+              3,
+              0,
+              35,
+              0,
+              8,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              17,
+              0,
+              16,
+              0,
+              0,
+              0,
+              11,
+              0,
+              21,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              0,
+              1,
+              0,
+              32,
+              3,
+              0,
+              0,
+              0,
+              0,
+              26,
+              0,
+              0,
+              0
+            ],
+            [
+              19,
+              0,
+              0,
+              2,
+              0,
+              2,
+              38,
+              0,
+              0,
+              3,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              65,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              3,
+              0,
+              4,
+              0,
+              0,
+              0,
+              57,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              18,
+              0,
+              1,
+              1,
+              6,
+              0,
+              27,
+              0,
+              10,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              18,
+              0,
+              16,
+              0,
+              0,
+              0,
+              12,
+              0,
+              19,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              0,
+              2,
+              0,
+              31,
+              3,
+              0,
+              0,
+              4,
+              0,
+              22,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              10,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              55,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              7,
+              0,
+              0,
+              0,
+              0,
+              0,
+              18,
+              40
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              8,
+              0,
+              0,
+              0,
+              0,
+              0,
+              16,
+              41
+            ]
+          ]
+        },
+        "real_world_high_conf_wrong": 138,
+        "real_world_low_conf_correct": 39,
+        "failure_families": {
+          "cotton_leaf_curl_vs_tomato_leaf_curl": {
+            "class_1": "cotton_leaf_curl",
+            "class_2": "tomato_leaf_curl",
+            "total_family_confusion": 62,
+            "direction_1_count": {
+              "cotton_leaf_curl -> tomato_leaf_curl": 52
+            },
+            "direction_2_count": {
+              "tomato_leaf_curl -> cotton_leaf_curl": 10
+            },
+            "high_confidence_wrong_in_family": 4,
+            "class_1_recall": 0.2,
+            "class_1_f1": 0.2955,
+            "class_2_recall": 0.8462,
+            "class_2_f1": 0.6395
+          },
+          "wheat_brown_rust_vs_wheat_yellow_rust": {
+            "class_1": "wheat_brown_rust",
+            "class_2": "wheat_yellow_rust",
+            "total_family_confusion": 56,
+            "direction_1_count": {
+              "wheat_brown_rust -> wheat_yellow_rust": 40
+            },
+            "direction_2_count": {
+              "wheat_yellow_rust -> wheat_brown_rust": 16
+            },
+            "high_confidence_wrong_in_family": 24,
+            "class_1_recall": 0.2769,
+            "class_1_f1": 0.3636,
+            "class_2_recall": 0.6308,
+            "class_2_f1": 0.5616
+          },
+          "potato_early_blight_vs_tomato_early_blight": {
+            "class_1": "potato_early_blight",
+            "class_2": "tomato_early_blight",
+            "total_family_confusion": 53,
+            "direction_1_count": {
+              "potato_early_blight -> tomato_early_blight": 35
+            },
+            "direction_2_count": {
+              "tomato_early_blight -> potato_early_blight": 18
+            },
+            "high_confidence_wrong_in_family": 26,
+            "class_1_recall": 0.2615,
+            "class_1_f1": 0.3178,
+            "class_2_recall": 0.4154,
+            "class_2_f1": 0.3913
+          },
+          "potato_late_blight_vs_tomato_late_blight": {
+            "class_1": "potato_late_blight",
+            "class_2": "tomato_late_blight",
+            "total_family_confusion": 57,
+            "direction_1_count": {
+              "potato_late_blight -> tomato_late_blight": 26
+            },
+            "direction_2_count": {
+              "tomato_late_blight -> potato_late_blight": 31
+            },
+            "high_confidence_wrong_in_family": 25,
+            "class_1_recall": 0.4923,
+            "class_1_f1": 0.4812,
+            "class_2_recall": 0.3385,
+            "class_2_f1": 0.3212
+          },
+          "cotton_bacterial_blight_vs_rice_bacterial_blight": {
+            "class_1": "cotton_bacterial_blight",
+            "class_2": "rice_bacterial_blight",
+            "total_family_confusion": 51,
+            "direction_1_count": {
+              "cotton_bacterial_blight -> rice_bacterial_blight": 32
+            },
+            "direction_2_count": {
+              "rice_bacterial_blight -> cotton_bacterial_blight": 19
+            },
+            "high_confidence_wrong_in_family": 15,
+            "class_1_recall": 0.3231,
+            "class_1_f1": 0.3684,
+            "class_2_recall": 0.5846,
+            "class_2_f1": 0.5352
+          }
+        }
+      },
+      "phase4b_focal_loss": {
+        "epochs": 10,
+        "temperature": 0.9,
+        "test_calibrated": {
+          "total_samples": 765,
+          "correct_samples": 370,
+          "accuracy": 0.4837,
+          "top1_accuracy": 0.4837,
+          "top3_accuracy": 0.9647,
+          "macro_precision": 0.4792,
+          "macro_recall": 0.4752,
+          "macro_f1": 0.4603,
+          "weighted_f1": 0.4715,
+          "ece": 0.0844,
+          "brier_score": 0.5236,
+          "high_confidence_wrong_count": 55,
+          "low_confidence_correct_count": 18
+        },
+        "real_world_test": {
+          "total_samples": 975,
+          "correct_samples": 451,
+          "accuracy": 0.4626,
+          "top1_accuracy": 0.4626,
+          "top3_accuracy": 0.9323,
+          "macro_precision": 0.4659,
+          "macro_recall": 0.4626,
+          "macro_f1": 0.4241,
+          "weighted_f1": 0.4241,
+          "ece": 0.0982,
+          "brier_score": 0.5878,
+          "high_confidence_wrong_count": 99,
+          "low_confidence_correct_count": 32
+        },
+        "real_world_high_conf_wrong": 99,
+        "real_world_low_conf_correct": 32,
+        "failure_families": {
+          "cotton_leaf_curl_vs_tomato_leaf_curl": {
+            "class_1": "cotton_leaf_curl",
+            "class_2": "tomato_leaf_curl",
+            "total_family_confusion": 63,
+            "direction_1_count": {
+              "cotton_leaf_curl -> tomato_leaf_curl": 13
+            },
+            "direction_2_count": {
+              "tomato_leaf_curl -> cotton_leaf_curl": 50
+            },
+            "high_confidence_wrong_in_family": 0,
+            "class_1_recall": 0.8,
+            "class_1_f1": 0.6228,
+            "class_2_recall": 0.2308,
+            "class_2_f1": 0.3226
+          },
+          "wheat_brown_rust_vs_wheat_yellow_rust": {
+            "class_1": "wheat_brown_rust",
+            "class_2": "wheat_yellow_rust",
+            "total_family_confusion": 57,
+            "direction_1_count": {
+              "wheat_brown_rust -> wheat_yellow_rust": 48
+            },
+            "direction_2_count": {
+              "wheat_yellow_rust -> wheat_brown_rust": 9
+            },
+            "high_confidence_wrong_in_family": 21,
+            "class_1_recall": 0.1538,
+            "class_1_f1": 0.2381,
+            "class_2_recall": 0.7077,
+            "class_2_f1": 0.575
+          },
+          "potato_early_blight_vs_tomato_early_blight": {
+            "class_1": "potato_early_blight",
+            "class_2": "tomato_early_blight",
+            "total_family_confusion": 50,
+            "direction_1_count": {
+              "potato_early_blight -> tomato_early_blight": 36
+            },
+            "direction_2_count": {
+              "tomato_early_blight -> potato_early_blight": 14
+            },
+            "high_confidence_wrong_in_family": 11,
+            "class_1_recall": 0.2,
+            "class_1_f1": 0.2826,
+            "class_2_recall": 0.5231,
+            "class_2_f1": 0.3931
+          },
+          "potato_late_blight_vs_tomato_late_blight": {
+            "class_1": "potato_late_blight",
+            "class_2": "tomato_late_blight",
+            "total_family_confusion": 60,
+            "direction_1_count": {
+              "potato_late_blight -> tomato_late_blight": 40
+            },
+            "direction_2_count": {
+              "tomato_late_blight -> potato_late_blight": 20
+            },
+            "high_confidence_wrong_in_family": 14,
+            "class_1_recall": 0.2154,
+            "class_1_f1": 0.2718,
+            "class_2_recall": 0.4923,
+            "class_2_f1": 0.4507
+          },
+          "cotton_bacterial_blight_vs_rice_bacterial_blight": {
+            "class_1": "cotton_bacterial_blight",
+            "class_2": "rice_bacterial_blight",
+            "total_family_confusion": 45,
+            "direction_1_count": {
+              "cotton_bacterial_blight -> rice_bacterial_blight": 18
+            },
+            "direction_2_count": {
+              "rice_bacterial_blight -> cotton_bacterial_blight": 27
+            },
+            "high_confidence_wrong_in_family": 7,
+            "class_1_recall": 0.4923,
+            "class_1_f1": 0.4885,
+            "class_2_recall": 0.3538,
+            "class_2_f1": 0.4182
+          }
+        }
+      },
+      "delta_real_world": {
+        "top1_accuracy_diff": -0.0102,
+        "macro_f1_diff": -0.0261,
+        "ece_diff": -0.0115,
+        "brier_diff": 0.0031,
+        "high_conf_wrong_diff": -39
+      }
+    },
+    "efficientnet_v2_s": {
+      "phase3a_cross_entropy": {
+        "epochs": 10,
+        "temperature": 1.1,
+        "test_calibrated": {
+          "accuracy": 0.4889,
+          "top1_accuracy": 0.4889,
+          "top3_accuracy": 0.9582,
+          "macro_precision": 0.4952,
+          "macro_recall": 0.4904,
+          "macro_f1": 0.4748,
+          "weighted_f1": 0.4793,
+          "ece": 0.0541,
+          "brier_score": 0.5176,
+          "per_class": {
+            "cotton_bacterial_blight": {
+              "precision": 0.3333,
+              "recall": 0.3061,
+              "f1_score": 0.3191
+            },
+            "cotton_leaf_curl": {
+              "precision": 0.5789,
+              "recall": 0.3793,
+              "f1_score": 0.4583
+            },
+            "healthy_general": {
+              "precision": 0.3125,
+              "recall": 0.082,
+              "f1_score": 0.1299
+            },
+            "potato_early_blight": {
+              "precision": 0.4308,
+              "recall": 0.5714,
+              "f1_score": 0.4912
+            },
+            "potato_healthy": {
+              "precision": 0.25,
+              "recall": 0.2264,
+              "f1_score": 0.2376
+            },
+            "potato_late_blight": {
+              "precision": 0.4828,
+              "recall": 0.35,
+              "f1_score": 0.4058
+            },
+            "rice_bacterial_blight": {
+              "precision": 0.44,
+              "recall": 0.4231,
+              "f1_score": 0.4314
+            },
+            "rice_blast": {
+              "precision": 1.0,
+              "recall": 1.0,
+              "f1_score": 1.0
+            },
+            "rice_brown_spot": {
+              "precision": 0.9767,
+              "recall": 0.7368,
+              "f1_score": 0.84
+            },
+            "tomato_early_blight": {
+              "precision": 0.425,
+              "recall": 0.3469,
+              "f1_score": 0.382
+            },
+            "tomato_healthy": {
+              "precision": 0.2991,
+              "recall": 0.7442,
+              "f1_score": 0.4267
+            },
+            "tomato_late_blight": {
+              "precision": 0.4576,
+              "recall": 0.551,
+              "f1_score": 0.5
+            },
+            "tomato_leaf_curl": {
+              "precision": 0.4783,
+              "recall": 0.6735,
+              "f1_score": 0.5593
+            },
+            "wheat_brown_rust": {
+              "precision": 0.45,
+              "recall": 0.6,
+              "f1_score": 0.5143
+            },
+            "wheat_yellow_rust": {
+              "precision": 0.5135,
+              "recall": 0.3654,
+              "f1_score": 0.427
+            }
+          },
+          "confusion_matrix": [
+            [
+              15,
+              0,
+              0,
+              3,
+              0,
+              0,
+              26,
+              0,
+              0,
+              2,
+              0,
+              3,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              22,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              36,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              5,
+              0,
+              18,
+              0,
+              0,
+              0,
+              0,
+              0,
+              38,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              28,
+              0,
+              0,
+              0,
+              0,
+              0,
+              19,
+              0,
+              2,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              6,
+              0,
+              12,
+              0,
+              0,
+              0,
+              1,
+              0,
+              34,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              0,
+              0,
+              14,
+              0,
+              0,
+              0,
+              0,
+              0,
+              25,
+              0,
+              0,
+              0
+            ],
+            [
+              26,
+              0,
+              0,
+              2,
+              0,
+              0,
+              22,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              59,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              2,
+              0,
+              10,
+              0,
+              0,
+              0,
+              42,
+              0,
+              3,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              30,
+              0,
+              0,
+              0,
+              0,
+              0,
+              17,
+              0,
+              1,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              3,
+              0,
+              8,
+              0,
+              0,
+              0,
+              0,
+              0,
+              32,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              2,
+              0,
+              0,
+              2,
+              0,
+              15,
+              2,
+              0,
+              0,
+              1,
+              0,
+              27,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              16,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              33,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              27,
+              18
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              33,
+              19
+            ]
+          ]
+        },
+        "real_world_test": {
+          "accuracy": 0.4574,
+          "top1_accuracy": 0.4574,
+          "top3_accuracy": 0.9149,
+          "macro_precision": 0.4529,
+          "macro_recall": 0.4574,
+          "macro_f1": 0.4365,
+          "weighted_f1": 0.4365,
+          "ece": 0.0844,
+          "brier_score": 0.5607,
+          "per_class": {
+            "cotton_bacterial_blight": {
+              "precision": 0.3472,
+              "recall": 0.3846,
+              "f1_score": 0.365
+            },
+            "cotton_leaf_curl": {
+              "precision": 0.5556,
+              "recall": 0.2308,
+              "f1_score": 0.3261
+            },
+            "healthy_general": {
+              "precision": 0.358,
+              "recall": 0.4462,
+              "f1_score": 0.3973
+            },
+            "potato_early_blight": {
+              "precision": 0.5,
+              "recall": 0.3231,
+              "f1_score": 0.3925
+            },
+            "potato_healthy": {
+              "precision": 0.375,
+              "recall": 0.1846,
+              "f1_score": 0.2474
+            },
+            "potato_late_blight": {
+              "precision": 0.3784,
+              "recall": 0.2154,
+              "f1_score": 0.2745
+            },
+            "rice_bacterial_blight": {
+              "precision": 0.325,
+              "recall": 0.2,
+              "f1_score": 0.2476
+            },
+            "rice_blast": {
+              "precision": 0.8667,
+              "recall": 1.0,
+              "f1_score": 0.9286
+            },
+            "rice_brown_spot": {
+              "precision": 0.7195,
+              "recall": 0.9077,
+              "f1_score": 0.8027
+            },
+            "tomato_early_blight": {
+              "precision": 0.2963,
+              "recall": 0.2462,
+              "f1_score": 0.2689
+            },
+            "tomato_healthy": {
+              "precision": 0.2923,
+              "recall": 0.2923,
+              "f1_score": 0.2923
+            },
+            "tomato_late_blight": {
+              "precision": 0.3285,
+              "recall": 0.6923,
+              "f1_score": 0.4455
+            },
+            "tomato_leaf_curl": {
+              "precision": 0.5146,
+              "recall": 0.8154,
+              "f1_score": 0.631
+            },
+            "wheat_brown_rust": {
+              "precision": 0.4655,
+              "recall": 0.4154,
+              "f1_score": 0.439
+            },
+            "wheat_yellow_rust": {
+              "precision": 0.4714,
+              "recall": 0.5077,
+              "f1_score": 0.4889
+            }
+          },
+          "confusion_matrix": [
+            [
+              25,
+              0,
+              0,
+              1,
+              0,
+              1,
+              27,
+              0,
+              0,
+              3,
+              0,
+              8,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              15,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              50,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              29,
+              0,
+              9,
+              0,
+              0,
+              0,
+              6,
+              0,
+              21,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              21,
+              0,
+              1,
+              0,
+              3,
+              0,
+              24,
+              0,
+              15,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              23,
+              0,
+              12,
+              0,
+              0,
+              0,
+              7,
+              0,
+              23,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              4,
+              0,
+              0,
+              0,
+              0,
+              14,
+              0,
+              0,
+              0,
+              2,
+              0,
+              45,
+              0,
+              0,
+              0
+            ],
+            [
+              38,
+              0,
+              0,
+              0,
+              0,
+              4,
+              13,
+              0,
+              0,
+              7,
+              0,
+              3,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              65,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              3,
+              0,
+              1,
+              0,
+              0,
+              0,
+              59,
+              0,
+              2,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              1,
+              0,
+              0,
+              18,
+              0,
+              4,
+              0,
+              5,
+              0,
+              16,
+              0,
+              21,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              26,
+              0,
+              10,
+              0,
+              0,
+              0,
+              10,
+              0,
+              19,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              3,
+              0,
+              0,
+              2,
+              0,
+              13,
+              0,
+              0,
+              0,
+              2,
+              0,
+              45,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              12,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              53,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              27,
+              37
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              31,
+              33
+            ]
+          ]
+        },
+        "real_world_high_conf_wrong": 66,
+        "real_world_low_conf_correct": 64,
+        "failure_families": {
+          "cotton_leaf_curl_vs_tomato_leaf_curl": {
+            "class_1": "cotton_leaf_curl",
+            "class_2": "tomato_leaf_curl",
+            "total_family_confusion": 62,
+            "direction_1_count": {
+              "cotton_leaf_curl -> tomato_leaf_curl": 50
+            },
+            "direction_2_count": {
+              "tomato_leaf_curl -> cotton_leaf_curl": 12
+            },
+            "high_confidence_wrong_in_family": 0,
+            "class_1_recall": 0.2308,
+            "class_1_f1": 0.3261,
+            "class_2_recall": 0.8154,
+            "class_2_f1": 0.631
+          },
+          "wheat_brown_rust_vs_wheat_yellow_rust": {
+            "class_1": "wheat_brown_rust",
+            "class_2": "wheat_yellow_rust",
+            "total_family_confusion": 68,
+            "direction_1_count": {
+              "wheat_brown_rust -> wheat_yellow_rust": 37
+            },
+            "direction_2_count": {
+              "wheat_yellow_rust -> wheat_brown_rust": 31
+            },
+            "high_confidence_wrong_in_family": 16,
+            "class_1_recall": 0.4154,
+            "class_1_f1": 0.439,
+            "class_2_recall": 0.5077,
+            "class_2_f1": 0.4889
+          },
+          "potato_early_blight_vs_tomato_early_blight": {
+            "class_1": "potato_early_blight",
+            "class_2": "tomato_early_blight",
+            "total_family_confusion": 42,
+            "direction_1_count": {
+              "potato_early_blight -> tomato_early_blight": 24
+            },
+            "direction_2_count": {
+              "tomato_early_blight -> potato_early_blight": 18
+            },
+            "high_confidence_wrong_in_family": 9,
+            "class_1_recall": 0.3231,
+            "class_1_f1": 0.3925,
+            "class_2_recall": 0.2462,
+            "class_2_f1": 0.2689
+          },
+          "potato_late_blight_vs_tomato_late_blight": {
+            "class_1": "potato_late_blight",
+            "class_2": "tomato_late_blight",
+            "total_family_confusion": 58,
+            "direction_1_count": {
+              "potato_late_blight -> tomato_late_blight": 45
+            },
+            "direction_2_count": {
+              "tomato_late_blight -> potato_late_blight": 13
+            },
+            "high_confidence_wrong_in_family": 14,
+            "class_1_recall": 0.2154,
+            "class_1_f1": 0.2745,
+            "class_2_recall": 0.6923,
+            "class_2_f1": 0.4455
+          },
+          "cotton_bacterial_blight_vs_rice_bacterial_blight": {
+            "class_1": "cotton_bacterial_blight",
+            "class_2": "rice_bacterial_blight",
+            "total_family_confusion": 65,
+            "direction_1_count": {
+              "cotton_bacterial_blight -> rice_bacterial_blight": 27
+            },
+            "direction_2_count": {
+              "rice_bacterial_blight -> cotton_bacterial_blight": 38
+            },
+            "high_confidence_wrong_in_family": 5,
+            "class_1_recall": 0.3846,
+            "class_1_f1": 0.365,
+            "class_2_recall": 0.2,
+            "class_2_f1": 0.2476
+          }
+        }
+      },
+      "phase4b_focal_loss": {
+        "epochs": 3,
+        "temperature": 0.75,
+        "test_calibrated": {
+          "total_samples": 765,
+          "correct_samples": 393,
+          "accuracy": 0.5137,
+          "top1_accuracy": 0.5137,
+          "top3_accuracy": 0.9595,
+          "macro_precision": 0.4117,
+          "macro_recall": 0.4842,
+          "macro_f1": 0.4118,
+          "weighted_f1": 0.4338,
+          "ece": 0.0469,
+          "brier_score": 0.5139,
+          "high_confidence_wrong_count": 18,
+          "low_confidence_correct_count": 10
+        },
+        "real_world_test": {
+          "total_samples": 975,
+          "correct_samples": 454,
+          "accuracy": 0.4656,
+          "top1_accuracy": 0.4656,
+          "top3_accuracy": 0.9118,
+          "macro_precision": 0.3893,
+          "macro_recall": 0.4656,
+          "macro_f1": 0.3881,
+          "weighted_f1": 0.3881,
+          "ece": 0.0932,
+          "brier_score": 0.5746,
+          "high_confidence_wrong_count": 26,
+          "low_confidence_correct_count": 16
+        },
+        "real_world_high_conf_wrong": 26,
+        "real_world_low_conf_correct": 16,
+        "failure_families": {
+          "cotton_leaf_curl_vs_tomato_leaf_curl": {
+            "class_1": "cotton_leaf_curl",
+            "class_2": "tomato_leaf_curl",
+            "total_family_confusion": 63,
+            "direction_1_count": {
+              "cotton_leaf_curl -> tomato_leaf_curl": 6
+            },
+            "direction_2_count": {
+              "tomato_leaf_curl -> cotton_leaf_curl": 57
+            },
+            "high_confidence_wrong_in_family": 0,
+            "class_1_recall": 0.9077,
+            "class_1_f1": 0.6519,
+            "class_2_recall": 0.1231,
+            "class_2_f1": 0.2025
+          },
+          "wheat_brown_rust_vs_wheat_yellow_rust": {
+            "class_1": "wheat_brown_rust",
+            "class_2": "wheat_yellow_rust",
+            "total_family_confusion": 62,
+            "direction_1_count": {
+              "wheat_brown_rust -> wheat_yellow_rust": 52
+            },
+            "direction_2_count": {
+              "wheat_yellow_rust -> wheat_brown_rust": 10
+            },
+            "high_confidence_wrong_in_family": 2,
+            "class_1_recall": 0.2,
+            "class_1_f1": 0.2921,
+            "class_2_recall": 0.8462,
+            "class_2_f1": 0.6358
+          },
+          "potato_early_blight_vs_tomato_early_blight": {
+            "class_1": "potato_early_blight",
+            "class_2": "tomato_early_blight",
+            "total_family_confusion": 44,
+            "direction_1_count": {
+              "potato_early_blight -> tomato_early_blight": 29
+            },
+            "direction_2_count": {
+              "tomato_early_blight -> potato_early_blight": 15
+            },
+            "high_confidence_wrong_in_family": 0,
+            "class_1_recall": 0.2,
+            "class_1_f1": 0.2574,
+            "class_2_recall": 0.3077,
+            "class_2_f1": 0.3478
+          },
+          "potato_late_blight_vs_tomato_late_blight": {
+            "class_1": "potato_late_blight",
+            "class_2": "tomato_late_blight",
+            "total_family_confusion": 61,
+            "direction_1_count": {
+              "potato_late_blight -> tomato_late_blight": 53
+            },
+            "direction_2_count": {
+              "tomato_late_blight -> potato_late_blight": 8
+            },
+            "high_confidence_wrong_in_family": 5,
+            "class_1_recall": 0.1846,
+            "class_1_f1": 0.192,
+            "class_2_recall": 0.8308,
+            "class_2_f1": 0.5192
+          },
+          "cotton_bacterial_blight_vs_rice_bacterial_blight": {
+            "class_1": "cotton_bacterial_blight",
+            "class_2": "rice_bacterial_blight",
+            "total_family_confusion": 50,
+            "direction_1_count": {
+              "cotton_bacterial_blight -> rice_bacterial_blight": 1
+            },
+            "direction_2_count": {
+              "rice_bacterial_blight -> cotton_bacterial_blight": 49
+            },
+            "high_confidence_wrong_in_family": 7,
+            "class_1_recall": 0.7385,
+            "class_1_f1": 0.5926,
+            "class_2_recall": 0.0,
+            "class_2_f1": 0.0
+          }
+        }
+      },
+      "delta_real_world": {
+        "top1_accuracy_diff": 0.0082,
+        "macro_f1_diff": -0.0484,
+        "ece_diff": 0.0088,
+        "brier_diff": 0.0139,
+        "high_conf_wrong_diff": -40
+      }
+    }
+  }
+}

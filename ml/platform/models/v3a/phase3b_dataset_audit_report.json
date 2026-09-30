@@ -1,0 +1,3310 @@
+{
+  "audit_phase": "Phase 3B - Dataset & Leakage Audit",
+  "dataset_summary": {
+    "total_decoded_images": 6075,
+    "split_counts": {
+      "train": 3570,
+      "val": 765,
+      "test": 765,
+      "real_world_test": 975
+    }
+  },
+  "exact_duplicates": {
+    "within_split_pairs": {
+      "train": 0,
+      "val": 0,
+      "test": 0,
+      "real_world_test": 0
+    },
+    "cross_split_pairs": {
+      "train_vs_val": 0,
+      "train_vs_test": 0,
+      "train_vs_real_world_test": 0,
+      "val_vs_test": 0,
+      "val_vs_real_world_test": 0,
+      "test_vs_real_world_test": 0
+    },
+    "total_exact_duplicate_groups": 0,
+    "exact_duplicate_groups": []
+  },
+  "phash_near_duplicates": {
+    "threshold_le_1": {
+      "threshold": 1,
+      "total_near_duplicate_pairs": 143,
+      "within_split_counts": {
+        "train": 26,
+        "val": 3,
+        "test": 4,
+        "real_world_test": 20
+      },
+      "cross_split_counts": {
+        "train_vs_val": 28,
+        "train_vs_test": 15,
+        "train_vs_real_world_test": 26,
+        "val_vs_test": 6,
+        "val_vs_real_world_test": 8,
+        "test_vs_real_world_test": 7
+      },
+      "same_class_count": 24,
+      "cross_class_count": 119,
+      "top_50_cross_class_concentrations": [
+        {
+          "class_pair": "rice_brown_spot <-> tomato_healthy",
+          "count": 19
+        },
+        {
+          "class_pair": "healthy_general <-> wheat_brown_rust",
+          "count": 12
+        },
+        {
+          "class_pair": "healthy_general <-> rice_brown_spot",
+          "count": 11
+        },
+        {
+          "class_pair": "healthy_general <-> potato_healthy",
+          "count": 9
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_brown_spot",
+          "count": 8
+        },
+        {
+          "class_pair": "potato_healthy <-> tomato_healthy",
+          "count": 8
+        },
+        {
+          "class_pair": "healthy_general <-> tomato_healthy",
+          "count": 6
+        },
+        {
+          "class_pair": "potato_healthy <-> wheat_brown_rust",
+          "count": 6
+        },
+        {
+          "class_pair": "rice_blast <-> tomato_healthy",
+          "count": 5
+        },
+        {
+          "class_pair": "rice_brown_spot <-> wheat_yellow_rust",
+          "count": 5
+        },
+        {
+          "class_pair": "rice_blast <-> rice_brown_spot",
+          "count": 4
+        },
+        {
+          "class_pair": "healthy_general <-> rice_blast",
+          "count": 3
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_blast",
+          "count": 3
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_bacterial_blight",
+          "count": 3
+        },
+        {
+          "class_pair": "wheat_brown_rust <-> wheat_yellow_rust",
+          "count": 3
+        },
+        {
+          "class_pair": "tomato_healthy <-> wheat_brown_rust",
+          "count": 3
+        },
+        {
+          "class_pair": "rice_blast <-> wheat_brown_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "rice_brown_spot <-> wheat_brown_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "tomato_healthy <-> wheat_yellow_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "potato_healthy <-> wheat_yellow_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_late_blight <-> tomato_late_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "healthy_general <-> wheat_yellow_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> wheat_brown_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> wheat_yellow_rust",
+          "count": 1
+        }
+      ],
+      "representative_pairs": [
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0028.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0021.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/rice_blast/rice_blast_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0017.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "val/healthy_general/healthy_general_0013.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0000.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0027.jpg",
+          "image_2": "val/potato_healthy/potato_healthy_0013.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0030.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0030.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_p3a_0019.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0030.jpg",
+          "image_2": "test/healthy_general/healthy_general_0036.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0030.jpg",
+          "image_2": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0044.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0032.jpg",
+          "image_2": "train/healthy_general/healthy_general_0039.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0032.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0010.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0032.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0017.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0039.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0010.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0039.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0017.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_p3a_0196.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_p3a_0117.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_p3a_0196.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0014.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "potato_healthy",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0015.jpg",
+          "image_2": "test/healthy_general/healthy_general_0037.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "potato_healthy",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0017.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "potato_healthy",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0017.jpg",
+          "image_2": "val/healthy_general/healthy_general_0013.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "potato_healthy",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0017.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0000.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "potato_healthy",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0017.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "potato_healthy",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0030.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "potato_healthy",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0030.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "potato_healthy",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0030.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "potato_healthy",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_0038.jpg",
+          "image_2": "train/rice_bacterial_blight/rice_bacterial_blight_p3a_0152.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "potato_healthy",
+          "class_2": "rice_bacterial_blight",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0032.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_p3a_0060.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "potato_healthy",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0042.jpg",
+          "image_2": "val/rice_bacterial_blight/rice_bacterial_blight_p3a_0256.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "potato_healthy",
+          "class_2": "rice_bacterial_blight",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0006.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "potato_healthy",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0054.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "potato_healthy",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+          "image_2": "real_world_test/rice_bacterial_blight/rice_bacterial_blight_p3a_rw_0321.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "potato_healthy",
+          "class_2": "rice_bacterial_blight",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+          "image_2": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0049.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "potato_healthy",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+          "image_2": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0052.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "potato_healthy",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_healthy/potato_healthy_p3a_0222.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_p3a_0041.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "potato_healthy",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/potato_late_blight/potato_late_blight_0012.jpg",
+          "image_2": "train/tomato_late_blight/tomato_late_blight_0032.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "potato_late_blight",
+          "class_2": "tomato_late_blight",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_blast/rice_blast_0020.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0040.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_blast",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_blast/rice_blast_0033.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "rice_blast",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_blast/rice_blast_0033.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "rice_blast",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_blast/rice_blast_p3a_0124.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_p3a_0223.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_blast",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0002.jpg",
+          "image_2": "val/healthy_general/healthy_general_0007.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "rice_brown_spot",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0003.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0036.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_brown_spot",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+          "image_2": "val/healthy_general/healthy_general_p3a_0154.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "rice_brown_spot",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0014.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0015.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+          "image_2": "val/rice_blast/rice_blast_0037.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_p3a_0160.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_brown_spot",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+          "image_2": "test/rice_brown_spot/rice_brown_spot_0006.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_p3a_0255.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0021.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0025.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0025.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0035.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0025.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_0015.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0050.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0053.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0050.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0053.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+          "image_2": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0045.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_0033.jpg",
+          "image_2": "real_world_test/rice_blast/rice_blast_rw_0050.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_p3a_0082.jpg",
+          "image_2": "test/wheat_yellow_rust/wheat_yellow_rust_p3a_0048.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "rice_brown_spot",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_p3a_0117.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+          "image_2": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "rice_brown_spot",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0011.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0052.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "tomato_healthy",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0021.jpg",
+          "image_2": "test/rice_blast/rice_blast_0023.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "tomato_healthy",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0022.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0035.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "tomato_healthy",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0029.jpg",
+          "image_2": "real_world_test/healthy_general/healthy_general_rw_0044.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "tomato_healthy",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0029.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0054.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "tomato_healthy",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0029.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0048.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "tomato_healthy",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0033.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0035.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "tomato_healthy",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0033.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_0015.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "tomato_healthy",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_healthy/tomato_healthy_0035.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_0015.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "tomato_healthy",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/tomato_leaf_curl/tomato_leaf_curl_0007.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "tomato_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0003.jpg",
+          "image_2": "val/wheat_yellow_rust/wheat_yellow_rust_0026.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_brown_rust",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "image_2": "val/healthy_general/healthy_general_0013.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_brown_rust",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0000.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_brown_rust",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "wheat_brown_rust",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_p3a_0019.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_brown_rust",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+          "image_2": "test/healthy_general/healthy_general_0036.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "wheat_brown_rust",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+          "image_2": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0044.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "wheat_brown_rust",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0035.jpg",
+          "image_2": "val/wheat_yellow_rust/wheat_yellow_rust_0029.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_brown_rust",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_brown_rust",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_yellow_rust/wheat_yellow_rust_0018.jpg",
+          "image_2": "real_world_test/healthy_general/healthy_general_rw_0045.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "wheat_yellow_rust",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/wheat_yellow_rust/wheat_yellow_rust_0038.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0038.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "wheat_yellow_rust",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "val/healthy_general/healthy_general_0006.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0052.jpg",
+          "split_1": "val",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "val/healthy_general/healthy_general_0013.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0000.jpg",
+          "split_1": "val",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "val/healthy_general/healthy_general_0013.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+          "split_1": "val",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "val/healthy_general/healthy_general_p3a_0154.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+          "split_1": "val",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "val/potato_healthy/potato_healthy_0005.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_0010.jpg",
+          "split_1": "val",
+          "split_2": "test",
+          "class_1": "potato_healthy",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        }
+      ]
+    },
+    "threshold_le_2": {
+      "threshold": 2,
+      "total_near_duplicate_pairs": 1233,
+      "within_split_counts": {
+        "train": 314,
+        "val": 22,
+        "test": 21,
+        "real_world_test": 141
+      },
+      "cross_split_counts": {
+        "train_vs_val": 183,
+        "train_vs_test": 131,
+        "train_vs_real_world_test": 224,
+        "val_vs_test": 42,
+        "val_vs_real_world_test": 69,
+        "test_vs_real_world_test": 86
+      },
+      "same_class_count": 220,
+      "cross_class_count": 1013,
+      "top_50_cross_class_concentrations": [
+        {
+          "class_pair": "healthy_general <-> potato_healthy",
+          "count": 101
+        },
+        {
+          "class_pair": "rice_brown_spot <-> tomato_healthy",
+          "count": 92
+        },
+        {
+          "class_pair": "healthy_general <-> rice_brown_spot",
+          "count": 87
+        },
+        {
+          "class_pair": "healthy_general <-> tomato_healthy",
+          "count": 84
+        },
+        {
+          "class_pair": "potato_healthy <-> tomato_healthy",
+          "count": 79
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_brown_spot",
+          "count": 78
+        },
+        {
+          "class_pair": "healthy_general <-> wheat_brown_rust",
+          "count": 45
+        },
+        {
+          "class_pair": "rice_brown_spot <-> wheat_yellow_rust",
+          "count": 40
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> tomato_leaf_curl",
+          "count": 33
+        },
+        {
+          "class_pair": "tomato_healthy <-> wheat_brown_rust",
+          "count": 32
+        },
+        {
+          "class_pair": "potato_healthy <-> wheat_brown_rust",
+          "count": 31
+        },
+        {
+          "class_pair": "healthy_general <-> rice_blast",
+          "count": 29
+        },
+        {
+          "class_pair": "tomato_healthy <-> wheat_yellow_rust",
+          "count": 28
+        },
+        {
+          "class_pair": "rice_blast <-> tomato_healthy",
+          "count": 27
+        },
+        {
+          "class_pair": "rice_brown_spot <-> wheat_brown_rust",
+          "count": 27
+        },
+        {
+          "class_pair": "healthy_general <-> wheat_yellow_rust",
+          "count": 22
+        },
+        {
+          "class_pair": "potato_healthy <-> wheat_yellow_rust",
+          "count": 22
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_blast",
+          "count": 22
+        },
+        {
+          "class_pair": "rice_blast <-> rice_brown_spot",
+          "count": 17
+        },
+        {
+          "class_pair": "rice_blast <-> wheat_yellow_rust",
+          "count": 15
+        },
+        {
+          "class_pair": "rice_blast <-> wheat_brown_rust",
+          "count": 13
+        },
+        {
+          "class_pair": "wheat_brown_rust <-> wheat_yellow_rust",
+          "count": 13
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_bacterial_blight",
+          "count": 11
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> rice_brown_spot",
+          "count": 10
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> potato_healthy",
+          "count": 7
+        },
+        {
+          "class_pair": "healthy_general <-> rice_bacterial_blight",
+          "count": 5
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> tomato_healthy",
+          "count": 5
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> tomato_healthy",
+          "count": 4
+        },
+        {
+          "class_pair": "potato_early_blight <-> tomato_healthy",
+          "count": 4
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> rice_blast",
+          "count": 3
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> wheat_yellow_rust",
+          "count": 3
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> potato_healthy",
+          "count": 2
+        },
+        {
+          "class_pair": "potato_early_blight <-> wheat_yellow_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "potato_late_blight <-> tomato_healthy",
+          "count": 2
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> tomato_healthy",
+          "count": 2
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> wheat_brown_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> rice_brown_spot",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> tomato_early_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> wheat_yellow_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "healthy_general <-> potato_late_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_early_blight <-> rice_brown_spot",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_early_blight <-> rice_blast",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_healthy <-> tomato_early_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_late_blight <-> rice_blast",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_late_blight <-> tomato_late_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "rice_brown_spot <-> tomato_early_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "tomato_healthy <-> tomato_leaf_curl",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> rice_brown_spot",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> wheat_brown_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> healthy_general",
+          "count": 1
+        }
+      ],
+      "representative_pairs": [
+        {
+          "image_1": "train/cotton_bacterial_blight/cotton_bacterial_blight_p3a_0099.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_p3a_0281.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_bacterial_blight",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_bacterial_blight/cotton_bacterial_blight_p3a_0099.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_bacterial_blight",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0008.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0021.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0020.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0006.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0004.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0027.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "val/tomato_early_blight/tomato_early_blight_0014.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_early_blight",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0007.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_0028.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "test/cotton_leaf_curl/cotton_leaf_curl_0028.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0012.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0018.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0012.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0013.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0013.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0039.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0015.jpg",
+          "image_2": "val/wheat_yellow_rust/wheat_yellow_rust_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0020.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0027.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0020.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0012.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0021.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_0014.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0022.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0000.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0027.jpg",
+          "image_2": "real_world_test/tomato_leaf_curl/tomato_leaf_curl_rw_0043.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0020.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0285.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0020.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0010.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0020.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0013.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0042.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_p3a_0248.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0095.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0128.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0095.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0121.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0121.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0045.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0128.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_p3a_0264.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0306.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+          "image_2": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0320.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0028.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0035.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0014.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0020.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0025.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0030.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0015.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/healthy_general/healthy_general_0035.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0003.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0021.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/wheat_yellow_rust/wheat_yellow_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0014.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/rice_blast/rice_blast_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0036.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0033.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0031.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "val/potato_healthy/potato_healthy_0029.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0016.jpg",
+          "image_2": "test/healthy_general/healthy_general_0014.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0016.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0042.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0010.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0017.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_p3a_0152.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "val/healthy_general/healthy_general_0013.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0000.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_0028.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "real_world_test/healthy_general/healthy_general_rw_0048.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0020.jpg",
+          "image_2": "val/potato_healthy/potato_healthy_0028.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0020.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0043.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0020.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0044.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0036.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0004.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/healthy_general/healthy_general_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0012.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0000.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0003.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/wheat_yellow_rust/wheat_yellow_rust_0026.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/healthy_general/healthy_general_0028.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/healthy_general/healthy_general_0038.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        }
+      ]
+    },
+    "threshold_le_3": {
+      "threshold": 3,
+      "total_near_duplicate_pairs": 1233,
+      "within_split_counts": {
+        "train": 314,
+        "val": 22,
+        "test": 21,
+        "real_world_test": 141
+      },
+      "cross_split_counts": {
+        "train_vs_val": 183,
+        "train_vs_test": 131,
+        "train_vs_real_world_test": 224,
+        "val_vs_test": 42,
+        "val_vs_real_world_test": 69,
+        "test_vs_real_world_test": 86
+      },
+      "same_class_count": 220,
+      "cross_class_count": 1013,
+      "top_50_cross_class_concentrations": [
+        {
+          "class_pair": "healthy_general <-> potato_healthy",
+          "count": 101
+        },
+        {
+          "class_pair": "rice_brown_spot <-> tomato_healthy",
+          "count": 92
+        },
+        {
+          "class_pair": "healthy_general <-> rice_brown_spot",
+          "count": 87
+        },
+        {
+          "class_pair": "healthy_general <-> tomato_healthy",
+          "count": 84
+        },
+        {
+          "class_pair": "potato_healthy <-> tomato_healthy",
+          "count": 79
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_brown_spot",
+          "count": 78
+        },
+        {
+          "class_pair": "healthy_general <-> wheat_brown_rust",
+          "count": 45
+        },
+        {
+          "class_pair": "rice_brown_spot <-> wheat_yellow_rust",
+          "count": 40
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> tomato_leaf_curl",
+          "count": 33
+        },
+        {
+          "class_pair": "tomato_healthy <-> wheat_brown_rust",
+          "count": 32
+        },
+        {
+          "class_pair": "potato_healthy <-> wheat_brown_rust",
+          "count": 31
+        },
+        {
+          "class_pair": "healthy_general <-> rice_blast",
+          "count": 29
+        },
+        {
+          "class_pair": "tomato_healthy <-> wheat_yellow_rust",
+          "count": 28
+        },
+        {
+          "class_pair": "rice_blast <-> tomato_healthy",
+          "count": 27
+        },
+        {
+          "class_pair": "rice_brown_spot <-> wheat_brown_rust",
+          "count": 27
+        },
+        {
+          "class_pair": "healthy_general <-> wheat_yellow_rust",
+          "count": 22
+        },
+        {
+          "class_pair": "potato_healthy <-> wheat_yellow_rust",
+          "count": 22
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_blast",
+          "count": 22
+        },
+        {
+          "class_pair": "rice_blast <-> rice_brown_spot",
+          "count": 17
+        },
+        {
+          "class_pair": "rice_blast <-> wheat_yellow_rust",
+          "count": 15
+        },
+        {
+          "class_pair": "rice_blast <-> wheat_brown_rust",
+          "count": 13
+        },
+        {
+          "class_pair": "wheat_brown_rust <-> wheat_yellow_rust",
+          "count": 13
+        },
+        {
+          "class_pair": "potato_healthy <-> rice_bacterial_blight",
+          "count": 11
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> rice_brown_spot",
+          "count": 10
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> potato_healthy",
+          "count": 7
+        },
+        {
+          "class_pair": "healthy_general <-> rice_bacterial_blight",
+          "count": 5
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> tomato_healthy",
+          "count": 5
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> tomato_healthy",
+          "count": 4
+        },
+        {
+          "class_pair": "potato_early_blight <-> tomato_healthy",
+          "count": 4
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> rice_blast",
+          "count": 3
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> wheat_yellow_rust",
+          "count": 3
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> potato_healthy",
+          "count": 2
+        },
+        {
+          "class_pair": "potato_early_blight <-> wheat_yellow_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "potato_late_blight <-> tomato_healthy",
+          "count": 2
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> tomato_healthy",
+          "count": 2
+        },
+        {
+          "class_pair": "rice_bacterial_blight <-> wheat_brown_rust",
+          "count": 2
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> rice_brown_spot",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> tomato_early_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_leaf_curl <-> wheat_yellow_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "healthy_general <-> potato_late_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_early_blight <-> rice_brown_spot",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_early_blight <-> rice_blast",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_healthy <-> tomato_early_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_late_blight <-> rice_blast",
+          "count": 1
+        },
+        {
+          "class_pair": "potato_late_blight <-> tomato_late_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "rice_brown_spot <-> tomato_early_blight",
+          "count": 1
+        },
+        {
+          "class_pair": "tomato_healthy <-> tomato_leaf_curl",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> rice_brown_spot",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> wheat_brown_rust",
+          "count": 1
+        },
+        {
+          "class_pair": "cotton_bacterial_blight <-> healthy_general",
+          "count": 1
+        }
+      ],
+      "representative_pairs": [
+        {
+          "image_1": "train/cotton_bacterial_blight/cotton_bacterial_blight_p3a_0099.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_p3a_0281.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_bacterial_blight",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_bacterial_blight/cotton_bacterial_blight_p3a_0099.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_bacterial_blight",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0008.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0021.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0020.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0006.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0004.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0027.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0009.jpg",
+          "image_2": "val/tomato_early_blight/tomato_early_blight_0014.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_early_blight",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0007.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_0028.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0011.jpg",
+          "image_2": "test/cotton_leaf_curl/cotton_leaf_curl_0028.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0012.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0018.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0012.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0013.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0013.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_0039.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0015.jpg",
+          "image_2": "val/wheat_yellow_rust/wheat_yellow_rust_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0020.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0027.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0020.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0012.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0021.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_0014.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0022.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_0000.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_0027.jpg",
+          "image_2": "real_world_test/tomato_leaf_curl/tomato_leaf_curl_rw_0043.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0020.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0285.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0020.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0010.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0020.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0013.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0042.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_p3a_0248.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0095.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0128.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0095.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0121.jpg",
+          "image_2": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0121.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0045.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0128.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "val/tomato_leaf_curl/tomato_leaf_curl_p3a_0264.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+          "image_2": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0306.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+          "image_2": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "tomato_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+          "image_2": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0320.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "cotton_leaf_curl",
+          "class_2": "cotton_leaf_curl",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0028.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/healthy_general/healthy_general_0035.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0003.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0014.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0020.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0025.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0030.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0015.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0005.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/healthy_general/healthy_general_0035.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0003.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0021.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "train/wheat_yellow_rust/wheat_yellow_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0008.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0014.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/rice_blast/rice_blast_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0036.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "val/wheat_brown_rust/wheat_brown_rust_0033.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0010.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0032.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0031.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "val/potato_healthy/potato_healthy_0029.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0012.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0016.jpg",
+          "image_2": "test/healthy_general/healthy_general_0014.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0016.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0042.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0010.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0017.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_p3a_0152.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "val/healthy_general/healthy_general_0013.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "val/rice_brown_spot/rice_brown_spot_0000.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "test/tomato_healthy/tomato_healthy_0028.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "real_world_test/healthy_general/healthy_general_rw_0048.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0018.jpg",
+          "image_2": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0020.jpg",
+          "image_2": "val/potato_healthy/potato_healthy_0028.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0020.jpg",
+          "image_2": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0043.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0020.jpg",
+          "image_2": "real_world_test/tomato_healthy/tomato_healthy_rw_0044.jpg",
+          "split_1": "train",
+          "split_2": "real_world_test",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/rice_brown_spot/rice_brown_spot_0036.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_brown_spot",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0004.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0026.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0022.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/healthy_general/healthy_general_0024.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/tomato_healthy/tomato_healthy_0012.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0000.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0003.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "train/wheat_brown_rust/wheat_brown_rust_0037.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "wheat_brown_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/rice_blast/rice_blast_0039.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/tomato_healthy/tomato_healthy_0007.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "tomato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "val/wheat_yellow_rust/wheat_yellow_rust_0026.jpg",
+          "split_1": "train",
+          "split_2": "val",
+          "class_1": "healthy_general",
+          "class_2": "wheat_yellow_rust",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0023.jpg",
+          "image_2": "test/potato_healthy/potato_healthy_0037.jpg",
+          "split_1": "train",
+          "split_2": "test",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/healthy_general/healthy_general_0028.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/healthy_general/healthy_general_0038.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "healthy_general",
+          "hamming_distance": 2
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/potato_healthy/potato_healthy_0030.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "potato_healthy",
+          "hamming_distance": 0
+        },
+        {
+          "image_1": "train/healthy_general/healthy_general_0024.jpg",
+          "image_2": "train/rice_blast/rice_blast_0033.jpg",
+          "split_1": "train",
+          "split_2": "train",
+          "class_1": "healthy_general",
+          "class_2": "rice_blast",
+          "hamming_distance": 0
+        }
+      ]
+    }
+  },
+  "real_world_test_contamination": {
+    "exact_leakage_from_train": 0,
+    "exact_leakage_from_val": 0,
+    "exact_leakage_from_test": 0,
+    "phash_leakage_dist_le_1_from_train": 26,
+    "phash_leakage_dist_le_2_from_train": 224,
+    "phash_leakage_dist_le_3_from_train": 224,
+    "is_contaminated": true,
+    "summary_notes": "real_world_test is contaminated!"
+  }
+}

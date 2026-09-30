@@ -37,9 +37,11 @@ yarn-error.log*
 *.h5
 *.pt
 *.pth
-*.onnx
 data/raw/
 data/processed/
+ml/platform/datasets/raw/
+ml/platform/datasets/processed/
+ml/platform/datasets/quarantine/
 
 # --- OS / IDE ---
 .DS_Store

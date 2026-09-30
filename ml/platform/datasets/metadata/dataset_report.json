@@ -1,0 +1,29 @@
+{
+  "total_images": 825,
+  "total_classes": 15,
+  "classes": [
+    "rice_blast",
+    "rice_bacterial_blight",
+    "rice_brown_spot",
+    "wheat_yellow_rust",
+    "wheat_brown_rust",
+    "tomato_late_blight",
+    "tomato_early_blight",
+    "tomato_leaf_curl",
+    "tomato_healthy",
+    "potato_late_blight",
+    "potato_early_blight",
+    "potato_healthy",
+    "cotton_leaf_curl",
+    "cotton_bacterial_blight",
+    "healthy_general"
+  ],
+  "duplicates_detected": 0,
+  "rejected_images": 0,
+  "splits": {
+    "train": 420,
+    "val": 90,
+    "test": 90,
+    "real_world_test": 225
+  }
+}

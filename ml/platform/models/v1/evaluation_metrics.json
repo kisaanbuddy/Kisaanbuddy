@@ -1,0 +1,37 @@
+{
+  "model_architecture": "MobileNetV3-Small",
+  "num_classes": 15,
+  "classes": [
+    "cotton_bacterial_blight",
+    "cotton_leaf_curl",
+    "healthy_general",
+    "potato_early_blight",
+    "potato_healthy",
+    "potato_late_blight",
+    "rice_bacterial_blight",
+    "rice_blast",
+    "rice_brown_spot",
+    "tomato_early_blight",
+    "tomato_healthy",
+    "tomato_late_blight",
+    "tomato_leaf_curl",
+    "wheat_brown_rust",
+    "wheat_yellow_rust"
+  ],
+  "best_val_top1_accuracy": 0.4,
+  "test_metrics": {
+    "samples": 90,
+    "top1_accuracy": 0.4111,
+    "top3_accuracy": 0.7778
+  },
+  "real_world_test_metrics": {
+    "samples": 225,
+    "top1_accuracy": 0.3289,
+    "top3_accuracy": 0.7689
+  },
+  "temperature_scaling": {
+    "temperature": 1.5
+  },
+  "onnx_cpu_latency_ms": 1.12,
+  "model_onnx_path": "C:\\Users\\HP\\Kisaanbuddy\\ml\\platform\\models\\v1\\model.onnx"
+}
