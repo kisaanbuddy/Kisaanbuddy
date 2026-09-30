@@ -73,11 +73,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { user, ready } = useAuth();
 
-  useEffect(() => {
-    if (ready && !user) {
-      router.replace("/login");
-    }
-  }, [ready, user, router]);
+  // Auth guard is handled by AuthGate in Providers.tsx — no redirect needed here.
 
   if (!ready || !user) {
     return (

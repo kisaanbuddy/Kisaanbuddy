@@ -319,12 +319,7 @@ export default function DashboardPage() {
     return () => clearInterval(interval)
   }, [t])
 
-  // Redirect to login if unauthenticated
-  useEffect(() => {
-    if (ready && !user) {
-      router.replace("/login")
-    }
-  }, [ready, user, router])
+  // Auth guard is handled by AuthGate in Providers.tsx — no redirect needed here.
 
 
   // Text-To-Speech (Read aloud status)
