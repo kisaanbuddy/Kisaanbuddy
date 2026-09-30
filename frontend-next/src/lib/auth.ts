@@ -62,32 +62,53 @@ function sessionRequest(url: string, options: RequestInit = {}) {
   });
 }
 
-/** Restores only a server-validated, HttpOnly-cookie session. */
+/** Restores only a server-validated, HttpOnly-cookie session.
+ *  Retries on network errors (backend cold start) but not on auth failures. */
 export function verifySessionOnLoad(): Promise<AuthUser | null> {
   if (restorePromise) return restorePromise;
 
   restorePromise = (async () => {
-    try {
-      let response = await sessionRequest("/api/auth/me", { method: "GET" });
-      if (response.status === 401) {
-        const refresh = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
-        if (refresh.ok) response = await sessionRequest("/api/auth/me", { method: "GET" });
+    const MAX_ATTEMPTS = 3;
+    let lastError: unknown;
+
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      if (attempt > 0) {
+        // Exponential back-off: 1 s, then 2 s — gives Render time to wake up.
+        await new Promise((r) => setTimeout(r, attempt * 1000));
       }
-      if (!response.ok) {
-        writeSession(null);
-        return null;
+      try {
+        let response = await sessionRequest("/api/auth/me", { method: "GET" });
+
+        if (response.status === 401) {
+          const refresh = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
+          if (refresh.ok) response = await sessionRequest("/api/auth/me", { method: "GET" });
+        }
+
+        if (response.ok) {
+          const user = (await response.json()) as AuthUser;
+          writeSession(user);
+          restorePromise = null;
+          return user;
+        }
+
+        // Definitive auth failure (401/403) — stop retrying, not a transient error.
+        if (response.status === 401 || response.status === 403) break;
+
+        // 5xx or other transient error — retry.
+        lastError = new Error(`HTTP ${response.status}`);
+      } catch (err) {
+        // Network error / fetch abort — backend may still be starting.
+        lastError = err;
       }
-      const user = (await response.json()) as AuthUser;
-      writeSession(user);
-      return user;
-    } catch {
-      // Never use a browser cache as proof of authentication.
-      writeSession(null);
-      return null;
-    } finally {
-      restorePromise = null;
     }
+
+    // All attempts exhausted or definitive auth failure.
+    void lastError; // suppress unused-var lint
+    writeSession(null);
+    restorePromise = null;
+    return null;
   })();
+
   return restorePromise;
 }
 
