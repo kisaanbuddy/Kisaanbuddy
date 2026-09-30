@@ -20,6 +20,8 @@ redis>=5.0.0
 
 # Database (optional — only if you wire up db/models.py)
 sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+psycopg[binary]>=3.1.18
 
 # File uploads (disease detection endpoint)
 python-multipart>=0.0.9
