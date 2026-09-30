@@ -3,8 +3,8 @@
 #
 # After connecting this repo on render.com:
 #   1. Render creates the service from this file (free tier, Oregon region)
-#   2. You set the secret env vars (OPENWEATHERMAP_API_KEY, OPENAI_API_KEY,
-#      GEMINI_API_KEY) in Render dashboard → service → Environment
+#   2. Set secret env vars in Render Dashboard → service → Environment:
+#      JWT_SECRET, DATABASE_URL, OPENAI_API_KEY, GEMINI_API_KEY, etc.
 #   3. Push to main → Render rebuilds + redeploys automatically
 
 services:
@@ -15,19 +15,22 @@ services:
     region: oregon
     branch: main
     rootDir: backend
+    pythonVersion: "3.11.9"
     buildCommand: "pip install --no-cache-dir -r requirements.txt"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /health
     autoDeploy: true
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.9"
       - key: DEBUG
         value: "False"
       - key: ALLOWED_ORIGINS
         value: '["https://kisaanbuddy.com","https://www.kisaanbuddy.com","https://krishiai.vercel.app","http://localhost:3000"]'
       - key: ALLOWED_ORIGIN_REGEX
         value: 'https://.*\.vercel\.app'
+      - key: DATABASE_URL
+        sync: false   # set in dashboard (PostgreSQL connection string)
+      - key: JWT_SECRET
+        sync: false   # REQUIRED: python -c "import secrets; print(secrets.token_urlsafe(48))"
       - key: OPENWEATHERMAP_API_KEY
         sync: false   # set in dashboard
       - key: OPENAI_API_KEY
@@ -44,5 +47,3 @@ services:
         value: "2factor"
       - key: TWOFACTOR_API_KEY
         value: "3dee1f51-ace8-11f1-90d7-0200cd936042"
-      - key: JWT_SECRET
-        value: "kisaanbuddy_sec_4f9a2b7c4d1e6f0a3b5c7d9e1f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8"
