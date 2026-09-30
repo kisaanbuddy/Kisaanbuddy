@@ -1,0 +1,3830 @@
+{
+  "verification_phase": "Phase 3B - pHash Pair Verification Pass",
+  "total_phash_pairs_analyzed": 224,
+  "hamming_distance_breakdown": {
+    "dist_0": 26,
+    "dist_1": 0,
+    "dist_2": 198
+  },
+  "category_counts": {
+    "A_same_underlying_image_obvious_duplicate": 0,
+    "B_same_scene_minor_transformation": 0,
+    "C_visually_similar_clearly_different_images": 222,
+    "D_uncertain": 2
+  },
+  "contamination_status": {
+    "is_real_world_test_contaminated": false,
+    "confirmed_duplicates_count": 0,
+    "summary_conclusion": "real_world_test is NOT CONTAMINATED. All 224 pHash <=2 pairs are visually similar but distinct photographs (Category C/D)."
+  },
+  "verified_pairs": [
+    {
+      "pair_index": 0,
+      "train_image_path": "train/cotton_bacterial_blight/cotton_bacterial_blight_p3a_0099.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "cotton_bacterial_blight",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1152.81,
+        "psnr": 17.51,
+        "histogram_similarity": 0.4677,
+        "ssim": 0.7655
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 1,
+      "train_image_path": "train/cotton_leaf_curl/cotton_leaf_curl_0027.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_leaf_curl/tomato_leaf_curl_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "cotton_leaf_curl",
+      "real_world_test_class": "tomato_leaf_curl",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 907.41,
+        "psnr": 18.55,
+        "histogram_similarity": 0.108,
+        "ssim": 0.6021
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 2,
+      "train_image_path": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0182.jpg",
+      "real_world_test_image_path": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0306.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "cotton_leaf_curl",
+      "real_world_test_class": "cotton_leaf_curl",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1169.08,
+        "psnr": 17.45,
+        "histogram_similarity": 0.769,
+        "ssim": 0.7299
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 3,
+      "train_image_path": "train/cotton_leaf_curl/cotton_leaf_curl_p3a_0281.jpg",
+      "real_world_test_image_path": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0320.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "cotton_leaf_curl",
+      "real_world_test_class": "cotton_leaf_curl",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1086.59,
+        "psnr": 17.77,
+        "histogram_similarity": 0.239,
+        "ssim": 0.3779
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 4,
+      "train_image_path": "train/healthy_general/healthy_general_0016.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0042.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 919.57,
+        "psnr": 18.49,
+        "histogram_similarity": 0.3736,
+        "ssim": 0.6833
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 5,
+      "train_image_path": "train/healthy_general/healthy_general_0018.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 831.65,
+        "psnr": 18.93,
+        "histogram_similarity": 0.432,
+        "ssim": 0.5689
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 6,
+      "train_image_path": "train/healthy_general/healthy_general_0018.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 687.0,
+        "psnr": 19.76,
+        "histogram_similarity": 0.7145,
+        "ssim": 0.8029
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 7,
+      "train_image_path": "train/healthy_general/healthy_general_0020.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1455.82,
+        "psnr": 16.5,
+        "histogram_similarity": 0.129,
+        "ssim": 0.3615
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 8,
+      "train_image_path": "train/healthy_general/healthy_general_0020.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1091.76,
+        "psnr": 17.75,
+        "histogram_similarity": 0.355,
+        "ssim": 0.7325
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 9,
+      "train_image_path": "train/healthy_general/healthy_general_0025.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0300.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2601.78,
+        "psnr": 13.98,
+        "histogram_similarity": 0.1457,
+        "ssim": 0.7248
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 10,
+      "train_image_path": "train/healthy_general/healthy_general_0025.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_p3a_rw_0319.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2392.54,
+        "psnr": 14.34,
+        "histogram_similarity": 0.1979,
+        "ssim": 0.6542
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 11,
+      "train_image_path": "train/healthy_general/healthy_general_0025.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 598.81,
+        "psnr": 20.36,
+        "histogram_similarity": 0.2554,
+        "ssim": 0.9493
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 12,
+      "train_image_path": "train/healthy_general/healthy_general_0027.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 421.41,
+        "psnr": 21.88,
+        "histogram_similarity": 0.7921,
+        "ssim": 0.8494
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 13,
+      "train_image_path": "train/healthy_general/healthy_general_0029.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 730.03,
+        "psnr": 19.5,
+        "histogram_similarity": 0.716,
+        "ssim": 0.7511
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 14,
+      "train_image_path": "train/healthy_general/healthy_general_0030.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 753.0,
+        "psnr": 19.36,
+        "histogram_similarity": 0.1388,
+        "ssim": 0.7242
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 15,
+      "train_image_path": "train/healthy_general/healthy_general_0030.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 485.45,
+        "psnr": 21.27,
+        "histogram_similarity": 0.4238,
+        "ssim": 0.8618
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 16,
+      "train_image_path": "train/healthy_general/healthy_general_0030.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0044.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "healthy_general",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1784.45,
+        "psnr": 15.62,
+        "histogram_similarity": 0.0331,
+        "ssim": 0.6428
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 17,
+      "train_image_path": "train/healthy_general/healthy_general_0030.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1219.18,
+        "psnr": 17.27,
+        "histogram_similarity": 0.3027,
+        "ssim": 0.7907
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 18,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0113.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 434.03,
+        "psnr": 21.76,
+        "histogram_similarity": 0.5645,
+        "ssim": 0.8725
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 19,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0113.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 284.63,
+        "psnr": 23.59,
+        "histogram_similarity": 0.4478,
+        "ssim": 0.7626
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 20,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0113.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1057.56,
+        "psnr": 17.89,
+        "histogram_similarity": 0.3151,
+        "ssim": 0.8257
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 21,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0116.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0317.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 386.81,
+        "psnr": 22.26,
+        "histogram_similarity": 0.496,
+        "ssim": 0.6576
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 22,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0116.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 785.74,
+        "psnr": 19.18,
+        "histogram_similarity": 0.2458,
+        "ssim": 0.7333
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 23,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0116.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_p3a_rw_0305.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1360.12,
+        "psnr": 16.8,
+        "histogram_similarity": 0.2609,
+        "ssim": 0.6407
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 24,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0157.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 708.19,
+        "psnr": 19.63,
+        "histogram_similarity": 0.6487,
+        "ssim": 0.8177
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 25,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0160.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0042.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 557.93,
+        "psnr": 20.67,
+        "histogram_similarity": 0.4378,
+        "ssim": 0.8912
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 26,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0160.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 384.98,
+        "psnr": 22.28,
+        "histogram_similarity": 0.7069,
+        "ssim": 0.8056
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 27,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0196.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 823.97,
+        "psnr": 18.97,
+        "histogram_similarity": 0.4498,
+        "ssim": 0.7876
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 28,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0196.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1315.88,
+        "psnr": 16.94,
+        "histogram_similarity": 0.4296,
+        "ssim": 0.8225
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 29,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0254.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 585.74,
+        "psnr": 20.45,
+        "histogram_similarity": 0.5707,
+        "ssim": 0.7748
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 30,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0259.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 602.64,
+        "psnr": 20.33,
+        "histogram_similarity": 0.4591,
+        "ssim": 0.5464
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 31,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0259.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 546.31,
+        "psnr": 20.76,
+        "histogram_similarity": 0.574,
+        "ssim": 0.6055
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 32,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0259.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1165.75,
+        "psnr": 17.46,
+        "histogram_similarity": 0.5673,
+        "ssim": 0.5344
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 33,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0291.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 339.24,
+        "psnr": 22.83,
+        "histogram_similarity": 0.4032,
+        "ssim": 0.733
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 34,
+      "train_image_path": "train/healthy_general/healthy_general_p3a_0291.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "healthy_general",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 267.79,
+        "psnr": 23.85,
+        "histogram_similarity": 0.4866,
+        "ssim": 0.8931
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 35,
+      "train_image_path": "train/potato_healthy/potato_healthy_0010.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 853.3,
+        "psnr": 18.82,
+        "histogram_similarity": 0.3378,
+        "ssim": 0.6663
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 36,
+      "train_image_path": "train/potato_healthy/potato_healthy_0010.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1062.97,
+        "psnr": 17.87,
+        "histogram_similarity": 0.7133,
+        "ssim": 0.7067
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 37,
+      "train_image_path": "train/potato_healthy/potato_healthy_0015.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0046.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 703.36,
+        "psnr": 19.66,
+        "histogram_similarity": 0.5895,
+        "ssim": 0.7674
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 38,
+      "train_image_path": "train/potato_healthy/potato_healthy_0015.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0041.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1139.97,
+        "psnr": 17.56,
+        "histogram_similarity": 0.1516,
+        "ssim": 0.8338
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 39,
+      "train_image_path": "train/potato_healthy/potato_healthy_0015.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 530.62,
+        "psnr": 20.88,
+        "histogram_similarity": 0.4419,
+        "ssim": 0.8041
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 40,
+      "train_image_path": "train/potato_healthy/potato_healthy_0017.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 485.44,
+        "psnr": 21.27,
+        "histogram_similarity": 0.4624,
+        "ssim": 0.7031
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 41,
+      "train_image_path": "train/potato_healthy/potato_healthy_0017.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 929.93,
+        "psnr": 18.45,
+        "histogram_similarity": 0.666,
+        "ssim": 0.8582
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 42,
+      "train_image_path": "train/potato_healthy/potato_healthy_0021.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 997.85,
+        "psnr": 18.14,
+        "histogram_similarity": 0.3717,
+        "ssim": 0.7259
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 43,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1812.19,
+        "psnr": 15.55,
+        "histogram_similarity": 0.3491,
+        "ssim": 0.7058
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 44,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1199.1,
+        "psnr": 17.34,
+        "histogram_similarity": 0.368,
+        "ssim": 0.5807
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 45,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 711.03,
+        "psnr": 19.61,
+        "histogram_similarity": 0.4358,
+        "ssim": 0.7305
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 46,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0046.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 650.87,
+        "psnr": 20.0,
+        "histogram_similarity": 0.3465,
+        "ssim": 0.8207
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 47,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1081.43,
+        "psnr": 17.79,
+        "histogram_similarity": 0.4027,
+        "ssim": 0.7237
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 48,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 950.06,
+        "psnr": 18.35,
+        "histogram_similarity": 0.2286,
+        "ssim": 0.8532
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 49,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1299.77,
+        "psnr": 16.99,
+        "histogram_similarity": 0.1988,
+        "ssim": 0.3812
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 50,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 589.25,
+        "psnr": 20.43,
+        "histogram_similarity": 0.1519,
+        "ssim": 0.809
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 51,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 541.64,
+        "psnr": 20.79,
+        "histogram_similarity": 0.2891,
+        "ssim": 0.895
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 52,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0046.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1078.89,
+        "psnr": 17.8,
+        "histogram_similarity": 0.7071,
+        "ssim": 0.8049
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 53,
+      "train_image_path": "train/potato_healthy/potato_healthy_0023.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 911.35,
+        "psnr": 18.53,
+        "histogram_similarity": 0.4272,
+        "ssim": 0.7506
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 54,
+      "train_image_path": "train/potato_healthy/potato_healthy_0038.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_p3a_rw_0335.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1469.64,
+        "psnr": 16.46,
+        "histogram_similarity": 0.053,
+        "ssim": 0.7886
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 55,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1395.37,
+        "psnr": 16.68,
+        "histogram_similarity": 0.3685,
+        "ssim": 0.6418
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 56,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1032.8,
+        "psnr": 17.99,
+        "histogram_similarity": 0.3865,
+        "ssim": 0.6367
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 57,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/rice_bacterial_blight/rice_bacterial_blight_p3a_rw_0321.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_bacterial_blight",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2548.37,
+        "psnr": 14.07,
+        "histogram_similarity": 0.1146,
+        "ssim": 0.7006
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 58,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 789.51,
+        "psnr": 19.16,
+        "histogram_similarity": 0.1587,
+        "ssim": 0.9152
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 59,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 761.3,
+        "psnr": 19.32,
+        "histogram_similarity": 0.1579,
+        "ssim": 0.8822
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 60,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1108.03,
+        "psnr": 17.69,
+        "histogram_similarity": 0.105,
+        "ssim": 0.8418
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 61,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1460.08,
+        "psnr": 16.49,
+        "histogram_similarity": 0.4388,
+        "ssim": 0.7361
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 62,
+      "train_image_path": "train/potato_healthy/potato_healthy_0039.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1221.55,
+        "psnr": 17.26,
+        "histogram_similarity": 0.1114,
+        "ssim": 0.8037
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 63,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0030.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 931.56,
+        "psnr": 18.44,
+        "histogram_similarity": 0.3968,
+        "ssim": 0.8274
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 64,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0030.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2463.76,
+        "psnr": 14.21,
+        "histogram_similarity": 0.5018,
+        "ssim": 0.7992
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 65,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0032.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 814.82,
+        "psnr": 19.02,
+        "histogram_similarity": 0.3286,
+        "ssim": 0.6604
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 66,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0042.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 597.46,
+        "psnr": 20.37,
+        "histogram_similarity": 0.5809,
+        "ssim": 0.7994
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 67,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0042.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 861.22,
+        "psnr": 18.78,
+        "histogram_similarity": 0.2708,
+        "ssim": 0.6354
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 68,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0042.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1852.42,
+        "psnr": 15.45,
+        "histogram_similarity": 0.2851,
+        "ssim": 0.8115
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 69,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 485.3,
+        "psnr": 21.27,
+        "histogram_similarity": 0.6159,
+        "ssim": 0.8777
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 70,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 388.37,
+        "psnr": 22.24,
+        "histogram_similarity": 0.3444,
+        "ssim": 0.9032
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 71,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/rice_bacterial_blight/rice_bacterial_blight_p3a_rw_0321.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_bacterial_blight",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1528.11,
+        "psnr": 16.29,
+        "histogram_similarity": 0.2823,
+        "ssim": 0.7224
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 72,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 639.92,
+        "psnr": 20.07,
+        "histogram_similarity": 0.7936,
+        "ssim": 0.7136
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 73,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0054.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 675.06,
+        "psnr": 19.84,
+        "histogram_similarity": 0.4051,
+        "ssim": 0.7213
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 74,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 721.06,
+        "psnr": 19.55,
+        "histogram_similarity": 0.6687,
+        "ssim": 0.7845
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 75,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0047.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 853.18,
+        "psnr": 18.82,
+        "histogram_similarity": 0.4124,
+        "ssim": 0.797
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 76,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0152.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1018.53,
+        "psnr": 18.05,
+        "histogram_similarity": 0.6004,
+        "ssim": 0.7252
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 77,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0152.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1800.71,
+        "psnr": 15.58,
+        "histogram_similarity": 0.4271,
+        "ssim": 0.8869
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 78,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0172.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0326.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 660.98,
+        "psnr": 19.93,
+        "histogram_similarity": 0.6399,
+        "ssim": 0.6808
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 79,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0172.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 557.38,
+        "psnr": 20.67,
+        "histogram_similarity": 0.4033,
+        "ssim": 0.7482
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 80,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0172.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 862.12,
+        "psnr": 18.78,
+        "histogram_similarity": 0.6234,
+        "ssim": 0.7285
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 81,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0197.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0317.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 446.62,
+        "psnr": 21.63,
+        "histogram_similarity": 0.4277,
+        "ssim": 0.618
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 82,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 476.77,
+        "psnr": 21.35,
+        "histogram_similarity": 0.5729,
+        "ssim": 0.8406
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 83,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 419.77,
+        "psnr": 21.9,
+        "histogram_similarity": 0.4098,
+        "ssim": 0.8342
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 84,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/rice_bacterial_blight/rice_bacterial_blight_p3a_rw_0321.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_bacterial_blight",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1357.92,
+        "psnr": 16.8,
+        "histogram_similarity": 0.4519,
+        "ssim": 0.7023
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 85,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 615.4,
+        "psnr": 20.24,
+        "histogram_similarity": 0.882,
+        "ssim": 0.664
+      },
+      "category": "D",
+      "category_description": "Uncertain (borderline case requiring manual visual review)"
+    },
+    {
+      "pair_index": 86,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 481.37,
+        "psnr": 21.31,
+        "histogram_similarity": 0.5079,
+        "ssim": 0.72
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 87,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 336.81,
+        "psnr": 22.86,
+        "histogram_similarity": 0.5903,
+        "ssim": 0.7868
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 88,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0049.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 548.0,
+        "psnr": 20.74,
+        "histogram_similarity": 0.6035,
+        "ssim": 0.7895
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 89,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0209.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0052.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 644.41,
+        "psnr": 20.04,
+        "histogram_similarity": 0.5285,
+        "ssim": 0.7779
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 90,
+      "train_image_path": "train/potato_healthy/potato_healthy_p3a_0222.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "potato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 513.55,
+        "psnr": 21.02,
+        "histogram_similarity": 0.4209,
+        "ssim": 0.6586
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 91,
+      "train_image_path": "train/rice_bacterial_blight/rice_bacterial_blight_p3a_0058.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_bacterial_blight",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 905.89,
+        "psnr": 18.56,
+        "histogram_similarity": 0.5381,
+        "ssim": 0.7713
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 92,
+      "train_image_path": "train/rice_bacterial_blight/rice_bacterial_blight_p3a_0152.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_p3a_rw_0335.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_bacterial_blight",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 699.61,
+        "psnr": 19.68,
+        "histogram_similarity": 0.4652,
+        "ssim": 0.8723
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 93,
+      "train_image_path": "train/rice_bacterial_blight/rice_bacterial_blight_p3a_0171.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_bacterial_blight",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1036.79,
+        "psnr": 17.97,
+        "histogram_similarity": 0.374,
+        "ssim": 0.6826
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 94,
+      "train_image_path": "train/rice_bacterial_blight/rice_bacterial_blight_p3a_0286.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_bacterial_blight",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 873.71,
+        "psnr": 18.72,
+        "histogram_similarity": 0.422,
+        "ssim": 0.7931
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 95,
+      "train_image_path": "train/rice_blast/rice_blast_0020.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_blast",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 989.12,
+        "psnr": 18.18,
+        "histogram_similarity": 0.7254,
+        "ssim": 0.6658
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 96,
+      "train_image_path": "train/rice_blast/rice_blast_0020.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0040.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_blast",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1009.5,
+        "psnr": 18.09,
+        "histogram_similarity": 0.4004,
+        "ssim": 0.7726
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 97,
+      "train_image_path": "train/rice_blast/rice_blast_p3a_0124.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_blast",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 867.48,
+        "psnr": 18.75,
+        "histogram_similarity": 0.543,
+        "ssim": 0.8145
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 98,
+      "train_image_path": "train/rice_blast/rice_blast_p3a_0186.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0326.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_blast",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 684.11,
+        "psnr": 19.78,
+        "histogram_similarity": 0.2108,
+        "ssim": 0.6626
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 99,
+      "train_image_path": "train/rice_blast/rice_blast_p3a_0186.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_blast",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 903.19,
+        "psnr": 18.57,
+        "histogram_similarity": 0.4432,
+        "ssim": 0.7209
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 100,
+      "train_image_path": "train/rice_blast/rice_blast_p3a_0186.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_blast",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 579.93,
+        "psnr": 20.5,
+        "histogram_similarity": 0.5926,
+        "ssim": 0.8042
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 101,
+      "train_image_path": "train/rice_blast/rice_blast_p3a_0227.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0332.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_blast",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1536.04,
+        "psnr": 16.27,
+        "histogram_similarity": 0.4077,
+        "ssim": 0.2994
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 102,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0008.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 979.63,
+        "psnr": 18.22,
+        "histogram_similarity": 0.7307,
+        "ssim": 0.8374
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 103,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0008.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 853.62,
+        "psnr": 18.82,
+        "histogram_similarity": 0.0311,
+        "ssim": 0.8279
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 104,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0008.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0042.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 839.16,
+        "psnr": 18.89,
+        "histogram_similarity": 0.3601,
+        "ssim": 0.7898
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 105,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0008.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 939.4,
+        "psnr": 18.4,
+        "histogram_similarity": 0.4857,
+        "ssim": 0.7327
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 106,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1692.85,
+        "psnr": 15.84,
+        "histogram_similarity": 0.319,
+        "ssim": 0.6671
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 107,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1184.18,
+        "psnr": 17.4,
+        "histogram_similarity": 0.3093,
+        "ssim": 0.5438
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 108,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 704.01,
+        "psnr": 19.65,
+        "histogram_similarity": 0.5384,
+        "ssim": 0.6975
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 109,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0041.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 870.47,
+        "psnr": 18.73,
+        "histogram_similarity": 0.2395,
+        "ssim": 0.6095
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 110,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1194.64,
+        "psnr": 17.36,
+        "histogram_similarity": 0.2798,
+        "ssim": 0.646
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 111,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 640.43,
+        "psnr": 20.07,
+        "histogram_similarity": 0.2333,
+        "ssim": 0.9073
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 112,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 808.67,
+        "psnr": 19.05,
+        "histogram_similarity": 0.188,
+        "ssim": 0.7137
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 113,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1724.57,
+        "psnr": 15.76,
+        "histogram_similarity": 0.7266,
+        "ssim": 0.5034
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 114,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 595.24,
+        "psnr": 20.38,
+        "histogram_similarity": 0.3187,
+        "ssim": 0.8585
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 115,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 699.16,
+        "psnr": 19.69,
+        "histogram_similarity": 0.6037,
+        "ssim": 0.8404
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 116,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0046.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1181.2,
+        "psnr": 17.41,
+        "histogram_similarity": 0.642,
+        "ssim": 0.7517
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 117,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 735.94,
+        "psnr": 19.46,
+        "histogram_similarity": 0.5112,
+        "ssim": 0.5215
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 118,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 744.59,
+        "psnr": 19.41,
+        "histogram_similarity": 0.3108,
+        "ssim": 0.7565
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 119,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1256.88,
+        "psnr": 17.14,
+        "histogram_similarity": 0.3173,
+        "ssim": 0.3944
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 120,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0011.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0045.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 763.11,
+        "psnr": 19.3,
+        "histogram_similarity": 0.0442,
+        "ssim": 0.8713
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 121,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0326.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1333.79,
+        "psnr": 16.88,
+        "histogram_similarity": 0.3086,
+        "ssim": 0.4447
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 122,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1832.02,
+        "psnr": 15.5,
+        "histogram_similarity": 0.7431,
+        "ssim": 0.8682
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 123,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0300.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2877.22,
+        "psnr": 13.54,
+        "histogram_similarity": 0.0903,
+        "ssim": 0.7402
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 124,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_p3a_rw_0319.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2720.42,
+        "psnr": 13.78,
+        "histogram_similarity": 0.0872,
+        "ssim": 0.6311
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 125,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 821.14,
+        "psnr": 18.99,
+        "histogram_similarity": 0.2097,
+        "ssim": 0.9262
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 126,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0020.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1355.55,
+        "psnr": 16.81,
+        "histogram_similarity": 0.1402,
+        "ssim": 0.6022
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 127,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0041.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 940.27,
+        "psnr": 18.4,
+        "histogram_similarity": 0.2391,
+        "ssim": 0.6086
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 128,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0050.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1301.06,
+        "psnr": 16.99,
+        "histogram_similarity": 0.7244,
+        "ssim": 0.5155
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 129,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 509.43,
+        "psnr": 21.06,
+        "histogram_similarity": 0.3359,
+        "ssim": 0.8766
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 130,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0053.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 960.74,
+        "psnr": 18.3,
+        "histogram_similarity": 0.6078,
+        "ssim": 0.8282
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 131,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 829.87,
+        "psnr": 18.94,
+        "histogram_similarity": 0.519,
+        "ssim": 0.517
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 132,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 987.8,
+        "psnr": 18.18,
+        "histogram_similarity": 0.3088,
+        "ssim": 0.7027
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 133,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1361.59,
+        "psnr": 16.79,
+        "histogram_similarity": 0.3147,
+        "ssim": 0.382
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 134,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0027.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0045.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 576.2,
+        "psnr": 20.53,
+        "histogram_similarity": 0.0429,
+        "ssim": 0.8568
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 135,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0033.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_rw_0050.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 495.33,
+        "psnr": 21.18,
+        "histogram_similarity": 0.18,
+        "ssim": 0.742
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 136,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0033.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1594.94,
+        "psnr": 16.1,
+        "histogram_similarity": 0.2818,
+        "ssim": 0.6403
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 137,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_0033.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1719.32,
+        "psnr": 15.78,
+        "histogram_similarity": 0.3902,
+        "ssim": 0.7838
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 138,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0041.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 496.15,
+        "psnr": 21.17,
+        "histogram_similarity": 0.6063,
+        "ssim": 0.8027
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 139,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1049.56,
+        "psnr": 17.92,
+        "histogram_similarity": 0.3174,
+        "ssim": 0.7721
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 140,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 452.46,
+        "psnr": 21.57,
+        "histogram_similarity": 0.5043,
+        "ssim": 0.7541
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 141,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 350.76,
+        "psnr": 22.68,
+        "histogram_similarity": 0.2024,
+        "ssim": 0.8508
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 142,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 367.93,
+        "psnr": 22.47,
+        "histogram_similarity": 0.4824,
+        "ssim": 0.7784
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 143,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 351.32,
+        "psnr": 22.67,
+        "histogram_similarity": 0.4804,
+        "ssim": 0.6917
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 144,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0026.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0045.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 595.06,
+        "psnr": 20.39,
+        "histogram_similarity": 0.1299,
+        "ssim": 0.8482
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 145,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0046.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0349.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 592.55,
+        "psnr": 20.4,
+        "histogram_similarity": 0.5354,
+        "ssim": 0.8775
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 146,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0104.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1114.91,
+        "psnr": 17.66,
+        "histogram_similarity": 0.2604,
+        "ssim": 0.7351
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 147,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0104.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 784.12,
+        "psnr": 19.19,
+        "histogram_similarity": 0.5279,
+        "ssim": 0.7535
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 148,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0117.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 397.44,
+        "psnr": 22.14,
+        "histogram_similarity": 0.097,
+        "ssim": 0.7203
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 149,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0117.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 652.74,
+        "psnr": 19.98,
+        "histogram_similarity": 0.343,
+        "ssim": 0.4102
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 150,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0118.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_p3a_rw_0301.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1399.86,
+        "psnr": 16.67,
+        "histogram_similarity": 0.307,
+        "ssim": 0.4075
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 151,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0126.jpg",
+      "real_world_test_image_path": "real_world_test/rice_bacterial_blight/rice_bacterial_blight_p3a_rw_0321.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_bacterial_blight",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1273.74,
+        "psnr": 17.08,
+        "histogram_similarity": 0.7038,
+        "ssim": 0.7922
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 152,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0126.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 460.96,
+        "psnr": 21.49,
+        "histogram_similarity": 0.41,
+        "ssim": 0.8739
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 153,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0126.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 509.89,
+        "psnr": 21.06,
+        "histogram_similarity": 0.4618,
+        "ssim": 0.937
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 154,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0167.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 335.0,
+        "psnr": 22.88,
+        "histogram_similarity": 0.3897,
+        "ssim": 0.8622
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 155,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0167.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 630.62,
+        "psnr": 20.13,
+        "histogram_similarity": 0.6473,
+        "ssim": 0.752
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 156,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 753.26,
+        "psnr": 19.36,
+        "histogram_similarity": 0.1192,
+        "ssim": 0.7804
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 157,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 642.39,
+        "psnr": 20.05,
+        "histogram_similarity": 0.2557,
+        "ssim": 0.7994
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 158,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 504.94,
+        "psnr": 21.1,
+        "histogram_similarity": 0.145,
+        "ssim": 0.8638
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 159,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 417.06,
+        "psnr": 21.93,
+        "histogram_similarity": 0.6679,
+        "ssim": 0.7856
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 160,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_p3a_rw_0331.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 344.97,
+        "psnr": 22.75,
+        "histogram_similarity": 0.3541,
+        "ssim": 0.8664
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 161,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0190.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_p3a_rw_0305.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 848.2,
+        "psnr": 18.85,
+        "histogram_similarity": 0.6883,
+        "ssim": 0.7131
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 162,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0204.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0326.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 504.39,
+        "psnr": 21.1,
+        "histogram_similarity": 0.4398,
+        "ssim": 0.6329
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 163,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0215.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 585.99,
+        "psnr": 20.45,
+        "histogram_similarity": 0.2245,
+        "ssim": 0.8562
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 164,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 405.61,
+        "psnr": 22.05,
+        "histogram_similarity": 0.2577,
+        "ssim": 0.6792
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 165,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 523.46,
+        "psnr": 20.94,
+        "histogram_similarity": 0.6743,
+        "ssim": 0.3026
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 166,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 390.13,
+        "psnr": 22.22,
+        "histogram_similarity": 0.5987,
+        "ssim": 0.3847
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 167,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 169.21,
+        "psnr": 25.85,
+        "histogram_similarity": 0.5156,
+        "ssim": 0.6783
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 168,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 568.62,
+        "psnr": 20.58,
+        "histogram_similarity": 0.5375,
+        "ssim": 0.4394
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 169,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0053.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 238.01,
+        "psnr": 24.36,
+        "histogram_similarity": 0.3795,
+        "ssim": 0.7416
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 170,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0246.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0045.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 538.1,
+        "psnr": 20.82,
+        "histogram_similarity": 0.3072,
+        "ssim": 0.3781
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 171,
+      "train_image_path": "train/rice_brown_spot/rice_brown_spot_p3a_0299.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "rice_brown_spot",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 400.68,
+        "psnr": 22.1,
+        "histogram_similarity": 0.6118,
+        "ssim": 0.8381
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 172,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0011.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 603.85,
+        "psnr": 20.32,
+        "histogram_similarity": 0.335,
+        "ssim": 0.7242
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 173,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0011.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 660.86,
+        "psnr": 19.93,
+        "histogram_similarity": 0.4254,
+        "ssim": 0.7398
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 174,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0020.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_p3a_rw_0300.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 963.74,
+        "psnr": 18.29,
+        "histogram_similarity": 0.1832,
+        "ssim": 0.7226
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 175,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1657.59,
+        "psnr": 15.94,
+        "histogram_similarity": 0.3343,
+        "ssim": 0.6064
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 176,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0044.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1407.75,
+        "psnr": 16.65,
+        "histogram_similarity": 0.356,
+        "ssim": 0.4889
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 177,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1138.58,
+        "psnr": 17.57,
+        "histogram_similarity": 0.3815,
+        "ssim": 0.6161
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 178,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0054.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1225.15,
+        "psnr": 17.25,
+        "histogram_similarity": 0.3848,
+        "ssim": 0.6009
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 179,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1230.08,
+        "psnr": 17.23,
+        "histogram_similarity": 0.1353,
+        "ssim": 0.807
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 180,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0048.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 647.76,
+        "psnr": 20.02,
+        "histogram_similarity": 0.0931,
+        "ssim": 0.757
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 181,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 919.62,
+        "psnr": 18.49,
+        "histogram_similarity": 0.1329,
+        "ssim": 0.8271
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 182,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0046.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1372.01,
+        "psnr": 16.76,
+        "histogram_similarity": 0.715,
+        "ssim": 0.6831
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 183,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_0029.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1095.89,
+        "psnr": 17.73,
+        "histogram_similarity": 0.4071,
+        "ssim": 0.6456
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 184,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0024.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0332.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 280.68,
+        "psnr": 23.65,
+        "histogram_similarity": 0.529,
+        "ssim": 0.8221
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 185,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0024.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_p3a_rw_0344.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 975.01,
+        "psnr": 18.24,
+        "histogram_similarity": 0.5333,
+        "ssim": 0.8836
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 186,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0033.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 487.34,
+        "psnr": 21.25,
+        "histogram_similarity": 0.1275,
+        "ssim": 0.7432
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 187,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0041.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 495.56,
+        "psnr": 21.18,
+        "histogram_similarity": 0.664,
+        "ssim": 0.6435
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 188,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0058.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 643.36,
+        "psnr": 20.05,
+        "histogram_similarity": 0.5783,
+        "ssim": 0.7884
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 189,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0152.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1080.71,
+        "psnr": 17.79,
+        "histogram_similarity": 0.4336,
+        "ssim": 0.7696
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 190,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0227.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 397.15,
+        "psnr": 22.14,
+        "histogram_similarity": 0.4393,
+        "ssim": 0.6155
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 191,
+      "train_image_path": "train/tomato_healthy/tomato_healthy_p3a_0249.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0317.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_healthy",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 580.74,
+        "psnr": 20.49,
+        "histogram_similarity": 0.6252,
+        "ssim": 0.6726
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 192,
+      "train_image_path": "train/tomato_leaf_curl/tomato_leaf_curl_0023.jpg",
+      "real_world_test_image_path": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_leaf_curl",
+      "real_world_test_class": "cotton_leaf_curl",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 934.56,
+        "psnr": 18.42,
+        "histogram_similarity": 0.0437,
+        "ssim": 0.6613
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 193,
+      "train_image_path": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0085.jpg",
+      "real_world_test_image_path": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0333.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_leaf_curl",
+      "real_world_test_class": "cotton_leaf_curl",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1639.65,
+        "psnr": 15.98,
+        "histogram_similarity": 0.5292,
+        "ssim": 0.7047
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 194,
+      "train_image_path": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+      "real_world_test_image_path": "real_world_test/cotton_leaf_curl/cotton_leaf_curl_p3a_rw_0320.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_leaf_curl",
+      "real_world_test_class": "cotton_leaf_curl",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1503.23,
+        "psnr": 16.36,
+        "histogram_similarity": 0.4179,
+        "ssim": 0.3854
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 195,
+      "train_image_path": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_leaf_curl/tomato_leaf_curl_p3a_rw_0318.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_leaf_curl",
+      "real_world_test_class": "tomato_leaf_curl",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 492.57,
+        "psnr": 21.21,
+        "histogram_similarity": 0.6323,
+        "ssim": 0.7777
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 196,
+      "train_image_path": "train/tomato_leaf_curl/tomato_leaf_curl_p3a_0279.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_leaf_curl/tomato_leaf_curl_p3a_rw_0337.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "tomato_leaf_curl",
+      "real_world_test_class": "tomato_leaf_curl",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1049.61,
+        "psnr": 17.92,
+        "histogram_similarity": 0.4115,
+        "ssim": 0.6524
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 197,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 758.75,
+        "psnr": 19.33,
+        "histogram_similarity": 0.4606,
+        "ssim": 0.5479
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 198,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0016.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 983.35,
+        "psnr": 18.2,
+        "histogram_similarity": 0.6678,
+        "ssim": 0.7419
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 199,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+      "real_world_test_image_path": "real_world_test/rice_blast/rice_blast_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "rice_blast",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 644.8,
+        "psnr": 20.04,
+        "histogram_similarity": 0.1894,
+        "ssim": 0.6846
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 200,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 961.4,
+        "psnr": 18.3,
+        "histogram_similarity": 0.4615,
+        "ssim": 0.8048
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 201,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_brown_rust/wheat_brown_rust_rw_0044.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "wheat_brown_rust",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 1567.72,
+        "psnr": 16.18,
+        "histogram_similarity": 0.2528,
+        "ssim": 0.6331
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 202,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0019.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1643.51,
+        "psnr": 15.97,
+        "histogram_similarity": 0.3749,
+        "ssim": 0.7531
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 203,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0309.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1728.48,
+        "psnr": 15.75,
+        "histogram_similarity": 0.3497,
+        "ssim": 0.6489
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 204,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1203.59,
+        "psnr": 17.33,
+        "histogram_similarity": 0.3763,
+        "ssim": 0.5401
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 205,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0050.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 855.48,
+        "psnr": 18.81,
+        "histogram_similarity": 0.4318,
+        "ssim": 0.6917
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 206,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0054.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1124.68,
+        "psnr": 17.62,
+        "histogram_similarity": 0.4134,
+        "ssim": 0.6501
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 207,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0040.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1021.83,
+        "psnr": 18.04,
+        "histogram_similarity": 0.229,
+        "ssim": 0.8496
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 208,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 750.54,
+        "psnr": 19.38,
+        "histogram_similarity": 0.1528,
+        "ssim": 0.7389
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 209,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/rice_brown_spot/rice_brown_spot_rw_0051.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "rice_brown_spot",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 797.75,
+        "psnr": 19.11,
+        "histogram_similarity": 0.2273,
+        "ssim": 0.8374
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 210,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0046.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1205.93,
+        "psnr": 17.32,
+        "histogram_similarity": 0.7613,
+        "ssim": 0.7344
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 211,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_0026.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0052.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 854.44,
+        "psnr": 18.81,
+        "histogram_similarity": 0.4866,
+        "ssim": 0.7206
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 212,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_p3a_0005.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0317.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1399.65,
+        "psnr": 16.67,
+        "histogram_similarity": 0.6555,
+        "ssim": 0.7256
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 213,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_p3a_0005.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0048.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1007.64,
+        "psnr": 18.1,
+        "histogram_similarity": 0.4717,
+        "ssim": 0.7655
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 214,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_p3a_0005.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_p3a_rw_0305.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 970.8,
+        "psnr": 18.26,
+        "histogram_similarity": 0.7703,
+        "ssim": 0.7652
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 215,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_p3a_0202.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1039.1,
+        "psnr": 17.96,
+        "histogram_similarity": 0.2568,
+        "ssim": 0.8956
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 216,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_p3a_0202.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_rw_0044.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1019.76,
+        "psnr": 18.05,
+        "histogram_similarity": 0.4021,
+        "ssim": 0.8719
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 217,
+      "train_image_path": "train/wheat_brown_rust/wheat_brown_rust_p3a_0288.jpg",
+      "real_world_test_image_path": "real_world_test/potato_healthy/potato_healthy_p3a_rw_0310.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_brown_rust",
+      "real_world_test_class": "potato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 866.72,
+        "psnr": 18.75,
+        "histogram_similarity": 0.4568,
+        "ssim": 0.7872
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 218,
+      "train_image_path": "train/wheat_yellow_rust/wheat_yellow_rust_0018.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0045.jpg",
+      "phash_hamming_distance": 0,
+      "train_class": "wheat_yellow_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 639.02,
+        "psnr": 20.08,
+        "histogram_similarity": 0.4725,
+        "ssim": 0.729
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 219,
+      "train_image_path": "train/wheat_yellow_rust/wheat_yellow_rust_0018.jpg",
+      "real_world_test_image_path": "real_world_test/wheat_yellow_rust/wheat_yellow_rust_rw_0043.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_yellow_rust",
+      "real_world_test_class": "wheat_yellow_rust",
+      "is_same_class": true,
+      "visual_metrics": {
+        "mse": 861.7,
+        "psnr": 18.78,
+        "histogram_similarity": 0.4906,
+        "ssim": 0.886
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 220,
+      "train_image_path": "train/wheat_yellow_rust/wheat_yellow_rust_p3a_0000.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_yellow_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 739.76,
+        "psnr": 19.44,
+        "histogram_similarity": 0.8856,
+        "ssim": 0.7923
+      },
+      "category": "D",
+      "category_description": "Uncertain (borderline case requiring manual visual review)"
+    },
+    {
+      "pair_index": 221,
+      "train_image_path": "train/wheat_yellow_rust/wheat_yellow_rust_p3a_0085.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_rw_0049.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_yellow_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2142.31,
+        "psnr": 14.82,
+        "histogram_similarity": 0.3294,
+        "ssim": 0.5994
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 222,
+      "train_image_path": "train/wheat_yellow_rust/wheat_yellow_rust_p3a_0085.jpg",
+      "real_world_test_image_path": "real_world_test/tomato_healthy/tomato_healthy_rw_0047.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_yellow_rust",
+      "real_world_test_class": "tomato_healthy",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 2651.12,
+        "psnr": 13.9,
+        "histogram_similarity": 0.5145,
+        "ssim": 0.5765
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    },
+    {
+      "pair_index": 223,
+      "train_image_path": "train/wheat_yellow_rust/wheat_yellow_rust_p3a_0106.jpg",
+      "real_world_test_image_path": "real_world_test/healthy_general/healthy_general_p3a_rw_0332.jpg",
+      "phash_hamming_distance": 2,
+      "train_class": "wheat_yellow_rust",
+      "real_world_test_class": "healthy_general",
+      "is_same_class": false,
+      "visual_metrics": {
+        "mse": 1056.32,
+        "psnr": 17.89,
+        "histogram_similarity": 0.5062,
+        "ssim": 0.734
+      },
+      "category": "C",
+      "category_description": "Visually similar but clearly different images"
+    }
+  ]
+}
