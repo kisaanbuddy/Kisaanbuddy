@@ -20,6 +20,15 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./krishiai.db")
 DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
 DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))
 
+# Render / Heroku return bare  postgresql://  or  postgres://  connection strings.
+# SQLAlchemy ≥ 2.0 maps those to the psycopg3 dialect automatically.  Force
+# psycopg2 so we never hit "ModuleNotFoundError: No module named 'psycopg'".
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len("postgres://"):]
+elif DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = "postgresql+psycopg2://" + DATABASE_URL[len("postgresql://"):]
+
+
 if create_engine:
     if DATABASE_URL.startswith("sqlite"):
         engine = create_engine(
