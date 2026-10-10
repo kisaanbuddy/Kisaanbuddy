@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, CloudSun, Bug, TrendingUp, Mic } from 'lucide-react';
+import { Home, LayoutDashboard, Mic, TrendingUp, UserRound } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
 const NAV_ITEMS = [
   { href: '/', icon: Home, labelEn: 'Home', labelHi: 'होम' },
-  { href: '/weather', icon: CloudSun, labelEn: 'Weather', labelHi: 'मौसम' },
-  { href: '/disease', icon: Bug, labelEn: 'Disease', labelHi: 'रोग' },
-  { href: '/mandi', icon: TrendingUp, labelEn: 'Mandi', labelHi: 'मंडी' },
-  { href: '/chatbot', icon: Mic, labelEn: 'AI Chat', labelHi: 'AI चैट' },
+  { href: '/dashboard', icon: LayoutDashboard, labelEn: 'Farm', labelHi: 'खेत' },
+  { href: '/chatbot', icon: Mic, labelEn: 'AI', labelHi: 'AI' },
+  { href: '/mandi', icon: TrendingUp, labelEn: 'Market', labelHi: 'बाज़ार' },
+  { href: '/profile', icon: UserRound, labelEn: 'Profile', labelHi: 'प्रोफाइल' },
 ];
 
 export function MobileBottomNav() {
@@ -34,7 +34,7 @@ export function MobileBottomNav() {
               }`}
             >
               <Icon
-                className={`h-5 w-5 transition-all ${isActive ? 'scale-110' : ''}`}
+                className={`h-5 w-5 transition-all ${isActive ? 'scale-110' : ''} ${href === '/chatbot' ? 'stroke-[2.2]' : ''}`}
                 strokeWidth={isActive ? 2.5 : 1.8}
               />
               <span className={`text-[10px] leading-none mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>

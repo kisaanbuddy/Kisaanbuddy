@@ -196,7 +196,7 @@ export function Header() {
               type="button"
               onClick={() => setSearchOpen(true)}
               title={t("ui.search.title")}
-              className="flex h-8 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
+              className="hidden md:flex h-8 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
             >
               <Search className="h-3.5 w-3.5" />
               <span className="hidden sm:inline text-[11px]">{t("ui.search.label")}</span>
@@ -205,7 +205,7 @@ export function Header() {
               </kbd>
             </button>
             
-            <ThemeToggle />
+            <div className="hidden sm:block"><ThemeToggle /></div>
 
             {/* Language Selector */}
             <div className="relative">

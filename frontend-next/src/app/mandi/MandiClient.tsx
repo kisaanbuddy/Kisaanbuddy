@@ -28,6 +28,9 @@ import {
   Plus,
   Trash2,
   Sparkles,
+  BadgeCheck,
+  Calculator,
+  Truck,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -738,43 +741,46 @@ export default function MandiPage() {
         initial={{ opacity: 0, y: -20 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.6 }}
-        className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-r from-orange-950/20 via-slate-950 to-emerald-950/15 p-6 md:p-8 backdrop-blur-xl shadow-2xl"
+        className="relative overflow-hidden rounded-[1.75rem] border border-[#1b6248] bg-[#123f31] p-5 shadow-[0_22px_55px_-30px_rgba(11,57,40,.85)] sm:p-7 md:p-8"
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+        <div className="pointer-events-none absolute -right-12 -top-14 h-52 w-52 rounded-full bg-[#e7ae42]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl" />
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-xs font-semibold text-orange-400 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-emerald-100 backdrop-blur-sm">
               <Store className="h-3.5 w-3.5" />
               {MANDI_PAGE_LANG[lang].enamConnected}
             </div>
-            <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-foreground flex items-center gap-3">
-              {MANDI_PAGE_LANG[lang].mandi} <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-600 bg-clip-text text-transparent">{MANDI_PAGE_LANG[lang].marketplace}</span>
+            <h1 className="mt-4 text-3xl font-bold tracking-[-.045em] text-white sm:text-4xl md:text-5xl">
+              {lang === 'hi' ? <>भाव देखें। <span className="text-[#f4c96b]">बेहतर बेचें।</span></> : <>See the price. <span className="text-[#f4c96b]">Sell smarter.</span></>}
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
-              {MANDI_PAGE_LANG[lang].heroDesc}
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50/75 md:text-base">
+              {lang === 'hi' ? 'मंडी भाव, कीमत की रेंज और बिक्री के विकल्प एक जगह देखें। अपनी फसल चुनें और अगला सही कदम लें।' : 'Compare mandi prices, price ranges and selling options in one place. Choose your crop, then take the next right step.'}
             </p>
           </div>
-          {/* Stats widget */}
-          <div className="flex gap-3 flex-wrap">
-            <div className="rounded-2xl border border-border bg-card p-4 min-w-[120px] shadow-xs">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].totalCrops}</div>
-              <div className="text-xl font-extrabold text-foreground flex items-center gap-1.5">
-                <Package className="h-4.5 w-4.5 text-orange-500" />
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            <div className="min-w-[132px] rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/65">{MANDI_PAGE_LANG[lang].totalCrops}</div>
+              <div className="mt-1.5 flex items-center gap-1.5 text-xl font-bold text-white">
+                <Package className="h-4.5 w-4.5 text-[#f4c96b]" />
                 {crops.length}
               </div>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-4 min-w-[150px] shadow-xs">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].mandiArrivals}</div>
-              <div className="text-xl font-extrabold text-foreground flex items-center gap-1.5">
-                <Users className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
+            <div className="min-w-[132px] rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/65">{MANDI_PAGE_LANG[lang].mandiArrivals}</div>
+              <div className="mt-1.5 flex items-center gap-1.5 text-xl font-bold text-white">
+                <Users className="h-4.5 w-4.5 text-emerald-200" />
                 {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} {t("mandi.t")}
               </div>
             </div>
           </div>
         </div>
+        <div className="relative z-10 mt-6 grid gap-2 border-t border-white/10 pt-4 text-[11px] text-emerald-50/80 sm:grid-cols-3">
+          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'hi' ? 'लाइव APMC भाव' : 'Live APMC prices'}</span>
+          <span className="flex items-center gap-2"><Calculator className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'hi' ? 'कीमत की रेंज देखें' : 'Compare the price range'}</span>
+          <span className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'hi' ? 'बेचने से पहले विकल्प जानें' : 'Know your selling options'}</span>
+        </div>
       </motion.div>
-
-      {/* Price Alert Panel */}
-      <PriceAlertPanel crops={crops} />
 
       <AnimatePresence mode="wait">
         {/* ============================================================ */}
@@ -790,7 +796,12 @@ export default function MandiPage() {
             className="flex flex-col gap-6"
           >
             {/* Search + Filter bar */}
-            <div className="flex flex-col md:flex-row gap-4">
+            <div className="rounded-2xl border border-border bg-card p-3 shadow-xs sm:p-4">
+              <div className="mb-3 flex items-center gap-2 px-1">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary"><TrendingUp className="h-3.5 w-3.5" /></span>
+                <div><p className="text-xs font-bold text-foreground">{lang === 'hi' ? 'अपनी फसल चुनें' : 'Choose your crop'}</p><p className="text-[10px] text-muted-foreground">{lang === 'hi' ? 'भाव, मंडी और बिक्री विकल्प देखें' : 'See prices, mandis and selling options'}</p></div>
+              </div>
+              <div className="flex flex-col gap-3 md:flex-row">
               <div className="relative flex-1">
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <input
@@ -825,6 +836,7 @@ export default function MandiPage() {
                   </button>
                 ))}
               </div>
+              </div>
             </div>
 
             {/* Loading state */}
@@ -847,26 +859,29 @@ export default function MandiPage() {
 
             {/* Crop cards grid */}
             {!loading && !error && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCrops.map((crop, i) => (
-                  <CropCard
-                    key={crop.id}
-                    crop={crop}
-                    index={i}
-                    onClick={() => {
-                      trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang });
-                      setSelectedCrop(crop);
-                    }}
-                    lang={lang}
-                  />
-                ))}
-                {filteredCrops.length === 0 && (
-                  <div className="col-span-full text-center py-20">
-                    <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                    <p className="text-muted-foreground font-semibold">{MANDI_PAGE_LANG[lang].noCommodities}</p>
-                  </div>
-                )}
-              </div>
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredCrops.map((crop, i) => (
+                    <CropCard
+                      key={crop.id}
+                      crop={crop}
+                      index={i}
+                      onClick={() => {
+                        trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang });
+                        setSelectedCrop(crop);
+                      }}
+                      lang={lang}
+                    />
+                  ))}
+                  {filteredCrops.length === 0 && (
+                    <div className="col-span-full text-center py-20">
+                      <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                      <p className="text-muted-foreground font-semibold">{MANDI_PAGE_LANG[lang].noCommodities}</p>
+                    </div>
+                  )}
+                </div>
+                <PriceAlertPanel crops={crops} />
+              </>
             )}
           </motion.div>
         )}

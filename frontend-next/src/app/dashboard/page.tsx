@@ -5,14 +5,14 @@ import {
   CloudSun, Sprout, Bug, TrendingUp, Users, Landmark, Activity,
   BookOpen, ChevronRight, Thermometer, Droplets, Mic, MessageCircle,
   Phone, AlertTriangle, Cpu, Volume2, Loader2, Share2, Sparkles,
-  Calendar, CheckCircle2
+  Calendar
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth"
 import { useLanguage, Lang } from "@/lib/language"
 import { trackEvent } from "@/lib/analytics"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { CircularGauge } from "@/components/dashboard/CircularGauge"
 import { ActionableAdvisory } from "@/components/dashboard/ActionableAdvisory"
 
@@ -274,10 +274,6 @@ export default function DashboardPage() {
   const [moisture, setMoisture] = useState(0) // %
   const [temp, setTemp] = useState(0) // °C
   const [humidity, setHumidity] = useState(0) // %
-  const [nitrogen, setNitrogen] = useState(0) // mg/kg
-  const [phosphorus, setPhosphorus] = useState(0) // mg/kg
-  const [potassium, setPotassium] = useState(0) // mg/kg
-  const [ph, setPh] = useState(0)
 
   const [isListening, setIsListening] = useState(false)
 
@@ -295,10 +291,6 @@ export default function DashboardPage() {
         setMoisture(Math.round(data.soil_moisture ?? 0))
         setTemp(Math.round(data.temperature ?? data.soil_temperature ?? 0))
         setHumidity(Math.round(data.humidity ?? 0))
-        if (typeof data.nitrogen === "number") setNitrogen(data.nitrogen)
-        if (typeof data.phosphorus === "number") setPhosphorus(data.phosphorus)
-        if (typeof data.potassium === "number") setPotassium(data.potassium)
-        if (typeof data.ph_level === "number") setPh(data.ph_level)
         setSensorOnline(true)
       } else {
         setSensorOnline(false)
@@ -338,8 +330,7 @@ export default function DashboardPage() {
         else if (moisture > 55) txt += `पानी अधिक है, जल निकासी करें। `
         else txt += `नमी बिल्कुल सही है। `
 
-        txt += `तापमान ${temp} डिग्री सेल्सियस है। `
-        txt += `मिट्टी में नाइट्रोजन ${nitrogen}, फास्फोरस ${phosphorus}, और पोटाश ${potassium} मिलीग्राम प्रति किलोग्राम है।`
+        txt += `तापमान ${temp} डिग्री सेल्सियस है। अधिक लाइव सेंसर विवरण स्मार्ट सॉइल मॉनिटर में देखें।`
       }
     } else {
       txt = `Hello, ${user?.name || "Farmer"}. Here is your farm condition report. `
@@ -351,8 +342,7 @@ export default function DashboardPage() {
         else if (moisture > 55) txt += `Moisture level is high. `
         else txt += `Moisture is optimal. `
 
-        txt += `Temperature is ${temp} degrees Celsius. `
-        txt += `Nutrient levels: Nitrogen ${nitrogen}, Phosphorus ${phosphorus}, Potassium ${potassium}.`
+        txt += `Temperature is ${temp} degrees Celsius. See Smart Soil Monitor for the full live sensor detail.`
       }
     }
 
@@ -403,11 +393,7 @@ export default function DashboardPage() {
       text += `💧 *मिट्टी की नमी:* ${moisture}%\n`
       text += `☀️ *तापमान:* ${temp}°C\n`
       text += `💨 *हवा की नमी:* ${humidity}%\n`
-      text += `🧪 *मिट्टी स्वास्थ्य (pH):* ${ph}\n\n`
-      text += `🧪 *मुख्य पोषक तत्व (NPK):*\n`
-      text += `  • नाइट्रोजन: ${nitrogen} mg/kg\n`
-      text += `  • फास्फोरस: ${phosphorus} mg/kg\n`
-      text += `  • पोटाश: ${potassium} mg/kg\n\n`
+      text += `ℹ️ *नोट:* pH और NPK इस जुड़े हुए सेंसर से उपलब्ध नहीं हैं।\n\n`
     }
     text += `📲 *KisaanBuddy से प्राप्त प्रमाणित रिपोर्ट*`
 
@@ -580,72 +566,16 @@ export default function DashboardPage() {
             lang={lang}
           />
 
-          {/* Soil Nutrients (NPK) & Soil Health (pH) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="md:col-span-2 p-5 flex flex-col justify-between">
-              <CardHeader className="p-0 pb-3 border-b border-border flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Sprout className="h-4 w-4 text-primary" />
-                  <span>{lt.npkLabel}</span>
-                </CardTitle>
-                <span className="text-[10px] text-muted-foreground font-semibold uppercase">{lt.npkSub}</span>
-              </CardHeader>
-              <CardContent className="p-0 pt-4 space-y-3.5">
-                {/* Nitrogen */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-muted-foreground">{lt.nitrogen}</span>
-                    <span className="text-foreground font-semibold font-mono">{nitrogen} mg/kg</span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min((nitrogen / 140) * 100, 100)}%` }} />
-                  </div>
-                </div>
-
-                {/* Phosphorus */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-muted-foreground">{lt.phosphorus}</span>
-                    <span className="text-foreground font-semibold font-mono">{phosphorus} mg/kg</span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-teal-500 rounded-full" style={{ width: `${Math.min((phosphorus / 100) * 100, 100)}%` }} />
-                  </div>
-                </div>
-
-                {/* Potassium */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className="text-muted-foreground">{lt.potassium}</span>
-                    <span className="text-foreground font-semibold font-mono">{potassium} mg/kg</span>
-                  </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min((potassium / 280) * 100, 100)}%` }} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Soil Health (pH) */}
-            <Card className="p-5 flex flex-col justify-between text-center">
-              <CardHeader className="p-0 pb-3 border-b border-border flex flex-row items-center justify-between">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-primary" />
-                  <span>{lt.phLabel}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 pt-5 space-y-3">
-                <div className="text-4xl font-bold font-display text-foreground">{ph}</div>
-                <div className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  <span>उपजाऊ मिट्टी (Optimal)</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  {lt.phSub}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Link href="/soil-monitor" className="block rounded-2xl border border-primary/20 bg-primary/5 p-5 transition hover:border-primary/40 hover:bg-primary/10">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-primary">Connected hardware</p>
+                <h3 className="mt-1 text-base font-bold text-foreground">Smart Soil Monitor</h3>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">View verified live readings and history. pH, EC and NPK are shown only when the connected hardware actually sends them.</p>
+              </div>
+              <ChevronRight className="h-5 w-5 shrink-0 text-primary" />
+            </div>
+          </Link>
         </>
       )}
 
@@ -691,6 +621,7 @@ export default function DashboardPage() {
             { href: "/disease", label: t("dashboard.disease_detect"), icon: Bug, desc: "पत्ती रोग पहचान AI", color: "text-rose-500 bg-rose-500/10 border-rose-500/20" },
             { href: "/crop-predictor", label: t("aiPredictor"), icon: Sprout, desc: "सटीक फसल चयन मॉडल", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },
             { href: "/soil-health", label: t("dashboard.soil_health"), icon: Activity, desc: "खाद व पोषण गणना", color: "text-teal-500 bg-teal-500/10 border-teal-500/20" },
+            { href: "/soil-monitor", label: "Smart Soil Monitor", icon: Cpu, desc: "असली सेंसर डेटा व इतिहास", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },
             { href: "/mandi", label: t("dashboard.mandi_rates"), icon: TrendingUp, desc: "लाइव eNAM APMC भाव", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
             { href: "/khet-diary", label: "Khet Diary", icon: BookOpen, desc: "डिजिटल खर्च बहीखाता", color: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20" },
             { href: "/worker-connect", label: t("dashboard.workers"), icon: Users, desc: "मजदूर व ट्रैक्टर सेवा", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },

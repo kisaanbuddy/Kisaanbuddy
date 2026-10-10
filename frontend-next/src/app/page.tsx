@@ -5,6 +5,7 @@ import { Founders } from '@/components/landing/Founders';
 import { Features } from '@/components/landing/Features';
 import { Technology } from '@/components/landing/Technology';
 import { FinalCTA } from '@/components/landing/FinalCTA';
+import { DecisionJourney } from '@/components/landing/DecisionJourney';
 
 export const metadata: Metadata = {
   title: 'Kisaan Buddy - Smart Agriculture Advisor | किसान सलाहकार',
@@ -30,8 +31,8 @@ export default function LandingPage() {
       {/* 2. Trust Metrics Section */}
       <TrustPanel />
 
-      {/* 3. Founder Section */}
-      <Founders />
+      {/* 3. Core product decision journey */}
+      <DecisionJourney />
 
       {/* 4. Features Section */}
       <Features />
@@ -39,7 +40,10 @@ export default function LandingPage() {
       {/* 5. Technology Flow Section */}
       <Technology />
 
-      {/* 6. Final Call-to-Action Banner */}
+      {/* 6. Founder Section */}
+      <Founders />
+
+      {/* 7. Final Call-to-Action Banner */}
       <FinalCTA />
 
     </div>

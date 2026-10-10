@@ -131,6 +131,13 @@
    ============================================================ */
 .gradient-text { color: hsl(var(--primary)); }
 
+/* Deliberate agricultural texture used sparingly in editorial landing surfaces. */
+.farm-dot-grid {
+  background-image: radial-gradient(rgba(35, 91, 63, .16) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(to bottom, black, transparent 84%);
+}
+
 /* ============================================================
    NAV & INTERACTION TOKENS
    ============================================================ */
