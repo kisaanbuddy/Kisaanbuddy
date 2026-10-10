@@ -35,6 +35,7 @@ from services.chat.knowledge import format_knowledge_context
 from services.chat.language_detect import resolve_language
 from services.chat.memory import sessions, SessionStore
 from services.chat.prompts import TOOL_SCHEMAS, build_system_messages
+from services.chat.farmer_context import format_farmer_context
 from services.chat.tools import enabled_tools, run_tool
 
 log = logging.getLogger(__name__)
@@ -158,7 +159,9 @@ class ChatOrchestrator:
     # ------------------------------------------------------------------
     # Public — streaming (SSE) chat
     # ------------------------------------------------------------------
-    async def stream_chat(self, req: AssistantRequest) -> AsyncIterator[Dict[str, Any]]:
+    async def stream_chat(
+        self, req: AssistantRequest, farmer_context: Optional[dict[str, Any]] = None
+    ) -> AsyncIterator[Dict[str, Any]]:
         """Yield SSE event dicts: {event, data}."""
         session, user_msg = await self._ingest(req)
 
@@ -176,6 +179,7 @@ class ChatOrchestrator:
             ),
             user_message=req.message,
             has_image=bool(getattr(req, "image_base64", None)),
+            farmer_context=format_farmer_context(farmer_context),
         )
 
         # RAG: pull curated agri facts relevant to this query and inject as a
@@ -356,7 +360,9 @@ class ChatOrchestrator:
     # ------------------------------------------------------------------
     # Public — non-streaming one-shot (also used by the legacy endpoint)
     # ------------------------------------------------------------------
-    async def chat_once(self, req: AssistantRequest) -> AssistantReply:
+    async def chat_once(
+        self, req: AssistantRequest, farmer_context: Optional[dict[str, Any]] = None
+    ) -> AssistantReply:
         collected: List[str] = []
         session_id = ""
         message_id = ""
@@ -364,7 +370,7 @@ class ChatOrchestrator:
         used_tools: List[str] = []
         finish_reason: Optional[str] = None
 
-        async for evt in self.stream_chat(req):
+        async for evt in self.stream_chat(req, farmer_context=farmer_context):
             et = evt.get("event")
             data = evt.get("data", {})
             if et == "session":

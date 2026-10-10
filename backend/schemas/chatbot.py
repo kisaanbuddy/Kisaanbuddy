@@ -21,7 +21,12 @@ class ChatResponse(BaseModel):
 
 
 # ----- ASSISTANT -----------------------------------------------------------
-Language = Literal["auto", "en", "hi", "kn"]
+# These are UI/API language choices, not a claim that every configured speech
+# provider has passed production quality testing for every language. Providers
+# report their own health/capability separately.
+Language = Literal[
+    "auto", "en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"
+]
 Role = Literal["user", "assistant", "system", "tool"]
 
 

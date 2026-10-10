@@ -62,8 +62,9 @@ async def transcribe(
     fileobj.name = filename  # SDK inspects .name for the MIME guess
 
     kwargs = {"model": "whisper-1", "file": fileobj, "response_format": "verbose_json"}
-    # Only pass language if caller explicitly set one AND it's a supported hint.
-    if language in ("en", "hi", "kn"):
+    # Whisper accepts ISO language hints. Keep the hint optional for genuinely
+    # mixed speech, but pass a farmer's explicit regional-language choice.
+    if language in ("en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"):
         kwargs["language"] = language
 
     try:
@@ -76,7 +77,7 @@ async def transcribe(
     text = getattr(resp, "text", "") or ""
     detected_lang = getattr(resp, "language", None) or language or "en"
 
-    # Normalise to our 3-lang set.
+    # Normalise to the assistant's supported preference set.
     detected_lang = _normalise_lang(detected_lang)
 
     return STTResult(
@@ -89,10 +90,8 @@ async def transcribe(
 
 def _normalise_lang(code: str) -> str:
     c = (code or "").lower().split("-")[0]
-    if c in ("hi", "mr", "ne"):
-        return "hi"
-    if c == "kn":
-        return "kn"
+    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"):
+        return c
     return "en"
 
 
