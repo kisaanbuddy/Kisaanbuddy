@@ -73,13 +73,15 @@ export function useAssistant(
   const [messages, setMessages] = useState<AssistantMessage[]>([])
   const [streamingText, setStreamingText] = useState<string>("")
   const [activeTool, setActiveTool] = useState<string | null>(null)
-  const [languageState, setLanguageState] = useState<Language>((lang === "hi" || lang === "kn") ? lang : "en")
+  const [languageState, setLanguageState] = useState<Language>(
+    (["hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"] as string[]).includes(lang) ? lang as Language : "en"
+  )
   const [location, setLocation] = useState<LocationHint | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [lastError, setLastError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLanguageState((lang === "hi" || lang === "kn") ? lang : "en")
+    setLanguageState((["hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"] as string[]).includes(lang) ? lang as Language : "en")
   }, [lang])
 
   const abortRef = useRef<AbortController | null>(null)
@@ -99,7 +101,7 @@ export function useAssistant(
     if (!options.restore || typeof window === "undefined") return
     try {
       const lang = localStorage.getItem(LS_LANG)
-      if (lang === "en" || lang === "hi" || lang === "kn" || lang === "auto") {
+      if (["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai", "auto"].includes(lang ?? "")) {
         setLanguageState(lang)
       }
       const loc = localStorage.getItem(LS_LOC)

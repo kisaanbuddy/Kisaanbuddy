@@ -7,7 +7,9 @@
 
 // ---------- Types (mirror backend/schemas/chatbot.py) ----------
 
-export type Language = "auto" | "en" | "hi" | "kn"
+/** User language preference. Availability is surfaced by provider health/tests. */
+export type Language =
+  | "auto" | "en" | "hi" | "kn" | "bn" | "mr" | "te" | "ta" | "gu" | "pa" | "bho" | "mai"
 
 export interface LocationHint {
   lat?: number | null

@@ -227,6 +227,13 @@ function ChatbotInner() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+  // Keep a server conversation alive across voice turns. State alone is stale
+  // inside SpeechRecognition callbacks, so refs are deliberately used here.
+  const assistantSessionRef = useRef<string | null>(null)
+  const finalTranscriptRef = useRef("")
+  const attachedImageRef = useRef<string | null>(null)
+
+  useEffect(() => { attachedImageRef.current = attachedImage }, [attachedImage])
 
   // Map global UI language to our local voice assistant languages
   useEffect(() => {
@@ -389,6 +396,7 @@ function ChatbotInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          session_id: assistantSessionRef.current,
           message: queryText,
           language: activeLang,
           stream: false,
@@ -398,6 +406,7 @@ function ChatbotInner() {
 
       if (response.ok) {
         const data = await response.json()
+        if (data.session_id) assistantSessionRef.current = data.session_id
         const botReply = data.content || data.reply || "Sorry, I could not generate a reply."
         
         setMessages(prev => [
@@ -458,6 +467,7 @@ function ChatbotInner() {
     recognition.onstart = () => {
       setIsListening(true)
       setInterimText("")
+      finalTranscriptRef.current = ""
     }
 
     recognition.onresult = (event: any) => {
@@ -470,6 +480,7 @@ function ChatbotInner() {
       }
       
       if (final) {
+        finalTranscriptRef.current += final
         setInterimText(final)
       } else {
         setInterimText(interim)
@@ -485,8 +496,9 @@ function ChatbotInner() {
     recognition.onend = () => {
       setIsListening(false)
       // Send the query automatically when speaking ends
-      if (interimText.trim()) {
-        sendQuery(interimText, attachedImage)
+      const spoken = finalTranscriptRef.current.trim()
+      if (spoken) {
+        sendQuery(spoken, attachedImageRef.current)
       }
     }
 
@@ -672,7 +684,10 @@ function ChatbotInner() {
             </span>
             {messages.length > 1 && (
               <button 
-                onClick={() => setMessages([{ id: "welcome", text: LANG_CONFIG[activeLang].welcome, sender: "bot", language: activeLang }])}
+                onClick={() => {
+                  assistantSessionRef.current = null
+                  setMessages([{ id: "welcome", text: LANG_CONFIG[activeLang].welcome, sender: "bot", language: activeLang }])
+                }}
                 className="text-[10px] text-muted-foreground hover:text-foreground font-semibold flex items-center gap-1 border border-border/50 px-2.5 py-1 rounded-lg transition-all"
               >
                 Clear

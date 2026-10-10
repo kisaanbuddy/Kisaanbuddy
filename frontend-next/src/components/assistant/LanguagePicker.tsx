@@ -10,6 +10,14 @@ const OPTIONS: { value: Language; label: string }[] = [
   { value: "en", label: "EN" },
   { value: "hi", label: "हिं" },
   { value: "kn", label: "ಕನ್ನ" },
+  { value: "bn", label: "বাংলা" },
+  { value: "mr", label: "मराठी" },
+  { value: "te", label: "తెలుగు" },
+  { value: "ta", label: "தமிழ்" },
+  { value: "gu", label: "ગુજરાતી" },
+  { value: "pa", label: "ਪੰਜਾਬੀ" },
+  { value: "bho", label: "Bhojपुरी" },
+  { value: "mai", label: "मैथिली" },
 ]
 
 export function LanguagePicker({

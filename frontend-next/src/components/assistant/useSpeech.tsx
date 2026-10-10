@@ -58,6 +58,17 @@ export const LANG_TO_BCP47: Record<Exclude<Language, "auto">, string> = {
   en: "en-IN",
   hi: "hi-IN",
   kn: "kn-IN",
+  bn: "bn-IN",
+  mr: "mr-IN",
+  te: "te-IN",
+  ta: "ta-IN",
+  gu: "gu-IN",
+  pa: "pa-IN",
+  // Browser vendors commonly fall back to Hindi for these until a dedicated
+  // voice has passed QA. The visible language selector remains honest about
+  // the user's preference, while provider support is tested separately.
+  bho: "hi-IN",
+  mai: "hi-IN",
 }
 
 // ---------- Hook ----------
@@ -321,18 +332,31 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
           ? LANG_TO_BCP47["en"]
           : LANG_TO_BCP47[spokenLang] ?? "en-IN"
 
-      const u = new SpeechSynthesisUtterance(text)
-      u.lang = bcp47
-      const v = pickVoice(bcp47)
-      if (v) u.voice = v
-      u.rate = 1.0
-      u.pitch = 1.0
-      u.volume = 1.0
-      u.onstart = () => setSpeaking(true)
-      u.onend = () => setSpeaking(false)
-      u.onerror = () => setSpeaking(false)
-
-      window.speechSynthesis.speak(u)
+      // Long, single browser utterances sound robotic and make barge-in feel
+      // sluggish. Speak compact semantic sentences sequentially so `cancel()`
+      // takes effect at a natural boundary as well as immediately.
+      const chunks = text
+        .replace(/\s+/g, " ")
+        .match(/[^.!?।]+[.!?।]?/g)
+        ?.map((chunk) => chunk.trim())
+        .filter(Boolean) ?? [text]
+      const voice = pickVoice(bcp47)
+      let remaining = chunks.length
+      setSpeaking(true)
+      for (const chunk of chunks) {
+        const utterance = new SpeechSynthesisUtterance(chunk)
+        utterance.lang = bcp47
+        if (voice) utterance.voice = voice
+        utterance.rate = spokenLang === "hi" || spokenLang === "bho" || spokenLang === "mai" ? 0.94 : 0.98
+        utterance.pitch = 1.0
+        utterance.volume = 1.0
+        utterance.onend = () => {
+          remaining -= 1
+          if (remaining <= 0) setSpeaking(false)
+        }
+        utterance.onerror = () => setSpeaking(false)
+        window.speechSynthesis.speak(utterance)
+      }
     },
     [pickVoice]
   )
