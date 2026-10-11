@@ -13,18 +13,36 @@ import { type AssistantRequest, type Language, streamMessage } from "@/lib/assis
 
 const LANG_LABEL: Record<Language, string> = {
   auto: "Auto", en: "English", hi: "हिन्दी", kn: "ಕನ್ನಡ",
+  bn: "বাংলা", mr: "मराठी", te: "తెలుగు", ta: "தமிழ்",
+  gu: "ગુજરાતી", pa: "ਪੰਜਾਬੀ", bho: "भोजपुरी", mai: "मैथिली",
 }
 const PLACEHOLDER: Record<Language, string> = {
   auto: "Describe the symptom (optional) — e.g. 'patti pe bhure dhabbe'",
   en:   "Describe the symptom (optional) — e.g. 'brown spots on leaves'",
   hi:   "लक्षण लिखें (वैकल्पिक) — जैसे 'पत्तियों पर भूरे धब्बे'",
   kn:   "ಲಕ್ಷಣವನ್ನು ಬರೆಯಿರಿ (ಐಚ್ಛಿಕ) — ಉದಾ. 'ಎಲೆಗಳ ಮೇಲೆ ಚುಕ್ಕೆ'",
+  bn:   "লক্ষণ লিখুন (ঐচ্ছিক) — যেমন 'পাতায় বাদামী দাগ'",
+  mr:   "लक्षणे लिहा (पर्यायी) — उदा. 'पानांवर तपकिरी डाग'",
+  te:   "లక్షణాన్ని వ్రాయండి (ఐచ్ఛికం) — ఉదా. 'ఆకులపై గోధుమ మచ్చలు'",
+  ta:   "அறிகுறியை எழுதுங்கள் (விருப்பம்) — எ.கா. 'இலைகளில் பழுப்பு புள்ளிகள்'",
+  gu:   "લક્ષણ લખો (વૈકલ્પિક) — દા.ત. 'પાંદડા પર ભૂરા ડાઘ'",
+  pa:   "ਲੱਛਣ ਲਿਖੋ (ਵਿਕਲਪਿਕ) — ਜਿਵੇਂ 'ਪੱਤਿਆਂ ਤੇ ਭੂਰੇ ਧੱਬੇ'",
+  bho:  "लक्षण लिखीं (वैकल्पिक) — जइसे 'पत्ती पर भूरा दाग'",
+  mai:  "लक्षण लिखू (वैकल्पिक) — जेना 'पात पर भूरा दाग'",
 }
 const PROMPT_FALLBACK: Record<Language, string> = {
   auto: "Yeh photo dekho aur disease detect karo — strict 10-section format mein jawab do.",
   en:   "Look at this photo and diagnose the disease — reply in the strict 10-section format.",
   hi:   "इस फोटो को देखो और बीमारी पहचानो — strict 10-section format में जवाब दो।",
   kn:   "ಈ ಫೋಟೋ ನೋಡಿ ರೋಗವನ್ನು ಪತ್ತೆ ಮಾಡಿ — strict 10-section format ನಲ್ಲಿ ಉತ್ತರಿಸಿ।",
+  bn:   "এই ছবি দেখো এবং রোগ শনাক্ত করো — strict 10-section format এ উত্তর দাও।",
+  mr:   "हा फोटो पहा आणि रोग ओळखा — strict 10-section format मध्ये उत्तर द्या।",
+  te:   "ఈ ఫోటో చూసి వ్యాధిని గుర్తించండి — strict 10-section format లో జవాబు ఇవ్వండి.",
+  ta:   "இந்த புகைப்படத்தைப் பாருங்கள், நோயைக் கண்டறியுங்கள் — strict 10-section format இல் பதிலளியுங்கள்.",
+  gu:   "આ ફોટો જુઓ અને રોગ ઓળખો — strict 10-section format માં જવાબ આપો.",
+  pa:   "ਇਹ ਫੋਟੋ ਦੇਖੋ ਅਤੇ ਬਿਮਾਰੀ ਪਛਾਣੋ — strict 10-section format ਵਿੱਚ ਜਵਾਬ ਦਿਓ।",
+  bho:  "ई फोटो देखीं आ बीमारी पहचानीं — strict 10-section format में जवाब दीं।",
+  mai:  "ई फोटो देखू आ बीमारी पहचानू — strict 10-section format मे जवाब दिअ।",
 }
 
 interface PredictionResult {
