@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 /**
  * Session + streaming orchestration for the KisaanBuddy assistant.
  *
@@ -101,8 +101,8 @@ export function useAssistant(
     if (!options.restore || typeof window === "undefined") return
     try {
       const lang = localStorage.getItem(LS_LANG)
-      if (["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai", "auto"].includes(lang ?? "")) {
-        setLanguageState(lang)
+      if (lang && ["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai", "auto"].includes(lang)) {
+        setLanguageState(lang as Language)
       }
       const loc = localStorage.getItem(LS_LOC)
       if (loc) {
