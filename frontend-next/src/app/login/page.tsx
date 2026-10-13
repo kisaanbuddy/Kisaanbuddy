@@ -210,8 +210,8 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[76vh] items-center justify-center py-6 sm:py-10">
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_60px_-34px_rgba(24,57,42,.42)] md:grid-cols-[.9fr_1.1fr]">
-        <aside className="relative hidden overflow-hidden bg-primary p-8 text-primary-foreground md:flex md:flex-col">
+      <div className="grid w-[min(100%,56rem)] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_60px_-34px_rgba(24,57,42,.42)] md:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
+        <aside className="relative hidden min-w-0 overflow-hidden bg-primary p-8 text-primary-foreground md:flex md:flex-col">
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-sm font-bold"><span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15">🌱</span> KisaanBuddy</div>
             <p className="mt-16 text-3xl font-bold leading-tight tracking-tight">{t("login.welcomeBack")}</p>
@@ -224,7 +224,7 @@ export default function LoginPage() {
           <div className="absolute -bottom-20 -right-14 h-64 w-64 rounded-full border-[28px] border-white/10" />
           <div className="absolute right-10 top-28 h-16 w-16 rounded-full bg-[#f3c76d]/80" />
         </aside>
-        <div className="w-full p-6 sm:p-8 md:p-10">
+        <div className="min-w-0 w-full p-6 sm:p-8 md:p-10">
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-3">
