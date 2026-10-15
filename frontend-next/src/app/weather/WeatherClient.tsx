@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { CloudSun, Info, MapPin, Volume2, VolumeX, Share2 } from "lucide-react"
 import { useLanguage } from '@/lib/language'
@@ -8,6 +9,7 @@ import { useLanguage } from '@/lib/language'
 import {
   getCurrentByCoords,
   getForecastByCoords,
+  searchLocations,
   resolveUserLocation,
   WeatherAPIError,
   type ForecastBundle,
@@ -42,6 +44,7 @@ export default function WeatherPage() {
 }
 
 function WeatherPageInner() {
+  const searchParams = useSearchParams()
   const { lang } = useLanguage()
   const activeLang = (lang as Lang) in WEATHER_T ? (lang as Lang) : "hi"
   const t = WEATHER_T[activeLang]
@@ -58,6 +61,10 @@ function WeatherPageInner() {
   const [loadingForecast, setLoadingForecast] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [speaking, setSpeaking] = useState(false)
+  const voiceRun = searchParams.get("voice") === "1"
+  const voiceCity = searchParams.get("city")?.trim()
+  const voiceDays = Math.max(1, Math.min(7, Number(searchParams.get("days")) || 5))
+  const voiceSpokenRef = useRef(false)
 
   const abortRef = useRef<AbortController | null>(null)
 
@@ -96,6 +103,20 @@ function WeatherPageInner() {
   useEffect(() => {
     let mounted = true
     ;(async () => {
+      if (voiceCity) {
+        try {
+          const found = await searchLocations(voiceCity, 1)
+          const hit = found.results[0]
+          if (mounted && hit) {
+            setLoc({ lat: hit.lat, lon: hit.lon, label: hit.display_name, source: "manual" })
+            setResolving(false)
+            return
+          }
+          if (mounted) setError(activeLang === "hi" ? "स्थान नहीं मिला; आपके वर्तमान स्थान का मौसम दिखा रहे हैं।" : "Location was not found; showing weather for your current location.")
+        } catch {
+          // Fall through to the normal location chain. The page never invents a city.
+        }
+      }
       const r = await resolveUserLocation()
       if (!mounted) return
       setLoc({
@@ -109,7 +130,7 @@ function WeatherPageInner() {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [voiceCity, activeLang])
 
   // Fetch weather data whenever location changes
   const fetchAll = useCallback(async (target: ActiveLocation) => {
@@ -122,12 +143,26 @@ function WeatherPageInner() {
     setLoadingForecast(true)
 
     try {
-      const [cur, fc] = await Promise.all([
+      const [curRes, fcRes] = await Promise.allSettled([
         getCurrentByCoords(target.lat, target.lon, ctrl.signal),
-        getForecastByCoords(target.lat, target.lon, 7, ctrl.signal),
+        getForecastByCoords(target.lat, target.lon, voiceDays, ctrl.signal),
       ])
-      setCurrent(cur)
-      setForecast(fc)
+
+      if (curRes.status === "fulfilled") {
+        setCurrent(curRes.value)
+      } else if (curRes.reason?.name !== "AbortError") {
+        const msg =
+          curRes.reason instanceof WeatherAPIError
+            ? curRes.reason.message
+            : curRes.reason?.message || t.load_fail
+        setError(msg)
+      }
+
+      if (fcRes.status === "fulfilled") {
+        setForecast(fcRes.value)
+      } else {
+        setForecast(null)
+      }
     } catch (err: any) {
       if (err?.name === "AbortError") return
       const msg =
@@ -139,11 +174,27 @@ function WeatherPageInner() {
       setLoadingCurrent(false)
       setLoadingForecast(false)
     }
-  }, [t.load_fail])
+  }, [t.load_fail, voiceDays])
 
   useEffect(() => {
     if (loc) fetchAll(loc)
   }, [loc, fetchAll])
+
+  // A voice-triggered request speaks only values returned by the configured
+  // weather service; errors remain visible and are not converted into advice.
+  useEffect(() => {
+    if (!voiceRun || !current || voiceSpokenRef.current || typeof window === "undefined") return
+    voiceSpokenRef.current = true
+    const day = forecast?.daily[0]
+    const rain = day?.chance_of_rain
+    const message = activeLang === "hi"
+      ? `${current.location.name} में अभी तापमान ${Math.round(current.current.temp_c)} डिग्री सेल्सियस है।${rain != null ? ` अगले पूर्वानुमान में बारिश की संभावना ${rain} प्रतिशत है।` : ""}`
+      : `The current temperature in ${current.location.name} is ${Math.round(current.current.temp_c)} degrees Celsius.${rain != null ? ` The forecast rain chance is ${rain} percent.` : ""}`
+    const utterance = new SpeechSynthesisUtterance(message)
+    utterance.lang = activeLang === "hi" ? "hi-IN" : "en-IN"
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utterance)
+  }, [voiceRun, current, forecast, activeLang])
 
   // Cleanup speech synthesis on language changes or unmount
   useEffect(() => {
@@ -319,6 +370,8 @@ function WeatherPageInner() {
             loading={loadingCurrent}
             error={error}
             onRetry={() => loc && fetchAll(loc)}
+            sunrise={forecast?.daily?.[0]?.sunrise}
+            sunset={forecast?.daily?.[0]?.sunset}
           />
 
           {/* Farmer Advisory Engine Card */}

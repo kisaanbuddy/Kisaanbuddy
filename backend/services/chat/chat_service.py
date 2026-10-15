@@ -63,8 +63,13 @@ class ChatOrchestrator:
     def __init__(self) -> None:
         self._client = None
         self._client_lock = asyncio.Lock()
-        self._effective_model: str = settings.OPENAI_CHAT_MODEL or "gemini-1.5-flash-latest"
+        self._effective_model: str = (
+            "sarvam-105b-conversations"
+            if settings.SARVAM_API_KEY
+            else settings.OPENAI_CHAT_MODEL or "gemini-1.5-flash-latest"
+        )
         self._is_gemini_direct: bool = False  # set in _client_ready()
+        self._is_sarvam: bool = False
         # Fallback chain for Gemini direct — ordered with the most widely
         # accessible models FIRST. Many free-tier keys have a 0 quota on
         # gemini-2.0-* but full access to gemini-1.5-flash-latest. The
@@ -95,6 +100,25 @@ class ChatOrchestrator:
             # whether it's a direct Google key (AIza...) or an OpenRouter key.
             gemini_key = (settings.GEMINI_API_KEY or "").strip()
             openai_key = (settings.OPENAI_API_KEY or "").strip()
+            sarvam_key = (settings.SARVAM_API_KEY or "").strip()
+
+            # Use Sarvam when configured. Its V1 chat endpoint supports the
+            # same tool-call pattern as the existing assistant orchestration.
+            if sarvam_key:
+                if len(sarvam_key) < 20:
+                    raise ChatError("SARVAM_API_KEY looks invalid (too short).")
+                try:
+                    from sarvamai import SarvamAI  # type: ignore
+                except Exception as e:
+                    raise ChatError(f"sarvamai SDK not installed: {e}") from e
+                self._client = SarvamAI(
+                    api_subscription_key=sarvam_key,
+                    timeout=settings.API_TIMEOUT * 5,
+                )
+                self._effective_model = "sarvam-105b-conversations"
+                self._is_sarvam = True
+                log.info("Chat client → Sarvam (model=%s)", self._effective_model)
+                return self._client
 
             # If no AIza-format key is configured anywhere, use the embedded
             # fallback so the deployment works without dashboard edits.
@@ -172,13 +196,15 @@ class ChatOrchestrator:
             return
 
         lang = resolve_language(req.language, req.message)
+        has_uploaded_image = bool(getattr(req, "image_base64", None))
+        sarvam_text_only_image = has_uploaded_image and self._is_sarvam
         system_msgs = build_system_messages(
             lang,
             req.location.model_dump() if req.location else (
                 session.location.model_dump() if session.location else None
             ),
             user_message=req.message,
-            has_image=bool(getattr(req, "image_base64", None)),
+            has_image=has_uploaded_image and not sarvam_text_only_image,
             farmer_context=format_farmer_context(farmer_context),
         )
 
@@ -190,9 +216,13 @@ class ChatOrchestrator:
 
         prior = SessionStore.trim_for_prompt(session.messages[:-1])  # exclude the just-appended user msg
         openai_history = self._to_openai_messages(prior)
+        # Sarvam-105B Conversations is a text model. When an image is present,
+        # keep using the repository's classifier and let Sarvam provide only
+        # symptom-based, cautious follow-up advice rather than pretending it
+        # examined the photo.
         # If a leaf/plant image was provided, send it as a vision-style multipart
-        # user message so GPT-4o can actually look at the photo.
-        if getattr(req, "image_base64", None):
+        # user message only to providers that support image content.
+        if has_uploaded_image and not sarvam_text_only_image:
             img = req.image_base64
             if not img.startswith("data:"):
                 img = "data:image/jpeg;base64," + img
@@ -204,13 +234,18 @@ class ChatOrchestrator:
                 ],
             })
         else:
-            openai_history.append({"role": "user", "content": req.message})
+            image_note = (
+                " The farmer also uploaded a crop photo, but this text model cannot inspect it. "
+                "Do not claim to identify a disease from the photo; use only the stated symptoms and ask for missing details."
+                if sarvam_text_only_image else ""
+            )
+            openai_history.append({"role": "user", "content": req.message + image_note})
 
         messages = system_msgs + openai_history
         used_tools: List[str] = []
         full_text = ""
         finish_reason: Optional[str] = None
-        has_image = bool(getattr(req, "image_base64", None))
+        has_image = has_uploaded_image and not sarvam_text_only_image
 
         yield self._evt("session", {"session_id": session.id, "language": lang})
 
@@ -392,7 +427,7 @@ class ChatOrchestrator:
             content="".join(collected).strip(),
             language=language,  # type: ignore[arg-type]
             used_tools=used_tools,
-            provider=f"openai:{self._effective_model}",
+            provider=f"{'sarvam' if self._is_sarvam else 'openai'}:{self._effective_model}",
             finish_reason=finish_reason,
         )
 
@@ -470,6 +505,11 @@ class ChatOrchestrator:
                 temperature=temperature,
                 max_tokens=max_tokens,
             )
+            # Sarvam enables thinking by default. The assistant already has
+            # bounded, tool-oriented turns, so disabling it here avoids short
+            # responses losing their token budget to hidden reasoning.
+            if self._is_sarvam:
+                base_kwargs["reasoning_effort"] = None
             if stream:
                 base_kwargs["stream"] = True
             attempts: List[tuple[Dict[str, Any], str]] = []
@@ -479,7 +519,10 @@ class ChatOrchestrator:
 
             for kwargs, label in attempts:
                 try:
-                    resp = await client.chat.completions.create(**kwargs)
+                    if self._is_sarvam:
+                        resp = await asyncio.to_thread(client.chat.completions, **kwargs)
+                    else:
+                        resp = await client.chat.completions.create(**kwargs)
                     if model_name != self._effective_model:
                         log.warning("LLM model auto-switched: %s → %s", self._effective_model, model_name)
                         self._effective_model = model_name
@@ -583,7 +626,7 @@ def get_orchestrator() -> ChatOrchestrator:
 
 def health_info() -> Dict[str, Any]:
     orch = get_orchestrator()
-    key = (settings.GEMINI_API_KEY or settings.OPENAI_API_KEY or "").strip()
+    key = (settings.SARVAM_API_KEY or settings.GEMINI_API_KEY or settings.OPENAI_API_KEY or "").strip()
     return {
         "llm_configured": bool(key and len(key) > 20),
         "model": orch._effective_model,

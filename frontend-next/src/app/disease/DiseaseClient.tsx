@@ -8,6 +8,7 @@ import {
   Upload, FlaskConical,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { type AssistantRequest, type Language, streamMessage } from "@/lib/assistant-api"
 
@@ -63,6 +64,7 @@ function formatClassName(name: string): string {
 }
 
 export default function DiseasePortal() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
   const [language, setLanguage]     = useState<Language>(["en", "hi", "kn"].includes(lang) ? lang as Language : "en")
   
@@ -83,6 +85,11 @@ export default function DiseasePortal() {
   const fileRef  = useRef<HTMLInputElement | null>(null)
   const camRef   = useRef<HTMLInputElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    const requestedCrop = searchParams.get("crop")
+    if (requestedCrop) setCrop(requestedCrop)
+  }, [searchParams])
 
   const onPick = useCallback((file: File | null | undefined) => {
     if (!file) return;

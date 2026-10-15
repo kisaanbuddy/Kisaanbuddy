@@ -9,6 +9,7 @@ import httpx
 import asyncio
 from fastapi import APIRouter
 from datetime import datetime
+from core.config import settings
 
 router = APIRouter()
 
@@ -17,7 +18,7 @@ router = APIRouter()
 # Set DATA_GOV_API_KEY in your .env / Vercel environment variables
 # Get free key at: https://data.gov.in/user/register
 # ---------------------------------------------------------------------------
-DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY", "")
+DATA_GOV_API_KEY = settings.DATA_GOV_API_KEY or os.getenv("DATA_GOV_API_KEY", "")
 AGMARKNET_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070"
 
 # ---------------------------------------------------------------------------

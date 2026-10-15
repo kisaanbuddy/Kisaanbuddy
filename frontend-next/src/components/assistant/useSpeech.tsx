@@ -1,5 +1,4 @@
-﻿"use client"
-import { useLanguage } from '@/lib/language'
+"use client"
 /**
  * Browser speech primitives for the KisaanBuddy voice assistant.
  *
@@ -105,7 +104,6 @@ export interface UseSpeechReturn {
 }
 
 export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
-  const { t } = useLanguage()
   const { language, onFinalTranscript, onInterim, onError } = opts
 
   const [listening, setListening] = useState(false)

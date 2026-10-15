@@ -149,11 +149,25 @@ async def _tool_get_mandi_prices(
     market: Optional[str] = None,
 ) -> Dict[str, Any]:
     try:
-        from services.providers.mandi_provider import get_prices
+        # Reuse the same AGMARKNET-backed source exposed by the API route.
+        # Its explicit source label prevents the assistant from presenting a
+        # fallback record as a live market quotation.
+        from api.mandi import fetch_live_crops
 
-        crops = get_prices(crop=crop, state=state, market=market)
+        crops, source = await fetch_live_crops()
+        if crop:
+            crops = [c for c in crops if crop.casefold() in c["name"].casefold()]
+        if state:
+            crops = [c for c in crops if state.casefold() in c["state"].casefold()]
+        if market:
+            crops = [c for c in crops if market.casefold() in c["mandi"].casefold()]
         return {
             "count": len(crops),
+            "source": source,
+            "observation_note": (
+                "Live AGMARKNET data" if source == "live"
+                else "Fallback reference data; it is not a live market quote."
+            ),
             "crops": [
                 {
                     "name": c.get("name"),

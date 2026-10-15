@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle } from 'lucide-react'
 import { useLanguage } from '@/lib/language'
@@ -17,6 +18,7 @@ type LogEntry = {
 }
 
 export default function KhetDiaryPage() {
+  const searchParams = useSearchParams()
   const { lang } = useLanguage()
   const [logs, setLogs] = useState<LogEntry[]>([])
   
@@ -25,6 +27,17 @@ export default function KhetDiaryPage() {
   const [category, setCategory] = useState<'expense' | 'income' | 'activity'>('expense')
   const [amount, setAmount] = useState('')
   const [crop, setCrop] = useState('')
+
+  // A voice command may prepare an entry, but it never saves it. The farmer
+  // reviews the real form and explicitly submits, preserving confirmation for
+  // a record-writing operation.
+  useEffect(() => {
+    if (searchParams.get('voice') !== '1') return
+    const requestedCrop = searchParams.get('crop')
+    const requestedActivity = searchParams.get('activity')
+    if (requestedCrop) setCrop(requestedCrop)
+    if (requestedActivity) setActivity(requestedActivity)
+  }, [searchParams])
 
   useEffect(() => {
     // Load mock initial logs

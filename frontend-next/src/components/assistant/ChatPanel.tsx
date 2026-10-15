@@ -31,6 +31,7 @@ import { MicButton } from "./MicButton"
 import { TranscriptLive } from "./TranscriptLive"
 import { useAssistant } from "./useAssistant"
 import { useSpeech } from "./useSpeech"
+import { actionAcknowledgement, parseVoiceAction, voiceActionUrl, type VoiceFeature } from "@/lib/voice-actions"
 
 const QUICK_PROMPTS: { en: string; hi: string; kn: string; key: string; icon: string }[] = [
   {
@@ -86,15 +87,35 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
   const [interim, setInterim] = useState("")
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const lastSpokenIdRef = useRef<string | null>(null)
+  const lastFeatureRef = useRef<VoiceFeature | null>(null)
+
+  const executeVoiceAction = useCallback((text: string) => {
+    const action = parseVoiceAction(text, lastFeatureRef.current)
+    if (!action) return false
+    lastFeatureRef.current = action.feature
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(actionAcknowledgement(action, language === "hi"))
+      utterance.lang = language === "hi" ? "hi-IN" : "en-IN"
+      window.speechSynthesis.speak(utterance)
+    }
+    window.setTimeout(() => window.location.assign(voiceActionUrl(action)), 450)
+    return true
+  }, [language])
 
   // ---- Speech wiring ----
   const handleFinalTranscript = useCallback(
     (text: string) => {
       setInterim("")
-      // Auto-send after STT so voice UX feels conversational.
+      // Navigation/searches are safe to run without a confirmation. Pages
+      // execute only their own allow-listed parameters; saving remains a
+      // separate, confirmed interaction.
+      if (executeVoiceAction(text)) return
+      // Agricultural questions that do not map to a UI action still go to the
+      // backed assistant, which can use its server-side live-data tools.
       void send(text)
     },
-    [send]
+    [send, executeVoiceAction]
   )
 
   const speech = useSpeech({
@@ -140,12 +161,13 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
     (text?: string) => {
       const t = (text ?? input).trim()
       if ((!t && !pendingImage) || isSending) return
+      if (t && !pendingImage && executeVoiceAction(t)) return
       const img = pendingImage
       setInput("")
       setPendingImage(null)
       void send(t, img ?? undefined)
     },
-    [input, pendingImage, isSending, send]
+    [input, pendingImage, isSending, send, executeVoiceAction]
   )
 
   // Read a chosen file as a base64 data URL — capped at ~6 MB so the request

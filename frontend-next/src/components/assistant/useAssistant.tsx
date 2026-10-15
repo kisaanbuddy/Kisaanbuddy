@@ -377,7 +377,6 @@ interface EventHandlers {
 }
 
 function handleEvent(evt: StreamEvent, h: EventHandlers) {
-  const { t } = useLanguage()
   switch (evt.type) {
     case "session":
       h.onSession(evt.session_id, evt.language)

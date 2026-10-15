@@ -1,7 +1,8 @@
 "use client"
 
 import { useLanguage } from '@/lib/language'
-import { useState, useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ArrowRight, CheckCircle2, ChevronDown, Filter,
@@ -76,6 +77,7 @@ function checkEligibility(scheme: Scheme, filter: EligFilter): boolean {
 }
 
 export default function SchemesPage() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
   const [filter, setFilter] = useState<EligFilter>({
     landAcres: "",
@@ -86,6 +88,12 @@ export default function SchemesPage() {
     checked: false
   })
   const [showChecker, setShowChecker] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get("voice") !== "1") return
+    const state = searchParams.get("state") || "all"
+    setFilter((current) => ({ ...current, state, search: searchParams.get("crop") || current.search }))
+  }, [searchParams])
 
   const schemes = ALL_SCHEMES_DATA as Scheme[]
 

@@ -3,7 +3,8 @@ import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Store,
@@ -627,6 +628,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
 /*  Main Page Component                                                */
 /* ------------------------------------------------------------------ */
 export default function MandiPage() {
+  const searchParams = useSearchParams()
   const { t, lang: appLang } = useLanguage()
   const [crops, setCrops] = useState<MandiCrop[]>([])
   const [loading, setLoading] = useState(true)
@@ -638,6 +640,10 @@ export default function MandiPage() {
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
   const [lang, setLang] = useState<"en" | "hi" | "kn">((appLang === "hi" || appLang === "kn") ? appLang : "en")
   const [mounted, setMounted] = useState(false)
+  const voiceRun = searchParams.get("voice") === "1"
+  const requestedCrop = searchParams.get("crop") || ""
+  const requestedState = searchParams.get("state") || ""
+  const voiceSpokenRef = useRef(false)
 
   useEffect(() => {
     setLang((appLang === "hi" || appLang === "kn") ? appLang : "en")
@@ -654,7 +660,11 @@ export default function MandiPage() {
       try {
         setLoading(true)
         setError(null)
-        const res = await fetch("/api/mandi/crops")
+        const qs = new URLSearchParams()
+        if (requestedCrop) qs.set("commodity", requestedCrop)
+        if (requestedState) qs.set("state", requestedState)
+        const query = qs.toString()
+        const res = await fetch(`/api/mandi/crops${query ? `?${query}` : ""}`)
         if (!res.ok) throw new Error("Failed to fetch crop data")
         const data = await res.json()
         if (!cancelled) setCrops(data.crops)
@@ -666,7 +676,26 @@ export default function MandiPage() {
     }
     fetchCrops()
     return () => { cancelled = true }
-  }, [])
+  }, [requestedCrop, requestedState])
+
+  useEffect(() => {
+    if (requestedCrop) setSearchQuery(requestedCrop)
+  }, [requestedCrop])
+
+  useEffect(() => {
+    if (!voiceRun || loading || voiceSpokenRef.current) return
+    voiceSpokenRef.current = true
+    const first = crops[0]
+    const message = first
+      ? (lang === "hi" ? `${first.name} का उपलब्ध भाव ${first.price} रुपये ${first.unit} है। मंडी ${first.mandi}, ${first.state}।` : `${first.name} is available at ${first.price} rupees ${first.unit} in ${first.mandi}, ${first.state}.`)
+      : (lang === "hi" ? "मांगी गई फसल या स्थान के लिए कोई उपलब्ध मंडी रिकॉर्ड नहीं मिला।" : "No available mandi record matched the requested crop or location.")
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(message)
+      utterance.lang = lang === "hi" ? "hi-IN" : "en-IN"
+      window.speechSynthesis.speak(utterance)
+    }
+  }, [voiceRun, loading, crops, lang])
 
   /* ---- Derived data ---- */
   const categories = useMemo(() => {

@@ -33,20 +33,27 @@ export function ContactClient() {
       return;
     }
     
-    setStatus('submitting');
+    trackEvent({ type: 'contact_submit', formName: 'contact_us', success: true });
+
+    const subjectText = formData.subject.trim()
+      ? `[KisaanBuddy] ${formData.subject.trim()}`
+      : `[KisaanBuddy] Query from ${formData.name.trim()}`;
+    const bodyText = `Hello KisaanBuddy Team,\n\nName: ${formData.name.trim()}\nEmail: ${formData.email.trim()}\nPhone: ${formData.phone.trim() || 'N/A'}\n\nMessage:\n${formData.message.trim()}\n`;
+
+    const mailtoUrl = `mailto:info@kisaanbuddy.com?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
     
-    // Simulate API request
-    setTimeout(() => {
-      setStatus('success');
-      trackEvent({ type: 'contact_submit', formName: 'contact_us', success: true });
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: '',
-      });
-    }, 1200);
+    if (typeof window !== 'undefined') {
+      window.location.href = mailtoUrl;
+    }
+
+    setStatus('success');
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      subject: '',
+      message: '',
+    });
   };
 
   return (

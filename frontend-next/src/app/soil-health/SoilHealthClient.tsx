@@ -21,6 +21,7 @@ import {
   Zap,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { streamMessage, type Language } from "@/lib/assistant-api"
 import { Card, GlassCard, CardHeader } from "@/components/ui/card"
@@ -265,12 +266,18 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 // ─── Main Soil Page Component ──────────────────────────────────────────────────
 
 export default function SoilHealthPage() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
   const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
   
   useEffect(() => {
     setForm((f) => ({ ...f, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
   }, [lang])
+
+  useEffect(() => {
+    const crop = searchParams.get("crop")
+    if (searchParams.get("voice") === "1" && crop) setForm((f) => ({ ...f, crop }))
+  }, [searchParams])
 
   const [response, setResponse] = useState("")
   const [streaming, setStreaming] = useState(false)

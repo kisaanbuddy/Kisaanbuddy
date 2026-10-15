@@ -4,9 +4,11 @@ from typing import List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Absolute path to the .env file that sits next to the backend/ directory.
-# This works regardless of which directory uvicorn / the process is launched from.
-_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+# Support both the backend deployment configuration and the project-root local
+# configuration used by the website's development tooling. Backend values take
+# precedence when both files define the same setting.
+_BACKEND_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+_ROOT_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env")
 
 
 class Settings(BaseSettings):
@@ -25,6 +27,7 @@ class Settings(BaseSettings):
     WEATHERAPI_API_KEY: Optional[str] = None
     TOMORROWIO_API_KEY: Optional[str] = None
     ACCUWEATHER_API_KEY: Optional[str] = None
+    DATA_GOV_API_KEY: Optional[str] = None
     # Legacy alias some old code referenced — kept for back-compat.
     WEATHER_API_KEY: Optional[str] = None
 
@@ -97,7 +100,7 @@ class Settings(BaseSettings):
     ADMIN_EMAILS: str = "admin@kisaanbuddy.com,aditya@kisaanbuddy.com,utkarsh@kisaanbuddy.com,yash@kisaanbuddy.com,info@kisaanbuddy.com"
 
     model_config = SettingsConfigDict(
-        env_file=_ENV_FILE,
+        env_file=(_ROOT_ENV_FILE, _BACKEND_ENV_FILE),
         env_file_encoding="utf-8",
         extra="ignore",
     )

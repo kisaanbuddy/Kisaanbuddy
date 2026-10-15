@@ -560,6 +560,24 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
     {
         "type": "function",
         "function": {
+            "name": "get_mandi_prices",
+            "description": (
+                "Get available mandi prices for a crop. Use for current mandi price, "
+                "rate, bhav, or market questions. State and market are optional filters."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop": {"type": "string", "description": "Crop name, e.g. wheat or paddy."},
+                    "state": {"type": "string", "description": "Indian state name. Optional."},
+                    "market": {"type": "string", "description": "Mandi or market name. Optional."},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "post_job",
             "description": (
                 "Post a new farm-labour job on Worker Connect. Use ONLY when a farmer "

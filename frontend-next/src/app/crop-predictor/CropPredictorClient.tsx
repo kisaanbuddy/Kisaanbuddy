@@ -3,6 +3,7 @@
 import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, BrainCircuit, Activity, ChevronRight, Loader2, CheckCircle2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +15,7 @@ import { LocationAutoFill, type AutoFillValues } from "@/components/LocationAuto
 import { SensorAutoFill, type SensorValues } from "@/components/SensorAutoFill"
 
 export default function CropPredictor() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
   const [params, setParams] = useState({ N: 90, P: 42, K: 43, temperature: 25, humidity: 82, ph: 6.5, rainfall: 200 })
   const [loading, setLoading] = useState(false)
@@ -138,6 +140,15 @@ export default function CropPredictor() {
       })
     }
   }
+
+  // Voice navigation deliberately runs the same submit handler as the visible
+  // form so the recommendation and loading/error states are identical.
+  useEffect(() => {
+    if (searchParams.get("voice") !== "1") return
+    void handlePredict({ preventDefault: () => undefined } as React.FormEvent)
+    // The command URL is immutable for this mounted page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSlider = (key: keyof typeof params, value: number[]) => setParams(p => ({ ...p, [key]: value[0] }))
 

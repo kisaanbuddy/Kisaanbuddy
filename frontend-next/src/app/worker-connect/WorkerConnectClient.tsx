@@ -28,6 +28,7 @@ import {
   User,
 } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 
 import {
@@ -83,9 +84,10 @@ function workTypeLabel(wt: WorkType, lang: Language): string {
 }
 
 export default function JobsPage() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
   const [language, setLanguage] = useState<Language>((lang === "hi" || lang === "kn") ? lang : "en")
-  const [mode, setMode] = useState<Mode>("hire")
+  const [mode, setMode] = useState<Mode>(searchParams.get("voice") === "1" ? "find" : "hire")
 
   useEffect(() => {
     setLanguage((lang === "hi" || lang === "kn") ? lang : "en")
@@ -164,7 +166,7 @@ export default function JobsPage() {
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.4 }}
           >
-            <FindTab language={language} />
+            <FindTab language={language} voiceState={searchParams.get("state") || ""} voiceDistrict={searchParams.get("district") || ""} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -760,9 +762,9 @@ function PreviewCard({ form, language }: { form: JobPostIn; language: Language }
 // ============================================================================
 // FIND TAB — worker searches
 // ============================================================================
-function FindTab({ language }: { language: Language }) {
-  const [state, setState] = useState("")
-  const [district, setDistrict] = useState("")
+function FindTab({ language, voiceState, voiceDistrict }: { language: Language; voiceState?: string; voiceDistrict?: string }) {
+  const [state, setState] = useState(voiceState || "")
+  const [district, setDistrict] = useState(voiceDistrict || "")
   const [workType, setWorkType] = useState<WorkType | "">("")
   const [minWage, setMinWage] = useState<string>("")
   const [busy, setBusy] = useState(false)
@@ -795,6 +797,10 @@ function FindTab({ language }: { language: Language }) {
       setBusy(false)
     }
   }, [state, district, workType, minWage])
+
+  useEffect(() => {
+    if (voiceState || voiceDistrict) void runSearch()
+  }, [voiceState, voiceDistrict, runSearch])
 
   const lblEn = (en: string, hi: string, kn: string) =>
     language === "hi" ? hi : language === "kn" ? kn : en
