@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle } from 'lucide-react'
@@ -17,7 +17,7 @@ type LogEntry = {
   crop: string
 }
 
-export default function KhetDiaryPage() {
+function KhetDiaryContent() {
   const searchParams = useSearchParams()
   const { lang } = useLanguage()
   const [logs, setLogs] = useState<LogEntry[]>([])
@@ -495,5 +495,17 @@ export default function KhetDiaryPage() {
         )}
       </section>
     </div>
+  )
+}
+
+export default function KhetDiaryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    }>
+      <KhetDiaryContent />
+    </Suspense>
   )
 }

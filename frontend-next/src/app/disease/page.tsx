@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import DiseaseClient from './DiseaseClient';
 
 export const metadata: Metadata = {
@@ -33,7 +34,13 @@ export default function DiseasePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
       />
-      <DiseaseClient />
+      <Suspense fallback={
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      }>
+        <DiseaseClient />
+      </Suspense>
     </div>
   );
 }
