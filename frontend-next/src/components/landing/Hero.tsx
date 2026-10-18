@@ -52,15 +52,25 @@ export function Hero() {
 
         <div className="relative lg:col-span-5">
           <div className="absolute -inset-3 rounded-[2rem] bg-primary/10 blur-2xl" />
-          <div className="relative overflow-hidden rounded-[1.75rem] border border-white/70 bg-[#163d31] p-3 shadow-[0_28px_65px_-28px_rgba(17,57,43,.75)]">
-            <img src="/hero-farmer-real.png" alt="Farmer checking a crop with KisaanBuddy in a field" className="h-[420px] w-full rounded-[1.25rem] object-cover object-[72%_center] sm:h-[480px]" />
-            <div className="absolute inset-x-3 bottom-3 rounded-b-[1.25rem] bg-gradient-to-t from-[#0d2c22]/95 via-[#0d2c22]/32 to-transparent px-5 pb-5 pt-20 text-white">
+          <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-slate-900 p-2.5 shadow-[0_24px_55px_-24px_rgba(20,83,45,.45)] dark:border-slate-800">
+            <img
+              src="/images/hero/hero-indian-farmer.jpg"
+              alt="Indian farmer inspecting standing crop in agricultural field"
+              className="h-[420px] w-full rounded-[1.25rem] object-cover object-center sm:h-[480px]"
+            />
+            <div className="absolute inset-x-2.5 bottom-2.5 rounded-b-[1.25rem] bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent px-5 pb-5 pt-20 text-white">
               <div className="flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-emerald-200">{isHi ? 'आज का खेत सारांश' : 'Today’s farm brief'}</p>
-                  <p className="mt-1 text-sm font-semibold">{isHi ? 'हर जानकारी से एक बेहतर फैसला' : 'Every signal leads to a decision'}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-emerald-300">
+                    {isHi ? 'आज का खेत सारांश' : 'Today’s Farm Intelligence'}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold">
+                    {isHi ? 'हर जानकारी से एक बेहतर फैसला' : 'Actionable Guidance Built for Indian Farmers'}
+                  </p>
                 </div>
-                <span className="rounded-full border border-white/20 bg-white/15 px-2.5 py-1 text-[10px] font-bold backdrop-blur">AI READY</span>
+                <span className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-bold backdrop-blur">
+                  KISAANBUDDY
+                </span>
               </div>
             </div>
           </div>

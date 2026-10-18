@@ -150,6 +150,38 @@ export default function MarketplacePage() {
         </div>
       </div>
 
+      {/* Authentic Visual Context Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 dark:border-slate-800 bg-slate-950 text-white p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
+        <div className="absolute inset-0 z-0 opacity-30">
+          <img
+            src="/images/marketplace/vegetable-mandi.jpg"
+            alt="Authentic Indian vegetable mandi and grain trade"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
+        <div className="relative z-10 max-w-xl">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+            Transparent Agricultural Trade
+          </span>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
+            Zero-Commission Farm Gate & Wholesale Sourcing
+          </h2>
+          <p className="text-xs text-slate-200 mt-2 leading-relaxed">
+            Eliminate intermediary deductions. Connect your standing harvest directly to verified buyers, institutional procurers, and certified input dealers across India.
+          </p>
+        </div>
+        <div className="relative z-10 shrink-0 flex items-center gap-3">
+          <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-center">
+            <span className="text-xs font-bold text-emerald-300 block">Verified Buyers</span>
+            <span className="text-[10px] text-slate-300">FPOs & Mills</span>
+          </div>
+          <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-center">
+            <span className="text-xs font-bold text-amber-300 block">Direct Mandi</span>
+            <span className="text-[10px] text-slate-300">Fair APMC Pricing</span>
+          </div>
+        </div>
+      </div>
+
       {/* Tabs & Filters Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
         {/* Buyer vs Seller Tabs */}

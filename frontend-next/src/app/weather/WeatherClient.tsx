@@ -319,7 +319,14 @@ function WeatherPageInner() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="flex flex-col gap-4"
       >
-        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
+            <img
+              src="/images/weather/monsoon-farmland.jpg"
+              alt="Monsoon rainclouds over Indian agricultural farmland"
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
           <div>
             <h1 className="flex items-center gap-3 text-3xl font-display font-bold tracking-tight text-foreground md:text-4xl">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-500 shadow-sm animate-float">

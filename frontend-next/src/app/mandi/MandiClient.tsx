@@ -772,6 +772,13 @@ export default function MandiPage() {
         transition={{ duration: 0.6 }}
         className="relative overflow-hidden rounded-[1.75rem] border border-[#1b6248] bg-[#123f31] p-5 shadow-[0_22px_55px_-30px_rgba(11,57,40,.85)] sm:p-7 md:p-8"
       >
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <img
+            src="/images/mandi/grain-market-mandi.jpg"
+            alt="Authentic grain market mandi"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
         <div className="pointer-events-none absolute -right-12 -top-14 h-52 w-52 rounded-full bg-[#e7ae42]/20 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl" />
         <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">

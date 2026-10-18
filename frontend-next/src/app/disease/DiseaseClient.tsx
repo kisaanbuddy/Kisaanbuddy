@@ -290,6 +290,20 @@ export default function DiseasePortal() {
                   <span className="text-xs font-semibold">{t("disease.camera")}</span>
                 </button>
 
+                <div className="col-span-2 mt-1 pt-2 border-t border-border/40 flex items-center gap-3">
+                  <div className="relative h-10 w-10 rounded-lg overflow-hidden border border-border shrink-0">
+                    <img
+                      src="/images/crop-doctor/powdery-mildew-leaf.jpg"
+                      alt="Sample leaf with visible fungal mildew symptoms"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="text-[11px] text-muted-foreground leading-tight">
+                    <span className="font-semibold text-foreground block">Tip for best diagnostic accuracy:</span>
+                    Capture leaf surface with visible discoloration in natural daylight.
+                  </div>
+                </div>
+
                 <input ref={fileRef} type="file" accept="image/*" className="hidden"
                   onChange={e => { onPick(e.target.files?.[0]); if (e.target) e.target.value = "" }} />
                 <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden"

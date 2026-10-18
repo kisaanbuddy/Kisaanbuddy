@@ -28,6 +28,8 @@ const FEATURES = [
     icon: Sparkles,
     title: "AI Farm Advisor",
     category: "Intelligent Advisory",
+    image: "/images/farmers/farmer-field-tending.jpg",
+    imageAlt: "Indian farmer working in field managing nutrient application",
     description:
       "Conversational agronomy assistant personalized to your specific crop variety, sowing date, soil pH, and microclimate. Available in 10 Indian languages with voice input.",
     href: "/chatbot",
@@ -38,6 +40,8 @@ const FEATURES = [
     icon: Layers,
     title: "Farmer Profile & Plot Mapping",
     category: "Farm Management",
+    image: "/images/crops/indian-paddy-field.jpg",
+    imageAlt: "Lush green agricultural crop field in rural India",
     description:
       "A permanent digital identity storing acreage, soil type, irrigation facilities, and individual plot-to-crop mappings for tailored, season-long guidance.",
     href: "/profile",
@@ -48,6 +52,8 @@ const FEATURES = [
     icon: Bug,
     title: "Crop Doctor",
     category: "Disease Diagnostics",
+    image: "/images/crop-doctor/powdery-mildew-leaf.jpg",
+    imageAlt: "Close-up of crop leaf diagnosed with fungal mildew",
     description:
       "Instant visual disease identification powered by computer vision. Upload a leaf photo to diagnose symptoms, assess fungal pressure, and receive approved treatment steps.",
     href: "/disease",
@@ -58,6 +64,8 @@ const FEATURES = [
     icon: CloudSun,
     title: "Agro-Weather & Operational Risk",
     category: "Field Climate",
+    image: "/images/weather/monsoon-farmland.jpg",
+    imageAlt: "Indian agricultural landscape under monsoon clouds",
     description:
       "Hyperlocal forecast combined with operational decision support: pesticide spray suitability, optimal irrigation windows, and heat stress alerts.",
     href: "/weather",
@@ -68,6 +76,8 @@ const FEATURES = [
     icon: FlaskConical,
     title: "Soil Health & Nutrient Balancer",
     category: "Soil Science",
+    image: "/images/soil/soil-ph-testing.jpg",
+    imageAlt: "Scientific field soil pH and nutrient test with color chart",
     description:
       "Track N-P-K reserves, organic carbon percentage, and soil pH. Distinguishes lab-verified Soil Health Cards from baseline farmer estimates.",
     href: "/soil-health",
@@ -78,6 +88,8 @@ const FEATURES = [
     icon: TrendingUp,
     title: "Mandi Market Intelligence",
     category: "Market Prices",
+    image: "/images/mandi/grain-market-mandi.jpg",
+    imageAlt: "Wholesale grain market with bags of harvested crops",
     description:
       "Real-time commodity arrival rates across Indian APMC mandis powered by official AGMARKNET feeds. Compare regional rates and spot price trends.",
     href: "/mandi",
@@ -88,6 +100,8 @@ const FEATURES = [
     icon: Store,
     title: "Direct Marketplace (Buyers & Sellers)",
     category: "Trade & Inputs",
+    image: "/images/marketplace/vegetable-mandi.jpg",
+    imageAlt: "Vegetable mandi vendor with fresh crates of farm produce",
     description:
       "Direct connection between farmers, verified institutional buyers, FPOs, and certified agricultural input sellers without middleman exploitation.",
     href: "/marketplace",
@@ -98,6 +112,8 @@ const FEATURES = [
     icon: Landmark,
     title: "Government Schemes Discovery",
     category: "Farmer Welfare",
+    image: "/images/hero/hero-indian-farmer.jpg",
+    imageAlt: "Indian farmer in field accessing agricultural subsidies",
     description:
       "Filterable catalog of state and central agricultural schemes (PM-Kisan, PMFBY, drip subsidies, solar pumps) with official guidelines and direct application links.",
     href: "/schemes",
@@ -106,8 +122,10 @@ const FEATURES = [
   },
   {
     icon: BookOpen,
-    title: "Khet Diary & Expense Tracker",
+    title: "Khet Diary & Crop Lifecycles",
     category: "Farm Records",
+    image: "/images/crops/punjab-wheat-field.jpg",
+    imageAlt: "Healthy wheat crop field in Phagwara Punjab",
     description:
       "Digital ledger to log fertilizer applications, sprayings, harvests, labour expenses, and crop sale revenues to understand your true seasonal profitability.",
     href: "/khet-diary",
@@ -162,33 +180,46 @@ export default function FeaturesPage() {
           return (
             <div
               key={item.title}
-              className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 flex flex-col justify-between shadow-xs hover:shadow-md hover:border-emerald-500/50 transition duration-200"
+              className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between shadow-xs hover:shadow-md hover:border-emerald-500/50 transition duration-200"
             >
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-2.5 rounded-xl ${item.accent}`}>
-                    <Icon className="w-5 h-5" />
+                <div className="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                  <img
+                    src={item.image}
+                    alt={item.imageAlt}
+                    className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                  />
+                  <div className="absolute top-3 left-3">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-white/90 dark:bg-slate-900/90 text-slate-800 dark:text-slate-200 backdrop-blur shadow-xs border border-white/20">
+                      {item.category}
+                    </span>
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                    {item.category}
-                  </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
-                  {item.description}
-                </p>
+                <div className="p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`p-1.5 rounded-lg ${item.accent}`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
               </div>
 
-              <Link
-                href={item.href}
-                className="inline-flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition"
-              >
-                <span>{item.cta}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              <div className="p-5 pt-0">
+                <Link
+                  href={item.href}
+                  className="inline-flex items-center justify-between w-full pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition"
+                >
+                  <span>{item.cta}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           );
         })}

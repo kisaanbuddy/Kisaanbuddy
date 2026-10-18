@@ -337,8 +337,15 @@ export default function SoilHealthPage() {
         initial={{ opacity: 0, y: -10 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.5 }}
-        className="rounded-2xl border border-border/50 bg-card p-6 md:p-8 shadow-sm"
+        className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 md:p-8 shadow-sm"
       >
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
+          <img
+            src="/images/soil/soil-ph-testing.jpg"
+            alt="Scientific field testing of soil pH and nutrients"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">

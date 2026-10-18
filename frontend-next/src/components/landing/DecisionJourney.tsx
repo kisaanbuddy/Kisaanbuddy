@@ -26,7 +26,18 @@ export function DecisionJourney() {
           <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
             {isHi ? 'KisaanBuddy हर सिग्नल को आपके खेत के लिए एक उपयोगी कदम से जोड़ता है—ताकि आप कम अनुमान लगाएं और बेहतर तैयारी करें।' : 'KisaanBuddy connects every signal to a useful step for your farm—so you can spend less time guessing and more time preparing.'}
           </p>
-          <Link href="/dashboard" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-primary/80">
+          <div className="my-5 relative overflow-hidden rounded-2xl border border-border/80 shadow-xs">
+            <img
+              src="/images/farmers/farmer-field-tending.jpg"
+              alt="Indian farmer managing crop field and nutrient application"
+              className="h-44 w-full object-cover object-center"
+            />
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white text-[11px]">
+              <span className="font-semibold block">{isHi ? 'खेत में सीधे काम आने वाली सलाह' : 'Practical, In-Field Agronomic Support'}</span>
+              <span className="text-slate-300 text-[10px]">{isHi ? 'हर सलाह आपके खेत और मौसम पर आधारित है' : 'Tailored to your specific soil, crop stage, and local weather'}</span>
+            </div>
+          </div>
+          <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-primary/80">
             {isHi ? 'मेरा फार्म डैशबोर्ड खोलें' : 'Open my farm dashboard'} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
