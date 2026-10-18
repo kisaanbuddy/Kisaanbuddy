@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, AudioLines, CheckCircle2, CloudRain, MapPin, ScanLine, Sparkles, Sprout, TrendingUp } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Sparkles, Sprout, Layers, FlaskConical, Calendar, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
 export function Hero() {
@@ -9,92 +9,160 @@ export function Hero() {
   const isHi = lang === 'hi';
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#f7f5ed] pb-12 pt-10 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20 dark:bg-background">
-      <div className="farm-dot-grid pointer-events-none absolute inset-0 opacity-50" />
-      <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-[#c9df9c]/50 blur-3xl" />
-      <div className="pointer-events-none absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-sky-200/45 blur-3xl dark:bg-sky-950/20" />
+    <section className="relative isolate overflow-hidden bg-[#F8FAF7] dark:bg-background border-b border-[#E2E8E2] dark:border-slate-800 pb-12 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
+          
+          {/* Left Column: Heading, Copy, Actions, Benefits */}
+          <div className="lg:col-span-7">
+            {/* Eyebrow */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-700/20 bg-emerald-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#14532D] dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800 mb-6">
+              <Sparkles className="h-3.5 w-3.5 text-[#16845B]" />
+              <span>{isHi ? 'भारत के किसानों के लिए AI खेती साथी' : 'YOUR AI-POWERED FARMING COMPANION'}</span>
+            </div>
 
-      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:px-8">
-        <div className="lg:col-span-7 lg:pr-6">
-          <div className="eyebrow mb-5 rounded-full border border-primary/20 bg-card/75 px-3.5 py-2 shadow-xs normal-case tracking-normal">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>{isHi ? 'भारत के किसानों के लिए AI खेती साथी' : 'An AI farming companion for India'}</span>
-          </div>
-          <h1 className="max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
-            {isHi ? (
-              <>अपना खेत समझें।<br /><span className="text-primary">बेहतर फैसले लें।</span></>
-            ) : (
-              <>Know Your Farm.<br /><span className="text-primary">Make Better Decisions.</span></>
-            )}
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-            {isHi
-              ? "आपके खेत का डेटा, AI फसल मार्गदर्शन, स्थानीय मौसम और बाज़ार भाव—सब एक ही जगह।"
-              : "Your farm data, AI-powered crop guidance, local weather, and market insights in one place."}
-          </p>
+            {/* Main Headline */}
+            <h1 className="text-4xl font-extrabold tracking-tight text-[#17231B] dark:text-white sm:text-5xl lg:text-[3.5rem] leading-[1.08]">
+              {isHi ? (
+                <>
+                  अपना खेत समझें।<br />
+                  <span className="text-[#14532D] dark:text-emerald-400">बेहतर फैसले लें।</span>
+                </>
+              ) : (
+                <>
+                  Know Your Farm.<br />
+                  <span className="text-[#14532D] dark:text-emerald-400">Make Better Decisions.</span>
+                </>
+              )}
+            </h1>
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Link href="/signup" className="btn-primary h-12 px-6 text-sm font-semibold shadow-md inline-flex items-center justify-center gap-2">
-              <span>{isHi ? 'अपना खेत सेटअप करें' : 'Set Up My Farm'}</span>
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link href="/features" className="btn-secondary h-12 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2">
-              <Sprout className="h-4 w-4 text-primary" />
-              <span>{isHi ? 'सुविधाएं देखें' : 'Explore KisaanBuddy'}</span>
-            </Link>
-          </div>
-          <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" />{isHi ? 'आपकी भाषा में' : 'In your language'}</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" />{isHi ? 'मोबाइल के लिए बनाया गया' : 'Built for your phone'}</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-primary" />{isHi ? 'सरल, काम की सलाह' : 'Practical guidance'}</span>
-          </div>
-        </div>
+            {/* Supporting Copy */}
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#647067] dark:text-slate-300 sm:text-lg">
+              {isHi
+                ? "आपके खेत का डेटा, व्यक्तिगत AI मार्गदर्शन, स्थानीय मौसम और बाज़ार भाव—सब एक ही जगह।"
+                : "Your farm data, personalized AI guidance, local weather, and market insights—all in one place."}
+            </p>
 
-        <div className="relative lg:col-span-5">
-          <div className="absolute -inset-3 rounded-[2rem] bg-primary/10 blur-2xl" />
-          <div className="relative overflow-hidden rounded-[1.75rem] border border-slate-200/80 bg-slate-900 p-2.5 shadow-[0_24px_55px_-24px_rgba(20,83,45,.45)] dark:border-slate-800">
-            <img
-              src="/images/hero/hero-indian-farmer.jpg"
-              alt="Indian farmer inspecting standing crop in agricultural field"
-              className="h-[420px] w-full rounded-[1.25rem] object-cover object-center sm:h-[480px]"
-            />
-            <div className="absolute inset-x-2.5 bottom-2.5 rounded-b-[1.25rem] bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent px-5 pb-5 pt-20 text-white">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-bold uppercase tracking-[.16em] text-emerald-300">
-                    {isHi ? 'आज का खेत सारांश' : 'Today’s Farm Intelligence'}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold">
-                    {isHi ? 'हर जानकारी से एक बेहतर फैसला' : 'Actionable Guidance Built for Indian Farmers'}
-                  </p>
-                </div>
-                <span className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-[10px] font-bold backdrop-blur">
-                  KISAANBUDDY
-                </span>
+            {/* Action Buttons */}
+            <div className="mt-8 flex flex-col gap-3.5 sm:flex-row sm:items-center">
+              <Link
+                href="/signup"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[#14532D] hover:bg-[#166534] px-7 text-sm font-bold text-white shadow-sm transition active:scale-95"
+              >
+                <span>{isHi ? 'अपना खेत सेटअप करें' : 'Set Up My Farm'}</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+
+              <Link
+                href="/features"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-[#E2E8E2] dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 px-6 text-sm font-bold text-[#17231B] dark:text-white transition"
+              >
+                <Sprout className="h-4 w-4 text-[#16845B]" />
+                <span>{isHi ? 'सुविधाएं देखें' : 'Explore Features'}</span>
+              </Link>
+            </div>
+
+            {/* 3 Concise Real Benefits */}
+            <div className="mt-8 pt-6 border-t border-[#E2E8E2] dark:border-slate-800 grid grid-cols-1 sm:grid-cols-3 gap-3.5 text-xs font-semibold text-[#17231B] dark:text-slate-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0" />
+                <span>{isHi ? 'व्यक्तिगत खेत मार्गदर्शन' : 'Personalized farm guidance'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0" />
+                <span>{isHi ? '10+ भारतीय भाषाओं में समर्थन' : 'Support for Indian languages'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0" />
+                <span>{isHi ? 'फसल और मंडी अंतर्दृष्टि' : 'Crop and market insights'}</span>
               </div>
             </div>
           </div>
 
-          <div className="absolute -bottom-5 -left-3 hidden w-52 rounded-2xl border border-border/70 bg-card p-3.5 shadow-lg sm:block">
-            <div className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-xl bg-sky-500/10 text-sky-700"><CloudRain className="h-4 w-4" /></span><div><p className="text-[10px] font-bold text-foreground">{isHi ? 'कल बारिश' : 'Rain tomorrow'}</p><p className="text-[10px] text-muted-foreground">{isHi ? 'आज सिंचाई रोकें' : 'Hold irrigation today'}</p></div></div>
-          </div>
-          <div className="absolute -right-3 top-8 hidden w-48 rounded-2xl border border-border/70 bg-card p-3.5 shadow-lg sm:block">
-            <div className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-700"><TrendingUp className="h-4 w-4" /></span><div><p className="text-[10px] font-bold text-foreground">{isHi ? 'मंडी संकेत' : 'Mandi signal'}</p><p className="text-[10px] text-primary">{isHi ? 'भाव +6% बढ़ा' : 'Prices up 6%'}</p></div></div>
-          </div>
-        </div>
-      </div>
+          {/* Right Column: Real Indian Farmer Photography + Real Interface Demonstration */}
+          <div className="lg:col-span-5 flex flex-col gap-4">
+            {/* Authentic Photograph */}
+            <div className="relative overflow-hidden rounded-2xl border border-[#E2E8E2] dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+              <img
+                src="/images/hero/hero-indian-farmer.jpg"
+                alt="Authentic Indian farmer inspecting standing crop in agricultural field"
+                className="h-64 sm:h-72 w-full object-cover object-center"
+              />
+              <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-[#647067] dark:text-slate-400">
+                <span className="font-semibold text-[#17231B] dark:text-slate-200">
+                  {isHi ? 'खेत का वास्तविक संदर्भ' : 'Real-World Farm Context'}
+                </span>
+                <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  {isHi ? 'सत्यापित सलाह' : 'Verified Agronomy'}
+                </span>
+              </div>
+            </div>
 
-      <div className="relative mx-auto mt-10 grid max-w-7xl grid-cols-1 gap-3 px-4 sm:grid-cols-3 sm:px-6 lg:mt-14 lg:px-8">
-        {[
-          { icon: MapPin, title: isHi ? 'आपके खेत का संदर्भ' : 'Your farm context', text: isHi ? 'फसल, खेत और स्थान एक जगह' : 'Crop, field and location in one place' },
-          { icon: ScanLine, title: isHi ? 'AI से समझ' : 'AI makes sense of it', text: isHi ? 'डेटा को आसान सलाह में बदलें' : 'Turn data into plain-language advice' },
-          { icon: Sprout, title: isHi ? 'आज का अगला कदम' : 'Your next best step', text: isHi ? 'काम को समय और प्राथमिकता दें' : 'See what to do, and when to do it' },
-        ].map(({ icon: Icon, title, text }) => (
-          <div key={title} className="flex items-center gap-3 rounded-2xl border border-border/70 bg-card/75 p-3.5 shadow-xs backdrop-blur-sm">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"><Icon className="h-4 w-4" /></span>
-            <div><p className="text-xs font-bold text-foreground">{title}</p><p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{text}</p></div>
+            {/* Real KisaanBuddy Product Interface Demonstration */}
+            <div className="rounded-2xl border border-[#E2E8E2] dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span className="text-xs font-bold text-[#17231B] dark:text-white">
+                    {isHi ? 'किसान प्रोफाइल और सक्रिय फसल' : 'Farmer Profile · Plot Management'}
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  {isHi ? 'सक्रिय चक्र' : 'Active Plot'}
+                </span>
+              </div>
+
+              {/* Data Rows representing real database models */}
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#647067] dark:text-slate-400 flex items-center gap-1.5">
+                    <Layers className="h-3.5 w-3.5 text-[#16845B]" />
+                    {isHi ? 'खेत / रकबा:' : 'Plot Acreage:'}
+                  </span>
+                  <span className="font-bold text-[#17231B] dark:text-white">
+                    Plot #1 · 2.5 Acres (Wheat)
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#647067] dark:text-slate-400 flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-[#16845B]" />
+                    {isHi ? 'फसल अवस्था:' : 'Growth Stage:'}
+                  </span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    Active Vegetative (Day 38)
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#647067] dark:text-slate-400 flex items-center gap-1.5">
+                    <FlaskConical className="h-3.5 w-3.5 text-[#16845B]" />
+                    {isHi ? 'मिट्टी स्थिति:' : 'Soil Baseline:'}
+                  </span>
+                  <span className="font-medium text-[#17231B] dark:text-white">
+                    Loamy · pH 6.8 · NPK Optimal
+                  </span>
+                </div>
+              </div>
+
+              {/* AI Guidance Recommendation Box */}
+              <div className="mt-4 p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60">
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-900 dark:text-emerald-200 mb-1">
+                  <Sparkles className="h-3.5 w-3.5 text-[#16845B]" />
+                  <span>{isHi ? 'खेत-विशिष्ट AI सलाह:' : 'AI Plot-Specific Action:'}</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-emerald-950/80 dark:text-emerald-100/80">
+                  {isHi
+                    ? 'फूल आने से पहले 48 घंटे के भीतर हल्की सिंचाई करें। मौसम की नमी के अनुसार पीला रतुआ (Yellow Rust) की नियमित निगरानी रखें।'
+                    : 'Schedule light irrigation within 48h before flowering. Monitor foliage for yellow rust symptoms given seasonal humidity.'}
+                </p>
+              </div>
+            </div>
+
           </div>
-        ))}
+
+        </div>
       </div>
     </section>
   );

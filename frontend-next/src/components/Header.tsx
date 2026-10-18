@@ -194,20 +194,20 @@ export function Header() {
               <Link href="/features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "सुविधाएं" : "Features"}
               </Link>
+              <Link href="/#how-it-works" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+                {lang === 'hi' ? "कैसे काम करता है" : "How It Works"}
+              </Link>
               <Link href="/marketplace" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "मार्केटप्लेस" : "Marketplace"}
               </Link>
               <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "मंडी भाव" : "Mandi"}
+                {lang === 'hi' ? "मंडी भाव" : "Mandi Prices"}
               </Link>
               <Link href="/weather" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "मौसम" : "Weather"}
               </Link>
               <Link href="/about" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "हमारे बारे में" : "About"}
-              </Link>
-              <Link href="/contact" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "सहायता" : "Contact"}
               </Link>
             </nav>
           )}
@@ -281,9 +281,9 @@ export function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex h-8 items-center justify-center rounded-lg bg-emerald-700 hover:bg-emerald-800 px-3.5 text-xs font-semibold text-white transition-colors"
+                  className="inline-flex h-8 items-center justify-center rounded-lg bg-[#14532D] hover:bg-[#166534] px-3.5 text-xs font-semibold text-white shadow-xs transition-colors"
                 >
-                  {lang === 'hi' ? "मुफ़्त शुरू करें" : "Start Free"}
+                  {lang === 'hi' ? "शुरू करें" : "Get Started"}
                 </Link>
               </div>
             )}
@@ -467,22 +467,66 @@ export function Header() {
                 </button>
               </>
             ) : (
-              <div className="flex flex-col gap-2 pt-1">
+              <div className="flex flex-col gap-1.5 pt-1">
                 <Link
-                  href="/login"
+                  href="/features"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg bg-primary px-4 py-2.5 text-center text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {t("loginLabel")}
+                  {lang === 'hi' ? "सुविधाएं (Features)" : "Features"}
                 </Link>
                 <Link
-                  href="/founders"
+                  href="/#how-it-works"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-border px-4 py-2 text-center text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors flex items-center justify-center gap-2"
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500/20" />
-                  <span>{t("founders")}</span>
+                  {lang === 'hi' ? "कैसे काम करता है (How It Works)" : "How It Works"}
                 </Link>
+                <Link
+                  href="/marketplace"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  {lang === 'hi' ? "मार्केटप्लेस (Marketplace)" : "Marketplace"}
+                </Link>
+                <Link
+                  href="/mandi"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  {lang === 'hi' ? "मंडी भाव (Mandi Prices)" : "Mandi Prices"}
+                </Link>
+                <Link
+                  href="/weather"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  {lang === 'hi' ? "मौसम (Weather)" : "Weather"}
+                </Link>
+                <Link
+                  href="/about"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  {lang === 'hi' ? "हमारे बारे में (About Us)" : "About Us"}
+                </Link>
+
+                <div className="border-t border-border/80 pt-2.5 mt-1 flex flex-col gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg border border-border px-4 py-2 text-center text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    {t("loginLabel")}
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg bg-[#14532D] hover:bg-[#166534] px-4 py-2.5 text-center text-xs font-bold text-white shadow-xs transition-colors"
+                  >
+                    {lang === 'hi' ? "शुरू करें" : "Get Started"}
+                  </Link>
+                </div>
               </div>
             )}
           </nav>
