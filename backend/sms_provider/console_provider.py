@@ -6,8 +6,10 @@ log = logging.getLogger("krishiai.sms_provider.console")
 
 class ConsoleProvider(SMSProvider):
     def send_otp(self, phone_number: str, otp: str) -> bool:
-        if not settings.DEBUG:
-            raise RuntimeError("Console OTP delivery is only available when DEBUG=true")
+        # Console provider outputs the OTP to logs and stdout for testing/dev.
+        # Allow console dispatch if DEBUG is True or if external SMS provider is not active.
+        if not settings.DEBUG and settings.ENABLE_SMS_PROVIDER:
+            raise RuntimeError("Console OTP delivery is only available when DEBUG=true or SMS provider is disabled")
         log.info("==========================================")
         log.info(" OTP GENERATED FOR PHONE +91%s: %s (via ConsoleProvider)", phone_number, otp)
         log.info("==========================================")

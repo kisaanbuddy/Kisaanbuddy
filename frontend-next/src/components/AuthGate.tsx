@@ -5,7 +5,14 @@ import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 
-const PROTECTED_PATHS = ["/dashboard", "/profile", "/soil-health", "/khet-diary", "/settings"];
+const PROTECTED_PATHS = [
+  "/dashboard",
+  "/profile",
+  "/farmer-profile",
+  "/soil-health",
+  "/khet-diary",
+  "/settings",
+];
 
 function isProtectedPath(pathname: string) {
   return PROTECTED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -20,7 +27,11 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (protectedRoute && ready && !user) {
-      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      // Grace timeout: avoids bouncing back to login during fast in-flight session verification
+      const timer = setTimeout(() => {
+        router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      }, 150);
+      return () => clearTimeout(timer);
     }
   }, [pathname, protectedRoute, ready, router, user]);
 

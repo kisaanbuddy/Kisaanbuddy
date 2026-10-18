@@ -2,8 +2,11 @@
 Written using Python's standard library unittest so it runs out-of-the-box without extra packages.
 """
 import os
+import sys
 import unittest
 from datetime import date
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 os.environ.setdefault("JWT_SECRET", "test-secret-key-for-testing-only-12345")

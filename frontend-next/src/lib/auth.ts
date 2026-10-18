@@ -37,16 +37,31 @@ export function getAuthHeaders(): Record<string, string> {
   return { "Content-Type": "application/json" };
 }
 
+export function getStoredUser(): AuthUser | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem("kb_user") || localStorage.getItem("kb_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 function writeSession(user: AuthUser | null) {
   sessionUser = user;
   if (typeof window !== "undefined") {
-    // Remove the legacy UI-only cache left by older releases. It is never read
-    // as authentication state by this implementation.
     if (!user) {
       try {
         localStorage.removeItem("kb_user");
+        sessionStorage.removeItem("kb_user");
       } catch {
         // Storage may be unavailable in private browsing; it is not required.
+      }
+    } else {
+      try {
+        localStorage.setItem("kb_user", JSON.stringify(user));
+        sessionStorage.setItem("kb_user", JSON.stringify(user));
+      } catch {
       }
     }
     window.dispatchEvent(new Event(EVENT_NAME));
@@ -113,7 +128,10 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({ user: null, ready: false });
+  const [state, setState] = useState<AuthState>(() => {
+    const cached = getStoredUser();
+    return { user: cached, ready: !!cached };
+  });
 
   useEffect(() => {
     let active = true;
@@ -123,7 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     };
     const onChange = () => {
-      if (active) setState({ user: sessionUser, ready: true });
+      if (active) setState({ user: sessionUser || getStoredUser(), ready: true });
     };
     window.addEventListener(EVENT_NAME, onChange);
     restore();

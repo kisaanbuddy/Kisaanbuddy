@@ -23,7 +23,7 @@ from user_agents import parse as parse_ua
 from sms_provider import get_sms_provider
 
 from db.session import get_db
-from db.models import User, UserOTP, UserSession, UserSecurityState, OtpRegistrationGrant, SystemJob
+from db.models import User, UserOTP, UserSession, UserSecurityState, OtpRegistrationGrant, SystemJob, FarmerProfile
 from services.auth_service import (
     hash_password,
     verify_password,
@@ -34,6 +34,23 @@ from core.config import settings, is_configured_admin
 from services.audit import record_activity
 
 log = logging.getLogger("krishiai.auth")
+
+
+def is_secure_request(request: Request) -> bool:
+    """Determine whether cookies must have the Secure attribute.
+
+    Browsers strictly reject Secure cookies received over unencrypted HTTP (e.g. localhost,
+    local development, or internal container bridges). We only set Secure when the
+    request is definitively using HTTPS (direct or through x-forwarded-proto).
+    """
+    if settings.DEBUG:
+        return False
+    forwarded_proto = request.headers.get("x-forwarded-proto", "").lower()
+    if forwarded_proto == "https":
+        return True
+    if request.url.scheme == "https":
+        return True
+    return False
 
 if _HAS_SLOWAPI:
     limiter = Limiter(key_func=get_remote_address, default_limits=[])
@@ -230,8 +247,8 @@ def login_user_with_session(response: Response, request: Request, db: Session, u
         expires_delta=timedelta(minutes=15)
     )
 
-    # Set HTTP-only cookies with dynamic secure option and SameSite=Lax for compatibility and protection
-    secure_cookie = not settings.DEBUG
+    # Set HTTP-only cookies with dynamic secure option (only on https) and SameSite=Lax for compatibility and protection
+    secure_cookie = is_secure_request(request)
     samesite_val = "lax"
 
     response.set_cookie(
@@ -601,6 +618,26 @@ def verify_otp(
                 is_active=True
             )
             db.add(user)
+            db.flush()
+        else:
+            user.name = clean_name
+            db.flush()
+
+        existing_prof = db.query(FarmerProfile).filter(FarmerProfile.user_id == user.id).first()
+        if not existing_prof:
+            try:
+                db.add(FarmerProfile(
+                    user_id=user.id,
+                    preferred_language=user.language or "hi",
+                    experience_years=0,
+                    land_holding_acres=0.0,
+                    land_ownership="owned",
+                    has_irrigation=False,
+                    has_tractor=False,
+                ))
+            except Exception:
+                pass
+
         grant.used_at = datetime.utcnow()
         db.commit()
         db.refresh(user)
@@ -721,6 +758,22 @@ def verify_otp(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Account is inactive.",
             )
+        existing_prof = db.query(FarmerProfile).filter(FarmerProfile.user_id == user.id).first()
+        if not existing_prof:
+            try:
+                db.add(FarmerProfile(
+                    user_id=user.id,
+                    preferred_language=user.language or "hi",
+                    experience_years=0,
+                    land_holding_acres=0.0,
+                    land_ownership="owned",
+                    has_irrigation=False,
+                    has_tractor=False,
+                ))
+                db.commit()
+            except Exception:
+                db.rollback()
+
         login_user_with_session(response, request, db, user)
         return VerifyOtpResponse(registered=True, user=user)
     else:
@@ -736,6 +789,7 @@ def verify_otp(
         ))
         db.commit()
         return VerifyOtpResponse(registered=False, registration_token=registration_token)
+
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -888,7 +942,7 @@ def refresh_session(request: Request, response: Response, db: Session = Depends(
             detail="No refresh token cookie found. Please sign in.",
         )
 
-    secure_cookie = not settings.DEBUG
+    secure_cookie = is_secure_request(request)
     samesite_val = "lax"
 
     hashed_token = hashlib.sha256(refresh_token.encode()).hexdigest()
@@ -984,7 +1038,7 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
             session_record.is_revoked = True
             db.commit()
 
-    secure_cookie = not settings.DEBUG
+    secure_cookie = is_secure_request(request)
     samesite_val = "lax"
 
     response.delete_cookie(

@@ -10,10 +10,10 @@ import { OtpInput } from "@/components/auth/OtpInput";
 
 function postLoginPath(role?: string) {
   if (role === "Admin") return "/admin";
-  if (typeof window === "undefined") return "/dashboard";
+  if (typeof window === "undefined") return "/profile";
   const next = new URLSearchParams(window.location.search).get("next");
   // Only permit an in-app relative path; never make login an open redirect.
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/profile";
 }
 
 export default function LoginPage() {
@@ -123,9 +123,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanOtp = otp.trim().replace(/[^0-9]/g, "");
+  const handleVerifyOtp = async (e?: React.FormEvent, otpOverride?: string) => {
+    if (e && "preventDefault" in e) e.preventDefault();
+    const targetOtp = otpOverride || otp;
+    const cleanOtp = targetOtp.trim().replace(/[^0-9]/g, "");
     if (cleanOtp.length !== 6) {
       setError(lt.otpError);
       return;
@@ -139,7 +140,7 @@ export default function LoginPage() {
     if (res.ok) {
       if (res.registered) {
         // Full-page navigation: browser flushes the Set-Cookie header from
-        // verify-otp BEFORE middleware validates the session on /dashboard.
+        // verify-otp BEFORE middleware validates the session on destination.
         window.location.href = postLoginPath(res.user.role);
       } else {
         setRegistrationToken(res.registrationToken);
@@ -417,7 +418,7 @@ export default function LoginPage() {
               <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {lt.otpPlaceholder}
               </label>
-              <OtpInput value={otp} onChange={setOtp} onComplete={() => { if (!loading) { const fakeEvent = { preventDefault: () => {} } as React.FormEvent; handleVerifyOtp(fakeEvent); } }} disabled={loading} />
+              <OtpInput value={otp} onChange={setOtp} onComplete={(code) => { if (!loading) handleVerifyOtp(undefined, code); }} disabled={loading} />
             </div>
 
             <div className="flex justify-between items-center text-xs pt-1">

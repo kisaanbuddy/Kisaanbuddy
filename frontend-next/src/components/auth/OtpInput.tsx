@@ -6,7 +6,7 @@ import { useLanguage } from "@/lib/language";
 type OtpInputProps = {
   value: string;
   onChange: (value: string) => void;
-  onComplete?: () => void;
+  onComplete?: (code: string) => void;
   disabled?: boolean;
 };
 
@@ -26,8 +26,7 @@ export function OtpInput({ value, onChange, onComplete, disabled = false }: OtpI
     onChange(newValue);
     // Auto-submit when all 6 digits are filled
     if (newValue.length === OTP_LENGTH && onComplete) {
-      // Small delay so React can flush the state update before form submission
-      setTimeout(() => onComplete(), 50);
+      onComplete(newValue);
     }
   };
   
@@ -62,7 +61,7 @@ export function OtpInput({ value, onChange, onComplete, disabled = false }: OtpI
     inputs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus();
     // Auto-submit on paste if all 6 digits received
     if (pasted.length === OTP_LENGTH && onComplete) {
-      setTimeout(() => onComplete(), 50);
+      onComplete(pasted);
     }
   };
 

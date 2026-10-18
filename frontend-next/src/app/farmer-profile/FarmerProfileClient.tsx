@@ -148,8 +148,10 @@ export function FarmerProfileClient() {
   useEffect(() => {
     if (user) {
       loadAllData();
+    } else if (ready) {
+      setLoading(false);
     }
-  }, [user, loadAllData]);
+  }, [user, ready, loadAllData]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

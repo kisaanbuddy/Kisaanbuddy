@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PROTECTED_PATHS = ["/dashboard", "/profile", "/soil-health", "/khet-diary", "/settings"];
+const PROTECTED_PATHS = [
+  "/dashboard",
+  "/profile",
+  "/farmer-profile",
+  "/soil-health",
+  "/khet-diary",
+  "/settings",
+];
 
 function backendUrl() {
   return (
@@ -90,6 +97,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/profile/:path*",
+    "/farmer-profile/:path*",
     "/soil-health/:path*",
     "/khet-diary/:path*",
     "/settings/:path*",
