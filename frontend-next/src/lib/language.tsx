@@ -20,6 +20,20 @@ export const LANG_NAMES: Record<Lang, string> = {
   hi_en: "Hinglish",
 }
 
+export const LANG_DETAILS: Record<Lang, { native: string; en: string }> = {
+  en: { native: "English", en: "English" },
+  hi: { native: "हिंदी", en: "Hindi" },
+  kn: { native: "ಕನ್ನಡ", en: "Kannada" },
+  ta: { native: "தமிழ்", en: "Tamil" },
+  te: { native: "తెలుగు", en: "Telugu" },
+  ml: { native: "മലയാളം", en: "Malayalam" },
+  mr: { native: "मराठी", en: "Marathi" },
+  bn: { native: "বাংলা", en: "Bengali" },
+  pa: { native: "ਪੰਜਾਬੀ", en: "Punjabi" },
+  gu: { native: "ગુજરાતી", en: "Gujarati" },
+  hi_en: { native: "Hinglish", en: "Hinglish" },
+}
+
 export const LANG_FLAGS: Record<Lang, string> = {
   en: "🇬🇧",
   hi: "🇮🇳",

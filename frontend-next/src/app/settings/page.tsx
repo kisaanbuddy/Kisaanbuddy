@@ -20,7 +20,7 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth, logoutUser } from "@/lib/auth";
-import { useLanguage, SELECTABLE_LANGS, LANG_NAMES, Lang } from "@/lib/language";
+import { useLanguage, SELECTABLE_LANGS, LANG_NAMES, LANG_DETAILS, Lang } from "@/lib/language";
 import { farmerProfileApi } from "@/lib/farmer-api";
 
 export default function SettingsPage() {
@@ -167,8 +167,12 @@ export default function SettingsPage() {
                 }`}
               >
                 <div>
-                  <div className="text-xs font-bold">{LANG_NAMES[code as Lang]?.native}</div>
-                  <div className="text-[10px] text-slate-500">{LANG_NAMES[code as Lang]?.en}</div>
+                  <div className="text-xs font-bold">
+                    {LANG_DETAILS[code as Lang]?.native || LANG_NAMES[code as Lang]}
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    {LANG_DETAILS[code as Lang]?.en || code}
+                  </div>
                 </div>
                 {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600" />}
               </button>

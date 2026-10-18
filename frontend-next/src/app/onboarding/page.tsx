@@ -18,7 +18,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useLanguage, SELECTABLE_LANGS, LANG_NAMES, Lang } from "@/lib/language";
+import { useLanguage, SELECTABLE_LANGS, LANG_NAMES, LANG_DETAILS, Lang } from "@/lib/language";
 import {
   farmerProfileApi,
   fieldsApi,
@@ -262,9 +262,11 @@ export default function OnboardingPage() {
                     }`}
                   >
                     <div>
-                      <div className="text-sm font-bold">{LANG_NAMES[code as Lang]?.native}</div>
+                      <div className="text-sm font-bold">
+                        {LANG_DETAILS[code as Lang]?.native || LANG_NAMES[code as Lang]}
+                      </div>
                       <div className="text-xs text-slate-500 dark:text-slate-400">
-                        {LANG_NAMES[code as Lang]?.en}
+                        {LANG_DETAILS[code as Lang]?.en || code}
                       </div>
                     </div>
                     {isSelected && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
