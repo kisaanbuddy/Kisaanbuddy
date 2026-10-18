@@ -358,9 +358,10 @@ export default function CropsPage() {
                     )}
                   </div>
                 </div>
+              </div>
 
-                {/* Footer Actions */}
-                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+              {/* Footer Actions */}
+              <div className="p-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
                   <Link
                     href={`/chatbot?query=${encodeURIComponent(
                       `Give me a complete scientific management plan for my ${crop} (variety: ${field.crop_variety || "standard"}) in ${field.field_name || "plot"} at stage ${stage}`
