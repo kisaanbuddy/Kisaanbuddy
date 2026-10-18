@@ -73,8 +73,44 @@ class TestFarmerProfile(unittest.TestCase):
         self.assertIsNone(ctx)
         self.assertIsNone(format_farmer_context(None))
 
+    def test_tasks_require_auth(self):
+        """Farm tasks endpoint requires authentication."""
+        r = self.client.get("/api/farmer/tasks")
+        self.assertIn(r.status_code, (401, 403))
+
+    def test_marketplace_listings_public(self):
+        """Marketplace listings are publicly discoverable with benchmark listings."""
+        r = self.client.get("/api/marketplace/listings")
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        self.assertIsInstance(data, list)
+        self.assertGreaterEqual(len(data), 1)
+
     def test_schemas_validation(self):
-        """Verify soil test and recommendation schema validations."""
+        """Verify soil test, recommendation, task, and marketplace schema validations."""
+        from schemas.task import FarmTaskCreate
+        from schemas.marketplace import MarketplaceListingCreate
+
+        task = FarmTaskCreate(
+            title="Inspect wheat field for yellow rust",
+            category="scouting",
+            priority="high",
+            due_date=date(2026, 11, 20),
+        )
+        self.assertEqual(task.category, "scouting")
+        self.assertEqual(task.priority, "high")
+
+        listing = MarketplaceListingCreate(
+            listing_type="buy",
+            category="wholesale",
+            crop_or_item="Wheat",
+            organization_name="Kisan FPO Collective",
+            district="Sehore",
+            state="Madhya Pradesh",
+        )
+        self.assertEqual(listing.listing_type, "buy")
+        self.assertEqual(listing.crop_or_item, "Wheat")
+
         st = SoilTestCreate(
             test_date=date(2026, 10, 15),
             soil_ph=6.8,

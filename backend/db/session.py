@@ -31,10 +31,19 @@ elif DATABASE_URL.startswith("postgresql://"):
 
 if create_engine:
     if DATABASE_URL.startswith("sqlite"):
-        engine = create_engine(
-            DATABASE_URL,
-            connect_args={"check_same_thread": False},
-        )
+        connect_args = {"check_same_thread": False}
+        if ":memory:" in DATABASE_URL:
+            from sqlalchemy.pool import StaticPool
+            engine = create_engine(
+                DATABASE_URL,
+                connect_args=connect_args,
+                poolclass=StaticPool,
+            )
+        else:
+            engine = create_engine(
+                DATABASE_URL,
+                connect_args=connect_args,
+            )
     else:
         engine = create_engine(
             DATABASE_URL,

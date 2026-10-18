@@ -30,7 +30,7 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
         return None
 
     try:
-        from db.models import Farm, FarmActivity, FarmerField, FieldCrop, FarmerProfile, User, SoilTest, Recommendation
+        from db.models import Farm, FarmActivity, FarmerField, FieldCrop, FarmerProfile, User, SoilTest, Recommendation, FarmTask
         from db.session import SessionLocal
 
         if SessionLocal is None:
@@ -151,6 +151,16 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
                 ],
                 "soil_tests": latest_soil_tests,
                 "pending_recommendations": pending_recs,
+                "pending_tasks": [
+                    {"title": t.title, "category": t.category, "due_date": t.due_date.isoformat(), "priority": t.priority}
+                    for t in (
+                        db.query(FarmTask)
+                        .filter(FarmTask.user_id == user_id, FarmTask.status == "pending")
+                        .order_by(FarmTask.due_date.asc())
+                        .limit(5)
+                        .all()
+                    )
+                ] if "FarmTask" in locals() else [],
             }
         finally:
             db.close()

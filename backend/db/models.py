@@ -373,3 +373,48 @@ if Column is not None:
         status = Column(String(30), default="pending", nullable=False, index=True)  # pending, completed, not_applicable, postponed
         status_updated_at = Column(DateTime, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+
+    class FarmTask(Base):  # type: ignore[misc]
+        """Farm task and work planner item."""
+        __tablename__ = "farm_tasks"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=True, index=True)
+        title = Column(String(255), nullable=False)
+        description = Column(Text, nullable=True)
+        category = Column(String(50), default="general", nullable=False, index=True)  # irrigation, fertilizer, pesticide, soil_test, harvest, scouting, buyer_followup, general
+        priority = Column(String(20), default="medium", nullable=False)  # low, medium, high, urgent
+        status = Column(String(30), default="pending", nullable=False, index=True)  # pending, completed, skipped
+        due_date = Column(Date, nullable=False, index=True)
+        completed_at = Column(DateTime, nullable=True)
+        is_ai_recommended = Column(Boolean, default=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class MarketplaceListing(Base):  # type: ignore[misc]
+        """Agricultural marketplace listing for finding harvest buyers or input sellers."""
+        __tablename__ = "marketplace_listings"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        listing_type = Column(String(20), nullable=False, index=True)  # "buy" (buyer requirement), "sell" (input seller or farmer selling produce)
+        category = Column(String(50), nullable=False, index=True)  # produce, seeds, fertilizer, equipment, wholesale, institutional
+        crop_or_item = Column(String(120), nullable=False, index=True)  # e.g. "Wheat", "Mushroom", "Tomato", "Paddy", "Organic Compost"
+        variety = Column(String(100), nullable=True)
+        quantity = Column(Float, nullable=True)
+        quantity_unit = Column(String(50), default="Quintal", nullable=True)  # Quintal, Ton, Kg, Bags, Units
+        price = Column(Float, nullable=True)
+        price_unit = Column(String(50), default="per Quintal", nullable=True)  # per Quintal, per Kg, per Bag
+        organization_name = Column(String(200), nullable=False)  # e.g. "Bhopal Agro Processors", "Malwa Kisan FPO"
+        contact_person = Column(String(120), nullable=True)
+        contact_phone = Column(String(30), nullable=True)
+        district = Column(String(100), nullable=False, index=True)
+        state = Column(String(100), nullable=False, index=True)
+        pincode = Column(String(10), nullable=True)
+        verification_status = Column(String(50), default="verified", nullable=False)  # verified, fpo_certified, registered
+        delivery_terms = Column(String(150), nullable=True)  # "Farm Gate Pickup", "Mandi Delivery", "Direct Dispatch"
+        notes = Column(Text, nullable=True)
+        is_active = Column(Boolean, default=True, nullable=False, index=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

@@ -45,6 +45,7 @@ from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, au
 from api import profile as farmer_profile, fields as farmer_fields, farm as farm_api
 from api import disease as disease_api
 from api import soil_tests as soil_tests_api, recommendations as recommendations_api
+from api import tasks as tasks_api, marketplace as marketplace_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -159,6 +160,8 @@ app.include_router(farm_api.router, prefix="/api/farmer", tags=["Farm Context & 
 app.include_router(disease_api.router, prefix="/api/disease", tags=["Disease"])
 app.include_router(soil_tests_api.router, prefix="/api/farmer", tags=["Soil Tests"])
 app.include_router(recommendations_api.router, prefix="/api/farmer", tags=["Recommendations"])
+app.include_router(tasks_api.router, prefix="/api/farmer", tags=["Farm Tasks"])
+app.include_router(marketplace_api.router, prefix="/api/marketplace", tags=["Marketplace"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

@@ -125,6 +125,66 @@ export type FarmActivity = {
   updated_at?: string | null;
 };
 
+export type FarmTaskPriority = "low" | "medium" | "high" | "urgent";
+export type FarmTaskStatus = "pending" | "completed" | "skipped";
+export type FarmTaskCategory =
+  | "irrigation"
+  | "fertilizer"
+  | "pesticide"
+  | "soil_test"
+  | "harvest"
+  | "scouting"
+  | "buyer_followup"
+  | "general";
+
+export type FarmTask = {
+  id: number;
+  user_id: number;
+  field_id?: number | null;
+  title: string;
+  description?: string | null;
+  category: FarmTaskCategory;
+  priority: FarmTaskPriority;
+  status: FarmTaskStatus;
+  due_date: string;
+  completed_at?: string | null;
+  is_ai_recommended?: boolean;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type FarmTaskSummary = {
+  total_pending: number;
+  due_today: number;
+  overdue: number;
+  upcoming_7_days: number;
+  completed_recent: number;
+};
+
+export type MarketplaceListing = {
+  id: number;
+  user_id?: number | null;
+  listing_type: "buy" | "sell";
+  category: string;
+  crop_or_item: string;
+  variety?: string | null;
+  quantity?: number | null;
+  quantity_unit?: string | null;
+  price?: number | null;
+  price_unit?: string | null;
+  organization_name: string;
+  contact_person?: string | null;
+  contact_phone?: string | null;
+  district: string;
+  state: string;
+  pincode?: string | null;
+  verification_status: string;
+  delivery_terms?: string | null;
+  notes?: string | null;
+  is_active: boolean;
+  created_at?: string | null;
+};
+
 export type FarmContext = {
   farms: Farm[];
   fields: FarmerField[];
@@ -266,6 +326,42 @@ export const activitiesApi = {
 
 export const farmContextApi = {
   get: () => apiGet<FarmContext>(`${BASE}/context`),
+};
+
+// ─── Tasks ───────────────────────────────────────────────────────────────────
+export const tasksApi = {
+  list: (params?: { status?: FarmTaskStatus; category?: FarmTaskCategory; field_id?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.set("status", params.status);
+    if (params?.category) q.set("category", params.category);
+    if (params?.field_id) q.set("field_id", String(params.field_id));
+    const qs = q.toString();
+    return apiGet<FarmTask[]>(`${BASE}/tasks${qs ? `?${qs}` : ""}`);
+  },
+  summary: () => apiGet<FarmTaskSummary>(`${BASE}/tasks/summary`),
+  create: (data: Omit<FarmTask, "id" | "user_id" | "completed_at" | "created_at" | "updated_at">) =>
+    apiPost<FarmTask>(`${BASE}/tasks`, data),
+  updateStatus: (id: number, status: FarmTaskStatus) =>
+    apiPatch<FarmTask>(`${BASE}/tasks/${id}/status`, { status }),
+  update: (id: number, data: Partial<FarmTask>) =>
+    apiPut<FarmTask>(`${BASE}/tasks/${id}`, data),
+  delete: (id: number) => apiDelete(`${BASE}/tasks/${id}`),
+};
+
+// ─── Marketplace ─────────────────────────────────────────────────────────────
+export const marketplaceApi = {
+  list: (params?: { listing_type?: "buy" | "sell"; category?: string; crop?: string; district?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.listing_type) q.set("listing_type", params.listing_type);
+    if (params?.category) q.set("category", params.category);
+    if (params?.crop) q.set("crop", params.crop);
+    if (params?.district) q.set("district", params.district);
+    const qs = q.toString();
+    return apiGet<MarketplaceListing[]>(`/api/marketplace/listings${qs ? `?${qs}` : ""}`);
+  },
+  create: (data: Omit<MarketplaceListing, "id" | "user_id" | "created_at">) =>
+    apiPost<MarketplaceListing>(`/api/marketplace/listings`, data),
+  delete: (id: number) => apiDelete(`/api/marketplace/listings/${id}`),
 };
 
 // ─── Unit conversion helpers ──────────────────────────────────────────────────
