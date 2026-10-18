@@ -171,6 +171,25 @@ def parse_device_metadata(user_agent_str: Optional[str]):
         return "Unknown", "Unknown", "Unknown"
 
 
+def normalize_indian_phone(phone_str: Optional[str]) -> str:
+    """Normalize any Indian mobile input to canonical 10 digits starting with [6-9].
+    
+    Correctly handles:
+    - 10 digits: "9876543210" -> "9876543210"
+    - International country code: "+919876543210" or "919876543210" -> "9876543210"
+    - Trunk/STD prefix: "09876543210" -> "9876543210"
+    - Whitespace & dashes: "+91 98765-43210" -> "9876543210"
+    """
+    if not phone_str:
+        return ""
+    digits = "".join(filter(str.isdigit, str(phone_str).strip()))
+    if len(digits) == 12 and digits.startswith("91"):
+        digits = digits[2:]
+    elif len(digits) == 11 and digits.startswith("0"):
+        digits = digits[1:]
+    return digits
+
+
 def run_expired_sessions_cleanup(db: Session):
     """Cleanup sessions older than SESSION_DAYS using db-backed system_jobs scheduler."""
     now = datetime.utcnow()
@@ -444,8 +463,7 @@ def send_otp(request: Request, data: SendOtpRequest, db: Session = Depends(get_d
             detail="OTP authentication is currently disabled."
         )
 
-    phone_number = data.phone_number.strip().replace(" ", "")
-    clean_phone = "".join(filter(str.isdigit, phone_number))
+    clean_phone = normalize_indian_phone(data.phone_number)
     import re
     fake_numbers = {
         "0000000000", "1111111111", "2222222222", "3333333333",
@@ -652,8 +670,7 @@ def verify_otp(
             detail="Phone number and OTP are required.",
         )
 
-    phone_number = data.phone_number.strip().replace(" ", "")
-    clean_phone = "".join(filter(str.isdigit, phone_number))
+    clean_phone = normalize_indian_phone(data.phone_number)
     import re
     fake_numbers = {
         "0000000000", "1111111111", "2222222222", "3333333333",

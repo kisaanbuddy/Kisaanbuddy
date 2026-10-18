@@ -18,7 +18,12 @@ class TwoFactorProvider(SMSProvider):
             print(f"\n[2Factor Fallback OTP]: {otp} (Sent to +91{phone_number})\n", flush=True)
             return True
             
-        clean_phone = "".join(filter(str.isdigit, phone_number))
+        digits = "".join(filter(str.isdigit, phone_number or ""))
+        if len(digits) == 12 and digits.startswith("91"):
+            digits = digits[2:]
+        elif len(digits) == 11 and digits.startswith("0"):
+            digits = digits[1:]
+        clean_phone = digits
         url = f"https://2factor.in/API/V1/{api_key}/SMS/+91{clean_phone}/{otp}/kisaanbuddy"
         log.info("Sending OTP via 2Factor (template: kisaanbuddy) to +91%s", clean_phone)
         try:

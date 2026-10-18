@@ -235,9 +235,36 @@ export async function googleLogin(credential: string): Promise<LoginResult> {
   }
 }
 
+export function normalizeIndianPhone(input: string): string {
+  if (!input) return "";
+  let digits = input.trim().replace(/[^0-9]/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+  return digits;
+}
+
+export function isValidIndianPhone(phone: string): boolean {
+  const clean = normalizeIndianPhone(phone);
+  const regex = /^[6-9]\d{9}$/;
+  const fakeNumbers = [
+    "0000000000",
+    "1111111111",
+    "2222222222",
+    "3333333333",
+    "4444444444",
+    "5555555555",
+    "1234567890",
+  ];
+  return regex.test(clean) && !fakeNumbers.includes(clean);
+}
+
 export async function sendOtp(phone: string): Promise<{ ok: boolean; error?: string; resendAfter?: number }> {
   try {
-    const response = await sessionRequest("/api/auth/send-otp", { method: "POST", body: JSON.stringify({ phone_number: phone }) });
+    const cleanPhone = normalizeIndianPhone(phone);
+    const response = await sessionRequest("/api/auth/send-otp", { method: "POST", body: JSON.stringify({ phone_number: cleanPhone }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return { ok: false, error: data.detail || "Failed to send OTP." };
     return { ok: true, resendAfter: data.resend_after };
@@ -248,7 +275,9 @@ export async function sendOtp(phone: string): Promise<{ ok: boolean; error?: str
 
 export async function verifyOtp(phone: string, otp: string): Promise<VerifyOtpResult> {
   try {
-    const response = await sessionRequest("/api/auth/verify-otp", { method: "POST", body: JSON.stringify({ phone_number: phone, otp }) });
+    const cleanPhone = normalizeIndianPhone(phone);
+    const cleanOtp = otp.trim().replace(/[^0-9]/g, "");
+    const response = await sessionRequest("/api/auth/verify-otp", { method: "POST", body: JSON.stringify({ phone_number: cleanPhone, otp: cleanOtp }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return { ok: false, error: data.detail || "Invalid OTP code." };
     if (data.registered) {
