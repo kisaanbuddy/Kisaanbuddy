@@ -32,6 +32,8 @@ import {
   BadgeCheck,
   Calculator,
   Truck,
+  Phone,
+  Mail,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -57,8 +59,10 @@ const ENAM_LANG = {
     apmc: "APMC / Mandi",
     commodity: "Commodity",
     price: "Price",
-    proceed: "Go to eNAM ↗",
-    note: "eNAM — Government of India's official mandi. Real buyers, real payments.",
+    callHelpdesk: "Call 1800 270 0224",
+    emailHelpdesk: "Email e-NAM",
+    cancel: "Cancel",
+    helpdeskNote: "Official e-NAM National Helpdesk (Govt. of India). Connect directly for trade registration and bidding assistance. Calling or emailing contacts the helpdesk and does not execute an automated transaction.",
   },
   hi: {
     title: "eNAM पर यह भरें",
@@ -66,8 +70,10 @@ const ENAM_LANG = {
     apmc: "मंडी",
     commodity: "फसल",
     price: "भाव",
-    proceed: "eNAM पर जाएं ↗",
-    note: "eNAM — भारत सरकार की आधिकारिक मंडी। असली खरीदार, असली भुगतान।",
+    callHelpdesk: "Call 1800 270 0224",
+    emailHelpdesk: "Email e-NAM",
+    cancel: "रद्द करें",
+    helpdeskNote: "आधिकारिक e-NAM राष्ट्रीय हेल्पडेस्क (भारत सरकार)। व्यापार पंजीकरण और सहायता के लिए सीधे संपर्क करें। कॉल या ईमेल केवल सहायता के लिए है और इससे स्वतः कोई सौदा नहीं होता।",
   },
   kn: {
     title: "eNAM ನಲ್ಲಿ ಇದನ್ನು ತುಂಬಿ",
@@ -75,8 +81,10 @@ const ENAM_LANG = {
     apmc: "ಮಂಡಿ",
     commodity: "ಬೆಳೆ",
     price: "ಬೆಲೆ",
-    proceed: "eNAM ಗೆ ಹೋಗಿ ↗",
-    note: "eNAM — ಭಾರತ ಸರ್ಕಾರದ ಅಧಿಕೃತ ಮಂಡಿ। ನೈಜ ಖರೀದಿದಾರರು, ನೈಜ ಪಾವತಿ.",
+    callHelpdesk: "Call 1800 270 0224",
+    emailHelpdesk: "Email e-NAM",
+    cancel: "ರದ್ದುಮಾಡಿ",
+    helpdeskNote: "ಅಧಿಕೃತ e-NAM ರಾಷ್ಟ್ರೀಯ ಸಹಾಯವಾಣಿ (ಭಾರತ ಸರ್ಕಾರ). ವ್ಯಾಪಾರ ನೋಂದಣಿ ಮತ್ತು ಸಹಾಯಕ್ಕಾಗಿ ಸಂಪರ್ಕಿಸಿ. ಕರೆ ಅಥವಾ ಇಮೇಲ್ ವ್ಯಾಪಾರ ಸಹಾಯಕ್ಕಾಗಿ ಮಾತ್ರ ಮತ್ತು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ವಹಿವಾಟು ನಡೆಸುವುದಿಲ್ಲ.",
   },
 }
 
@@ -1336,29 +1344,38 @@ function BuySellPanel({
                       </div>
                     </div>
                     
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-lg shadow-emerald-600/15 rounded-xl h-10"
-                        onClick={() => {
-                          const commodity = crop.name.split("(")[0].trim()
-                          const url = `https://enam.gov.in/web/dashboard/trade-data?state=${encodeURIComponent(crop.state)}&commodity=${encodeURIComponent(commodity)}`
-                          window.open(url, "_blank", "noopener,noreferrer")
-                        }}
+                    {/* Bottom Action Area: Official e-NAM Helpdesk Contacts */}
+                    <div className="flex flex-col gap-2 pt-2">
+                      <a
+                        href="tel:+18002700224"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl h-11 px-4 flex items-center justify-center gap-2.5 shadow-md shadow-emerald-600/20 text-xs sm:text-sm transition-all duration-200 active:scale-[0.98]"
                       >
-                        <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                        {ENAM_LANG[lang].proceed}
-                      </Button>
+                        <Phone className="h-4 w-4 shrink-0" />
+                        <span>{ENAM_LANG[lang].callHelpdesk}</span>
+                      </a>
+
+                      <a
+                        href="mailto:enam.helpdesk@gmail.com"
+                        className="w-full border border-border/80 bg-card hover:bg-accent/60 hover:border-emerald-500/40 text-foreground font-semibold rounded-xl h-11 px-4 flex items-center justify-center gap-2.5 text-xs sm:text-sm transition-all duration-200 active:scale-[0.98]"
+                      >
+                        <Mail className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>{ENAM_LANG[lang].emailHelpdesk}</span>
+                      </a>
+
                       <Button 
-                        variant="outline" 
-                        className="border-border hover:bg-accent text-muted-foreground hover:text-foreground rounded-xl text-xs h-10" 
+                        variant="ghost" 
+                        className="w-full text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl text-xs h-9 font-medium" 
                         onClick={onReset}
                       >
-                        Cancel
+                        {ENAM_LANG[lang].cancel}
                       </Button>
                     </div>
-                    <p className="text-[9px] text-muted-foreground/80 leading-relaxed text-center">
-                      {ENAM_LANG[lang].note}
-                    </p>
+
+                    <div className="rounded-lg bg-muted/30 p-2.5 border border-border/60 text-center">
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        {ENAM_LANG[lang].helpdeskNote}
+                      </p>
+                    </div>
                   </div>
                 )}
               </CardContent>
