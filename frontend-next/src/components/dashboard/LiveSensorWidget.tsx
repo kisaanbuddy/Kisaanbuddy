@@ -104,45 +104,48 @@ export function LiveSensorWidget({
           {sensorOnline ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               {/* Moisture Gauge */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center">
+              <div className="flex flex-col items-center">
                 <CircularGauge
                   value={moisture}
                   max={100}
                   label="Soil Moisture"
                   unit="%"
-                  color="#10b981"
+                  icon={Droplets}
+                  iconColor="text-emerald-500"
+                  strokeColor="stroke-emerald-500"
+                  advice={moisture < 30 ? "Dry (Irrigation needed)" : moisture > 60 ? "High saturation" : "Optimal range"}
+                  adviceClass={moisture < 30 ? "bg-rose-500/10 text-rose-600 border-rose-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"}
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 mt-2 font-medium">
-                  {moisture < 30 ? "Dry (Irrigation needed)" : moisture > 60 ? "High saturation" : "Optimal range"}
-                </span>
               </div>
 
               {/* Temperature Gauge */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center">
+              <div className="flex flex-col items-center">
                 <CircularGauge
                   value={temp}
                   max={50}
                   label="Probe Temp"
                   unit="°C"
-                  color="#f59e0b"
+                  icon={Thermometer}
+                  iconColor="text-amber-500"
+                  strokeColor="stroke-amber-500"
+                  advice={temp > 35 ? "High heat stress" : "Normal temperature"}
+                  adviceClass={temp > 35 ? "bg-rose-500/10 text-rose-600 border-rose-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"}
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 mt-2 font-medium">
-                  {temp > 35 ? "High heat stress" : "Normal temperature"}
-                </span>
               </div>
 
               {/* Humidity Gauge */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-700/60 flex flex-col items-center">
+              <div className="flex flex-col items-center">
                 <CircularGauge
                   value={humidity}
                   max={100}
                   label="Air Humidity"
                   unit="%"
-                  color="#0284c7"
+                  icon={CloudSun}
+                  iconColor="text-sky-500"
+                  strokeColor="stroke-sky-500"
+                  advice={humidity > 70 ? "Humid (Fungal watch)" : "Favorable"}
+                  adviceClass={humidity > 70 ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"}
                 />
-                <span className="text-xs text-slate-600 dark:text-slate-400 mt-2 font-medium">
-                  {humidity > 70 ? "Humid (Fungal watch)" : "Favorable"}
-                </span>
               </div>
             </div>
           ) : (
