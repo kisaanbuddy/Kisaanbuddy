@@ -6,41 +6,46 @@
 
 @layer base {
   :root {
-    --background: 140 10% 98%;
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    /* Phase 3 Global Agricultural Design Palette */
+    --background: 100 12% 98%; /* #F8FAF7 */
+    --foreground: 140 20% 12%; /* #17231B */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 140 20% 12%; /* #17231B */
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 140 20% 12%;
     
-    /* Authentic Agricultural Forest Emerald */
-    --primary: 154 75% 32%;
+    /* Primary Deep Forest Green (#14532D) */
+    --primary: 142 76% 20%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 144 24% 95%;
-    --secondary-foreground: 154 75% 20%;
+    /* Secondary Agricultural Green (#16A34A) */
+    --secondary: 142 71% 45%;
+    --secondary-foreground: 0 0% 100%;
     
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 25% 34%;
+    --muted: 120 10% 95%;
+    --muted-foreground: 140 6% 42%; /* #647067 */
     
-    --accent: 144 24% 94%;
-    --accent-foreground: 154 75% 20%;
+    --accent: 140 30% 94%;
+    --accent-foreground: 142 76% 20%;
     
-    --destructive: 0 84% 60%;
+    --warning: 38 92% 44%; /* #D97706 */
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%; /* #DC2626 */
     --destructive-foreground: 0 0% 100%;
     
-    --border: 214 25% 85%;
-    --input: 214 25% 85%;
-    --ring: 154 75% 32%;
-    --radius: 0.625rem;
+    --border: 120 10% 89%; /* #E2E8E2 */
+    --input: 120 10% 89%;
+    --ring: 142 76% 20%;
+    --radius: 0.75rem;
 
     /* Semantic surface tokens */
     --surface-elevated: 0 0% 100%;
-    --surface-sunken: 140 12% 96%;
-    --card-border: 214 25% 85%;
-    --card-border-hover: 154 60% 75%;
-    --badge-bg: 144 35% 93%;
-    --badge-text: 154 75% 24%;
+    --surface-sunken: 100 14% 96%;
+    --card-border: 120 10% 89%;
+    --card-border-hover: 142 50% 65%;
+    --badge-bg: 142 35% 93%;
+    --badge-text: 142 76% 20%;
   }
 
   .dark {

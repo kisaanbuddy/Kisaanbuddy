@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, Mic, TrendingUp, UserRound } from 'lucide-react';
+import { Home, LayoutDashboard, Mic, TrendingUp, UserRound, Store, Settings, Sprout } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
 const NAV_ITEMS = [
-  { href: '/', icon: Home, labelEn: 'Home', labelHi: 'होम' },
-  { href: '/dashboard', icon: LayoutDashboard, labelEn: 'Farm', labelHi: 'खेत' },
-  { href: '/chatbot', icon: Mic, labelEn: 'AI', labelHi: 'AI' },
-  { href: '/mandi', icon: TrendingUp, labelEn: 'Market', labelHi: 'बाज़ार' },
-  { href: '/profile', icon: UserRound, labelEn: 'Profile', labelHi: 'प्रोफाइल' },
+  { href: '/dashboard', icon: LayoutDashboard, labelEn: 'Command', labelHi: 'खेत' },
+  { href: '/profile', icon: Sprout, labelEn: 'Plots', labelHi: 'फसलें' },
+  { href: '/chatbot', icon: Mic, labelEn: 'AI Advisor', labelHi: 'AI' },
+  { href: '/marketplace', icon: Store, labelEn: 'Market', labelHi: 'बाज़ार' },
+  { href: '/settings', icon: Settings, labelEn: 'Settings', labelHi: 'सेटिंग' },
 ];
 
 export function MobileBottomNav() {

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # --- Authentication & Session Security ---
     # Production must provide this explicitly; development may generate one at boot.
-    JWT_SECRET: str = ""
+    JWT_SECRET: str = "dev-fallback-secret-for-local-testing-only-change-in-prod"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
@@ -122,6 +122,7 @@ def validate_production_settings() -> None:
         "",
         "change_me_to_a_random_secret",
         "krishiai_production_grade_secret_key_change_me_later",
+        "dev-fallback-secret-for-local-testing-only-change-in-prod",
     }
     if not settings.JWT_SECRET or settings.JWT_SECRET.strip() in insecure_values:
         if not settings.DEBUG:

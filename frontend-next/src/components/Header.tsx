@@ -5,7 +5,8 @@ import {
   Menu, X, LogOut, User as UserIcon,
   LayoutDashboard, CloudSun, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
-  FlaskConical, Landmark, Search, Sparkles, Globe, Shield
+  FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
+  Store, BarChart3, BookOpen, Settings
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -16,18 +17,33 @@ import SearchModal from '@/components/SearchModal';
 import { trackEvent } from '@/lib/analytics';
 
 const NAV_LINK_DEFS = [
-  { href: '/dashboard',      key: 'dashboard',      icon: LayoutDashboard },
-  { href: '/weather',        key: 'weather',        icon: CloudSun        },
-  { href: '/crop-predictor', key: 'aiPredictor',    icon: Sprout          },
-  { href: '/disease',        key: 'diseaseDetect',  icon: Bug             },
-  { href: '/soil-health',    key: 'soilHealth',     icon: FlaskConical    },
-  { href: '/schemes',        key: 'schemes',        icon: Landmark        },
-  { href: '/mandi',          key: 'mandi',          icon: TrendingUp      },
-  { href: '/worker-connect', key: 'workers',        icon: Users           },
-  { href: '/chatbot',        key: 'aiChatbot',      icon: Mic             },
+  { href: '/dashboard',      labelEn: 'Dashboard',    labelHi: 'डैशबोर्ड',      icon: LayoutDashboard },
+  { href: '/profile',        labelEn: 'My Farm',       labelHi: 'मेरा खेत',      icon: Sprout          },
+  { href: '/chatbot',        labelEn: 'AI Advisor',    labelHi: 'AI सलाहकार',   icon: Mic             },
+  { href: '/disease',        labelEn: 'Crop Doctor',   labelHi: 'फसल डॉक्टर',    icon: Bug             },
+  { href: '/marketplace',    labelEn: 'Marketplace',   labelHi: 'मार्केटप्लेस',  icon: Store           },
+  { href: '/mandi',          labelEn: 'Mandi Rates',   labelHi: 'मंडी भाव',      icon: TrendingUp      },
+  { href: '/weather',        labelEn: 'Weather',       labelHi: 'मौसम',          icon: CloudSun        },
+  { href: '/soil-health',    labelEn: 'Soil Health',   labelHi: 'मिट्टी स्वास्थ्य', icon: FlaskConical },
+  { href: '/khet-diary',     labelEn: 'Farm Diary',    labelHi: 'खेत डायरी',     icon: BookOpen        },
+  { href: '/reports',        labelEn: 'Reports',       labelHi: 'रिपोर्ट्स',     icon: BarChart3       },
+  { href: '/schemes',        labelEn: 'Schemes',       labelHi: 'योजनाएं',       icon: Landmark        },
+  { href: '/settings',       labelEn: 'Settings',      labelHi: 'सेटिंग्स',      icon: Settings        },
 ] as const;
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/cookie-policy'];
+const PUBLIC_ROUTES = [
+  '/',
+  '/features',
+  '/login',
+  '/signup',
+  '/onboarding',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/disclaimer',
+  '/cookie-policy',
+];
 
 
 
@@ -41,7 +57,11 @@ export function Header() {
   const [langOpen, setLangOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [toolsOpen, setToolsOpen]   = useState(false);
-  const NAV_LINKS = NAV_LINK_DEFS.map(d => ({ href: d.href, label: t(d.key as any) as string, icon: d.icon }));
+  const NAV_LINKS = NAV_LINK_DEFS.map(d => ({
+    href: d.href,
+    label: lang === 'hi' ? d.labelHi : d.labelEn,
+    icon: d.icon,
+  }));
 
   /* close drawer on route change */
   useEffect(() => { setOpen(false); setToolsOpen(false); }, [pathname]);
@@ -171,8 +191,11 @@ export function Header() {
             </nav>
           ) : (
             <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Public navigation">
-              <Link href="/#features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+              <Link href="/features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "सुविधाएं" : "Features"}
+              </Link>
+              <Link href="/marketplace" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+                {lang === 'hi' ? "मार्केटप्लेस" : "Marketplace"}
               </Link>
               <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "मंडी भाव" : "Mandi"}
@@ -180,11 +203,11 @@ export function Header() {
               <Link href="/weather" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "मौसम" : "Weather"}
               </Link>
-              <Link href="/schemes" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "योजनाएं" : "Schemes"}
-              </Link>
               <Link href="/about" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {lang === 'hi' ? "हमारे बारे में" : "About"}
+              </Link>
+              <Link href="/contact" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+                {lang === 'hi' ? "सहायता" : "Contact"}
               </Link>
             </nav>
           )}

@@ -20,21 +20,27 @@ export function Hero() {
             <Sparkles className="h-3.5 w-3.5" />
             <span>{isHi ? 'भारत के किसानों के लिए AI खेती साथी' : 'An AI farming companion for India'}</span>
           </div>
-          <h1 className="max-w-3xl text-4xl font-bold leading-[1.02] tracking-[-.055em] text-foreground sm:text-5xl lg:text-6xl xl:text-7xl">
-            {isHi ? <><span className="text-primary">समझें</span> अपना खेत।<br />बेहतर फैसला लें।</> : <>Know your farm.<br /><span className="text-primary">Make the next right move.</span></>}
+          <h1 className="max-w-3xl text-4xl font-bold leading-[1.05] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            {isHi ? (
+              <>अपना खेत समझें।<br /><span className="text-primary">बेहतर फैसले लें।</span></>
+            ) : (
+              <>Know Your Farm.<br /><span className="text-primary">Make Better Decisions.</span></>
+            )}
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {isHi
-              ? 'KisaanBuddy मौसम, फसल की सेहत और मंडी भाव को आसान सलाह में बदलता है—ताकि हर दिन आपका अगला कदम साफ़ हो।'
-              : 'KisaanBuddy turns weather, crop health and mandi data into clear advice—so you know what matters and what to do next.'}
+              ? "आपके खेत का डेटा, AI फसल मार्गदर्शन, स्थानीय मौसम और बाज़ार भाव—सब एक ही जगह।"
+              : "Your farm data, AI-powered crop guidance, local weather, and market insights in one place."}
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <Link href="/signup" className="btn-primary h-12 px-5 text-sm shadow-[0_12px_25px_-15px_rgba(15,100,69,.8)]">
-              {isHi ? 'अपना खेत जोड़ें' : 'Set up my farm'} <ArrowRight className="h-4 w-4" />
+            <Link href="/signup" className="btn-primary h-12 px-6 text-sm font-semibold shadow-md inline-flex items-center justify-center gap-2">
+              <span>{isHi ? 'अपना खेत सेटअप करें' : 'Set Up My Farm'}</span>
+              <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/chatbot" className="btn-secondary h-12 px-5 text-sm">
-              <AudioLines className="h-4 w-4 text-primary" /> {isHi ? 'AI से बात करें' : 'Ask Farm AI'}
+            <Link href="/features" className="btn-secondary h-12 px-6 text-sm font-semibold inline-flex items-center justify-center gap-2">
+              <Sprout className="h-4 w-4 text-primary" />
+              <span>{isHi ? 'सुविधाएं देखें' : 'Explore KisaanBuddy'}</span>
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs font-medium text-muted-foreground">

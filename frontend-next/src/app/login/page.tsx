@@ -10,10 +10,10 @@ import { OtpInput } from "@/components/auth/OtpInput";
 
 function postLoginPath(role?: string) {
   if (role === "Admin") return "/admin";
-  if (typeof window === "undefined") return "/profile";
+  if (typeof window === "undefined") return "/dashboard";
   const next = new URLSearchParams(window.location.search).get("next");
   // Only permit an in-app relative path; never make login an open redirect.
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/profile";
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
 }
 
 export default function LoginPage() {
@@ -167,8 +167,8 @@ export default function LoginPage() {
 
     const res = await completeOtpRegistration(registrationToken, cleanName);
     if (res.ok) {
-      // Full-page navigation so cookie is committed before middleware runs.
-      window.location.href = postLoginPath(res.user?.role);
+      // Full-page navigation to onboarding wizard so new farmers set up their farm profile
+      window.location.href = "/onboarding";
     } else {
       setLoading(false);
       setError(res.error || "Registration failed. Please try again.");
