@@ -44,6 +44,7 @@ from services.weather_service import orchestrator
 from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, auth, reviews, testimonials, admin, content, media
 from api import profile as farmer_profile, fields as farmer_fields, farm as farm_api
 from api import disease as disease_api
+from api import soil_tests as soil_tests_api, recommendations as recommendations_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -156,6 +157,8 @@ app.include_router(farmer_profile.router, prefix="/api/farmer", tags=["Farmer Pr
 app.include_router(farmer_fields.router, prefix="/api/farmer", tags=["Farmer Fields"])
 app.include_router(farm_api.router, prefix="/api/farmer", tags=["Farm Context & Diary"])
 app.include_router(disease_api.router, prefix="/api/disease", tags=["Disease"])
+app.include_router(soil_tests_api.router, prefix="/api/farmer", tags=["Soil Tests"])
+app.include_router(recommendations_api.router, prefix="/api/farmer", tags=["Recommendations"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

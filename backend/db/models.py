@@ -200,6 +200,12 @@ if Column is not None:
         land_holding_acres = Column(Float, default=0.0)
         has_irrigation = Column(Boolean, default=False)
         has_tractor = Column(Boolean, default=False)
+        pin_code = Column(String(10), nullable=True)
+        gps_lat = Column(Float, nullable=True)
+        gps_lon = Column(Float, nullable=True)
+        land_ownership = Column(String(50), nullable=True)  # owned, leased, both
+        equipment_list = Column(Text, nullable=True)  # comma-separated list
+        preferred_language = Column(String(10), nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -327,5 +333,43 @@ if Column is not None:
         last_run_at = Column(DateTime, nullable=False)
 
 
+    class SoilTest(Base):  # type: ignore[misc]
+        """Soil test record for a specific field."""
+        __tablename__ = "soil_tests"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=True, index=True)
+        test_date = Column(Date, nullable=False, index=True)
+        lab_name = Column(String(150), nullable=True)
+        soil_type = Column(String(100), nullable=True)
+        soil_ph = Column(Float, nullable=True)  # 0.0-14.0
+        nitrogen_kg_ha = Column(Float, nullable=True)  # kg/ha
+        phosphorus_kg_ha = Column(Float, nullable=True)  # kg/ha
+        potassium_kg_ha = Column(Float, nullable=True)  # kg/ha
+        organic_carbon_pct = Column(Float, nullable=True)  # %
+        ec_ds_m = Column(Float, nullable=True)  # electrical conductivity dS/m
+        is_verified = Column(Boolean, default=False)  # lab-verified vs farmer-estimated
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
 
+    class Recommendation(Base):  # type: ignore[misc]
+        """AI-generated farming recommendation for a specific farmer."""
+        __tablename__ = "recommendations"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=True, index=True)
+        title = Column(String(255), nullable=False)
+        explanation = Column(Text, nullable=False)
+        crop_name = Column(String(100), nullable=True)
+        reason = Column(Text, nullable=True)
+        data_used = Column(Text, nullable=True)  # JSON string of data points used
+        recommended_action = Column(Text, nullable=False)
+        date_window = Column(String(100), nullable=True)  # e.g. "15-20 Nov 2026"
+        confidence = Column(String(50), nullable=True)  # e.g. "High", "Moderate"
+        source = Column(String(255), nullable=True)  # e.g. "ICAR guidelines"
+        category = Column(String(50), nullable=False, index=True)  # irrigation, fertilizer, pest, disease, harvest, next_season
+        status = Column(String(30), default="pending", nullable=False, index=True)  # pending, completed, not_applicable, postponed
+        status_updated_at = Column(DateTime, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

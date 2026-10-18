@@ -3,8 +3,11 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle } from 'lucide-react'
+import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle, Loader2, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { useLanguage } from '@/lib/language'
+import { useAuth } from '@/lib/auth'
+import { activitiesApi, fieldsApi, type FarmActivity, type FarmerField } from '@/lib/farmer-api'
 import { GlassCard, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -39,35 +42,109 @@ function KhetDiaryContent() {
     if (requestedActivity) setActivity(requestedActivity)
   }, [searchParams])
 
-  useEffect(() => {
-    // Load mock initial logs
-    setLogs([
-      { id: '1', date: '2026-06-18', activity: 'Sowing Wheat seeds (HD-3086)', category: 'activity', amount: 0, crop: 'Wheat' },
-      { id: '2', date: '2026-06-18', activity: 'Purchased Urea & NPK fertilizers', category: 'expense', amount: 3200, crop: 'Wheat' },
-      { id: '3', date: '2026-06-19', activity: 'Sold Mustard harvest in eNAM mandi', category: 'income', amount: 48000, crop: 'Mustard' }
-    ])
-  }, [])
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleAddEntry = (e: React.FormEvent) => {
+  const loadActivities = async () => {
+    if (!user) {
+      setLogs([
+        { id: '1', date: '2026-06-18', activity: 'Sowing Wheat seeds (HD-3086)', category: 'activity', amount: 0, crop: 'Wheat' },
+        { id: '2', date: '2026-06-18', activity: 'Purchased Urea & NPK fertilizers', category: 'expense', amount: 3200, crop: 'Wheat' },
+        { id: '3', date: '2026-06-19', activity: 'Sold Mustard harvest in eNAM mandi', category: 'income', amount: 48000, crop: 'Mustard' }
+      ])
+      return
+    }
+    setLoading(true)
+    try {
+      const data = await activitiesApi.list()
+      if (data && data.length > 0) {
+        setLogs(data.map(d => ({
+          id: String(d.id),
+          date: d.activity_date,
+          activity: d.title,
+          category: d.category,
+          amount: d.amount || 0,
+          crop: d.notes || 'General'
+        })))
+      } else {
+        setLogs([])
+      }
+    } catch {
+      // Keep existing
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadActivities()
+  }, [user])
+
+  const handleAddEntry = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!activity.trim() || !crop.trim()) return
 
-    const newLog: LogEntry = {
-      id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
-      activity: activity.trim(),
-      category,
-      amount: category === 'activity' ? 0 : Number(amount) || 0,
-      crop: crop.trim()
+    const numAmount = category === 'activity' ? 0 : Number(amount) || 0
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    if (user) {
+      setSubmitting(true)
+      try {
+        const saved = await activitiesApi.create({
+          activity_date: todayStr,
+          activity_type: category === 'activity' ? 'sowing' : category === 'expense' ? 'fertilizer_application' : 'harvesting',
+          title: activity.trim(),
+          category,
+          amount: numAmount > 0 ? numAmount : undefined,
+          notes: crop.trim(),
+        })
+        const newLog: LogEntry = {
+          id: String(saved.id),
+          date: saved.activity_date,
+          activity: saved.title,
+          category: saved.category,
+          amount: saved.amount || 0,
+          crop: saved.notes || crop.trim()
+        }
+        setLogs([newLog, ...logs])
+      } catch (err) {
+        // Fallback local
+        const newLog: LogEntry = {
+          id: Date.now().toString(),
+          date: todayStr,
+          activity: activity.trim(),
+          category,
+          amount: numAmount,
+          crop: crop.trim()
+        }
+        setLogs([newLog, ...logs])
+      } finally {
+        setSubmitting(false)
+      }
+    } else {
+      const newLog: LogEntry = {
+        id: Date.now().toString(),
+        date: todayStr,
+        activity: activity.trim(),
+        category,
+        amount: numAmount,
+        crop: crop.trim()
+      }
+      setLogs([newLog, ...logs])
     }
 
-    setLogs([newLog, ...logs])
     setActivity('')
     setAmount('')
     setCrop('')
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (user && !isNaN(Number(id))) {
+      try {
+        await activitiesApi.delete(Number(id))
+      } catch {}
+    }
     setLogs(logs.filter(l => l.id !== id))
   }
 
@@ -145,14 +222,23 @@ function KhetDiaryContent() {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-border/50 bg-card p-6 md:p-8 shadow-sm"
       >
-        <div className="flex items-center gap-2.5 mb-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-            <BookOpen className="h-4.5 w-4.5" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <BookOpen className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              {lang === 'hi' ? 'खेत डायरी — डिजिटल रिकॉर्ड' : 'Khet Diary — Digital Records'}
+            </span>
           </div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
-            {lang === 'hi' ? 'खेत डायरी — डिजिटल रिकॉर्ड' : 'Khet Diary — Digital Records'}
-          </span>
+          <Link
+            href="/farmer-profile"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl hover:bg-emerald-500/20 transition-colors w-fit"
+          >
+            <span>{lang === 'hi' ? 'पूर्ण किसान प्रोफाइल' : 'Complete Farmer Profile'}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold font-display tracking-tight text-foreground">
           {lang === 'hi' ? 'मेरा डिजिटल ' : 'My Digital '}<span className="text-emerald-600 dark:text-emerald-400">{lang === 'hi' ? 'बहीखाता' : 'Farm Logbook'}</span>

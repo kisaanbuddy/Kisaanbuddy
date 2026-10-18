@@ -279,6 +279,14 @@ export function Header() {
                   </Link>
                 )}
                 <Link
+                  href="/farmer-profile"
+                  title={lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}
+                  className="flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:border-primary/40 hover:bg-primary/10 transition-colors"
+                >
+                  <Sprout className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline">{lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}</span>
+                </Link>
+                <Link
                   href="/profile"
                   className="flex items-center gap-2 rounded-lg border border-border/80 bg-card/60 px-2 py-1 text-xs hover:border-primary/40 hover:bg-muted/60 transition-colors"
                 >
@@ -341,6 +349,24 @@ export function Header() {
             {showFullNav ? (
               <>
                 {/* User Info Row */}
+                <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+                  <Link
+                    href="/farmer-profile"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <Sprout className="h-3.5 w-3.5" />
+                    <span>{lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}</span>
+                  </Link>
+                  <Link
+                    href="/profile"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-muted/50 border border-border/60 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{lang === "hi" ? "अकाउंट" : "Account"}</span>
+                  </Link>
+                </div>
                 <Link
                   href="/profile"
                   onClick={() => setOpen(false)}

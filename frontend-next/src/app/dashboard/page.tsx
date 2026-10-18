@@ -5,7 +5,7 @@ import {
   CloudSun, Sprout, Bug, TrendingUp, Users, Landmark, Activity,
   BookOpen, ChevronRight, Thermometer, Droplets, Mic, MessageCircle,
   Phone, AlertTriangle, Cpu, Volume2, Loader2, Share2, Sparkles,
-  Calendar
+  Calendar, User
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -617,6 +617,7 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
           {[
+            { href: "/farmer-profile", label: lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile", icon: User, desc: lang === "hi" ? "खेत व मिट्टी डिजिटल रिकॉर्ड" : "Farm & Soil Digital Profile", color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20" },
             { href: "/weather", label: t("dashboard.weather_alerts"), icon: CloudSun, desc: "मौसम और बारिश अलर्ट", color: "text-sky-500 bg-sky-500/10 border-sky-500/20" },
             { href: "/disease", label: t("dashboard.disease_detect"), icon: Bug, desc: "पत्ती रोग पहचान AI", color: "text-rose-500 bg-rose-500/10 border-rose-500/20" },
             { href: "/crop-predictor", label: t("aiPredictor"), icon: Sprout, desc: "सटीक फसल चयन मॉडल", color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },

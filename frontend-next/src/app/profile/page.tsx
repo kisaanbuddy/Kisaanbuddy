@@ -274,8 +274,8 @@ export default function ProfilePage() {
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{lang === 'hi' ? 'खेत, फसल और सिंचाई की जानकारी—ताकि हर सलाह आपके संदर्भ में हो।' : 'Your fields, crops and irrigation context—so every recommendation can be more relevant.'}</p>
             </div>
           </div>
-          <Link href="/dashboard" className="btn-secondary h-10 shrink-0 text-xs">
-            {lang === 'hi' ? 'फार्म डैशबोर्ड' : 'Farm dashboard'} <ChevronRight className="h-3.5 w-3.5" />
+          <Link href="/farmer-profile" className="btn-primary h-10 shrink-0 text-xs shadow-sm">
+            {lang === 'hi' ? 'डिजिटल किसान प्रोफाइल खोलें' : 'Open Digital Farmer Profile'} <ChevronRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
@@ -301,7 +301,7 @@ export default function ProfilePage() {
           ) : (
             <div className="flex flex-col items-start gap-4 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-5 sm:flex-row sm:items-center sm:justify-between">
               <div><p className="text-sm font-bold text-foreground">{lang === 'hi' ? 'अपने फार्म से शुरुआत करें' : 'Start with your farm context'}</p><p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground">{lang === 'hi' ? 'फसल, जगह और खेत की जानकारी जोड़ें। इससे AI सलाह और भी उपयोगी होगी।' : 'Add your crop, location and field details. It helps the AI give advice that fits your situation.'}</p></div>
-              <Link href="/dashboard" className="btn-primary h-10 shrink-0 text-xs"><Plus className="h-3.5 w-3.5" />{lang === 'hi' ? 'खेत जोड़ें' : 'Add farm details'}</Link>
+              <Link href="/farmer-profile" className="btn-primary h-10 shrink-0 text-xs"><Plus className="h-3.5 w-3.5" />{lang === 'hi' ? 'किसान प्रोफाइल बनाएं' : 'Set Up Farmer Profile'}</Link>
             </div>
           )}
         </div>

@@ -69,6 +69,9 @@ def run_migrations():
         cursor.execute("PRAGMA table_info(farmer_fields)")
         field_columns = [row[1] for row in cursor.fetchall()]
         field_additions = [
+            ("acreage", "REAL DEFAULT NULL"),
+            ("current_crop", "VARCHAR(100) DEFAULT NULL"),
+            ("irrigation_type", "VARCHAR(100) DEFAULT NULL"),
             ("farm_id", "INTEGER DEFAULT NULL"),
             ("area_unit", "VARCHAR(20) DEFAULT 'acre'"),
             ("location_text", "VARCHAR(255) DEFAULT NULL"),
@@ -84,6 +87,22 @@ def run_migrations():
                 cursor.execute(f"ALTER TABLE farmer_fields ADD COLUMN {name} {col_type}")
                 altered = True
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_farmer_fields_farm_id ON farmer_fields(farm_id)")
+
+        # Farmer profile extended fields
+        cursor.execute("PRAGMA table_info(farmer_profiles)")
+        profile_cols = [row[1] for row in cursor.fetchall()]
+        profile_additions = [
+            ("pin_code", "VARCHAR(10) DEFAULT NULL"),
+            ("gps_lat", "REAL DEFAULT NULL"),
+            ("gps_lon", "REAL DEFAULT NULL"),
+            ("land_ownership", "VARCHAR(50) DEFAULT NULL"),
+            ("equipment_list", "TEXT DEFAULT NULL"),
+            ("preferred_language", "VARCHAR(10) DEFAULT NULL"),
+        ]
+        for name, col_type in profile_additions:
+            if name not in profile_cols:
+                cursor.execute(f"ALTER TABLE farmer_profiles ADD COLUMN {name} {col_type}")
+                altered = True
 
         conn.commit()
         if altered:
