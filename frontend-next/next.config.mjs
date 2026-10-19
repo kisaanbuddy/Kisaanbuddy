@@ -123,6 +123,15 @@ const nextConfig = {
       {
         source: '/api/sarvam/:path*',
         destination: `${backendUrl}/api/sarvam/:path*`
+      },
+      // Marketplace
+      {
+        source: '/api/marketplace/:path*/',
+        destination: `${backendUrl}/api/marketplace/:path*/`
+      },
+      {
+        source: '/api/marketplace/:path*',
+        destination: `${backendUrl}/api/marketplace/:path*`
       }
     ]
   }

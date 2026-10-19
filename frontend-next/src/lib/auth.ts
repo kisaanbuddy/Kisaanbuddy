@@ -32,6 +32,22 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 // "logged in" marker in web storage.
 let sessionUser: AuthUser | null = null;
 let restorePromise: Promise<AuthUser | null> | null = null;
+let refreshSessionPromise: Promise<boolean> | null = null;
+
+export async function doRefreshSession(): Promise<boolean> {
+  if (refreshSessionPromise) return refreshSessionPromise;
+  refreshSessionPromise = (async () => {
+    try {
+      const res = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
+      return res.ok;
+    } catch {
+      return false;
+    } finally {
+      refreshSessionPromise = null;
+    }
+  })();
+  return refreshSessionPromise;
+}
 
 export function getAuthHeaders(): Record<string, string> {
   return { "Content-Type": "application/json" };
@@ -95,8 +111,10 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
         let response = await sessionRequest("/api/auth/me", { method: "GET" });
 
         if (response.status === 401) {
-          const refresh = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
-          if (refresh.ok) response = await sessionRequest("/api/auth/me", { method: "GET" });
+          const refreshed = await doRefreshSession();
+          if (refreshed) {
+            response = await sessionRequest("/api/auth/me", { method: "GET" });
+          }
         }
 
         if (response.ok) {
@@ -117,8 +135,16 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
       }
     }
 
-    // All attempts exhausted or definitive auth failure.
-    void lastError; // suppress unused-var lint
+    // If all attempts failed due to network unreachable (Render waking up), keep cached user
+    if (lastError) {
+      const cached = getStoredUser();
+      if (cached) {
+        restorePromise = null;
+        return cached;
+      }
+    }
+
+    // All attempts exhausted or definitive auth failure confirmed by server.
     writeSession(null);
     restorePromise = null;
     return null;
@@ -182,9 +208,10 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
   const headers = { ...(isMultipart ? {} : getAuthHeaders()), ...(options.headers || {}) };
   let response = await fetch(url, { ...options, headers, credentials: "include" });
   if (response.status === 401) {
-    const refresh = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
-    if (refresh.ok) response = await fetch(url, { ...options, headers, credentials: "include" });
-    else writeSession(null);
+    const refreshed = await doRefreshSession();
+    if (refreshed) {
+      response = await fetch(url, { ...options, headers, credentials: "include" });
+    }
   }
   return response;
 }

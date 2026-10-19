@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth, getStoredUser } from "@/lib/auth";
 
 const PROTECTED_PATHS = [
   "/dashboard",
@@ -27,10 +27,13 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (protectedRoute && ready && !user) {
-      // Grace timeout: avoids bouncing back to login during fast in-flight session verification
+      // If storage still holds a cached user session, restoration may still be resolving
+      const cached = getStoredUser();
+      if (cached) return;
+
       const timer = setTimeout(() => {
         router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-      }, 150);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [pathname, protectedRoute, ready, router, user]);

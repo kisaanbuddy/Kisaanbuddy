@@ -16,7 +16,18 @@ except ImportError:  # SQLAlchemy is optional until a real DB is wired up
     Session = None  # type: ignore
 
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./krishiai.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+if not DATABASE_URL or DATABASE_URL == "sqlite:///./krishiai.db":
+    _repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    _db_path = os.path.join(_repo_root, "krishiai.db")
+    DATABASE_URL = f"sqlite:///{_db_path.replace(os.sep, '/')}"
+elif DATABASE_URL.startswith("sqlite:///") and not DATABASE_URL.startswith("sqlite:////") and ":memory:" not in DATABASE_URL:
+    rel_part = DATABASE_URL[len("sqlite:///"):]
+    if not os.path.isabs(rel_part):
+        _repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        _db_path = os.path.join(_repo_root, rel_part)
+        DATABASE_URL = f"sqlite:///{_db_path.replace(os.sep, '/')}"
 DB_POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "10"))
 DB_MAX_OVERFLOW = int(os.getenv("DB_MAX_OVERFLOW", "20"))
 
@@ -31,7 +42,7 @@ elif DATABASE_URL.startswith("postgresql://"):
 
 if create_engine:
     if DATABASE_URL.startswith("sqlite"):
-        connect_args = {"check_same_thread": False}
+        connect_args = {"check_same_thread": False, "timeout": 30}
         if ":memory:" in DATABASE_URL:
             from sqlalchemy.pool import StaticPool
             engine = create_engine(

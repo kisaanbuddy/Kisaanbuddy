@@ -77,6 +77,17 @@ def validate_request_origin(request: Request) -> None:
         import re
         if re.fullmatch(settings.ALLOWED_ORIGIN_REGEX, origin):
             return
+    # Also permit localhost / 127.0.0.1 on any port in local development
+    import re
+    if re.match(r"^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$", origin):
+        return
+    # Permit if origin host matches the incoming host header (same-origin behind reverse proxy)
+    host = request.headers.get("host")
+    if host and origin:
+        from urllib.parse import urlparse
+        parsed = urlparse(origin)
+        if parsed.netloc == host:
+            return
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Untrusted request origin.")
 
 router = APIRouter()
@@ -359,9 +370,14 @@ async def get_current_user(
                 detail="Phone number has changed. Please sign in again.",
             )
 
-        # Update last active time for the session
-        session_record.last_active_at = datetime.utcnow()
-        db.commit()
+        # Update last active time for the session (throttled to at most once per 5 minutes)
+        now_session = datetime.utcnow()
+        if not session_record.last_active_at or (now_session - session_record.last_active_at) > timedelta(minutes=5):
+            try:
+                session_record.last_active_at = now_session
+                db.commit()
+            except Exception:
+                db.rollback()
 
     # Update last_seen_at periodically (at most once every 5 minutes to avoid DB load)
     now = datetime.utcnow()
