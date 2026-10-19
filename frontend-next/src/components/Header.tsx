@@ -252,71 +252,126 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav ── */}
-          {showFullNav ? (
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-medium" aria-label="Primary navigation">
-              {NAV_LINKS.slice(0, 4).map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors duration-150 ${
-                    isActive(href)
-                      ? 'bg-primary/10 text-primary font-semibold border border-primary/20'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span>{label}</span>
-                </Link>
-              ))}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setToolsOpen(value => !value)}
-                  aria-expanded={toolsOpen}
-                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-                >
-                  <span>{PUBLIC_NAV_LABELS.more_tools[lang] || PUBLIC_NAV_LABELS.more_tools.en}</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
-                </button>
-                {toolsOpen && (
-                  <>
-                    <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
-                    <div className="absolute left-0 top-9 z-50 grid w-60 grid-cols-1 gap-1 rounded-xl border border-border bg-popover p-1.5 shadow-lg">
-                      {NAV_LINKS.slice(4).map(({ href, label, icon: Icon }) => (
-                        <Link key={href} href={href} onClick={() => setToolsOpen(false)} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${isActive(href) ? 'bg-primary/10 font-semibold text-primary' : 'text-foreground hover:bg-muted'}`}>
-                          <Icon className="h-3.5 w-3.5 text-primary" /><span>{label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </nav>
-          ) : (
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Public navigation">
-              <Link href="/features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.features[lang] || "Features"}
-              </Link>
-              <Link href="/#how-it-works" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.how_it_works[lang] || "How It Works"}
-              </Link>
-              <Link href="/marketplace" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.marketplace[lang] || "Marketplace"}
-              </Link>
-              <Link href="/worker-connect" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}
-              </Link>
-              <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Prices"}
-              </Link>
-              <Link href="/weather" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.weather[lang] || "Weather"}
-              </Link>
-              <Link href="/about" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {PUBLIC_NAV_LABELS.about[lang] || "About"}
-              </Link>
-            </nav>
-          )}
+          {/* ── Desktop Nav (Prioritizing Mandi, Buy & Sell, Workers Connect, Equipment, Crop Advisory, AI Assistant) ── */}
+          <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Main Navigation">
+            <Link
+              href="/mandi"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                isActive('/mandi')
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
+                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.mandi[lang] || "Mandi"}</span>
+            </Link>
+
+            <Link
+              href="/marketplace"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                isActive('/marketplace') && !pathname.includes('equipment')
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
+                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Store className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>{lang === 'hi' ? 'खरीद व बिक्री' : lang === 'kn' ? 'ಖರೀದಿ & ಮಾರಾಟ' : 'Buy & Sell'}</span>
+            </Link>
+
+            <Link
+              href="/worker-connect"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                isActive('/worker-connect')
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
+                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Users className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Workers Connect"}</span>
+            </Link>
+
+            <Link
+              href="/marketplace?tab=equipment"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                pathname.includes('equipment')
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
+                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <span>{lang === 'hi' ? 'कृषि उपकरण' : lang === 'kn' ? 'ಉಪಕರಣಗಳು' : 'Equipment'}</span>
+            </Link>
+
+            <Link
+              href="/crop-predictor"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                isActive('/crop-predictor')
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
+                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <span>{lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
+            </Link>
+
+            <Link
+              href="/chatbot"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+                isActive('/chatbot')
+                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
+                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Mic className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>{lang === 'hi' ? 'AI सहायक' : lang === 'kn' ? 'AI ಸಹಾಯಕ' : 'AI Assistant'}</span>
+            </Link>
+
+            {/* More Tools Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setToolsOpen((v) => !v)}
+                aria-expanded={toolsOpen}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-foreground"
+              >
+                <span>{PUBLIC_NAV_LABELS.more_tools[lang] || "More"}</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {toolsOpen && (
+                <>
+                  <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
+                  <div className="absolute right-0 top-9 z-50 grid w-56 grid-cols-1 gap-1 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-2 shadow-xl">
+                    <Link href="/dashboard" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <LayoutDashboard className="h-4 w-4 text-emerald-600" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link href="/profile" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Sprout className="h-4 w-4 text-emerald-600" />
+                      <span>{PUBLIC_NAV_LABELS.farmer_profile[lang] || "Farmer Profile"}</span>
+                    </Link>
+                    <Link href="/disease" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Bug className="h-4 w-4 text-rose-600" />
+                      <span>Crop Doctor</span>
+                    </Link>
+                    <Link href="/soil-health" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <FlaskConical className="h-4 w-4 text-amber-600" />
+                      <span>Soil Health</span>
+                    </Link>
+                    <Link href="/khet-diary" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <BookOpen className="h-4 w-4 text-teal-600" />
+                      <span>Khet Diary</span>
+                    </Link>
+                    <Link href="/schemes" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Landmark className="h-4 w-4 text-indigo-600" />
+                      <span>Govt Schemes</span>
+                    </Link>
+                    <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
+                    <Link href="/about" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <span>About KisaanBuddy</span>
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          </nav>
 
           {/* ── Right side controls ── */}
           <div className="flex items-center gap-1.5 md:gap-2">
@@ -576,56 +631,91 @@ export function Header() {
                 </button>
               </>
             ) : (
-              <div className="flex flex-col gap-1.5 pt-1">
-                <Link
-                  href="/features"
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                >
-                  {PUBLIC_NAV_LABELS.features[lang] || "Features"}
-                </Link>
-                <Link
-                  href="/#how-it-works"
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                >
-                  {PUBLIC_NAV_LABELS.how_it_works[lang] || "How It Works"}
-                </Link>
-                <Link
-                  href="/marketplace"
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                >
-                  {PUBLIC_NAV_LABELS.marketplace[lang] || "Marketplace"}
-                </Link>
-                <Link
-                  href="/worker-connect"
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                >
-                  {PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}
-                </Link>
+              <div className="flex flex-col gap-1 pt-1">
                 <Link
                   href="/mandi"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 transition-colors"
                 >
-                  {PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Prices"}
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Rates"}</span>
                 </Link>
+
                 <Link
-                  href="/weather"
+                  href="/marketplace"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
-                  {PUBLIC_NAV_LABELS.weather[lang] || "Weather"}
+                  <Store className="h-4 w-4 text-emerald-600" />
+                  <span>{lang === 'hi' ? 'खरीद व बिक्री (Buy & Sell)' : lang === 'kn' ? 'ಖರೀದಿ ಮತ್ತು ಮಾರಾಟ' : 'Buy & Sell Produce'}</span>
                 </Link>
+
                 <Link
-                  href="/about"
+                  href="/worker-connect"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
-                  {PUBLIC_NAV_LABELS.about[lang] || "About Us"}
+                  <Users className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Workers Connect"}</span>
                 </Link>
+
+                <Link
+                  href="/marketplace?tab=equipment"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  <span>🚜 {lang === 'hi' ? 'कृषि उपकरण कैटलॉग' : lang === 'kn' ? 'ಕೃಷಿ ಉಪಕರಣಗಳು' : 'Equipment Catalogue'}</span>
+                </Link>
+
+                <Link
+                  href="/crop-predictor"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  <span>🌱 {lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
+                </Link>
+
+                <Link
+                  href="/chatbot"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  <Mic className="h-4 w-4 text-emerald-600" />
+                  <span>{lang === 'hi' ? 'AI खेती सहायक' : lang === 'kn' ? 'AI ಸಹಾಯಕ' : 'AI Assistant'}</span>
+                </Link>
+
+                <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
+
+                <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <Link
+                    href="/disease"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Crop Doctor
+                  </Link>
+                  <Link
+                    href="/soil-health"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Soil Health
+                  </Link>
+                  <Link
+                    href="/khet-diary"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Khet Diary
+                  </Link>
+                  <Link
+                    href="/schemes"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Govt Schemes
+                  </Link>
+                </div>
 
                 <div className="border-t border-border/80 pt-2.5 mt-1 flex flex-col gap-2">
                   <Link

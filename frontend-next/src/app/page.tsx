@@ -1,70 +1,54 @@
 import type { Metadata } from 'next';
-import { Hero } from '@/components/landing/Hero';
-import { TrustPanel } from '@/components/landing/TrustPanel';
-import { ValueProposition } from '@/components/landing/ValueProposition';
-import { FarmerProfileSection } from '@/components/landing/FarmerProfileSection';
-import { ProductShowcase } from '@/components/landing/ProductShowcase';
-import { Features } from '@/components/landing/Features';
-import { HowItWorks } from '@/components/landing/HowItWorks';
-import { WorkersConnectSection } from '@/components/landing/WorkersConnectSection';
-import { MarketplaceSection } from '@/components/landing/MarketplaceSection';
-import { TrustSection } from '@/components/landing/TrustSection';
-import { Founders } from '@/components/landing/Founders';
-import { FinalCTA } from '@/components/landing/FinalCTA';
+import { MarketplaceHero } from '@/components/landing/MarketplaceHero';
+import { MandiIntelligenceSection } from '@/components/landing/MandiIntelligenceSection';
+import { BuySellProduceSection } from '@/components/landing/BuySellProduceSection';
+import { WorkersConnectHomeSection } from '@/components/landing/WorkersConnectHomeSection';
+import { EquipmentCatalogueSection } from '@/components/landing/EquipmentCatalogueSection';
+import { FarmingIntelligenceSection } from '@/components/landing/FarmingIntelligenceSection';
+import { GovernmentSchemesSection } from '@/components/landing/GovernmentSchemesSection';
+import { MarketplaceTrustSection } from '@/components/landing/MarketplaceTrustSection';
 
 export const metadata: Metadata = {
-  title: 'KisaanBuddy - Smart Agriculture Advisor | किसान सलाहकार',
-  description: "India's dedicated farm intelligence platform. Real-time crop recommendations, eNAM mandi rates, hyperlocal weather advisories, soil health management, and AI crop disease diagnosis.",
+  title: 'KisaanBuddy — Agricultural Marketplace & Farm Intelligence for Indian Farmers',
+  description: 'Connect with verified buyers, track live e-NAM mandi prices, hire farm workers and harvester crews, explore agricultural equipment, and access AI crop advisory.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'KisaanBuddy - Smart Agriculture Advisor | किसान सलाहकार',
-    description: "India's dedicated farm intelligence platform. Real-time crop recommendations, eNAM mandi rates, hyperlocal weather advisories, soil health management, and AI crop disease diagnosis.",
+    title: 'KisaanBuddy — Agricultural Marketplace & Farm Intelligence for Indian Farmers',
+    description: 'Connect with verified buyers, track live e-NAM mandi prices, hire farm workers and harvester crews, explore agricultural equipment, and access AI crop advisory.',
     url: '/',
     type: 'website',
-  }
+  },
 };
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col gap-0 -mt-10 md:-mt-14 -mx-4 sm:-mx-6 lg:-mx-8 overflow-x-hidden">
+    <div className="flex flex-col gap-0 -mt-6 md:-mt-10 -mx-4 sm:-mx-6 lg:-mx-8 overflow-x-hidden">
       
-      {/* 1. Hero Section */}
-      <Hero />
+      {/* 1. Marketplace Hero: Your Farm. Your Market. Better Opportunities. */}
+      <MarketplaceHero />
 
-      {/* 2. Trust Metrics Quick Bar */}
-      <TrustPanel />
+      {/* 2. Primary Priority: Mandi Bhav & Market Intelligence (Immediately after Hero) */}
+      <MandiIntelligenceSection />
 
-      {/* 3. Core Value Proposition: Everything Your Farm Needs */}
-      <ValueProposition />
+      {/* 3. Primary Priority: Buy & Sell Agricultural Produce (Two clear pathways) */}
+      <BuySellProduceSection />
 
-      {/* 4. Farmer Profile: Your Farm Has Its Own Digital Identity */}
-      <FarmerProfileSection />
+      {/* 4. Secondary Priority: Workers Connect & Farm Jobs (Prominent two-card structure) */}
+      <WorkersConnectHomeSection />
 
-      {/* 5. Product Showcase: Built Around Your Real Farming Needs */}
-      <ProductShowcase />
+      {/* 5. Supporting Feature: Agricultural Equipment Catalogue */}
+      <EquipmentCatalogueSection />
 
-      {/* 6. Tools for Every Stage of Farming (9 Core Tools) */}
-      <Features />
+      {/* 6. Supporting Feature: Farming Intelligence & AI Advisory (No standalone weather card) */}
+      <FarmingIntelligenceSection />
 
-      {/* 7. How It Works (3-Step Practical Workflow) */}
-      <HowItWorks />
+      {/* 7. Official Resources: Government Schemes & Subsidies */}
+      <GovernmentSchemesSection />
 
-      {/* 8. Workers Connect: Find Farm Workers or Discover Farming Jobs */}
-      <WorkersConnectSection />
-
-      {/* 9. Marketplace: Connect Your Harvest to Market Opportunities */}
-      <MarketplaceSection />
-
-      {/* 9. Trust, Science & Data Privacy */}
-      <TrustSection />
-
-      {/* 10. Meet the Team / Founders */}
-      <Founders />
-
-      {/* 11. Final Call-to-Action Banner */}
-      <FinalCTA />
+      {/* 8. Trust & Marketplace Transparency: Verified Public Data & Zero Fabricated Metrics */}
+      <MarketplaceTrustSection />
 
     </div>
   );

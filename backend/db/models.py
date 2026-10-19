@@ -915,4 +915,67 @@ if Column is not None:
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
+    class Scheme(Base):  # type: ignore[misc]
+        """Structured official government scheme record."""
+        __tablename__ = "schemes"
+        id = Column(Integer, primary_key=True, index=True)
+        scheme_id = Column(String(100), unique=True, nullable=False, index=True)  # slug identifier, e.g. pm-kisan
+        name = Column(String(255), nullable=False)
+        short_name = Column(String(100), nullable=True)
+        jurisdiction = Column(String(20), nullable=False, default="Central")  # Central or State
+        state = Column(String(100), nullable=False, default="All", index=True)  # "All" or state name (e.g. "Bihar", "Karnataka")
+        department = Column(String(255), nullable=True)
+        category = Column(String(100), nullable=False, index=True)  # income_support, crop_insurance, credit, irrigation, machinery, inputs_subsidies, organic, post_harvest, livestock, women_empowerment, other
+        overview = Column(Text, nullable=False)
+        benefits_summary = Column(Text, nullable=False)
+        benefits_details = Column(Text, nullable=True)  # JSON or detailed text
+        eligibility_criteria_text = Column(Text, nullable=False)
+        eligibility_rules_json = Column(Text, nullable=False, default="{}")  # Structured rule definition
+        required_documents_json = Column(Text, nullable=False, default="[]")  # List of official documents required
+        application_steps_json = Column(Text, nullable=False, default="[]")  # Step-by-step application instructions
+        source_url = Column(String(500), nullable=False)
+        application_url = Column(String(500), nullable=True)
+        application_window_status = Column(String(50), nullable=False, default="Open All Year")  # "open", "upcoming", "closed", "open_all_year", "unconfirmed"
+        application_window_start = Column(Date, nullable=True)
+        application_deadline = Column(Date, nullable=True)
+        deadline_text = Column(String(100), nullable=True)  # e.g., "31 July 2026 (Kharif)"
+        helpline_details = Column(Text, nullable=True)  # JSON or text with verified helpline numbers/emails
+        faqs_json = Column(Text, nullable=True, default="[]")  # FAQs list
+        verification_status = Column(String(50), nullable=False, default="verified_official")  # verified_official, pending_review, archived
+        data_source = Column(String(255), nullable=False, default="Official Portal / Gazette")
+        is_active = Column(Boolean, default=True, nullable=False, index=True)
+        last_verified_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class FarmerSchemeChecklist(Base):  # type: ignore[misc]
+        """Document preparation checklist for a farmer on a specific scheme."""
+        __tablename__ = "farmer_scheme_checklists"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        scheme_id = Column(String(100), nullable=False, index=True)
+        document_name = Column(String(255), nullable=False)
+        document_code = Column(String(100), nullable=True)
+        status = Column(String(30), nullable=False, default="pending")  # available, pending, need_help
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class FarmerSchemeReminder(Base):  # type: ignore[misc]
+        """Reminder and follow-up tracking for scheme applications."""
+        __tablename__ = "farmer_scheme_reminders"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+        scheme_id = Column(String(100), nullable=False, index=True)
+        reminder_date = Column(Date, nullable=False)
+        reminder_type = Column(String(50), default="application_deadline")  # application_deadline, window_open, document_ready, followup
+        notes = Column(Text, nullable=True)
+        is_dismissed = Column(Boolean, default=False, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+
 

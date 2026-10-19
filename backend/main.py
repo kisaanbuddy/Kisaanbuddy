@@ -94,13 +94,15 @@ async def lifespan(app: FastAPI):
             try:
                 from services.marketplace_import import seed_marketplace_catalogue
                 from services.labour_seed_data import seed_labour_reference_data
+                from services.schemes_seed_service import seed_verified_schemes
                 from db.session import SessionLocal
                 if SessionLocal:
                     with SessionLocal() as db_session:
                         seed_marketplace_catalogue(db_session)
                         seed_labour_reference_data(db_session)
+                        seed_verified_schemes(db_session)
             except Exception as me:
-                log.warning("Marketplace or Labour seeding warning: %s", me)
+                log.warning("Marketplace, Labour or Schemes seeding warning: %s", me)
     except Exception as e:
         log.error("DB init error: %s", e)
 
