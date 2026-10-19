@@ -443,7 +443,9 @@ export function FarmingIntelligenceSection() {
     ? ALL_FEATURES
     : ALL_FEATURES.filter((f) => f.categoryType === activeFilter);
 
-  const filterLabels: Record<string, Record<string, string>> = {
+  const getLabel = (record: Record<string, string>) => record[lang as string] || record['en'] || '';
+
+  const filterLabels: Record<'all' | 'market' | 'labour' | 'ai' | 'farm', Record<string, string>> = {
     all: { en: 'All Features', hi: 'सभी सुविधाएं', kn: 'ಎಲ್ಲಾ ಸೌಲಭ್ಯಗಳು' },
     market: { en: 'Mandi & Marketplace', hi: 'मंडी व बाज़ार', kn: 'ಮಂಡಿ ಮತ್ತು ಮಾರುಕಟ್ಟೆ' },
     labour: { en: 'Workers & Labour', hi: 'श्रमिक व कार्यबल', kn: 'ಕಾರ್ಮಿಕರು' },
@@ -489,13 +491,13 @@ export function FarmingIntelligenceSection() {
           <div className="max-w-3xl space-y-2.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
               <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{headerText.badge[lang] || headerText.badge.en}</span>
+              <span>{getLabel(headerText.badge)}</span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-stone-900 dark:text-white tracking-tight">
-              {headerText.title[lang] || headerText.title.en}
+              {getLabel(headerText.title)}
             </h2>
             <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed">
-              {headerText.subtitle[lang] || headerText.subtitle.en}
+              {getLabel(headerText.subtitle)}
             </p>
           </div>
 
@@ -521,7 +523,7 @@ export function FarmingIntelligenceSection() {
                   : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
               }`}
             >
-              {filterLabels[filterKey][lang] || filterLabels[filterKey].en}
+              {getLabel(filterLabels[filterKey])}
             </button>
           ))}
         </div>
@@ -550,14 +552,14 @@ export function FarmingIntelligenceSection() {
                     {/* Category Overlay Tag */}
                     <div className="absolute top-3 left-3">
                       <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-stone-900/85 text-white backdrop-blur shadow-xs border border-white/10">
-                        {tool.category[lang] || tool.category.en}
+                        {getLabel(tool.category)}
                       </span>
                     </div>
 
                     {/* Operational Badge */}
                     <div className="absolute bottom-2.5 left-3">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md backdrop-blur bg-white/90 dark:bg-stone-900/90 shadow-2xs border ${tool.badgeColor}`}>
-                        {tool.badge[lang] || tool.badge.en}
+                        {getLabel(tool.badge)}
                       </span>
                     </div>
                   </div>
@@ -570,23 +572,23 @@ export function FarmingIntelligenceSection() {
                       </div>
                       <div>
                         <h3 className="text-base font-bold text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-snug">
-                          {tool.title[lang] || tool.title.en}
+                          {getLabel(tool.title)}
                         </h3>
                         <p className="text-[11px] font-semibold text-emerald-700/80 dark:text-emerald-400/80">
-                          {tool.subtitle[lang] || tool.subtitle.en}
+                          {getLabel(tool.subtitle)}
                         </p>
                       </div>
                     </div>
 
                     <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed line-clamp-3">
-                      {tool.desc[lang] || tool.desc.en}
+                      {getLabel(tool.desc)}
                     </p>
                   </div>
                 </div>
 
                 {/* Footer Action */}
                 <div className="px-5 py-3 border-t border-stone-100 dark:border-stone-800/80 bg-stone-50/60 dark:bg-stone-850 flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-300">
-                  <span>{headerText.launch[lang] || headerText.launch.en}</span>
+                  <span>{getLabel(headerText.launch)}</span>
                   <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>
