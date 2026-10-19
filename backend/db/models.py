@@ -418,3 +418,163 @@ if Column is not None:
         is_active = Column(Boolean, default=True, nullable=False, index=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class EquipmentCatalog(Base):  # type: ignore[misc]
+        """Reference technical specifications for farm machinery & implements from official FMTTI / manufacturer test data."""
+        __tablename__ = "equipment_catalog"
+        id = Column(Integer, primary_key=True, index=True)
+        manufacturer = Column(String(150), nullable=False)
+        brand = Column(String(100), nullable=False, index=True)
+        model_name = Column(String(150), nullable=False, index=True)
+        category = Column(String(50), nullable=False, index=True)  # tractors, harvesters, rotavators, seed_drills, cultivators, ploughs, sprayers, threshers, agricultural_trailers, irrigation_equipment, other_implements
+        subcategory = Column(String(100), nullable=True)
+        hp_rating = Column(Float, nullable=True, index=True)
+        working_width_mm = Column(Float, nullable=True)
+        capacity = Column(String(100), nullable=True)
+        fuel_type = Column(String(50), nullable=True)
+        pto_hp = Column(Float, nullable=True)
+        pto_rpm = Column(Integer, nullable=True)
+        lifting_capacity_kg = Column(Float, nullable=True)
+        weight_kg = Column(Float, nullable=True)
+        compatible_tractor_hp = Column(String(50), nullable=True)
+        specifications_json = Column(Text, nullable=True)  # JSON dictionary of detailed technical specs
+        description = Column(Text, nullable=True)
+        official_source_url = Column(String(500), nullable=True)
+        source_verification_date = Column(Date, nullable=True)
+        image_url = Column(String(500), nullable=True)
+        provenance_source = Column(String(255), nullable=False)  # e.g., "CFMTTI Budni Test Report No. T-1244/2021"
+        provenance_license = Column(String(255), nullable=False)  # e.g., "National Data Sharing & Accessibility Policy (NDSAP) - Public Domain"
+        is_verified = Column(Boolean, default=True, nullable=False)
+        is_reference_only = Column(Boolean, default=True, nullable=False)  # Explicitly flag reference-only specs
+        is_active = Column(Boolean, default=True, nullable=False, index=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class EquipmentListing(Base):  # type: ignore[misc]
+        """Actual farm equipment actively offered for rent or sale by a farmer, owner, or authorized custom hiring center."""
+        __tablename__ = "equipment_listings"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        catalog_id = Column(Integer, ForeignKey("equipment_catalog.id"), nullable=True, index=True)
+        listing_type = Column(String(20), nullable=False, index=True)  # "rent" or "sale"
+        title = Column(String(255), nullable=False)
+        brand = Column(String(100), nullable=False, index=True)
+        model_name = Column(String(150), nullable=False)
+        category = Column(String(50), nullable=False, index=True)
+        hp_rating = Column(Float, nullable=True)
+        condition = Column(String(50), default="good", nullable=False)  # new, excellent, good, fair
+        year_of_manufacture = Column(Integer, nullable=True)
+        operating_hours = Column(Float, nullable=True)
+        price = Column(Float, nullable=False)
+        price_unit = Column(String(50), nullable=False)  # "per hour", "per day", "per acre", "total price"
+        security_deposit = Column(Float, nullable=True)
+        includes_operator = Column(Boolean, default=False, nullable=False)
+        owner_name = Column(String(150), nullable=False)
+        owner_phone = Column(String(30), nullable=True)
+        owner_consent_shared = Column(Boolean, default=True, nullable=False)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        tehsil_or_block = Column(String(100), nullable=True)
+        village = Column(String(150), nullable=True)
+        pincode = Column(String(10), nullable=True)
+        availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, booked, under_maintenance, sold, inactive
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class ProduceListing(Base):  # type: ignore[misc]
+        """Actual agricultural harvest produce actively offered for sale by verified farmers or FPOs."""
+        __tablename__ = "produce_listings"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        crop_name = Column(String(120), nullable=False, index=True)
+        variety = Column(String(100), nullable=True, index=True)
+        category = Column(String(50), default="cereal", nullable=False, index=True)  # cereal, pulse, oilseed, vegetable, fruit, cash_crop
+        quantity = Column(Float, nullable=False)
+        quantity_unit = Column(String(50), default="Quintal", nullable=False)
+        asking_price = Column(Float, nullable=False)
+        price_unit = Column(String(50), default="per Quintal", nullable=False)
+        is_negotiable = Column(Boolean, default=True, nullable=False)
+        harvest_date = Column(Date, nullable=True)
+        expected_dispatch_date = Column(Date, nullable=True)
+        grade_or_quality = Column(String(100), default="Grade A FAQ", nullable=False)
+        moisture_pct = Column(Float, nullable=True)
+        farmer_name = Column(String(150), nullable=False)
+        farmer_phone = Column(String(30), nullable=True)
+        contact_consent_verified = Column(Boolean, default=True, nullable=False)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        mandi_nearby = Column(String(120), nullable=True)
+        delivery_option = Column(String(100), default="Farm Gate Pickup", nullable=False)  # Farm Gate Pickup, Mandi Delivery, Direct Dispatch
+        availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, under_negotiation, sold_out, inactive
+        verification_status = Column(String(50), default="verified", nullable=False)  # verified, fpo_member, self_declared
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class MarketPriceRecord(Base):  # type: ignore[misc]
+        """Benchmark market price observation from AGMARKNET / data.gov.in. Used strictly as market context."""
+        __tablename__ = "market_price_records"
+        id = Column(Integer, primary_key=True, index=True)
+        commodity = Column(String(100), nullable=False, index=True)
+        variety = Column(String(100), nullable=True)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        market_center = Column(String(150), nullable=False, index=True)
+        arrival_date = Column(Date, nullable=False, index=True)
+        arrival_quantity = Column(Float, nullable=True)
+        arrival_unit = Column(String(50), default="Tonnes", nullable=True)
+        min_price = Column(Float, nullable=False)
+        max_price = Column(Float, nullable=False)
+        modal_price = Column(Float, nullable=False)
+        source_name = Column(String(255), default="AGMARKNET / Directorate of Marketing & Inspection", nullable=False)
+        source_url = Column(String(500), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class ImportSource(Base):  # type: ignore[misc]
+        """Registered external agricultural data sources with licensing, permissions, and update status."""
+        __tablename__ = "import_sources"
+        id = Column(Integer, primary_key=True, index=True)
+        source_name = Column(String(200), nullable=False)
+        source_slug = Column(String(100), unique=True, nullable=False, index=True)
+        source_type = Column(String(50), nullable=False)  # government_portal, open_data_api, manufacturer_spec, csv_dataset, ondc_feed
+        base_url = Column(String(500), nullable=True)
+        auth_type = Column(String(50), default="none", nullable=False)
+        commercial_reuse_terms = Column(Text, nullable=True)
+        update_frequency = Column(String(50), default="monthly", nullable=False)
+        last_imported_at = Column(DateTime, nullable=True)
+        records_count = Column(Integer, default=0, nullable=False)
+        is_active = Column(Boolean, default=True, nullable=False)
+
+
+    class ImportJob(Base):  # type: ignore[misc]
+        """Execution audit for data import runs from external sources."""
+        __tablename__ = "import_jobs"
+        id = Column(Integer, primary_key=True, index=True)
+        source_slug = Column(String(100), nullable=False, index=True)
+        target_type = Column(String(50), nullable=False)  # equipment_catalog, market_prices, produce_reference
+        status = Column(String(30), default="pending", nullable=False, index=True)  # pending, running, completed, failed
+        records_read = Column(Integer, default=0)
+        records_inserted = Column(Integer, default=0)
+        records_updated = Column(Integer, default=0)
+        records_skipped = Column(Integer, default=0)
+        error_summary = Column(Text, nullable=True)
+        started_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        completed_at = Column(DateTime, nullable=True)
+
+
+    class ImportLog(Base):  # type: ignore[misc]
+        """Detailed audit log entry for failed, skipped, or warning records during an import job."""
+        __tablename__ = "import_logs"
+        id = Column(Integer, primary_key=True, index=True)
+        job_id = Column(Integer, ForeignKey("import_jobs.id"), nullable=False, index=True)
+        log_level = Column(String(20), default="INFO", nullable=False)  # INFO, WARNING, ERROR
+        record_identifier = Column(String(255), nullable=True)
+        message = Column(Text, nullable=False)
+        timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+

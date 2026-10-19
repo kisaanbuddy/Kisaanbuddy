@@ -58,6 +58,17 @@ export interface MarketplaceDict {
   stateLabel: string
   statePlaceholder: string
   publishBtn: string
+  // Extended Catalogue & Direct Sourcing UI
+  sellRentEquipmentTitle?: string
+  sourceFromFarmsTitle?: string
+  equipmentCatalogTab?: string
+  equipmentRentTab?: string
+  equipmentSaleTab?: string
+  produceLotsTab?: string
+  mandiBenchmarkTitle?: string
+  mandiBenchmarkDisclaimer?: string
+  referenceOnlyNotice?: string
+  contactConsentNotice?: string
 }
 
 export const MARKETPLACE_I18N: Record<Lang, MarketplaceDict> = {

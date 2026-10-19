@@ -90,6 +90,15 @@ async def lifespan(app: FastAPI):
                 seed_founders()
             except Exception as se:
                 log.warning("Founder seeding warning: %s", se)
+
+            try:
+                from services.marketplace_import import seed_marketplace_catalogue
+                from db.session import SessionLocal
+                if SessionLocal:
+                    with SessionLocal() as db_session:
+                        seed_marketplace_catalogue(db_session)
+            except Exception as me:
+                log.warning("Marketplace seeding warning: %s", me)
     except Exception as e:
         log.error("DB init error: %s", e)
 

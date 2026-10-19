@@ -278,5 +278,66 @@ export const adminApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ current_password, new_password }),
     }),
+
+  // Marketplace & Catalogue Management
+  getMarketplaceSummary: () =>
+    adminFetch<{
+      equipment_catalog_total: number;
+      equipment_rentals_active: number;
+      equipment_sales_active: number;
+      produce_lots_active: number;
+      market_price_records: number;
+      import_jobs_total: number;
+      sources_registered: number;
+    }>("/marketplace/summary"),
+
+  getMarketplaceSources: () => adminFetch<any[]>("/marketplace/sources"),
+
+  triggerMarketplaceImport: (slug: string) =>
+    adminFetch<{ status: string; result: any }>(`/marketplace/sources/${slug}/trigger`, {
+      method: "POST",
+    }),
+
+  uploadCatalogue: async (file: File) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return adminFetch<{ status: string; result: any }>("/marketplace/upload-catalogue", {
+      method: "POST",
+      body: fd,
+    });
+  },
+
+  getImportJobs: () => adminFetch<any[]>("/marketplace/jobs"),
+
+  getImportJobLogs: (jobId: number) => adminFetch<any[]>(`/marketplace/jobs/${jobId}/logs`),
+
+  updateCatalogItem: (id: number, payload: Record<string, any>) =>
+    adminFetch<any>(`/marketplace/catalog/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
+
+  mergeCatalogDuplicates: (primaryId: number, duplicateIds: number[]) => {
+    const qs = duplicateIds.map((id) => `duplicate_ids=${id}`).join("&");
+    return adminFetch<{ status: string; primary_id: number; merged_count: number }>(
+      `/marketplace/catalog/merge?primary_id=${primaryId}&${qs}`,
+      { method: "POST" }
+    );
+  },
+
+  moderateEquipmentListing: (id: number, payload: Record<string, any>) =>
+    adminFetch<any>(`/marketplace/equipment-listings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
+
+  moderateProduceListing: (id: number, payload: Record<string, any>) =>
+    adminFetch<any>(`/marketplace/produce-listings/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
 };
 

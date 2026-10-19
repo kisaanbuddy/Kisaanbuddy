@@ -185,6 +185,124 @@ export type MarketplaceListing = {
   created_at?: string | null;
 };
 
+export type EquipmentCatalogItem = {
+  id: number;
+  manufacturer: string;
+  brand: string;
+  model_name: string;
+  category: string;
+  subcategory?: string | null;
+  hp_rating?: number | null;
+  working_width_mm?: number | null;
+  capacity?: string | null;
+  fuel_type?: string | null;
+  pto_hp?: number | null;
+  pto_rpm?: number | null;
+  lifting_capacity_kg?: number | null;
+  weight_kg?: number | null;
+  compatible_tractor_hp?: string | null;
+  specifications_json?: string | null;
+  description?: string | null;
+  official_source_url?: string | null;
+  source_verification_date?: string | null;
+  image_url?: string | null;
+  provenance_source: string;
+  provenance_license: string;
+  is_verified: boolean;
+  is_reference_only: boolean;
+  is_active: boolean;
+  created_at?: string | null;
+};
+
+export type EquipmentListingItem = {
+  id: number;
+  user_id?: number | null;
+  catalog_id?: number | null;
+  listing_type: "rent" | "sale";
+  title: string;
+  brand: string;
+  model_name: string;
+  category: string;
+  hp_rating?: number | null;
+  condition: "new" | "excellent" | "good" | "fair";
+  year_of_manufacture?: number | null;
+  operating_hours?: number | null;
+  price: number;
+  price_unit: string;
+  security_deposit?: number | null;
+  includes_operator: boolean;
+  owner_name: string;
+  owner_phone?: string | null;
+  owner_consent_shared: boolean;
+  state: string;
+  district: string;
+  tehsil_or_block?: string | null;
+  village?: string | null;
+  pincode?: string | null;
+  availability_status: "available" | "booked" | "under_maintenance" | "sold" | "inactive";
+  notes?: string | null;
+  created_at?: string | null;
+};
+
+export type ProduceListingItem = {
+  id: number;
+  user_id?: number | null;
+  crop_name: string;
+  variety?: string | null;
+  category: string;
+  quantity: number;
+  quantity_unit: string;
+  asking_price: number;
+  price_unit: string;
+  is_negotiable: boolean;
+  harvest_date?: string | null;
+  expected_dispatch_date?: string | null;
+  grade_or_quality: string;
+  moisture_pct?: number | null;
+  farmer_name: string;
+  farmer_phone?: string | null;
+  contact_consent_verified: boolean;
+  state: string;
+  district: string;
+  mandi_nearby?: string | null;
+  delivery_option: string;
+  availability_status: "available" | "under_negotiation" | "sold_out" | "inactive";
+  verification_status: string;
+  notes?: string | null;
+  created_at?: string | null;
+};
+
+export type MarketPriceItem = {
+  id: number;
+  commodity: string;
+  variety?: string | null;
+  state: string;
+  district: string;
+  market_center: string;
+  arrival_date: string;
+  arrival_quantity?: number | null;
+  arrival_unit?: string | null;
+  min_price: number;
+  max_price: number;
+  modal_price: number;
+  source_name: string;
+  source_url?: string | null;
+};
+
+export type ImportSourceItem = {
+  id: number;
+  source_name: string;
+  source_slug: string;
+  source_type: string;
+  base_url?: string | null;
+  auth_type: string;
+  commercial_reuse_terms?: string | null;
+  update_frequency: string;
+  last_imported_at?: string | null;
+  records_count: number;
+  is_active: boolean;
+};
+
 export type FarmContext = {
   farms: Farm[];
   fields: FarmerField[];
@@ -362,6 +480,90 @@ export const marketplaceApi = {
   create: (data: Omit<MarketplaceListing, "id" | "user_id" | "created_at">) =>
     apiPost<MarketplaceListing>(`/api/marketplace/listings`, data),
   delete: (id: number) => apiDelete(`/api/marketplace/listings/${id}`),
+};
+
+// ─── Equipment Reference Catalogue API ─────────────────────────────────────────
+export const equipmentCatalogApi = {
+  list: (params?: { category?: string; brand?: string; min_hp?: number; max_hp?: number; search?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.category) q.set("category", params.category);
+    if (params?.brand) q.set("brand", params.brand);
+    if (params?.min_hp !== undefined && params.min_hp !== null) q.set("min_hp", String(params.min_hp));
+    if (params?.max_hp !== undefined && params.max_hp !== null) q.set("max_hp", String(params.max_hp));
+    if (params?.search) q.set("search", params.search);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return apiGet<{ total: number; page: number; limit: number; items: EquipmentCatalogItem[] }>(`/api/marketplace/catalog/equipment${qs ? `?${qs}` : ""}`);
+  },
+  get: (id: number) => apiGet<EquipmentCatalogItem>(`/api/marketplace/catalog/equipment/${id}`),
+  categories: () => apiGet<{ category: string; count: number }[]>(`/api/marketplace/catalog/categories`),
+  brands: () => apiGet<{ brand: string; count: number }[]>(`/api/marketplace/catalog/brands`),
+};
+
+// ─── Equipment Listings (Rent / Sale by Farmers & Dealers) API ─────────────────
+export const equipmentListingsApi = {
+  list: (params?: { listing_type?: "rent" | "sale"; category?: string; brand?: string; state?: string; district?: string; status?: string; search?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.listing_type) q.set("listing_type", params.listing_type);
+    if (params?.category) q.set("category", params.category);
+    if (params?.brand) q.set("brand", params.brand);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.status) q.set("status", params.status);
+    if (params?.search) q.set("search", params.search);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return apiGet<{ total: number; page: number; limit: number; items: EquipmentListingItem[] }>(`/api/marketplace/equipment-listings${qs ? `?${qs}` : ""}`);
+  },
+  get: (id: number) => apiGet<EquipmentListingItem>(`/api/marketplace/equipment-listings/${id}`),
+  create: (data: Omit<EquipmentListingItem, "id" | "user_id" | "created_at" | "availability_status">) =>
+    apiPost<EquipmentListingItem>(`/api/marketplace/equipment-listings`, data),
+  updateStatus: (id: number, status: string) =>
+    apiPatch<{ id: number; availability_status: string }>(`/api/marketplace/equipment-listings/${id}/status?status_value=${status}`, {}),
+};
+
+// ─── Produce Listings (Source Directly from Farms) API ────────────────────────
+export const produceListingsApi = {
+  list: (params?: { crop_name?: string; variety?: string; category?: string; state?: string; district?: string; min_quantity?: number; status?: string; search?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.crop_name) q.set("crop_name", params.crop_name);
+    if (params?.variety) q.set("variety", params.variety);
+    if (params?.category) q.set("category", params.category);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.min_quantity !== undefined && params.min_quantity !== null) q.set("min_quantity", String(params.min_quantity));
+    if (params?.status) q.set("status", params.status);
+    if (params?.search) q.set("search", params.search);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return apiGet<{ total: number; page: number; limit: number; items: ProduceListingItem[] }>(`/api/marketplace/produce-listings${qs ? `?${qs}` : ""}`);
+  },
+  get: (id: number) => apiGet<ProduceListingItem>(`/api/marketplace/produce-listings/${id}`),
+  create: (data: Omit<ProduceListingItem, "id" | "user_id" | "created_at" | "availability_status">) =>
+    apiPost<ProduceListingItem>(`/api/marketplace/produce-listings`, data),
+  updateStatus: (id: number, status: string) =>
+    apiPatch<{ id: number; availability_status: string }>(`/api/marketplace/produce-listings/${id}/status?status_value=${status}`, {}),
+};
+
+// ─── Market Prices (AGMARKNET Benchmark Context) API ─────────────────────────
+export const marketPricesApi = {
+  list: (params?: { commodity?: string; state?: string; district?: string; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.commodity) q.set("commodity", params.commodity);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return apiGet<MarketPriceItem[]>(`/api/marketplace/market-prices${qs ? `?${qs}` : ""}`);
+  },
+};
+
+// ─── Registered External Sources API ──────────────────────────────────────────
+export const marketplaceSourcesApi = {
+  list: () => apiGet<ImportSourceItem[]>(`/api/marketplace/sources`),
 };
 
 // ─── Unit conversion helpers ──────────────────────────────────────────────────
