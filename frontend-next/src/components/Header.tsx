@@ -61,6 +61,10 @@ const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
     en: 'Schemes', hi: 'योजनाएं', kn: 'ಯೋಜನೆಗಳು', ta: 'திட்டங்கள்', te: 'పథకాలు',
     ml: 'പദ്ധതികൾ', mr: 'योजना', bn: 'প্রকল্প', pa: 'ਯੋਜਨਾਵਾਂ', gu: 'યોજનાઓ', hi_en: 'Schemes',
   },
+  '/worker-connect': {
+    en: 'Worker Connect', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್', ta: 'பணியாளர் இணைப்பு', te: 'వర్కర్ కనెక్ట్',
+    ml: 'വർക്കർ കണക്ട്', mr: 'कामगार कनेक्ट', bn: 'শ্রমিক সংযোগ', pa: 'ਵਰਕਰ ਕਨੈਕਟ', gu: 'વર્કર કનેક્ટ', hi_en: 'Worker Connect',
+  },
   '/settings': {
     en: 'Settings', hi: 'सेटिंग्स', kn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', ta: 'அமைப்புகள்', te: 'సెట్టింగ్‌లు',
     ml: 'ക്രമീകരണങ്ങൾ', mr: 'सेटिंग्ज', bn: 'সেটিংস', pa: 'ਸੈਟਿੰਗਾਂ', gu: 'સેટિંગ્સ', hi_en: 'Settings',
@@ -79,6 +83,10 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
   marketplace: {
     en: "Marketplace", hi: "मार्केटप्लेस", kn: "ಮಾರುಕಟ್ಟೆ", ta: "சந்தை", te: "మార్కెట్ ప్లేస్",
     ml: "മാർക്കറ്റ് പ്ലേസ്", mr: "मार्केटप्लेस", bn: "মার্কেটপ্লেস", pa: "ਮਾਰਕੀਟਪਲੇਸ", gu: "માર્કેટપ્લેસ", hi_en: "Marketplace",
+  },
+  worker_connect: {
+    en: "Worker Connect", hi: "वर्कर कनेक्ट", kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್", ta: "பணியாளர் இணைப்பு", te: "వర్కర్ కనెక్ట్",
+    ml: "വർക്കർ കണക്ട്", mr: "कामगार कनेक्ट", bn: "শ্রমিক সংযোগ", pa: "ਵਰਕਰ ਕਨੈਕਟ", gu: "વર્કર કનેક્ટ", hi_en: "Worker Connect",
   },
   mandi: {
     en: "Mandi Prices", hi: "मंडी भाव", kn: "ಮಂಡಿ ದರಗಳು", ta: "மண்டி விலைகள்", te: "மండి ధరలు",
@@ -116,6 +124,7 @@ const NAV_LINK_DEFS = [
   { href: '/chatbot',        icon: Mic             },
   { href: '/disease',        icon: Bug             },
   { href: '/marketplace',    icon: Store           },
+  { href: '/worker-connect', icon: Users           },
   { href: '/mandi',          icon: TrendingUp      },
   { href: '/weather',        icon: CloudSun        },
   { href: '/soil-health',    icon: FlaskConical },
@@ -293,6 +302,9 @@ export function Header() {
               </Link>
               <Link href="/marketplace" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {PUBLIC_NAV_LABELS.marketplace[lang] || "Marketplace"}
+              </Link>
+              <Link href="/worker-connect" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
+                {PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}
               </Link>
               <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
                 {PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Prices"}
@@ -585,6 +597,13 @@ export function Header() {
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
                   {PUBLIC_NAV_LABELS.marketplace[lang] || "Marketplace"}
+                </Link>
+                <Link
+                  href="/worker-connect"
+                  onClick={() => setOpen(false)}
+                  className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  {PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}
                 </Link>
                 <Link
                   href="/mandi"
