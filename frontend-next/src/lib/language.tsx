@@ -4,6 +4,14 @@ import { createContext, useContext, useLayoutEffect, useEffect, useState } from 
 import en from "./locales/en.json"
 import hi from "./locales/hi.json"
 import kn from "./locales/kn.json"
+import ta from "./locales/ta.json"
+import te from "./locales/te.json"
+import mr from "./locales/mr.json"
+import gu from "./locales/gu.json"
+import bn from "./locales/bn.json"
+import pa from "./locales/pa.json"
+import ml from "./locales/ml.json"
+import hi_en from "./locales/hi_en.json"
 
 export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
@@ -49,11 +57,23 @@ export const LANG_FLAGS: Record<Lang, string> = {
   hi_en: "🇮🇳",
 }
 
-// English, Hindi, and Kannada are fully supported and verified across all features.
-export const SELECTABLE_LANGS: Lang[] = ["en", "hi", "kn"]
+// All 11 supported Indian languages
+export const SELECTABLE_LANGS: Lang[] = [
+  "en",
+  "hi",
+  "kn",
+  "ta",
+  "te",
+  "mr",
+  "gu",
+  "bn",
+  "pa",
+  "ml",
+  "hi_en",
+]
 
 // Statically bundled complete locales for instant load without flash
-export const T: Record<string, any> = { en, hi, kn }
+export const T: Record<string, any> = { en, hi, kn, ta, te, ml, mr, bn, pa, gu, hi_en }
 
 function applyOverrides(base: any, overrides: Record<string, string>) {
   const next = structuredClone(base)
@@ -193,6 +213,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     if (saved && SELECTABLE_LANGS.includes(saved)) {
       setLangState(saved)
+      if (T[saved]) setTranslations(T[saved])
     } else {
       setLangState("en")
     }
@@ -201,14 +222,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false
     const load = async () => {
-      let base: any = en
-      try {
-        if (lang === "hi") base = hi
-        else if (lang === "kn") base = kn
-        else if (lang !== "en") base = (await import(`./locales/${lang}.json`)).default
-      } catch {
-        base = en
-      }
+      let base: any = T[lang] || en
       try {
         const response = await fetch(`/api/content/${lang}`, { cache: "no-store" })
         const overrides = response.ok ? await response.json() : {}
@@ -228,6 +242,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLang = (l: Lang) => {
     if (!SELECTABLE_LANGS.includes(l)) return
     setLangState(l)
+    if (T[l]) setTranslations(T[l])
     localStorage.setItem("kisaanbuddy_lang", l)
     document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
     localStorage.removeItem("KisaanBuddy_lang") // Clean up old reference

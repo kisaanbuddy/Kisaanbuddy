@@ -842,7 +842,8 @@
     "requiredFields": "Please fill in both password fields",
     "passwordsDoNotMatch": "Passwords do not match",
     "invalidToken": "The password reset token is missing. Please request a new link.",
-    "initializingResetPage": "Initializing Reset Page..."
+    "initializingResetPage": "Initializing Reset Page...",
+    "reseting": "रीसेट हो रहा है..."
   },
   "signup": {
     "password_strength": "paasavard kee majabootee",
@@ -877,7 +878,10 @@
     "ask_your_farm_ai": "apane phaarm eaAI se poochhen"
   },
   "footer": {
-    "ai": "AI"
+    "ai": "AI",
+    "features": "प्लेटफ़ॉर्म सुविधाएं",
+    "marketplace": "बाज़ार (खरीदार और विक्रेता)",
+    "reports": "फार्म रिपोर्ट और विश्लेषण"
   },
   "hardware_showcase": {
     "ready_to_upgrade_your": "kyaa aap apane khet kee buddhimattaa ko apagred karane ke lie taiyaar hain?",
@@ -976,7 +980,10 @@
     "mandi_live": "Live Mandi Prices",
     "unam_live": "eNAM Live",
     "agra_potato": "Agra (Potato)",
-    "delhi_wheat": "Delhi (Gehun)"
+    "delhi_wheat": "Delhi (Gehun)",
+    "ph_neutral: 6": {
+      "5 (Neutral)": "पीएच स्तर: 6.5 (तटस्थ)"
+    }
   },
   "loginLabel": "Login",
   "technology": {
@@ -1023,5 +1030,50 @@
     "disease_photo": "Disease photo attached",
     "speech_not_supported": "Voice speech recognition is not supported in this browser. Please use Chrome on Android.",
     "success_submit": "Spoken query sent"
+  },
+  "impact": "प्रभाव डैशबोर्ड",
+  "ui": {
+    "navigation": {
+      "open_menu": "मेनू खोलें",
+      "close_menu": "मेनू बंद करें"
+    },
+    "search": {
+      "label": "खोजें",
+      "title": "KisaanBuddy खोजें (Ctrl+K)"
+    },
+    "footer": {
+      "khet_diary": "खेत डायरी (खेती की बही)"
+    },
+    "home": {
+      "badge": "भारतीय खेती के लिए उपयोगी उपकरण",
+      "weather_cta": "खेत का मौसम देखें",
+      "helper": "शुरू करने के लिए अपनी जानकारी और स्थान का उपयोग करें।",
+      "field_label": "खेत के लिए बनाया गया",
+      "card_title": "ज़रूरी सुविधाएं, बिना किसी उलझन के।",
+      "capabilities": {
+        "weather": "अपने खेत का मौसम",
+        "disease": "फसल की बीमारी पहचानें",
+        "crop": "अगली फसल की योजना बनाएं"
+      }
+    },
+    "auth": {
+      "invalid_phone": "कृपया एक वैध भारतीय मोबाइल नंबर दर्ज करें।",
+      "otp_sent": "सत्यापन कोड SMS से भेज दिया गया है।",
+      "otp_send_failed": "सत्यापन कोड नहीं भेजा जा सका। कृपया फिर से प्रयास करें।",
+      "otp_resent": "नया सत्यापन कोड भेज दिया गया है।",
+      "otp_resend_failed": "सत्यापन कोड फिर से नहीं भेजा जा सका।",
+      "otp_incorrect": "सत्यापन कोड गलत है। कृपया फिर से प्रयास करें।",
+      "change_phone": "फोन नंबर बदलें",
+      "resend_in": "{seconds} सेकंड में फिर भेजें",
+      "resend_otp": "सत्यापन कोड फिर भेजें",
+      "otp_group": "छह अंकों का सत्यापन कोड",
+      "otp_digit": "सत्यापन कोड का अंक",
+      "network_error": "नेटवर्क त्रुटि। कृपया थोड़ी देर बाद फिर से प्रयास करें।",
+      "password_length": "नए पासवर्ड में कम से कम 8 अक्षर रखें।",
+      "reset_failed": "पासवर्ड रीसेट नहीं किया जा सका। कृपया फिर से प्रयास करें।",
+      "reset_request_failed": "रीसेट लिंक का अनुरोध नहीं किया जा सका। कृपया फिर से प्रयास करें।",
+      "reset_delivery_unavailable": "पासवर्ड रीसेट ईमेल अभी उपलब्ध नहीं है। खाते में सहायता के लिए सहायता टीम से संपर्क करें।",
+      "email_instructions": "अपना ईमेल पता दर्ज करें। यदि पासवर्ड रीसेट ईमेल सेवा उपलब्ध होगी, तो हम निर्देश भेजेंगे।"
+    }
   }
 }

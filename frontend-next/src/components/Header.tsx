@@ -11,24 +11,114 @@ import {
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useLanguage, LANG_NAMES, SELECTABLE_LANGS, type Lang } from '@/lib/language';
+import { useLanguage, LANG_NAMES, LANG_DETAILS, SELECTABLE_LANGS, type Lang } from '@/lib/language';
 import { useAuth, logoutUser } from '@/lib/auth';
 import SearchModal from '@/components/SearchModal';
 import { trackEvent } from '@/lib/analytics';
 
+const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
+  '/dashboard': {
+    en: 'Dashboard', hi: 'डैशबोर्ड', kn: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', ta: 'டாஷ்போர்டு', te: 'డాష్‌బోర్డ్',
+    ml: 'ഡാഷ്‌ബോർഡ്', mr: 'डॅशबोर्ड', bn: 'ড্যাশবোর্ড', pa: 'ਡੈਸ਼ਬੋਰਡ', gu: 'ડેશબોર્ડ', hi_en: 'Dashboard',
+  },
+  '/profile': {
+    en: 'My Farm', hi: 'मेरा खेत', kn: 'ನನ್ನ ಜಮೀನು', ta: 'என் பண்ணை', te: 'నా పొలం',
+    ml: 'എന്റെ കൃഷിയിടം', mr: 'माझे शेत', bn: 'আমার খামার', pa: 'ਮੇਰਾ ਖੇਤ', gu: 'મારું ખેતર', hi_en: 'Mera Khet',
+  },
+  '/chatbot': {
+    en: 'AI Advisor', hi: 'AI सलाहकार', kn: 'AI ಸಲಹೆಗಾರ', ta: 'AI ஆலோசகர்', te: 'AI సలహాదారు',
+    ml: 'AI ഉപദേശകൻ', mr: 'AI सल्लागार', bn: 'AI উপদেষ্টা', pa: 'AI ਸਲਾਹਕਾਰ', gu: 'AI સલાહકાર', hi_en: 'AI Advisor',
+  },
+  '/disease': {
+    en: 'Crop Doctor', hi: 'फसल डॉक्टर', kn: 'ಬೆಳೆ ವೈದ್ಯ', ta: 'பயிர் மருத்துவர்', te: 'పంట డాక్టర్',
+    ml: 'വിള ഡോക്ടർ', mr: 'पीक डॉक्टर', bn: 'ফসল ডাক্তার', pa: 'ਫਸਲ ਡਾਕਟਰ', gu: 'પાક ડૉક્ટર', hi_en: 'Crop Doctor',
+  },
+  '/marketplace': {
+    en: 'Marketplace', hi: 'मार्केटप्लेस', kn: 'ಮಾರುಕಟ್ಟೆ', ta: 'சந்தை', te: 'మార్కెట్‌ప్లేస్',
+    ml: 'മാർക്കറ്റ്‌പ്ലേസ്', mr: 'मार्केटप्लेस', bn: 'মার্কেটপ্লেস', pa: 'ਮਾਰਕੀਟਪਲੇਸ', gu: 'માર્કેટપ્લેસ', hi_en: 'Marketplace',
+  },
+  '/mandi': {
+    en: 'Mandi Rates', hi: 'मंडी भाव', kn: 'ಮಂಡಿ ದರಗಳು', ta: 'மண்டி விலைகள்', te: 'మండి ధరలు',
+    ml: 'മണ്ടി നിരക്കുകൾ', mr: 'मंडी दर', bn: 'মান্ডি দর', pa: 'ਮੰਡੀ ਰੇਟ', gu: 'મંડી દર', hi_en: 'Mandi Rates',
+  },
+  '/weather': {
+    en: 'Weather', hi: 'मौसम', kn: 'ಹವಾಮಾನ', ta: 'வானிலை', te: 'వాతావరణం',
+    ml: 'കാലാവസ്ഥ', mr: 'हवामान', bn: 'আবহাওয়া', pa: 'ਮੌਸਮ', gu: 'હવામાન', hi_en: 'Mausam',
+  },
+  '/soil-health': {
+    en: 'Soil Health', hi: 'मिट्टी स्वास्थ्य', kn: 'ಮಣ್ಣಿನ ಆರೋಗ್ಯ', ta: 'மண் ஆரோக்கியம்', te: 'నేల ఆరోగ్యం',
+    ml: 'മണ്ണ് ആരോഗ്യം', mr: 'माती आरोग्य', bn: 'মাটির স্বাস্থ্য', pa: 'ਮਿੱਟੀ ਦੀ ਸਿਹਤ', gu: 'જમીન આરોગ્ય', hi_en: 'Mitti Health',
+  },
+  '/khet-diary': {
+    en: 'Farm Diary', hi: 'खेत डायरी', kn: 'ಕೃಷಿ ಡೈರಿ', ta: 'பண்ணை நாட்குறிப்பு', te: 'వ్యవసాయ డైరీ',
+    ml: 'ഫാം ഡയറി', mr: 'शेत डायरी', bn: 'খামার ডায়েরি', pa: 'ਖੇਤ ਡਾਇਰੀ', gu: 'ખેતર ડાયરી', hi_en: 'Khet Diary',
+  },
+  '/reports': {
+    en: 'Reports', hi: 'रिपोर्ट्स', kn: 'ವರದಿಗಳು', ta: 'அறிக்கைகள்', te: 'నివేదికలు',
+    ml: 'റിപ്പോർട്ടുകൾ', mr: 'अहवाल', bn: 'প্রতিবেদন', pa: 'ਰਿਪੋਰਟਾਂ', gu: 'અહેવાલો', hi_en: 'Reports',
+  },
+  '/schemes': {
+    en: 'Schemes', hi: 'योजनाएं', kn: 'ಯೋಜನೆಗಳು', ta: 'திட்டங்கள்', te: 'పథకాలు',
+    ml: 'പദ്ധതികൾ', mr: 'योजना', bn: 'প্রকল্প', pa: 'ਯੋਜਨਾਵਾਂ', gu: 'યોજનાઓ', hi_en: 'Schemes',
+  },
+  '/settings': {
+    en: 'Settings', hi: 'सेटिंग्स', kn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', ta: 'அமைப்புகள்', te: 'సెట్టింగ్‌లు',
+    ml: 'ക്രമീകരണങ്ങൾ', mr: 'सेटिंग्ज', bn: 'সেটিংস', pa: 'ਸੈਟਿੰਗਾਂ', gu: 'સેટિંગ્સ', hi_en: 'Settings',
+  },
+};
+
+const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
+  features: {
+    en: "Features", hi: "सुविधाएं", kn: "ವೈಶಿಷ್ಟ್ಯಗಳು", ta: "அம்சங்கள்", te: "ఫీచర్లు",
+    ml: "സവിശേഷതകൾ", mr: "वैशिष्ट्ये", bn: "বৈশিষ্ট্য", pa: "ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ", gu: "વિશેષતાઓ", hi_en: "Features",
+  },
+  how_it_works: {
+    en: "How It Works", hi: "कैसे काम करता है", kn: "ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ", ta: "எவ்வாறு செயல்படுகிறது", te: "ఎలా పనిచేస్తుంది",
+    ml: "എങ്ങനെ പ്രവർത്തിക്കുന്നു", mr: "कसे कार्य करते", bn: "কীভাবে কাজ করে", pa: "ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ", gu: "કેવી રીતે કાર્ય કરે છે", hi_en: "How It Works",
+  },
+  marketplace: {
+    en: "Marketplace", hi: "मार्केटप्लेस", kn: "ಮಾರುಕಟ್ಟೆ", ta: "சந்தை", te: "మార్కెట్ ప్లేస్",
+    ml: "മാർക്കറ്റ് പ്ലേസ്", mr: "मार्केटप्लेस", bn: "মার্কেটপ্লেস", pa: "ਮਾਰਕੀਟਪਲੇਸ", gu: "માર્કેટપ્લેસ", hi_en: "Marketplace",
+  },
+  mandi: {
+    en: "Mandi Prices", hi: "मंडी भाव", kn: "ಮಂಡಿ ದರಗಳು", ta: "மண்டி விலைகள்", te: "மండి ధరలు",
+    ml: "മണ്ടി നിരക്കുകൾ", mr: "मंडी दर", bn: "মান্ডি দর", pa: "ਮੰਡੀ ਰੇਟ", gu: "મંડી દર", hi_en: "Mandi Rates",
+  },
+  weather: {
+    en: "Weather", hi: "मौसम", kn: "ಹವಾಮಾನ", ta: "வானிலை", te: "వాతావరణం",
+    ml: "കാലാവസ്ഥ", mr: "हवामान", bn: "আবহাওয়া", pa: "ਮੌਸਮ", gu: "હવામાન", hi_en: "Mausam",
+  },
+  about: {
+    en: "About", hi: "हमारे बारे में", kn: "ನಮ್ಮ ಬಗ್ಗೆ", ta: "எங்களை பற்றி", te: "మా గురించి",
+    ml: "ഞങ്ങളെ കുറിച്ച്", mr: "आमच्याबद्दल", bn: "আমাদের সম্পর্কে", pa: "ਸਾਡੇ ਬਾਰੇ", gu: "અમારા વિશે", hi_en: "About",
+  },
+  get_started: {
+    en: "Get Started", hi: "शुरू करें", kn: "ಪ್ರಾರಂಭಿಸಿ", ta: "தொடங்குங்கள்", te: "ప్రారంਭించండి",
+    ml: "ആരംഭിക്കുക", mr: "सुरू करा", bn: "শুরু করুন", pa: "ਸ਼ੁਰੂ ਕਰੋ", gu: "શરૂ કરો", hi_en: "Shuru Karein",
+  },
+  farmer_profile: {
+    en: "Farmer Profile", hi: "किसान प्रोफाइल", kn: "ರೈತರ ಪ್ರೊಫೈಲ್", ta: "விவசாயி சுயவிவரம்", te: "రైతు ప్రొఫైల్",
+    ml: "കർഷക പ്രൊഫൈൽ", mr: "शेतकरी प्रोफाइल", bn: "কৃষক প্রোফাইল", pa: "ਕਿਸਾਨ ਪ੍ਰੋਫਾਈਲ", gu: "ખેડૂત પ્રોફાઇલ", hi_en: "Farmer Profile",
+  },
+  account: {
+    en: "Account", hi: "अकाउंट", kn: "ಖಾತೆ", ta: "கணக்கு", te: "ఖాతా",
+    ml: "അക്കൗണ്ട്", mr: "खाते", bn: "অ্যাকাউন্ট", pa: "ਖਾਤਾ", gu: "ખાતું", hi_en: "Account",
+  },
+};
+
 const NAV_LINK_DEFS = [
-  { href: '/dashboard',      labelEn: 'Dashboard',    labelHi: 'डैशबोर्ड',      labelKn: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್',      icon: LayoutDashboard },
-  { href: '/profile',        labelEn: 'My Farm',       labelHi: 'मेरा खेत',      labelKn: 'ನನ್ನ ಜಮೀನು',       icon: Sprout          },
-  { href: '/chatbot',        labelEn: 'AI Advisor',    labelHi: 'AI सलाहकार',   labelKn: 'AI ಸಲಹೆಗಾರ',     icon: Mic             },
-  { href: '/disease',        labelEn: 'Crop Doctor',   labelHi: 'फसल डॉक्टर',    labelKn: 'ಬೆಳೆ ವೈದ್ಯ',      icon: Bug             },
-  { href: '/marketplace',    labelEn: 'Marketplace',   labelHi: 'मार्केटप्लेस',  labelKn: 'ಮಾರುಕಟ್ಟೆ',        icon: Store           },
-  { href: '/mandi',          labelEn: 'Mandi Rates',   labelHi: 'मंडी भाव',      labelKn: 'ಮಂಡಿ ದರಗಳು',       icon: TrendingUp      },
-  { href: '/weather',        labelEn: 'Weather',       labelHi: 'मौसम',          labelKn: 'ಹವಾಮಾನ',          icon: CloudSun        },
-  { href: '/soil-health',    labelEn: 'Soil Health',   labelHi: 'मिट्टी स्वास्थ्य', labelKn: 'ಮಣ್ಣಿನ ಆರೋಗ್ಯ',  icon: FlaskConical },
-  { href: '/khet-diary',     labelEn: 'Farm Diary',    labelHi: 'खेत डायरी',     labelKn: 'ಕೃಷಿ ಡೈರಿ',       icon: BookOpen        },
-  { href: '/reports',        labelEn: 'Reports',       labelHi: 'रिपोर्ट्स',     labelKn: 'ವರದಿಗಳು',         icon: BarChart3       },
-  { href: '/schemes',        labelEn: 'Schemes',       labelHi: 'योजनाएं',       labelKn: 'ಯೋಜನೆಗಳು',        icon: Landmark        },
-  { href: '/settings',       labelEn: 'Settings',      labelHi: 'सेटिंग्स',      labelKn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು',    icon: Settings        },
+  { href: '/dashboard',      icon: LayoutDashboard },
+  { href: '/profile',        icon: Sprout          },
+  { href: '/chatbot',        icon: Mic             },
+  { href: '/disease',        icon: Bug             },
+  { href: '/marketplace',    icon: Store           },
+  { href: '/mandi',          icon: TrendingUp      },
+  { href: '/weather',        icon: CloudSun        },
+  { href: '/soil-health',    icon: FlaskConical },
+  { href: '/khet-diary',     icon: BookOpen        },
+  { href: '/reports',        icon: BarChart3       },
+  { href: '/schemes',        icon: Landmark        },
+  { href: '/settings',       icon: Settings        },
 ] as const;
 
 const PUBLIC_ROUTES = [
@@ -59,7 +149,7 @@ export function Header() {
   const [toolsOpen, setToolsOpen]   = useState(false);
   const NAV_LINKS = NAV_LINK_DEFS.map(d => ({
     href: d.href,
-    label: lang === 'kn' ? d.labelKn : lang === 'hi' ? d.labelHi : d.labelEn,
+    label: NAV_LINK_LABELS[d.href]?.[lang] || NAV_LINK_LABELS[d.href]?.en || 'Menu',
     icon: d.icon,
   }));
 
@@ -192,22 +282,22 @@ export function Header() {
           ) : (
             <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Public navigation">
               <Link href="/features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'kn' ? "ವೈಶಿಷ್ಟ್ಯಗಳು" : lang === 'hi' ? "सुविधाएं" : "Features"}
+                {PUBLIC_NAV_LABELS.features[lang] || "Features"}
               </Link>
               <Link href="/#how-it-works" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'kn' ? "ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ" : lang === 'hi' ? "कैसे काम करता है" : "How It Works"}
+                {PUBLIC_NAV_LABELS.how_it_works[lang] || "How It Works"}
               </Link>
               <Link href="/marketplace" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'kn' ? "ಮಾರುಕಟ್ಟೆ" : lang === 'hi' ? "मार्केटप्लेस" : "Marketplace"}
+                {PUBLIC_NAV_LABELS.marketplace[lang] || "Marketplace"}
               </Link>
               <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'kn' ? "ಮಂಡಿ ದರಗಳು" : lang === 'hi' ? "मंडी भाव" : "Mandi Prices"}
+                {PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Prices"}
               </Link>
               <Link href="/weather" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'kn' ? "ಹವಾಮಾನ" : lang === 'hi' ? "मौसम" : "Weather"}
+                {PUBLIC_NAV_LABELS.weather[lang] || "Weather"}
               </Link>
               <Link href="/about" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'kn' ? "ನಮ್ಮ ಬಗ್ಗೆ" : lang === 'hi' ? "हमारे बारे में" : "About"}
+                {PUBLIC_NAV_LABELS.about[lang] || "About"}
               </Link>
             </nav>
           )}
@@ -245,7 +335,7 @@ export function Header() {
               {langOpen && (
                 <>
                   <button className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} aria-label={t("header.close")} />
-                  <div className="absolute right-0 top-10 z-50 w-36 rounded-xl border border-border bg-popover shadow-lg overflow-hidden p-1">
+                  <div className="absolute right-0 top-10 z-50 w-48 max-h-80 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg p-1.5 space-y-0.5">
                     {SELECTABLE_LANGS.map((l) => (
                       <button
                         key={l}
@@ -255,13 +345,16 @@ export function Header() {
                           setLang(l);
                           setLangOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors ${
                           lang === l
                             ? "bg-primary/10 text-primary font-bold"
                             : "text-foreground hover:bg-muted/70 font-medium"
                         }`}
                       >
-                        <span>{LANG_NAMES[l]}</span>
+                        <div className="flex flex-col text-left">
+                          <span className="font-semibold text-xs">{LANG_NAMES[l]}</span>
+                          <span className="text-[10px] text-muted-foreground">{LANG_DETAILS[l]?.en}</span>
+                        </div>
                         {lang === l && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
                       </button>
                     ))}
@@ -379,7 +472,7 @@ export function Header() {
                     className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
                   >
                     <Sprout className="h-3.5 w-3.5" />
-                    <span>{lang === "kn" ? "ರೈತರ ಪ್ರೊಫೈಲ್" : lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}</span>
+                    <span>{PUBLIC_NAV_LABELS.farmer_profile[lang] || "Farmer Profile"}</span>
                   </Link>
                   <Link
                     href="/profile"
@@ -387,7 +480,7 @@ export function Header() {
                     className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-muted/50 border border-border/60 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
                   >
                     <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>{lang === "kn" ? "ಖಾತೆ" : lang === "hi" ? "अकाउंट" : "Account"}</span>
+                    <span>{PUBLIC_NAV_LABELS.account[lang] || "Account"}</span>
                   </Link>
                 </div>
                 <Link
@@ -473,42 +566,42 @@ export function Header() {
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {lang === 'kn' ? "ವೈಶಿಷ್ಟ್ಯಗಳು (Features)" : lang === 'hi' ? "सुविधाएं (Features)" : "Features"}
+                  {PUBLIC_NAV_LABELS.features[lang] || "Features"}
                 </Link>
                 <Link
                   href="/#how-it-works"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {lang === 'kn' ? "ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ (How It Works)" : lang === 'hi' ? "कैसे काम करता है (How It Works)" : "How It Works"}
+                  {PUBLIC_NAV_LABELS.how_it_works[lang] || "How It Works"}
                 </Link>
                 <Link
                   href="/marketplace"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {lang === 'kn' ? "ಮಾರುಕಟ್ಟೆ (Marketplace)" : lang === 'hi' ? "मार्केटप्लेस (Marketplace)" : "Marketplace"}
+                  {PUBLIC_NAV_LABELS.marketplace[lang] || "Marketplace"}
                 </Link>
                 <Link
                   href="/mandi"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {lang === 'kn' ? "ಮಂಡಿ ದರಗಳು (Mandi Prices)" : lang === 'hi' ? "मंडी भाव (Mandi Prices)" : "Mandi Prices"}
+                  {PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Prices"}
                 </Link>
                 <Link
                   href="/weather"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {lang === 'kn' ? "ಹವಾಮಾನ (Weather)" : lang === 'hi' ? "मौसम (Weather)" : "Weather"}
+                  {PUBLIC_NAV_LABELS.weather[lang] || "Weather"}
                 </Link>
                 <Link
                   href="/about"
                   onClick={() => setOpen(false)}
                   className="rounded-lg px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition-colors"
                 >
-                  {lang === 'kn' ? "ನಮ್ಮ ಬಗ್ಗೆ (About Us)" : lang === 'hi' ? "हमारे बारे में (About Us)" : "About Us"}
+                  {PUBLIC_NAV_LABELS.about[lang] || "About Us"}
                 </Link>
 
                 <div className="border-t border-border/80 pt-2.5 mt-1 flex flex-col gap-2">
@@ -524,7 +617,7 @@ export function Header() {
                     onClick={() => setOpen(false)}
                     className="rounded-lg bg-[#14532D] hover:bg-[#166534] px-4 py-2.5 text-center text-xs font-bold text-white shadow-xs transition-colors"
                   >
-                    {lang === 'kn' ? "ಪ್ರಾರಂಭಿಸಿ" : lang === 'hi' ? "शुरू करें" : "Get Started"}
+                    {PUBLIC_NAV_LABELS.get_started[lang] || "Get Started"}
                   </Link>
                 </div>
               </div>
