@@ -67,11 +67,12 @@ router = APIRouter()
 def list_equipment_catalog(
     category: Optional[str] = Query(default=None, description="tractors, harvesters, rotavators, seed_drills, etc."),
     brand: Optional[str] = Query(default=None),
+    supplier: Optional[str] = Query(default=None, description="e.g. MachinePoint, FMTTI"),
     min_hp: Optional[float] = Query(default=None, ge=0.0),
     max_hp: Optional[float] = Query(default=None, ge=0.0),
     search: Optional[str] = Query(default=None, description="Search model or manufacturer"),
     page: int = Query(default=1, ge=1),
-    limit: int = Query(default=20, ge=1, le=100),
+    limit: int = Query(default=24, ge=1, le=250),
     db: Session = Depends(get_db),
 ) -> Any:
     """Retrieve verified reference technical specifications for farm machinery."""
@@ -84,6 +85,8 @@ def list_equipment_catalog(
         query = query.filter(EquipmentCatalog.category == category)
     if brand and brand != "all":
         query = query.filter(EquipmentCatalog.brand.ilike(brand))
+    if supplier and supplier != "all":
+        query = query.filter(EquipmentCatalog.supplier_name.ilike(f"%{supplier}%"))
     if min_hp is not None:
         query = query.filter(EquipmentCatalog.hp_rating >= min_hp)
     if max_hp is not None:

@@ -667,6 +667,11 @@ def trigger_source_import(
         importer = AgmarknetPriceImporter(db)
         res = importer.import_benchmarks()
         return {"status": "success", "result": res}
+    elif source_slug == "machinepoint":
+        from services.marketplace_import.machinepoint_importer import MachinePointImporter
+        importer = MachinePointImporter(db)
+        res = importer.import_all(update_existing=True)
+        return {"status": "success", "result": res}
     else:
         from services.marketplace_import.equipment_importer import EquipmentCatalogueImporter
         from services.marketplace_import.initial_catalog_data import INITIAL_EQUIPMENT_CATALOG

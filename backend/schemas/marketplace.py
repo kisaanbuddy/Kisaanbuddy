@@ -99,6 +99,8 @@ class EquipmentCatalogCreate(BaseModel):
     official_source_url: Optional[str] = None
     source_verification_date: Optional[date] = None
     image_url: Optional[str] = None
+    indicative_price: Optional[float] = Field(default=None, ge=0.0)
+    supplier_name: Optional[str] = Field(default=None, max_length=100)
     provenance_source: str = Field(..., min_length=2, max_length=255)
     provenance_license: str = Field(..., min_length=2, max_length=255)
     is_verified: bool = True
@@ -116,6 +118,7 @@ class EquipmentCatalogResponse(EquipmentCatalogCreate):
 class EquipmentCatalogFilter(BaseModel):
     category: Optional[str] = None
     brand: Optional[str] = None
+    supplier: Optional[str] = None
     min_hp: Optional[float] = None
     max_hp: Optional[float] = None
     search: Optional[str] = None

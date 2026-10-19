@@ -5,8 +5,9 @@ import logging
 
 log = logging.getLogger("krishiai.db.migration")
 
-# Path to local sqlite file
-DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "krishiai.db")
+# Path to local sqlite file (in repo root)
+_repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_FILE = os.path.join(_repo_root, "krishiai.db")
 
 def run_migrations():
     """Verifies table schema and appends missing auth columns to 'users' table in SQLite."""
@@ -103,6 +104,19 @@ def run_migrations():
             if name not in profile_cols:
                 cursor.execute(f"ALTER TABLE farmer_profiles ADD COLUMN {name} {col_type}")
                 altered = True
+
+        # Equipment catalog extended columns for supplier-integrated products (e.g. MachinePoint)
+        cursor.execute("PRAGMA table_info(equipment_catalog)")
+        catalog_cols = [row[1] for row in cursor.fetchall()]
+        if catalog_cols:
+            catalog_additions = [
+                ("indicative_price", "REAL DEFAULT NULL"),
+                ("supplier_name", "VARCHAR(100) DEFAULT NULL"),
+            ]
+            for name, col_type in catalog_additions:
+                if name not in catalog_cols:
+                    cursor.execute(f"ALTER TABLE equipment_catalog ADD COLUMN {name} {col_type}")
+                    altered = True
 
         conn.commit()
         if altered:

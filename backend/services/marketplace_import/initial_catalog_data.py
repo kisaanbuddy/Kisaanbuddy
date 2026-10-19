@@ -64,6 +64,16 @@ INITIAL_IMPORT_SOURCES = [
         "update_frequency": "realtime",
         "is_active": False,
     },
+    {
+        "source_name": "MachinePoint Agricultural Machinery Collection",
+        "source_slug": "machinepoint",
+        "source_type": "supplier_feed",
+        "base_url": "https://machinepoint.in/collections/agriculture-farming-machinery",
+        "auth_type": "none",
+        "commercial_reuse_terms": "Public product catalogue feed with direct supplier referral links. Pricing and inventory subject to supplier terms.",
+        "update_frequency": "weekly",
+        "is_active": True,
+    },
 ]
 
 # ─── Reference Equipment Catalogue Records (11 Categories) ───────────────────

@@ -206,6 +206,8 @@ export type EquipmentCatalogItem = {
   official_source_url?: string | null;
   source_verification_date?: string | null;
   image_url?: string | null;
+  indicative_price?: number | null;
+  supplier_name?: string | null;
   provenance_source: string;
   provenance_license: string;
   is_verified: boolean;
@@ -484,10 +486,11 @@ export const marketplaceApi = {
 
 // ─── Equipment Reference Catalogue API ─────────────────────────────────────────
 export const equipmentCatalogApi = {
-  list: (params?: { category?: string; brand?: string; min_hp?: number; max_hp?: number; search?: string; page?: number; limit?: number }) => {
+  list: (params?: { category?: string; brand?: string; supplier?: string; min_hp?: number; max_hp?: number; search?: string; page?: number; limit?: number }) => {
     const q = new URLSearchParams();
     if (params?.category) q.set("category", params.category);
     if (params?.brand) q.set("brand", params.brand);
+    if (params?.supplier) q.set("supplier", params.supplier);
     if (params?.min_hp !== undefined && params.min_hp !== null) q.set("min_hp", String(params.min_hp));
     if (params?.max_hp !== undefined && params.max_hp !== null) q.set("max_hp", String(params.max_hp));
     if (params?.search) q.set("search", params.search);

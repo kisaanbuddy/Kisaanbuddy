@@ -443,6 +443,8 @@ if Column is not None:
         official_source_url = Column(String(500), nullable=True)
         source_verification_date = Column(Date, nullable=True)
         image_url = Column(String(500), nullable=True)
+        indicative_price = Column(Float, nullable=True)  # Verified product price from supplier, if available
+        supplier_name = Column(String(100), nullable=True)  # e.g., "MachinePoint", "OEM Direct"
         provenance_source = Column(String(255), nullable=False)  # e.g., "CFMTTI Budni Test Report No. T-1244/2021"
         provenance_license = Column(String(255), nullable=False)  # e.g., "National Data Sharing & Accessibility Policy (NDSAP) - Public Domain"
         is_verified = Column(Boolean, default=True, nullable=False)

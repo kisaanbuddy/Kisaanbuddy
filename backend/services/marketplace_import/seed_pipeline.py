@@ -55,12 +55,23 @@ def seed_marketplace_catalogue(db: Session, force: bool = False) -> dict:
             summary["sources_seeded"] += 1
     db.commit()
 
-    # 2. Seed Equipment Reference Catalogue
-    cat_count = db.query(EquipmentCatalog).count()
+    # 2. Seed Equipment Reference Catalogue (FMTTI / OEM Standards)
+    cat_count = db.query(EquipmentCatalog).filter(EquipmentCatalog.supplier_name.is_(None)).count()
     if cat_count == 0 or force:
         importer = EquipmentCatalogueImporter(db, source_slug="farmech_fmtti")
         res = importer.import_records(INITIAL_EQUIPMENT_CATALOG, update_existing=True)
         summary["equipment_catalog_seeded"] = res.get("records_inserted", 0) + res.get("records_updated", 0)
+
+    # 2b. Seed MachinePoint Agricultural Products
+    mp_count = db.query(EquipmentCatalog).filter(EquipmentCatalog.supplier_name == "MachinePoint").count()
+    if mp_count == 0 or force:
+        try:
+            from services.marketplace_import.machinepoint_importer import MachinePointImporter
+            mp_importer = MachinePointImporter(db, timeout=12)
+            mp_res = mp_importer.import_all(update_existing=force)
+            summary["machinepoint_products_seeded"] = mp_res.get("records_inserted", 0) + mp_res.get("records_updated", 0)
+        except Exception as e:
+            log.warning("MachinePoint seeding notice: %s", e)
 
     # 3. Seed Equipment Listings (Rent / Sale)
     for eq in INITIAL_EQUIPMENT_LISTINGS:

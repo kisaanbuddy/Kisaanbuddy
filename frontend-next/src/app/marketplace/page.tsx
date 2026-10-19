@@ -77,6 +77,7 @@ export default function MarketplacePage() {
   const [catalogTotal, setCatalogTotal] = useState(0);
   const [catalogCategory, setCatalogCategory] = useState("all");
   const [catalogBrand, setCatalogBrand] = useState("all");
+  const [catalogSupplier, setCatalogSupplier] = useState("all");
   const [catalogSearch, setCatalogSearch] = useState("");
   const [catalogHpMin, setCatalogHpMin] = useState<string>("");
   const [catalogHpMax, setCatalogHpMax] = useState<string>("");
@@ -160,10 +161,11 @@ export default function MarketplacePage() {
       const data = await equipmentCatalogApi.list({
         category: catalogCategory !== "all" ? catalogCategory : undefined,
         brand: catalogBrand !== "all" ? catalogBrand : undefined,
+        supplier: catalogSupplier !== "all" ? catalogSupplier : undefined,
         search: catalogSearch.trim() || undefined,
         min_hp: catalogHpMin ? parseFloat(catalogHpMin) : undefined,
         max_hp: catalogHpMax ? parseFloat(catalogHpMax) : undefined,
-        limit: 50,
+        limit: 100,
       });
       setCatalogItems(data.items || []);
       setCatalogTotal(data.total || 0);
@@ -172,7 +174,7 @@ export default function MarketplacePage() {
     } finally {
       setLoadingCatalog(false);
     }
-  }, [catalogCategory, catalogBrand, catalogSearch, catalogHpMin, catalogHpMax]);
+  }, [catalogCategory, catalogBrand, catalogSupplier, catalogSearch, catalogHpMin, catalogHpMax]);
 
   // ─── 2. Load Equipment Listings (Rent / Sale) ──────────────────────────────
   const loadEquipmentListings = useCallback(async () => {
@@ -551,21 +553,34 @@ export default function MarketplacePage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-foreground">
-                      Public Equipment Reference Specifications
+                      Public Equipment Reference Catalogue & MachinePoint Products
                     </h3>
                     <p className="text-xs text-muted-foreground mt-0.5 max-w-3xl leading-relaxed">
-                      This catalogue contains certified technical specifications from Ministry of Agriculture
-                      testing reports (CFMTTI Budni, NRFMTTI Hisar) and manufacturer engineering sheets.
-                      <strong className="text-foreground"> Reference technical information only — not currently available rental or sale stock.</strong>
+                      Explore agricultural machinery specifications and commercial products directly from authorized suppliers (including{" "}
+                      <strong className="text-foreground">MachinePoint Agriculture Machinery Collection</strong>) and Ministry of Agriculture test reports (CFMTTI Budni, NRFMTTI Hisar).
+                      <span className="block mt-1 text-[11px] text-amber-700 dark:text-amber-400 font-medium">
+                        * Note: Product prices, availability, and delivery terms are linked directly to supplier product pages and may change on the supplier website.
+                      </span>
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowEqModal(true)}
-                  className="shrink-0 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
-                >
-                  Offer Your Machine
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href="https://machinepoint.in/collections/agriculture-farming-machinery"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-2 rounded-xl border border-emerald-600/30 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold transition flex items-center gap-1.5"
+                  >
+                    <span>MachinePoint Source</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    onClick={() => setShowEqModal(true)}
+                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
+                  >
+                    Offer Machine
+                  </button>
+                </div>
               </div>
 
               {/* Category Filter Pills (11 Categories) */}
@@ -586,26 +601,47 @@ export default function MarketplacePage() {
                 ))}
               </div>
 
-              {/* Filters Bar: Brand, HP Range, Search */}
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-card p-4 rounded-2xl border border-border shadow-xs">
-                <div className="relative sm:col-span-2">
+              {/* Filters Bar: Search, Source/Supplier, Brand, HP Range */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-card p-4 rounded-2xl border border-border shadow-xs">
+                {/* Search */}
+                <div className="relative sm:col-span-4">
                   <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
-                    placeholder="Search model, brand or implement (e.g. 575 DI, Virat, Maschio)..."
+                    placeholder="Search product, model, or implement (e.g. Chaff Cutter, 7HP Weeder)..."
                     value={catalogSearch}
                     onChange={(e) => setCatalogSearch(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-border bg-background text-xs focus:ring-2 focus:ring-emerald-500 text-foreground"
                   />
                 </div>
 
-                <div>
+                {/* Source / Supplier Filter */}
+                <div className="sm:col-span-3">
+                  <select
+                    value={catalogSupplier}
+                    onChange={(e) => setCatalogSupplier(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value="all">All Machinery Sources ({catalogTotal || 242} Items)</option>
+                    <option value="MachinePoint">MachinePoint Collection (214 Products)</option>
+                    <option value="FMTTI">FMTTI & Government Standards (28 Models)</option>
+                  </select>
+                </div>
+
+                {/* Brand Filter */}
+                <div className="sm:col-span-3">
                   <select
                     value={catalogBrand}
                     onChange={(e) => setCatalogBrand(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500 cursor-pointer"
                   >
-                    <option value="all">All Brands (Mahindra, Swaraj, etc.)</option>
+                    <option value="all">All Brands (GT Shakti, Mahindra, etc.)</option>
+                    <option value="Machine Point">Machine Point</option>
+                    <option value="GT SHAKTI">GT SHAKTI</option>
+                    <option value="B-IMPEX">B-IMPEX</option>
+                    <option value="Neptune">Neptune</option>
+                    <option value="SUN">SUN</option>
+                    <option value="Kamco">Kamco</option>
                     <option value="Mahindra">Mahindra</option>
                     <option value="Swaraj">Swaraj</option>
                     <option value="Sonalika">Sonalika</option>
@@ -623,7 +659,8 @@ export default function MarketplacePage() {
                   </select>
                 </div>
 
-                <div className="flex items-center gap-2">
+                {/* HP Range Filter */}
+                <div className="sm:col-span-2 flex items-center gap-1.5">
                   <input
                     type="number"
                     placeholder="Min HP"
@@ -645,104 +682,183 @@ export default function MarketplacePage() {
               {loadingCatalog ? (
                 <div className="p-12 text-center text-muted-foreground">
                   <RotateCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600" />
-                  <p className="text-xs">Loading reference machinery catalogue...</p>
+                  <p className="text-xs">Loading machinery catalogue...</p>
                 </div>
               ) : catalogItems.length === 0 ? (
                 <div className="p-12 text-center bg-card rounded-2xl border border-border text-muted-foreground">
                   <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-500" />
-                  <h4 className="text-sm font-bold text-foreground">No reference models found</h4>
-                  <p className="text-xs mt-1">Try adjusting your brand, category or horsepower filter.</p>
+                  <h4 className="text-sm font-bold text-foreground">No machinery products found</h4>
+                  <p className="text-xs mt-1">Try adjusting your brand, category or search query.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {catalogItems.map((item) => (
                     <div
                       key={item.id}
-                      className="rounded-2xl border border-border/80 bg-card p-5 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-md transition-all group"
+                      className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-md transition-all group"
                     >
                       <div>
-                        {/* Header: Brand, Category, Badge */}
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted text-foreground uppercase tracking-wider">
-                            {item.brand}
-                          </span>
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
-                            Reference Model
-                          </span>
-                        </div>
+                        {/* 1. Product Image with direct clickable link */}
+                        {item.image_url ? (
+                          <a
+                            href={item.official_source_url || "#"}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block relative w-full h-48 bg-white dark:bg-muted/15 rounded-xl overflow-hidden mb-3 border border-border/40 p-2.5 group-hover:border-emerald-500/40 transition flex items-center justify-center cursor-pointer"
+                            title="Click to view full product page on MachinePoint"
+                          >
+                            <img
+                              src={item.image_url}
+                              alt={item.model_name}
+                              className="max-h-full max-w-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                            {item.supplier_name && (
+                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-700/90 text-white backdrop-blur-xs shadow-xs flex items-center gap-1">
+                                <span>{item.supplier_name}</span>
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </span>
+                            )}
+                            <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-card/90 text-foreground border border-border/60 capitalize">
+                              {item.category.replace("_", " ")}
+                            </span>
+                          </a>
+                        ) : (
+                          <div className="flex items-center justify-between gap-2 mb-3">
+                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted text-foreground uppercase tracking-wider">
+                              {item.brand}
+                            </span>
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                              Reference Model
+                            </span>
+                          </div>
+                        )}
 
-                        {/* Model Name & Subcategory */}
-                        <h4 className="text-base font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                          {item.brand} {item.model_name}
+                        {/* Brand & Subcategory Header */}
+                        {item.image_url && (
+                          <div className="flex items-center justify-between gap-2 mb-1.5">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-muted text-foreground uppercase tracking-wider">
+                              Brand: {item.brand}
+                            </span>
+                            <span className="text-[11px] text-muted-foreground capitalize font-medium">
+                              {item.subcategory || item.category.replace("_", " ")}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* 2. Product Name (Clickable link to supplier page) */}
+                        <h4 className="text-sm sm:text-base font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
+                          {item.official_source_url ? (
+                            <a
+                              href={item.official_source_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                            >
+                              {item.model_name}
+                            </a>
+                          ) : (
+                            <span>{item.brand} {item.model_name}</span>
+                          )}
                         </h4>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {item.subcategory || item.category.replace("_", " ")}
-                        </p>
 
-                        {/* Key Specs Pills */}
-                        <div className="grid grid-cols-2 gap-2 my-4 pt-3 border-t border-border/60 text-xs">
-                          {item.hp_rating && (
-                            <div className="p-2 rounded-xl bg-muted/50">
-                              <span className="text-[10px] text-muted-foreground block">Power</span>
-                              <span className="font-bold text-foreground">{item.hp_rating} HP</span>
+                        {/* 4. Product Price, when verified */}
+                        {item.indicative_price ? (
+                          <div className="my-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
+                                Verified Price
+                              </span>
+                              <span className="text-base font-extrabold text-emerald-700 dark:text-emerald-400">
+                                ₹{item.indicative_price.toLocaleString("en-IN")}
+                              </span>
                             </div>
-                          )}
-                          {item.working_width_mm && (
-                            <div className="p-2 rounded-xl bg-muted/50">
-                              <span className="text-[10px] text-muted-foreground block">Width</span>
-                              <span className="font-bold text-foreground">{(item.working_width_mm / 1000).toFixed(2)} m</span>
-                            </div>
-                          )}
-                          {item.lifting_capacity_kg && (
-                            <div className="p-2 rounded-xl bg-muted/50">
-                              <span className="text-[10px] text-muted-foreground block">Lift Capacity</span>
-                              <span className="font-bold text-foreground">{item.lifting_capacity_kg} kg</span>
-                            </div>
-                          )}
-                          {item.capacity && (
-                            <div className="p-2 rounded-xl bg-muted/50">
-                              <span className="text-[10px] text-muted-foreground block">Capacity</span>
-                              <span className="font-bold text-foreground truncate">{item.capacity}</span>
-                            </div>
-                          )}
-                          {item.compatible_tractor_hp && (
-                            <div className="p-2 rounded-xl bg-muted/50 col-span-2">
-                              <span className="text-[10px] text-muted-foreground block">Recommended Tractor</span>
-                              <span className="font-bold text-foreground">{item.compatible_tractor_hp}</span>
-                            </div>
-                          )}
-                        </div>
+                            <span className="text-[10px] text-muted-foreground text-right leading-tight max-w-[130px]">
+                              Price & stock subject to supplier site
+                            </span>
+                          </div>
+                        ) : item.hp_rating ? (
+                          <div className="my-3 p-2 rounded-xl bg-muted/40 border border-border/50 flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Power Rating:</span>
+                            <span className="font-bold text-foreground">{item.hp_rating} HP</span>
+                          </div>
+                        ) : null}
 
-                        <p className="text-xs text-muted-foreground/90 line-clamp-2 leading-relaxed">
-                          {item.description}
-                        </p>
+                        {/* Key Specs Pills for non-priced reference models */}
+                        {!item.indicative_price && (
+                          <div className="grid grid-cols-2 gap-2 my-3 text-xs">
+                            {item.hp_rating && (
+                              <div className="p-2 rounded-xl bg-muted/50">
+                                <span className="text-[10px] text-muted-foreground block">Power</span>
+                                <span className="font-bold text-foreground">{item.hp_rating} HP</span>
+                              </div>
+                            )}
+                            {item.working_width_mm && (
+                              <div className="p-2 rounded-xl bg-muted/50">
+                                <span className="text-[10px] text-muted-foreground block">Width</span>
+                                <span className="font-bold text-foreground">{(item.working_width_mm / 1000).toFixed(2)} m</span>
+                              </div>
+                            )}
+                            {item.lifting_capacity_kg && (
+                              <div className="p-2 rounded-xl bg-muted/50">
+                                <span className="text-[10px] text-muted-foreground block">Lift Capacity</span>
+                                <span className="font-bold text-foreground">{item.lifting_capacity_kg} kg</span>
+                              </div>
+                            )}
+                            {item.capacity && (
+                              <div className="p-2 rounded-xl bg-muted/50">
+                                <span className="text-[10px] text-muted-foreground block">Capacity</span>
+                                <span className="font-bold text-foreground truncate">{item.capacity}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Description */}
+                        {item.description && (
+                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1">
+                            {item.description}
+                          </p>
+                        )}
                       </div>
 
-                      {/* Footer: Provenance & Action */}
-                      <div className="pt-4 mt-4 border-t border-border/60 space-y-3">
-                        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                          <span className="truncate max-w-[200px]" title={item.provenance_source}>
-                            Source: {item.provenance_source}
+                      {/* 6. View Product Button & 7. Original Supplier Product URL */}
+                      <div className="pt-3.5 mt-3.5 border-t border-border/60 space-y-2.5">
+                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                          <span className="truncate max-w-[180px]">
+                            {item.supplier_name ? `Supplier: ${item.supplier_name}` : `Source: ${item.provenance_source}`}
                           </span>
                           {item.official_source_url && (
                             <a
                               href={item.official_source_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0"
+                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium"
                             >
-                              <span>Official Spec</span>
+                              <span>{item.supplier_name === "MachinePoint" ? "machinepoint.in" : "Official Spec"}</span>
                               <ExternalLink className="w-2.5 h-2.5" />
                             </a>
                           )}
                         </div>
 
                         <div className="flex items-center gap-2">
+                          {item.official_source_url && (
+                            <a
+                              href={item.official_source_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs text-center"
+                            >
+                              <span>View Product</span>
+                              <ExternalLink className="w-3.5 h-3.5" />
+                            </a>
+                          )}
                           <button
                             onClick={() => setSelectedCatalogItem(item)}
-                            className="flex-1 py-2 rounded-xl border border-border hover:bg-muted text-xs font-bold text-foreground transition text-center"
+                            className="px-3 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-foreground transition text-center"
+                            title="View detailed specifications"
                           >
-                            Full Specifications
+                            Specs
                           </button>
                           <button
                             onClick={() => {
@@ -753,10 +869,10 @@ export default function MarketplacePage() {
                               setNewEqTitle(`${item.brand} ${item.model_name} for Rent / Sale`);
                               setShowEqModal(true);
                             }}
-                            className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs"
+                            className="px-2.5 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition shadow-xs"
                             title="List your own machine of this model for rental or sale"
                           >
-                            Offer Machine
+                            + List
                           </button>
                         </div>
                       </div>
@@ -1300,6 +1416,48 @@ export default function MarketplacePage() {
               </button>
             </div>
 
+            {/* Image & Price if available */}
+            {selectedCatalogItem.image_url && (
+              <div className="flex flex-col sm:flex-row items-center gap-4 p-3 rounded-2xl bg-muted/20 border border-border/50">
+                <a
+                  href={selectedCatalogItem.official_source_url || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-48 h-40 bg-white dark:bg-muted/30 rounded-xl p-2 flex items-center justify-center shrink-0 border border-border/40 hover:opacity-90 transition"
+                >
+                  <img
+                    src={selectedCatalogItem.image_url}
+                    alt={selectedCatalogItem.model_name}
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </a>
+                <div className="flex-1 space-y-2 text-xs">
+                  {selectedCatalogItem.indicative_price && (
+                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                      <span className="text-[10px] text-muted-foreground block font-semibold uppercase">Verified Product Price</span>
+                      <span className="text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
+                        ₹{selectedCatalogItem.indicative_price.toLocaleString("en-IN")}
+                      </span>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        * Real-time price and stock availability subject to change on supplier website.
+                      </p>
+                    </div>
+                  )}
+                  {selectedCatalogItem.official_source_url && (
+                    <a
+                      href={selectedCatalogItem.official_source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
+                    >
+                      <span>View on {selectedCatalogItem.supplier_name || "Supplier Site"}</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="p-3 rounded-xl bg-muted/50 text-xs leading-relaxed text-muted-foreground">
               {selectedCatalogItem.description}
             </div>
@@ -1307,8 +1465,12 @@ export default function MarketplacePage() {
             {/* Technical Parameters Table */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
               <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Manufacturer</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.manufacturer}</span>
+                <span className="text-[10px] text-muted-foreground block">Manufacturer / Brand</span>
+                <span className="font-bold text-foreground">{selectedCatalogItem.manufacturer || selectedCatalogItem.brand}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
+                <span className="text-[10px] text-muted-foreground block">Category</span>
+                <span className="font-bold text-foreground capitalize">{selectedCatalogItem.category.replace("_", " ")}</span>
               </div>
               <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
                 <span className="text-[10px] text-muted-foreground block">Power (HP)</span>
@@ -1323,10 +1485,6 @@ export default function MarketplacePage() {
                 <span className="font-bold text-foreground">{selectedCatalogItem.pto_hp ? `${selectedCatalogItem.pto_hp} HP` : "—"}</span>
               </div>
               <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">PTO Speed</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.pto_rpm ? `${selectedCatalogItem.pto_rpm} RPM` : "540 RPM"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
                 <span className="text-[10px] text-muted-foreground block">Lifting Capacity</span>
                 <span className="font-bold text-foreground">{selectedCatalogItem.lifting_capacity_kg ? `${selectedCatalogItem.lifting_capacity_kg} kg` : "—"}</span>
               </div>
@@ -1336,11 +1494,11 @@ export default function MarketplacePage() {
               </div>
               <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
                 <span className="text-[10px] text-muted-foreground block">Fuel / Power Type</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.fuel_type || "Diesel / PTO"}</span>
+                <span className="font-bold text-foreground">{selectedCatalogItem.fuel_type || "Standard"}</span>
               </div>
               <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Tractor Requirement</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.compatible_tractor_hp || "Standard"}</span>
+                <span className="text-[10px] text-muted-foreground block">Supplier Attribution</span>
+                <span className="font-bold text-foreground">{selectedCatalogItem.supplier_name || "Government / FMTTI"}</span>
               </div>
             </div>
 
@@ -1349,8 +1507,8 @@ export default function MarketplacePage() {
               <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 block uppercase">
                 Source Attribution & Verification
               </span>
-              <p className="text-foreground"><strong>Test Report Code:</strong> {selectedCatalogItem.provenance_source}</p>
-              <p className="text-muted-foreground"><strong>License:</strong> {selectedCatalogItem.provenance_license}</p>
+              <p className="text-foreground"><strong>Source:</strong> {selectedCatalogItem.provenance_source}</p>
+              <p className="text-muted-foreground"><strong>Terms & License:</strong> {selectedCatalogItem.provenance_license}</p>
               {selectedCatalogItem.official_source_url && (
                 <a
                   href={selectedCatalogItem.official_source_url}
@@ -1358,7 +1516,7 @@ export default function MarketplacePage() {
                   rel="noopener noreferrer"
                   className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-1 mt-1"
                 >
-                  <span>Open Official Manufacturer / Testing Page</span>
+                  <span>Open Product Page ({selectedCatalogItem.supplier_name || "Official Spec"})</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               )}

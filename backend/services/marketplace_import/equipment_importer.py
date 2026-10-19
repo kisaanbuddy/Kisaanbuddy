@@ -227,6 +227,12 @@ class EquipmentCatalogueImporter:
                             existing.source_verification_date = ver_date
                         if r.get("image_url"):
                             existing.image_url = r.get("image_url")
+                        if r.get("indicative_price") is not None:
+                            existing.indicative_price = normalize_float(r.get("indicative_price"))
+                        elif r.get("price") is not None:
+                            existing.indicative_price = normalize_float(r.get("price"))
+                        if r.get("supplier_name"):
+                            existing.supplier_name = str(r.get("supplier_name"))
                         existing.provenance_source = provenance
                         existing.provenance_license = license_text
                         existing.updated_at = datetime.utcnow()
@@ -256,6 +262,8 @@ class EquipmentCatalogueImporter:
                         official_source_url=r.get("official_source_url"),
                         source_verification_date=ver_date or date.today(),
                         image_url=r.get("image_url"),
+                        indicative_price=normalize_float(r.get("indicative_price") or r.get("price")),
+                        supplier_name=str(r.get("supplier_name")) if r.get("supplier_name") else None,
                         provenance_source=provenance,
                         provenance_license=license_text,
                         is_verified=True,
