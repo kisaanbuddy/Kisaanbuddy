@@ -28,12 +28,12 @@ import {
   SoilTest,
   FarmTaskSummary,
 } from "@/lib/farmer-api";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/lib/language";
 
 export default function ReportsPage() {
-  const { language } = useLanguage();
-  const isKn = language === "kn";
-  const isHi = language === "hi";
+  const { lang } = useLanguage();
+  const isKn = lang === "kn";
+  const isHi = lang === "hi";
 
   const [loading, setLoading] = useState(true);
   const [fields, setFields] = useState<FarmerField[]>([]);

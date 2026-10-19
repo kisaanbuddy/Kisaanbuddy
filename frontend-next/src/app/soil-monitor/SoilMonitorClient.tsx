@@ -25,7 +25,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage } from "@/lib/language";
 
 type SensorReading = {
   device_id: string;
@@ -242,7 +242,8 @@ function getInsight(reading: SensorReading | null, lang: string) {
 }
 
 export default function SoilMonitorClient() {
-  const { language } = useLanguage();
+  const { lang } = useLanguage();
+  const language = lang;
   const isKn = language === "kn";
   const isHi = language === "hi";
 
