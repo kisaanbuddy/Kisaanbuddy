@@ -8,9 +8,11 @@ export interface HomepageI18n {
     ctaMandi: string;
     ctaSell: string;
     ctaBuyers: string;
+    ctaWorkers: string;
     trustPoint1: string;
     trustPoint2: string;
     trustPoint3: string;
+    trustPointWorkers: string;
   };
   mandi: {
     badge: string;
@@ -116,9 +118,11 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
       ctaMandi: "Explore Mandi Prices",
       ctaSell: "Sell Your Produce",
       ctaBuyers: "Find Verified Buyers",
+      ctaWorkers: "Hire Workers & Find Jobs",
       trustPoint1: "Official APMC & e-NAM Mandi Benchmarks",
       trustPoint2: "Verified Farmers & Institutional Buyers",
       trustPoint3: "Zero Intermediary Commissions",
+      trustPointWorkers: "Labour Bureau Verified Wage Benchmarks",
     },
     mandi: {
       badge: "MARKET INTELLIGENCE",
@@ -230,9 +234,11 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
       ctaMandi: "मंडी भाव देखें",
       ctaSell: "अपनी फसल बेचें",
       ctaBuyers: "सत्यापित खरीदार ढूंढें",
+      ctaWorkers: "मज़दूर खोजें एवं काम पाएं",
       trustPoint1: "सरकारी APMC व e-NAM अधिकृत मंडी भाव",
       trustPoint2: "सत्यापित किसान और संस्थागत खरीदार",
       trustPoint3: "बिचौलियों और कमीशन से पूरी मुक्ति",
+      trustPointWorkers: "लेबर ब्यूरो अधिकृत न्यूनतम मजदूरी दरें",
     },
     mandi: {
       badge: "मंडी भाव विश्लेषण",
@@ -344,9 +350,11 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
       ctaMandi: "ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
       ctaSell: "ನಿಮ್ಮ ಬೆಳೆ ಮಾರಾಟ ಮಾಡಿ",
       ctaBuyers: "ದೃಢೀಕೃತ ಖರೀದಿದಾರರನ್ನು ಹುಡುಕಿ",
+      ctaWorkers: "ಕೃಷಿ ಕಾರ್ಮಿಕರು & ಕೆಲಸಗಳು",
       trustPoint1: "ಸರ್ಕಾರಿ APMC ಮತ್ತು e-NAM ಅಧಿಕೃತ ಮಂಡಿ ದರಗಳು",
       trustPoint2: "ದೃಢೀಕೃತ ರೈತರು ಮತ್ತು ಸಂಸ್ಥೆಯ ಖರೀದಿದಾರರು",
       trustPoint3: "ಮಧ್ಯವರ್ತಿಗಳು ಮತ್ತು ಕಮಿಷನ್ ಇಲ್ಲ",
+      trustPointWorkers: "ಲೇಬರ್ ಬ್ಯೂರೋ ಅಧಿಕೃತ ಗ್ರಾಮೀಣ ಕೂಲಿ ದರಗಳು",
     },
     mandi: {
       badge: "ಮಾರುಕಟ್ಟೆ ವಿಶ್ಲೇಷಣೆ",

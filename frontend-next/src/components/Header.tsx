@@ -302,14 +302,15 @@ export function Header() {
             </Link>
 
             <Link
-              href="/crop-predictor"
+              href="/features"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/crop-predictor')
+                isActive('/features')
                   ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
                   : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <span>{lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
+              <Sparkles className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.features[lang] || "Features"}</span>
             </Link>
 
             <Link
@@ -342,6 +343,10 @@ export function Header() {
                     <Link href="/dashboard" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <LayoutDashboard className="h-4 w-4 text-emerald-600" />
                       <span>Dashboard</span>
+                    </Link>
+                    <Link href="/crop-predictor" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Sprout className="h-4 w-4 text-emerald-600" />
+                      <span>{lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
                     </Link>
                     <Link href="/profile" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <Sprout className="h-4 w-4 text-emerald-600" />
@@ -668,11 +673,12 @@ export function Header() {
                 </Link>
 
                 <Link
-                  href="/crop-predictor"
+                  href="/features"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
-                  <span>🌱 {lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
+                  <Sparkles className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.features[lang] || "Features"}</span>
                 </Link>
 
                 <Link
@@ -687,6 +693,13 @@ export function Header() {
                 <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
 
                 <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <Link
+                    href="/crop-predictor"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    {lang === 'hi' ? 'फसल सलाह' : 'Crop Advisory'}
+                  </Link>
                   <Link
                     href="/disease"
                     onClick={() => setOpen(false)}
