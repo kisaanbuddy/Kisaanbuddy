@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Typed client + SSE parser for the KisaanBuddy assistant backend.
  *
  * All calls go through the Next.js rewrite (/api/chat/* -> :8000/api/chat/*).
@@ -9,7 +9,7 @@
 
 /** User language preference. Availability is surfaced by provider health/tests. */
 export type Language =
-  | "auto" | "en" | "hi" | "kn" | "bn" | "mr" | "te" | "ta" | "gu" | "pa" | "bho" | "mai"
+  | "auto" | "en" | "hi" | "kn" | "bn" | "mr" | "te" | "ta" | "gu" | "pa" | "ml" | "hi_en" | "bho" | "mai"
 
 export interface LocationHint {
   lat?: number | null

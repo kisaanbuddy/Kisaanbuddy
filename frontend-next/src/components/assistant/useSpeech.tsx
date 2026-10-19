@@ -63,6 +63,8 @@ export const LANG_TO_BCP47: Record<Exclude<Language, "auto">, string> = {
   ta: "ta-IN",
   gu: "gu-IN",
   pa: "pa-IN",
+  ml: "ml-IN",
+  hi_en: "hi-IN",
   // Browser vendors commonly fall back to Hindi for these until a dedicated
   // voice has passed QA. The visible language selector remains honest about
   // the user's preference, while provider support is tested separately.

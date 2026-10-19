@@ -49,380 +49,16 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-/* ------------------------------------------------------------------ */
-/*  Multilingual eNAM Instructions                                     */
-/* ------------------------------------------------------------------ */
-const ENAM_LANG = {
-  en: {
-    title: "Fill this on eNAM",
-    state: "State",
-    apmc: "APMC / Mandi",
-    commodity: "Commodity",
-    price: "Price",
-    callHelpdesk: "Call 1800 270 0224",
-    emailHelpdesk: "Email e-NAM",
-    cancel: "Cancel",
-    helpdeskNote: "Official e-NAM National Helpdesk (Govt. of India). Connect directly for trade registration and bidding assistance. Calling or emailing contacts the helpdesk and does not execute an automated transaction.",
-  },
-  hi: {
-    title: "eNAM पर यह भरें",
-    state: "राज्य",
-    apmc: "मंडी",
-    commodity: "फसल",
-    price: "भाव",
-    callHelpdesk: "Call 1800 270 0224",
-    emailHelpdesk: "Email e-NAM",
-    cancel: "रद्द करें",
-    helpdeskNote: "आधिकारिक e-NAM राष्ट्रीय हेल्पडेस्क (भारत सरकार)। व्यापार पंजीकरण और सहायता के लिए सीधे संपर्क करें। कॉल या ईमेल केवल सहायता के लिए है और इससे स्वतः कोई सौदा नहीं होता।",
-  },
-  kn: {
-    title: "eNAM ನಲ್ಲಿ ಇದನ್ನು ತುಂಬಿ",
-    state: "ರಾಜ್ಯ",
-    apmc: "ಮಂಡಿ",
-    commodity: "ಬೆಳೆ",
-    price: "ಬೆಲೆ",
-    callHelpdesk: "Call 1800 270 0224",
-    emailHelpdesk: "Email e-NAM",
-    cancel: "ರದ್ದುಮಾಡಿ",
-    helpdeskNote: "ಅಧಿಕೃತ e-NAM ರಾಷ್ಟ್ರೀಯ ಸಹಾಯವಾಣಿ (ಭಾರತ ಸರ್ಕಾರ). ವ್ಯಾಪಾರ ನೋಂದಣಿ ಮತ್ತು ಸಹಾಯಕ್ಕಾಗಿ ಸಂಪರ್ಕಿಸಿ. ಕರೆ ಅಥವಾ ಇಮೇಲ್ ವ್ಯಾಪಾರ ಸಹಾಯಕ್ಕಾಗಿ ಮಾತ್ರ ಮತ್ತು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ವಹಿವಾಟು ನಡೆಸುವುದಿಲ್ಲ.",
-  },
-}
-
-const ALERT_LANG = {
-  en: {
-    panelTitle: "Target Price Notifications",
-    setupMonitors: "Setup push price monitors for selected commodities",
-    activeMonitors: (count: number) => `${count} active monitors`,
-    enableNotifications: "Enable Notifications",
-    checkStatus: "Check Status",
-    cancel: "Cancel",
-    addTargetPrice: "Add Target Price",
-    cropCommodity: "Crop / Commodity",
-    selectCommodity: "Select commodity",
-    triggerRule: "Trigger Rule",
-    goesAbove: "Goes Above",
-    goesBelow: "Goes Below",
-    targetPriceLabel: "Target (₹ per Qtl)",
-    targetPricePlaceholder: "Target price",
-    createTrigger: "Create Trigger"
-  },
-  hi: {
-    panelTitle: "लक्ष्य मूल्य सूचनाएं",
-    setupMonitors: "चयनित फसलों के लिए मूल्य अलर्ट सेट करें",
-    activeMonitors: (count: number) => `${count} सक्रिय अलर्ट`,
-    enableNotifications: "सूचनाएं सक्षम करें",
-    checkStatus: "स्थिति जांचें",
-    cancel: "रद्द करें",
-    addTargetPrice: "लक्ष्य मूल्य जोड़ें",
-    cropCommodity: "फसल / वस्तु",
-    selectCommodity: "फसल चुनें",
-    triggerRule: "अलर्ट नियम",
-    goesAbove: "ऊपर जाने पर",
-    goesBelow: "नीचे जाने पर",
-    targetPriceLabel: "लक्ष्य (₹ प्रति क्विंटल)",
-    targetPricePlaceholder: "लक्ष्य मूल्य",
-    createTrigger: "अलर्ट सेट करें"
-  },
-  kn: {
-    panelTitle: "ಗುರಿ ಬೆಲೆ ಅಧಿಸೂಚನೆಗಳು",
-    setupMonitors: "ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆಗಳಿಗೆ ಬೆಲೆ ಅಲರ್ಟ್ ಸೆಟ್ ಮಾಡಿ",
-    activeMonitors: (count: number) => `${count} ಸಕ್ರಿಯ ಅಲರ್ಟ್‌ಗಳು`,
-    enableNotifications: "ಅಧಿಸೂಚನೆ ಸಕ್ರಿಯಗೊಳಿಸಿ",
-    checkStatus: "ಸ್ಥಿತಿ ಪರೀಕ್ಷಿಸಿ",
-    cancel: "ರದ್ದುಮಾಡಿ",
-    addTargetPrice: "ಗುರಿ ಬೆಲೆ ಸೇರಿಸಿ",
-    cropCommodity: "ಬೆಳೆ / ಪದಾರ್ಥ",
-    selectCommodity: "ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ",
-    triggerRule: "ನಿಯಮ",
-    goesAbove: "ಹೆಚ್ಚಾದಾಗ",
-    goesBelow: "ಕಡಿಮೆಯಾದಾಗ",
-    targetPriceLabel: "ಗುರಿ ಬೆಲೆ (₹ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್)",
-    targetPricePlaceholder: "ಗುರಿ ಬೆಲೆ",
-    createTrigger: "ಅಲರ್ಟ್ ರಚಿಸಿ"
-  }
-}
-
-const MANDI_PAGE_LANG = {
-  en: {
-    enamConnected: "eNAM Connected Mandi",
-    mandi: "Mandi",
-    marketplace: "Marketplace",
-    heroDesc: "Real-time commodity valuation indexes from national APMC centers. Place orders, monitor trading trends, or list inventories directly with automated government verification.",
-    totalCrops: "Total Crops",
-    mandiArrivals: "Mandi Arrivals",
-    searchPlaceholder: "Search commodities, APMC mandis, states...",
-    syncingIndex: "Synchronizing Mandi Pricing Index...",
-    noCommodities: "No commodities found matching filter.",
-    returnMarketplace: "Return to Marketplace",
-    varietyLabel: "Specific variety: ",
-    livePriceIndex: "Live Price Index",
-    arrivalTonnes: "Arrival Tonnes",
-    low: "Low",
-    currentModel: "Current Model",
-    high: "High",
-    apmcMandi: "APMC Mandi",
-    stateCenter: "State Center",
-    priceHistory: "Market Price History",
-    historyTrend: "Historical fluctuation trend for the past 7 days",
-    liveGraph: "Live Graph",
-    buy: "Buy",
-    sell: "Sell",
-    retry: "Retry Connection",
-    removeAlert: "Remove alert",
-  },
-  hi: {
-    enamConnected: "eNAM कनेक्टेड मंडी",
-    mandi: "मंडी",
-    marketplace: "बाजार",
-    heroDesc: "राष्ट्रीय APMC केंद्रों से वास्तविक समय में फसल मूल्य सूचकांक। सीधे सरकारी सत्यापन के साथ ऑर्डर दें, व्यापार के रुझान देखें या अपनी फसल सूचीबद्ध करें।",
-    totalCrops: "कुल फसलें",
-    mandiArrivals: "मंडी आवक",
-    searchPlaceholder: "फसलें, APMC मंडियां, राज्य खोजें...",
-    syncingIndex: "मंडी मूल्य सूचकांक सिंक किया जा रहा है...",
-    noCommodities: "फिल्टर से मेल खाने वाली कोई फसल नहीं मिली।",
-    returnMarketplace: "बाजार पर वापस जाएं",
-    varietyLabel: "विशिष्ट किस्म: ",
-    livePriceIndex: "लाइव मूल्य सूचकांक",
-    arrivalTonnes: "आवक टन",
-    low: "न्यूनतम",
-    currentModel: "वर्तमान मॉडल",
-    high: "अधिकतम",
-    apmcMandi: "APMC मंडी",
-    stateCenter: "राज्य केंद्र",
-    priceHistory: "बाजार मूल्य इतिहास",
-    historyTrend: "पिछले 7 दिनों के लिए ऐतिहासिक उतार-चढ़ाव का रुझान",
-    liveGraph: "लाइव ग्राफ",
-    buy: "खरीदें",
-    sell: "बेचें",
-    retry: "कनेक्शन पुनः प्रयास करें",
-    removeAlert: "अलर्ट हटाएं",
-  },
-  kn: {
-    enamConnected: "eNAM ಸಂಪರ್ಕಿತ ಮಂಡಿ",
-    mandi: "ಮಂಡಿ",
-    marketplace: "ಮಾರುಕಟ್ಟೆ",
-    heroDesc: "ರಾಷ್ಟ್ರೀಯ APMC ಕೇಂದ್ರಗಳಿಂದ ನೈಜ-ಸಮಯದ ಬೆಳೆ ಮೌಲ್ಯ ಸೂಚ್ಯಂಕಗಳು. ಆರ್ಡರ್ ಮಾಡಿ, ವ್ಯಾಪಾರ ಪ್ರವೃತ್ತಿ ಗಮನಿಸಿ, ಅಥವಾ ಸರ್ಕಾರದ ಪರಿಶೀಲನೆಯೊಂದಿಗೆ ನಿಮ್ಮ ದಾಸ್ತಾನು ಪಟ್ಟಿ ಮಾಡಿ.",
-    totalCrops: "ಒಟ್ಟು ಬೆಳೆಗಳು",
-    mandiArrivals: "ಮಂಡಿ ಆವಕ",
-    searchPlaceholder: "ಬೆಳೆಗಳು, APMC ಮಂಡಿಗಳು, ರಾಜ್ಯಗಳನ್ನು ಹುಡುಕಿ...",
-    syncingIndex: "ಮಂಡಿ ಬೆಲೆ ಸೂಚ್ಯಂಕವನ್ನು ಸಿಂಕ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
-    noCommodities: "ಫಿಲ್ಟರ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಪದಾರ್ಥಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
-    returnMarketplace: "ಮಾರುಕಟ್ಟೆಗೆ ಹಿಂತಿರುಗಿ",
-    varietyLabel: "ನಿರ್ದಿಷ್ಟ ತಳಿ: ",
-    livePriceIndex: "ಲೈವ್ ಬೆಲೆ ಸೂಚ್ಯಂಕ",
-    arrivalTonnes: "ಆವಕ ಟನ್‌ಗಳು",
-    low: "ಕಡಿಮೆ",
-    currentModel: "ಪ್ರಸ್ತುತ ಮಾದರಿ",
-    high: "ಹೆಚ್ಚು",
-    apmcMandi: "APMC ಮಂಡಿ",
-    stateCenter: "ರಾಜ್ಯ ಕೇಂದ್ರ",
-    priceHistory: "ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಇತಿಹಾಸ",
-    historyTrend: "ಕಳೆದ 7 ದಿನಗಳ ಐತಿಹಾಸಿಕ ಏರಿಳಿತದ ಪ್ರವೃತ್ತಿ",
-    liveGraph: "ಲೈವ್ ಗ್ರಾಫ್",
-    buy: "ಖರೀದಿಸಿ",
-    sell: "ಮಾರಿ",
-    retry: "ಮರುಸಂಪರ್ಕಿಸಿ",
-    removeAlert: "ಅಲರ್ಟ್ ತೆಗೆದುಹಾಕಿ",
-  }
-}
-
-const TRADE_LANG = {
-  en: {
-    tradeCommodity: "Trade Commodity",
-    tradeDesc: "Initiate instant trading signals or direct transactions across our verified regional logistics networks.",
-    buy: "Buy",
-    sell: "Sell",
-    connectingBroker: "Connecting eNAM broker...",
-    securingPipeline: "Securing encrypted pipeline with registered trading agents for",
-    in: "in",
-    agentConnected: "eNAM Agent Connected!",
-    nam: "National Agriculture Market",
-    govIndia: "Govt of India • Verification Center",
-    tradingValue: "Trading Value",
-    cancel: "Cancel",
-  },
-  hi: {
-    tradeCommodity: "फसल का व्यापार",
-    tradeDesc: "हमारे सत्यापित क्षेत्रीय लॉजिस्टिक्स नेटवर्क पर त्वरित व्यापार संकेत या सीधे लेनदेन शुरू करें।",
-    buy: "खरीदें",
-    sell: "बेचें",
-    connectingBroker: "eNAM ब्रोकर से कनेक्ट किया जा रहा है...",
-    securingPipeline: "सत्यापित ट्रेडिंग एजेंटों के साथ सुरक्षित एन्क्रिप्टेड कनेक्शन स्थापित किया जा रहा है - ",
-    in: "मंडी:",
-    agentConnected: "eNAM एजेंट कनेक्ट हो गया!",
-    nam: "राष्ट्रीय कृषि बाजार (eNAM)",
-    govIndia: "भारत सरकार • सत्यापन केंद्र",
-    tradingValue: "व्यापार मूल्य",
-    cancel: "रद्द करें",
-  },
-  kn: {
-    tradeCommodity: "ಬೆಳೆ ವ್ಯಾಪಾರ",
-    tradeDesc: "ನಮ್ಮ ಪರಿಶೀಲಿಸಿದ ಪ್ರಾದೇಶಿಕ ಲಾಜಿಸ್ಟಿಕ್ಸ್ ನೆಟ್‌ವರ್ಕ್‌ಗಳಲ್ಲಿ ತ್ವರಿತ ವ್ಯಾಪಾರ ಸಂಕೇತಗಳು ಅಥವಾ ನೇರ ವಹಿವಾಟುಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ.",
-    buy: "ಖರೀದಿಸಿ",
-    sell: "ಮಾರಿ",
-    connectingBroker: "eNAM ಬ್ರೋಕರ್ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...",
-    securingPipeline: "ನೋಂದಾಯಿತ ವ್ಯಾಪಾರ ಏಜೆಂಟ್‌ಗಳೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಸಂಪರ್ಕ ಸಾಧಿಸಲಾಗುತ್ತಿದೆ - ಬೆಳೆ:",
-    in: "ಮಂಡಿ:",
-    agentConnected: "eNAM ಏಜೆಂಟ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ!",
-    nam: "ರಾಷ್ಟ್ರೀಯ ಕೃಷಿ ಮಾರುಕಟ್ಟೆ (eNAM)",
-    govIndia: "ಭಾರತ ಸರ್ಕಾರ • ಪರಿಶೀಲನಾ ಕೇಂದ್ರ",
-    tradingValue: "ವ್ಯಾಪಾರದ ಮೌಲ್ಯ",
-    cancel: "ರದ್ದುಮಾಡಿ",
-  }
-}
-
-const CATEGORY_LANG = {
-  en: {
-    Cereal: "Cereal",
-    Oilseed: "Oilseed",
-    Pulse: "Pulse",
-    Fiber: "Fiber",
-    Vegetable: "Vegetable",
-    "Cash Crop": "Cash Crop",
-    All: "All"
-  },
-  hi: {
-    Cereal: "अनाज",
-    Oilseed: "तिलहन",
-    Pulse: "दलहन",
-    Fiber: "रेशेदार फसल",
-    Vegetable: "सब्जी",
-    "Cash Crop": "नकदी फसल",
-    All: "सभी"
-  },
-  kn: {
-    Cereal: "ಧಾನ್ಯಗಳು",
-    Oilseed: "ಎಣ್ಣೆಕಾಳುಗಳು",
-    Pulse: "ಬೇಳೆಕಾಳುಗಳು",
-    Fiber: "ನಾರಿನ ಬೆಳೆಗಳು",
-    Vegetable: "ತರಕಾರಿ",
-    "Cash Crop": "ನಗದು ಬೆಳೆ",
-    All: "ಎಲ್ಲಾ"
-  }
-} as any
-
-const DATA_TRANSLATIONS: Record<string, Record<string, string>> = {
-  hi: {
-    // Crop names
-    "Wheat (गेहूं)": "गेहूं",
-    "Rice (चावल)": "चावल",
-    "Soybean (सोयाबीन)": "सोयाबीन",
-    "Cotton (कपास)": "कपास",
-    "Mustard (सरसों)": "सरसों",
-    "Chana (चना)": "चना",
-    "Tur/Arhar Dal (तूर दाल)": "तूर दाल (अरहर)",
-    "Onion (प्याज)": "प्याज",
-    "Potato (आलू)": "आलू",
-    "Sugarcane (गन्ना)": "गन्ना",
-    "Maize (मक्का)": "मक्का",
-    "Groundnut (मूंगफली)": "मूंगफली",
-    // Varieties
-    "Sharbati": "शरबती",
-    "Basmati 1121": "बासमती 1121",
-    "Yellow": "पीला",
-    "Medium Staple": "मध्यम रेशा",
-    "Laha": "लाहा",
-    "Desi": "देशी",
-    "FAQ": "एफएक्यू (सामान्य)",
-    "Nasik Red": "नाशिक लाल",
-    "Jyoti": "ज्योति",
-    "Co-0238": "को-0238",
-    "Bold": "बोल्ड",
-    // States
-    "Madhya Pradesh": "मध्य प्रदेश",
-    "Haryana": "हरियाणा",
-    "Gujarat": "गुजरात",
-    "Rajasthan": "राजस्थान",
-    "Maharashtra": "महाराष्ट्र",
-    "Karnataka": "कर्नाटक",
-    "Uttar Pradesh": "उत्तर प्रदेश",
-    // Mandis
-    "Indore Mandi": "इंदौर मंडी",
-    "Karnal Mandi": "करनाल मंडी",
-    "Ujjain Mandi": "उज्जयिनी मंडी",
-    "Rajkot Mandi": "राजकोट मंडी",
-    "Alwar Mandi": "अलवर मंडी",
-    "Latur Mandi": "लातूर मंडी",
-    "Gulbarga Mandi": "गुलबर्गा मंडी",
-    "Nashik Mandi": "नाशिक मंडी",
-    "Agra Mandi": "आगरा मंडी",
-    "Muzaffarnagar Mandi": "मुजफ्फरनगर मंडी",
-    "Davangere Mandi": "दावणगेरे मंडी",
-    "Junagadh Mandi": "जूनागढ़ मंडी",
-    "per quintal": "प्रति क्विंटल",
-    "Tons": "टन",
-  },
-  kn: {
-    // Crop names
-    "Wheat (गेहूं)": "ಗೋಧಿ",
-    "Rice (चावल)": "ಅಕ್ಕಿ",
-    "Soybean (सोयाबीन)": "ಸೋಯಾಬೀನ್",
-    "Cotton (कपास)": "ಹತ್ತಿ",
-    "Mustard (सरसों)": "ಸಾಸಿವೆ",
-    "Chana (चना)": "ಕಡಲೆ",
-    "Tur/Arhar Dal (तूर दाल)": "ತೊಗರಿ ಬೇಳೆ",
-    "Onion (प्याज)": "ಈರುಳ್ಳಿ",
-    "Potato (आलू)": "ಆಲೂಗಡ್ಡೆ",
-    "Sugarcane (गन्ना)": "ಕಬ್ಬು",
-    "Maize (मक्का)": "ಮೆಕ್ಕೆಜೋಳ",
-    "Groundnut (मूंगफली)": "ಕಡಲೆಕಾಯಿ",
-    // Varieties
-    "Sharbati": "ಶರಬತಿ",
-    "Basmati 1121": "ಬಾಸ್ಮತಿ 1121",
-    "Yellow": "ಹಳದಿ",
-    "Medium Staple": "ಮಧ್ಯಮ ಸ್ಟೇಪಲ್",
-    "Laha": "ಲಹಾ",
-    "Desi": "ದೇಸಿ",
-    "FAQ": "FAQ (ಸಾಮಾನ್ಯ)",
-    "Nasik Red": "ನಾಸಿಕ್ ಕೆಂಪು",
-    "Jyoti": "ಜ್ಯೋತಿ",
-    "Co-0238": "ಕೋ-0238",
-    "Bold": "ಬೋಲ್ಡ್",
-    // States
-    "Madhya Pradesh": "ಮಧ್ಯಪ್ರದೇಶ",
-    "Haryana": "ಹರಿಯಾಣ",
-    "Gujarat": "ಗುಜರಾತ್",
-    "Rajasthan": "ರಾಜಸ್ಥಾನ",
-    "Maharashtra": "ಮಹಾರಾಷ್ಟ್ರ",
-    "Karnataka": "ಕರ್ನಾಟಕ",
-    "Uttar Pradesh": "ಉತ್ತರ ಪ್ರದೇಶ",
-    // Mandis
-    "Indore Mandi": "ಇಂದೋರ್ ಮಂಡಿ",
-    "Karnal Mandi": "ಕರ್ನಾಲ್ ಮಂಡಿ",
-    "Ujjain Mandi": "ಉಜ್ಜಯಿನಿ ಮಂಡಿ",
-    "Rajkot Mandi": "ರಾಜಕೋಟ್ ಮಂಡಿ",
-    "Alwar Mandi": "ಅಲ್ವಾರ್ ಮಂಡಿ",
-    "Latur Mandi": "ಲಾತೂರ್ ಮಂಡಿ",
-    "Gulbarga Mandi": "ಗುಲ್ಬರ್ಗ ಮಂಡಿ",
-    "Nashik Mandi": "ನಾಸಿಕ್ ಮಂಡಿ",
-    "Agra Mandi": "ಆಗ್ರಾ ಮಂಡಿ",
-    "Muzaffarnagar Mandi": "ಮುಜಫರ್‌ನಗರ ಮಂಡಿ",
-    "Davangere Mandi": "ದಾವಣಗೆರೆ ಮಂಡಿ",
-    "Junagadh Mandi": "ಜುನಾಗಢ್ ಮಂಡಿ",
-    "per quintal": "ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್",
-    "Tons": "ಟನ್ಗಳು",
-  },
-  en: {
-    "Wheat (गेहूं)": "Wheat",
-    "Rice (चावल)": "Rice",
-    "Soybean (सोयाबीन)": "Soybean",
-    "Cotton (कपास)": "Cotton",
-    "Mustard (सरसों)": "Mustard",
-    "Chana (चना)": "Chana",
-    "Tur/Arhar Dal (तूर दाल)": "Tur/Arhar Dal",
-    "Onion (प्याज)": "Onion",
-    "Potato (आलू)": "Potato",
-    "Sugarcane (गन्ना)": "Sugarcane",
-    "Maize (मक्का)": "Maize",
-    "Groundnut (मूंगफلی)": "Groundnut",
-  }
-}
-
-function translateData(val: string, lang: "en" | "hi" | "kn"): string {
-  if (!val) return val
-  return DATA_TRANSLATIONS[lang]?.[val] ?? DATA_TRANSLATIONS[lang]?.[val.trim()] ?? val
-}
-
+import { Lang, LANG_NAMES } from "@/lib/language"
+import {
+  ENAM_LANG,
+  ALERT_LANG,
+  MANDI_PAGE_LANG,
+  TRADE_LANG,
+  CATEGORY_LANG,
+  SPEECH_MANDI,
+  translateMandiData as translateData,
+} from "@/lib/mandi-i18n"
 /* ------------------------------------------------------------------ */
 /*  Types                                                             */
 /* ------------------------------------------------------------------ */
@@ -473,8 +109,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
   const [permGranted, setPermGranted] = useState(false)
   const [checking, setChecking] = useState(false)
   
-  const activeAlertLang = (lang === "hi" || lang === "kn") ? lang : "en"
-  const currentLang = ALERT_LANG[activeAlertLang]
+  const activeAlertLang = (lang as Lang) || "en"
+  const currentLang = ALERT_LANG[activeAlertLang] || ALERT_LANG.en
 
   useEffect(() => { if (typeof window !== "undefined" && "Notification" in window) setPermGranted(Notification.permission === "granted") }, [])
   
@@ -637,7 +273,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
 /* ------------------------------------------------------------------ */
 export default function MandiPage() {
   const searchParams = useSearchParams()
-  const { t, lang: appLang } = useLanguage()
+  const { t, lang, setLang } = useLanguage()
   const [crops, setCrops] = useState<MandiCrop[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -646,16 +282,11 @@ export default function MandiPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
-  const [lang, setLang] = useState<"en" | "hi" | "kn">((appLang === "hi" || appLang === "kn") ? appLang : "en")
   const [mounted, setMounted] = useState(false)
   const voiceRun = searchParams.get("voice") === "1"
   const requestedCrop = searchParams.get("crop") || ""
   const requestedState = searchParams.get("state") || ""
   const voiceSpokenRef = useRef(false)
-
-  useEffect(() => {
-    setLang((appLang === "hi" || appLang === "kn") ? appLang : "en")
-  }, [appLang])
 
   useEffect(() => {
     setMounted(true)
@@ -694,26 +325,19 @@ export default function MandiPage() {
     if (!voiceRun || loading || voiceSpokenRef.current) return
     voiceSpokenRef.current = true
     const first = crops[0]
+    const speechCfg = SPEECH_MANDI[lang as Lang] || SPEECH_MANDI.en
     const message = first
-      ? (lang === "kn"
-          ? `${translateData(first.name, "kn")} ಲಭ್ಯವಿರುವ ಬೆಲೆ ₹${first.price} ${first.unit}. ಮಂಡಿ: ${translateData(first.mandi, "kn")}, ${translateData(first.state, "kn")}.`
-          : lang === "hi"
-          ? `${first.name} का उपलब्ध भाव ${first.price} रुपये ${first.unit} है। मंडी ${first.mandi}, ${first.state}।`
-          : `${first.name} is available at ${first.price} rupees ${first.unit} in ${first.mandi}, ${first.state}.`)
-      : (lang === "kn"
-          ? "ಕೋರಿದ ಬೆಳೆ ಅಥವಾ ಸ್ಥಳಕ್ಕೆ ಯಾವುದೇ ಮಂಡಿ ದಾಖಲೆ ಕಂಡುಬಂದಿಲ್ಲ."
-          : lang === "hi"
-          ? "मांगी गई फसल या स्थान के लिए कोई उपलब्ध मंडी रिकॉर्ड नहीं मिला।"
-          : "No available mandi record matched the requested crop or location.")
+      ? `${translateData(first.name, lang as Lang)}: ₹${first.price} ${first.unit}. ${translateData(first.mandi, lang as Lang)}, ${translateData(first.state, lang as Lang)}.`
+      : speechCfg.loading
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel()
       const utterance = new SpeechSynthesisUtterance(message)
-      utterance.lang = lang === "kn" ? "kn-IN" : lang === "hi" ? "hi-IN" : "en-IN"
+      utterance.lang = speechCfg.bcp
       window.speechSynthesis.speak(utterance)
     }
   }, [voiceRun, loading, crops, lang])
 
-  const plang = (lang === "hi" || lang === "kn") ? lang : "en"
+  const plang = (lang as Lang) || "en"
 
   /* ---- Derived data ---- */
   const categories = useMemo(() => {
@@ -806,10 +430,10 @@ export default function MandiPage() {
               {MANDI_PAGE_LANG[plang].enamConnected}
             </div>
             <h1 className="mt-4 text-3xl font-bold tracking-[-.045em] text-white sm:text-4xl md:text-5xl">
-              {lang === 'kn' ? <>ದರ ತಿಳಿಯಿರಿ. <span className="text-[#f4c96b]">ಉತ್ತಮವಾಗಿ ಮಾರಿ.</span></> : lang === 'hi' ? <>भाव देखें। <span className="text-[#f4c96b]">बेहतर बेचें।</span></> : <>See the price. <span className="text-[#f4c96b]">Sell smarter.</span></>}
+              <>{MANDI_PAGE_LANG[plang].heroTitleLead}<span className="text-[#f4c96b]">{MANDI_PAGE_LANG[plang].heroTitleAccent}</span></>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50/75 md:text-base">
-              {lang === 'kn' ? 'ಮಂಡಿ ಬೆಲೆಗಳು, ದರ ಶ್ರೇಣಿ ಮತ್ತು ಮಾರಾಟದ ಆಯ್ಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ಪರಿಶೀಲಿಸಿ. ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ, ಮುಂದಿನ ಸೂಕ್ತ ಹೆಜ್ಜೆ ಇಡಿ.' : lang === 'hi' ? 'मंडी भाव, कीमत की रेंज और बिक्री के विकल्प एक जगह देखें। अपनी फसल चुनें और अगला सही कदम लें।' : 'Compare mandi prices, price ranges and selling options in one place. Choose your crop, then take the next right step.'}
+              {MANDI_PAGE_LANG[plang].heroSubtitle}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
@@ -830,9 +454,9 @@ export default function MandiPage() {
           </div>
         </div>
         <div className="relative z-10 mt-6 grid gap-2 border-t border-white/10 pt-4 text-[11px] text-emerald-50/80 sm:grid-cols-3">
-          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'kn' ? 'ಲೈವ್ APMC ದರಗಳು' : lang === 'hi' ? 'लाइव APMC भाव' : 'Live APMC prices'}</span>
-          <span className="flex items-center gap-2"><Calculator className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'kn' ? 'ಬೆಲೆ ಶ್ರೇಣಿಯನ್ನು ಹೋಲಿಕೆ ಮಾಡಿ' : lang === 'hi' ? 'कीमत की रेंज देखें' : 'Compare the price range'}</span>
-          <span className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'kn' ? 'ಮಾರಾಟ ಮಾಡುವ ಮುನ್ನ ಆಯ್ಕೆಗಳನ್ನು ತಿಳಿಯಿರಿ' : lang === 'hi' ? 'बेचने से पहले विकल्प जानें' : 'Know your selling options'}</span>
+          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{MANDI_PAGE_LANG[plang].liveApmc}</span>
+          <span className="flex items-center gap-2"><Calculator className="h-3.5 w-3.5 text-[#f4c96b]" />{MANDI_PAGE_LANG[plang].compareRange}</span>
+          <span className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-[#f4c96b]" />{MANDI_PAGE_LANG[plang].knowOptions}</span>
         </div>
       </motion.div>
 
@@ -853,7 +477,7 @@ export default function MandiPage() {
             <div className="rounded-2xl border border-border bg-card p-3 shadow-xs sm:p-4">
               <div className="mb-3 flex items-center gap-2 px-1">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary"><TrendingUp className="h-3.5 w-3.5" /></span>
-                <div><p className="text-xs font-bold text-foreground">{lang === 'kn' ? 'ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ' : lang === 'hi' ? 'अपनी फसल चुनें' : 'Choose your crop'}</p><p className="text-[10px] text-muted-foreground">{lang === 'kn' ? 'ದರಗಳು, ಮಂಡಿ ಮತ್ತು ಮಾರಾಟ ಆಯ್ಕೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ' : lang === 'hi' ? 'भाव, मंडी और बिक्री विकल्प देखें' : 'See prices, mandis and selling options'}</p></div>
+                <div><p className="text-xs font-bold text-foreground">{MANDI_PAGE_LANG[plang].chooseCropTitle}</p><p className="text-[10px] text-muted-foreground">{MANDI_PAGE_LANG[plang].chooseCropDesc}</p></div>
               </div>
               <div className="flex flex-col gap-3 md:flex-row">
               <div className="relative flex-1">
@@ -1109,7 +733,7 @@ export default function MandiPage() {
 /* ================================================================== */
 
 /* ---- Crop Card ---- */
-function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: "en" | "hi" | "kn" }) {
+function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: Lang }) {
   const { t } = useLanguage()
   return (
     <motion.div 
@@ -1202,9 +826,11 @@ function BuySellPanel({
   connectionStatus: "idle" | "connecting" | "connected"
   onConnect: (m: "buy" | "sell") => void
   onReset: () => void
-  lang: "en" | "hi" | "kn"
-  onLangChange: (l: "en" | "hi" | "kn") => void
+  lang: Lang
+  onLangChange: (l: Lang) => void
 }) {
+  const tLang = TRADE_LANG[lang] || TRADE_LANG.en
+  const enam = enam || ENAM_LANG.en
   const { t } = useLanguage()
   return (
     <div className="space-y-6">
@@ -1323,18 +949,18 @@ function BuySellPanel({
                     </div>
 
                     {/* Language switcher */}
-                    <div className="flex gap-1.5 justify-center">
-                      {(["hi", "en", "kn"] as const).map((l) => (
+                    <div className="flex flex-wrap gap-1.5 justify-center">
+                      {(["hi", "en", "kn", "te", "ta", "mr", "gu", "bn", "pa", "ml"] as const).map((l) => (
                         <button
                           key={l}
                           onClick={() => onLangChange(l)}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
+                          className={`px-2.5 py-1 rounded-lg text-[10px] font-bold border transition-all ${
                             lang === l
                               ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/15"
                               : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
                         >
-                          {l === "hi" ? "हिंदी" : l === "kn" ? "ಕನ್ನಡ" : "English"}
+                          {LANG_NAMES[l] || l}
                         </button>
                       ))}
                     </div>
@@ -1342,14 +968,14 @@ function BuySellPanel({
                     {/* eNAM fill instructions */}
                     <div className="rounded-xl p-3.5 space-y-2 border border-emerald-500/20 bg-emerald-500/5">
                       <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" /> {ENAM_LANG[lang].title}:
+                        <Sparkles className="w-3.5 h-3.5" /> {enam.title}:
                       </p>
                       <div className="grid grid-cols-2 gap-y-1 gap-x-2 text-[11px] text-muted-foreground font-medium">
-                        <span>{ENAM_LANG[lang].state}:</span>
+                        <span>{enam.state}:</span>
                         <span className="font-bold text-foreground text-right">{crop.state}</span>
-                        <span>{ENAM_LANG[lang].commodity}:</span>
+                        <span>{enam.commodity}:</span>
                         <span className="font-bold text-foreground text-right">{crop.name.split("(")[0].trim()}</span>
-                        <span>{ENAM_LANG[lang].price}:</span>
+                        <span>{enam.price}:</span>
                         <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">&#x20B9;{crop.price.toLocaleString()}</span>
                       </div>
                     </div>
@@ -1361,7 +987,7 @@ function BuySellPanel({
                         className="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold rounded-xl h-11 px-4 flex items-center justify-center gap-2.5 shadow-md shadow-emerald-600/20 text-xs sm:text-sm transition-all duration-200 active:scale-[0.98]"
                       >
                         <Phone className="h-4 w-4 shrink-0" />
-                        <span>{ENAM_LANG[lang].callHelpdesk}</span>
+                        <span>{enam.callHelpdesk}</span>
                       </a>
 
                       <a
@@ -1369,7 +995,7 @@ function BuySellPanel({
                         className="w-full border border-border/80 bg-card hover:bg-accent/60 hover:border-emerald-500/40 text-foreground font-semibold rounded-xl h-11 px-4 flex items-center justify-center gap-2.5 text-xs sm:text-sm transition-all duration-200 active:scale-[0.98]"
                       >
                         <Mail className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                        <span>{ENAM_LANG[lang].emailHelpdesk}</span>
+                        <span>{enam.emailHelpdesk}</span>
                       </a>
 
                       <Button 
@@ -1377,13 +1003,13 @@ function BuySellPanel({
                         className="w-full text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl text-xs h-9 font-medium" 
                         onClick={onReset}
                       >
-                        {ENAM_LANG[lang].cancel}
+                        {enam.cancel}
                       </Button>
                     </div>
 
                     <div className="rounded-lg bg-muted/30 p-2.5 border border-border/60 text-center">
                       <p className="text-[10px] text-muted-foreground leading-relaxed">
-                        {ENAM_LANG[lang].helpdeskNote}
+                        {enam.helpdeskNote}
                       </p>
                     </div>
                   </div>

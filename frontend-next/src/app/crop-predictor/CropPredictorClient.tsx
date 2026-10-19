@@ -1,3 +1,5 @@
+import { Lang } from "@/lib/language";
+import { CROP_PREDICTOR_I18N } from "@/lib/crop-predictor-i18n";
 "use client"
 
 import { useLanguage } from '@/lib/language'
@@ -171,8 +173,6 @@ export default function CropPredictor() {
     }))
   }
 
-  const isKn = lang === "kn"
-  const isHi = lang === "hi"
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
@@ -181,17 +181,13 @@ export default function CropPredictor() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>{isKn ? "ಮೆಷಿನ್ ಲರ್ನಿಂಗ್ ಕೃಷಿ ವಿಜ್ಞಾನ" : isHi ? "मशीन लर्निंग कृषि विज्ञान" : "Machine Learning Agronomy"}</span>
+            <span>{dict.tag}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground tracking-tight">
-            {isKn ? "AI ಬೆಳೆ ಮುನ್ಸೂಚನೆ ಮತ್ತು ಇಳುವರಿ ಸುಧಾರಣೆ" : isHi ? "AI फसल भविष्यवाणी और उपज अनुकूलन" : "AI Crop Prediction & Yield Optimization"}
+            {dict.title}
           </h1>
           <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-xl">
-            {isKn
-              ? "ಮಣ್ಣಿನ ರಾಸಾಯನಿಕ ಅಂಶಗಳು (NPK), pH ಮತ್ತು ಸ್ಥಳೀಯ ಹವಾಮಾನಕ್ಕೆ ಅನುಗುಣವಾಗಿ ಅತ್ಯಂತ ಲಾಭದಾಯಕ ಬೆಳೆಯನ್ನು ಗುರುತಿಸಿ."
-              : isHi
-              ? "मिट्टी के रासायनिक तत्वों (NPK), पीएच और स्थानीय मौसम के अनुसार सर्वाधिक लाभदायक फसल की पहचान करें।"
-              : "Analyze soil chemistry (N-P-K), pH, and regional climate metrics to discover your farm's highest-yield crop."}
+            {dict.subtitle}
           </p>
         </div>
       </div>
@@ -202,7 +198,7 @@ export default function CropPredictor() {
           <CardHeader className="p-0 pb-3 border-b border-border flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Activity className="text-primary h-4 w-4" />
-              <span>{isKn ? "ಜಮೀನು ಮತ್ತು ಮಣ್ಣಿನ ನಿಯತಾಂಕಗಳು" : isHi ? "खेत और मिट्टी के मापदंड" : "Farm & Soil Parameters"}</span>
+              <span>{dict.parametersTitle}</span>
             </CardTitle>
           </CardHeader>
 
@@ -215,7 +211,7 @@ export default function CropPredictor() {
           {/* Mode Switcher */}
           <div className="p-3 rounded-xl border border-border bg-muted/30 flex flex-col gap-2">
             <span className="text-xs font-semibold text-muted-foreground">
-              {isKn ? "ಮಣ್ಣು ಪರೀಕ್ಷೆ (NPK) ನಮೂದು ವಿಧಾನ:" : isHi ? "मिट्टी जांच (NPK) रिपोर्ट का प्रकार:" : "Input method for soil metrics:"}
+              {dict.inputMethodLabel}
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -227,7 +223,7 @@ export default function CropPredictor() {
                     : "bg-background border border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {isKn ? "ನಿಖರ ಮೌಲ್ಯಗಳು (ಸ್ಲೈಡರ್)" : isHi ? "सटीक मान (स्लाइडर)" : "Enter NPK Values"}
+                {dict.inputManual}
               </button>
               <button
                 type="button"
@@ -238,7 +234,7 @@ export default function CropPredictor() {
                     : "bg-background border border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {isKn ? "ಮಣ್ಣಿನ ಪ್ರಕಾರದಿಂದ ಅಂದಾಜಿಸಿ" : isHi ? "अनुमान लगाएं (प्रश्नावली)" : "Estimate by Soil Type"}
+                {dict.inputEstimate}
               </button>
             </div>
           </div>
@@ -250,65 +246,65 @@ export default function CropPredictor() {
                 {/* Soil Type Select */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {isKn ? "1. ಮಣ್ಣಿನ ಪ್ರಕಾರ" : isHi ? "1. मिट्टी का प्रकार" : "1. Soil Type"}
+                    {dict.soilTypeLabel}
                   </Label>
                   <select
                     value={soilType}
                     onChange={(e) => setSoilType(e.target.value)}
                     className="select-base"
                   >
-                    <option value="loamy">{isKn ? "ಗೋಡು ಮಣ್ಣು (Loamy Soil)" : isHi ? "दोमट मिट्टी (Loamy Soil)" : "Loamy Soil"}</option>
-                    <option value="black">{isKn ? "ಕಪ್ಪು ಮಣ್ಣು (Black Soil)" : isHi ? "काली मिट्टी (Black Soil)" : "Black Soil"}</option>
-                    <option value="red">{isKn ? "ಕೆಂಪು ಮಣ್ಣು (Red Soil)" : isHi ? "लाल मिट्टी (Red Soil)" : "Red Soil"}</option>
-                    <option value="sandy">{isKn ? "ಮರಳು ಮಣ್ಣು (Sandy Soil)" : isHi ? "बलुई मिट्टी (Sandy Soil)" : "Sandy Soil"}</option>
+                    <option value="loamy">{dict.soilLoamy}</option>
+                    <option value="black">{dict.soilBlack}</option>
+                    <option value="red">{dict.soilRed}</option>
+                    <option value="sandy">{dict.soilSandy}</option>
                   </select>
                 </div>
 
                 {/* Last Crop Select */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {isKn ? "2. ಹಿಂದಿನ ಬೆಳೆ" : isHi ? "2. पिछली फसल" : "2. Last Crop Grown"}
+                    {dict.lastCropLabel}
                   </Label>
                   <select
                     value={lastCrop}
                     onChange={(e) => setLastCrop(e.target.value)}
                     className="select-base"
                   >
-                    <option value="none">{isKn ? "ಯಾವುದೂ ಇಲ್ಲ / ಮೊದಲ ಬಾರಿಗೆ" : isHi ? "कोई नहीं / पहली बार" : "None / First time"}</option>
-                    <option value="pulses">{isKn ? "ದ್ವಿದಳ ಧಾನ್ಯಗಳು / ಕಾಳುಗಳು (Legumes)" : isHi ? "दालें / फलियां (Legumes)" : "Pulses / Legumes"}</option>
-                    <option value="grains">{isKn ? "ಭತ್ತ ಅಥವಾ ಗೋಧಿ (Paddy / Wheat)" : isHi ? "धान या गेहूं (Paddy / Wheat)" : "Paddy or Wheat"}</option>
-                    <option value="sugarcane">{isKn ? "ಕಬ್ಬು ಅಥವಾ ಹತ್ತಿ (Cash Crops)" : isHi ? "गन्ना या कपास (Cash Crops)" : "Cash Crops"}</option>
+                    <option value="none">{dict.lastCropNone}</option>
+                    <option value="pulses">{dict.lastCropPulses}</option>
+                    <option value="grains">{dict.lastCropGrains}</option>
+                    <option value="sugarcane">{dict.lastCropCash}</option>
                   </select>
                 </div>
 
                 {/* Irrigation Method */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {isKn ? "3. ನೀರಿನ ಲಭ್ಯತೆ" : isHi ? "3. पानी की सुविधा" : "3. Water Availability"}
+                    {dict.waterLabel}
                   </Label>
                   <select
                     value={irrigation}
                     onChange={(e) => setIrrigation(e.target.value)}
                     className="select-base"
                   >
-                    <option value="canal">{isKn ? "ನೀರಾವರಿ ಸೌಲಭ್ಯ (ಕಾಲುವೆ / ಬೋರ್‌ವೆಲ್)" : isHi ? "भरपूर पानी (नहर / बोरवेल)" : "Irrigated (Canal / Tube well)"}</option>
-                    <option value="rainfed">{isKn ? "ಕೇವಲ ಮಳೆ ಆಶ್ರಿತ" : isHi ? "केवल वर्षा आधारित" : "Rainfed only"}</option>
+                    <option value="canal">{dict.waterIrrigated}</option>
+                    <option value="rainfed">{dict.waterRainfed}</option>
                   </select>
                 </div>
 
                 {/* Water Retention */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {isKn ? "4. ನೀರು ಬಸಿದು ಹೋಗುವ ವೇಗ" : isHi ? "4. जल निकासी" : "4. Drainage Rate"}
+                    {dict.drainageLabel}
                   </Label>
                   <select
                     value={retention}
                     onChange={(e) => setRetention(e.target.value)}
                     className="select-base"
                   >
-                    <option value="normal">{isKn ? "ಸಾಮಾನ್ಯ (Normal)" : isHi ? "सामान्य (Normal)" : "Normal"}</option>
-                    <option value="stagnant">{isKn ? "ನೀರು ನಿಲ್ಲುವುದು (Slow drainage)" : isHi ? "जलभराव (Slow drainage)" : "Slow drainage"}</option>
-                    <option value="fast">{isKn ? "ವೇಗವಾಗಿ ಇಂಗುವುದು (Fast drainage)" : isHi ? "शीघ्र रिसाव (Fast drainage)" : "Fast drainage"}</option>
+                    <option value="normal">{dict.drainageNormal}</option>
+                    <option value="stagnant">{dict.drainageStagnant}</option>
+                    <option value="fast">{dict.drainageFast}</option>
                   </select>
                 </div>
 
@@ -318,7 +314,7 @@ export default function CropPredictor() {
                   <span>P: {params.P} mg/kg</span>
                   <span>K: {params.K} mg/kg</span>
                   <span>pH: {params.ph}</span>
-                  <span>{isKn ? "ಮಳೆ:" : isHi ? "वर्षा:" : "Rain:"} {params.rainfall} mm</span>
+                  <span>{dict.rainLabel} {params.rainfall} mm</span>
                 </div>
               </div>
             ) : (
@@ -406,7 +402,7 @@ export default function CropPredictor() {
                   <Activity className="h-6 w-6" />
                 </div>
                 <h3 className="text-sm font-semibold text-foreground mb-1">
-                  {isKn ? "ಬೆಳೆ ವಿಶ್ಲೇಷಣೆಗೆ ಸಿದ್ಧ" : isHi ? "फसल विश्लेषण के लिए तैयार" : "Ready for Crop Analysis"}
+                  {dict.readyForAnalysis}
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
                   {t("crop_predictor.adjust_the_sliders_to")}
@@ -426,14 +422,10 @@ export default function CropPredictor() {
                 <div className="rounded-lg border border-border bg-card p-4 space-y-2 text-xs">
                   <div className="flex items-center gap-1.5 text-primary font-semibold">
                     <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span>{isKn ? "94.2% ಕೃಷಿ ವಿಜ್ಞಾನ ಹೊಂದಾಣಿಕೆ ಅಂಕ" : isHi ? "94.2% कृषि अनुकूलता स्कोर" : "94.2% Agronomic Match Score"}</span>
+                    <span>{dict.compatibilityScore}</span>
                   </div>
                   <p className="text-muted-foreground leading-relaxed">
-                    {isKn
-                      ? `ನಿಮ್ಮ ಮಣ್ಣಿನ NPK ಸಮತೋಲನ, pH ${params.ph}, ಮತ್ತು ಪ್ರಾದೇಶಿಕ ಮಳೆ ${params.rainfall}mm ಆಧಾರದ ಮೇಲೆ, ಈ ಬೆಳೆಯು ಗರಿಷ್ಠ ಇಳುವರಿ ಮತ್ತು ಲಾಭವನ್ನು ನೀಡುತ್ತದೆ.`
-                      : isHi
-                      ? `आपकी मिट्टी के NPK संतुलन, pH ${params.ph}, और क्षेत्रीय वर्षा ${params.rainfall}mm के आधार पर, यह फसल सबसे अधिक उपज देती है।`
-                      : `Based on your soil's NPK balance, pH of ${params.ph}, and regional rainfall of ${params.rainfall}mm, this crop delivers the highest predicted yield margin.`}
+                    {dict.compatibilityDesc}
                   </p>
                 </div>
               </Card>

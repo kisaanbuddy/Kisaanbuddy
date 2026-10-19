@@ -482,7 +482,15 @@
     "optimize_your_harvesting_operations": "Optimize Your Harvesting Operations Today",
     "register_a_free_account": "Register a free account, test your crop disease models, and start keeping logs in Khet Diary.",
     "join_free": "Join Free",
-    "go_to_home": "Go to Home"
+    "go_to_home": "Go to Home",
+    "faq_title": "அடிக்கடி கேட்கப்படும் கேள்விகள் (FAQ)",
+    "faq_subtitle": "KisaanBuddy பற்றிய பொதுவான கேள்விகள் மற்றும் பதில்கள்",
+    "faq_q1": "கேள்வி 1. KisaanBuddy என்றால் என்ன?",
+    "faq_a1": "பதில்: KisaanBuddy என்பது AI-இயங்கும் ஸ்மார்ட் விவசாய ஆலோசனை தளமாகும். இது இந்திய விவசாயிகளுக்கு பயிர் நோய்களைக் கண்டறியவும், மண் வளத்தைக் கண்காணிக்கவும், நேரடி மண்டி விலைகளை அறியவும் உதவுகிறது.",
+    "faq_q2": "கேள்வி 2. KisaanBuddy-ஐப் பயன்படுத்த கட்டணம் ஏதேனும் உள்ளதா?",
+    "faq_a2": "பதில்: இல்லை, இந்தியா முழுவதும் உள்ள விவசாயிகளுக்கு KisaanBuddy-யின் முக்கிய கருவிகள் முற்றிலும் இலவசம்.",
+    "faq_q3": "கேள்வி 3. நோய் கண்டறியும் கருவி எவ்வாறு செயல்படுகிறது?",
+    "faq_a3": "பதில்: நீங்கள் பதிவேற்றும் பயிர் இலையின் புகைப்படத்தை எங்கள் AI மாதிரி பகுப்பாய்வு செய்து நோயை உடனே கண்டறிந்து இயற்கை மற்றும் ரசாயன தீர்வுகளைப் பரிந்துரைக்கிறது."
   },
   "chatbot": {
     "could_not_connect_to": "Could not connect to backend. Make sure the server is running.",
@@ -517,7 +525,8 @@
     "please_fill_out_all": "Please fill out all required fields (Name, Email, Message).",
     "sending": "Sending...",
     "send_message": "Send Message",
-    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com"
+    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com",
+    "whatsapp_helpline": "வாட்ஸ்அப் உதவி எண்"
   },
   "cookie_policy": {
     "back_to_home": "Back to home",

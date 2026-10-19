@@ -79,7 +79,7 @@ function WeatherPageInner() {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
             source: "browser",
-            label: activeLang === "kn" ? "ನಿಖರ ಜಿಪಿಎಸ್ ಸ್ಥಳ" : activeLang === "hi" ? "सटीक जीपीएस स्थान" : "Precise GPS Location"
+            label: t.gps_precise_label || "Precise GPS Location"
           })
           setResolving(false)
         },
@@ -87,17 +87,13 @@ function WeatherPageInner() {
           console.error("GPS error:", err)
           setResolving(false)
           // Don't show hard block, just notify user
-          setError(activeLang === "kn"
-            ? "ಸ್ಥಳದ ಅನುಮತಿ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಜಿಪಿಎಸ್ ಆನ್ ಮಾಡಿ ಅಥವಾ ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ."
-            : activeLang === "hi" 
-            ? "लोकेशन की अनुमति नहीं मिली। कृपया जीपीएस ऑन करें या शहर चुनें।" 
-            : "Location permission denied. Please enable GPS or select a city.")
+          setError(t.gps_denied_err || "Location permission denied. Please enable GPS or select a city.")
         },
         { enableHighAccuracy: true, timeout: 8000 }
       )
     } else {
       setResolving(false)
-      setError(activeLang === "kn" ? "ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜಿಪಿಎಸ್ ಲಭ್ಯವಿಲ್ಲ." : activeLang === "hi" ? "आपके डिवाइस में जीपीएस उपलब्ध नहीं है।" : "GPS is not supported on this device.")
+      setError(t.gps_unsupported_err || "GPS is not supported on this device.")
     }
   }
 
@@ -114,7 +110,7 @@ function WeatherPageInner() {
             setResolving(false)
             return
           }
-          if (mounted) setError(activeLang === "kn" ? "ಸ್ಥಳ ಕಂಡುಬಂದಿಲ್ಲ; ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸ್ಥಳದ ಹವಾಮಾನ ತೋರಿಸಲಾಗುತ್ತಿದೆ." : activeLang === "hi" ? "स्थान नहीं मिला; आपके वर्तमान स्थान का मौसम दिखा रहे हैं।" : "Location was not found; showing weather for your current location.")
+          if (mounted) setError(t.location_not_found || "Location was not found; showing weather for your current area.")
         } catch {
           // Fall through to the normal location chain. The page never invents a city.
         }
@@ -189,13 +185,22 @@ function WeatherPageInner() {
     voiceSpokenRef.current = true
     const day = forecast?.daily[0]
     const rain = day?.chance_of_rain
-    const message = activeLang === "kn"
-      ? `${current.location.name} ನಲ್ಲಿ ಪ್ರಸ್ತುತ ತಾಪಮಾನ ${Math.round(current.current.temp_c)} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್ ಆಗಿದೆ.${rain != null ? ` ಮುಂದಿನ ಮುನ್ಸೂಚನೆಯಲ್ಲಿ ಮಳೆಯ ಸಾಧ್ಯತೆ ಶೇಕಡಾ ${rain} ಇದೆ.` : ""}`
-      : activeLang === "hi"
-      ? `${current.location.name} में अभी तापमान ${Math.round(current.current.temp_c)} डिग्री सेल्सियस है।${rain != null ? ` अगले पूर्वानुमान में बारिश की संभावना ${rain} प्रतिशत है।` : ""}`
-      : `The current temperature in ${current.location.name} is ${Math.round(current.current.temp_c)} degrees Celsius.${rain != null ? ` The forecast rain chance is ${rain} percent.` : ""}`
+    const message = getWeatherSpeech(activeLang, current.location.name, current.current.temp_c, rain)
+    const bcpMap: Record<string, string> = {
+      kn: "kn-IN",
+      hi: "hi-IN",
+      te: "te-IN",
+      ta: "ta-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      bn: "bn-IN",
+      pa: "pa-IN",
+      ml: "ml-IN",
+      hi_en: "hi-IN",
+      en: "en-IN",
+    }
     const utterance = new SpeechSynthesisUtterance(message)
-    utterance.lang = activeLang === "kn" ? "kn-IN" : activeLang === "hi" ? "hi-IN" : "en-IN"
+    utterance.lang = bcpMap[activeLang] || "en-IN"
     window.speechSynthesis.cancel()
     window.speechSynthesis.speak(utterance)
   }, [voiceRun, current, forecast, activeLang])
@@ -279,7 +284,20 @@ function WeatherPageInner() {
     }
 
     const utterance = new SpeechSynthesisUtterance(speechText)
-    utterance.lang = activeLang === "en" ? "en-IN" : `${activeLang}-IN`
+    const bcpMap: Record<string, string> = {
+      kn: "kn-IN",
+      hi: "hi-IN",
+      te: "te-IN",
+      ta: "ta-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      bn: "bn-IN",
+      pa: "pa-IN",
+      ml: "ml-IN",
+      hi_en: "hi-IN",
+      en: "en-IN",
+    }
+    utterance.lang = bcpMap[activeLang] || "en-IN"
     
     utterance.onend = () => setSpeaking(false)
     utterance.onerror = () => setSpeaking(false)
@@ -346,7 +364,7 @@ function WeatherPageInner() {
             <LocationSearch
               onSelect={onSelectLocation}
               onUseCurrentLocation={onUseCurrentLocation}
-              placeholder={activeLang === "kn" ? "ನಗರವನ್ನು ಹುಡುಕಿ..." : activeLang === "hi" ? "शहर खोजें..." : "Search city..."}
+              placeholder={t.search_city_placeholder || "Search city or district..."}
             />
           </div>
         </div>
@@ -400,7 +418,7 @@ function WeatherPageInner() {
                         🌾 {t.farmer_advice_title}
                       </CardTitle>
                       <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">
-                        {activeLang === "kn" ? "ನಿಖರ ಹವಾಮಾನದ ಆಧಾರದ ಮೇಲೆ ದೈನಂದಿನ ಕೃಷಿ ಸಲಹೆಗಳು" : activeLang === "hi" ? "सटीक मौसम के आधार पर दैनिक कृषि सुझाव" : "Daily farming actions matched to current forecast"}
+                        {t.advisory_subtitle || "Daily agriculture advisory based on precise weather conditions"}
                       </p>
                     </div>
 
@@ -478,250 +496,85 @@ function WeatherPageInner() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {activeLang === "kn" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಎಂದರೇನು ಮತ್ತು ಇದು ಕೃಷಿಗೆ ಏಕೆ ಮುಖ್ಯ?</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
-                ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ (Weather Forecasting) ಎಂದರೆ ವಾತಾವರಣದ ಭೌತಿಕ ಪರಿಸ್ಥಿತಿಗಳನ್ನು (ತಾಪಮಾನ, ತೇವಾಂಶ, ವಾಯುಭಾರ ಮತ್ತು ಗಾಳಿಯ ವೇಗ) ಅಧ್ಯಯನ ಮಾಡಿ ಮುಂದಿನ ಹವಾಮಾನವನ್ನು ಅಂದಾಜಿಸುವ ವಿಜ್ಞಾನ. ಭಾರತೀಯ ಕೃಷಿಯಲ್ಲಿ ಬಹುಪಾಲು ರೈತರು ಮಳೆಯನ್ನೇ ಅವಲಂಬಿಸಿರುವುದರಿಂದ, ನಿಖರ ಹವಾಮಾನ ಮಾಹಿತಿಯು ಬೆಳೆಯ ಯಶಸ್ಸು ಮತ್ತು ನಷ್ಟದ ನಡುವಿನ ಪ್ರಮುಖ ನಿರ್ಧಾರಕವಾಗಿದೆ.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">🌧️ ಮಳೆ ಮತ್ತು ಬೆಳೆಗಳ ಸಂಬಂಧ: ನೀರಿನ ಸೂಕ್ತ ಸಮತೋಲನ</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  ನೀರು ಬೆಳೆಗಳ ಜೀವಾಳ, ಆದರೆ ಮಳೆ ಅತಿಯಾದರೂ ಅಥವಾ ಕಡಿಮೆಯಾದರೂ ಹಾನಿಯಾಗುತ್ತದೆ. ಉದಾಹರಣೆಗೆ, ಭತ್ತಕ್ಕೆ ಆರಂಭಿಕ ಹಂತದಲ್ಲಿ ಹೆಚ್ಚಿನ ನೀರು ಬೇಕು, ಆದರೆ ಕೊಯ್ಲಿನ ಸಮಯದಲ್ಲಿ ಒಣ ಹವೆ ಇರಬೇಕು. ಭಾರೀ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಮುಂಚಿತವಾಗಿ ತಿಳಿದರೆ, ನೀರಾವರಿಯನ್ನು ತಡೆಹಿಡಿದು ನೀರು ಮತ್ತು ವಿದ್ಯುತ್ ಉಳಿಸಬಹುದು ಹಾಗೂ ಬೆಳೆ ಕೊಳೆಯುವುದನ್ನು ತಪ್ಪಿಸಬಹುದು.
+        {(() => {
+          const guide = WEATHER_GUIDE_I18N[activeLang] || WEATHER_GUIDE_I18N.en
+          return (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">
+                  {guide.title}
+                </h2>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                  {guide.desc}
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">📅 ಹಂಗಾಮು ಯೋಜನೆ ಮಾರ್ಗದರ್ಶಿ: ಮುಂಗಾರು (ಖಾರಿಫ್) ಮತ್ತು ಹಿಂಗಾರು (ರಬಿ)</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  ಕರ್ನಾಟಕ ಮತ್ತು ಭಾರತದಲ್ಲಿ ಎರಡು ಪ್ರಮುಖ ಬೆಳೆ ಚಕ್ರಗಳಿವೆ: <strong>ಮುಂಗಾರು / ಖಾರಿಫ್ (Monsoon crops)</strong> ಮತ್ತು <strong>ಹಿಂಗಾರು / ರಬಿ (Winter crops)</strong>. ಹತ್ತಿ, ಮೆಕ್ಕೆಜೋಳ ಬಿತ್ತನೆಗೆ ಮೊದಲ ಮುಂಗಾರು ಮಳೆಯ ಸಮಯ ತಿಳಿಯುವುದು ಅಗತ್ಯ. ರಬಿ ಬೆಳೆಗಳಾದ ಗೋಧಿ, ಕಡಲೆ ಬಿತ್ತನೆಗೆ ಕಡಿಮೆ ತಾಪಮಾನ ಮತ್ತು ಒಣ ಹವೆ ಬೇಕು. ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯು ಸರಿಯಾದ ಸಮಯದಲ್ಲಿ ಬಿತ್ತನೆ ಮಾಡಲು ನೆರವಾಗುತ್ತದೆ.
-                </p>
-              </div>
-            </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3 shadow-sm">
+                  <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card1_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {guide.card1_desc}
+                  </p>
+                </div>
 
-            <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4">
-              <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">⚠️ ಪ್ರತಿಕೂಲ ಹವಾಮಾನ ಸಂದರ್ಭಗಳಲ್ಲಿ ಕೃಷಿ ನಿರ್ಧಾರಗಳು</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/50 pr-4">
-                  <h4 className="font-extrabold text-foreground">1. ಬಿಸಿಗಾಳಿ (Heatwaves)</h4>
-                  <p>ತಾಪಮಾನ 38-40°C ಗಿಂತ ಹೆಚ್ಚಿರುವಾಗ ಲಘುವಾಗಿ ಮತ್ತು ಆಗಾಗ ನೀರು ಹಾಯಿಸಿ. ಮಧ್ಯಾಹ್ನ ಸಿಂಪಡಣೆ ನೀರಾವರಿ ಮಾಡಬೇಡಿ. ಮಣ್ಣಿನಲ್ಲಿ ತೇವಾಂಶ ಉಳಿಸಲು ಹೊದಿಕೆ (Mulching) ಬಳಸಿ.</p>
+                <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3 shadow-sm">
+                  <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card2_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {guide.card2_desc}
+                  </p>
                 </div>
-                <div className="space-y-2 border-r border-border/50 px-4">
-                  <h4 className="font-extrabold text-foreground">2. ಬರಗಾಲ / ಮಳೆ ಕೊರತೆ</h4>
-                  <p>ಜೀವ ರಕ್ಷಕ ನೀರಾವರಿ (Life-saving irrigation) ಮಾತ್ರ ನೀಡಿ. ಕಡಿಮೆ ನೀರು ಬೇಡುವ ಸಿರಿಧಾನ್ಯಗಳು, ಬೇಳೆಕಾಳುಗಳಿಗೆ ಆದ್ಯತೆ ನೀಡಿ ಹಾಗೂ ಕಳೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ.</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-extrabold text-foreground">3. ಅತಿಯಾದ ಮಳೆ (Heavy Rain)</h4>
-                  <p>ಜಮೀನಿನಲ್ಲಿ ನೀರು ನಿಲ್ಲದಂತೆ ಬಸಿಗಾಲುವೆಗಳನ್ನು (Drainage) ಸಿದ್ಧವಾಗಿಡಿ. ಮಳೆಯ ನಂತರ ತಕ್ಷಣ ಯೂರಿಯಾ ಗೊಬ್ಬರ ಹಾಕಬೇಡಿ, ಏಕೆಂದರೆ ಅದು ನೀರಿನೊಂದಿಗೆ ಹರಿದು ಹೋಗುತ್ತದೆ.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-display font-extrabold text-foreground">❓ ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೋತ್ತರಗಳು (FAQs)</h2>
-              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">ಪ್ರ1. ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯು ಕೃಷಿಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ?</h4>
-                  <p>ಬಿತ್ತನೆ, ನೀರಾವರಿ, ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆ ಮತ್ತು ಕೊಯ್ಲು ಕಾರ್ಯಗಳನ್ನು ಸೂಕ್ತ ಸಮಯದಲ್ಲಿ ಮಾಡಲು ನೆರವಾಗುತ್ತದೆ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">ಪ್ರ2. ಮಳೆಯ ತಕ್ಷಣವೇ ಯೂರಿಯಾ ಗೊಬ್ಬರ ಹಾಕಬಹುದೇ?</h4>
-                  <p>ಇಲ್ಲ, ಭಾರೀ ಮಳೆಯ ಸಮಯದಲ್ಲಿ ಅಥವಾ ನಂತರ ಯೂರಿಯಾ ಹಾಕಿದರೆ ಅದು ನೀರಿನಲ್ಲಿ ಕರಗಿ ಹರಿದು ಹೋಗುತ್ತದೆ, ಬೆಳೆಗೆ ಸಿಗುವುದಿಲ್ಲ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">ಪ್ರ3. ಸಿಂಪಡಣೆ ನೀರಾವರಿಗೆ (Sprinkler) ಸೂಕ್ತ ಸಮಯ ಯಾವುದು?</h4>
-                  <p>ಗಾಳಿಯ ವೇಗ ಕಡಿಮೆಯಿರುವ ಮುಂಜಾನೆ ಅಥವಾ ಸಂಜೆಯ ವೇಳೆ ನೀರು ಹಾಯಿಸುವುದು ಉತ್ತಮ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">ಪ್ರ4. ಗಾಳಿಯ ವೇಗ ಮತ್ತು ದಿಕ್ಕು ತಿಳಿಯುವುದು ಏಕೆ ಮುಖ್ಯ?</h4>
-                  <p>ವೇಗವಾಗಿ ಗಾಳಿ ಬೀಸುವಾಗ ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸಬಾರದು, ಏಕೆಂದರೆ ಔಷಧ ಪಕ್ಕದ ಜಮೀನಿಗೆ ಹಾರಿ ವ್ಯರ್ಥವಾಗುತ್ತದೆ.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : activeLang === "hi" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 मौसम पूर्वानुमान क्या है और यह खेती के लिए क्यों आवश्यक है?</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
-                मौसम पूर्वानुमान (Weather Forecasting) विज्ञान की वह शाखा है जो वायुमंडल की भौतिकीय स्थितियों (जैसे तापमान, आर्द्रता, वायुदाब और पवन की गति) का अध्ययन कर आने वाले समय के मौसम का अनुमान लगाती है। भारतीय उपमहाद्वीप में, जहां अधिकांश किसान मानसून पर निर्भर रहते हैं, मौसम की सटीक जानकारी कृषि उत्पादन की सफलता और असफलता के बीच का मुख्य अंतर होती है।
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">🌧️ वर्षा और फसलों का संबंध: पानी का सही संतुलन</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  पानी फसलों का जीवन है, लेकिन इसकी अधिकता या कमी दोनों ही नुकसानदेह हैं। उदाहरण के लिए, धान (धान की खेती) को विकास के शुरुआती चरणों में अत्यधिक पानी की आवश्यकता होती है, लेकिन कटाई के समय सूखा मौसम आवश्यक होता है। यदि किसान को पहले से पता हो कि भारी वर्षा होने वाली है, तो वे सिंचाई को रोक सकते हैं, जिससे पानी और बिजली की बचत होती है और फसलें सड़ने से बचती हैं।
-                </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">📅 मौसमी नियोजन मार्गदर्शिका: खरीफ बनाम रबी मौसम</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  भारत में दो मुख्य फसल चक्र होते हैं: <strong>खरीफ (Monsoon crops)</strong> और <strong>रबी (Winter crops)</strong>। खरीफ फसलों (जैसे कपास, मक्का) की बुवाई के लिए पहली मानसून बारिश का सटीक समय जानना जरूरी है। इसके विपरीत, रबी फसलों (जैसे गेहूं, सरसों) की बुवाई के लिए तापमान में हल्की गिरावट और कम आर्द्रता की आवश्यकता होती है। मौसम पूर्वानुमान इन दोनों चक्रों के बीच सुचारू संक्रमण सुनिश्चित करता है।
-                </p>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4">
-              <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">⚠️ विपरीत मौसम परिस्थितियों में कृषि निर्णय</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/50 pr-4">
-                  <h4 className="font-extrabold text-foreground">1. लू (Heatwaves)</h4>
-                  <p>तापमान 40 डिग्री सेल्सियस से ऊपर जाने पर हल्की और बार-बार सिंचाई करें। दोपहर के समय छिड़काव सिंचाई (Sprinkler irrigation) से बचें। मल्चिंग का उपयोग कर मिट्टी की नमी को उड़ने से रोकें।</p>
+              <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4 shadow-sm">
+                <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">
+                  {guide.alert_title}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                  <div className="space-y-2 border-r border-border/50 pr-4">
+                    <h4 className="font-extrabold text-foreground">{guide.alert1_title}</h4>
+                    <p>{guide.alert1_desc}</p>
+                  </div>
+                  <div className="space-y-2 border-r border-border/50 px-4">
+                    <h4 className="font-extrabold text-foreground">{guide.alert2_title}</h4>
+                    <p>{guide.alert2_desc}</p>
+                  </div>
+                  <div className="space-y-2 pl-4">
+                    <h4 className="font-extrabold text-foreground">{guide.alert3_title}</h4>
+                    <p>{guide.alert3_desc}</p>
+                  </div>
                 </div>
-                <div className="space-y-2 border-r border-border/50 px-4">
-                  <h4 className="font-extrabold text-foreground">2. सूखा (Drought)</h4>
-                  <p>सूखे की स्थिति में केवल जीवन रक्षक सिंचाई (Life-saving irrigation) का उपयोग करें। कम पानी चाहने वाली फसलों (जैसे बाजरा, ग्वार) को प्राथमिकता दें और खरपतवार नियंत्रण पर विशेष ध्यान दें ताकि पानी केवल फसल को मिले।</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-extrabold text-foreground">3. अत्यधिक वर्षा (Heavy Rain)</h4>
-                  <p>खेतों में जलभराव न होने दें। जल निकासी (Drainage channels) को तुरंत साफ करें। भारी बारिश के बाद नाइट्रोजन उर्वरकों (जैसे यूरिया) का छिड़काव न करें, क्योंकि वे पानी के साथ बह जाते हैं।</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-display font-extrabold text-foreground">❓ अक्सर पूछे जाने वाले प्रश्न (FAQs)</h2>
-              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q1. मौसम पूर्वानुमान खेती में कैसे मदद करता है?</h4>
-                  <p>यह किसानों को बुवाई, सिंचाई, कीटनाशकों के छिड़काव और फसल की कटाई के समय का सही निर्णय लेने में मदद करता है ताकि नुकसान कम से कम हो।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q2. क्या बारिश के तुरंत बाद यूरिया डालना सही है?</h4>
-                  <p>नहीं, भारी बारिश के दौरान या तुरंत बाद यूरिया डालने से वह पानी में बह जाता है या रिसकर जमीन के नीचे चला जाता है, जिससे फसल को पोषक तत्व नहीं मिल पाते।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q3. छिड़काव सिंचाई (Sprinkler) का सही समय क्या है?</h4>
-                  <p>हवा की गति कम होने पर सुबह या शाम के समय छिड़काव सिंचाई सर्वोत्तम है। तेज धूप में पानी का वाष्पीकरण हो जाता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q4. ओलावृष्टि (Hailstorm) की चेतावनी मिलने पर क्या करें?</h4>
-                  <p>यदि फसल पक चुकी है तो तुरंत कटाई कर लें और सुरक्षित स्थान पर रखें। यदि फसल खड़ी है तो यदि संभव हो तो एंटी-हेल नेट का उपयोग करें।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q5. हवा की गति और दिशा जानना क्यों जरूरी है?</h4>
-                  <p>तेज हवाओं में कीटनाशक का छिड़काव नहीं करना चाहिए क्योंकि दवा उड़कर दूसरी जगह चली जाती है। छिड़काव हमेशा हवा की दिशा के अनुकूल करना चाहिए।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q6. पाला (Frost) पड़ने की संभावना होने पर फसलों को कैसे बचाएं?</h4>
-                  <p>पाले की संभावना होने पर खेत के चारों ओर धुआं करें या हल्की सिंचाई करें। इससे खेत का तापमान सामान्य रहता है और फसलें ठिठुरती नहीं हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q7. सापेक्षिक आर्द्रता (Relative Humidity) का फसलों पर क्या प्रभाव पड़ता है?</h4>
-                  <p>अधिक आर्द्रता के साथ गर्म मौसम कवक जनित बीमारियों (Fungal diseases) के फैलने के लिए अनुकूल होता है। ऐसे समय में रोग नियंत्रण के उपाय जरूरी हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q8. खरीफ सीजन की मुख्य फसलें कौन सी हैं?</h4>
-                  <p>धान (चावल), मक्का, बाजरा, कपास, सोयाबीन, मूंगफली और दालें खरीफ सीजन की मुख्य फसलें हैं जो बरसात के मौसम में उगाई जाती हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q9. रबी सीजन की मुख्य फसलें कौन सी हैं?</h4>
-                  <p>गेहूं, जौ, चना, मटर, सरसों, अलसी और आलू रबी सीजन की मुख्य फसलें हैं जो सर्दियों के मौसम में उगाई जाती हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q10. क्या KisaanBuddy का मौसम डेटा लाइव है?</h4>
-                  <p>हाँ, KisaanBuddy लाइव मौसम डेटा उपग्रह इमेजरी और राष्ट्रीय ग्रिड स्टेशनों से संकलित कर सटीक कृषि परामर्श प्रदान करता है।</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 What is Weather Forecasting and Why Do Farmers Need It?</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
-                Weather forecasting is the scientific process of predicting atmospheric conditions—such as temperature, precipitation, humidity, and wind speed—for a specific geographic location. In Indian agriculture, where a majority of farms rely on seasonal monsoons, accessing accurate weather information represents the critical boundary between a successful harvest and crop failure.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">🌧️ Rainfall and Crop Growth: The Delicate Balance</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Water is key to plant growth, but excess or deficit can destroy crop yields. For example, Paddy (rice cultivation) requires standing water during early growth stages, but dry, warm weather during harvesting. If farmers anticipate heavy rainfall through our forecast, they can delay irrigation, saving water, electricity, and preventing root rot.
-                </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">📅 Seasonal Planning Guide: Kharif vs. Rabi Seasons</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  India relies on two major cropping cycles: <strong>Kharif (Monsoon)</strong> and <strong>Rabi (Winter)</strong>. Sowing Kharif crops (like Cotton, Maize) requires precise tracking of the monsoon arrival. Conversely, Rabi crops (like Wheat, Mustard) depend on mild temperature drops and lower humidity. Weather advisory guides ensure smooth transition planning between these cycles.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4">
-              <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">⚠️ Farming Decisions Under Extreme Weather Conditions</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/50 pr-4">
-                  <h4 className="font-extrabold text-foreground">1. Heatwaves</h4>
-                  <p>When temperatures exceed 40°C, apply light and frequent irrigation. Avoid sprinkler irrigation during peak noon heat to minimize evaporation. Use organic mulching to protect soil moisture.</p>
-                </div>
-                <div className="space-y-2 border-r border-border/50 px-4">
-                  <h4 className="font-extrabold text-foreground">2. Drought</h4>
-                  <p>Prioritize life-saving irrigation. Sow drought-resistant varieties like Pearl Millet (Bajra) or Cluster Beans (Guar), and strictly eliminate weeds to prevent them from stealing moisture.</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-extrabold text-foreground">3. Heavy Rain</h4>
-                  <p>Avoid waterlogging by maintaining functional drainage channels. Do not apply nitrogen fertilizers like urea during heavy rain as they will wash away into run-off channels.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-display font-extrabold text-foreground">❓ Frequently Asked Questions (FAQs)</h2>
-              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q1. How does weather forecasting assist farmers?</h4>
-                  <p>It helps schedule sowing, fertilizing, spraying pesticides, and harvesting. This minimizes risk and reduces resource waste.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q2. Is it good to apply urea right after rain?</h4>
-                  <p>No, heavy rain washes away urea or causes it to leach below root zones, leaving crops nutrient-deprived.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q3. When is the best time for sprinkler irrigation?</h4>
-                  <p>Morning or evening hours when wind speeds are low and evaporation rates are minimal.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q4. What should be done on a hailstorm warning?</h4>
-                  <p>If the crops are mature, harvest them immediately. If not, secure anti-hail netting if available.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q5. Why are wind speed and direction important?</h4>
-                  <p>High winds cause pesticide sprays to drift away. Sprays should be executed in the direction of the wind and during calm hours.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q6. How do you prevent frost damage?</h4>
-                  <p>Generate smoke rings around fields or apply light irrigation. This raises the microclimate temperature of the farm fields.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q7. What is the impact of high relative humidity?</h4>
-                  <p>Warm and highly humid conditions encourage fungal pathogens. Monitor leaves closely for early blight or rust.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q8. What are the key Kharif crops?</h4>
-                  <p>Paddy, Maize, Cotton, Soybeans, Groundnuts, and certain pulses grown during the rainy season.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q9. What are the key Rabi crops?</h4>
-                  <p>Wheat, Mustard, Barley, Peas, Gram, and Potatoes grown during the cool winter season.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q10. Is the weather data on KisaanBuddy live?</h4>
-                  <p>Yes, weather indicators are fetched in real-time using local station data and satellite monitoring systems.</p>
+              <div className="space-y-4">
+                <h2 className="text-2xl font-display font-extrabold text-foreground">
+                  {guide.faq_title}
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq1_q}</h4>
+                    <p>{guide.faq1_a}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq2_q}</h4>
+                    <p>{guide.faq2_a}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq3_q}</h4>
+                    <p>{guide.faq3_a}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq4_q}</h4>
+                    <p>{guide.faq4_a}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </section>
     </div>
   )

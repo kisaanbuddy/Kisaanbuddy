@@ -482,7 +482,15 @@
     "optimize_your_harvesting_operations": "Optimize Your Harvesting Operations Today",
     "register_a_free_account": "Register a free account, test your crop disease models, and start keeping logs in Khet Diary.",
     "join_free": "Join Free",
-    "go_to_home": "Go to Home"
+    "go_to_home": "Go to Home",
+    "faq_title": "പതിവായി ചോദിക്കുന്ന ചോദ്യങ്ങൾ (FAQ)",
+    "faq_subtitle": "KisaanBuddy-യെക്കുറിച്ചുള്ള പൊതുവായ ചോദ്യങ്ങളും ഉത്തരങ്ങളും",
+    "faq_q1": "ചോദ്യം 1. എന്താണ് KisaanBuddy?",
+    "faq_a1": "ഉത്തരം: കർഷകർക്ക് വിള രോഗങ്ങൾ തിരിച്ചറിയാനും മണ്ണിന്റെ ആരോഗ്യം പരിശോധിക്കാനും സഹായിക്കുന്ന AI കാർഷിക ഉപദേശക പ്ലാറ്റ്‌ഫോമാണ് KisaanBuddy.",
+    "faq_q2": "ചോദ്യം 2. KisaanBuddy ഉപയോഗിക്കാൻ ഫീസ് നൽകേണ്ടതുണ്ടോ?",
+    "faq_a2": "ഉത്തരം: ഇല്ല, ഇന്ത്യയിലെ എല്ലാ കർഷകർക്കും KisaanBuddy പൂർണ്ണമായും സൗജന്യമാണ്.",
+    "faq_q3": "ചോദ്യം 3. രോഗനിർണയ സംവിധാനം എങ്ങനെ പ്രവർത്തിക്കുന്നു?",
+    "faq_a3": "ഉത്തരം: ഞങ്ങളുടെ AI മോഡൽ ഇലകളുടെ ഫോട്ടോ വിശകലനം ചെയ്ത് രോഗം നിർണ്ണയിക്കുകയും പരിഹാരങ്ങൾ നിർദ്ദേശിക്കുകയും ചെയ്യുന്നു."
   },
   "chatbot": {
     "could_not_connect_to": "Could not connect to backend. Make sure the server is running.",
@@ -517,7 +525,8 @@
     "please_fill_out_all": "Please fill out all required fields (Name, Email, Message).",
     "sending": "Sending...",
     "send_message": "Send Message",
-    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com"
+    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com",
+    "whatsapp_helpline": "വാട്ട്‌സ്ആപ്പ് ഹെൽപ്പ്‌ലൈൻ"
   },
   "cookie_policy": {
     "back_to_home": "Back to home",

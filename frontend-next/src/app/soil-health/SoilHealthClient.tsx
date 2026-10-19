@@ -140,7 +140,20 @@ const INITIAL: SoilForm = {
 // ─── Prompt builder ───────────────────────────────────────────────────────────
 
 function buildPrompt(f: SoilForm): string {
-  const lang = f.language === "hi" ? "Hindi" : f.language === "kn" ? "Kannada" : "English"
+  const langMap: Record<string, string> = {
+    hi: "Hindi",
+    kn: "Kannada",
+    te: "Telugu",
+    ta: "Tamil",
+    mr: "Marathi",
+    gu: "Gujarati",
+    bn: "Bengali",
+    pa: "Punjabi",
+    ml: "Malayalam",
+    hi_en: "Hinglish (Hindi written in Roman script)",
+    en: "English",
+  }
+  const lang = langMap[f.language] || "English"
   return `You are KisaanBuddy's expert agronomist. Based on the soil health card readings below, give a precise fertilizer recommendation.
 
 Soil Report:
@@ -289,10 +302,10 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 export default function SoilHealthPage() {
   const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
-  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
+  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang as Language) || "hi" }))
   
   useEffect(() => {
-    setForm((f) => ({ ...f, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
+    setForm((f) => ({ ...f, language: (lang as Language) || "en" }))
   }, [lang])
 
   useEffect(() => {
@@ -443,12 +456,25 @@ export default function SoilHealthPage() {
         .replace(/[#*`_-]/g, " ")
         .replace(/\s+/g, " ")
         .slice(0, 1500)
+      const bcpMap: Record<string, string> = {
+        hi: "hi-IN",
+        kn: "kn-IN",
+        te: "te-IN",
+        ta: "ta-IN",
+        mr: "mr-IN",
+        gu: "gu-IN",
+        bn: "bn-IN",
+        pa: "pa-IN",
+        ml: "ml-IN",
+        hi_en: "hi-IN",
+        en: "en-IN",
+      }
       const res = await fetch("/api/sarvam/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: plainText,
-          language: form.language === "hi" ? "hi-IN" : form.language === "kn" ? "kn-IN" : "en-IN",
+          language: bcpMap[form.language] || "en-IN",
           speaker: "priya",
         }),
       })
@@ -480,7 +506,7 @@ export default function SoilHealthPage() {
     setTtsPlaying(false)
     setExtractedCard(null)
     setSaveSuccess(false)
-    setForm({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" })
+    setForm({ ...INITIAL, language: (lang as Language) || "en" })
     setResponse("")
     setDone(false)
     setError(null)
@@ -764,21 +790,21 @@ export default function SoilHealthPage() {
             {/* Language Selector */}
             <div className="space-y-2 pt-2">
               <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold block">
-                {lang === "kn" ? "ಉತ್ತರದ ಭಾಷೆ / Response Language" : lang === "hi" ? "उत्तर की भाषा / Response Language" : "Response Language"}
+                {(SOIL_PAGE_I18N[lang] || SOIL_PAGE_I18N.en).responseLanguageLabel}
               </Label>
-              <div className="inline-flex rounded-xl border border-border/50 bg-muted/30 p-1 gap-1">
-                {(["hi", "en", "kn"] as Language[]).map((l) => (
+              <div className="inline-flex flex-wrap rounded-xl border border-border/50 bg-muted/30 p-1 gap-1">
+                {ALL_LANG_OPTIONS.map(({ code: l, label }) => (
                   <button
                     key={l}
                     type="button"
                     onClick={() => upd("language", l)}
-                    className={`rounded-lg px-3.5 py-1.5 transition-all text-xs font-semibold ${
+                    className={`rounded-lg px-2.5 py-1.5 transition-all text-xs font-semibold ${
                       form.language === l 
                         ? "bg-emerald-600 text-white shadow-sm" 
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {l === "hi" ? "हिन्दी" : l === "kn" ? "ಕನ್ನಡ" : "English"}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -792,13 +818,7 @@ export default function SoilHealthPage() {
                 className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-sm"
               >
                 {streaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {streaming
-                  ? t("analyzing")
-                  : lang === "kn"
-                  ? "ಗೊಬ್ಬರದ ಶಿಫಾರಸು ಪಡೆಯಿರಿ"
-                  : lang === "hi"
-                  ? "खाद की सिफारिशें प्राप्त करें"
-                  : "Generate Recommendations"}
+                {streaming ? t("analyzing") : (SOIL_PAGE_I18N[lang] || SOIL_PAGE_I18N.en).getRecommendationBtn}
               </Button>
               {(response || done) && (
                 <Button 
@@ -975,275 +995,75 @@ export default function SoilHealthPage() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {lang === "kn" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಎಂದರೇನು ಮತ್ತು ರೈತರು ಅದನ್ನು ಹೇಗೆ ಸುಧಾರಿಸಬಹುದು?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                ಮಣ್ಣಿನ ಆರೋಗ್ಯ (Soil Health) ಎಂದರೆ ಬೆಳೆಗಳಿಗೆ ಅಗತ್ಯವಿರುವ ಪೋಷಕಾಂಶಗಳು, ಗಾಳಿ ಮತ್ತು ನೀರನ್ನು ನಿರಂತರವಾಗಿ ಒದಗಿಸುವ ಜೈವಿಕ ಸಾಮರ್ಥ್ಯ. ಆರೋಗ್ಯಕರ ಮಣ್ಣು ಕೇವಲ ಹೆಚ್ಚಿನ ಇಳುವರಿ ನೀಡುವುದು ಮಾತ್ರವಲ್ಲದೆ, ಬರಗಾಲ ಮತ್ತು ರೋಗಗಳ ಪರಿಣಾಮವನ್ನು ಕಡಿಮೆ ಮಾಡುತ್ತದೆ. ಮಣ್ಣಿನ ಫಲವತ್ತತೆಯ ಸರಿಯಾದ ನಿರ್ವಹಣೆಗಾಗಿ ಮುಖ್ಯ ಮೂರು ಪೋಷಕಾಂಶಗಳಾದ <strong>N (ಸಾರಜನಕ)</strong>, <strong>P (ರಂಜಕ)</strong>, ಮತ್ತು <strong>K (ಪೊಟ್ಯಾಶ್)</strong> ಸಮತೋಲನವನ್ನು ತಿಳಿಯುವುದು ಅತಿ ಮುಖ್ಯ.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🧪 NPK ಮತ್ತು ಮಣ್ಣಿನ pH ಮೌಲ್ಯ ತಿಳಿಯಿರಿ</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>N (ಸಾರಜನಕ):</strong> ಸಸ್ಯಗಳ ಹಸಿರು ಮತ್ತು ಎಲೆಗಳ ದೃಢ ಬೆಳವಣಿಗೆಗೆ ಸಹಕಾರಿ. ಇದರ ಕೊರತೆಯಿಂದ ಎಲೆಗಳು ಹಳದಿಯಾಗುತ್ತವೆ.<br />
-                  <strong>P (ರಂಜಕ):</strong> ಬೇರುಗಳ ಬಲವರ್ಧನೆ ಮತ್ತು ಸಕಾಲದಲ್ಲಿ ಹೂವು, ಕಾಯಿ ಕಚ್ಚಲು ಅತ್ಯವಶ್ಯಕ.<br />
-                  <strong>K (ಪೊಟ್ಯಾಶ್):</strong> ರೋಗ ನಿರೋಧಕ ಶಕ್ತಿ, ಕಾಂಡದ ಬಲ ಮತ್ತು ಧಾನ್ಯಗಳ ತೂಕ ಹೆಚ್ಚಿಸುತ್ತದೆ.<br />
-                  <strong>pH ಮಟ್ಟ:</strong> ಮಣ್ಣಿನ pH (6.5 ರಿಂದ 7.5) ಸೂಕ್ತ ಮಟ್ಟವಾಗಿದೆ. ಆಮ್ಲೀಯ ಮಣ್ಣನ್ನು (&lt; 6.0) ಸುಧಾರಿಸಲು ಕೃಷಿ ಸುಣ್ಣ (Lime) ಬಳಸಿ. ಕ್ಷಾರೀಯ ಮಣ್ಣನ್ನು (&gt; 8.0) ಸರಿಪಡಿಸಲು ಜಿಪ್ಸಮ್ (Gypsum) ಬಳಸಿ.
+        {(() => {
+          const guide = SOIL_HEALTH_GUIDE_I18N[lang as keyof typeof SOIL_HEALTH_GUIDE_I18N] || SOIL_HEALTH_GUIDE_I18N.en
+          return (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">
+                  {guide.title}
+                </h2>
+                <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
+                  {guide.desc}
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🌱 ಸಾವಯವ ಇಂಗಾಲ (Organic Carbon) ಮತ್ತು ಗೊಬ್ಬರ ನಿರ್ವಹಣೆ</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  ಸಾವಯವ ಇಂಗಾಲವು ಮಣ್ಣಿನ ಜೀವನಾಡಿ. ಫಲವತ್ತಾದ ಕೃಷಿ ಭೂಮಿಯಲ್ಲಿ ಸಾವಯವ ಇಂಗಾಲದ ಮಟ್ಟ 0.8% ಕ್ಕಿಂತ ಹೆಚ್ಚಿರಬೇಕು. ಇದನ್ನು ಹೆಚ್ಚಿಸಲು ರಾಸಾಯನಿಕ ಗೊಬ್ಬರಗಳ ಮೇಲಿನ ಅತಿಯಾದ ಅವಲಂಬನೆ ಕಡಿಮೆ ಮಾಡಿ, ಎರೆಹುಳು ಗೊಬ್ಬರ (Vermicompost), ಹಟ್ಟಿ ಗೊಬ್ಬರ (FYM), ಮತ್ತು ಹಸಿರೆಲೆ ಗೊಬ್ಬರಗಳನ್ನು (ಡೈಂಚಾ, ಸೆಣಬು) ಮಣ್ಣಿಗೆ ಸೇರಿಸಿ. ಹೂವಾಡುವ ಮುನ್ನ ಹಸಿರೆಲೆ ಬೆಳೆಯನ್ನು ಮಣ್ಣಿನಲ್ಲಿ ಉತ್ತು ಸೇರಿಸುವುದರಿಂದ ನೈಟ್ರೋಜನ್ ಮತ್ತು ಇಂಗಾಲ ಶೀಘ್ರವಾಗಿ ವೃದ್ಧಿಯಾಗುತ್ತದೆ.
-                </p>
-              </div>
-            </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                  <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card1_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {guide.card1_desc}
+                  </p>
+                </div>
 
-            <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
-              <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📋 ವೈಜ್ಞಾನಿಕ ಮಣ್ಣು ಪರೀಕ್ಷೆ ವಿಧಾನ</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/40 pr-4">
-                  <h4 className="font-bold text-foreground">1. V-ಆಕಾರದ ಗುಂಡಿ</h4>
-                  <p>ಜಮೀನಿನಲ್ಲಿ 8-10 ವಿವಿಧ ಸ್ಥಳಗಳಲ್ಲಿ ಮೇಲ್ಮೈ ಹುಲ್ಲನ್ನು ಸ್ವಚ್ಛಗೊಳಿಸಿ 15 ಸೆಂ.ಮೀ (6 ಇಂಚು) ಆಳದ 'V' ಆಕಾರದ ಗುಂಡಿ ತೋಡಿ, ಎರಡೂ ಬದಿಗಳಿಂದ 1 ಇಂಚು ದಪ್ಪದ ಮಣ್ಣಿನ ಪದರ ಸಂಗ್ರಹಿಸಿ.</p>
+                <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                  <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card2_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {guide.card2_desc}
+                  </p>
                 </div>
-                <div className="space-y-2 border-r border-border/40 px-4">
-                  <h4 className="font-bold text-foreground">2. ಮಿಶ್ರಣ ಮತ್ತು ಒಣಗಿಸುವುದು</h4>
-                  <p>ಸಂಗ್ರಹಿಸಿದ ಎಲ್ಲಾ ಸ್ಥಳಗಳ ಮಣ್ಣನ್ನು ಸ್ವಚ್ಛ ಪಾಲಿಥಿನ್ ಶೀಟ್ ಮೇಲೆ ಚೆನ್ನಾಗಿ ಬೆರೆಸಿ. ವೃತ್ತಾಕಾರವಾಗಿ ಹರಡಿ ನಾಲ್ಕು ಭಾಗ ಮಾಡಿ, ಎದುರುಬದುರಿನ ಎರಡು ಭಾಗಗಳನ್ನು ತೆಗೆಯಿರಿ. ಅರ್ಧ ಕೆಜಿ ಉಳಿಯುವವರೆಗೆ ಪುನರಾವರ್ತಿಸಿ, ನೆರಳಿನಲ್ಲಿ ಒಣಗಿಸಿ.</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-bold text-foreground">3. ಲ್ಯಾಬ್‌ಗೆ ಕಳುಹಿಸುವುದು</h4>
-                  <p>ಮಣ್ಣನ್ನು ಬಟ್ಟೆ ಚೀಲದಲ್ಲಿ ತುಂಬಿ ನಿಮ್ಮ ಹೆಸರು, ಮೊಬೈಲ್ ಸಂಖ್ಯೆ, ಸರ್ವೆ ನಂಬರ್ ಮತ್ತು ಬೆಳೆಯುವ ಬೆಳೆಯ ವಿವರ ನಮೂದಿಸಿ ಹತ್ತಿರದ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಮಣ್ಣು ಪರೀಕ್ಷಾ ಕೇಂದ್ರಕ್ಕೆ ನೀಡಿ.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಮತ್ತು ಪರೀಕ್ಷೆಯ ಬಗ್ಗೆ ಪ್ರಮುಖ ಪ್ರಶ್ನೋತ್ತರಗಳು (FAQs)</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ1. ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯನ್ನು ಎಷ್ಟು ದಿನಗಳಿಗೊಮ್ಮೆ ಮಾಡಿಸಬೇಕು?</h4>
-                  <p>ಪ್ರತಿ 2 ರಿಂದ 3 ವರ್ಷಗಳಿಗೊಮ್ಮೆ, ಬೆಳೆ ಕಟಾವಿನ ನಂತರ ಮತ್ತು ಮುಂದಿನ ಬಿತ್ತನೆಗೆ ಮೊದಲು ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮಾಡಿಸುವುದು ಕಡ್ಡಾಯ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ2. ಕ್ಷಾರೀಯ ಮಣ್ಣಿನ ಲಕ್ಷಣಗಳೇನು?</h4>
-                  <p>ಕ್ಷಾರೀಯ ಮಣ್ಣಿನ pH 8.5 ಕ್ಕಿಂತ ಹೆಚ್ಚಿರುತ್ತದೆ. ಇಂತಹ ಮಣ್ಣಿನಲ್ಲಿ ನೀರು ಇಂಗುವ ಸಾಮರ್ಥ್ಯ ಕಡಿಮೆಯಾಗಿ ಒಣಗಿದಾಗ ಬಿಳಿ ಉಪ್ಪಿನ ಪದರ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತದೆ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ3. ಸಾವಯವ ಇಂಗಾಲ ಹೆಚ್ಚಿಸಲು ಸುಲಭ ಮಾರ್ಗ ಯಾವುದು?</h4>
-                  <p>ಎಕರೆಗೆ 5-10 ಟನ್ ಕೊಟ್ಟಿಗೆ ಗೊಬ್ಬರ ಹಾಕುವುದು ಅಥವಾ ಮುಂಗಾರು ಮಳೆಗೆ ಮುನ್ನ ಡೈಂಚಾ ಬೆಳೆಸಿ ರೋಟಾವೇಟರ್ ಮೂಲಕ ಮಣ್ಣಿಗೆ ಸೇರಿಸುವುದು ಅತ್ಯಂತ ಪರಿಣಾಮಕಾರಿ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ4. ಮಣ್ಣಿನ ಆದರ್ಶ pH ಮಟ್ಟ ಎಷ್ಟು ಇರಬೇಕು?</h4>
-                  <p>ಹೆಚ್ಚಿನ ಬೆಳೆಗಳಿಗೆ (ಭತ್ತ, ಗೋಧಿ, ಮೆಕ್ಕೆಜೋಳ ಇತ್ಯಾದಿ) 6.5 ರಿಂದ 7.2 ರವರೆಗಿನ pH ಮೌಲ್ಯ ಅತ್ಯುತ್ತಮವಾಗಿದೆ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ5. ಯೂರಿಯಾ ಬದಲಿಗೆ ನೈಟ್ರೋಜನ್ ಕೊರತೆ ನೀಗಿಸುವುದು ಹೇಗೆ?</h4>
-                  <p>ಕಡಲೆ, ಹೆಸರು, ಉದ್ದು, ಸೋಯಾಬೀನ್ ಮುಂತಾದ ದ್ವಿದಳ ಧಾನ್ಯಗಳನ್ನು ಬೆಳೆಯಿರಿ. ಇವುಗಳ ಬೇರುಗಳಲ್ಲಿರುವ ರೈಜೋಬಿಯಂ ಬ್ಯಾಕ್ಟೀರಿಯಾಗಳು ವಾತಾವರಣದ ಸಾರಜನಕವನ್ನು ಮಣ್ಣಿನಲ್ಲಿ ಸ್ಥಿರೀಕರಿಸುತ್ತವೆ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ6. ಮರದ ಕೆಳಗಿರುವ ಮಣ್ಣಿನ ಮಾದರಿ ತೆಗೆದುಕೊಳ್ಳಬಹುದೇ?</h4>
-                  <p>ಇಲ್ಲ, ಮರಗಳ ಕೆಳಗೆ, ಬದುಗಳ ಬಳಿ ಅಥವಾ ಗೊಬ್ಬರದ ಗುಂಡಿಗಳ ಹತ್ತಿರದಿಂದ ಮಣ್ಣಿನ ಮಾದರಿ ಸಂಗ್ರಹಿಸಬಾರದು.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ7. SSP ಮತ್ತು DAP ಗೊಬ್ಬರಗಳ ನಡುವಿನ ವ್ಯತ್ಯಾಸವೇನು?</h4>
-                  <p>SSP (ಸಿಂಗಲ್ ಸೂಪರ್ ಫಾಸ್ಫೇಟ್) ನಲ್ಲಿ ರಂಜಕ ಮತ್ತು ಗಂಧಕ ಮಾತ್ರ ಇರುತ್ತದೆ, ಆದರೆ DAP ನಲ್ಲಿ ರಂಜಕದ ಜೊತೆಗೆ 18% ಸಾರಜನಕವೂ ಇರುತ್ತದೆ.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">ಪ್ರ8. KisaanBuddy ಗೊಬ್ಬರ ಕ್ಯಾಲ್ಕುಲೇಟರ್ ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ?</h4>
-                  <p>KisaanBuddy ನಿಮ್ಮ ಮಣ್ಣು ಪರೀಕ್ಷೆಯ NPK ದತ್ತಾಂಶ ಮತ್ತು ಬೆಳೆಯ ಅಗತ್ಯಕ್ಕೆ ಅನುಗುಣವಾಗಿ ವೈಜ್ಞಾನಿಕವಾಗಿ ಲೆಕ್ಕಾಚಾರ ಮಾಡಿ ನಿಖರವಾದ ಗೊಬ್ಬರದ ಪ್ರಮಾಣ ತಿಳಿಸುತ್ತದೆ.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : lang === "hi" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 मिट्टी का स्वास्थ्य क्या है और इसे कैसे सुधारें?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                मिट्टी का स्वास्थ्य (Soil Health) भूमि की वह जैविक और भौतिक क्षमता है जिससे वह फसलों को आवश्यक पोषक तत्व, हवा और पानी प्रदान कर सके। एक स्वस्थ मिट्टी न केवल अधिक पैदावार देती है बल्कि सूखे और बीमारियों के प्रभाव को भी कम करती है। मिट्टी की उर्वरता का सही आंकलन करने के लिए मुख्य तीन तत्वों <strong>N (नाइट्रोजन)</strong>, <strong>P (फास्फोरस)</strong>, और <strong>K (पोटेशियम)</strong> का संतुलन समझना आवश्यक है।
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🧪 NPK और मिट्टी का पीएच (pH) मान समझना</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>N (नाइट्रोजन):</strong> पत्तों की हरियाली और वानस्पतिक विकास बढ़ाता है। इसकी कमी से पत्ते पीले पड़ जाते हैं।<br />
-                  <strong>P (फास्फोरस):</strong> जड़ों का मजबूत विकास और समय पर फूल-फल बनना सुनिश्चित करता है।<br />
-                  <strong>K (पोटेशियम):</strong> फसलों को रोगों से लड़ने और सूखे को सहन करने की क्षमता प्रदान करता है। अनाज का दाना मजबूत बनता है।<br />
-                  <strong>pH मान:</strong> मिट्टी का पीएच (6.5 से 7.5) उदासीन माना जाता है जो अधिकांश फसलों के लिए सर्वोत्तम है। अम्लीय मिट्टी (&lt; 6.0) को सुधारने के लिए चूना (Lime) डालें। क्षारीय मिट्टी (&gt; 8.0) को सुधारने के लिए जिप्सम (Gypsum) का प्रयोग करें।
-                </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🌱 जैविक कार्बन (Organic Carbon) और खाद प्रबंधन</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  जैविक कार्बन मिट्टी की आत्मा है। एक आदर्श मिट्टी में जैविक कार्बन का स्तर 0.8% से अधिक होना चाहिए। इसे सुधारने के लिए रासायनिक उर्वरकों का उपयोग घटाएं और हरी खाद (जैसे ढैंचा या सनई), केंचुआ खाद (Vermicompost) और गोबर की सड़ी खाद (FYM) को खेत में मिलाएं। हरी खाद उगाने के बाद उसे फूल आने से पहले मिट्टी में पलट देने से नाइट्रोजन और जैविक कार्बन की मात्रा तेजी से बढ़ती है।
-                </p>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
-              <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📋 मिट्टी परीक्षण (Soil Testing) की सही प्रक्रिया</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/40 pr-4">
-                  <h4 className="font-bold text-foreground">1. वी-आकार (V-Shape) का कट</h4>
-                  <p>खेत में 8-10 अलग-अलग स्थानों से ऊपरी घास साफ कर 15 सेमी (6 इंच) गहरा 'V' आकार का गड्ढा बनाएं। गड्ढे के दोनों किनारों से एक-एक इंच मोटी मिट्टी की परत काट लें।</p>
+              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
+                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                  {guide.steps_title}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                  <div className="space-y-2 border-r border-border/40 pr-4">
+                    <h4 className="font-bold text-foreground">{guide.step1_title}</h4>
+                    <p>{guide.step1_desc}</p>
+                  </div>
+                  <div className="space-y-2 border-r border-border/40 px-4">
+                    <h4 className="font-bold text-foreground">{guide.step2_title}</h4>
+                    <p>{guide.step2_desc}</p>
+                  </div>
+                  <div className="space-y-2 pl-4">
+                    <h4 className="font-bold text-foreground">{guide.step3_title}</h4>
+                    <p>{guide.step3_desc}</p>
+                  </div>
                 </div>
-                <div className="space-y-2 border-r border-border/40 px-4">
-                  <h4 className="font-bold text-foreground">2. मिश्रण और सुखाना</h4>
-                  <p>एकत्रित सभी स्थानों की मिट्टी को साफ प्लास्टिक शीट पर अच्छी तरह मिलाएं। फिर मिट्टी को गोल फैलाकर चार हिस्सों में बांटें, आमने-सामने के दो हिस्से फेंक दें। यह प्रक्रिया तब तक दोहराएं जब तक आधा किलो मिट्टी न बचे। इसे छांव में सुखाएं।</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-bold text-foreground">3. लैब भेजना</h4>
-                  <p>मिट्टी को सूती थैली में डालें। थैली पर अपना नाम, मोबाइल नंबर, खेत का खसरा नंबर और पहले बोई गई व आगे बोई जाने वाली फसल का नाम लिखकर नजदीकी मिट्टी जांच प्रयोगशाला में भेजें।</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ मिट्टी के स्वास्थ्य और परीक्षण के बारे में FAQs</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q1. मिट्टी की जांच कितने समय में करवानी चाहिए?</h4>
-                  <p>हर दो से तीन साल में एक बार, फसल की कटाई के बाद और अगली बुवाई से पहले मिट्टी की जांच जरूर करवानी चाहिए।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q2. क्षारीय मिट्टी (Alkaline Soil) के क्या लक्षण हैं?</h4>
-                  <p>क्षारीय मिट्टी का पीएच 8.5 से अधिक होता है। ऐसी मिट्टी में पानी सोखने की क्षमता कम हो जाती है और सूखने पर जमीन पर सफेद नमक की परत दिखने लगती है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q3. जैविक कार्बन बढ़ाने का सबसे त्वरित तरीका क्या है?</h4>
-                  <p>खेत में प्रति एकड़ 5-10 टन गोबर की सड़ी खाद डालना या खरीफ सीजन से पहले ढैंचा उगाकर उसे मिट्टी में रोटावेटर से मिलाना (हरी खाद) सबसे प्रभावी है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q4. मिट्टी का आदर्श पीएच (pH) मान क्या होना चाहिए?</h4>
-                  <p>ज्यादातर फसलों (जैसे गेहूं, धान, मक्का) के लिए 6.5 से 7.2 का पीएच मान सर्वोत्तम माना जाता है क्योंकि इस रेंज में सभी पोषक तत्व आसानी से उपलब्ध होते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q5. नाइट्रोजन (N) की कमी को यूरिया के बिना कैसे दूर करें?</h4>
-                  <p>दलहनी फसलें (जैसे मूंग, उड़द, चना, सोयाबीन) लगाएं। इनकी जड़ों में राइजोबियम बैक्टीरिया होते हैं जो हवा से नाइट्रोजन लेकर मिट्टी में स्थिर करते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q6. क्या खेत के पेड़ों के नीचे से मिट्टी का नमूना ले सकते हैं?</h4>
-                  <p>नहीं, पेड़ों के नीचे, मेड़ों के पास, खाद के ढेर के नजदीक या सिंचाई नाली के पास से कभी भी मिट्टी का नमूना नहीं लेना चाहिए, इससे गलत रिपोर्ट आती है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q7. एसएसपी (SSP) और डीएपी (DAP) खाद में क्या अंतर है?</h4>
-                  <p>एसएसपी (सिंगल सुपर फास्फेट) में केवल फास्फोरस और सल्फर होता है, जबकि डीएपी (डाई अमोनियम फास्फेट) में फास्फोरस के साथ 18% नाइट्रोजन भी होता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q8. क्या लवणीय (Saline) मिट्टी में सामान्य पानी देना चाहिए?</h4>
-                  <p>लवणीय मिट्टी में अच्छे निकास की व्यवस्था होनी चाहिए। पानी भरकर नमक को बहाने (Leaching) से और जैविक खादों के अधिक उपयोग से लाभ होता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q9. माइक्रोन्यूट्रिएंट्स (Micronutrients) क्या हैं?</h4>
-                  <p>लोहा, जस्ता (Zinc), तांबा, बोरॉन और मैंगनीज सूक्ष्म पोषक तत्व हैं। ये मिट्टी में बहुत कम मात्रा में चाहिए होते हैं लेकिन फलों की चमक और वजन के लिए जरूरी हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q10. KisaanBuddy उर्वरक कैलकुलेटर कैसे काम करता है?</h4>
-                  <p>KisaanBuddy आपके द्वारा दर्ज किए गए मिट्टी परीक्षण डेटा या लक्षित फसल के आधार पर वैज्ञानिक एनपीके संतुलन की गणना कर सटीक खाद की मात्रा बताता है।</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 What is Soil Health and How Can Farmers Improve It?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                Soil health refers to the continuous capacity of soil to function as a vital living ecosystem that sustains plants, animals, and humans. A healthy soil profile provides critical crop nutrition, resists compaction, and retains water. To correctly balance soil fertility, understanding the primary macro-nutrients—<strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, and <strong>Potassium (K)</strong>—is vital.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🧪 Deciphering NPK Ratios and Soil pH Levels</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>Nitrogen (N):</strong> Promotes lush leaf growth and vegetative structure. Deficiencies lead to leaf chlorosis (yellowing).<br />
-                  <strong>Phosphorus (P):</strong> Essential for robust root establishment, cell division, and early flower and seed setting.<br />
-                  <strong>Potassium (K):</strong> Strengthens crop stems, improves drought tolerance, and activates enzyme systems to fight diseases.<br />
-                  <strong>pH Level:</strong> A soil pH between 6.5 and 7.5 is neutral and optimal for plant nutrient uptake. Reclaim acidic soils (&lt; 6.0) using agricultural lime. Counteract alkaline soils (&gt; 8.0) using gypsum.
-                </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🌱 The Power of Organic Carbon (OC) and Fertilizer Schedules</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Organic Carbon is the foundation of biological soil fertility. Healthy arable land should sustain an organic carbon level above 0.8%. Farmers can raise OC by shifting from pure chemical fertilization to integrated systems incorporating Vermicompost, farmyard manure (FYM), and green manures (like Dhaincha or Sunn hemp). Sowing green manure and tilling it back during flowering cycles rapidly locks nitrogen into the topsoil.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
-              <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📋 Scientific Soil Sampling Process</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/40 pr-4">
-                  <h4 className="font-bold text-foreground">1. V-Shaped Digging</h4>
-                  <p>Clear surface vegetation at 8-10 random grid points in your field. Dig a V-shaped hole exactly 15 cm (6 inches) deep. Slice a uniform 1-inch thick slice of soil along the inner face.</p>
-                </div>
-                <div className="space-y-2 border-r border-border/40 px-4">
-                  <h4 className="font-bold text-foreground">2. Quartering Technique</h4>
-                  <p>Mix the collected soil inside a clean container. Place it on a clean sheet, form a circle, and divide it into four quadrants. Discard opposite quarters. Repeat this process until 500g of dry composite sample remains.</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-bold text-foreground">3. Dispatching to Lab</h4>
-                  <p>Pack the soil in a dry cotton bag. Label it with your name, village name, survey number, previous crop, and intended crop, then submit it to the nearest state soil testing laboratory.</p>
+              <div className="space-y-4">
+                <h2 className="text-xl font-display font-bold text-foreground">
+                  {guide.faq_title}
+                </h2>
+                <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
+                  {guide.faqs.map((faq, idx) => (
+                    <div key={idx} className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                      <h4 className="font-semibold text-foreground">{faq.q}</h4>
+                      <p>{faq.a}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ Soil Health & Testing FAQs</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q1. How often should soil analysis be conducted?</h4>
-                  <p>Once every 2 to 3 years, preferably after harvesting a crop and before sowing the next cycle.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q2. What are the signs of saline/alkaline soils?</h4>
-                  <p>Saline soils display white crusty salt patches on the dry surface, low water penetration rates, and stunted plant roots.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q3. What is the fastest method to increase Soil Organic Carbon?</h4>
-                  <p>Incorporating green manure (like Dhaincha) before the monsoon season or applying 5-10 tons of well-composted farmyard manure per acre.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q4. What is the optimal pH range for arable crop fields?</h4>
-                  <p>A pH range between 6.5 and 7.2 is perfect, as it maximizes the availability of both macronutrients and micronutrients.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q5. How can I correct nitrogen deficiency without synthetic urea?</h4>
-                  <p>Cultivate leguminous crops like chickpeas, lentils, or mung beans, which host symbiotic Rhizobium bacteria that fix atmospheric nitrogen in root nodules.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q6. Can soil samples be collected from under trees?</h4>
-                  <p>No. Avoid collecting soil near trees, fences, compost heaps, irrigation canals, or farm boundaries, as these yield unrepresentative results.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q7. What is the difference between SSP and DAP?</h4>
-                  <p>Single Super Phosphate (SSP) supplies Phosphorus, Calcium, and Sulfur, whereas Di-Ammonium Phosphate (DAP) provides both Nitrogen (18%) and Phosphorus (46%).</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q8. How does organic carbon benefit sandy soils?</h4>
-                  <p>It acts like a sponge, gluing sandy particles together to significantly improve water holding capacity and prevent nutrient leaching.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q9. What are micronutrients and why are they necessary?</h4>
-                  <p>Zinc, Iron, Boron, Copper, and Manganese. While required in trace amounts, they are crucial for fruit set, grain filling, and crop disease resistance.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q10. How does the KisaanBuddy NPK advisor work?</h4>
-                  <p>KisaanBuddy calculates optimal crop fertilizing ratios based on local soil test values compared to crop nutrition benchmarks.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        })()}
       </section>
     </div>
   )

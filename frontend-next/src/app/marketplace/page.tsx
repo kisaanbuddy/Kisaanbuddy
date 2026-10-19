@@ -23,12 +23,12 @@ import {
   marketplaceApi,
   MarketplaceListing,
 } from "@/lib/farmer-api";
-import { useLanguage } from "@/lib/language";
+import { useLanguage, type Lang } from "@/lib/language";
+import { MARKETPLACE_I18N } from "@/lib/marketplace-i18n";
 
 export default function MarketplacePage() {
   const { lang } = useLanguage();
-  const isHi = lang === "hi";
-  const isKn = lang === "kn";
+  const dict = MARKETPLACE_I18N[(lang as Lang) || "en"] || MARKETPLACE_I18N.en;
 
   const [activeTab, setActiveTab] = useState<"buyers" | "sellers">("buyers");
   const [loading, setLoading] = useState(true);
@@ -128,15 +128,11 @@ export default function MarketplacePage() {
               <Store className="w-5 h-5" />
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-              {isKn ? "ಕೃಷಿ ಮಾರುಕಟ್ಟೆ & ನೇರ ವ್ಯಾಪಾರ" : isHi ? "कृषि बाज़ार और सीधा व्यापार" : "Agricultural Marketplace & Direct Trade"}
+              {dict.headerTitle}
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            {isKn
-              ? "ನಿಮ್ಮ ಕೊಯ್ಲಿಗೆ ಪರಿಶೀಲಿಸಿದ ಖರೀದಿದಾರರೊಂದಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕ ಸಾಧಿಸಿ ಅಥವಾ ಅಧಿಕೃತ ಕೃಷಿ ಪರಿಕರಗಳನ್ನು ಖರೀದಿಸಿ."
-              : isHi
-              ? "अपनी फसल के लिए सत्यापित खरीदारों से सीधे जुड़ें या प्रामाणिक कृषि आदान खरीदें।"
-              : "Connect directly with verified buyers for your harvest or purchase authentic farming inputs."}
+            {dict.headerSubtitle}
           </p>
         </div>
 
@@ -146,7 +142,7 @@ export default function MarketplacePage() {
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
           >
             <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-            <span>{isKn ? "ಲೈವ್ ಮಂಡಿ ದರಗಳು" : isHi ? "मंडी लाइव भाव" : "Mandi Live Prices"}</span>
+            <span>{dict.mandiPricesBtn}</span>
           </Link>
 
           <button
@@ -154,7 +150,7 @@ export default function MarketplacePage() {
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
-            <span>{isKn ? "ಪಟ್ಟಿಯನ್ನು ಪ್ರಕಟಿಸಿ" : isHi ? "लिस्टिंग पोस्ट करें" : "Post Listing"}</span>
+            <span>{dict.postListingBtn}</span>
           </button>
         </div>
       </div>
@@ -170,34 +166,30 @@ export default function MarketplacePage() {
         </div>
         <div className="relative z-10 max-w-xl">
           <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
-            {isKn ? "ಪಾರದರ್ಶಕ ಕೃಷಿ ವ್ಯಾಪಾರ" : isHi ? "पारदर्शी कृषि व्यापार" : "Transparent Agricultural Trade"}
+            {dict.bannerTag}
           </span>
           <h2 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
-            {isKn ? "ಶೂನ್ಯ-ಕಮಿಷನ್ ಕೃಷಿ ಮತ್ತು ಸಗಟು ಖರೀದಿ" : isHi ? "शून्य-कमीशन फार्म गेट और थोक सोर्सिंग" : "Zero-Commission Farm Gate & Wholesale Sourcing"}
+            {dict.bannerTitle}
           </h2>
           <p className="text-xs text-slate-200 mt-2 leading-relaxed">
-            {isKn
-              ? "ಮಧ್ಯವರ್ತಿಗಳ ಕಡಿತವನ್ನು ನಿವಾರಿಸಿ. ನಿಮ್ಮ ಕೊಯ್ಲನ್ನು ಭಾರತದಾದ್ಯಂತ ಪರಿಶೀಲಿಸಿದ ಖರೀದಿದಾರರು, ಸಾಂಸ್ಥಿಕ ಸಂಗ್ರಹಕಾರರು ಮತ್ತು ಪ್ರಮಾಣೀಕೃತ ಇನ್‌ಪುಟ್ ಡೀಲರ್‌ಗಳಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ."
-              : isHi
-              ? "बिचौलियों की कटौती समाप्त करें। अपनी फसल को भारत भर के सत्यापित खरीदारों, संस्थागत खरीदारों और प्रमाणित इनपुट डीलरों से सीधे जोड़ें।"
-              : "Eliminate intermediary deductions. Connect your standing harvest directly to verified buyers, institutional procurers, and certified input dealers across India."}
+            {dict.bannerDesc}
           </p>
         </div>
         <div className="relative z-10 shrink-0 flex items-center gap-3">
           <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-center">
             <span className="text-xs font-bold text-emerald-300 block">
-              {isKn ? "ಪರಿಶೀಲಿಸಿದ ಖರೀದಿದಾರರು" : isHi ? "सत्यापित खरीदार" : "Verified Buyers"}
+              {dict.verifiedBuyers}
             </span>
             <span className="text-[10px] text-slate-300">
-              {isKn ? "FPOಗಳು & ಗಿರಣಿಗಳು" : isHi ? "FPO और मिलें" : "FPOs & Mills"}
+              {dict.fposAndMills}
             </span>
           </div>
           <div className="px-4 py-2.5 rounded-xl bg-white/10 backdrop-blur border border-white/20 text-center">
             <span className="text-xs font-bold text-amber-300 block">
-              {isKn ? "ನೇರ ಮಂಡಿ" : isHi ? "सीधी मंडी" : "Direct Mandi"}
+              {dict.directMandi}
             </span>
             <span className="text-[10px] text-slate-300">
-              {isKn ? "ನ್ಯಾಯಯುತ APMC ದರ" : isHi ? "उचित APMC मूल्य निर्धारण" : "Fair APMC Pricing"}
+              {dict.fairPricing}
             </span>
           </div>
         </div>
@@ -215,9 +207,9 @@ export default function MarketplacePage() {
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
-            <span>{isKn ? "ಕೊಯ್ಲು ಖರೀದಿದಾರರನ್ನು ಹುಡುಕಿ" : isHi ? "फसल खरीदार खोजें" : "Find Harvest Buyers"}</span>
+            <span>{dict.findBuyersTab}</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
-              {isKn ? "ಖರೀದಿ" : isHi ? "खरीद" : "Procurement"}
+              {dict.procurementBadge}
             </span>
           </button>
 
@@ -229,9 +221,9 @@ export default function MarketplacePage() {
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
-            <span>{isKn ? "ಇನ್‌ಪುಟ್ ಮಾರಾಟಗಾರರನ್ನು ಹುಡುಕಿ" : isHi ? "इनपुट विक्रेता खोजें" : "Find Input Sellers"}</span>
+            <span>{dict.findSellersTab}</span>
             <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
-              {isKn ? "ಬೀಜಗಳು & ಇನ್‌ಪುಟ್‌ಗಳು" : isHi ? "बीज और इनपुट" : "Seeds & Inputs"}
+              {dict.seedsInputsBadge}
             </span>
           </button>
         </div>
@@ -242,7 +234,7 @@ export default function MarketplacePage() {
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder={isKn ? "ಬೆಳೆ ಹುಡುಕಿ (ಉದಾ. ಗೋಧಿ, ಆಲೂಗಡ್ಡೆ)..." : isHi ? "फसल खोजें (उदा. गेहूं, आलू)..." : "Search crop (e.g. Wheat, Potato)..."}
+              placeholder={dict.searchPlaceholder}
               value={searchCrop}
               onChange={(e) => setSearchCrop(e.target.value)}
               className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -254,12 +246,12 @@ export default function MarketplacePage() {
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
           >
-            <option value="all">{isKn ? "ಎಲ್ಲಾ ವರ್ಗಗಳು" : isHi ? "सभी श्रेणियां" : "All Categories"}</option>
-            <option value="wholesale">{isKn ? "ಸಗಟು / ಗಿರಣಿ" : isHi ? "थोक / मिल" : "Wholesale / Mill"}</option>
-            <option value="produce">{isKn ? "ಕೃಷಿ ಉತ್ಪನ್ನ" : isHi ? "कृषि उपज" : "Farm Produce"}</option>
-            <option value="seeds">{isKn ? "ಪ್ರಮಾಣೀಕೃತ ಬೀಜಗಳು" : isHi ? "प्रमाणित बीज" : "Certified Seeds"}</option>
-            <option value="fertilizer">{isKn ? "ರಸಗೊಬ್ಬರಗಳು" : isHi ? "उर्वरक" : "Fertilizers"}</option>
-            <option value="equipment">{isKn ? "ಉಪಕರಣಗಳು" : isHi ? "उपकरण" : "Equipment"}</option>
+            <option value="all">{dict.categoryAll}</option>
+            <option value="wholesale">{dict.categoryWholesale}</option>
+            <option value="produce">{dict.categoryProduce}</option>
+            <option value="seeds">{dict.categorySeeds}</option>
+            <option value="fertilizer">{dict.categoryFertilizer}</option>
+            <option value="equipment">{dict.categoryEquipment}</option>
           </select>
         </div>
       </div>
@@ -269,28 +261,24 @@ export default function MarketplacePage() {
         <div className="py-20 text-center">
           <RotateCw className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-2" />
           <p className="text-xs text-slate-500">
-            {isKn ? "ಮಾರುಕಟ್ಟೆ ಪಟ್ಟಿಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ..." : isHi ? "बाज़ार लिस्टिंग लोड हो रही है..." : "Loading marketplace listings..."}
+            {dict.loadingListings}
           </p>
         </div>
       ) : listings.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center bg-slate-50/50 dark:bg-slate-900/50">
           <Store className="w-10 h-10 text-slate-400 mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-            {isKn ? "ಈ ಫಿಲ್ಟರ್‌ಗೆ ಯಾವುದೇ ಪಟ್ಟಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ" : isHi ? "इस फ़िल्टर के लिए कोई लिस्टिंग नहीं मिली" : "No Listings Found for This Filter"}
+            {dict.noListingsTitle}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
-            {isKn
-              ? "ಬೇರೆ ಬೆಳೆಗಾಗಿ ಹುಡುಕಿ ಅಥವಾ ಪ್ರಾದೇಶಿಕ ಖರೀದಿದಾರರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸಲು ನಿಮ್ಮ ಸ್ವಂತ ಕೊಯ್ಲು ಅಗತ್ಯವನ್ನು ಪ್ರಕಟಿಸಿ."
-              : isHi
-              ? "किसी अन्य वस्तु की खोज करें या क्षेत्रीय खरीदारों से जुड़ने के लिए अपनी फसल आवश्यकता पोस्ट करें।"
-              : "Try searching for another commodity or post your own harvest requirement to connect with regional aggregators."}
+            {dict.noListingsDesc}
           </p>
           <button
             onClick={() => setShowModal(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow transition cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>{isKn ? "ಹೊಸ ಪಟ್ಟಿಯನ್ನು ರಚಿಸಿ" : isHi ? "नई लिस्टिंग बनाएं" : "Create New Listing"}</span>
+            <span>{dict.createListingBtn}</span>
           </button>
         </div>
       ) : (
@@ -322,17 +310,17 @@ export default function MarketplacePage() {
                 <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 border border-slate-200/70 dark:border-slate-700/60 space-y-1.5 my-3">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-slate-500 dark:text-slate-400">
-                      {item.listing_type === "buy" ? (isKn ? "ಗುರಿ ಖರೀದಿ ಬೆಲೆ:" : isHi ? "लक्षित खरीद मूल्य:" : "Target Buying Price:") : (isKn ? "ಮಾರಾಟ ಬೆಲೆ:" : isHi ? "बिक्री मूल्य:" : "Selling Price:")}
+                      {item.listing_type === "buy" ? dict.targetBuyingPrice : dict.sellingPrice}
                     </span>
                     <span className="font-bold text-slate-900 dark:text-white text-sm text-emerald-700 dark:text-emerald-400">
-                      {item.price ? `₹${item.price.toLocaleString()} ${item.price_unit || ""}` : (isKn ? "ಮಾರುಕಟ್ಟೆ ಸಂಧಾನ ಸಾಧ್ಯ" : isHi ? "बाज़ार परक्राम्य" : "Market Negotiable")}
+                      {item.price ? `₹${item.price.toLocaleString()} ${item.price_unit || ""}` : dict.marketNegotiable}
                     </span>
                   </div>
 
                   {item.quantity && (
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500 dark:text-slate-400">
-                        {item.listing_type === "buy" ? (isKn ? "ಅಗತ್ಯವಿರುವ ಪ್ರಮಾಣ:" : isHi ? "आवश्यक मात्रा:" : "Required Quantity:") : (isKn ? "ಲಭ್ಯವಿರುವ ದಾಸ್ತಾನು:" : isHi ? "उपलब्ध स्टॉक:" : "Available Stock:")}
+                        {item.listing_type === "buy" ? dict.requiredQty : dict.availableStock}
                       </span>
                       <span className="font-semibold text-slate-800 dark:text-slate-200">
                         {item.quantity} {item.quantity_unit || "Quintal"}
@@ -359,7 +347,7 @@ export default function MarketplacePage() {
               {/* Action Footer */}
               <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
                 <span className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                  {item.contact_person || (isKn ? "ವ್ಯಾಪಾರ ಅಧಿಕಾರಿ" : isHi ? "व्यापार अधिकारी" : "Trade Officer")}
+                  {item.contact_person || dict.tradeOfficer}
                 </span>
 
                 {item.contact_phone ? (
@@ -368,7 +356,7 @@ export default function MarketplacePage() {
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition active:scale-95 cursor-pointer"
                   >
                     <Phone className="w-3 h-3" />
-                    <span>{isKn ? "ನೇರ ಕರೆ" : isHi ? "सीधे कॉल करें" : "Call Direct"}</span>
+                    <span>{dict.callDirect}</span>
                   </a>
                 ) : (
                   <Link
@@ -377,7 +365,7 @@ export default function MarketplacePage() {
                     )}`}
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200 font-semibold text-xs hover:bg-slate-300 transition"
                   >
-                    <span>{isKn ? "ಸಂಪರ್ಕಿಸಿ" : isHi ? "जुड़ें" : "Connect"}</span>
+                    <span>{dict.connectBtn}</span>
                   </Link>
                 )}
               </div>
@@ -398,10 +386,10 @@ export default function MarketplacePage() {
             </button>
 
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-              {isKn ? "ಕೃಷಿ ಪಟ್ಟಿಯನ್ನು ಪ್ರಕಟಿಸಿ" : isHi ? "कृषि लिस्टिंग पोस्ट करें" : "Post Agricultural Listing"}
+              {dict.modalTitle}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-              {isKn ? "ಖರೀದಿದಾರರು ಅಥವಾ ಕೃಷಿ ಪರಿಕರಗಳ ಮಾರಾಟಗಾರರೊಂದಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕ ಸಾಧಿಸಿ." : isHi ? "खरीददारों या कृषि आदानों के विक्रेताओं से सीधे जुड़ें।" : "Connect with buyers looking to procure or list farming inputs for sale."}
+              {dict.modalSubtitle}
             </p>
 
             <form onSubmit={handleCreateListing} className="space-y-4">
@@ -415,7 +403,7 @@ export default function MarketplacePage() {
                       : "border-slate-200 dark:border-slate-700 text-slate-600"
                   }`}
                 >
-                  {isKn ? "ಖರೀದಿ ಬೇಡಿಕೆ" : isHi ? "खरीद आवश्यकता" : "Buying Requirement"}
+                  {dict.buyReqTab}
                 </button>
                 <button
                   type="button"
@@ -426,19 +414,19 @@ export default function MarketplacePage() {
                       : "border-slate-200 dark:border-slate-700 text-slate-600"
                   }`}
                 >
-                  {isKn ? "ಉತ್ಪನ್ನ / ಪರಿಕರ ಮಾರಾಟ" : isHi ? "उपज / आदान बिक्री" : "Selling Produce / Inputs"}
+                  {dict.sellProduceTab}
                 </button>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ವಸ್ತು / ಬೆಳೆ *" : isHi ? "वस्तु / फसल *" : "Commodity / Item *"}
+                    {dict.commodityLabel}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder={isKn ? "ಉದಾ: ಗೋಧಿ, ಆಲೂಗಡ್ಡೆ" : isHi ? "उदा. गेहूं, आलू" : "e.g. Wheat, Potato"}
+                    placeholder={dict.commodityPlaceholder}
                     value={newCrop}
                     onChange={(e) => setNewCrop(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -447,7 +435,7 @@ export default function MarketplacePage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ತಳಿ (ಐಚ್ಛಿಕ)" : isHi ? "किस्म (वैकल्पिक)" : "Variety (Optional)"}
+                    {dict.varietyLabel}
                   </label>
                   <input
                     type="text"
@@ -462,7 +450,7 @@ export default function MarketplacePage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ಪ್ರಮಾಣ" : isHi ? "मात्रा" : "Quantity"}
+                    {dict.quantityLabel}
                   </label>
                   <div className="flex gap-1.5">
                     <input
@@ -477,17 +465,17 @@ export default function MarketplacePage() {
                       onChange={(e) => setNewUnit(e.target.value)}
                       className="w-1/3 px-2 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
                     >
-                      <option value="Quintal">{isKn ? "ಕ್ವಿಂಟಾಲ್" : isHi ? "क्विंटल" : "Quintal"}</option>
-                      <option value="Ton">{isKn ? "ಟನ್" : isHi ? "टन" : "Ton"}</option>
-                      <option value="Kg">{isKn ? "ಕೆಜಿ" : isHi ? "किग्रा" : "Kg"}</option>
-                      <option value="Bags">{isKn ? "ಚೀಲಗಳು" : isHi ? "बोरियां" : "Bags"}</option>
+                      <option value="Quintal">{dict.unitQuintal}</option>
+                      <option value="Ton">{dict.unitTon}</option>
+                      <option value="Kg">{dict.unitKg}</option>
+                      <option value="Bags">{dict.unitBags}</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ದರ (₹)" : isHi ? "मूल्य (₹)" : "Price (₹)"}
+                    {dict.priceLabel}
                   </label>
                   <input
                     type="number"
@@ -501,12 +489,12 @@ export default function MarketplacePage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  {isKn ? "ಸಂಸ್ಥೆ / ತೋಟದ ಹೆಸರು *" : isHi ? "संस्था / फार्म का नाम *" : "Organization / Farm Name *"}
+                  {dict.orgLabel}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder={isKn ? "ಉದಾ: ಕಿಸಾನ್ ಎಫ್‌ಪಿಒ ಅಥವಾ ಕೃಷಿ ಫಾರ್ಮ್" : isHi ? "उदा. किसान एफपीओ या कृषि फार्म" : "e.g. Sehore Kisan FPO or Patel Krishi Farm"}
+                  placeholder={dict.orgPlaceholder}
                   value={newOrgName}
                   onChange={(e) => setNewOrgName(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -516,11 +504,11 @@ export default function MarketplacePage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ಸಂಪರ್ಕ ವ್ಯಕ್ತಿ" : isHi ? "संपर्क व्यक्ति" : "Contact Person"}
+                    {dict.contactPersonLabel}
                   </label>
                   <input
                     type="text"
-                    placeholder={isKn ? "ಹೆಸರು" : isHi ? "नाम" : "Name"}
+                    placeholder={dict.namePlaceholder}
                     value={newContactPerson}
                     onChange={(e) => setNewContactPerson(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -529,7 +517,7 @@ export default function MarketplacePage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ದೂರವಾಣಿ ಸಂಖ್ಯೆ" : isHi ? "फ़ोन नंबर" : "Phone Number"}
+                    {dict.phoneLabel}
                   </label>
                   <input
                     type="tel"
@@ -544,12 +532,12 @@ export default function MarketplacePage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ಜಿಲ್ಲೆ *" : isHi ? "जिला *" : "District *"}
+                    {dict.districtLabel}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder={isKn ? "ಉದಾ: ಧಾರವಾಡ" : isHi ? "उदा. सीहोर" : "e.g. Sehore"}
+                    placeholder={dict.districtPlaceholder}
                     value={newDistrict}
                     onChange={(e) => setNewDistrict(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -558,12 +546,12 @@ export default function MarketplacePage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {isKn ? "ರಾಜ್ಯ *" : isHi ? "राज्य *" : "State *"}
+                    {dict.stateLabel}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder={isKn ? "ಉದಾ: ಕರ್ನಾಟಕ" : isHi ? "उदा. मध्य प्रदेश" : "e.g. Madhya Pradesh"}
+                    placeholder={dict.statePlaceholder}
                     value={newState}
                     onChange={(e) => setNewState(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -582,7 +570,7 @@ export default function MarketplacePage() {
                   ) : (
                     <Plus className="w-4 h-4" />
                   )}
-                  <span>{isKn ? "ಪಟ್ಟಿಯನ್ನು ಪ್ರಕಟಿಸಿ" : isHi ? "लिस्टिंग प्रकाशित करें" : "Publish Listing"}</span>
+                  <span>{dict.publishBtn}</span>
                 </button>
               </div>
             </form>

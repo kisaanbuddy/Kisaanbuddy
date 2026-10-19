@@ -52,45 +52,79 @@ import { Label } from "@/components/ui/label"
 
 type Mode = "hire" | "find"
 
-const TAB_LABEL: Record<Mode, Record<Language, string>> = {
-  hire: { auto: "Mazdoor chahiye", en: "Hire workers", hi: "मज़दूर चाहिए", kn: "ಕೆಲಸಗಾರ ಬೇಕು" },
-  find: { auto: "Kaam dhundo",     en: "Find jobs",    hi: "काम ढूँढो",     kn: "ಕೆಲಸ ಹುಡುಕಿ" },
+const TAB_LABEL: Record<Mode, Record<string, string>> = {
+  hire: {
+    auto: "Mazdoor chahiye", en: "Hire workers", hi: "मज़दूर चाहिए", kn: "ಕೆಲಸಗಾರ ಬೇಕು",
+    te: "కూలీలు కావాలి", ta: "பண்ணை தொழிலாளர்கள் தேவை", mr: "मजूर हवे आहेत",
+    gu: "મજૂરો જોઈએ છે", bn: "শ্রমিক প্রয়োজন", pa: "ਮਜ਼ਦੂਰ ਚਾਹੀਦੇ ਹਨ",
+    ml: "തൊഴിലാളികളെ വേണം", hi_en: "Mazdoor chahiye"
+  },
+  find: {
+    auto: "Kaam dhundo", en: "Find jobs", hi: "काम ढूँढो", kn: "ಕೆಲಸ ಹುಡುಕಿ",
+    te: "పని వెతకండి", ta: "வேலை தேடுங்கள்", mr: "काम शोधा",
+    gu: "કામ શોધો", bn: "কাজ খুঁজুন", pa: "ਕੰਮ ਲੱਭੋ",
+    ml: "ജോലി കണ്ടെത്തുക", hi_en: "Kaam dhundo"
+  },
 }
 
-const SAFETY_TIP: Record<Language, string> = {
+const SAFETY_TIP: Record<string, string> = {
   auto: "⚠️ Bina verification ke advance payment mat dena. Pehli baar mile to public jagah pe milein.",
   en: "⚠️ Don't pay any advance without verifying. Meet for the first time in a public place.",
   hi: "⚠️ बिना सत्यापन के कोई एडवांस मत देना। पहली बार सार्वजनिक जगह पर मिलें।",
   kn: "⚠️ ಪರಿಶೀಲನೆ ಇಲ್ಲದೆ ಅಡ್ವಾನ್ಸ್ ನೀಡಬೇಡಿ. ಮೊದಲ ಬಾರಿ ಸಾರ್ವಜನಿಕ ಸ್ಥಳದಲ್ಲಿ ಭೇಟಿಯಾಗಿ.",
+  te: "⚠️ ధృవీకరించకుండా ఎటువంటి ముందస్తు చెల్లింపు చేయవద్దు. మొదటిసారి బహిరంగ ప్రదేశంలో కలవండి.",
+  ta: "⚠️ சரிபார்க்காமல் முன்பணம் கொடுக்க வேண்டாம். முதல் முறை பொது இடத்தில் சந்தியுங்கள்.",
+  mr: "⚠️ खात्री केल्याशिवाय कोणताही अ‍ॅडव्हान्स देऊ नका. पहिल्या वेळी सार्वजनिक ठिकाणी भेटा.",
+  gu: "⚠️ ચકાસણી કર્યા વિના કોઈ એડવાન્સ ચુકવણી ન કરો. પ્રથમ વખત જાહેર જગ્યાએ મળો.",
+  bn: "⚠️ যাচাই না করে কোনো অগ্রিম টাকা দেবেন না। প্রথমবার কোনো প্রকাশ্য স্থানে দেখা করুন।",
+  pa: "⚠️ ਬਿਨਾਂ ਪੜਤਾਲ ਦੇ ਕੋਈ ਐਡਵਾਂਸ ਨਾ ਦਿਓ। ਪਹਿਲੀ ਵਾਰ ਜਨਤਕ ਥਾਂ 'ਤੇ ਮਿਲੋ।",
+  ml: "⚠️ സ്ഥിരീകരിക്കാതെ അഡ്വാൻസ് പണം നൽകരുത്. ആദ്യമായി ഒരു പൊതുസ്ഥലത്ത് വച്ച് കാണുക.",
+  hi_en: "⚠️ Bina verification ke advance payment mat dena. Pehli baar mile to public jagah pe milein.",
 }
 
-const HEADING: Record<Language, string> = {
+const HEADING: Record<string, string> = {
   auto: "Worker Connect",
   en: "Worker Connect",
   hi: "वर्कर कनेक्ट",
   kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್",
+  te: "వర్కర్ కనెక్ట్",
+  ta: "பணியாளர் இணைப்பு",
+  mr: "कामगार कनेक्ट",
+  gu: "વર્કર કનેક્ટ",
+  bn: "শ্রমিক সংযোগ",
+  pa: "ਵਰਕਰ ਕਨੈਕਟ",
+  ml: "വർക്കർ കണക്ട്",
+  hi_en: "Worker Connect",
 }
 
-const SUBHEADING: Record<Language, string> = {
+const SUBHEADING: Record<string, string> = {
   auto: "Farm pe mazdoor hire karo ya kaam dhundo — WhatsApp jaise simple.",
   en: "Hire farm workers or find work — as simple as WhatsApp.",
   hi: "खेत पर मज़दूर रखें या काम ढूँढें — WhatsApp जैसे आसान।",
   kn: "ಹೊಲಕ್ಕೆ ಕೆಲಸಗಾರರನ್ನು ನೇಮಿಸಿಕೊಳ್ಳಿ ಅಥವಾ ಕೆಲಸ ಹುಡುಕಿ — WhatsApp ರೀತಿಯಲ್ಲಿ ಸುಲಭ.",
+  te: "వ్యవసాయ కూలీలను నియమించుకోండి లేదా పని వెతకండి — WhatsApp లాగే సులభం.",
+  ta: "பண்ணைத் தொழிலாளர்களை நியமிக்கவும் அல்லது வேலை தேடவும் — WhatsApp போல எளியது.",
+  mr: "शेतासाठी मजूर नेमा किंवा काम शोधा — WhatsApp सारखे सोपे.",
+  gu: "ખેતરમાં મજૂરો રાખો અથવા કામ શોધો — WhatsApp જેવું સરળ.",
+  bn: "খামারে শ্রমিক নিয়োগ করুন অথবা কাজ খুঁজুন — WhatsApp-এর মতোই সহজ।",
+  pa: "ਖੇਤ ਲਈ ਮਜ਼ਦੂਰ ਰੱਖੋ ਜਾਂ ਕੰਮ ਲੱਭੋ — WhatsApp ਵਾਂਗ ਆਸਾਨ।",
+  ml: "തൊഴിലാളികളെ നിയമിക്കുകയോ ജോലി കണ്ടെത്തുകയോ ചെയ്യുക — WhatsApp പോലെ ലളിതം.",
+  hi_en: "Farm pe mazdoor hire karo ya kaam dhundo — WhatsApp jaise simple.",
 }
 
 function workTypeLabel(wt: WorkType, lang: Language): string {
   const key = lang === "auto" ? "en" : lang
-  return WORK_TYPE_LABEL[wt][key]
+  return WORK_TYPE_LABEL[wt]?.[key] || WORK_TYPE_LABEL[wt]?.["en"] || wt
 }
 
 export default function JobsPage() {
   const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
-  const [language, setLanguage] = useState<Language>((lang === "hi" || lang === "kn") ? lang : "en")
+  const [language, setLanguage] = useState<Language>((lang as Language) || "en")
   const [mode, setMode] = useState<Mode>(searchParams.get("voice") === "1" ? "find" : "hire")
 
   useEffect(() => {
-    setLanguage((lang === "hi" || lang === "kn") ? lang : "en")
+    setLanguage((lang as Language) || "en")
   }, [lang])
 
   return (

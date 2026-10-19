@@ -1,3 +1,5 @@
+import { Lang } from "@/lib/language";
+import { SOIL_MONITOR_I18N, SoilMonitorDict } from "@/lib/soil-monitor-i18n";
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -63,14 +65,12 @@ const hasNumber = (value: unknown): value is number =>
 
 const formatAge = (seconds?: number, lang?: string) => {
   if (!hasNumber(seconds)) return "—";
-  const isKn = lang === "kn";
-  const isHi = lang === "hi";
-
-  if (seconds < 10) return isKn ? "ಈಗಷ್ಟೇ" : isHi ? "अभी" : "Just now";
-  if (seconds < 60) return isKn ? `${Math.round(seconds)} ಸೆಕೆಂಡ್ ಹಿಂದೆ` : isHi ? `${Math.round(seconds)} सेकंड पहले` : `${Math.round(seconds)} sec ago`;
-  if (seconds < 3600) return isKn ? `${Math.round(seconds / 60)} ನಿಮಿಷ ಹಿಂದೆ` : isHi ? `${Math.round(seconds / 60)} मिनट पहले` : `${Math.round(seconds / 60)} min ago`;
-  if (seconds < 86400) return isKn ? `${Math.round(seconds / 3600)} ಗಂಟೆ ಹಿಂದೆ` : isHi ? `${Math.round(seconds / 3600)} घंटे पहले` : `${Math.round(seconds / 3600)} hr ago`;
-  return isKn ? `${Math.round(seconds / 86400)} ದಿನ ಹಿಂದೆ` : isHi ? `${Math.round(seconds / 86400)} दिन पहले` : `${Math.round(seconds / 86400)} days ago`;
+  const d = SOIL_MONITOR_I18N[(lang as Lang) || "en"] || SOIL_MONITOR_I18N.en;
+  if (seconds < 10) return d.justNow;
+  if (seconds < 60) return d.secAgo(Math.round(seconds));
+  if (seconds < 3600) return d.minAgo(Math.round(seconds / 60));
+  if (seconds < 86400) return d.hrAgo(Math.round(seconds / 3600));
+  return d.daysAgo(Math.round(seconds / 86400));
 };
 
 const timeLabel = (timestamp?: number) =>
@@ -93,25 +93,24 @@ const metricConfigs: MetricConfig[] = [
     icon: Droplets,
     colour: "text-sky-600 bg-sky-500/10 border-sky-500/20",
     interpretation: (value, lang) => {
-      const isKn = lang === "kn";
-      const isHi = lang === "hi";
+      const d = SOIL_MONITOR_I18N[(lang as Lang) || "en"] || SOIL_MONITOR_I18N.en;
       if (value < 30) {
         return {
-          label: isKn ? "ಕಡಿಮೆ" : isHi ? "कम" : "Low",
-          note: isKn ? "ಸಾಮಾನ್ಯ 30% ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಕಡಿಮೆ." : isHi ? "सामान्य 30% संदर्भ सीमा से नीचे।" : "Below the general 30% reference range.",
+          label: d.metrics.low,
+          note: `${d.metrics.low}: < 30%`,
           tone: "bg-amber-500/10 text-amber-800 border-amber-500/20",
         };
       }
       if (value > 55) {
         return {
-          label: isKn ? "ಹೆಚ್ಚು" : isHi ? "अधिक" : "High",
-          note: isKn ? "ಸಾಮಾನ್ಯ 55% ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಹೆಚ್ಚು." : isHi ? "सामान्य 55% संदर्भ सीमा से ऊपर।" : "Above the general 55% reference range.",
+          label: d.metrics.high,
+          note: `${d.metrics.high}: > 55%`,
           tone: "bg-violet-500/10 text-violet-800 border-violet-500/20",
         };
       }
       return {
-        label: isKn ? "ಸಾಮಾನ್ಯ" : isHi ? "सामान्य" : "In range",
-        note: isKn ? "ಸಾಮಾನ್ಯ 30–55% ಉಲ್ಲೇಖ ಶ್ರೇಣಿಯಲ್ಲಿದೆ." : isHi ? "सामान्य 30-55% संदर्भ सीमा के भीतर।" : "Within the general 30–55% reference range.",
+        label: d.metrics.inRange,
+        note: `${d.metrics.inRange}: 30–55%`,
         tone: "bg-emerald-500/10 text-emerald-800 border-emerald-500/20",
       };
     },
@@ -125,25 +124,24 @@ const metricConfigs: MetricConfig[] = [
     icon: Thermometer,
     colour: "text-orange-600 bg-orange-500/10 border-orange-500/20",
     interpretation: (value, lang) => {
-      const isKn = lang === "kn";
-      const isHi = lang === "hi";
+      const d = SOIL_MONITOR_I18N[(lang as Lang) || "en"] || SOIL_MONITOR_I18N.en;
       if (value < 15) {
         return {
-          label: isKn ? "ಕಡಿಮೆ" : isHi ? "कम" : "Low",
-          note: isKn ? "ಸಾಮಾನ್ಯ 15°C ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಕಡಿಮೆ." : isHi ? "सामान्य 15°C संदर्भ सीमा से नीचे।" : "Below the general 15°C reference range.",
+          label: d.metrics.low,
+          note: `${d.metrics.low}: < 15°C`,
           tone: "bg-sky-500/10 text-sky-800 border-sky-500/20",
         };
       }
       if (value > 35) {
         return {
-          label: isKn ? "ಹೆಚ್ಚು" : isHi ? "अधिक" : "High",
-          note: isKn ? "ಸಾಮಾನ್ಯ 35°C ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಹೆಚ್ಚು." : isHi ? "सामान्य 35°C संदर्भ सीमा से ऊपर।" : "Above the general 35°C reference range.",
+          label: d.metrics.high,
+          note: `${d.metrics.high}: > 35°C`,
           tone: "bg-orange-500/10 text-orange-800 border-orange-500/20",
         };
       }
       return {
-        label: isKn ? "ಸಾಮಾನ್ಯ" : isHi ? "सामान्य" : "Normal",
-        note: isKn ? "ಸಾಮಾನ್ಯ 15–35°C ಉಲ್ಲೇಖ ಶ್ರೇಣಿಯಲ್ಲಿದೆ." : isHi ? "सामान्य 15-35°C संदर्भ सीमा के भीतर।" : "Within the general 15–35°C reference range.",
+        label: d.metrics.inRange,
+        note: `${d.metrics.inRange}: 15–35°C`,
         tone: "bg-emerald-500/10 text-emerald-800 border-emerald-500/20",
       };
     },
@@ -157,25 +155,24 @@ const metricConfigs: MetricConfig[] = [
     icon: Thermometer,
     colour: "text-rose-600 bg-rose-500/10 border-rose-500/20",
     interpretation: (value, lang) => {
-      const isKn = lang === "kn";
-      const isHi = lang === "hi";
+      const d = SOIL_MONITOR_I18N[(lang as Lang) || "en"] || SOIL_MONITOR_I18N.en;
       if (value < 15) {
         return {
-          label: isKn ? "ತಂಪು" : isHi ? "ठंडा" : "Cool",
-          note: isKn ? "ಸಾಮಾನ್ಯ 15°C ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಕಡಿಮೆ." : isHi ? "सामान्य 15°C संदर्भ सीमा से नीचे।" : "Below the general 15°C reference range.",
+          label: d.metrics.low,
+          note: `${d.metrics.low}: < 15°C`,
           tone: "bg-sky-500/10 text-sky-800 border-sky-500/20",
         };
       }
       if (value > 35) {
         return {
-          label: isKn ? "ಬಿಸಿ" : isHi ? "गर्म" : "Warm",
-          note: isKn ? "ಸಾಮಾನ್ಯ 35°C ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಹೆಚ್ಚು." : isHi ? "सामान्य 35°C संदर्भ सीमा से ऊपर।" : "Above the general 35°C reference range.",
+          label: d.metrics.high,
+          note: `${d.metrics.high}: > 35°C`,
           tone: "bg-orange-500/10 text-orange-800 border-orange-500/20",
         };
       }
       return {
-        label: isKn ? "ಸಾಮಾನ್ಯ" : isHi ? "सामान्य" : "Normal",
-        note: isKn ? "ಸಾಮಾನ್ಯ 15–35°C ಉಲ್ಲೇಖ ಶ್ರೇಣಿಯಲ್ಲಿದೆ." : isHi ? "सामान्य 15-35°C संदर्भ सीमा के भीतर।" : "Within the general 15–35°C reference range.",
+        label: d.metrics.inRange,
+        note: `${d.metrics.inRange}: 15–35°C`,
         tone: "bg-emerald-500/10 text-emerald-800 border-emerald-500/20",
       };
     },
@@ -189,18 +186,17 @@ const metricConfigs: MetricConfig[] = [
     icon: Cloud,
     colour: "text-teal-600 bg-teal-500/10 border-teal-500/20",
     interpretation: (value, lang) => {
-      const isKn = lang === "kn";
-      const isHi = lang === "hi";
+      const d = SOIL_MONITOR_I18N[(lang as Lang) || "en"] || SOIL_MONITOR_I18N.en;
       if (value > 80) {
         return {
-          label: isKn ? "ಹೆಚ್ಚು" : isHi ? "अधिक" : "High",
-          note: isKn ? "ಸಾಮಾನ್ಯ 80% ಉಲ್ಲೇಖ ಶ್ರೇಣಿಗಿಂತ ಹೆಚ್ಚು." : isHi ? "सामान्य 80% संदर्भ सीमा से ऊपर।" : "Above the general 80% reference range.",
+          label: d.metrics.high,
+          note: `${d.metrics.high}: > 80%`,
           tone: "bg-amber-500/10 text-amber-800 border-amber-500/20",
         };
       }
       return {
-        label: isKn ? "ಸಾಮಾನ್ಯ" : isHi ? "सामान्य" : "Normal",
-        note: isKn ? "ಸಾಮಾನ್ಯ 80% ಉಲ್ಲೇಖ ಶ್ರೇಣಿಯಲ್ಲಿದೆ." : isHi ? "सामान्य 80% संदर्भ सीमा के भीतर।" : "At or below the general 80% reference range.",
+        label: d.metrics.inRange,
+        note: `${d.metrics.inRange}: ≤ 80%`,
         tone: "bg-emerald-500/10 text-emerald-800 border-emerald-500/20",
       };
     },
@@ -208,44 +204,42 @@ const metricConfigs: MetricConfig[] = [
 ];
 
 function getInsight(reading: SensorReading | null, lang: string) {
-  const isKn = lang === "kn";
-  const isHi = lang === "hi";
+  const d = SOIL_MONITOR_I18N[(lang as Lang) || "en"] || SOIL_MONITOR_I18N.en;
 
   if (!reading) {
     return {
-      title: isKn ? "ಸಂವೇದಕ ರೀಡಿಂಗ್‌ಗಾಗಿ ಕಾಯಲಾಗುತ್ತಿದೆ" : isHi ? "सेंसर रीडिंग की प्रतीक्षा है" : "Waiting for a sensor reading",
-      body: isKn ? "ಕ್ಷೇತ್ರ ನಿರ್ಧಾರ ತೆಗೆದುಕೊಳ್ಳುವ ಮೊದಲು ಸಾಧನವನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ ಮುಂದಿನ ರೀಡಿಂಗ್‌ಗಾಗಿ ಕಾಯಿರಿ." : isHi ? "खेत का निर्णय लेने से पहले उपकरण कनेक्ट करें या अगली रीडिंग की प्रतीक्षा करें।" : "Connect a device or wait for the next transmitted reading before making a field decision.",
+      title: d.alerts.noDeviceTitle,
+      body: d.alerts.noDeviceBody,
     };
   }
   if (hasNumber(reading.soil_moisture) && reading.soil_moisture < 30) {
     return {
-      title: isKn ? "ಮಣ್ಣಿನ ತೇವಾಂಶ ಕಡಿಮೆಯಾಗಿದೆ" : isHi ? "मृदा नमी कम है" : "Soil moisture is low",
-      body: isKn ? "ಸಂಪರ್ಕಿತ ಸಂವೇದಕವು ಸಾಮಾನ್ಯ ತೇವಾಂಶ ಶ್ರೇಣಿಗಿಂತ ಕಡಿಮೆಯಿದೆ. ನೀರುಣಿಸುವ ಮೊದಲು ಬೆಳೆ ಹಂತಕ್ಕೆ ಅನುಗುಣವಾಗಿ ನೀರಾವರಿ ಅಗತ್ಯವನ್ನು ಪರಿಶೀಲಿಸಿ." : isHi ? "सेंसर सामान्य नमी सीमा से नीचे है। पानी देने से पहले फसल चरण के अनुसार आवश्यकता की जांच करें।" : "The connected sensor is below the general moisture reference range. Check irrigation need against your crop stage before watering.",
+      title: d.alerts.lowMoistureTitle,
+      body: d.alerts.lowMoistureBody,
     };
   }
   if (hasNumber(reading.soil_moisture) && reading.soil_moisture > 55) {
     return {
-      title: isKn ? "ಮಣ್ಣಿನ ತೇವಾಂಶ ಹೆಚ್ಚಾಗಿದೆ" : isHi ? "मृदा नमी अधिक है" : "Soil moisture is high",
-      body: isKn ? "ಸಂಪರ್ಕಿತ ಸಂವೇದಕವು ಸಾಮಾನ್ಯ ತೇವಾಂಶ ಶ್ರೇಣಿಗಿಂತ ಹೆಚ್ಚಾಗಿದೆ. ಹೆಚ್ಚಿನ ನೀರುಣಿಸುವುದನ್ನು ತಪ್ಪಿಸಿ ಮತ್ತು ನೀರು ಹರಿದುಹೋಗುವಿಕೆಯನ್ನು ಪರಿಶೀಲಿಸಿ." : isHi ? "सेंसर सामान्य नमी सीमा से ऊपर है। अतिरिक्त पानी देने से बचें और जल निकासी की जांच करें।" : "The connected sensor is above the general moisture reference range. Avoid adding water and check drainage before the next irrigation.",
+      title: d.alerts.highMoistureTitle,
+      body: d.alerts.highMoistureBody,
     };
   }
   if (hasNumber(reading.soil_temperature) && (reading.soil_temperature < 15 || reading.soil_temperature > 35)) {
     return {
-      title: isKn ? "ಮಣ್ಣಿನ ತಾಪಮಾನ ಪರಿಶೀಲನೆ ಅಗತ್ಯವಿದೆ" : isHi ? "मृदा तापमान जांच की आवश्यकता है" : "Soil temperature needs a check",
-      body: isKn ? "ಸಂಪರ್ಕಿತ ಸಂವೇದಕವು ಸಾಮಾನ್ಯ 15–35°C ಶ್ರೇಣಿಯಿಂದ ಹೊರಗಿದೆ. ಕ್ರಮ ಕೈಗೊಳ್ಳುವ ಮೊದಲು ಬೆಳೆ ಹಂತದ ಅಗತ್ಯಗಳನ್ನು ಪರಿಶೀಲಿಸಿ." : isHi ? "सेंसर सामान्य 15-35°C सीमा से बाहर है। कार्रवाई से पहले फसल चरण की आवश्यकता देखें।" : "The connected sensor is outside the general 15–35°C reference range. Review crop-stage needs before acting.",
+      title: d.alerts.tempCheckTitle,
+      body: d.alerts.tempCheckBody,
     };
   }
   return {
-    title: isKn ? "ಯಾವುದೇ ತಕ್ಷಣದ ತೇವಾಂಶ ಎಚ್ಚರಿಕೆ ಇಲ್ಲ" : isHi ? "कोई तत्काल नमी चेतावनी नहीं" : "No immediate moisture warning",
-    body: isKn ? "ಲಭ್ಯವಿರುವ ಸಂವೇದಕ ಮೌಲ್ಯಗಳು ಸಾಮಾನ್ಯ ಉಲ್ಲೇಖ ಶ್ರೇಣಿಯೊಳಗೆ ಇವೆ." : isHi ? "उपलब्ध सेंसर मान सामान्य संदर्भ सीमा के भीतर हैं।" : "The available sensor values are within general reference ranges.",
+    title: d.alerts.noAlertTitle,
+    body: d.alerts.noAlertBody,
   };
 }
 
 export default function SoilMonitorClient() {
   const { lang } = useLanguage();
   const language = lang;
-  const isKn = language === "kn";
-  const isHi = language === "hi";
+  const dict = SOIL_MONITOR_I18N[(language as Lang) || "en"] || SOIL_MONITOR_I18N.en;
 
   const [devices, setDevices] = useState<DeviceStatus[]>([]);
   const [selectedDevice, setSelectedDevice] = useState("");
@@ -293,19 +287,13 @@ export default function SoilMonitorClient() {
         if (current !== selectedDevice) setSelectedDevice(current);
         await refreshReadings(current);
       } catch {
-        setError(
-          isKn
-            ? "ಲೈವ್ ಸಂವೇದಕ ಡೇಟಾವನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."
-            : isHi
-            ? "लाइव सेंसर डेटा से कनेक्ट नहीं हो सका। कृपया पुनः प्रयास करें।"
-            : "Live sensor data could not be reached. Please try again."
-        );
+        setError(dict.connectionError);
       } finally {
         setLoading(false);
         setRefreshing(false);
       }
     },
-    [refreshDevices, refreshReadings, selectedDevice, isKn, isHi]
+    [refreshDevices, refreshReadings, selectedDevice, language]
   );
 
   useEffect(() => {
@@ -353,16 +341,23 @@ export default function SoilMonitorClient() {
   }, [available, metric]);
 
   const getMetricTitle = (m: MetricConfig) => {
-    return isKn ? m.titleKn : isHi ? m.titleHi : m.titleEn;
+    if (m.key === "soil_moisture") return dict.metrics.moisture;
+    if (m.key === "soil_temperature") return dict.metrics.temperature;
+    if (m.key === "electrical_conductivity") return dict.metrics.electricalConductivity;
+    if (m.key === "nitrogen") return dict.metrics.nitrogen;
+    if (m.key === "phosphorus") return dict.metrics.phosphorus;
+    if (m.key === "potassium") return dict.metrics.potassium;
+    if (m.key === "soil_ph") return dict.metrics.ph;
+    return m.titleEn;
   };
 
   const steps = [
-    [Cpu, isKn ? "ಸಂವೇದಕ ಸಾಧನ" : isHi ? "सेंसर डिवाइस" : "Sensor device"],
-    [Droplets, isKn ? "ಮಣ್ಣು / ಜಮೀನು" : isHi ? "मृदा / खेत" : "Soil / field"],
-    [Wifi, isKn ? "ಡೇಟಾ ಪ್ರಸರಣ" : isHi ? "डेटा ट्रांसमिशन" : "Data transmission"],
-    [Cloud, isKn ? "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಕ್ಲೌಡ್" : isHi ? "किसानबड्डी क्लाउड" : "KisaanBuddy cloud"],
-    [Activity, isKn ? "ಡೇಟಾ ವಿಶ್ಲೇಷಣೆ" : isHi ? "डेटा विश्लेषण" : "Data interpretation"],
-    [CheckCircle2, isKn ? "ರೈತರ ನಿರ್ಧಾರ" : isHi ? "किसान का निर्णय" : "Farmer decision"],
+    [Cpu, dict.pipelineSteps.device],
+    [Droplets, dict.pipelineSteps.soil],
+    [Wifi, dict.pipelineSteps.data],
+    [Cloud, dict.pipelineSteps.cloud],
+    [Activity, dict.pipelineSteps.analysis],
+    [CheckCircle2, dict.pipelineSteps.decision],
   ] as const;
 
   return (
@@ -374,17 +369,13 @@ export default function SoilMonitorClient() {
           <div className="max-w-2xl">
             <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">
               <Radio className="h-4 w-4" />
-              <span>{isKn ? "ಸಂಪರ್ಕಿತ ಯಂತ್ರಾಂಶ" : isHi ? "कनेक्टेड हार्डवेयर" : "Connected hardware"}</span>
+              <span>{dict.tag}</span>
             </div>
             <h1 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-              {isKn ? "ಸ್ಮಾರ್ಟ್ ಮಣ್ಣಿನ ಮಾನಿಟರ್" : isHi ? "स्मार्ट मृदा मॉनिटर" : "Smart Soil Monitor"}
+              {dict.title}
             </h1>
             <p className="mt-3 text-sm leading-6 text-emerald-50/85 sm:text-base">
-              {isKn
-                ? "ನಿಮ್ಮ ಜಮೀನಿನ ಸಂವೇದಕದಿಂದ ನೈಜ ಅಳತೆಗಳು - ಹವಾಮಾನ ಡೇಟಾ, ಅಂದಾಜುಗಳು ಮತ್ತು AI ಮಾರ್ಗದರ್ಶನದಿಂದ ಪ್ರತ್ಯೇಕವಾಗಿ."
-                : isHi
-                ? "आपके खेत के सेंसर से वास्तविक माप - मौसम डेटा, अनुमानों और एआई मार्गदर्शन से स्पष्ट रूप से अलग।"
-                : "Real measurements from your field sensor—clearly separated from weather data, estimates, and AI guidance."}
+              {dict.subtitle}
             </p>
           </div>
           <button
@@ -393,7 +384,7 @@ export default function SoilMonitorClient() {
             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-semibold transition hover:bg-white/15 disabled:opacity-60"
           >
             <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-            <span>{isKn ? "ಲೈವ್ ಡೇಟಾ ನವೀಕರಿಸಿ" : isHi ? "लाइव डेटा रीफ्रेश करें" : "Refresh live data"}</span>
+            <span>{dict.refreshBtn}</span>
           </button>
         </div>
       </section>
@@ -414,14 +405,14 @@ export default function SoilMonitorClient() {
               </div>
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  {isKn ? "ಸಾಧನದ ಸ್ಥಿತಿ" : isHi ? "उपकरण की स्थिति" : "Device status"}
+                  {dict.deviceStatus}
                 </p>
                 <h2 className="mt-0.5 text-lg font-bold text-foreground">
                   {device?.online
-                    ? (isKn ? "ಯಂತ್ರಾಂಶ ಸಂಪರ್ಕಗೊಂಡಿದೆ" : isHi ? "हार्डवेयर कनेक्टेड" : "Hardware connected")
+                    ? dict.statusConnected
                     : devices.length
-                    ? (isKn ? "ಸಾಧನ ಆಫ್‌ಲೈನ್ ಆಗಿದೆ" : isHi ? "डिवाइस ऑफ़लाइन" : "Device offline")
-                    : (isKn ? "ಯಾವುದೇ ಸಾಧನ ಸಂಪರ್ಕಗೊಂಡಿಲ್ಲ" : isHi ? "कोई डिवाइस कनेक्टेड नहीं" : "No device connected")}
+                    ? dict.statusOffline
+                    : dict.statusNone}
                 </h2>
               </div>
             </div>
@@ -440,13 +431,13 @@ export default function SoilMonitorClient() {
           <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 text-sm">
             <div>
               <p className="text-xs text-muted-foreground">
-                {isKn ? "ಕೊನೆಯ ಬಾರಿ ಡೇಟಾ ಸ್ವೀಕರಿಸಿದ್ದು" : isHi ? "अंतिम डेटा प्राप्त" : "Last data received"}
+                {dict.lastReceived}
               </p>
               <p className="mt-1 font-semibold text-foreground">{timeLabel(lastReceived)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">
-                {isKn ? "ರೀಡಿಂಗ್ ಸಮಯ" : isHi ? "रीडिंग का समय" : "Reading age"}
+                {dict.readingAge}
               </p>
               <p className="mt-1 font-semibold text-foreground">
                 {device ? formatAge(device.last_seen_seconds, language) : "—"}
@@ -457,7 +448,7 @@ export default function SoilMonitorClient() {
 
         <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
           <label htmlFor="device" className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            {isKn ? "ಸಂಪರ್ಕಿತ ಸಾಧನ" : isHi ? "कनेक्टेड डिवाइस" : "Connected device"}
+            {dict.connectedDevice}
           </label>
           <select
             id="device"
@@ -467,7 +458,7 @@ export default function SoilMonitorClient() {
             className="mt-2 h-11 w-full rounded-xl border border-input bg-background px-3 text-sm font-semibold text-foreground outline-none ring-offset-background focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
             {!devices.length && (
-              <option>{isKn ? "ಯಾವುದೇ ಸಂವೇದಕ ಸಾಧನಗಳು ಕಂಡುಬಂದಿಲ್ಲ" : isHi ? "कोई सेंसर डिवाइस नहीं मिला" : "No sensor devices found"}</option>
+              <option>{dict.noDevicesFound}</option>
             )}
             {devices.map((item) => (
               <option key={item.device_id} value={item.device_id}>
@@ -476,11 +467,7 @@ export default function SoilMonitorClient() {
             ))}
           </select>
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            {isKn
-              ? "ಇದು ಸಂಪರ್ಕಿತ ಸಾಧನವನ್ನು ಆಯ್ಕೆ ಮಾಡುತ್ತದೆ. ಯಂತ್ರಾಂಶ ಫೀಡ್‌ನಲ್ಲಿ ಫಾರ್ಮ್ ಮತ್ತು ಜಮೀನು ಹಂಚಿಕೆ ಲಭ್ಯವಿಲ್ಲದ ಕಾರಣ ಊಹಿಸಲಾಗುವುದಿಲ್ಲ."
-              : isHi
-              ? "यह कनेक्टेड डिवाइस का चयन करता है। हार्डवेयर फीड में खेत का असाइनमेंट उपलब्ध नहीं है, इसलिए इसका अनुमान नहीं लगाया गया है।"
-              : "This selects a connected device. Farm and field assignment is not present in the hardware feed yet, so it is not guessed."}
+            {dict.connectPrompt}
           </p>
         </div>
       </section>
@@ -500,34 +487,30 @@ export default function SoilMonitorClient() {
         <div className="mb-3 flex items-end justify-between gap-3">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              {isKn ? "ಲೈವ್ ಸಂವೇದಕ ಡೇಟಾ" : isHi ? "लाइव सेंसर डेटा" : "Live sensor data"}
+              {dict.liveSensorData}
             </p>
             <h2 className="mt-1 text-xl font-bold text-foreground">
-              {isKn ? "ನೈಜ ಜಮೀನು ರೀಡಿಂಗ್‌ಗಳು" : isHi ? "वास्तविक खेत की रीडिंग" : "Actual field readings"}
+              {dict.actualFieldReadings}
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            {isKn ? "ಮೂಲ: ಸಂಪರ್ಕಿತ ಮಣ್ಣಿನ ಸಂವೇದಕ" : isHi ? "स्रोत: कनेक्टेड मृदा सेंसर" : "Source: connected soil sensor"}
+            {dict.sourceSensor}
           </p>
         </div>
 
         {loading ? (
           <div className="flex min-h-48 items-center justify-center rounded-2xl border border-border bg-card text-sm text-muted-foreground">
             <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />
-            <span>{isKn ? "ಸಂಪರ್ಕಿತ ಯಂತ್ರಾಂಶ ಲೋಡ್ ಆಗುತ್ತಿದೆ…" : isHi ? "कनेक्टेड हार्डवेयर लोड हो रहा है…" : "Loading connected hardware…"}</span>
+            <span>{dict.loadingHardware}</span>
           </div>
         ) : !available.length ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <Cpu className="mx-auto h-9 w-9 text-muted-foreground" />
             <h3 className="mt-3 text-base font-bold">
-              {isKn ? "ಇನ್ನೂ ಯಾವುದೇ ಸಂವೇದಕ ರೀಡಿಂಗ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ" : isHi ? "अभी तक कोई सेंसर रीडिंग उपलब्ध नहीं है" : "No sensor readings available yet"}
+              {dict.noReadingsYet}
             </h3>
             <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-muted-foreground">
-              {isKn
-                ? "ಸಾಧನವು ಅಳತೆಯನ್ನು ಕಳುಹಿಸಿದಾಗ, ಅದು ಅದರ ಮೂಲ ಮತ್ತು ಸ್ವೀಕರಿಸಿದ ಸಮಯದೊಂದಿಗೆ ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತದೆ. ಯಾವುದೇ ಮೌಲ್ಯಗಳನ್ನು ಅಂದಾಜಿಸಲಾಗುವುದಿಲ್ಲ."
-                : isHi
-                ? "जब यह उपकरण माप प्रेषित करेगा, तो यह अपने स्रोत और प्राप्त समय के साथ यहां दिखाई देगा। कोई मान अनुमानित नहीं किया जा रहा है।"
-                : "When this device transmits a measurement, it will appear here with its source and received time. No values are being estimated."}
+              {dict.connectPrompt}
             </p>
           </div>
         ) : (
@@ -556,10 +539,10 @@ export default function SoilMonitorClient() {
                     <span className="ml-1 text-base text-muted-foreground">{item.unit}</span>
                   </p>
                   <p className="mt-3 min-h-10 text-xs leading-5 text-muted-foreground">
-                    {detail?.note ?? (isKn ? "ಯಾವುದೇ ಪ್ರಸ್ತುತ ಲೈವ್ ಮೌಲ್ಯವಿಲ್ಲ; ಇತಿಹಾಸ ಕೆಳಗೆ ಲಭ್ಯವಿದೆ." : isHi ? "कोई वर्तमान लाइव मान नहीं; इतिहास नीचे उपलब्ध है।" : "No current live value; history is available below.")}
+                    {detail?.note ?? dict.noReadingsYet}
                   </p>
                   <p className="mt-3 border-t border-border pt-3 text-[11px] font-medium text-muted-foreground">
-                    {isKn ? "ಪರಿಶೀಲಿತ ಸಂವೇದಕ ರೀಡಿಂಗ್" : isHi ? "सत्यापित सेंसर रीडिंग" : "Verified sensor reading"}{" "}
+                    {dict.verifiedReading}{" "}
                     {reading ? `• ${formatAge(reading.age_seconds, language)}` : ""}
                   </p>
                 </article>
@@ -576,27 +559,23 @@ export default function SoilMonitorClient() {
             <Activity className="h-5 w-5 text-primary" />
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-primary">
-                {isKn ? "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಒಳನೋಟ" : isHi ? "किसानबड्डी अंतर्दृष्टि" : "KisaanBuddy insight"}
+                {dict.insightTag}
               </p>
               <h2 className="text-lg font-bold">
-                {isKn ? "ನಿಮ್ಮ ಮಣ್ಣಿನ ಡೇಟಾದ ಅರ್ಥವೇನು" : isHi ? "आपके मृदा डेटा का क्या अर्थ है" : "What your soil data means"}
+                {dict.insightTitle}
               </h2>
             </div>
           </div>
           <div className="mt-5 rounded-xl border border-primary/15 bg-primary/5 p-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary">
               <Cpu className="h-4 w-4" />
-              <span>{isKn ? "ಸಂವೇದಕ ಡೇಟಾ → ನಿರ್ಧಾರ ಸೂಚನೆ" : isHi ? "सेंसर डेटा → निर्णय संकेत" : "Sensor data → decision prompt"}</span>
+              <span>{dict.insightDesc}</span>
             </div>
             <h3 className="mt-3 font-bold text-foreground">{insight.title}</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{insight.body}</p>
           </div>
           <p className="mt-4 text-xs leading-5 text-muted-foreground">
-            {isKn
-              ? "ಇದು ಲಭ್ಯವಿರುವ ಸಂವೇದಕ ಮೌಲ್ಯಗಳ ನಿಯಮ-ಆಧಾರಿತ ಅರ್ಥೈಸುವಿಕೆಯಾಗಿದೆ. ಹವಾಮಾನ, ಬೆಳೆ ಮತ್ತು ಜಮೀನಿನ ಇತಿಹಾಸವನ್ನು ಸಾಧನದ ಫೀಡ್‌ಗೆ ಸಂಪರ್ಕಿಸದ ಕಾರಣ ಬಳಸಲಾಗಿಲ್ಲ."
-              : isHi
-              ? "यह उपलब्ध सेंसर मानों की नियम-आधारित व्याख्या है। मौसम, फसल और खेत का इतिहास डिवाइस फ़ीड से नहीं जुड़ा है।"
-              : "This is a transparent rule-based interpretation of the available sensor values. Weather, crop, crop stage and farm history have not been used because they are not connected to this device feed."}
+            {dict.alerts.noAlertBody}
           </p>
         </div>
 
@@ -605,25 +584,21 @@ export default function SoilMonitorClient() {
             <Leaf className="h-5 w-5 text-emerald-600" />
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-                {isKn ? "ಮಣ್ಣಿನ ಆರೋಗ್ಯ" : isHi ? "मृदा स्वास्थ्य" : "Soil health"}
+                {dict.soilHealthTag}
               </p>
               <h2 className="text-lg font-bold">
-                {isKn ? "ಇನ್ನೂ ಮೌಲ್ಯಮಾಪನ ಮಾಡಿಲ್ಲ" : isHi ? "अभी मूल्यांकन नहीं किया गया" : "Not assessed yet"}
+                {dict.soilHealthNotAssessed}
               </h2>
             </div>
           </div>
           <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            {isKn
-              ? "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಸ್ಕೋರ್‌ಗೆ ಹೆಚ್ಚಿನ ಪರಿಶೀಲಿತ ಮಾಹಿತಿಯ ಅಗತ್ಯವಿದೆ. ಈ ಸಂಪರ್ಕಿತ ಯಂತ್ರಾಂಶವು pH, EC, ಅಥವಾ NPK ನೀಡುವುದಿಲ್ಲವಾದ್ದರಿಂದ, ಕಿಸಾನ್‌ಬಡ್ಡಿ ಸ್ಕೋರ್ ಲೆಕ್ಕಹಾಕುವುದಿಲ್ಲ."
-              : isHi
-              ? "मृदा स्वास्थ्य स्कोर के लिए अधिक सत्यापित इनपुट की आवश्यकता है। यह कनेक्टेड हार्डवेयर वर्तमान में pH, EC, या NPK प्रदान नहीं करता है।"
-              : "A soil-health score needs more verified inputs. This connected hardware does not currently provide pH, EC, or NPK, so KisaanBuddy does not calculate one."}
+            {dict.soilHealthDesc}
           </p>
           <Link
             href="/soil-health"
             className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline"
           >
-            <span>{isKn ? "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಕ್ಯಾಲ್ಕುಲೇಟರ್ ತೆರೆಯಿರಿ" : isHi ? "मृदा स्वास्थ्य कैलकुलेटर खोलें" : "Open soil-health calculator"}</span>
+            <span>{dict.openCalculator}</span>
             <span aria-hidden>→</span>
           </Link>
         </div>
@@ -634,17 +609,13 @@ export default function SoilMonitorClient() {
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              {isKn ? "ಹಿಂದಿನ ಸಂವೇದಕ ಡೇಟಾ" : isHi ? "ऐतिहासिक सेंसर डेटा" : "Historical sensor data"}
+              {dict.historicalData}
             </p>
             <h2 className="mt-1 text-xl font-bold">
-              {isKn ? "ಸಾಧನದ ಇತಿಹಾಸ" : isHi ? "डिवाइस इतिहास" : "Device history"}
+              {dict.deviceHistory}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {isKn
-                ? "ಸಂಪರ್ಕಿತ ಯಂತ್ರಾಂಶ ಸೇವೆಯು ಉಳಿಸಿಕೊಂಡಿರುವ ರೀಡಿಂಗ್‌ಗಳನ್ನು ಮಾತ್ರ ಚಾರ್ಟ್ ಮಾಡಲಾಗಿದೆ."
-                : isHi
-                ? "केवल कनेक्टेड हार्डवेयर सेवा द्वारा बनाए रखी गई रीडिंग को चार्ट किया गया है।"
-                : "Only readings retained by the connected hardware service are charted."}
+              {dict.historicalDesc}
             </p>
           </div>
           {available.length > 0 && (
@@ -705,11 +676,7 @@ export default function SoilMonitorClient() {
           </div>
         ) : (
           <div className="mt-6 rounded-xl bg-muted/50 p-6 text-center text-sm text-muted-foreground">
-            {isKn
-              ? `ಈ ಸಾಧನಕ್ಕಾಗಿ ಯಾವುದೇ ${getMetricTitle(activeMetric)} ಇತಿಹಾಸ ಲಭ್ಯವಿಲ್ಲ.`
-              : isHi
-              ? `इस डिवाइस के लिए कोई ${getMetricTitle(activeMetric)} इतिहास उपलब्ध नहीं है।`
-              : `No recorded ${activeMetric.titleEn.toLowerCase()} history for this device yet.`}
+            {dict.noReadingsYet}
           </div>
         )}
       </section>
@@ -717,10 +684,10 @@ export default function SoilMonitorClient() {
       {/* Hardware Flow Pipeline */}
       <section className="rounded-2xl border border-border bg-card p-5 shadow-xs">
         <p className="text-xs font-bold uppercase tracking-wider text-primary">
-          {isKn ? "ಸಿಗ್ನಲ್ ನಿಮ್ಮನ್ನು ಹೇಗೆ ತಲುಪುತ್ತದೆ" : isHi ? "सिग्नल आप तक कैसे पहुँचता है" : "How the signal reaches you"}
+          {dict.pipelineTag}
         </p>
         <h2 className="mt-1 text-xl font-bold">
-          {isKn ? "ಜಮೀನು → ಕಿಸಾನ್‌ಬಡ್ಡಿ" : isHi ? "खेत → किसानबड्डी" : "Physical field → KisaanBuddy"}
+          {dict.pipelineTitle}
         </h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {steps.map(([Icon, label], index) => {
@@ -742,11 +709,7 @@ export default function SoilMonitorClient() {
           })}
         </div>
         <p className="mt-5 text-xs text-muted-foreground">
-          {isKn
-            ? "ಈ ಪುಟದಲ್ಲಿ ತೋರಿಸಲಾದ ಏಕೈಕ ಲೈವ್ ಮೂಲ ಸಂವೇದಕ ಡೇಟಾ ಆಗಿದೆ. ಹವಾಮಾನ, ಮಾರುಕಟ್ಟೆ ಮತ್ತು AI ಮೂಲಗಳನ್ನು ಸಂಪರ್ಕಿಸಿದಾಗ ಪ್ರತ್ಯೇಕವಾಗಿ ಗುರುತಿಸಲಾಗುತ್ತದೆ."
-            : isHi
-            ? "इस पृष्ठ पर दिखाया गया एकमात्र लाइव स्रोत सेंसर डेटा है। मौसम, बाजार और एआई स्रोतों को कनेक्ट होने पर अलग से लेबल किया जाएगा।"
-            : "Sensor data is the only live source shown on this page. Weather, market and AI sources will be labelled separately when connected."}
+          {dict.pipelineTitle}
         </p>
       </section>
     </div>

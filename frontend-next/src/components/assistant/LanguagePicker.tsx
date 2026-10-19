@@ -16,6 +16,8 @@ const OPTIONS: { value: Language; label: string }[] = [
   { value: "ta", label: "தமிழ்" },
   { value: "gu", label: "ગુજરાતી" },
   { value: "pa", label: "ਪੰਜਾਬੀ" },
+  { value: "ml", label: "മലയാളം" },
+  { value: "hi_en", label: "Hinglish" },
   { value: "bho", label: "Bhojपुरी" },
   { value: "mai", label: "मैथिली" },
 ]

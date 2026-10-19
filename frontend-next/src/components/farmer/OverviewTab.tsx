@@ -7,11 +7,11 @@
 import { useMemo } from "react";
 import {
   Sprout, Droplets, MapPin, Layers, TrendingUp,
-  FlaskConical, Calendar, ChevronRight, BadgeCheck, Clock
+  FlaskConical, Calendar, Clock, BadgeCheck
 } from "lucide-react";
-import Link from "next/link";
 import type { FarmerProfile, Farm, FarmerField, SoilTest, Recommendation, FarmActivity } from "@/lib/farmer-api";
-import { getSoilHealthScore, acresToHectares } from "@/lib/farmer-api";
+import { getSoilHealthScore } from "@/lib/farmer-api";
+import { FARMER_I18N } from "@/lib/farmer-i18n";
 
 interface Props {
   profile: FarmerProfile | null;
@@ -23,27 +23,20 @@ interface Props {
   lang: string;
 }
 
-const CROP_STAGE_COLORS: Record<string, string> = {
-  "sowing": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
-  "germination": "bg-lime-500/10 text-lime-700 dark:text-lime-400 border-lime-500/20",
-  "vegetative": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
-  "flowering": "bg-pink-500/10 text-pink-700 dark:text-pink-400 border-pink-500/20",
-  "harvest": "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
-};
-
-function SoilHealthBar({ score }: { score: number }) {
+function SoilHealthBar({ score, t }: { score: number; t: typeof FARMER_I18N['en'] }) {
   const color =
     score >= 70 ? "bg-emerald-500" :
     score >= 40 ? "bg-amber-500" :
     "bg-red-500";
   const label =
-    score >= 70 ? "Good" :
-    score >= 40 ? "Fair" :
-    "Low";
+    score >= 70 ? t.soilGood :
+    score >= 40 ? t.soilFair :
+    t.soilLow;
+
   return (
     <div className="space-y-1.5">
       <div className="flex justify-between text-[11px] font-medium">
-        <span className="text-muted-foreground">Soil Health</span>
+        <span className="text-muted-foreground">{t.soilHealth}</span>
         <span className="font-bold text-foreground">{label} ({score}%)</span>
       </div>
       <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
@@ -76,8 +69,7 @@ function StatCard({ icon: Icon, label, value, color }: {
 }
 
 export function OverviewTab({ profile, farms, fields, soilTests, recommendations, activities, lang }: Props) {
-  const isKn = lang === "kn";
-  const hi = lang === "hi";
+  const t = FARMER_I18N[lang] || FARMER_I18N.en;
 
   const totalAreaAcres = useMemo(() =>
     fields.reduce((sum, f) => {
@@ -101,26 +93,26 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
           icon={Layers}
-          label={isKn ? "ಒಟ್ಟು ಜಮೀನುಗಳು" : hi ? "कुल खेत" : "Total Farms"}
+          label={t.totalFarms}
           value={farms.length}
           color="text-primary bg-primary/10 border-primary/20"
         />
         <StatCard
           icon={MapPin}
-          label={isKn ? "ಒಟ್ಟು ಪ್ಲಾಟ್‌ಗಳು" : hi ? "कुल भूखंड" : "Total Plots"}
+          label={t.totalPlots}
           value={fields.length}
           color="text-indigo-600 bg-indigo-500/10 border-indigo-500/20"
         />
         <StatCard
           icon={Sprout}
-          label={isKn ? "ಸಕ್ರಿಯ ಬೆಳೆಗಳು" : hi ? "सक्रिय फसलें" : "Active Crops"}
+          label={t.activeCrops}
           value={activeCrops}
           color="text-emerald-600 bg-emerald-500/10 border-emerald-500/20"
         />
         <StatCard
           icon={TrendingUp}
-          label={isKn ? "ಒಟ್ಟು ವಿಸ್ತೀರ್ಣ (ಎಕರೆ)" : hi ? "कुल क्षेत्र (एकड़)" : "Total Area (acres)"}
-          value={totalAreaAcres > 0 ? totalAreaAcres.toFixed(1) : "—"}
+          label={t.areaAcreage}
+          value={totalAreaAcres > 0 ? `${totalAreaAcres.toFixed(1)} ac` : "—"}
           color="text-amber-600 bg-amber-500/10 border-amber-500/20"
         />
       </div>
@@ -133,18 +125,18 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
           <div className="rounded-xl border border-border bg-card p-5 space-y-4">
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              {isKn ? "ರೈತರ ಮಾಹಿತಿ" : hi ? "किसान जानकारी" : "Farmer Information"}
+              {t.locationVillage}
             </h3>
             <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
               {[
-                { label: isKn ? "ಗ್ರಾಮ" : hi ? "गाँव" : "Village", value: profile?.village_name },
-                { label: isKn ? "ಜಿಲ್ಲೆ" : hi ? "जिला" : "District", value: profile?.district_name },
-                { label: isKn ? "ರಾಜ್ಯ" : hi ? "राज्य" : "State", value: profile?.state_name },
-                { label: isKn ? "ಪಿನ್ ಕೋಡ್" : hi ? "पिन कोड" : "PIN Code", value: profile?.pin_code },
-                { label: isKn ? "ಅನುಭವ" : hi ? "अनुभव" : "Experience", value: profile?.experience_years ? `${profile.experience_years} ${isKn ? "ವರ್ಷಗಳು" : hi ? "वर्ष" : "years"}` : null },
-                { label: isKn ? "ಭೂ ಮಾಲೀಕತ್ವ" : hi ? "भूमि स्वामित्व" : "Land Ownership", value: profile?.land_ownership },
-                { label: isKn ? "ನೀರಾವರಿ" : hi ? "सिंचाई" : "Irrigation", value: profile?.has_irrigation ? (isKn ? "ಲಭ್ಯವಿದೆ" : hi ? "उपलब्ध" : "Available") : (isKn ? "ಇಲ್ಲ" : hi ? "नहीं" : "None") },
-                { label: isKn ? "ಟ್ರ್ಯಾಕ್ಟರ್" : hi ? "ट्रैक्टर" : "Tractor", value: profile?.has_tractor ? (isKn ? "ಲಭ್ಯವಿದೆ" : hi ? "उपलब्ध" : "Available") : (isKn ? "ಇಲ್ಲ" : hi ? "नहीं" : "None") },
+                { label: t.locationVillage, value: profile?.village_name },
+                { label: t.district, value: profile?.district_name },
+                { label: t.state, value: profile?.state_name },
+                { label: "PIN", value: profile?.pin_code },
+                { label: "Experience", value: profile?.experience_years ? `${profile.experience_years} yrs` : null },
+                { label: "Ownership", value: profile?.land_ownership },
+                { label: t.irrigationType, value: profile?.has_irrigation ? "✓" : "—" },
+                { label: "Tractor", value: profile?.has_tractor ? "✓" : "—" },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">{label}</span>
@@ -155,7 +147,7 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
             {profile?.equipment_list && (
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
-                  {isKn ? "ಉಪಕರಣಗಳು" : hi ? "उपकरण" : "Equipment"}
+                  Equipment
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {profile.equipment_list.split(",").map(eq => (
@@ -174,7 +166,7 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Sprout className="h-4 w-4 text-primary" />
-                  {isKn ? "ಸಕ್ರಿಯ ಬೆಳೆಗಳು" : hi ? "सक्रिय फसलें" : "Active Crops"}
+                  {t.activeCrops}
                 </h3>
               </div>
               <div className="grid gap-2.5 sm:grid-cols-2">
@@ -195,7 +187,7 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
                       {field.sowing_date && (
                         <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
                           <Calendar className="h-2.5 w-2.5" />
-                          {isKn ? "ಬಿತ್ತನೆ:" : hi ? "बुआई:" : "Sown:"} {new Date(field.sowing_date).toLocaleDateString()}
+                          {t.sowing}: {new Date(field.sowing_date).toLocaleDateString()}
                         </span>
                       )}
                       {field.irrigation_type && (
@@ -218,28 +210,28 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
           <div className="rounded-xl border border-border bg-card p-5 space-y-4">
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
               <FlaskConical className="h-4 w-4 text-teal-600" />
-              {isKn ? "ಮಣ್ಣಿನ ಆರೋಗ್ಯ" : hi ? "मिट्टी स्वास्थ्य" : "Soil Health"}
+              {t.soilHealth}
             </h3>
             {latestSoilTest ? (
               <div className="space-y-3">
-                <SoilHealthBar score={soilScore} />
+                <SoilHealthBar score={soilScore} t={t} />
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { label: "pH", value: latestSoilTest.soil_ph?.toFixed(1), ideal: "6.0–7.5" },
-                    { label: isKn ? "ಸಾರಜನಕ (N)" : hi ? "नाइट्रोजन" : "Nitrogen (N)", value: latestSoilTest.nitrogen_kg_ha ? `${latestSoilTest.nitrogen_kg_ha} kg/ha` : null },
-                    { label: isKn ? "ರಂಜಕ (P)" : hi ? "फास्फोरस" : "Phosphorus (P)", value: latestSoilTest.phosphorus_kg_ha ? `${latestSoilTest.phosphorus_kg_ha} kg/ha` : null },
-                    { label: isKn ? "ಪೊಟ್ಯಾಶ್ (K)" : hi ? "पोटाश" : "Potassium (K)", value: latestSoilTest.potassium_kg_ha ? `${latestSoilTest.potassium_kg_ha} kg/ha` : null },
-                    { label: isKn ? "ಸಾವಯವ ಇಂಗಾಲ" : hi ? "कार्बनिक" : "Org. Carbon", value: latestSoilTest.organic_carbon_pct ? `${latestSoilTest.organic_carbon_pct}%` : null },
+                    { label: "pH", value: latestSoilTest.soil_ph?.toFixed(1) },
+                    { label: t.nitrogen, value: latestSoilTest.nitrogen_kg_ha ? `${latestSoilTest.nitrogen_kg_ha} kg/ha` : null },
+                    { label: t.phosphorus, value: latestSoilTest.phosphorus_kg_ha ? `${latestSoilTest.phosphorus_kg_ha} kg/ha` : null },
+                    { label: t.potassium, value: latestSoilTest.potassium_kg_ha ? `${latestSoilTest.potassium_kg_ha} kg/ha` : null },
+                    { label: t.organicCarbon, value: latestSoilTest.organic_carbon_pct ? `${latestSoilTest.organic_carbon_pct}%` : null },
                   ].map(({ label, value }) => value ? (
                     <div key={label} className="rounded-lg bg-muted/40 p-2.5">
-                      <p className="text-[9px] uppercase font-bold text-muted-foreground">{label}</p>
+                      <p className="text-[9px] uppercase font-bold text-muted-foreground truncate">{label}</p>
                       <p className="text-xs font-bold text-foreground mt-0.5">{value}</p>
                     </div>
                   ) : null)}
                 </div>
                 <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {isKn ? "ಪರೀಕ್ಷೆ:" : hi ? "परीक्षण:" : "Tested:"} {new Date(latestSoilTest.test_date).toLocaleDateString()}
+                  {t.date}: {new Date(latestSoilTest.test_date).toLocaleDateString()}
                   {latestSoilTest.is_verified && <BadgeCheck className="h-3 w-3 text-emerald-500 ml-1" />}
                 </p>
               </div>
@@ -247,7 +239,7 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
               <div className="text-center py-6 space-y-2">
                 <FlaskConical className="h-8 w-8 text-muted-foreground/30 mx-auto" />
                 <p className="text-xs text-muted-foreground">
-                  {isKn ? "ಯಾವುದೇ ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ದಾಖಲಾಗಿಲ್ಲ." : hi ? "कोई मिट्टी परीक्षण नहीं है।" : "No soil test recorded yet."}
+                  {t.noSoilTests}
                 </p>
               </div>
             )}
@@ -258,11 +250,11 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
             <h3 className="text-sm font-bold text-foreground flex items-center gap-2 justify-between">
               <span className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-amber-500" />
-                {isKn ? "ಶಿಫಾರಸುಗಳು" : hi ? "सिफारिशें" : "Recommendations"}
+                {t.recsTitle}
               </span>
               {pendingRecs > 0 && (
                 <span className="text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 rounded-full px-2 py-0.5">
-                  {pendingRecs} {isKn ? "ಬಾಕಿ" : hi ? "बाकी" : "pending"}
+                  {pendingRecs} {t.pendingRecs}
                 </span>
               )}
             </h3>
@@ -280,7 +272,7 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
               </div>
             ) : (
               <p className="text-xs text-muted-foreground text-center py-4">
-                {isKn ? "ಯಾವುದೇ ಸಕ್ರಿಯ ಶಿಫಾರಸುಗಳಿಲ್ಲ." : hi ? "कोई सक्रिय सिफारिश नहीं है।" : "No active recommendations."}
+                {t.noRecs}
               </p>
             )}
           </div>
@@ -290,7 +282,7 @@ export function OverviewTab({ profile, farms, fields, soilTests, recommendations
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <Clock className="h-4 w-4 text-indigo-500" />
-                {isKn ? "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆಗಳು" : hi ? "हाल की गतिविधियाँ" : "Recent Activities"}
+                {t.recentActivity}
               </h3>
               <div className="space-y-2">
                 {recentActivities.map(act => (

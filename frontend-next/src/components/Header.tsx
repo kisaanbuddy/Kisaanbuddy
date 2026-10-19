@@ -104,6 +104,10 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
     en: "Account", hi: "अकाउंट", kn: "ಖಾತೆ", ta: "கணக்கு", te: "ఖాతా",
     ml: "അക്കൗണ്ട്", mr: "खाते", bn: "অ্যাকাউন্ট", pa: "ਖਾਤਾ", gu: "ખાતું", hi_en: "Account",
   },
+  more_tools: {
+    en: "More tools", hi: "और टूल", kn: "ಇನ್ನಷ್ಟು ಪರಿಕರಗಳು", ta: "கூடுதல் கருவிகள்", te: "మరిన్ని సాధనాలు",
+    ml: "കൂടുതൽ ടൂളുകൾ", mr: "आणखी टूल्स", bn: "আরও সরঞ্জাম", pa: "ਹੋਰ ਸੰਦ", gu: "વધુ ટૂલ્સ", hi_en: "More tools",
+  },
 };
 
 const NAV_LINK_DEFS = [
@@ -263,7 +267,7 @@ export function Header() {
                   aria-expanded={toolsOpen}
                   className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
                 >
-                  <span>{lang === 'kn' ? 'ಇನ್ನಷ್ಟು ಪರಿಕರಗಳು' : lang === 'hi' ? 'और टूल' : 'More tools'}</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
+                  <span>{PUBLIC_NAV_LABELS.more_tools[lang] || PUBLIC_NAV_LABELS.more_tools.en}</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {toolsOpen && (
                   <>
@@ -376,7 +380,7 @@ export function Header() {
                   href="/signup"
                   className="inline-flex h-8 items-center justify-center rounded-lg bg-[#14532D] hover:bg-[#166534] px-3.5 text-xs font-semibold text-white shadow-xs transition-colors"
                 >
-                  {lang === 'kn' ? "ಪ್ರಾರಂಭಿಸಿ" : lang === 'hi' ? "शुरू करें" : "Get Started"}
+                  {PUBLIC_NAV_LABELS.get_started[lang] || PUBLIC_NAV_LABELS.get_started.en}
                 </Link>
               </div>
             )}
@@ -396,11 +400,11 @@ export function Header() {
                 )}
                 <Link
                   href="/farmer-profile"
-                  title={lang === "kn" ? "ರೈತರ ಪ್ರೊಫೈಲ್" : lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}
+                  title={PUBLIC_NAV_LABELS.farmer_profile[lang] || PUBLIC_NAV_LABELS.farmer_profile.en}
                   className="flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:border-primary/40 hover:bg-primary/10 transition-colors"
                 >
                   <Sprout className="h-3.5 w-3.5" />
-                  <span className="hidden xl:inline">{lang === "kn" ? "ರೈತರ ಪ್ರೊಫೈಲ್" : lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}</span>
+                  <span className="hidden xl:inline">{PUBLIC_NAV_LABELS.farmer_profile[lang] || PUBLIC_NAV_LABELS.farmer_profile.en}</span>
                 </Link>
                 <Link
                   href="/profile"

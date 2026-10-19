@@ -415,6 +415,8 @@ _LANG_CONTRACT = {
     "ta": "IMPORTANT LANGUAGE RULE: Reply in clear, conversational Tamil (Tamil script). Keep crop, product and unit names precise.",
     "gu": "IMPORTANT LANGUAGE RULE: Reply in clear, conversational Gujarati (Gujarati script). Keep crop, product and unit names precise.",
     "pa": "IMPORTANT LANGUAGE RULE: Reply in clear, conversational Punjabi (Gurmukhi script). Keep crop, product and unit names precise.",
+    "ml": "IMPORTANT LANGUAGE RULE: Reply in clear, conversational Malayalam (Malayalam script). Keep crop, product and unit names precise.",
+    "hi_en": "IMPORTANT LANGUAGE RULE: The user prefers Hinglish (Hindi written in Latin / English alphabet). Reply in natural, conversational Hinglish (e.g. 'Aapki fasal ke liye yeh fertilizer upyogi hai').",
     "bho": "IMPORTANT LANGUAGE RULE: Reply in natural Bhojpuri where confident; otherwise use simple Hindi and say so briefly. Never pretend dialect fluency.",
     "mai": "IMPORTANT LANGUAGE RULE: Reply in natural Maithili where confident; otherwise use simple Hindi and say so briefly. Never pretend dialect fluency.",
 }

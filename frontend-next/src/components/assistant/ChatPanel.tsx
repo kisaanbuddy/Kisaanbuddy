@@ -30,37 +30,141 @@ import { LanguagePicker } from "./LanguagePicker"
 import { MicButton } from "./MicButton"
 import { TranscriptLive } from "./TranscriptLive"
 import { useAssistant } from "./useAssistant"
-import { useSpeech } from "./useSpeech"
+import { useSpeech, LANG_TO_BCP47 } from "./useSpeech"
 import { actionAcknowledgement, parseVoiceAction, voiceActionUrl, type VoiceFeature } from "@/lib/voice-actions"
 
-const QUICK_PROMPTS: { en: string; hi: string; kn: string; key: string; icon: string }[] = [
+interface QuickPromptItem {
+  key: string
+  icon: string
+  prompts: Record<string, string>
+}
+
+const QUICK_PROMPTS: QuickPromptItem[] = [
   {
     key: "weather",
-    en: "Weather for my farm today?",
-    hi: "आज मेरे खेत का मौसम कैसा है?",
-    kn: "ಇಂದು ನನ್ನ ಹೊಲದ ಹವಾಮಾನ ಹೇಗಿದೆ?",
     icon: "🌦️",
+    prompts: {
+      en: "Weather for my farm today?",
+      hi: "आज मेरे खेत का मौसम कैसा है?",
+      kn: "ಇಂದು ನನ್ನ ಹೊಲದ ಹವಾಮಾನ ಹೇಗಿದೆ?",
+      mr: "आज माझ्या शेतातील हवामान कसे आहे?",
+      te: "ఈ రోజు నా పొలంలో వాతావరణం ఎలా ఉంది?",
+      ta: "இன்று எனது பண்ணையின் வானிலை எப்படி உள்ளது?",
+      gu: "આજે મારા ખેતરનું હવામાન કેવું છે?",
+      bn: "আজ আমার খামারের আবহাওয়া কেমন?",
+      pa: "ਅੱਜ ਮੇਰੇ ਖੇਤ ਦਾ ਮੌਸਮ ਕਿਵੇਂ ਹੈ?",
+      ml: "ഇന്ന് എന്റെ തോട്ടത്തിലെ കാലാവസ്ഥ എങ്ങനെയാണ്?",
+      hi_en: "Aaj mere khet ka mausam kaisa hai?",
+    },
   },
   {
     key: "crop",
-    en: "Which crop should I plant this season?",
-    hi: "इस मौसम में कौन सी फसल लगाऊँ?",
-    kn: "ಈ ಋತುವಿನಲ್ಲಿ ಯಾವ ಬೆಳೆ ಬೆಳೆಯಬೇಕು?",
     icon: "🌾",
+    prompts: {
+      en: "Which crop should I plant this season?",
+      hi: "इस मौसम में कौन सी फसल लगाऊँ?",
+      kn: "ಈ ಋತುವಿನಲ್ಲಿ ಯಾವ ಬೆಳೆ ಬೆಳೆಯಬೇಕು?",
+      mr: "या हंगामात मी कोणते पीक घ्यावे?",
+      te: "ఈ సీజన్‌లో నేను ఏ పంట వేయాలి?",
+      ta: "இந்த பருவத்தில் நான் எந்த பயிர் நடவு செய்ய வேண்டும்?",
+      gu: "આ સિઝનમાં મારે કયો પાક વાવવો જોઈએ?",
+      bn: "এই মৌসুমে কোন ফসল রোপণ করা উচিত?",
+      pa: "ਇਸ ਸੀਜ਼ਨ ਵਿੱਚ ਮੈਨੂੰ ਕਿਹੜੀ ਫਸਲ ਲਗਾਉਣੀ ਚਾਹੀਦੀ ਹੈ?",
+      ml: "ഈ സീസണിൽ ഞാൻ ഏത് വിള നടണം?",
+      hi_en: "Is season me kaun si fasal lagayein?",
+    },
   },
   {
     key: "schemes",
-    en: "What government schemes can help me?",
-    hi: "मेरे लिए कौन सी सरकारी योजनाएँ हैं?",
-    kn: "ನನಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳಿವೆ?",
     icon: "📋",
+    prompts: {
+      en: "What government schemes can help me?",
+      hi: "मेरे लिए कौन सी सरकारी योजनाएँ हैं?",
+      kn: "ನನಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳಿವೆ?",
+      mr: "माझ्यासाठी कोणत्या सरकारी योजना आहेत?",
+      te: "నాకు ఏ ప్రభుత్వ పథకాలు ఉపయోగపడతాయి?",
+      ta: "எனக்கு உதவும் அரசு திட்டங்கள் என்ன?",
+      gu: "મને કઈ સરકારી યોજનાઓ મદદ કરી શકે છે?",
+      bn: "কোন সরকারি প্রকল্পগুলো আমাকে সাহায্য করতে পারে?",
+      pa: "ਮੇਰੇ ਲਈ ਕਿਹੜੀਆਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਹਨ?",
+      ml: "എനിക്ക് സഹായകരമായ സർക്കാർ പദ്ധതികൾ ഏവ?",
+      hi_en: "Mere liye kaun si sarkari yojanaen hain?",
+    },
   },
 ]
 
-function pickPrompt(p: (typeof QUICK_PROMPTS)[number], lang: Language) {
-  if (lang === "hi") return p.hi
-  if (lang === "kn") return p.kn
-  return p.en
+function pickPrompt(p: QuickPromptItem, lang: Language): string {
+  return p.prompts[lang] || p.prompts.en
+}
+
+const GREETINGS: Record<string, string> = {
+  en: "Namaste! I'm your KisaanBuddy Assistant.",
+  hi: "नमस्ते! मैं आपका किसानमित्र सहायक हूँ।",
+  kn: "ನಮಸ್ಕಾರ! ನಾನು ನಿಮ್ಮ ಕಿಸಾನ್‌ಬಡ್ಡೀ ಸಹಾಯಕ.",
+  mr: "नमस्ते! मी तुमचा किसानमित्र सहाय्यक आहे.",
+  te: "నమస్కారం! నేను మీ కిసాన్‌బడ్డీ సహాయకుడిని.",
+  ta: "வணக்கம்! நான் உங்கள் கிசான்பட்டி உதவியாளர்.",
+  gu: "નમસ્તે! હું તમારો કિસાનબડી સહાયક છું.",
+  bn: "নমস্কার! আমি আপনার কিষাণবাডি সহকারী।",
+  pa: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡਾ ਕਿਸਾਨਬੱਡੀ ਸਹਾਇਕ ਹਾਂ।",
+  ml: "നമസ്കാരം! ഞാൻ നിങ്ങളുടെ കിസാൻബഡ്ഡി അസിസ്റ്റന്റ് ആണ്.",
+  hi_en: "Namaste! Main aapka KisaanBuddy sahayak hoon.",
+}
+
+const GREETING_SUBS: Record<string, string> = {
+  en: "Ask me about real-time weather, crop suitability, or government grants.",
+  hi: "मौसम, फसल जांच, या सरकारी योजनाओं के बारे में कुछ भी पूछें।",
+  kn: "ಹವಾಮಾನ, ಬೆಳೆ ಪರೀಕ್ಷೆ ಅಥವಾ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಬಗ್ಗೆ ಕೇಳಿ.",
+  mr: "हवामान, पीक सल्ला किंवा सरकारी योजनांबद्दल काहीही विचारा.",
+  te: "వాతావరణం, పంట సలహా లేదా ప్రభుత్వ పథకాల గురించి అడగండి.",
+  ta: "வானிலை, பயிர் ஆலோசனை அல்லது அரசு திட்டங்கள் பற்றி கேளுங்கள்.",
+  gu: "હવામાન, પાકની માહિતી અથવા સરકારી યોજનાઓ વિશે પૂછો.",
+  bn: "আবহাওয়া, ফসলের পরামর্শ বা সরকারি প্রকল্প সম্পর্কে জিজ্ঞাসা করুন।",
+  pa: "ਮੌਸਮ, ਫਸਲ ਦੀ ਸਲਾਹ ਜਾਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛੋ।",
+  ml: "കാലാവസ്ഥ, വിള ഉപദേശം അല്ലെങ്കിൽ സർക്കാർ പദ്ധതികളെക്കുറിച്ച് ചോദിക്കുക.",
+  hi_en: "Mausam, fasal checkup, ya sarkar ki yojnaon ke baare mein poochhein.",
+}
+
+const PLACEHOLDERS: Record<string, string> = {
+  en: "Ask about weather, crops, or schemes…",
+  hi: "अपना सवाल लिखें या माइक दबाएँ…",
+  kn: "ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಬರೆಯಿರಿ ಅಥವಾ ಮೈಕ್ ಒತ್ತಿರಿ…",
+  mr: "तुमचा प्रश्न लिहा किंवा माइक दाबा…",
+  te: "మీ ప్రశ్నను టైప్ చేయండి లేదా మైక్ నొక్కండి…",
+  ta: "உங்கள் கேள்வியை எழுதுங்கள் அல்லது மைக்கை அழுத்தவும்…",
+  gu: "તમારો પ્રશ્ન લખો અથવા માઇક દબાવો…",
+  bn: "আপনার প্রশ্ন লিখুন বা মাইক চাপুন…",
+  pa: "ਆਪਣਾ ਸਵਾਲ ਲਿਖੋ ਜਾਂ ਮਾਈਕ ਦਬਾਓ…",
+  ml: "നിങ്ങളുടെ ചോദ്യം എഴുതുക അല്ലെങ്കിൽ മൈക്ക് അമർത്തുക…",
+  hi_en: "Apna sawaal likhein ya mic dabayein…",
+}
+
+const LEAF_HELP: Record<string, string> = {
+  en: "Hit Send to run AI diagnostics on this leaf.",
+  hi: "भेजें दबाकर पत्ती की बीमारी का उपचार पता करें।",
+  kn: "Send ಒತ್ತಿರಿ — ರೋಗ ಪತ್ತೆ ಹಚ್ಚಿ ಪರಿಹಾರ ಪಡೆಯಿರಿ.",
+  mr: "Send दाबा आणि पानांच्या रोगाचे निदान व उपाय मिळवा.",
+  te: "Send నొక్కండి - ఆకు తెగులు నిర్ధారణ మరియు నివారణ పొందండి.",
+  ta: "Send அழுத்தவும் - இலை நோய் கண்டறிதல் மற்றும் தீர்வு பெறவும்.",
+  gu: "Send દબાવો અને પાંદડાના રોગનું નિદાન અને ઉપાય મેળવો.",
+  bn: "Send চাপুন এবং পাতার রোগ নির্ণয় ও প্রতিকার পান।",
+  pa: "Send ਦਬਾਓ ਅਤੇ ਪੱਤੇ ਦੀ ਬਿਮਾਰੀ ਦਾ ਇਲਾਜ ਲੱਭੋ।",
+  ml: "Send അമർത്തുക - ഇല രോഗനിർണയവും പരിഹാരവും നേടുക.",
+  hi_en: "Send dabakar patti ki bimari ka treatment pata karein.",
+}
+
+const ATTACH_LABELS: Record<string, string> = {
+  en: "Attach a leaf / plant photo (disease detection)",
+  hi: "पत्ती / पौधे की फोटो जोड़ें (रोग पहचान)",
+  kn: "ಎಲೆ / ಗಿಡದ ಫೋಟೋ ಲಗತ್ತಿಸಿ (ರೋಗ ಪತ್ತೆ)",
+  mr: "पानांचा / रोपाचा फोटो जोडा (रोग निदान)",
+  te: "ఆకు / మొక్క ఫోటో జోడించండి (తెగులు నిర్ధారణ)",
+  ta: "இலை / செடி புகைப்படத்தை இணைக்கவும் (நோய் கண்டறிதல்)",
+  gu: "પાંદડા / છોડનો ફોટો જોડો (રોગ નિદાન)",
+  bn: "পাতা / গাছের ছবি যুক্ত করুন (রোগ নির্ণয়)",
+  pa: "ਪੱਤੇ / ਪੌਦੇ ਦੀ ਫੋਟੋ ਨੱਥੀ ਕਰੋ (ਬਿਮਾਰੀ ਜਾਂਚ)",
+  ml: "ഇല / ചെടിയുടെ ഫോട്ടോ അറ്റാച്ചുചെയ്യുക (രോഗനിർണയം)",
+  hi_en: "Patti / paude ki photo attach karein (disease detection)",
 }
 
 export function ChatPanel({ onClose }: { onClose: () => void }) {
@@ -95,8 +199,8 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
     lastFeatureRef.current = action.feature
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(actionAcknowledgement(action, language === "hi"))
-      utterance.lang = language === "hi" ? "hi-IN" : "en-IN"
+      const utterance = new SpeechSynthesisUtterance(actionAcknowledgement(action, language))
+      utterance.lang = (language !== "auto" && LANG_TO_BCP47[language]) ? LANG_TO_BCP47[language] : "hi-IN"
       window.speechSynthesis.speak(utterance)
     }
     window.setTimeout(() => window.location.assign(voiceActionUrl(action)), 450)
@@ -203,12 +307,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
 
   const showQuickPrompts = useMemo(() => messages.length === 0, [messages])
 
-  const placeholder =
-    language === "hi"
-      ? "अपना सवाल लिखें या माइक दबाएँ…"
-      : language === "kn"
-      ? "ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಬರೆಯಿರಿ ಅಥವಾ ಮೈಕ್ ಒತ್ತಿರಿ…"
-      : "Ask about weather, crops, or schemes…"
+  const placeholder = PLACEHOLDERS[language] || PLACEHOLDERS.en
 
   return (
     <motion.div
@@ -318,19 +417,11 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
             </div>
             
             <div className="text-xs font-bold text-foreground font-display mt-1">
-              {language === "hi"
-                ? "Namaste! Main KisaanBuddy sahayak hoon."
-                : language === "kn"
-                ? "Namaskara! Nanu KisaanBuddy."
-                : "Namaste! I'm your KisaanBuddy Assistant."}
+              {GREETINGS[language] || GREETINGS.en}
             </div>
             
             <div className="text-[11px] text-muted-foreground leading-relaxed max-w-[240px]">
-              {language === "hi"
-                ? "Mausam, fasal checkup, ya sarkar ki yojnaon ke baare mein kuch bhi poochhein."
-                : language === "kn"
-                ? "Havamana, bele, athava yojanegala bagge keli."
-                : "Ask me about real-time weather, crop suitability, or government grants."}
+              {GREETING_SUBS[language] || GREETING_SUBS.en}
             </div>
 
             <div className="flex flex-col w-full gap-2 mt-4 text-left">
@@ -387,11 +478,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
           </div>
           <div className="text-[10px] text-muted-foreground leading-relaxed font-medium">
             <ImageIcon className="mr-1.5 inline h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            {language === "hi"
-              ? "Send dabakar patti ki bimari ka treatment pata karein."
-              : language === "kn"
-              ? "Send ottiri — bimari detect aaguttade."
-              : "Hit Send to run AI diagnostics on this leaf."}
+            {LEAF_HELP[language] || LEAF_HELP.en}
           </div>
         </div>
       )}
@@ -414,18 +501,8 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-background border border-border hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-          aria-label={
-            language === "hi"
-              ? "Patti ki photo bhejo"
-              : language === "kn"
-              ? "Ele photo kalisi"
-              : "Attach a leaf photo"
-          }
-          title={
-            language === "hi"
-              ? "Patti / paude ki photo bhejo (disease detection)"
-              : "Attach a leaf / plant photo (disease detection)"
-          }
+          aria-label={ATTACH_LABELS[language] || ATTACH_LABELS.en}
+          title={ATTACH_LABELS[language] || ATTACH_LABELS.en}
           disabled={isSending}
         >
           <Paperclip className="h-4 w-4" />

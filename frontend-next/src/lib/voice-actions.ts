@@ -111,9 +111,57 @@ export function voiceActionUrl(action: VoiceAction) {
   return `${action.path}?${query.toString()}`
 }
 
-export function actionAcknowledgement(action: VoiceAction, hindi: boolean) {
-  if (action.requiresConfirmation) return hindi
-    ? `${action.label} खुल रहा है। मैं विवरण भरूँगा, लेकिन सेव करने से पहले आपकी पुष्टि लूँगा।`
-    : `Opening ${action.label}. I will fill the details, but will ask before saving.`
-  return hindi ? `${action.label} खोल रहा हूँ और उपलब्ध जानकारी खोज रहा हूँ।` : `Opening ${action.label} and searching the available information.`
+export function actionAcknowledgement(action: VoiceAction, langOrHindi: string | boolean): string {
+  const lang = typeof langOrHindi === "boolean" ? (langOrHindi ? "hi" : "en") : (langOrHindi || "en")
+  
+  if (action.requiresConfirmation) {
+    switch (lang) {
+      case "kn":
+        return `${action.label} ತೆರೆಯಲಾಗುತ್ತಿದೆ. ನಾನು ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡುತ್ತೇನೆ, ಆದರೆ ಉಳಿಸುವ ಮೊದಲು ನಿಮ್ಮ ದೃಢೀಕರಣ ಪಡೆಯುತ್ತೇನೆ.`
+      case "te":
+        return `${action.label} తెరవబడుతోంది. నేను వివరాలను నింపుతాను, కానీ సేవ్ చేసే ముందు మీ నిర్ధారణ తీసుకుంటాను.`
+      case "ta":
+        return `${action.label} திறக்கப்படுகிறது. நான் விவரங்களை நிரப்புவேன், ஆனால் சேமிப்பதற்கு முன் உங்கள் உறுதிப்படுத்தலைக் கேட்பேன்.`
+      case "mr":
+        return `${action.label} उघडत आहे. मी तपशील भरेन, परंतु सेव्ह करण्यापूर्वी तुमची पुष्टी घेईन.`
+      case "gu":
+        return `${action.label} ખુલી રહ્યું છે. હું વિગતો ભરીશ, પરંતુ સેવ કરતા પહેલા તમારી પુષ્ટિ લઈશ.`
+      case "bn":
+        return `${action.label} খোলা হচ্ছে। আমি বিবরণ পূরণ করব, তবে সংরক্ষণ করার আগে আপনার সম্মতি নেব।`
+      case "pa":
+        return `${action.label} ਖੁੱਲ੍ਹ ਰਿਹਾ ਹੈ। ਮੈਂ ਵੇਰਵੇ ਭਰਾਂਗਾ, ਪਰ ਸੇਵ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਤੁਹਾਡੀ ਪੁਸ਼ਟੀ ਲਵਾਂਗਾ।`
+      case "ml":
+        return `${action.label} തുറക്കുന്നു. ഞാൻ വിവരങ്ങൾ പൂരിപ്പിക്കും, എന്നാൽ സേവ് ചെയ്യുന്നതിന് മുൻപ് അനുമതി ചോദിക്കും.`
+      case "hi":
+      case "hi_en":
+        return `${action.label} खुल रहा है। मैं विवरण भरूँगा, लेकिन सेव करने से पहले आपकी पुष्टि लूँगा।`
+      default:
+        return `Opening ${action.label}. I will fill the details, but will ask before saving.`
+    }
+  }
+
+  switch (lang) {
+    case "kn":
+      return `${action.label} ತೆರೆಯಲಾಗುತ್ತಿದೆ ಮತ್ತು ಲಭ್ಯವಿರುವ ಮಾಹಿತಿಯನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ.`
+    case "te":
+      return `${action.label} తెరవబడుతోంది మరియు అందుబాటులో ఉన్న సమాచారాన్ని శోధిస్తున్నాను.`
+    case "ta":
+      return `${action.label} திறக்கப்படுகிறது மற்றும் கிடைக்கும் தகவல்கள் தேடப்படுகின்றன.`
+    case "mr":
+      return `${action.label} उघडत आहे आणि उपलब्ध माहिती शोधत आहे.`
+    case "gu":
+      return `${action.label} ખુલી રહ્યું છે અને ઉપલબ્ધ માહિતી શોધી રહ્યું છે.`
+    case "bn":
+      return `${action.label} খোলা হচ্ছে এবং উপলব্ধ তথ্য অনুসন্ধান করা হচ্ছে।`
+    case "pa":
+      return `${action.label} ਖੁੱਲ੍ਹ ਰਿਹਾ ਹੈ ਅਤੇ ਉਪਲਬਧ ਜਾਣਕਾਰੀ ਲੱਭ ਰਿਹਾ ਹਾਂ।`
+    case "ml":
+      return `${action.label} തുറക്കുന്നു, ലഭ്യമായ വിവരങ്ങൾ തിരയുന്നു.`
+    case "hi":
+    case "hi_en":
+      return `${action.label} खोल रहा हूँ और उपलब्ध जानकारी खोज रहा हूँ।`
+    default:
+      return `Opening ${action.label} and searching the available information.`
+  }
 }
+

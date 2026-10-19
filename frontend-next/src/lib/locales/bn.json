@@ -482,7 +482,15 @@
     "optimize_your_harvesting_operations": "Optimize Your Harvesting Operations Today",
     "register_a_free_account": "Register a free account, test your crop disease models, and start keeping logs in Khet Diary.",
     "join_free": "Join Free",
-    "go_to_home": "Go to Home"
+    "go_to_home": "Go to Home",
+    "faq_title": "সাধারণ জিজ্ঞাসা (FAQ)",
+    "faq_subtitle": "KisaanBuddy সম্পর্কে সাধারণ প্রশ্ন ও উত্তর",
+    "faq_q1": "প্রশ্ন ১. KisaanBuddy কি?",
+    "faq_a1": "উত্তর: KisaanBuddy হলো একটি এআই-চালিত স্মার্ট কৃষি উপদেষ্টা প্ল্যাটফর্ম। এটি কৃষকদের ফসলের রোগ শনাক্তকরণ, মাটির স্বাস্থ্য পরীক্ষা এবং লাইভ মান্ডি দর জানতে সাহায্য করে।",
+    "faq_q2": "প্রশ্ন ২. KisaanBuddy ব্যবহারের জন্য কোনো ফি আছে কি?",
+    "faq_a2": "উত্তর: না, ভারতের সমস্ত কৃষকদের জন্য KisaanBuddy সম্পূর্ণ বিনামূল্যে সেবা প্রদান করে।",
+    "faq_q3": "প্রশ্ন ৩. রোগ নির্ণয় ব্যবস্থা কীভাবে কাজ করে?",
+    "faq_a3": "উত্তর: আমাদের উন্নত এআই মডেল ফসলের পাতার ছবি বিশ্লেষণ করে তাৎক্ষণিক রোগ শনাক্ত করে এবং সঠিক সমাধান দেয়।"
   },
   "chatbot": {
     "could_not_connect_to": "Could not connect to backend. Make sure the server is running.",
@@ -517,7 +525,8 @@
     "please_fill_out_all": "Please fill out all required fields (Name, Email, Message).",
     "sending": "Sending...",
     "send_message": "Send Message",
-    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com"
+    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com",
+    "whatsapp_helpline": "হোয়াটসঅ্যাপ হেল্পলাইন"
   },
   "cookie_policy": {
     "back_to_home": "Back to home",

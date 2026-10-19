@@ -222,7 +222,56 @@ export default function DashboardPage() {
       if (sensorOnline) {
         message += ` ಮಣ್ಣಿನ ತೇವಾಂಶ ${moisture} ಪ್ರತಿಶತ ಮತ್ತು ತಾಪಮಾನ ${sensorTemp} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್ ಆಗಿದೆ.`;
       }
-    } else if (lang === "hi") {
+    } else if (lang === "te") {
+      message = `నమస్కారం ${name}. మీ పొలం వివరాలు: మీ వద్ద ${fields.length} పొలాలు నమోదు చేయబడ్డాయి`;
+      if (cropNames) message += `, ప్రధాన పంటలు ${cropNames}.`;
+      message += ` ఈ రోజు కోసం ${pendingCount} పనులు పెండింగ్‌లో ఉన్నాయి.`;
+      if (sensorOnline) {
+        message += ` నేల తేమ ${moisture} శాతం మరియు ఉష్ణోగ్రత ${sensorTemp} డిగ్రీల సెల్సియస్.`;
+      }
+    } else if (lang === "ta") {
+      message = `வணக்கம் ${name}. உங்கள் பண்ணை நிலவரம்: உங்களிடம் ${fields.length} நிலங்கள் பதிவு செய்யப்பட்டுள்ளன`;
+      if (cropNames) message += `, முக்கிய பயிர்கள் ${cropNames}.`;
+      message += ` இன்றைக்கு ${pendingCount} பணிகள் நிலுவையில் உள்ளன.`;
+      if (sensorOnline) {
+        message += ` மண் ஈரப்பதம் ${moisture} சதவீதம் மற்றும் வெப்பநிலை ${sensorTemp} டிகிரி செல்சியஸ்.`;
+      }
+    } else if (lang === "mr") {
+      message = `नमस्कार ${name}. तुमच्या शेताचा तपशील: तुमच्याकडे ${fields.length} शेत नोंदणीकृत आहेत`;
+      if (cropNames) message += `, मुख्य पिके ${cropNames} आहेत.`;
+      message += ` आजसाठी ${pendingCount} कामे बाकी आहेत.`;
+      if (sensorOnline) {
+        message += ` मातीचा ओलावा ${moisture} टक्के आणि तापमान ${sensorTemp} अंश सेल्सिअस आहे.`;
+      }
+    } else if (lang === "gu") {
+      message = `નમસ્તે ${name}. તમારા ખેતરનો સારાંશ: તમારી પાસે ${fields.length} ખેતર નોંધાયેલા છે`;
+      if (cropNames) message += `, મુખ્ય પાક ${cropNames} છે.`;
+      message += ` આજે ${pendingCount} કામ બાકી છે.`;
+      if (sensorOnline) {
+        message += ` જમીનમાં ભેજ ${moisture} ટકા અને તાપમાન ${sensorTemp} ડિગ્રી સેલ્સિયસ છે.`;
+      }
+    } else if (lang === "bn") {
+      message = `নমস্কার ${name}। আপনার খামারের বিবরণ: আপনার ${fields.length}টি জমি নিবন্ধিত রয়েছে`;
+      if (cropNames) message += `, প্রধান ফসল ${cropNames}।`;
+      message += ` আজকের জন্য ${pendingCount}টি কাজ বাকি রয়েছে।`;
+      if (sensorOnline) {
+        message += ` মাটির আর্দ্রতা ${moisture} শতাংশ এবং তাপমাত্রা ${sensorTemp} ডিগ্রি সেলসিয়াস।`;
+      }
+    } else if (lang === "pa") {
+      message = `ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ${name}। ਤੁਹਾਡੇ ਖੇਤ ਦਾ ਵੇਰਵਾ: ਤੁਹਾਡੇ ਕੋਲ ${fields.length} ਖੇਤ ਦਰਜ ਹਨ`;
+      if (cropNames) message += `, ਮੁੱਖ ਫ਼ਸਲਾਂ ${cropNames} ਹਨ।`;
+      message += ` ਅੱਜ ਦੇ ਲਈ ${pendingCount} ਕੰਮ ਬਾਕੀ ਹਨ।`;
+      if (sensorOnline) {
+        message += ` ਮਿੱਟੀ ਦੀ ਨਮੀ ${moisture} ਫ਼ੀਸਦੀ ਅਤੇ ਤਾਪਮਾਨ ${sensorTemp} ਡਿਗਰੀ ਸੈਲਸੀਅਸ ਹੈ।`;
+      }
+    } else if (lang === "ml") {
+      message = `നമസ്കാരം ${name}. നിങ്ങളുടെ ഫാം വിവരങ്ങൾ: നിങ്ങൾക്ക് ${fields.length} പ്ലോട്ടുകൾ രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്`;
+      if (cropNames) message += `, പ്രധാന വിളകൾ ${cropNames}.`;
+      message += ` ഇന്നത്തേക്ക് ${pendingCount} ജോലികൾ ബാക്കിയുണ്ട്.`;
+      if (sensorOnline) {
+        message += ` മണ്ണിലെ ഈർപ്പം ${moisture} ശതമാനവും താപനില ${sensorTemp} ഡിഗ്രി സെൽഷ്യസും ആണ്.`;
+      }
+    } else if (lang === "hi" || lang === "hi_en") {
       message = `नमस्ते ${name}। आपके खेत का हाल: आपके पास ${fields.length} खेत दर्ज हैं`;
       if (cropNames) message += `, मुख्य फसलें ${cropNames} हैं।`;
       message += ` आज के लिए ${pendingCount} कार्य बाकी हैं।`;
@@ -238,8 +287,21 @@ export default function DashboardPage() {
       }
     }
 
+    const bcpMap: Record<string, string> = {
+      kn: "kn-IN",
+      hi: "hi-IN",
+      te: "te-IN",
+      ta: "ta-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      bn: "bn-IN",
+      pa: "pa-IN",
+      ml: "ml-IN",
+      hi_en: "hi-IN",
+      en: "en-IN",
+    };
     const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = lang === "kn" ? "kn-IN" : lang === "hi" ? "hi-IN" : "en-US";
+    utterance.lang = bcpMap[lang] || "en-IN";
     window.speechSynthesis.speak(utterance);
   };
 

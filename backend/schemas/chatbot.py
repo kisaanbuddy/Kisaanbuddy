@@ -25,7 +25,7 @@ class ChatResponse(BaseModel):
 # provider has passed production quality testing for every language. Providers
 # report their own health/capability separately.
 Language = Literal[
-    "auto", "en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"
+    "auto", "en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai"
 ]
 Role = Literal["user", "assistant", "system", "tool"]
 

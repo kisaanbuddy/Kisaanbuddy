@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import type { Recommendation, RecommendationStatus, RecommendationCategory } from "@/lib/farmer-api";
 import { recommendationsApi } from "@/lib/farmer-api";
+import { FARMER_I18N } from "@/lib/farmer-i18n";
 
 interface Props {
   recommendations: Recommendation[];
@@ -17,21 +18,106 @@ interface Props {
   lang: string;
 }
 
-const CATEGORY_CONFIG: Record<RecommendationCategory, { icon: React.ElementType; color: string; label: string; hiLabel: string; knLabel: string }> = {
-  irrigation:  { icon: Droplets,     color: "text-sky-600 bg-sky-500/10 border-sky-500/20",      label: "Irrigation",     hiLabel: "सिंचाई",       knLabel: "ನೀರಾವರಿ" },
-  fertilizer:  { icon: FlaskConical, color: "text-teal-600 bg-teal-500/10 border-teal-500/20", label: "Fertilizer",     hiLabel: "उर्वरक",       knLabel: "ರಸಗೊಬ್ಬರ" },
-  pest:        { icon: Bug,          color: "text-red-600 bg-red-500/10 border-red-500/20",      label: "Pest Control",   hiLabel: "कीट नियंत्रण", knLabel: "ಕೀಟ ನಿಯಂತ್ರಣ" },
-  disease:     { icon: Bug,          color: "text-orange-600 bg-orange-500/10 border-orange-500/20", label: "Disease",   hiLabel: "रोग प्रबंधन",  knLabel: "ರೋಗ ನಿರ್ವಹಣೆ" },
-  harvest:     { icon: Warehouse,    color: "text-amber-600 bg-amber-500/10 border-amber-500/20", label: "Harvest",     hiLabel: "कटाई",         knLabel: "ಕೊಯ್ಲು" },
-  next_season: { icon: Sprout,       color: "text-indigo-600 bg-indigo-500/10 border-indigo-500/20", label: "Next Season", hiLabel: "अगली फसल",     knLabel: "ಮುಂದಿನ ಹಂಗಾಮು" },
-  general:     { icon: Sparkles,     color: "text-purple-600 bg-purple-500/10 border-purple-500/20", label: "General",  hiLabel: "सामान्य",       knLabel: "ಸಾಮಾನ್ಯ" },
+const CATEGORY_CONFIG: Record<RecommendationCategory, {
+  icon: React.ElementType;
+  color: string;
+  labels: Record<string, string>;
+}> = {
+  irrigation: {
+    icon: Droplets,
+    color: "text-sky-600 bg-sky-500/10 border-sky-500/20",
+    labels: {
+      en: "Irrigation", hi: "सिंचाई", kn: "ನೀರಾವರಿ", mr: "सिंचन", te: "నీటిపారుదల",
+      ta: "பாசனம்", gu: "પિયત", bn: "সেচ", pa: "ਸਿੰਚਾਈ", ml: "നന", hi_en: "Irrigation"
+    }
+  },
+  fertilizer: {
+    icon: FlaskConical,
+    color: "text-teal-600 bg-teal-500/10 border-teal-500/20",
+    labels: {
+      en: "Fertilizer", hi: "उर्वरक", kn: "ರಸಗೊಬ್ಬರ", mr: "खत व्यवस्थापन", te: "ఎరువులు",
+      ta: "உரமிடுதல்", gu: "ખાતર", bn: "সার", pa: "ਖਾਦ", ml: "വളം", hi_en: "Fertilizer"
+    }
+  },
+  pest: {
+    icon: Bug,
+    color: "text-red-600 bg-red-500/10 border-red-500/20",
+    labels: {
+      en: "Pest Control", hi: "कीट नियंत्रण", kn: "ಕೀಟ ನಿಯಂತ್ರಣ", mr: "कीड नियंत्रण", te: "పురుగు నివారణ",
+      ta: "பூச்சி கட்டுப்பாடு", gu: "જીવાત નિયંત્રણ", bn: "কীটপতঙ্গ নিয়ন্ত্রণ", pa: "ਕੀਟ ਰੋਕਥਾਮ", ml: "കീട നിയന്ത്രണം", hi_en: "Pest Control"
+    }
+  },
+  disease: {
+    icon: Bug,
+    color: "text-orange-600 bg-orange-500/10 border-orange-500/20",
+    labels: {
+      en: "Disease", hi: "रोग प्रबंधन", kn: "ರೋಗ ನಿರ್ವಹಣೆ", mr: "रोग व्यवस्थापन", te: "తెగులు నివారణ",
+      ta: "நோய் மேலாண்மை", gu: "રોગ નિયંત્રણ", bn: "রোগ ব্যবস্থাপনা", pa: "ਰੋਗ ਪ੍ਰਬੰਧਨ", ml: "രോഗ പരിപാലനം", hi_en: "Disease"
+    }
+  },
+  harvest: {
+    icon: Warehouse,
+    color: "text-amber-600 bg-amber-500/10 border-amber-500/20",
+    labels: {
+      en: "Harvest", hi: "कटाई", kn: "ಕೊಯ್ಲು", mr: "कापणी", te: "కోత",
+      ta: "அறுவடை", gu: "લણણી", bn: "ফসল কাটা", pa: "ਵਾਢੀ", ml: "വിളവെടുപ്പ്", hi_en: "Harvest"
+    }
+  },
+  next_season: {
+    icon: Sprout,
+    color: "text-indigo-600 bg-indigo-500/10 border-indigo-500/20",
+    labels: {
+      en: "Next Season", hi: "अगली फसल", kn: "ಮುಂದಿನ ಹಂಗಾಮು", mr: "पुढील हंगाम", te: "తదుపరి సీజన్",
+      ta: "அடுத்த பருவம்", gu: "આગામી સિઝન", bn: "পরবর্তী মরশুম", pa: "ਅਗਲਾ ਸੀਜ਼ਨ", ml: "അടുത്ത സീസൺ", hi_en: "Next Season"
+    }
+  },
+  general: {
+    icon: Sparkles,
+    color: "text-purple-600 bg-purple-500/10 border-purple-500/20",
+    labels: {
+      en: "General", hi: "सामान्य", kn: "ಸಾಮಾನ್ಯ", mr: "सामान्य", te: "సాధారణ",
+      ta: "பொதுவானது", gu: "સામાન્ય", bn: "সাধারণ", pa: "ਆਮ", ml: "പൊതുവായത്", hi_en: "General"
+    }
+  },
 };
 
-const STATUS_CONFIG: Record<RecommendationStatus, { label: string; hiLabel: string; knLabel: string; color: string; icon: React.ElementType }> = {
-  pending:         { label: "Pending",         hiLabel: "बाकी",        knLabel: "ಬಾಕಿ",          color: "text-amber-600 bg-amber-500/10 border-amber-500/20",    icon: Clock },
-  completed:       { label: "Completed",       hiLabel: "पूर्ण",       knLabel: "ಪೂರ್ಣಗೊಂಡಿದೆ",    color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20", icon: CheckCircle2 },
-  not_applicable:  { label: "Not Applicable",  hiLabel: "लागू नहीं",   knLabel: "ಅನ್ವಯಿಸುವುದಿಲ್ಲ",  color: "text-muted-foreground bg-muted/30 border-border",       icon: XCircle },
-  postponed:       { label: "Postponed",       hiLabel: "स्थगित",      knLabel: "ಮುಂದೂಡಲಾಗಿದೆ",    color: "text-blue-600 bg-blue-500/10 border-blue-500/20",       icon: Clock },
+const STATUS_CONFIG: Record<RecommendationStatus, {
+  labels: Record<string, string>;
+  color: string;
+  icon: React.ElementType;
+}> = {
+  pending: {
+    labels: {
+      en: "Pending", hi: "बाकी", kn: "ಬಾಕಿ", mr: "प्रलंबित", te: "పెండింగ్",
+      ta: "நிலுவையில்", gu: "બાકી", bn: "বাকি", pa: "ਬਕਾਇਆ", ml: "ബാക്കി", hi_en: "Pending"
+    },
+    color: "text-amber-600 bg-amber-500/10 border-amber-500/20",
+    icon: Clock
+  },
+  completed: {
+    labels: {
+      en: "Completed", hi: "पूर्ण", kn: "ಪೂರ್ಣಗೊಂಡಿದೆ", mr: "पूर्ण", te: "పూర్తయింది",
+      ta: "முடிந்தது", gu: "પૂર્ણ", bn: "সম্পন্ন", pa: "ਮੁਕੰਮਲ", ml: "പൂർത്തിയായി", hi_en: "Completed"
+    },
+    color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20",
+    icon: CheckCircle2
+  },
+  not_applicable: {
+    labels: {
+      en: "Not Applicable", hi: "लागू नहीं", kn: "ಅನ್ವಯಿಸುವುದಿಲ್ಲ", mr: "लागू नाही", te: "వర్తించదు",
+      ta: "பொருந்தாது", gu: "લાગુ પડતું નથી", bn: "প্রযোজ্য নয়", pa: "ਲਾਗੂ ਨਹੀਂ", ml: "ബാധകമല്ല", hi_en: "Not Applicable"
+    },
+    color: "text-muted-foreground bg-muted/30 border-border",
+    icon: XCircle
+  },
+  postponed: {
+    labels: {
+      en: "Postponed", hi: "स्थगित", kn: "ಮುಂದೂಡಲಾಗಿದೆ", mr: "पुढे ढकलले", te: "వాయిదా",
+      ta: "ஒத்திவைக்கப்பட்டது", gu: "મોકૂફ", bn: "স্থগিত", pa: "ਮੁਲਤਵੀ", ml: "മാറ്റിവെച്ചു", hi_en: "Postponed"
+    },
+    color: "text-blue-600 bg-blue-500/10 border-blue-500/20",
+    icon: Clock
+  },
 };
 
 const CONFIDENCE_COLOR: Record<string, string> = {
@@ -45,8 +131,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
   onStatusChange: (id: number, status: RecommendationStatus) => Promise<void>;
   lang: string;
 }) {
-  const isKn = lang === "kn";
-  const hi = lang === "hi";
+  const t = FARMER_I18N[lang] || FARMER_I18N.en;
   const [expanded, setExpanded] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [showStatusMenu, setShowStatusMenu] = useState(false);
@@ -92,7 +177,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
                 className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full border transition-colors ${statusConfig.color}`}
               >
                 {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <StatusIcon className="h-3 w-3" />}
-                {isKn ? statusConfig.knLabel : hi ? statusConfig.hiLabel : statusConfig.label}
+                {statusConfig.labels[lang] || statusConfig.labels.hi || statusConfig.labels.en}
               </button>
               {showStatusMenu && (
                 <>
@@ -107,7 +192,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
                           className={`w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors ${rec.status === s ? "bg-muted font-bold" : "hover:bg-muted/60"} ${cfg.color}`}
                         >
                           <SI className="h-3.5 w-3.5" />
-                          {isKn ? cfg.knLabel : hi ? cfg.hiLabel : cfg.label}
+                          {cfg.labels[lang] || cfg.labels.hi || cfg.labels.en}
                         </button>
                       );
                     })}
@@ -124,7 +209,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
         {/* Action and date */}
         <div className="rounded-lg border border-border/60 bg-muted/30 p-3 space-y-1">
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            {isKn ? "ಶಿಫಾರಸು ಮಾಡಿದ ಕ್ರಮ" : hi ? "सुझाई गई कार्रवाई" : "Recommended Action"}
+            {t.actionRequired}
           </p>
           <p className="text-xs font-medium text-foreground">{rec.recommended_action}</p>
         </div>
@@ -132,7 +217,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
         {rec.date_window && (
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
             <Clock className="h-3 w-3" />
-            {isKn ? "ಸಮಯ ಮಿತಿ:" : hi ? "समय-सीमा:" : "Time Window:"} {rec.date_window}
+            {t.bestTimeWindow} {rec.date_window}
           </div>
         )}
       </div>
@@ -143,7 +228,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
           {rec.explanation && (
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                {isKn ? "ವಿವರಣೆ" : hi ? "विवरण" : "Explanation"}
+                {t.whyThisMatters}
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">{rec.explanation}</p>
             </div>
@@ -151,7 +236,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
           {rec.reason && (
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
-                {isKn ? "ಕಾರಣ" : hi ? "कारण" : "Why This Recommendation"}
+                {t.dataPointsUsed}
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed">{rec.reason}</p>
             </div>
@@ -159,17 +244,17 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
           <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
             {rec.confidence && (
               <span className={`font-semibold ${CONFIDENCE_COLOR[rec.confidence] ?? ""}`}>
-                {isKn ? "ವಿಶ್ವಾಸಾರ್ಹತೆ:" : hi ? "विश्वास:" : "Confidence:"} {rec.confidence}
+                Confidence: {rec.confidence}
               </span>
             )}
             {rec.source && (
               <span className="flex items-center gap-1">
                 <Star className="h-3 w-3 text-amber-500" />
-                {isKn ? "ಮೂಲ:" : hi ? "स्रोत:" : "Source:"} {rec.source}
+                Source: {rec.source}
               </span>
             )}
             {rec.created_at && (
-              <span>{isKn ? "ರಚಿಸಲಾಗಿದೆ:" : hi ? "बनाया:" : "Created:"} {new Date(rec.created_at).toLocaleDateString(isKn ? "kn-IN" : hi ? "hi-IN" : "en-IN")}</span>
+              <span>{t.date}: {new Date(rec.created_at).toLocaleDateString()}</span>
             )}
           </div>
         </div>
@@ -179,8 +264,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
 }
 
 export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) {
-  const isKn = lang === "kn";
-  const hi = lang === "hi";
+  const t = FARMER_I18N[lang] || FARMER_I18N.en;
   const [statusFilter, setStatusFilter] = useState<RecommendationStatus | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState<RecommendationCategory | "all">("all");
   const [error, setError] = useState<string | null>(null);
@@ -217,25 +301,25 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <p className="text-2xl font-black text-foreground">{recommendations.length}</p>
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">
-            {isKn ? "ಒಟ್ಟು" : hi ? "कुल" : "Total"}
+            {t.all}
           </p>
         </div>
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-center">
           <p className="text-2xl font-black text-amber-600">{pendingCount}</p>
           <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70 mt-1">
-            {isKn ? "ಬಾಕಿ" : hi ? "बाकी" : "Pending"}
+            {STATUS_CONFIG.pending.labels[lang] || STATUS_CONFIG.pending.labels.hi || STATUS_CONFIG.pending.labels.en}
           </p>
         </div>
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
           <p className="text-2xl font-black text-emerald-600">{completedCount}</p>
           <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 mt-1">
-            {isKn ? "ಪೂರ್ಣಗೊಂಡಿದೆ" : hi ? "पूर्ण" : "Completed"}
+            {STATUS_CONFIG.completed.labels[lang] || STATUS_CONFIG.completed.labels.hi || STATUS_CONFIG.completed.labels.en}
           </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <p className="text-2xl font-black text-foreground">{recommendations.filter(r => r.status === "postponed").length}</p>
           <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">
-            {isKn ? "ಮುಂದೂಡಲಾಗಿದೆ" : hi ? "स्थगित" : "Postponed"}
+            {STATUS_CONFIG.postponed.labels[lang] || STATUS_CONFIG.postponed.labels.hi || STATUS_CONFIG.postponed.labels.en}
           </p>
         </div>
       </div>
@@ -249,7 +333,7 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
               onClick={() => setStatusFilter(s)}
               className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-colors ${statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
             >
-              {s === "all" ? (isKn ? "ಎಲ್ಲಾ" : hi ? "सभी" : "All") : isKn ? STATUS_CONFIG[s]?.knLabel : hi ? STATUS_CONFIG[s]?.hiLabel : STATUS_CONFIG[s]?.label}
+              {s === "all" ? t.all : STATUS_CONFIG[s]?.labels[lang] || STATUS_CONFIG[s]?.labels.hi || STATUS_CONFIG[s]?.labels.en}
             </button>
           ))}
         </div>
@@ -261,14 +345,7 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
           <Sparkles className="h-10 w-10 text-muted-foreground/25 mx-auto" />
           <div>
             <p className="text-sm font-bold text-foreground">
-              {isKn ? "ಇನ್ನೂ ಯಾವುದೇ ಶಿಫಾರಸುಗಳಿಲ್ಲ." : hi ? "अभी कोई सिफारिश नहीं है।" : "No recommendations yet."}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-              {isKn
-                ? "ನಿಮ್ಮ ಬೆಳೆ, ಮಣ್ಣು ಮತ್ತು ಜಮೀನಿನ ವಿವರಗಳನ್ನು ಸೇರಿಸಿ ನಂತರ AI ಚಾಟ್‌ಬಾಟ್‌ನಿಂದ ಸಲಹೆ ಕೇಳಿ. AI ರಚಿಸಿದ ಶಿಫಾರಸುಗಳು ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತವೆ."
-                : hi
-                ? "अपनी फसल, मिट्टी और खेत की जानकारी जोड़ें, फिर AI चैटबॉट से सलाह लें। AI द्वारा दी गई सिफारिशें यहाँ दिखाई देंगी।"
-                : "Add your crop, soil, and field information, then ask the AI chatbot for advice. Recommendations generated by the AI will appear here."}
+              {t.noRecs}
             </p>
           </div>
         </div>
@@ -284,11 +361,6 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
             lang={lang}
           />
         ))}
-        {filtered.length === 0 && recommendations.length > 0 && (
-          <p className="text-sm text-center text-muted-foreground py-8">
-            {isKn ? "ಈ ಫಿಲ್ಟರ್‌ಗೆ ಯಾವುದೇ ಶಿಫಾರಸು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ." : hi ? "इस फ़िल्टर के लिए कोई सिफारिश नहीं है।" : "No recommendations match this filter."}
-          </p>
-        )}
       </div>
     </div>
   );

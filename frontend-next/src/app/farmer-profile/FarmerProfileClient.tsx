@@ -1,3 +1,5 @@
+import { Lang } from "@/lib/language";
+import { FARMER_PROFILE_PAGE_I18N } from "@/lib/farmer-profile-i18n";
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -33,12 +35,12 @@ import { ActivitiesTab } from "@/components/farmer/ActivitiesTab";
 
 type TabId = "overview" | "farms" | "soil" | "activities" | "recommendations";
 
-const TABS: { id: TabId; label: string; hiLabel: string; knLabel: string; icon: React.ElementType }[] = [
-  { id: "overview", label: "Overview", hiLabel: "अवलोकन", knLabel: "ಅವಲೋಕನ", icon: User },
-  { id: "farms", label: "Farms & Plots", hiLabel: "खेत व भूखंड", knLabel: "ಜಮೀನು ಮತ್ತು ಪ್ಲಾಟ್‌ಗಳು", icon: Layers },
-  { id: "soil", label: "Soil Health", hiLabel: "मिट्टी स्वास्थ्य", knLabel: "ಮಣ್ಣಿನ ಆರೋಗ್ಯ", icon: FlaskConical },
-  { id: "activities", label: "Farm Diary", hiLabel: "खेत डायरी", knLabel: "ಕೃಷಿ ಡೈರಿ", icon: BookOpen },
-  { id: "recommendations", label: "AI Advisory", hiLabel: "AI सिफारिशें", knLabel: "AI ಸಲಹೆಗಳು", icon: Sparkles },
+const TABS: { id: TabId; icon: React.ElementType }[] = [
+  { id: "overview", icon: User },
+  { id: "farms", icon: Layers },
+  { id: "soil", icon: FlaskConical },
+  { id: "activities", icon: BookOpen },
+  { id: "recommendations", icon: Sparkles },
 ];
 
 const LANGUAGES = [
@@ -62,8 +64,7 @@ const OWNERSHIP_OPTIONS = [
 export function FarmerProfileClient() {
   const { user, ready } = useAuth();
   const { lang } = useLanguage();
-  const isKn = lang === "kn";
-  const hi = lang === "hi";
+  const dict = FARMER_PROFILE_PAGE_I18N[(lang as Lang) || "en"] || FARMER_PROFILE_PAGE_I18N.en;
 
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [loading, setLoading] = useState(true);
@@ -175,7 +176,7 @@ export function FarmerProfileClient() {
 
   const handleFetchGps = () => {
     if (!navigator.geolocation) {
-      setGpsError(isKn ? "ಬ್ರೌಸರ್ ಜಿಪಿಎಸ್ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ." : hi ? "ब्राउज़र जीपीएस का समर्थन नहीं करता।" : "Browser does not support GPS.");
+      setGpsError(dict.gpsBrowserUnsupported);
       return;
     }
     setGpsLoading(true);
@@ -191,11 +192,7 @@ export function FarmerProfileClient() {
       },
       (err) => {
         setGpsLoading(false);
-        setGpsError(
-          err.code === 1
-            ? (isKn ? "ಸ್ಥಳ ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ." : hi ? "स्थान अनुमति अस्वीकार कर दी गई।" : "Location permission denied.")
-            : (isKn ? "ಸ್ಥಳವನ್ನು ಹಿಂಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ." : hi ? "स्थान प्राप्त करने में विफल।" : "Failed to retrieve location.")
-        );
+        setGpsError(err.code === 1 ? dict.gpsPermissionDenied : dict.gpsFailed);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -206,7 +203,7 @@ export function FarmerProfileClient() {
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex items-center gap-3 text-muted-foreground font-semibold text-sm">
           <Loader2 className="h-5 w-5 rounded-full animate-spin text-primary" />
-          <span>{isKn ? "ರೈತರ ಪ್ರೊಫೈಲ್ ಲೋಡ್ ಆಗುತ್ತಿದೆ..." : hi ? "किसान प्रोफाइल लोड हो रही है..." : "Loading Farmer Profile..."}</span>
+          <span>{dict.loading}</span>
         </div>
       </div>
     );
@@ -225,22 +222,18 @@ export function FarmerProfileClient() {
             className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors mb-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>{isKn ? "ಖಾತೆಯ ಪುಟಕ್ಕೆ ಹಿಂತಿರುಗಿ" : hi ? "प्रोफाइल पेज पर वापस जाएं" : "Back to User Account"}</span>
+            <span>{dict.backToAccount}</span>
           </Link>
           <div className="flex items-center gap-3">
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-display">
-              {isKn ? "ರೈತರ ಡಿಜಿಟಲ್ ಪ್ರೊಫೈಲ್" : hi ? "किसान डिजिटल प्रोफाइल" : "Farmer Digital Profile"}
+              {dict.pageTitle}
             </h1>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-0.5 text-xs font-bold text-primary font-mono">
               {farmerDisplayId}
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-1 max-w-2xl leading-relaxed">
-            {isKn
-              ? "ನಿಮ್ಮ ಶಾಶ್ವತ ಡಿಜಿಟಲ್ ಕೃಷಿ ದಾಖಲೆ. ನಿಮ್ಮ ಭೂಮಿ, ಮಣ್ಣು ಮತ್ತು ಬೆಳೆಗೆ ಅನುಗುಣವಾಗಿ ನಿಖರ ಸಲಹೆ ನೀಡಲು AI ಸಹಾಯಕ ಈ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಬಳಸುತ್ತದೆ."
-              : hi
-              ? "आपका स्थायी डिजिटल कृषि रिकॉर्ड। AI सहायक इसी प्रोफ़ाइल का उपयोग करके आपकी ज़मीन, मिट्टी और फसल के अनुसार सटीक सलाह देता है।"
-              : "Your permanent agricultural record. The AI assistant uses this profile to provide tailored, context-aware farming recommendations."}
+            {dict.pageSubtitle}
           </p>
         </div>
 
@@ -253,7 +246,7 @@ export function FarmerProfileClient() {
             title="Refresh records"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin text-primary" : ""}`} />
-            <span>{isKn ? "ರಿಫ್ರೆಶ್" : hi ? "रिफ्रेश" : "Refresh"}</span>
+            <span>{dict.refresh}</span>
           </button>
 
           <button
@@ -262,7 +255,7 @@ export function FarmerProfileClient() {
             className="btn-primary h-9 text-xs flex items-center gap-1.5 shadow-sm"
           >
             <Edit3 className="h-3.5 w-3.5" />
-            <span>{isKn ? "ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ" : hi ? "प्रोफाइल संपादित करें" : "Edit Profile"}</span>
+            <span>{dict.editProfile}</span>
           </button>
         </div>
       </div>
@@ -286,14 +279,14 @@ export function FarmerProfileClient() {
                 <h2 className="text-lg font-bold text-foreground">{user?.name || "Farmer"}</h2>
                 <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                   <CheckCircle2 className="h-3 w-3" />
-                  {isKn ? "ದೃಢೀಕೃತ ರೈತ" : hi ? "सक्रिय किसान" : "Verified Farmer"}
+                  {dict.verifiedFarmer}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-primary" />
                 {[profile?.village_name, profile?.district_name, profile?.state_name, profile?.pin_code]
                   .filter(Boolean)
-                  .join(", ") || (isKn ? "ಸ್ಥಳ ದಾಖಲಾಗಿಲ್ಲ" : hi ? "स्थान दर्ज नहीं किया गया" : "Location not set")}
+                  .join(", ") || dict.locationNotSet}
               </p>
               {profile?.gps_lat && profile?.gps_lon && (
                 <p className="text-[11px] text-muted-foreground font-mono">
@@ -307,7 +300,7 @@ export function FarmerProfileClient() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
             <div className="rounded-xl border border-border bg-muted/40 p-2.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                {isKn ? "ಒಟ್ಟು ಭೂಮಿ" : hi ? "कुल भूमि" : "Land Size"}
+                {dict.landSize}
               </span>
               <span className="text-sm font-bold text-foreground mt-0.5 block">
                 {profile?.land_holding_acres ? `${profile.land_holding_acres} ac` : "—"}
@@ -316,7 +309,7 @@ export function FarmerProfileClient() {
 
             <div className="rounded-xl border border-border bg-muted/40 p-2.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                {isKn ? "ಮುಖ್ಯ ಬೆಳೆ" : hi ? "मुख्य फसल" : "Primary Crop"}
+                {dict.primaryCrop}
               </span>
               <span className="text-sm font-bold text-foreground mt-0.5 block truncate">
                 {profile?.primary_crop || "—"}
@@ -325,10 +318,10 @@ export function FarmerProfileClient() {
 
             <div className="rounded-xl border border-border bg-muted/40 p-2.5">
               <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">
-                {isKn ? "ನೀರಾವರಿ ಸೌಲಭ್ಯ" : hi ? "सिंचाई सुविधा" : "Irrigation"}
+                {dict.irrigation}
               </span>
               <span className="text-sm font-bold text-foreground mt-0.5 block">
-                {profile?.has_irrigation ? (isKn ? "ಲಭ್ಯವಿದೆ ✅" : hi ? "उपलब्ध ✅" : "Yes ✅") : (isKn ? "ಮಳೆಯಾಶ್ರಿತ ❌" : hi ? "नहीं ❌" : "Rainfed ❌")}
+                {profile?.has_irrigation ? dict.irrigationYes : dict.irrigationNo}
               </span>
             </div>
           </div>
@@ -351,7 +344,7 @@ export function FarmerProfileClient() {
               }`}
             >
               <Icon className="h-4 w-4" />
-              <span>{isKn ? tab.knLabel : hi ? tab.hiLabel : tab.label}</span>
+              <span>{dict.tabs[tab.id]}</span>
               {tab.id === "recommendations" && recommendations.filter((r) => r.status === "pending").length > 0 && (
                 <span className="rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-[10px] font-extrabold px-1.5 py-0.2">
                   {recommendations.filter((r) => r.status === "pending").length}
@@ -423,7 +416,7 @@ export function FarmerProfileClient() {
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-foreground">
-                    {isKn ? "ರೈತರ ಪ್ರೊಫೈಲ್ ಸಂಪಾದಿಸಿ" : hi ? "किसान प्रोफ़ाइल संपादित करें" : "Edit Farmer Profile"}
+                    {dict.editModalTitle}
                   </h3>
                   <p className="text-xs text-muted-foreground">{farmerDisplayId}</p>
                 </div>
@@ -440,7 +433,7 @@ export function FarmerProfileClient() {
             <form onSubmit={handleSaveProfile} className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="label-field">{isKn ? "ಗ್ರಾಮ" : hi ? "गाँव का नाम" : "Village"}</label>
+                  <label className="label-field">{dict.village}</label>
                   <input
                     value={profileForm.village_name}
                     onChange={(e) => setProfileForm({ ...profileForm, village_name: e.target.value })}
@@ -450,7 +443,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಬ್ಲಾಕ್ / ತಾಲೂಕು" : hi ? "ब्लॉक / तहसील" : "Block / Tehsil"}</label>
+                  <label className="label-field">{dict.block}</label>
                   <input
                     value={profileForm.block_name}
                     onChange={(e) => setProfileForm({ ...profileForm, block_name: e.target.value })}
@@ -460,7 +453,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಜಿಲ್ಲೆ" : hi ? "जिला" : "District"}</label>
+                  <label className="label-field">{dict.district}</label>
                   <input
                     value={profileForm.district_name}
                     onChange={(e) => setProfileForm({ ...profileForm, district_name: e.target.value })}
@@ -470,7 +463,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ರಾಜ್ಯ" : hi ? "राज्य" : "State"}</label>
+                  <label className="label-field">{dict.state}</label>
                   <input
                     value={profileForm.state_name}
                     onChange={(e) => setProfileForm({ ...profileForm, state_name: e.target.value })}
@@ -480,7 +473,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಪಿನ್ ಕೋಡ್" : hi ? "पिन कोड" : "PIN Code"}</label>
+                  <label className="label-field">{dict.pincode}</label>
                   <input
                     value={profileForm.pin_code}
                     onChange={(e) => setProfileForm({ ...profileForm, pin_code: e.target.value })}
@@ -491,7 +484,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಆದ್ಯತೆಯ ಭಾಷೆ" : hi ? "पसंदीदा भाषा" : "Preferred Language"}</label>
+                  <label className="label-field">{dict.preferredLanguage}</label>
                   <select
                     value={profileForm.preferred_language}
                     onChange={(e) => setProfileForm({ ...profileForm, preferred_language: e.target.value })}
@@ -506,7 +499,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಒಟ್ಟು ಭೂಮಿ (ಎಕರೆ)" : hi ? "कुल भूमि (एकड़)" : "Total Land Area (Acres)"}</label>
+                  <label className="label-field">{dict.totalLand}</label>
                   <input
                     type="number"
                     step="0.1"
@@ -521,7 +514,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಭೂ ಮಾಲೀಕತ್ವ" : hi ? "भूमि स्वामित्व स्थिति" : "Land Ownership"}</label>
+                  <label className="label-field">{dict.landOwnership}</label>
                   <select
                     value={profileForm.land_ownership}
                     onChange={(e) => setProfileForm({ ...profileForm, land_ownership: e.target.value })}
@@ -536,7 +529,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಮುಖ್ಯ ಬೆಳೆ" : hi ? "मुख्य फसल" : "Primary Crop"}</label>
+                  <label className="label-field">{dict.primaryCrop}</label>
                   <input
                     value={profileForm.primary_crop}
                     onChange={(e) => setProfileForm({ ...profileForm, primary_crop: e.target.value })}
@@ -546,7 +539,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div>
-                  <label className="label-field">{isKn ? "ಕೃಷಿ ಅನುಭವ (ವರ್ಷಗಳು)" : hi ? "खेती का अनुभव (वर्ष)" : "Farming Experience (Years)"}</label>
+                  <label className="label-field">{dict.farmingExperience}</label>
                   <input
                     type="number"
                     min="0"
@@ -560,7 +553,7 @@ export function FarmerProfileClient() {
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="label-field">{isKn ? "ಲಭ್ಯವಿರುವ ಕೃಷಿ ಉಪಕರಣಗಳು" : hi ? "उपलब्ध कृषि उपकरण" : "Available Equipment"}</label>
+                  <label className="label-field">{dict.equipment}</label>
                   <input
                     value={profileForm.equipment_list}
                     onChange={(e) => setProfileForm({ ...profileForm, equipment_list: e.target.value })}
@@ -575,14 +568,10 @@ export function FarmerProfileClient() {
                     <div>
                       <p className="text-xs font-bold text-foreground flex items-center gap-1.5">
                         <Navigation className="h-3.5 w-3.5 text-primary" />
-                        {isKn ? "ಜಮೀನಿನ GPS ನಿರ್ದೇಶಾಂಕ (ಐಚ್ಛಿಕ)" : hi ? "खेत GPS निर्देशांक (वैकल्पिक)" : "Farm GPS Location (Optional)"}
+                        {dict.gpsTitle}
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        {isKn
-                          ? "ನಿಖರವಾದ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಮತ್ತು ಉಪಗ್ರಹ ಬೆಳೆ ಮೇಲ್ವಿಚಾರಣೆಗೆ ಬಳಸಲಾಗುತ್ತದೆ."
-                          : hi
-                          ? "सटीक मौसम पूर्वानुमान और उपग्रह फसल निगरानी के लिए उपयोग किया जाता है।"
-                          : "Used for hyper-local weather alerts and satellite crop monitoring."}
+                        {dict.gpsSubtitle}
                       </p>
                     </div>
                     <button
@@ -592,7 +581,7 @@ export function FarmerProfileClient() {
                       className="btn-secondary h-8 text-xs flex items-center gap-1 shrink-0"
                     >
                       {gpsLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Navigation className="h-3 w-3" />}
-                      <span>{isKn ? "ಪ್ರಸ್ತುತ GPS ಪಡೆಯಿರಿ" : hi ? "वर्तमान GPS लें" : "Get GPS"}</span>
+                      <span>{dict.getGps}</span>
                     </button>
                   </div>
                   {gpsError && <p className="text-[11px] text-destructive font-medium">{gpsError}</p>}
@@ -614,7 +603,7 @@ export function FarmerProfileClient() {
                     />
                     <span className="text-xs font-semibold text-foreground flex items-center gap-1">
                       <Droplets className="h-3.5 w-3.5 text-sky-500" />
-                      {isKn ? "ನೀರಾವರಿ ಸೌಲಭ್ಯವಿದೆ" : hi ? "सिंचाई सुविधा उपलब्ध है" : "Has Irrigation Facility"}
+                      {dict.hasIrrigation}
                     </span>
                   </label>
 
@@ -627,7 +616,7 @@ export function FarmerProfileClient() {
                     />
                     <span className="text-xs font-semibold text-foreground flex items-center gap-1">
                       <Tractor className="h-3.5 w-3.5 text-amber-500" />
-                      {isKn ? "ಟ್ರ್ಯಾಕ್ಟರ್ ಲಭ್ಯವಿದೆ" : hi ? "ट्रैक्टर उपलब्ध है" : "Has Tractor"}
+                      {dict.hasTractor}
                     </span>
                   </label>
                 </div>
@@ -639,7 +628,7 @@ export function FarmerProfileClient() {
                   onClick={() => setIsEditingProfile(false)}
                   className="btn-secondary h-9 text-xs"
                 >
-                  {isKn ? "ರದ್ದುಮಾಡಿ" : hi ? "रद्द करें" : "Cancel"}
+                  {dict.cancel}
                 </button>
                 <button
                   type="submit"
@@ -647,7 +636,7 @@ export function FarmerProfileClient() {
                   className="btn-primary h-9 text-xs flex items-center gap-1.5 shadow-sm"
                 >
                   {profileSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                  <span>{isKn ? "ಉಳಿಸಿ" : hi ? "सहेजें" : "Save Profile"}</span>
+                  <span>{dict.save}</span>
                 </button>
               </div>
             </form>

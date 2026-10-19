@@ -2,6 +2,13 @@
 
 export const WEATHER_T: Record<Lang, Record<string, string>> = {
   en: {
+    gps_precise_label: "Precise GPS Location",
+    gps_denied_err: "Location permission denied. Please enable GPS or select a city.",
+    gps_unsupported_err: "GPS is not supported on this device.",
+    location_not_found: "Location not found; showing weather for your current area.",
+    search_city_placeholder: "Search city or district...",
+    advisory_subtitle: "Daily agriculture advisory based on precise weather conditions",
+
     weather_title: "Weather Intelligence",
     weather_subtitle: "Hyper-local conditions and agriculture weather advisory for your field",
     detecting_loc: "Detecting your location...",
@@ -66,6 +73,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "Snow",
   },
   hi: {
+    gps_precise_label: "सटीक जीपीएस स्थान",
+    gps_denied_err: "लोकेशन की अनुमति नहीं मिली। कृपया जीपीएस ऑन करें या शहर चुनें।",
+    gps_unsupported_err: "आपके डिवाइस में जीपीएस उपलब्ध नहीं है।",
+    location_not_found: "स्थान नहीं मिला; आपके वर्तमान क्षेत्र का मौसम दिखाया जा रहा है।",
+    search_city_placeholder: "शहर या ज़िला खोजें...",
+    advisory_subtitle: "सटीक मौसम के आधार पर दैनिक कृषि सलाह",
+
     weather_title: "मौसम का हाल",
     weather_subtitle: "आपके खेत के मौसम का सटीक पूर्वानुमान और कृषि सलाह",
     detecting_loc: "आपके स्थान का पता लगाया जा रहा है...",
@@ -130,6 +144,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "बर्फबारी",
   },
   kn: {
+    gps_precise_label: "ನಿಖರ ಜಿಪಿಎಸ್ ಸ್ಥಳ",
+    gps_denied_err: "ಸ್ಥಳದ ಅನುಮತಿ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಜಿಪಿಎಸ್ ಆನ್ ಮಾಡಿ ಅಥವಾ ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+    gps_unsupported_err: "ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜಿಪಿಎಸ್ ಲಭ್ಯವಿಲ್ಲ.",
+    location_not_found: "ಸ್ಥಳ ಕಂಡುಬಂದಿಲ್ಲ; ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸ್ಥಳದ ಹವಾಮಾನ ತೋರಿಸಲಾಗುತ್ತಿದೆ.",
+    search_city_placeholder: "ನಗರ ಅಥವಾ ಜಿಲ್ಲೆಯನ್ನು ಹುಡುಕಿ...",
+    advisory_subtitle: "ನಿಖರ ಹವಾಮಾನದ ಆಧಾರದ ಮೇಲೆ ದೈನಂದಿನ ಕೃಷಿ ಸಲಹೆಗಳು",
+
     weather_title: "ಹವಾಮಾನ ಮಾಹಿತಿ",
     weather_subtitle: "ನಿಮ್ಮ ಜಮೀನಿನ ಹವಾಮಾನ ವರದಿ ಮತ್ತು ಕೃಷಿ ಸಲಹೆಗಳು",
     detecting_loc: "ನಿಮ್ಮ ಸ್ಥಳವನ್ನು ಪತ್ತೆಹಚ್ಚಲಾಗುತ್ತಿದೆ...",
@@ -194,6 +215,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "ಹಿಮಪಾತ",
   },
   ta: {
+    gps_precise_label: "துல்லியமான GPS இருப்பிடம்",
+    gps_denied_err: "இருப்பிட அனுமதி மறுக்கப்பட்டது. ஜிபிஎஸ் இயக்கவும் அல்லது நகரத்தைத் தேர்ந்தெடுக்கவும்.",
+    gps_unsupported_err: "இந்த சாதனத்தில் GPS ஆதரிக்கப்படவில்லை.",
+    location_not_found: "இருப்பிடம் கிடைக்கவில்லை; உங்கள் தற்போதைய பகுதிக்கான வானிலை காட்டப்படுகிறது.",
+    search_city_placeholder: "நகரம் அல்லது மாவட்டத்தைத் தேடவும்...",
+    advisory_subtitle: "துல்லியமான வானிலை அடிப்படையில் தினசரி விவசாய ஆலோசனைகள்",
+
     weather_title: "வானிலை அறிக்கை",
     weather_subtitle: "உங்கள் வயலின் வானிலை நிலவரம் மற்றும் விவசாய ஆலோசனை",
     detecting_loc: "உங்கள் இருப்பிடத்தைக் கண்டறிகிறது...",
@@ -258,6 +286,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "பனிப்பொழிவு",
   },
   te: {
+    gps_precise_label: "ఖచ్చితమైన GPS స్థానం",
+    gps_denied_err: "లొకేషన్ అనుమతి నిరాకరించబడింది. దయచేసి GPS ఆన్ చేయండి లేదా నగరాన్ని ఎంచుకోండి.",
+    gps_unsupported_err: "ఈ పరికరంలో GPS అందుబాటులో లేదు.",
+    location_not_found: "స్థానం కనుగొనబడలేదు; మీ ప్రస్తుత ప్రాంతం వాతావరణం చూపబడుతోంది.",
+    search_city_placeholder: "నగరం లేదా జిల్లాను శోధించండి...",
+    advisory_subtitle: "ఖచ్చితమైన వాతావరణ ఆధారంగా రోజువారీ వ్యవసాయ సలహాలు",
+
     weather_title: "హవామాన సమాచారం",
     weather_subtitle: "మీ పొలం హవామాన నివేదిక మరియు వ్యవసాయ సలహాలు",
     detecting_loc: "మీ స్థానాన్ని గుర్తిస్తోంది...",
@@ -322,6 +357,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "మంచు కురవడం",
   },
   ml: {
+    gps_precise_label: "കൃത്യമായ GPS ലൊക്കേഷൻ",
+    gps_denied_err: "ലൊക്കേഷൻ അനുമതി നിരസിച്ചു. ദയവായി ജിപിഎസ് ഓൺ ചെയ്യുക അല്ലെങ്കിൽ ഒരു നഗരം തിരഞ്ഞെടുക്കുക.",
+    gps_unsupported_err: "ഈ ഉപകരണത്തിൽ GPS പിന്തുണയ്ക്കുന്നില്ല.",
+    location_not_found: "ലൊക്കേഷൻ കണ്ടെത്തിയില്ല; നിങ്ങളുടെ നിലവിലെ പ്രദേശത്തിന്റെ കാലാവസ്ഥ കാണിക്കുന്നു.",
+    search_city_placeholder: "നഗരം അല്ലെങ്കിൽ ജില്ല തിരയുക...",
+    advisory_subtitle: "കൃത്യമായ കാലാവസ്ഥയെ അടിസ്ഥാനമാക്കിയുള്ള ദൈനംദിന കാർഷിക നിർദ്ദേശങ്ങൾ",
+
     weather_title: "കാലാവസ്ഥ വിവരങ്ങൾ",
     weather_subtitle: "നിങ്ങളുടെ കൃഷിയിടത്തിലെ കാലാവസ്ഥയും കർഷക നിർദ്ദേശങ്ങളും",
     detecting_loc: "നിങ്ങളുടെ സ്ഥലം കണ്ടെത്തുന്നു...",
@@ -386,6 +428,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "മഞ്ഞുവീഴ്ച",
   },
   mr: {
+    gps_precise_label: "अचूक जीपीएस स्थान",
+    gps_denied_err: "स्थान परवानगी नाकारली. कृपया जीपीएस सुरू करा किंवा शहर निवडा.",
+    gps_unsupported_err: "या डिव्हाइसवर जीपीएस उपलब्ध नाही.",
+    location_not_found: "स्थान आढळले नाही; तुमच्या सध्याच्या क्षेत्राचे हवामान दाखवत आहे.",
+    search_city_placeholder: "शहर किंवा जिल्हा शोधा...",
+    advisory_subtitle: "अचूक हवामानाच्या आधारावर दैनंदिन कृषी सल्ला",
+
     weather_title: "हवामानाचा अंदाज",
     weather_subtitle: "तुमच्या शेतासाठी अचूक हवामान आणि कृषी सल्ला",
     detecting_loc: "तुमचे स्थान शोधत आहे...",
@@ -450,6 +499,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "बर्फवृष्टी",
   },
   bn: {
+    gps_precise_label: "সঠিক জিপিএস অবস্থান",
+    gps_denied_err: "অবস্থানের অনুমতি দেওয়া হয়নি। অনুগ্রহ করে জিপিএস চালু করুন বা একটি শহর নির্বাচন করুন।",
+    gps_unsupported_err: "এই ডিভাইসে জিপিএস সমর্থিত নয়।",
+    location_not_found: "অবস্থান পাওয়া যায়নি; আপনার বর্তমান এলাকার আবহাওয়া দেখানো হচ্ছে।",
+    search_city_placeholder: "শহর বা জেলা খুঁজুন...",
+    advisory_subtitle: "সঠিক আবহাওয়ার ভিত্তিতে দৈনিক কৃষি পরামর্শ",
+
     weather_title: "আবহাওয়ার খবর",
     weather_subtitle: "আপনার খামারের আবহাওয়ার সঠিক পূর্বাভাস ও কৃষি পরামর্শ",
     detecting_loc: "আপনার অবস্থান খোঁজা হচ্ছে...",
@@ -514,6 +570,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "তুষারপাত",
   },
   pa: {
+    gps_precise_label: "ਸਹੀ ਜੀਪੀਐਸ ਟਿਕਾਣਾ",
+    gps_denied_err: "ਟਿਕਾਣੇ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਮਿਲੀ। ਕਿਰਪਾ ਕਰਕੇ ਜੀਪੀਐਸ ਚਾਲੂ ਕਰੋ ਜਾਂ ਸ਼ਹਿਰ ਚੁਣੋ।",
+    gps_unsupported_err: "ਇਸ ਡਿਵਾਈਸ 'ਤੇ ਜੀਪੀਐਸ ਸਮਰਥਿਤ ਨਹੀਂ ਹੈ।",
+    location_not_found: "ਟਿਕਾਣਾ ਨਹੀਂ ਲੱਭਿਆ; ਤੁਹਾਡੇ ਮੌਜੂਦਾ ਖੇਤਰ ਦਾ ਮੌਸਮ ਦਿਖਾਇਆ ਜਾ ਰਿਹਾ ਹੈ।",
+    search_city_placeholder: "ਸ਼ਹਿਰ ਜਾਂ ਜ਼ਿਲ੍ਹਾ ਖੋਜੋ...",
+    advisory_subtitle: "ਸਹੀ ਮੌਸਮ ਦੇ ਆਧਾਰ 'ਤੇ ਰੋਜ਼ਾਨਾ ਖੇਤੀ ਸਲਾਹ",
+
     weather_title: "ਮੌਸਮ ਦੀ ਜਾਣਕਾਰੀ",
     weather_subtitle: "ਤੁਹਾਡੇ ਖੇਤ ਦੇ ਮੌਸਮ ਦਾ ਸਹੀ ਅਨੁਮਾਨ ਅਤੇ ਖੇਤੀਬਾੜੀ ਸਲਾਹ",
     detecting_loc: "ਤੁਹਾਡੀ ਲੋਕੇਸ਼ਨ ਦਾ ਪਤਾ ਲਗਾਇਆ ਜਾ ਰਿਹਾ ਹੈ...",
@@ -578,6 +641,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "ਬਰਫ਼ਬਾਰੀ",
   },
   gu: {
+    gps_precise_label: "ચોક્કસ જીપીએસ સ્થાન",
+    gps_denied_err: "લોકેશન પરવાનગી નકારી. કૃપા કરીને જીપીએસ ચાલુ કરો અથવા શહેર પસંદ કરો.",
+    gps_unsupported_err: "આ ઉપકરણ પર જીપીએસ સપોર્ટેડ નથી.",
+    location_not_found: "સ્થળ મળ્યું નથી; તમારા વર્તમાન વિસ્તારનું હવામાન બતાવી રહ્યું છે.",
+    search_city_placeholder: "શહેર અથવા જિલ્લો શોધો...",
+    advisory_subtitle: "ચોક્કસ હવામાનને આધારે દૈનિક કૃષિ સલાહ",
+
     weather_title: "હવામાનની માહિતી",
     weather_subtitle: "તમારા ખેતર માટે ચોક્કસ હવામાન પૂર્વાનુમાન અને ખેતી સલાહ",
     detecting_loc: "તમારા સ્થાનની શોધ ચાલુ છે...",
@@ -642,6 +712,13 @@ export const WEATHER_T: Record<Lang, Record<string, string>> = {
     cond_snow: "બરફવર્ષા",
   },
   hi_en: {
+    gps_precise_label: "Precise GPS Location",
+    gps_denied_err: "Location permission denied. Please enable GPS ya city select karein.",
+    gps_unsupported_err: "Aapke device me GPS support nahi karta.",
+    location_not_found: "Location nahi mila; aapke current area ka weather dikhaya ja raha hai.",
+    search_city_placeholder: "City ya district search karein...",
+    advisory_subtitle: "Precise weather ke aadhar par daily kheti salah",
+
     weather_title: "Mausam ka Haal",
     weather_subtitle: "Aapke khet ke mausam ka sateek poorvanuman aur krishi salah",
     detecting_loc: "Aapke sthan ka pata lagaya ja raha hai...",
@@ -814,4 +891,38 @@ export function generateFarmingAdvice(
   }
 
   return list
+}
+
+export function getWeatherSpeech(
+  lang: Lang,
+  cityName: string,
+  tempC: number,
+  rainChance?: number | null
+): string {
+  const rounded = Math.round(tempC)
+  const hasRain = rainChance != null
+  switch (lang) {
+    case "kn":
+      return `${cityName} ನಲ್ಲಿ ಪ್ರಸ್ತುತ ತಾಪಮಾನ ${rounded} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್ ಆಗಿದೆ.${hasRain ? ` ಮುಂದಿನ ಮುನ್ಸೂಚನೆಯಲ್ಲಿ ಮಳೆಯ ಸಾಧ್ಯತೆ ಶೇಕಡಾ ${rainChance} ಇದೆ.` : ""}`
+    case "hi":
+      return `${cityName} में अभी तापमान ${rounded} डिग्री सेल्सियस है।${hasRain ? ` अगले पूर्वानुमान में बारिश की संभावना ${rainChance} प्रतिशत है।` : ""}`
+    case "te":
+      return `${cityName} లో ప్రస్తుత ఉష్ణోగ్రత ${rounded} డిగ్రీల సెల్సియస్.${hasRain ? ` రాబోయే వాతావరణంలో వర్షం పడే అవకాశం ${rainChance} శాతం ఉంది.` : ""}`
+    case "ta":
+      return `${cityName} இல் தற்போதைய வெப்பநிலை ${rounded} டிகிரி செல்சியஸ் ஆகும்.${hasRain ? ` அடுத்த முன்னறிவிப்பில் மழை பெய்யும் வாய்ப்பு ${rainChance} சதவீதம் உள்ளது.` : ""}`
+    case "mr":
+      return `${cityName} मध्ये सध्याचे तापमान ${rounded} अंश सेल्सिअस आहे.${hasRain ? ` पुढील अंदाजात पावसाची शक्यता ${rainChance} टक्के आहे.` : ""}`
+    case "gu":
+      return `${cityName} માં વર્તમાન તાપમાન ${rounded} ડિગ્રી સેલ્સિયસ છે.${hasRain ? ` આગામી આગાહીમાં વરસાદની શક્યતા ${rainChance} ટકા છે.` : ""}`
+    case "bn":
+      return `${cityName}-এ বর্তমান তাপমাত্রা ${rounded} ডিগ্রি সেলসিয়াস।${hasRain ? ` পরবর্তী পূর্বাভাসে বৃষ্টির সম্ভাবনা ${rainChance} শতাংশ।` : ""}`
+    case "pa":
+      return `${cityName} ਵਿੱਚ ਮੌਜੂਦਾ ਤਾਪਮਾਨ ${rounded} ਡਿਗਰੀ ਸੈਲਸੀਅਸ ਹੈ।${hasRain ? ` ਅਗਲੀ ਭਵਿੱਖਬਾਣੀ ਵਿੱਚ ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ ${rainChance} ਫ਼ੀਸਦੀ ਹੈ।` : ""}`
+    case "ml":
+      return `${cityName}-ൽ നിലവിലെ താപനില ${rounded} ഡിഗ്രി സെൽഷ്യസ് ആണ്.${hasRain ? ` അടുത്ത പ്രവചനത്തിൽ മഴയ്ക്ക് ${rainChance} ശതമാനം സാധ്യതയുണ്ട്.` : ""}`
+    case "hi_en":
+      return `${cityName} me current temperature ${rounded} degrees Celsius hai.${hasRain ? ` Aage forecast me rain chance ${rainChance} percent hai.` : ""}`
+    default:
+      return `The current temperature in ${cityName} is ${rounded} degrees Celsius.${hasRain ? ` The forecast rain chance is ${rainChance} percent.` : ""}`
+  }
 }

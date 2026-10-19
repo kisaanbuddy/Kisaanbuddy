@@ -16,31 +16,16 @@ interface Props {
   maxHours?: number
 }
 
+const BCP47_MAP: Record<string, string> = {
+  en: "en-IN", hi: "hi-IN", kn: "kn-IN", mr: "mr-IN", te: "te-IN",
+  ta: "ta-IN", gu: "gu-IN", bn: "bn-IN", pa: "pa-IN", ml: "ml-IN", hi_en: "hi-IN"
+}
+
 function formatHourlyTime(timeStr: string, lang: Lang) {
   const d = new Date(timeStr)
-  const hourVal = d.getHours()
-  const hour12 = hourVal % 12 || 12
+  const locale = BCP47_MAP[lang] || "en-IN"
   
-  if (lang === "kn") {
-    let period = ""
-    if (hourVal >= 4 && hourVal < 12) period = "ಬೆಳಿಗ್ಗೆ"
-    else if (hourVal >= 12 && hourVal < 16) period = "ಮಧ್ಯಾಹ್ನ"
-    else if (hourVal >= 16 && hourVal < 20) period = "ಸಂಜೆ"
-    else period = "ರಾತ್ರಿ"
-    return `${period} ${hour12} ಗಂಟೆ`
-  }
-
-  if (lang === "hi") {
-    let period = ""
-    if (hourVal >= 4 && hourVal < 12) period = "सुबह"
-    else if (hourVal >= 12 && hourVal < 16) period = "दोपहर"
-    else if (hourVal >= 16 && hourVal < 20) period = "शाम"
-    else period = "रात"
-    return `${period} ${hour12} बजे`
-  }
-  
-  // Default to standard local string
-  return d.toLocaleTimeString(lang === "en" ? "en-US" : undefined, {
+  return d.toLocaleTimeString(locale, {
     hour: "numeric",
     hour12: true,
   })
