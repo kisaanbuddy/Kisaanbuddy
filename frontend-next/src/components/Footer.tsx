@@ -53,7 +53,7 @@ export function Footer() {
             </p>
             <div className="flex flex-col gap-2 text-xs text-muted-foreground">
               <Link href="/features" className="hover:text-foreground transition-colors">
-                Platform Features
+                {t("footer.features")}
               </Link>
               <Link href="/disease" className="hover:text-foreground transition-colors flex items-center gap-1.5">
                 <Leaf className="h-3 w-3 text-primary" /> {t("diseaseDetect")}
@@ -62,7 +62,7 @@ export function Footer() {
                 {t("mandi")}
               </Link>
               <Link href="/marketplace" className="hover:text-foreground transition-colors">
-                Marketplace (Buyers & Sellers)
+                {t("footer.marketplace")}
               </Link>
               <Link href="/chatbot" className="hover:text-foreground transition-colors">
                 {t("aiChatbot")}
@@ -74,7 +74,7 @@ export function Footer() {
                 {t("ui.footer.khet_diary")}
               </Link>
               <Link href="/reports" className="hover:text-foreground transition-colors">
-                Farm Reports & Analytics
+                {t("footer.reports")}
               </Link>
             </div>
           </div>

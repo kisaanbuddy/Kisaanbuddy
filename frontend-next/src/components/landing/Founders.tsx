@@ -66,10 +66,28 @@ export function Founders() {
           </div>
           
           <h2 className="text-3xl md:text-5xl font-display font-black tracking-tight text-foreground">
-            {t('founders.heading').split(' Indian')[0]}{" "}
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent">
-              {t('founders.heading').includes('Indian') ? 'Indian Farmers 🇮🇳' : t('founders.heading')}
-            </span>
+            {lang === 'kn' ? (
+              <span>
+                ಭಾರತೀಯ ರೈತರಿಗಾಗಿ{" "}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent">
+                  RVCE ಇಂಜಿನಿಯರ್‌ಗಳಿಂದ ನಿರ್ಮಿಸಲಾಗಿದೆ 🇮🇳
+                </span>
+              </span>
+            ) : lang === 'hi' ? (
+              <span>
+                भारतीय किसानों के लिए{" "}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent">
+                  RVCE इंजीनियर्स द्वारा निर्मित 🇮🇳
+                </span>
+              </span>
+            ) : (
+              <span>
+                Built by RVCE Engineers for{" "}
+                <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent">
+                  Indian Farmers 🇮🇳
+                </span>
+              </span>
+            )}
           </h2>
           
           <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed font-medium">
@@ -139,7 +157,7 @@ export function Founders() {
                   <a
                     href={`mailto:${f.email}`}
                     className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/60 border border-border/70 hover:border-emerald-500/30 hover:bg-emerald-500/10 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-[0.98] transition-all duration-200"
-                    title={`Email ${f.name.split(" ")[0]}`}
+                    title={lang === 'kn' ? `${f.name.split(" ")[0]} ಅವರಿಗೆ ಇಮೇಲ್ ಕಳುಹಿಸಿ` : lang === 'hi' ? `${f.name.split(" ")[0]} को ईमेल भेजें` : `Email ${f.name.split(" ")[0]}`}
                   >
                     <Mail className="h-3.5 w-3.5" />
                   </a>

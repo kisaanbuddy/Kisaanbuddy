@@ -24,8 +24,13 @@ import {
   FarmerField,
   FarmTask,
 } from "@/lib/farmer-api";
+import { useLanguage } from "@/context/LanguageContext";
 
 export default function CropsPage() {
+  const { language } = useLanguage();
+  const isKn = language === "kn";
+  const isHi = language === "hi";
+
   const [loading, setLoading] = useState(true);
   const [fields, setFields] = useState<FarmerField[]>([]);
   const [tasks, setTasks] = useState<FarmTask[]>([]);
@@ -142,7 +147,11 @@ export default function CropsPage() {
   };
 
   const getGrowthProgress = (sowingDateStr?: string | null, harvestDateStr?: string | null) => {
-    if (!sowingDateStr) return { stage: "Stage Not Tracked", percent: 0, daysPassed: 0 };
+    if (!sowingDateStr) return { 
+      stage: isKn ? "ಹಂತ ಟ್ರ್ಯಾಕ್ ಆಗಿಲ್ಲ" : isHi ? "चरण ट्रैक नहीं हुआ" : "Stage Not Tracked", 
+      percent: 0, 
+      daysPassed: 0 
+    };
     const sowing = new Date(sowingDateStr).getTime();
     const now = Date.now();
     const harvest = harvestDateStr
@@ -154,11 +163,11 @@ export default function CropsPage() {
     const percent = Math.min(Math.round((elapsed / totalDuration) * 100), 100);
     const daysPassed = Math.round(elapsed / (24 * 60 * 60 * 1000));
 
-    let stage = "Early Vegetative";
-    if (percent > 85) stage = "Maturity / Harvest";
-    else if (percent > 65) stage = "Grain / Fruit Formation";
-    else if (percent > 40) stage = "Flowering / Tillering";
-    else if (percent > 20) stage = "Active Vegetative";
+    let stage = isKn ? "ಆರಂಭಿಕ ಸಸ್ಯ ಬೆಳವಣಿಗೆ" : isHi ? "प्रारंभिक वानस्पतिक" : "Early Vegetative";
+    if (percent > 85) stage = isKn ? "ಪಕ್ವತೆ / ಕಟಾವು" : isHi ? "परिपक्वता / कटाई" : "Maturity / Harvest";
+    else if (percent > 65) stage = isKn ? "ಕಾಳು / ಹಣ್ಣು ರಚನೆ" : isHi ? "दाने / फल बनना" : "Grain / Fruit Formation";
+    else if (percent > 40) stage = isKn ? "ಹೂವಾಡುವಿಕೆ / ಕವಲೊಡೆಯುವಿಕೆ" : isHi ? "फूल / कल्ले निकलना" : "Flowering / Tillering";
+    else if (percent > 20) stage = isKn ? "ಸಕ್ರಿಯ ಸಸ್ಯ ಬೆಳವಣಿಗೆ" : isHi ? "सक्रिय वानस्पतिक" : "Active Vegetative";
 
     return { stage, percent, daysPassed };
   };
@@ -173,11 +182,11 @@ export default function CropsPage() {
               <Sprout className="w-5 h-5" />
             </span>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-              Crops & Field Management
+              {isKn ? "ಬೆಳೆಗಳು ಮತ್ತು ಜಮೀನು ನಿರ್ವಹಣೆ" : isHi ? "फसलें एवं खेत प्रबंधन" : "Crops & Field Management"}
             </h1>
           </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Track individual plots, vegetative growth stages, sowing calendars, and crop-specific tasks.
+            {isKn ? "ಪ್ರತ್ಯೇಕ ಪ್ಲಾಟ್‌ಗಳು, ಬೆಳವಣಿಗೆಯ ಹಂತಗಳು, ಬಿತ್ತನೆ ಕ್ಯಾಲೆಂಡರ್ ಮತ್ತು ಬೆಳೆ ಸಂಬಂಧಿತ ಕಾರ್ಯಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ." : isHi ? "अलग-अलग भूखंडों, वानस्पतिक विकास चरणों, बुवाई कैलेंडर और फसल-विशिष्ट कार्यों को ट्रैक करें।" : "Track individual plots, vegetative growth stages, sowing calendars, and crop-specific tasks."}
           </p>
         </div>
 
@@ -191,7 +200,7 @@ export default function CropsPage() {
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition active:scale-95"
         >
           <Plus className="w-4 h-4" />
-          <span>Add New Plot / Crop</span>
+          <span>{isKn ? "ಹೊಸ ಪ್ಲಾಟ್ / ಬೆಳೆ ಸೇರಿಸಿ" : isHi ? "नया प्लॉट / फसल जोड़ें" : "Add New Plot / Crop"}</span>
         </button>
       </div>
 
@@ -206,7 +215,7 @@ export default function CropsPage() {
                 : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
             }`}
           >
-            All Crops ({fields.length})
+            {isKn ? `ಎಲ್ಲಾ ಬೆಳೆಗಳು (${fields.length})` : isHi ? `सभी फसलें (${fields.length})` : `All Crops (${fields.length})`}
           </button>
 
           {cropsList.map((crop) => (
@@ -228,7 +237,7 @@ export default function CropsPage() {
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search plot or variety..."
+            placeholder={isKn ? "ಪ್ಲಾಟ್ ಅಥವಾ ತಳಿ ಹುಡುಕಿ..." : isHi ? "प्लॉट या किस्म खोजें..." : "Search plot or variety..."}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -240,23 +249,23 @@ export default function CropsPage() {
       {loading ? (
         <div className="py-20 text-center">
           <RotateCw className="w-8 h-8 animate-spin text-emerald-600 mx-auto mb-2" />
-          <p className="text-xs text-slate-500">Loading crops and fields...</p>
+          <p className="text-xs text-slate-500">{isKn ? "ಬೆಳೆಗಳು ಮತ್ತು ಜಮೀನು ಮಾಹಿತಿ ಲೋಡ್ ಆಗುತ್ತಿದೆ..." : isHi ? "फसलें और खेत लोड हो रहे हैं..." : "Loading crops and fields..."}</p>
         </div>
       ) : filteredFields.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-12 text-center bg-slate-50/50 dark:bg-slate-900/50">
           <Sprout className="w-10 h-10 text-slate-400 mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-900 dark:text-white mb-1">
-            No Farm Plots Registered
+            {isKn ? "ಯಾವುದೇ ಜಮೀನು ನೋಂದಾಯಿಸಿಲ್ಲ" : isHi ? "कोई कृषि प्लॉट पंजीकृत नहीं है" : "No Farm Plots Registered"}
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
-            Register your first agricultural plot to track crop stages, calculate irrigation needs, and receive fertilizer alerts.
+            {isKn ? "ಬೆಳೆ ಹಂತಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಲು, ನೀರಾವರಿ ಅಗತ್ಯಗಳನ್ನು ಲೆಕ್ಕಹಾಕಲು ಮತ್ತು ರಸಗೊಬ್ಬರ ಎಚ್ಚರಿಕೆಗಳನ್ನು ಪಡೆಯಲು ನಿಮ್ಮ ಮೊದಲ ಜಮೀನನ್ನು ನೋಂದಾಯಿಸಿ." : isHi ? "फसल के चरणों को ट्रैक करने, सिंचाई की आवश्यकताओं की गणना करने और उर्वरक अलर्ट प्राप्त करने के लिए अपना पहला कृषि प्लॉट पंजीकृत करें।" : "Register your first agricultural plot to track crop stages, calculate irrigation needs, and receive fertilizer alerts."}
           </p>
           <button
             onClick={() => setShowModal(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow transition"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Your First Plot</span>
+            <span>{isKn ? "ನಿಮ್ಮ ಮೊದಲ ಪ್ಲಾಟ್ ಸೇರಿಸಿ" : isHi ? "अपना पहला प्लॉट जोड़ें" : "Add Your First Plot"}</span>
           </button>
         </div>
       ) : (
@@ -301,10 +310,10 @@ export default function CropsPage() {
                       <div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
                           <Layers className="w-4 h-4 text-emerald-600 shrink-0" />
-                          <span>{field.field_name || "Plot #" + field.id}</span>
+                          <span>{field.field_name || (isKn ? `ಜಮೀನು #${field.id}` : isHi ? `प्लॉट #${field.id}` : `Plot #${field.id}`)}</span>
                         </h3>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          {field.acreage ? `${field.acreage} ${field.area_unit || "Acres"}` : "Size not set"}
+                          {field.acreage ? `${field.acreage} ${isKn ? "ಎಕರೆ" : isHi ? "एकड़" : (field.area_unit || "Acres")}` : (isKn ? "ವಿಸ್ತೀರ್ಣ ನಿಗದಿಯಾಗಿಲ್ಲ" : isHi ? "आकार निर्धारित नहीं" : "Size not set")}
                           {field.season ? ` • ${field.season}` : ""}
                         </p>
                       </div>
@@ -312,7 +321,8 @@ export default function CropsPage() {
 
                   {field.crop_variety && (
                     <div className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                      Variety: <span className="text-emerald-700 dark:text-emerald-400">{field.crop_variety}</span>
+                      {isKn ? "ತಳಿ: " : isHi ? "किस्म: " : "Variety: "}
+                      <span className="text-emerald-700 dark:text-emerald-400">{field.crop_variety}</span>
                     </div>
                   )}
 
@@ -334,8 +344,8 @@ export default function CropsPage() {
                     </div>
 
                     <div className="flex items-center justify-between text-[11px] text-slate-500">
-                      <span>{daysPassed > 0 ? `Day ${daysPassed} since sowing` : "Sowing not set"}</span>
-                      {field.expected_harvest && <span>Harvest: {field.expected_harvest}</span>}
+                      <span>{daysPassed > 0 ? (isKn ? `ಬಿತ್ತನೆಯಿಂದ ${daysPassed} ದಿನಗಳು` : isHi ? `बुवाई के बाद ${daysPassed} दिन` : `Day ${daysPassed} since sowing`) : (isKn ? "ಬಿತ್ತನೆ ದಿನಾಂಕವಿಲ್ಲ" : isHi ? "बुवाई निर्धारित नहीं" : "Sowing not set")}</span>
+                      {field.expected_harvest && <span>{isKn ? "ಕಟಾವು: " : isHi ? "कटाई: " : "Harvest: "}{field.expected_harvest}</span>}
                     </div>
                   </div>
 
@@ -343,7 +353,7 @@ export default function CropsPage() {
                   <div className="flex flex-wrap gap-1.5 text-[11px] text-slate-600 dark:text-slate-300 mb-3">
                     {field.soil_type && (
                       <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                        Soil: {field.soil_type}
+                        {isKn ? "ಮಣ್ಣು: " : isHi ? "मिट्टी: " : "Soil: "}{field.soil_type}
                       </span>
                     )}
                     {field.irrigation_type && (
@@ -353,7 +363,7 @@ export default function CropsPage() {
                     )}
                     {relatedTasks.length > 0 && (
                       <span className="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                        {relatedTasks.length} Pending Tasks
+                        {isKn ? `${relatedTasks.length} ಬಾಕಿ ಕಾರ್ಯಗಳು` : isHi ? `${relatedTasks.length} लंबित कार्य` : `${relatedTasks.length} Pending Tasks`}
                       </span>
                     )}
                   </div>
@@ -369,7 +379,7 @@ export default function CropsPage() {
                     className="inline-flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 transition"
                   >
                     <Sparkles className="w-3.5 h-3.5" />
-                    <span>Get Crop Advice</span>
+                    <span>{isKn ? "ಬೆಳೆ ಸಲಹೆ ಪಡೆಯಿರಿ" : isHi ? "फसल सलाह प्राप्त करें" : "Get Crop Advice"}</span>
                   </Link>
 
                   <div className="flex items-center gap-2">
@@ -387,7 +397,7 @@ export default function CropsPage() {
                         setShowModal(true);
                       }}
                       className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-                      title="Edit Plot"
+                      title={isKn ? "ಪ್ಲಾಟ್ ತಿದ್ದುಪಡಿ" : isHi ? "प्लॉट संपादित करें" : "Edit Plot"}
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
@@ -395,7 +405,7 @@ export default function CropsPage() {
                     <button
                       onClick={() => handleDeleteField(field.id)}
                       className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
-                      title="Delete Plot"
+                      title={isKn ? "ಪ್ಲಾಟ್ ಅಳಿಸಿ" : isHi ? "प्लॉट हटाएं" : "Delete Plot"}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -419,22 +429,24 @@ export default function CropsPage() {
             </button>
 
             <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-1">
-              {editingFieldId ? "Edit Plot & Crop Details" : "Register New Plot & Crop"}
+              {editingFieldId
+                ? (isKn ? "ಪ್ಲಾಟ್ ಮತ್ತು ಬೆಳೆ ವಿವರಗಳನ್ನು ತಿದ್ದುಪಡಿ ಮಾಡಿ" : isHi ? "प्लॉट और फसल विवरण संपादित करें" : "Edit Plot & Crop Details")
+                : (isKn ? "ಹೊಸ ಪ್ಲಾಟ್ ಮತ್ತು ಬೆಳೆ ನೋಂದಾಯಿಸಿ" : isHi ? "नया प्लॉट और फसल पंजीकृत करें" : "Register New Plot & Crop")}
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">
-              Map field dimensions, seed variety, and sowing dates for accurate AI recommendations.
+              {isKn ? "ನಿಖರವಾದ AI ಶಿಫಾರಸುಗಳಿಗಾಗಿ ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ, ಬೀಜದ ತಳಿ ಮತ್ತು ಬಿತ್ತನೆ ದಿನಾಂಕಗಳನ್ನು ನಮೂದಿಸಿ." : isHi ? "सटीक एआई सिफारिशों के लिए खेत के आयाम, बीज किस्म और बुवाई की तारीख दर्ज करें।" : "Map field dimensions, seed variety, and sowing dates for accurate AI recommendations."}
             </p>
 
             <form onSubmit={handleSaveField} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Plot / Field Name *
+                    {isKn ? "ಪ್ಲಾಟ್ / ಜಮೀನಿನ ಹೆಸರು *" : isHi ? "प्लॉट / खेत का नाम *" : "Plot / Field Name *"}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. East Well Plot"
+                    placeholder={isKn ? "ಉದಾ: ಪೂರ್ವ ಬಾವಿ ಜಮೀನು" : isHi ? "उदा. पूर्वी कुआं प्लॉट" : "e.g. East Well Plot"}
                     value={fieldName}
                     onChange={(e) => setFieldName(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -443,7 +455,7 @@ export default function CropsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Plot Acreage
+                    {isKn ? "ಪ್ಲಾಟ್ ವಿಸ್ತೀರ್ಣ (ಎಕರೆ)" : isHi ? "प्लॉट रकबा (एकड़)" : "Plot Acreage"}
                   </label>
                   <input
                     type="number"
@@ -459,12 +471,12 @@ export default function CropsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Current Crop *
+                    {isKn ? "ಪ್ರಸ್ತುತ ಬೆಳೆ *" : isHi ? "वर्तमान फसल *" : "Current Crop *"}
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Wheat, Mustard"
+                    placeholder={isKn ? "ಉದಾ: ಗೋಧಿ, ಸಾಸಿವೆ" : isHi ? "उदा. गेहूं, सरसों" : "e.g. Wheat, Mustard"}
                     value={cropName}
                     onChange={(e) => setCropName(e.target.value)}
                     className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
@@ -473,7 +485,7 @@ export default function CropsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Seed Variety (Optional)
+                    {isKn ? "ಬೀಜದ ತಳಿ (ಐಚ್ಛಿಕ)" : isHi ? "बीज किस्म (वैकल्पिक)" : "Seed Variety (Optional)"}
                   </label>
                   <input
                     type="text"
@@ -488,7 +500,7 @@ export default function CropsPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Sowing Date
+                    {isKn ? "ಬಿತ್ತನೆ ದಿನಾಂಕ" : isHi ? "बुवाई की तारीख" : "Sowing Date"}
                   </label>
                   <input
                     type="date"
@@ -500,7 +512,7 @@ export default function CropsPage() {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Expected Harvest Date
+                    {isKn ? "ನಿರೀಕ್ಷಿತ ಕಟಾವು ದಿನಾಂಕ" : isHi ? "अपेक्षित कटाई तिथि" : "Expected Harvest Date"}
                   </label>
                   <input
                     type="date"
@@ -514,50 +526,50 @@ export default function CropsPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Soil Type
+                    {isKn ? "ಮಣ್ಣಿನ ವಿಧ" : isHi ? "मिट्टी का प्रकार" : "Soil Type"}
                   </label>
                   <select
                     value={soilType}
                     onChange={(e) => setSoilType(e.target.value)}
                     className="w-full px-2.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
                   >
-                    <option value="Loamy">Loamy</option>
-                    <option value="Clay">Clay</option>
-                    <option value="Sandy">Sandy</option>
-                    <option value="Black">Black Soil</option>
-                    <option value="Alluvial">Alluvial</option>
+                    <option value="Loamy">{isKn ? "ಗೋಡು ಮಣ್ಣು" : isHi ? "दोमट" : "Loamy"}</option>
+                    <option value="Clay">{isKn ? "ಜೇಡಿ ಮಣ್ಣು" : isHi ? "चिकनी मिट्टी" : "Clay"}</option>
+                    <option value="Sandy">{isKn ? "ಮರಳು ಮಣ್ಣು" : isHi ? "बलुई" : "Sandy"}</option>
+                    <option value="Black">{isKn ? "ಕಪ್ಪು ಮಣ್ಣು" : isHi ? "काली मिट्टी" : "Black Soil"}</option>
+                    <option value="Alluvial">{isKn ? "ಮೆಕ್ಕಲು ಮಣ್ಣು" : isHi ? "जलोढ़" : "Alluvial"}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Irrigation Type
+                    {isKn ? "ನೀರಾವರಿ ವಿಧ" : isHi ? "सिंचाई प्रकार" : "Irrigation Type"}
                   </label>
                   <select
                     value={irrigationType}
                     onChange={(e) => setIrrigationType(e.target.value)}
                     className="w-full px-2.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
                   >
-                    <option value="Tube well">Tube well</option>
-                    <option value="Canal">Canal</option>
-                    <option value="Drip">Drip</option>
-                    <option value="Sprinkler">Sprinkler</option>
-                    <option value="Rain-fed">Rain-fed</option>
+                    <option value="Tube well">{isKn ? "ಕೊಳವೆಬಾವಿ" : isHi ? "नलकूप" : "Tube well"}</option>
+                    <option value="Canal">{isKn ? "ಕಾಲುವೆ" : isHi ? "नहर" : "Canal"}</option>
+                    <option value="Drip">{isKn ? "ಹನಿ ನೀರಾವರಿ" : isHi ? "ड्रिप" : "Drip"}</option>
+                    <option value="Sprinkler">{isKn ? "ತುಂತುರು ನೀರಾವರಿ" : isHi ? "स्प्रिंकलर" : "Sprinkler"}</option>
+                    <option value="Rain-fed">{isKn ? "ಮಳೆ ಆಧಾರಿತ" : isHi ? "वर्षा आधारित" : "Rain-fed"}</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Season
+                    {isKn ? "ಋತು / ಹಂಗಾಮು" : isHi ? "मौसम / फसल चक्र" : "Season"}
                   </label>
                   <select
                     value={season}
                     onChange={(e) => setSeason(e.target.value)}
                     className="w-full px-2.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
                   >
-                    <option value="Rabi">Rabi</option>
-                    <option value="Kharif">Kharif</option>
-                    <option value="Zaid">Zaid</option>
+                    <option value="Rabi">{isKn ? "ರಬಿ" : isHi ? "रबी" : "Rabi"}</option>
+                    <option value="Kharif">{isKn ? "ಖಾರಿಫ್" : isHi ? "खरीफ" : "Kharif"}</option>
+                    <option value="Zaid">{isKn ? "ಜೈದ್" : isHi ? "ज़ायद" : "Zaid"}</option>
                   </select>
                 </div>
               </div>
@@ -573,7 +585,11 @@ export default function CropsPage() {
                   ) : (
                     <CheckCircle2 className="w-4 h-4" />
                   )}
-                  <span>{editingFieldId ? "Save Changes" : "Register Plot"}</span>
+                  <span>
+                    {editingFieldId
+                      ? (isKn ? "ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ" : isHi ? "परिवर्तन सहेजें" : "Save Changes")
+                      : (isKn ? "ಪ್ಲಾಟ್ ನೋಂದಾಯಿಸಿ" : isHi ? "प्लॉट पंजीकृत करें" : "Register Plot")}
+                  </span>
                 </button>
               </div>
             </form>

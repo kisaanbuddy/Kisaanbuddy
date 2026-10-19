@@ -879,7 +879,10 @@
     "ask_your_farm_ai": "अपने फार्म एआई से पूछें"
   },
   "footer": {
-    "ai": "AI"
+    "ai": "AI",
+    "features": "प्लेटफ़ॉर्म सुविधाएं",
+    "marketplace": "बाज़ार (खरीदार और विक्रेता)",
+    "reports": "फार्म रिपोर्ट और विश्लेषण"
   },
   "hardware_showcase": {
     "ready_to_upgrade_your": "क्या आप अपने खेत की बुद्धिमत्ता को अपग्रेड करने के लिए तैयार हैं?",
@@ -979,7 +982,8 @@
     "mandi_live": "लाइव मंडी भाव",
     "unam_live": "ई-नाम लाइव",
     "agra_potato": "आगरा (आलू)",
-    "delhi_wheat": "दिल्ली (गेहूं)"
+    "delhi_wheat": "दिल्ली (गेहूं)",
+    "ph_neutral: 6.5 (Neutral)": "पीएच स्तर: 6.5 (तटस्थ)"
   },
   "loginLabel": "लॉगिन",
   "technology": {
@@ -1028,16 +1032,28 @@
     "success_submit": "मौखिक प्रश्न भेजा गया"
   },
   "ui": {
-    "navigation": { "open_menu": "मेनू खोलें", "close_menu": "मेनू बंद करें" },
-    "search": { "label": "खोजें", "title": "KisaanBuddy खोजें (Ctrl+K)" },
-    "footer": { "khet_diary": "खेत डायरी (खेती की बही)" },
+    "navigation": {
+      "open_menu": "मेनू खोलें",
+      "close_menu": "मेनू बंद करें"
+    },
+    "search": {
+      "label": "खोजें",
+      "title": "KisaanBuddy खोजें (Ctrl+K)"
+    },
+    "footer": {
+      "khet_diary": "खेत डायरी (खेती की बही)"
+    },
     "home": {
       "badge": "भारतीय खेती के लिए उपयोगी उपकरण",
       "weather_cta": "खेत का मौसम देखें",
       "helper": "शुरू करने के लिए अपनी जानकारी और स्थान का उपयोग करें।",
       "field_label": "खेत के लिए बनाया गया",
       "card_title": "ज़रूरी सुविधाएं, बिना किसी उलझन के।",
-      "capabilities": { "weather": "अपने खेत का मौसम", "disease": "फसल की बीमारी पहचानें", "crop": "अगली फसल की योजना बनाएं" }
+      "capabilities": {
+        "weather": "अपने खेत का मौसम",
+        "disease": "फसल की बीमारी पहचानें",
+        "crop": "अगली फसल की योजना बनाएं"
+      }
     },
     "auth": {
       "invalid_phone": "कृपया एक वैध भारतीय मोबाइल नंबर दर्ज करें।",

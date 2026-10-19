@@ -879,7 +879,10 @@
     "ask_your_farm_ai": "Ask Your Farm AI"
   },
   "footer": {
-    "ai": "AI"
+    "ai": "AI",
+    "features": "Platform Features",
+    "marketplace": "Marketplace (Buyers & Sellers)",
+    "reports": "Farm Reports & Analytics"
   },
   "hardware_showcase": {
     "ready_to_upgrade_your": "Ready to upgrade your farm intelligence?",
@@ -1028,16 +1031,28 @@
     "success_submit": "Spoken query sent"
   },
   "ui": {
-    "navigation": { "open_menu": "Open menu", "close_menu": "Close menu" },
-    "search": { "label": "Search", "title": "Search KisaanBuddy (Ctrl+K)" },
-    "footer": { "khet_diary": "Khet Diary (Farm Ledger)" },
+    "navigation": {
+      "open_menu": "Open menu",
+      "close_menu": "Close menu"
+    },
+    "search": {
+      "label": "Search",
+      "title": "Search KisaanBuddy (Ctrl+K)"
+    },
+    "footer": {
+      "khet_diary": "Khet Diary (Farm Ledger)"
+    },
     "home": {
       "badge": "Practical tools for Indian farming",
       "weather_cta": "Check farm weather",
       "helper": "Use your own inputs and location to get started.",
       "field_label": "Built for the field",
       "card_title": "The essentials, without the clutter.",
-      "capabilities": { "weather": "Weather for your farm", "disease": "Identify crop disease", "crop": "Plan the next crop" }
+      "capabilities": {
+        "weather": "Weather for your farm",
+        "disease": "Identify crop disease",
+        "crop": "Plan the next crop"
+      }
     },
     "auth": {
       "invalid_phone": "Please enter a valid Indian mobile number.",
