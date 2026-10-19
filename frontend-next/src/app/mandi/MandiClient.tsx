@@ -830,7 +830,7 @@ function BuySellPanel({
   onLangChange: (l: Lang) => void
 }) {
   const tLang = TRADE_LANG[lang] || TRADE_LANG.en
-  const enam = enam || ENAM_LANG.en
+  const enam = ENAM_LANG[lang] || ENAM_LANG.en
   const { t } = useLanguage()
   return (
     <div className="space-y-6">

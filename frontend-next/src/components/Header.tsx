@@ -218,7 +218,7 @@ export function Header() {
             : 'bg-background/70 backdrop-blur-xs border-border/60'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
+        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* ── Logo ── */}
           <Link
             href={user ? '/dashboard' : '/'}
@@ -322,7 +322,7 @@ export function Header() {
               </kbd>
             </button>
             
-            <div className="hidden sm:block"><ThemeToggle /></div>
+            <div className="hidden sm:flex items-center"><ThemeToggle /></div>
 
             {/* Language Selector */}
             <div className="relative">

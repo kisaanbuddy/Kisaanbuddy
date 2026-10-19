@@ -1,5 +1,6 @@
 "use client"
 import { useLanguage } from '@/lib/language'
+import { SOIL_HEALTH_GUIDE_I18N } from '@/lib/soil-health-guide-i18n'
 /**
  * KisaanBuddy — Soil Health & Fertilizer Recommendation
  *
@@ -33,6 +34,34 @@ import { Card, GlassCard, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+
+const SOIL_PAGE_I18N: Record<string, { responseLanguageLabel: string; getRecommendationBtn: string }> = {
+  en: { responseLanguageLabel: "Response Language", getRecommendationBtn: "Get Soil & Fertilizer Advisory" },
+  hi: { responseLanguageLabel: "उत्तर की भाषा / Response Language", getRecommendationBtn: "मिट्टी और खाद की सलाह प्राप्त करें" },
+  kn: { responseLanguageLabel: "ಉತ್ತರದ ಭಾಷೆ / Response Language", getRecommendationBtn: "ಮಣ್ಣು ಮತ್ತು ಗೊಬ್ಬರ ಸಲಹೆ ಪಡೆಯಿರಿ" },
+  te: { responseLanguageLabel: "సమాధాన భాష / Response Language", getRecommendationBtn: "నేల మరియు ఎరువుల సలహా పొందండి" },
+  ta: { responseLanguageLabel: "பதில் மொழி / Response Language", getRecommendationBtn: "மண் மற்றும் உர ஆலோசனை பெறவும்" },
+  mr: { responseLanguageLabel: "उत्तराची भाषा / Response Language", getRecommendationBtn: "माती आणि खत सल्ला मिळवा" },
+  gu: { responseLanguageLabel: "જવાબની ભાષા / Response Language", getRecommendationBtn: "જમીન અને ખાતર સલાહ મેળવો" },
+  bn: { responseLanguageLabel: "উত্তরের ভাষা / Response Language", getRecommendationBtn: "মাটি ও সার পরামর্শ পান" },
+  pa: { responseLanguageLabel: "ਜਵਾਬ ਦੀ ਭਾਸ਼ਾ / Response Language", getRecommendationBtn: "ਮਿੱਟੀ ਅਤੇ ਖਾਦ ਸਲਾਹ ਪ੍ਰਾਪਤ ਕਰੋ" },
+  ml: { responseLanguageLabel: "മറുപടി ഭാഷ / Response Language", getRecommendationBtn: "മണ്ണും വളവും ഉപദേശം നേടുക" },
+  hi_en: { responseLanguageLabel: "Jawab ki Bhasha / Response Language", getRecommendationBtn: "Mitti aur Khad ki Salah Payein" },
+};
+
+const ALL_LANG_OPTIONS: Array<{ code: Language; label: string }> = [
+  { code: "hi", label: "हिन्दी" },
+  { code: "en", label: "English" },
+  { code: "kn", label: "ಕನ್ನಡ" },
+  { code: "te", label: "తెలుగు" },
+  { code: "ta", label: "தமிழ்" },
+  { code: "mr", label: "मराठी" },
+  { code: "gu", label: "ગુજરાતી" },
+  { code: "bn", label: "বাংলা" },
+  { code: "pa", label: "ਪੰਜਾਬੀ" },
+  { code: "ml", label: "മലയാളം" },
+  { code: "hi_en", label: "Hinglish" },
+];
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

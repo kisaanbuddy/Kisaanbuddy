@@ -15,7 +15,8 @@ import { type AssistantRequest, type Language, streamMessage } from "@/lib/assis
 const LANG_LABEL: Record<Language, string> = {
   auto: "Auto", en: "English", hi: "हिन्दी", kn: "ಕನ್ನಡ",
   bn: "বাংলা", mr: "मराठी", te: "తెలుగు", ta: "தமிழ்",
-  gu: "ગુજરાતી", pa: "ਪੰਜਾਬੀ", bho: "भोजपुरी", mai: "मैथिली",
+  gu: "ગુજરાતી", pa: "ਪੰਜਾਬੀ", ml: "മലയാളം", hi_en: "Hinglish",
+  bho: "भोजपुरी", mai: "मैथिली",
 }
 const PLACEHOLDER: Record<Language, string> = {
   auto: "Describe the symptom (optional) — e.g. 'patti pe bhure dhabbe'",
@@ -28,6 +29,8 @@ const PLACEHOLDER: Record<Language, string> = {
   ta:   "அறிகுறியை எழுதுங்கள் (விருப்பம்) — எ.கா. 'இலைகளில் பழுப்பு புள்ளிகள்'",
   gu:   "લક્ષણ લખો (વૈકલ્પિક) — દા.ત. 'પાંદડા પર ભૂરા ડાઘ'",
   pa:   "ਲੱਛਣ ਲਿਖੋ (ਵਿਕਲਪਿਕ) — ਜਿਵੇਂ 'ਪੱਤਿਆਂ ਤੇ ਭੂਰੇ ਧੱਬੇ'",
+  ml:   "ലക്ഷണം എഴുതുക (ഐച്ഛികം) — ഉദാ. 'ഇലകളിൽ തവിട്ടുനിറത്തിലുള്ള പാടുകൾ'",
+  hi_en: "Lakhshan likhein (optional) — jaise 'patti pe bhure dhabbe'",
   bho:  "लक्षण लिखीं (वैकल्पिक) — जइसे 'पत्ती पर भूरा दाग'",
   mai:  "लक्षण लिखू (वैकल्पिक) — जेना 'पात पर भूरा दाग'",
 }
@@ -42,6 +45,8 @@ const PROMPT_FALLBACK: Record<Language, string> = {
   ta:   "இந்த புகைப்படத்தைப் பாருங்கள், நோயைக் கண்டறியுங்கள் — strict 10-section format இல் பதிலளியுங்கள்.",
   gu:   "આ ફોટો જુઓ અને રોગ ઓળખો — strict 10-section format માં જવાબ આપો.",
   pa:   "ਇਹ ਫੋਟੋ ਦੇਖੋ ਅਤੇ ਬਿਮਾਰੀ ਪਛਾਣੋ — strict 10-section format ਵਿੱਚ ਜਵਾਬ ਦਿਓ।",
+  ml:   "ഈ ഫോട്ടോ കണ്ട് രോഗം നിർണ്ണയിക്കുക — strict 10-section format ൽ മറുപടി നൽകുക.",
+  hi_en: "Yeh photo dekho aur disease detect karo — strict 10-section format mein jawab do.",
   bho:  "ई फोटो देखीं आ बीमारी पहचानीं — strict 10-section format में जवाब दीं।",
   mai:  "ई फोटो देखू आ बीमारी पहचानू — strict 10-section format मे जवाब दिअ।",
 }

@@ -7,6 +7,7 @@ import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsh
 import Link from 'next/link'
 import { useLanguage, type Lang } from '@/lib/language'
 import { KHET_DIARY_I18N } from '@/lib/khet-diary-i18n'
+import { KHET_DIARY_GUIDE_I18N } from '@/lib/khet-diary-guide-i18n'
 import { useAuth } from '@/lib/auth'
 import { activitiesApi, fieldsApi, type FarmActivity, type FarmerField } from '@/lib/farmer-api'
 import { GlassCard, CardHeader, CardTitle, CardContent } from '@/components/ui/card'

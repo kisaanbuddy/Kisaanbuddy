@@ -130,7 +130,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             सामग्री पर जाएं / Skip to Content
           </a>
-          <div className="relative flex min-h-screen flex-col">
+          <div className="relative flex min-h-screen flex-col overflow-x-hidden">
             <Header />
             <main id="main-content" className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 md:pt-10 pb-24 md:pb-10">
               <Breadcrumbs />

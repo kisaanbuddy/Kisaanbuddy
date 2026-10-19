@@ -27,7 +27,7 @@ export interface SoilMonitorDict {
   noReadingsYet: string
   connectPrompt: string
   verifiedReading: string
-  connectionError: string
+  connectionError?: string
   insightTag: string
   insightTitle: string
   insightDesc: string

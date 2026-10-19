@@ -435,7 +435,7 @@ export function MarketplaceSection() {
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-bold mb-3">
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-400" />
                 <span>{c.bannerBadge}</span>
-              </div>
+              </span>
               <h4 className="text-xl sm:text-2xl font-bold font-display leading-tight mb-2">
                 {c.bannerTitle}
               </h4>

@@ -750,7 +750,15 @@ export const MANDI_PAGE_LANG: Record<Lang, {
     buy: "Buy Karein",
     sell: "Sell Karein",
     retry: "Retry Karein",
-    removeAlert: "Alert Hatayein"
+    removeAlert: "Alert Hatayein",
+    heroTitleLead: "Price jaanein. ",
+    heroTitleAccent: "Smarter tareeqe se bechein.",
+    heroSubtitle: "Mandi prices, price range aur selling options ek jagah compare karein. Apni fasal chunein aur sahi decision lein.",
+    liveApmc: "Live APMC Prices",
+    compareRange: "Price range compare karein",
+    knowOptions: "Selling options jaanein",
+    chooseCropTitle: "Apni fasal chunein",
+    chooseCropDesc: "Prices, mandis aur selling options dekhein"
   }
 }
 
@@ -780,15 +788,7 @@ export const TRADE_LANG: Record<Lang, {
     nam: "National Agriculture Market",
     govIndia: "Govt of India • Verification Center",
     tradingValue: "Trading Value",
-    cancel: "Cancel",
-    heroTitleLead: "Bhaav dekhein. ",
-    heroTitleAccent: "Behtar bechein.",
-    heroSubtitle: "Mandi bhaav, price range aur selling options ek jagah compare karein. Fasal chunein aur sahi decision lein.",
-    liveApmc: "Live APMC Bhaav",
-    compareRange: "Price range compare karein",
-    knowOptions: "Selling options jaanein",
-    chooseCropTitle: "Apni fasal chunein",
-    chooseCropDesc: "Bhaav, mandi aur selling options dekhein"
+    cancel: "Cancel"
   },
   hi: {
     tradeCommodity: "फसल का व्यापार",
@@ -1011,7 +1011,7 @@ export const COMMODITY_TRANSLATIONS: Record<Lang, Record<string, string>> = {
     "Onion (ಈರುಳ್ಳಿ)": "ಈರುಳ್ಳಿ",
     "Potato (ಆಲೂಗಡ್ಡೆ)": "ಆಲೂಗಡ್ಡೆ",
     "Sugarcane (ಕಬ್ಬು)": "ಕಬ್ಬು",
-    "Maize (ಮೆಕ್ಕೆಜೋಳ)': "ಮೆಕ್ಕೆಜೋಳ",
+    "Maize (ಮೆಕ್ಕೆಜೋಳ)": "ಮೆಕ್ಕೆಜೋಳ",
     "Groundnut (ಕಡಲೆಕಾಯಿ)": "ಕಡಲೆಕಾಯಿ",
     "Madhya Pradesh": "ಮಧ್ಯಪ್ರದೇಶ",
     "Haryana": "ಹರಿಯಾಣ",

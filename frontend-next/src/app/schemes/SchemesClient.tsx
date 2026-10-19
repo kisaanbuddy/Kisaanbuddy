@@ -1,6 +1,7 @@
 "use client"
 
-import { useLanguage } from '@/lib/language'
+import { useLanguage, type Lang } from '@/lib/language'
+import { SCHEMES_I18N } from '@/lib/schemes-i18n'
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"

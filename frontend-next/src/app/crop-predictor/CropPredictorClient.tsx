@@ -1,8 +1,7 @@
-import { Lang } from "@/lib/language";
-import { CROP_PREDICTOR_I18N } from "@/lib/crop-predictor-i18n";
 "use client"
 
-import { useLanguage } from '@/lib/language'
+import { useLanguage, type Lang } from '@/lib/language'
+import { CROP_PREDICTOR_I18N } from "@/lib/crop-predictor-i18n"
 import { trackEvent } from '@/lib/analytics'
 import { useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
@@ -19,6 +18,7 @@ import { SensorAutoFill, type SensorValues } from "@/components/SensorAutoFill"
 export default function CropPredictor() {
   const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
+  const dict = CROP_PREDICTOR_I18N[lang] || CROP_PREDICTOR_I18N.en
   const [params, setParams] = useState({ N: 90, P: 42, K: 43, temperature: 25, humidity: 82, ph: 6.5, rainfall: 200 })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)

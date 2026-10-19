@@ -1,9 +1,9 @@
-import { Lang } from "@/lib/language";
-import { FARMER_PROFILE_PAGE_I18N } from "@/lib/farmer-profile-i18n";
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { Lang } from "@/lib/language";
+import { FARMER_PROFILE_PAGE_I18N } from "@/lib/farmer-profile-i18n";
 import {
   User, Layers, FlaskConical, BookOpen, TrendingUp, Sparkles,
   MapPin, Phone, Mail, Shield, Calendar, Edit3, Save, X, Plus,

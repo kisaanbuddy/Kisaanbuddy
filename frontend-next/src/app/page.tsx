@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="flex flex-col gap-0 -mt-10 md:-mt-14 -mx-4 md:-mx-8 overflow-x-hidden">
+    <div className="flex flex-col gap-0 -mt-10 md:-mt-14 -mx-4 sm:-mx-6 lg:-mx-8 overflow-x-hidden">
       
       {/* 1. Hero Section */}
       <Hero />

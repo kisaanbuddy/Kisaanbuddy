@@ -26,7 +26,8 @@ import { DailyForecast } from "@/components/weather/DailyForecast"
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice } from "@/lib/weather-translations"
+import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice, getWeatherSpeech } from "@/lib/weather-translations"
+import { WEATHER_GUIDE_I18N } from "@/lib/weather-guide-i18n"
 
 interface ActiveLocation {
   lat: number

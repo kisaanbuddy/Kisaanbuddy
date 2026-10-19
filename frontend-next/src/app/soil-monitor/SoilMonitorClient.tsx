@@ -1,9 +1,9 @@
-import { Lang } from "@/lib/language";
-import { SOIL_MONITOR_I18N, SoilMonitorDict } from "@/lib/soil-monitor-i18n";
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { Lang } from "@/lib/language";
+import { SOIL_MONITOR_I18N, SoilMonitorDict } from "@/lib/soil-monitor-i18n";
 import {
   Activity,
   AlertTriangle,
@@ -287,7 +287,7 @@ export default function SoilMonitorClient() {
         if (current !== selectedDevice) setSelectedDevice(current);
         await refreshReadings(current);
       } catch {
-        setError(dict.connectionError);
+        setError(dict.connectionError || "Could not connect to sensor service");
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -341,13 +341,14 @@ export default function SoilMonitorClient() {
   }, [available, metric]);
 
   const getMetricTitle = (m: MetricConfig) => {
-    if (m.key === "soil_moisture") return dict.metrics.moisture;
-    if (m.key === "soil_temperature") return dict.metrics.temperature;
-    if (m.key === "electrical_conductivity") return dict.metrics.electricalConductivity;
-    if (m.key === "nitrogen") return dict.metrics.nitrogen;
-    if (m.key === "phosphorus") return dict.metrics.phosphorus;
-    if (m.key === "potassium") return dict.metrics.potassium;
-    if (m.key === "soil_ph") return dict.metrics.ph;
+    const k = m.key as string;
+    if (k === "soil_moisture") return dict.metrics.moisture;
+    if (k === "soil_temperature") return dict.metrics.temperature;
+    if (k === "electrical_conductivity") return dict.metrics.electricalConductivity;
+    if (k === "nitrogen") return dict.metrics.nitrogen;
+    if (k === "phosphorus") return dict.metrics.phosphorus;
+    if (k === "potassium") return dict.metrics.potassium;
+    if (k === "soil_ph") return dict.metrics.ph;
     return m.titleEn;
   };
 

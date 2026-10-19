@@ -9,11 +9,11 @@ export function Footer() {
 
   return (
     <footer className="w-full border-t border-border bg-card/60 backdrop-blur-md py-12 mt-auto select-none">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10 mb-8 sm:mb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 mb-10 sm:mb-12">
           
           {/* Column 1: Brand details */}
-          <div className="flex flex-col gap-3.5">
+          <div className="flex flex-col gap-3.5 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2.5">
               <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 p-1">
                 <img src="/icon-logo.png" alt="Kisaan Buddy Icon" className="h-full w-full object-contain" />
@@ -23,10 +23,10 @@ export function Footer() {
                 <span className="font-light text-primary">Buddy</span>
               </span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
               {t("footerTagline")}
             </p>
-            <div className="text-[11px] text-muted-foreground space-y-1 mt-1 font-medium">
+            <div className="text-[11px] text-muted-foreground space-y-1.5 mt-1 font-medium">
               <p className="flex items-start gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                 <span>Noida: H-12, Sector 63, UP - 201301</span>
@@ -51,7 +51,7 @@ export function Footer() {
             <p className="text-xs font-bold uppercase tracking-wider text-foreground">
               {t("platformFeatures")}
             </p>
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
               <Link href="/features" className="hover:text-foreground transition-colors">
                 {t("footer.features")}
               </Link>
@@ -84,7 +84,7 @@ export function Footer() {
             <p className="text-xs font-bold uppercase tracking-wider text-foreground">
               {t("company")}
             </p>
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
               <Link href="/about" className="hover:text-foreground transition-colors">
                 {t("aboutUs")}
               </Link>
@@ -105,7 +105,7 @@ export function Footer() {
             <p className="text-xs font-bold uppercase tracking-wider text-foreground">
               {t("legal")}
             </p>
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-col gap-2.5 text-xs text-muted-foreground">
               <Link href="/privacy" className="hover:text-foreground transition-colors">
                 {t("privacyPolicy")}
               </Link>
@@ -127,9 +127,9 @@ export function Footer() {
         <div className="border-t border-border/80 mb-6" />
 
         {/* Bottom copyright row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground font-medium">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground font-medium text-center sm:text-left">
           <p>&copy; {new Date().getFullYear()} Kisaan Buddy &middot; {t("allRightsReserved")}</p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-center sm:justify-end gap-4">
             <a
               href="https://github.com/kisaanbuddy/Kisaanbuddy"
               target="_blank"
