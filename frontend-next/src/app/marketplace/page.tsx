@@ -75,7 +75,22 @@ function CatalogProductImage({
   category: string;
   brand: string;
 }) {
+  const [imgSrc, setImgSrc] = useState(() => {
+    if (src && src.startsWith("http")) {
+      return `/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`;
+    }
+    return src;
+  });
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    if (src && src.startsWith("http")) {
+      setImgSrc(`/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`);
+    } else {
+      setImgSrc(src);
+    }
+    setHasError(false);
+  }, [src]);
 
   const categoryIcons: Record<string, string> = {
     tractors: "🚜",
@@ -93,7 +108,7 @@ function CatalogProductImage({
 
   const icon = categoryIcons[category] || "🌾";
 
-  if (hasError) {
+  if (hasError || !imgSrc) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-500/5 to-emerald-500/15 rounded-xl p-4 text-center">
         <span className="text-5xl mb-2 select-none filter drop-shadow-xs">{icon}</span>
@@ -105,12 +120,18 @@ function CatalogProductImage({
 
   return (
     <img
-      src={src}
+      src={imgSrc}
       alt={alt}
       className="max-h-full max-w-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
       loading="lazy"
-      referrerPolicy="no-referrer"
-      onError={() => setHasError(true)}
+      onError={() => {
+        // If image proxy failed, try the raw direct URL before giving up
+        if (imgSrc.startsWith("/api/marketplace/image-proxy") && src.startsWith("http")) {
+          setImgSrc(src);
+        } else {
+          setHasError(true);
+        }
+      }}
     />
   );
 }
