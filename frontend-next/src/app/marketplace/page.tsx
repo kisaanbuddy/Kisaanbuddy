@@ -765,37 +765,49 @@ export default function MarketplacePage() {
                     >
                       <div>
                         {/* 1. Product Image with direct clickable link */}
-                        {item.image_url ? (
+                        {item.supplier_name === "MachinePoint" && item.official_source_url ? (
                           <a
-                            href={item.official_source_url || "#"}
+                            href={item.official_source_url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="block relative w-full h-48 bg-white dark:bg-muted/15 rounded-xl overflow-hidden mb-3 border border-border/40 p-2.5 group-hover:border-emerald-500/40 transition flex items-center justify-center cursor-pointer"
-                            title="Click to view full product page on MachinePoint"
+                            title="Click to view product page on MachinePoint"
                           >
                             <CatalogProductImage
-                              src={item.image_url}
+                              src={item.image_url || ""}
                               alt={item.model_name}
                               category={item.category}
                               brand={item.brand}
                             />
-                            {item.supplier_name && (
-                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-700/90 text-white backdrop-blur-xs shadow-xs flex items-center gap-1">
-                                <span>{item.supplier_name}</span>
-                                <ExternalLink className="w-2.5 h-2.5" />
-                              </span>
-                            )}
+                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-700/90 text-white backdrop-blur-xs shadow-xs flex items-center gap-1">
+                              <span>{item.supplier_name}</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </span>
                             <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-card/90 text-foreground border border-border/60 capitalize">
                               {item.category.replace("_", " ")}
                             </span>
                           </a>
                         ) : (
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-muted text-foreground uppercase tracking-wider">
-                              {item.brand}
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setSelectedCatalogItem(item)}
+                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelectedCatalogItem(item); }}
+                            className="block relative w-full h-48 bg-white dark:bg-muted/15 rounded-xl overflow-hidden mb-3 border border-border/40 p-2.5 group-hover:border-emerald-500/40 transition flex items-center justify-center cursor-pointer"
+                            title="Click to view technical specifications"
+                          >
+                            <CatalogProductImage
+                              src={item.image_url || ""}
+                              alt={item.model_name}
+                              category={item.category}
+                              brand={item.brand}
+                            />
+                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-muted text-foreground border border-border/60 flex items-center gap-1">
+                              <span>Reference Model</span>
+                              <Info className="w-2.5 h-2.5 text-emerald-600" />
                             </span>
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
-                              Reference Model
+                            <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-card/90 text-foreground border border-border/60 capitalize">
+                              {item.category.replace("_", " ")}
                             </span>
                           </div>
                         )}
@@ -812,19 +824,27 @@ export default function MarketplacePage() {
                           </div>
                         )}
 
-                        {/* 2. Product Name (Clickable link to supplier page) */}
+                        {/* 2. Product Name */}
                         <h4 className="text-sm sm:text-base font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
-                          {item.official_source_url ? (
+                          {item.supplier_name === "MachinePoint" && item.official_source_url ? (
                             <a
                               href={item.official_source_url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="hover:underline"
+                              title="View on MachinePoint"
                             >
                               {item.model_name}
                             </a>
                           ) : (
-                            <span>{item.brand} {item.model_name}</span>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedCatalogItem(item)}
+                              className="hover:underline text-left cursor-pointer font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
+                              title="Click to view specifications"
+                            >
+                              {item.model_name}
+                            </button>
                           )}
                         </h4>
 
@@ -894,39 +914,69 @@ export default function MarketplacePage() {
                           <span className="truncate max-w-[180px]">
                             {item.supplier_name ? `Supplier: ${item.supplier_name}` : `Source: ${item.provenance_source}`}
                           </span>
-                          {item.official_source_url && (
+                          {item.supplier_name === "MachinePoint" && item.official_source_url ? (
                             <a
                               href={item.official_source_url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium"
                             >
-                              <span>{item.supplier_name === "MachinePoint" ? "machinepoint.in" : "Official Spec"}</span>
+                              <span>machinepoint.in</span>
                               <ExternalLink className="w-2.5 h-2.5" />
                             </a>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {item.official_source_url && (
+                          ) : item.official_source_url ? (
                             <a
                               href={item.official_source_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs text-center"
+                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium"
+                            >
+                              <span>Official Portal</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedCatalogItem(item)}
+                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium cursor-pointer"
+                            >
+                              <span>View Specs</span>
+                              <Info className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {item.supplier_name === "MachinePoint" && item.official_source_url ? (
+                            <a
+                              href={item.official_source_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs text-center cursor-pointer"
                             >
                               <span>View Product</span>
                               <ExternalLink className="w-3.5 h-3.5" />
                             </a>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedCatalogItem(item)}
+                              className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs text-center cursor-pointer"
+                            >
+                              <span>View Specifications</span>
+                              <Info className="w-3.5 h-3.5" />
+                            </button>
                           )}
                           <button
+                            type="button"
                             onClick={() => setSelectedCatalogItem(item)}
-                            className="px-3 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-foreground transition text-center"
+                            className="px-3 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-foreground transition text-center cursor-pointer"
                             title="View detailed specifications"
                           >
                             Specs
                           </button>
                           <button
+                            type="button"
                             onClick={() => {
                               setNewEqBrand(item.brand);
                               setNewEqModel(item.model_name);
@@ -935,7 +985,7 @@ export default function MarketplacePage() {
                               setNewEqTitle(`${item.brand} ${item.model_name} for Rent / Sale`);
                               setShowEqModal(true);
                             }}
-                            className="px-2.5 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition shadow-xs"
+                            className="px-2.5 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition shadow-xs cursor-pointer"
                             title="List your own machine of this model for rental or sale"
                           >
                             + List
