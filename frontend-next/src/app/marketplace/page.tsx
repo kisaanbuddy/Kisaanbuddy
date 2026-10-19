@@ -165,16 +165,25 @@ export default function MarketplacePage() {
         search: catalogSearch.trim() || undefined,
         min_hp: catalogHpMin ? parseFloat(catalogHpMin) : undefined,
         max_hp: catalogHpMax ? parseFloat(catalogHpMax) : undefined,
-        limit: 100,
+        limit: 250,
       });
       setCatalogItems(data.items || []);
-      setCatalogTotal(data.total || 0);
+      setCatalogTotal(data.total || (data.items ? data.items.length : 0));
     } catch (err) {
       console.error("Failed to load equipment catalog:", err);
     } finally {
       setLoadingCatalog(false);
     }
   }, [catalogCategory, catalogBrand, catalogSupplier, catalogSearch, catalogHpMin, catalogHpMax]);
+
+  const resetCatalogFilters = () => {
+    setCatalogCategory("all");
+    setCatalogBrand("all");
+    setCatalogSupplier("all");
+    setCatalogSearch("");
+    setCatalogHpMin("");
+    setCatalogHpMax("");
+  };
 
   // ─── 2. Load Equipment Listings (Rent / Sale) ──────────────────────────────
   const loadEquipmentListings = useCallback(async () => {
@@ -689,6 +698,12 @@ export default function MarketplacePage() {
                   <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-500" />
                   <h4 className="text-sm font-bold text-foreground">No machinery products found</h4>
                   <p className="text-xs mt-1">Try adjusting your brand, category or search query.</p>
+                  <button
+                    onClick={resetCatalogFilters}
+                    className="mt-3 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer"
+                  >
+                    Reset All Filters
+                  </button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
