@@ -695,15 +695,25 @@ export default function MandiPage() {
     voiceSpokenRef.current = true
     const first = crops[0]
     const message = first
-      ? (lang === "hi" ? `${first.name} का उपलब्ध भाव ${first.price} रुपये ${first.unit} है। मंडी ${first.mandi}, ${first.state}।` : `${first.name} is available at ${first.price} rupees ${first.unit} in ${first.mandi}, ${first.state}.`)
-      : (lang === "hi" ? "मांगी गई फसल या स्थान के लिए कोई उपलब्ध मंडी रिकॉर्ड नहीं मिला।" : "No available mandi record matched the requested crop or location.")
+      ? (lang === "kn"
+          ? `${translateData(first.name, "kn")} ಲಭ್ಯವಿರುವ ಬೆಲೆ ₹${first.price} ${first.unit}. ಮಂಡಿ: ${translateData(first.mandi, "kn")}, ${translateData(first.state, "kn")}.`
+          : lang === "hi"
+          ? `${first.name} का उपलब्ध भाव ${first.price} रुपये ${first.unit} है। मंडी ${first.mandi}, ${first.state}।`
+          : `${first.name} is available at ${first.price} rupees ${first.unit} in ${first.mandi}, ${first.state}.`)
+      : (lang === "kn"
+          ? "ಕೋರಿದ ಬೆಳೆ ಅಥವಾ ಸ್ಥಳಕ್ಕೆ ಯಾವುದೇ ಮಂಡಿ ದಾಖಲೆ ಕಂಡುಬಂದಿಲ್ಲ."
+          : lang === "hi"
+          ? "मांगी गई फसल या स्थान के लिए कोई उपलब्ध मंडी रिकॉर्ड नहीं मिला।"
+          : "No available mandi record matched the requested crop or location.")
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       window.speechSynthesis.cancel()
       const utterance = new SpeechSynthesisUtterance(message)
-      utterance.lang = lang === "hi" ? "hi-IN" : "en-IN"
+      utterance.lang = lang === "kn" ? "kn-IN" : lang === "hi" ? "hi-IN" : "en-IN"
       window.speechSynthesis.speak(utterance)
     }
   }, [voiceRun, loading, crops, lang])
+
+  const plang = (lang === "hi" || lang === "kn") ? lang : "en"
 
   /* ---- Derived data ---- */
   const categories = useMemo(() => {
@@ -793,25 +803,25 @@ export default function MandiPage() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-emerald-100 backdrop-blur-sm">
               <Store className="h-3.5 w-3.5" />
-              {MANDI_PAGE_LANG[lang].enamConnected}
+              {MANDI_PAGE_LANG[plang].enamConnected}
             </div>
             <h1 className="mt-4 text-3xl font-bold tracking-[-.045em] text-white sm:text-4xl md:text-5xl">
-              {lang === 'hi' ? <>भाव देखें। <span className="text-[#f4c96b]">बेहतर बेचें।</span></> : <>See the price. <span className="text-[#f4c96b]">Sell smarter.</span></>}
+              {lang === 'kn' ? <>ದರ ತಿಳಿಯಿರಿ. <span className="text-[#f4c96b]">ಉತ್ತಮವಾಗಿ ಮಾರಿ.</span></> : lang === 'hi' ? <>भाव देखें। <span className="text-[#f4c96b]">बेहतर बेचें।</span></> : <>See the price. <span className="text-[#f4c96b]">Sell smarter.</span></>}
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50/75 md:text-base">
-              {lang === 'hi' ? 'मंडी भाव, कीमत की रेंज और बिक्री के विकल्प एक जगह देखें। अपनी फसल चुनें और अगला सही कदम लें।' : 'Compare mandi prices, price ranges and selling options in one place. Choose your crop, then take the next right step.'}
+              {lang === 'kn' ? 'ಮಂಡಿ ಬೆಲೆಗಳು, ದರ ಶ್ರೇಣಿ ಮತ್ತು ಮಾರಾಟದ ಆಯ್ಕೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ಪರಿಶೀಲಿಸಿ. ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ, ಮುಂದಿನ ಸೂಕ್ತ ಹೆಜ್ಜೆ ಇಡಿ.' : lang === 'hi' ? 'मंडी भाव, कीमत की रेंज और बिक्री के विकल्प एक जगह देखें। अपनी फसल चुनें और अगला सही कदम लें।' : 'Compare mandi prices, price ranges and selling options in one place. Choose your crop, then take the next right step.'}
             </p>
           </div>
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             <div className="min-w-[132px] rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
-              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/65">{MANDI_PAGE_LANG[lang].totalCrops}</div>
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/65">{MANDI_PAGE_LANG[plang].totalCrops}</div>
               <div className="mt-1.5 flex items-center gap-1.5 text-xl font-bold text-white">
                 <Package className="h-4.5 w-4.5 text-[#f4c96b]" />
                 {crops.length}
               </div>
             </div>
             <div className="min-w-[132px] rounded-2xl border border-white/15 bg-white/10 p-3.5 backdrop-blur-sm">
-              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/65">{MANDI_PAGE_LANG[lang].mandiArrivals}</div>
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/65">{MANDI_PAGE_LANG[plang].mandiArrivals}</div>
               <div className="mt-1.5 flex items-center gap-1.5 text-xl font-bold text-white">
                 <Users className="h-4.5 w-4.5 text-emerald-200" />
                 {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} {t("mandi.t")}
@@ -820,9 +830,9 @@ export default function MandiPage() {
           </div>
         </div>
         <div className="relative z-10 mt-6 grid gap-2 border-t border-white/10 pt-4 text-[11px] text-emerald-50/80 sm:grid-cols-3">
-          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'hi' ? 'लाइव APMC भाव' : 'Live APMC prices'}</span>
-          <span className="flex items-center gap-2"><Calculator className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'hi' ? 'कीमत की रेंज देखें' : 'Compare the price range'}</span>
-          <span className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'hi' ? 'बेचने से पहले विकल्प जानें' : 'Know your selling options'}</span>
+          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'kn' ? 'ಲೈವ್ APMC ದರಗಳು' : lang === 'hi' ? 'लाइव APMC भाव' : 'Live APMC prices'}</span>
+          <span className="flex items-center gap-2"><Calculator className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'kn' ? 'ಬೆಲೆ ಶ್ರೇಣಿಯನ್ನು ಹೋಲಿಕೆ ಮಾಡಿ' : lang === 'hi' ? 'कीमत की रेंज देखें' : 'Compare the price range'}</span>
+          <span className="flex items-center gap-2"><Truck className="h-3.5 w-3.5 text-[#f4c96b]" />{lang === 'kn' ? 'ಮಾರಾಟ ಮಾಡುವ ಮುನ್ನ ಆಯ್ಕೆಗಳನ್ನು ತಿಳಿಯಿರಿ' : lang === 'hi' ? 'बेचने से पहले विकल्प जानें' : 'Know your selling options'}</span>
         </div>
       </motion.div>
 
@@ -843,7 +853,7 @@ export default function MandiPage() {
             <div className="rounded-2xl border border-border bg-card p-3 shadow-xs sm:p-4">
               <div className="mb-3 flex items-center gap-2 px-1">
                 <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 text-primary"><TrendingUp className="h-3.5 w-3.5" /></span>
-                <div><p className="text-xs font-bold text-foreground">{lang === 'hi' ? 'अपनी फसल चुनें' : 'Choose your crop'}</p><p className="text-[10px] text-muted-foreground">{lang === 'hi' ? 'भाव, मंडी और बिक्री विकल्प देखें' : 'See prices, mandis and selling options'}</p></div>
+                <div><p className="text-xs font-bold text-foreground">{lang === 'kn' ? 'ನಿಮ್ಮ ಬೆಳೆ ಆಯ್ಕೆಮಾಡಿ' : lang === 'hi' ? 'अपनी फसल चुनें' : 'Choose your crop'}</p><p className="text-[10px] text-muted-foreground">{lang === 'kn' ? 'ದರಗಳು, ಮಂಡಿ ಮತ್ತು ಮಾರಾಟ ಆಯ್ಕೆಗಳನ್ನು ವೀಕ್ಷಿಸಿ' : lang === 'hi' ? 'भाव, मंडी और बिक्री विकल्प देखें' : 'See prices, mandis and selling options'}</p></div>
               </div>
               <div className="flex flex-col gap-3 md:flex-row">
               <div className="relative flex-1">
@@ -851,7 +861,7 @@ export default function MandiPage() {
                 <input
                   id="mandi-search"
                   type="text"
-                  placeholder={MANDI_PAGE_LANG[lang].searchPlaceholder}
+                  placeholder={MANDI_PAGE_LANG[plang].searchPlaceholder}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-11 pr-10 py-3 rounded-2xl border border-border bg-card shadow-xs text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all text-foreground font-medium"
@@ -914,13 +924,13 @@ export default function MandiPage() {
                         trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang });
                         setSelectedCrop(crop);
                       }}
-                      lang={lang}
+                      lang={plang}
                     />
                   ))}
                   {filteredCrops.length === 0 && (
                     <div className="col-span-full text-center py-20">
                       <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                      <p className="text-muted-foreground font-semibold">{MANDI_PAGE_LANG[lang].noCommodities}</p>
+                      <p className="text-muted-foreground font-semibold">{MANDI_PAGE_LANG[plang].noCommodities}</p>
                     </div>
                   )}
                 </div>
@@ -947,7 +957,7 @@ export default function MandiPage() {
               onClick={handleBack}
               className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors w-fit pb-2"
             >
-              <ArrowLeft className="h-4.5 w-4.5" /> {MANDI_PAGE_LANG[lang].returnMarketplace}
+              <ArrowLeft className="h-4.5 w-4.5" /> {MANDI_PAGE_LANG[plang].returnMarketplace}
             </button>
 
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
@@ -958,10 +968,10 @@ export default function MandiPage() {
                   <div className="flex items-start justify-between">
                     <div>
                       <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r ${CATEGORY_COLORS[selectedCrop.category] || "from-gray-500/20 to-gray-500/20 text-gray-500"}`}>
-                        {CATEGORY_LANG[lang]?.[selectedCrop.category] || selectedCrop.category}
+                        {CATEGORY_LANG[plang]?.[selectedCrop.category] || selectedCrop.category}
                       </span>
                       <CardTitle className="text-3xl font-black font-display text-foreground mt-3">{translateData(selectedCrop.name, lang)}</CardTitle>
-                      <p className="text-muted-foreground text-xs mt-1">{MANDI_PAGE_LANG[lang].varietyLabel}<span className="font-semibold text-foreground/80">{translateData(selectedCrop.variety, lang)}</span></p>
+                      <p className="text-muted-foreground text-xs mt-1">{MANDI_PAGE_LANG[plang].varietyLabel}<span className="font-semibold text-foreground/80">{translateData(selectedCrop.variety, lang)}</span></p>
                     </div>
                     <TrendBadge trend={selectedCrop.trend} change={selectedCrop.change_percent} size="lg" />
                   </div>
@@ -971,7 +981,7 @@ export default function MandiPage() {
                   {/* Price display row */}
                   <div className="p-5 rounded-2xl bg-muted/40 border border-border flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].livePriceIndex}</span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[plang].livePriceIndex}</span>
                       <div className="flex items-baseline gap-1.5 mt-1">
                         <IndianRupee className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                         <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-display">
@@ -981,7 +991,7 @@ export default function MandiPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].arrivalTonnes}</span>
+                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[plang].arrivalTonnes}</span>
                       <span className="text-xl font-bold text-foreground block mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} {t("mandi.tons")}</span>
                     </div>
                   </div>
@@ -1006,19 +1016,19 @@ export default function MandiPage() {
 
                   {/* Details grid */}
                   <div className="grid grid-cols-2 gap-4 pt-2">
-                    <InfoTile icon={<MapPin className="h-4 w-4 text-orange-500" />} label={MANDI_PAGE_LANG[lang].apmcMandi} value={translateData(selectedCrop.mandi, lang)} />
-                    <InfoTile icon={<MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />} label={MANDI_PAGE_LANG[lang].stateCenter} value={translateData(selectedCrop.state, lang)} />
+                    <InfoTile icon={<MapPin className="h-4 w-4 text-orange-500" />} label={MANDI_PAGE_LANG[plang].apmcMandi} value={translateData(selectedCrop.mandi, lang)} />
+                    <InfoTile icon={<MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />} label={MANDI_PAGE_LANG[plang].stateCenter} value={translateData(selectedCrop.state, lang)} />
                   </div>
 
                   {/* Historical Graph Chart */}
                   <div className="pt-4 border-t border-border">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <span className="text-xs uppercase font-bold text-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].priceHistory}</span>
-                        <span className="text-[10px] text-muted-foreground">{MANDI_PAGE_LANG[lang].historyTrend}</span>
+                        <span className="text-xs uppercase font-bold text-foreground tracking-wider block">{MANDI_PAGE_LANG[plang].priceHistory}</span>
+                        <span className="text-[10px] text-muted-foreground">{MANDI_PAGE_LANG[plang].historyTrend}</span>
                       </div>
                       <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" /> {MANDI_PAGE_LANG[lang].liveGraph}
+                        <TrendingUp className="w-3 h-3" /> {MANDI_PAGE_LANG[plang].liveGraph}
                       </span>
                     </div>
                     

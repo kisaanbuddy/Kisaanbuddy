@@ -65,14 +65,18 @@ def _get_api_key() -> str:
 
 
 def normalise_lang_code(code: Optional[str], default: str = "hi-IN") -> str:
-    """Normalize language code to Sarvam BCP-47 format."""
+    """Normalize language code to Sarvam BCP-47 format (e.g. kn-IN, hi-IN, en-IN)."""
     if not code:
         return default
-    c = code.lower().strip()
-    if c in SARVAM_LANG_MAP:
-        return SARVAM_LANG_MAP[c]
-    if "-in" in c:
-        return c
+    c = code.strip()
+    c_lower = c.lower()
+    if c_lower in SARVAM_LANG_MAP:
+        return SARVAM_LANG_MAP[c_lower]
+    for short, bcp in SARVAM_LANG_MAP.items():
+        if c_lower == bcp.lower() or c_lower.startswith(short + "-"):
+            return bcp
+    if c_lower == "auto":
+        return "auto"
     return default
 
 

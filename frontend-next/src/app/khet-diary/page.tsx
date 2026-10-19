@@ -202,6 +202,9 @@ function KhetDiaryContent() {
     ]
   };
 
+  const isKn = lang === 'kn'
+  const isHi = lang === 'hi'
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">
       <script
@@ -229,22 +232,24 @@ function KhetDiaryContent() {
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              {lang === 'hi' ? 'खेत डायरी — डिजिटल रिकॉर्ड' : 'Khet Diary — Digital Records'}
+              {isKn ? 'ಕೃಷಿ ಡೈರಿ — ಡಿಜಿಟಲ್ ದಾಖಲೆಗಳು' : isHi ? 'खेत डायरी — डिजिटल रिकॉर्ड' : 'Khet Diary — Digital Records'}
             </span>
           </div>
           <Link
             href="/farmer-profile"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl hover:bg-emerald-500/20 transition-colors w-fit"
           >
-            <span>{lang === 'hi' ? 'पूर्ण किसान प्रोफाइल' : 'Complete Farmer Profile'}</span>
+            <span>{isKn ? 'ಸಂಪೂರ್ಣ ರೈತರ ಪ್ರೊಫೈಲ್' : isHi ? 'पूर्ण किसान प्रोफाइल' : 'Complete Farmer Profile'}</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold font-display tracking-tight text-foreground">
-          {lang === 'hi' ? 'मेरा डिजिटल ' : 'My Digital '}<span className="text-emerald-600 dark:text-emerald-400">{lang === 'hi' ? 'बहीखाता' : 'Farm Logbook'}</span>
+          {isKn ? 'ನನ್ನ ಡಿಜಿಟಲ್ ' : isHi ? 'मेरा डिजिटल ' : 'My Digital '}<span className="text-emerald-600 dark:text-emerald-400">{isKn ? 'ಕೃಷಿ ಲೆಕ್ಕಪತ್ರ' : isHi ? 'बहीखाता' : 'Farm Logbook'}</span>
         </h1>
         <p className="text-muted-foreground text-xs md:text-sm mt-1.5 max-w-2xl leading-relaxed">
-          {lang === 'hi' 
+          {isKn
+            ? 'ನಿಮ್ಮ ಜಮೀನಿನ ವೆಚ್ಚಗಳು, ಆದಾಯ ಮತ್ತು ದೈನಂದಿನ ಕೃಷಿ ಚಟುವಟಿಕೆಗಳನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ. ಬ್ಯಾಂಕ್ ಸಾಲ ಮತ್ತು ಕೃಷಿ ಯೋಜನೆಗಳ ದಾಖಲಾತಿಗೆ ಉಪಯುಕ್ತ.'
+            : isHi 
             ? 'अपने खेत के खर्चों, आय, और दैनिक गतिविधियों को ट्रैक करें। बैंक लोन और सरकारी योजनाओं के दस्तावेज़ीकरण के लिए बेहद उपयोगी।' 
             : 'Track your farm expenses, income, and daily agricultural activities. Essential for bank loans and government crop documentation.'}
         </p>
@@ -257,19 +262,19 @@ function KhetDiaryContent() {
           <div className="border border-border/50 bg-card p-6 rounded-2xl shadow-sm">
             <div className="pb-4 mb-4 border-b border-border/40">
               <h3 className="text-base font-bold text-foreground font-display">
-                {lang === 'hi' ? 'नयी प्रविष्टि जोड़ें' : 'Add New Entry'}
+                {isKn ? 'ಹೊಸ ದಾಖಲೆ ಸೇರಿಸಿ' : isHi ? 'नयी प्रविष्टि जोड़ें' : 'Add New Entry'}
               </h3>
             </div>
             <form onSubmit={handleAddEntry} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  {lang === 'hi' ? 'फसल का नाम' : 'Crop Name'}
+                  {isKn ? 'ಬೆಳೆಯ ಹೆಸರು' : isHi ? 'फसल का नाम' : 'Crop Name'}
                 </label>
                 <input 
                   type="text" 
                   value={crop}
                   onChange={(e) => setCrop(e.target.value)}
-                  placeholder={lang === 'hi' ? 'जैसे: गेहूँ, धान, टमाटर' : 'e.g. Wheat, Rice, Tomato'}
+                  placeholder={isKn ? 'ಉದಾ: ಗೋಧಿ, ಭತ್ತ, ಟೊಮೇಟೊ' : isHi ? 'जैसे: गेहूँ, धान, टमाटर' : 'e.g. Wheat, Rice, Tomato'}
                   className="w-full h-10 rounded-xl bg-background border border-border/50 focus:border-emerald-500 px-3.5 text-sm text-foreground focus:outline-none transition-colors"
                   required
                 />
@@ -277,23 +282,23 @@ function KhetDiaryContent() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  {lang === 'hi' ? 'श्रेणी' : 'Category'}
+                  {isKn ? 'ವರ್ಗ' : isHi ? 'श्रेणी' : 'Category'}
                 </label>
                 <select 
                   value={category}
                   onChange={(e) => setCategory(e.target.value as any)}
                   className="w-full h-10 rounded-xl bg-background border border-border/50 focus:border-emerald-500 px-3 text-sm text-foreground focus:outline-none transition-colors cursor-pointer"
                 >
-                  <option value="expense">{lang === 'hi' ? 'खर्च (Expense)' : 'Expense'}</option>
-                  <option value="income">{lang === 'hi' ? 'आय (Income)' : 'Income'}</option>
-                  <option value="activity">{lang === 'hi' ? 'गतिविधि (Task Log)' : 'Activity/Task Log'}</option>
+                  <option value="expense">{isKn ? 'ವೆಚ್ಚ (Expense)' : isHi ? 'खर्च (Expense)' : 'Expense'}</option>
+                  <option value="income">{isKn ? 'ಆದಾಯ (Income)' : isHi ? 'आय (Income)' : 'Income'}</option>
+                  <option value="activity">{isKn ? 'ಕೆಲಸ (Task Log)' : isHi ? 'गतिविधि (Task Log)' : 'Activity/Task Log'}</option>
                 </select>
               </div>
 
               {category !== 'activity' && (
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                    {lang === 'hi' ? 'रुपये (राशि)' : 'Amount (₹)'}
+                    {isKn ? 'ಮೊತ್ತ (₹)' : isHi ? 'रुपये (राशि)' : 'Amount (₹)'}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
@@ -311,12 +316,12 @@ function KhetDiaryContent() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  {lang === 'hi' ? 'विवरण' : 'Details'}
+                  {isKn ? 'ವಿವರಗಳು' : isHi ? 'विवरण' : 'Details'}
                 </label>
                 <textarea 
                   value={activity}
                   onChange={(e) => setActivity(e.target.value)}
-                  placeholder={lang === 'hi' ? 'जैसे: यूरिया खाद का छिड़काव किया' : 'e.g. Sprayed neem oil pesticide'}
+                  placeholder={isKn ? 'ಉದಾ: ಬೇವಿನ ಎಣ್ಣೆ ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸಲಾಯಿತು' : isHi ? 'जैसे: यूरिया खाद का छिड़काव किया' : 'e.g. Sprayed neem oil pesticide'}
                   className="w-full h-20 rounded-xl bg-background border border-border/50 focus:border-emerald-500 p-3 text-sm text-foreground focus:outline-none transition-colors resize-none"
                   required
                 />
@@ -324,7 +329,7 @@ function KhetDiaryContent() {
 
               <Button type="submit" className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center justify-center gap-2 shadow-sm">
                 <Plus className="h-4 w-4" />
-                {lang === 'hi' ? 'डायरी में सहेजें' : 'Save to Diary'}
+                {isKn ? 'ಡೈರಿಗೆ ಉಳಿಸಿ' : isHi ? 'डायरी में सहेजें' : 'Save to Diary'}
               </Button>
             </form>
           </div>
@@ -336,7 +341,7 @@ function KhetDiaryContent() {
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="p-4 rounded-xl border border-border/50 bg-card flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{lang === 'hi' ? 'कुल व्यय' : 'Total Expense'}</span>
+                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{isKn ? 'ಒಟ್ಟು ವೆಚ್ಚ' : isHi ? 'कुल व्यय' : 'Total Expense'}</span>
                 <p className="text-xl font-black text-rose-600 dark:text-rose-400 font-display mt-0.5">₹{totalExpense}</p>
               </div>
               <div className="h-9 w-9 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
@@ -346,7 +351,7 @@ function KhetDiaryContent() {
 
             <div className="p-4 rounded-xl border border-border/50 bg-card flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{lang === 'hi' ? 'कुल आय' : 'Total Income'}</span>
+                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{isKn ? 'ಒಟ್ಟು ಆದಾಯ' : isHi ? 'कुल आय' : 'Total Income'}</span>
                 <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-display mt-0.5">₹{totalIncome}</p>
               </div>
               <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -356,7 +361,7 @@ function KhetDiaryContent() {
 
             <div className="p-4 rounded-xl border border-border/50 bg-card flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{lang === 'hi' ? 'शुद्ध लाभ' : 'Net Income'}</span>
+                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{isKn ? 'ನಿವ್ವಳ ಆದಾಯ' : isHi ? 'शुद्ध लाभ' : 'Net Income'}</span>
                 <p className={`text-xl font-black font-display mt-0.5 ${netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                   ₹{netProfit}
                 </p>
@@ -371,10 +376,10 @@ function KhetDiaryContent() {
           <div className="border border-border/50 bg-card p-6 rounded-2xl shadow-sm">
             <div className="pb-4 mb-4 border-b border-border/40 flex flex-row items-center justify-between">
               <h3 className="text-base font-bold text-foreground font-display">
-                {lang === 'hi' ? 'बहीखाता रिकॉर्ड' : 'Logbook Entries'}
+                {isKn ? 'ಲೆಕ್ಕಪತ್ರ ದಾಖಲೆಗಳು' : isHi ? 'बहीखाता रिकॉर्ड' : 'Logbook Entries'}
               </h3>
               <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full select-none">
-                {logs.length} {lang === 'hi' ? 'रिकॉर्ड' : 'Records'}
+                {logs.length} {isKn ? 'ದಾಖಲೆಗಳು' : isHi ? 'रिकॉर्ड' : 'Records'}
               </span>
             </div>
 
@@ -382,7 +387,7 @@ function KhetDiaryContent() {
               <AnimatePresence initial={false}>
                 {logs.length === 0 ? (
                   <div className="text-center py-10 text-muted-foreground text-sm">
-                    {lang === 'hi' ? 'कोई प्रविष्टि नहीं है। बायीं तरफ से जोड़ें।' : 'No entries found. Add your first record from the form.'}
+                    {isKn ? 'ಯಾವುದೇ ದಾಖಲೆಗಳಿಲ್ಲ. ಎಡಭಾಗದಿಂದ ಹೊಸ ದಾಖಲೆ ಸೇರಿಸಿ.' : isHi ? 'कोई प्रविष्टि नहीं है। बायीं तरफ से जोड़ें।' : 'No entries found. Add your first record from the form.'}
                   </div>
                 ) : (
                   logs.map(log => (
@@ -399,8 +404,8 @@ function KhetDiaryContent() {
                             log.category === 'expense' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
                             log.category === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                           }`}>
-                            {log.category === 'expense' ? (lang === 'hi' ? 'खर्च' : 'Expense') :
-                             log.category === 'income' ? (lang === 'hi' ? 'आय' : 'Income') : (lang === 'hi' ? 'कार्य' : 'Task')}
+                            {log.category === 'expense' ? (isKn ? 'ವೆಚ್ಚ' : isHi ? 'खर्च' : 'Expense') :
+                             log.category === 'income' ? (isKn ? 'ಆದಾಯ' : isHi ? 'आय' : 'Income') : (isKn ? 'ಕೆಲಸ' : isHi ? 'कार्य' : 'Task')}
                           </span>
                           <span className="text-[11px] text-muted-foreground font-medium">{log.date}</span>
                           <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-500/5 border border-emerald-500/15 px-2 py-0.5 rounded-full">{log.crop}</span>

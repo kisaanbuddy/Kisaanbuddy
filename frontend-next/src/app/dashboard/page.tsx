@@ -215,7 +215,14 @@ export default function DashboardPage() {
       .join(", ");
 
     let message = "";
-    if (lang === "hi") {
+    if (lang === "kn") {
+      message = `ನಮಸ್ಕಾರ ${name}. ನಿಮ್ಮ ಜಮೀನಿನ ವಿವರ: ನಿಮ್ಮ ಬಳಿ ${fields.length} ಜಮೀನುಗಳು ನೋಂದಾಯಿತವಾಗಿವೆ`;
+      if (cropNames) message += `, ಮುಖ್ಯ ಬೆಳೆಗಳು ${cropNames}.`;
+      message += ` ಇಂದಿಗೆ ${pendingCount} ಕೆಲಸಗಳು ಬಾಕಿ ಇವೆ.`;
+      if (sensorOnline) {
+        message += ` ಮಣ್ಣಿನ ತೇವಾಂಶ ${moisture} ಪ್ರತಿಶತ ಮತ್ತು ತಾಪಮಾನ ${sensorTemp} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್ ಆಗಿದೆ.`;
+      }
+    } else if (lang === "hi") {
       message = `नमस्ते ${name}। आपके खेत का हाल: आपके पास ${fields.length} खेत दर्ज हैं`;
       if (cropNames) message += `, मुख्य फसलें ${cropNames} हैं।`;
       message += ` आज के लिए ${pendingCount} कार्य बाकी हैं।`;
@@ -232,7 +239,7 @@ export default function DashboardPage() {
     }
 
     const utterance = new SpeechSynthesisUtterance(message);
-    utterance.lang = lang === "hi" ? "hi-IN" : "en-US";
+    utterance.lang = lang === "kn" ? "kn-IN" : lang === "hi" ? "hi-IN" : "en-US";
     window.speechSynthesis.speak(utterance);
   };
 

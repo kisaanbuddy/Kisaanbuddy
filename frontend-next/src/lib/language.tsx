@@ -3,6 +3,7 @@
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
 import hi from "./locales/hi.json"
+import kn from "./locales/kn.json"
 
 export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
@@ -48,12 +49,11 @@ export const LANG_FLAGS: Record<Lang, string> = {
   hi_en: "🇮🇳",
 }
 
-// These are the only locales exposed until a locale has complete application
-// coverage. This prevents a user from selecting a partially translated UI.
-export const SELECTABLE_LANGS: Lang[] = ["hi", "en"]
+// English, Hindi, and Kannada are fully supported and verified across all features.
+export const SELECTABLE_LANGS: Lang[] = ["en", "hi", "kn"]
 
-// We keep en and hi statically
-export const T: Record<string, any> = { en, hi }
+// Statically bundled complete locales for instant load without flash
+export const T: Record<string, any> = { en, hi, kn }
 
 function applyOverrides(base: any, overrides: Record<string, string>) {
   const next = structuredClone(base)
@@ -204,6 +204,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       let base: any = en
       try {
         if (lang === "hi") base = hi
+        else if (lang === "kn") base = kn
         else if (lang !== "en") base = (await import(`./locales/${lang}.json`)).default
       } catch {
         base = en

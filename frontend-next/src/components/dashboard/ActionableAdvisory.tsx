@@ -14,7 +14,50 @@ export function ActionableAdvisory({ moisture, temp, humidity, lang }: Actionabl
   const getAdvisories = () => {
     const list = [];
 
-    if (lang === 'hi') {
+    if (lang === 'kn') {
+      // Kannada Advisories
+      if (moisture < 35) {
+        list.push({
+          icon: Droplets,
+          text: `ಮಣ್ಣಿನ ತೇವಾಂಶ ಕಡಿಮೆಯಾಗಿದೆ (${moisture}%). ಬೆಳೆಯ ಬೇರುಗಳ ಆರೋಗ್ಯಕ್ಕೆ ಇಂದು ಸಂಜೆ ಲಘು ನೀರಾವರಿ ಮಾಡಿ.`,
+          type: "warning"
+        });
+      } else if (moisture > 80) {
+        list.push({
+          icon: ShieldAlert,
+          text: `ಹೊಲದಲ್ಲಿ ಹೆಚ್ಚಿನ ನೀರಿನ ಪ್ರಮಾಣ ಕಂಡುಬಂದಿದೆ (${moisture}%). ನೀರು ನಿಲ್ಲುವುದನ್ನು ತಡೆಯಲು ಬಸಿಗಾಲುವೆಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ.`,
+          type: "danger"
+        });
+      } else {
+        list.push({
+          icon: CheckCircle2,
+          text: `ಮಣ್ಣಿನ ತೇವಾಂಶ ಸೂಕ್ತ ಪ್ರಮಾಣದಲ್ಲಿದೆ (${moisture}%). ಇಂದು ನೀರಾವರಿಯ ಅಗತ್ಯವಿಲ್ಲ, ನೀರನ್ನು ಉಳಿಸಿ.`,
+          type: "success"
+        });
+      }
+
+      if (temp > 35) {
+        list.push({
+          icon: Thermometer,
+          text: `ಹೆಚ್ಚಿನ ತಾಪಮಾನ (${temp}°C). ಮಧ್ಯಾಹ್ನ 12 ರಿಂದ 3 ಗಂಟೆಯವರೆಗೆ ಹೊಲದಲ್ಲಿ ಕಠಿಣ ಕೆಲಸ ತಪ್ಪಿಸಿ.`,
+          type: "warning"
+        });
+      } else if (temp < 15) {
+        list.push({
+          icon: Thermometer,
+          text: `ಕಡಿಮೆ ತಾಪಮಾನ ದಾಖಲಾಗಿದೆ (${temp}°C). ಬೆಳೆಗಳನ್ನು ಶೀತದ ಒತ್ತಡದಿಂದ ರಕ್ಷಿಸಲು ಗಮನಿಸಿ.`,
+          type: "warning"
+        });
+      }
+
+      if (humidity > 80) {
+        list.push({
+          icon: Leaf,
+          text: `ಹೆಚ್ಚಿನ ಆರ್ದ್ರತೆ (${humidity}%). ಶಿಲೀಂಧ್ರ ಸೋಂಕಿನ ಅಪಾಯವಿದೆ; ಎಲೆಗಳ ಕೆಳಭಾಗವನ್ನು ಪರೀಕ್ಷಿಸಿ.`,
+          type: "warning"
+        });
+      }
+    } else if (lang === 'hi') {
       // Hindi Advisories
       if (moisture < 35) {
         list.push({
@@ -111,7 +154,7 @@ export function ActionableAdvisory({ moisture, temp, humidity, lang }: Actionabl
     <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-3 shadow-xs">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
         <span className="h-2 w-2 rounded-full bg-primary" />
-        <span>{lang === 'hi' ? "खेत के लिए विशेष सलाह" : "Actionable Farm Advisories"}</span>
+        <span>{lang === 'kn' ? "ಹೊಲದ ವಿಶೇಷ ಸಲಹೆಗಳು" : lang === 'hi' ? "खेत के लिए विशेष सलाह" : "Actionable Farm Advisories"}</span>
       </h3>
 
       <div className="flex flex-col gap-2.5">

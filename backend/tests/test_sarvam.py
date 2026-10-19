@@ -125,6 +125,38 @@ class TestSarvamAPI(unittest.TestCase):
         self.assertEqual(data["potassium_kg_ha"], 210.0)
         self.assertEqual(data["farmer_name"], "Ramesh Patel")
 
+    def test_normalise_lang_code_kannada(self):
+        """Verify normalise_lang_code maps all Kannada and related code variants correctly."""
+        self.assertEqual(sarvam_service.normalise_lang_code("kn"), "kn-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("kn-IN"), "kn-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("kn-in"), "kn-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("en"), "en-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("en-IN"), "en-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("en-US"), "en-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("hi"), "hi-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("hi-IN"), "hi-IN")
+        self.assertEqual(sarvam_service.normalise_lang_code("auto"), "auto")
+
+    @patch("services.sarvam_service.translate_text", new_callable=AsyncMock)
+    def test_translate_endpoint_kannada(self, mock_translate):
+        """POST /api/sarvam/translate handles Kannada requests in both directions."""
+        mock_translate.return_value = "ಇಂದು ಹವಾಮಾನ ಸ್ವಚ್ಛವಾಗಿದೆ."
+        r = self.client.post("/api/sarvam/translate", json={
+            "text": "Today the weather is clear.",
+            "target_lang": "kn",
+            "source_lang": "en"
+        })
+        self.assertEqual(r.status_code, 200)
+        res = r.json()
+        self.assertEqual(res["translated_text"], "ಇಂದು ಹವಾಮಾನ ಸ್ವಚ್ಛವಾಗಿದೆ.")
+        self.assertEqual(res["target_lang"], "kn")
+        mock_translate.assert_called_with(
+            text="Today the weather is clear.",
+            target_lang="kn",
+            source_lang="en",
+            mode="formal"
+        )
+
     def test_translation_caching(self):
         """Ensure translated text is cached in memory."""
         import asyncio
@@ -132,6 +164,7 @@ class TestSarvamAPI(unittest.TestCase):
         sarvam_service._TRANSLATION_CACHE[("hello world", "en-IN", "hi-IN")] = ("नमस्ते दुनिया", 9999999999.0)
         res = asyncio.run(sarvam_service.translate_text("hello world", "hi", "en"))
         self.assertEqual(res, "नमस्ते दुनिया")
+
 
 
 if __name__ == "__main__":
