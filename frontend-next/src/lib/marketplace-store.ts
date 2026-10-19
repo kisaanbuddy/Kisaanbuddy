@@ -402,3 +402,102 @@ export function addLegacyListing(data: any) {
   legacyListings.unshift(item);
   return item;
 }
+
+let buyerRequirementsStore: any[] = ((marketplaceData as any).buyer_requirements || []);
+let governmentProcurementStore: any[] = ((marketplaceData as any).government_procurement || []);
+
+export function getBuyerRequirements(params?: {
+  commodity?: string;
+  state?: string;
+  district?: string;
+  search?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+}) {
+  let list = [...buyerRequirementsStore];
+  if (params?.commodity && params.commodity !== "all") {
+    list = list.filter((i) => i.commodity.toLowerCase().includes(params.commodity!.toLowerCase()));
+  }
+  if (params?.state && params.state !== "all") {
+    list = list.filter((i) => (i.buyer_location_state || i.state).toLowerCase() === params.state!.toLowerCase());
+  }
+  if (params?.district && params.district !== "all") {
+    list = list.filter((i) => (i.buyer_location_district || i.district).toLowerCase().includes(params.district!.toLowerCase()));
+  }
+  if (params?.search) {
+    const q = params.search.toLowerCase();
+    list = list.filter((i) =>
+      i.commodity.toLowerCase().includes(q) ||
+      (i.variety && i.variety.toLowerCase().includes(q)) ||
+      i.buyer_name.toLowerCase().includes(q) ||
+      (i.buyer_location_district || i.district).toLowerCase().includes(q)
+    );
+  }
+  const total = list.length;
+  const page = params?.page || 1;
+  const limit = params?.limit || 50;
+  const start = (page - 1) * limit;
+  const items = list.slice(start, start + limit);
+  return { total, page, limit, items };
+}
+
+export function addBuyerRequirement(data: any) {
+  const newId = buyerRequirementsStore.length > 0 ? Math.max(...buyerRequirementsStore.map((x: any) => x.id || 0)) + 1 : 1;
+  const item = {
+    id: newId,
+    ...data,
+    buyer_location_state: data.buyer_location_state || data.state,
+    buyer_location_district: data.buyer_location_district || data.district,
+    quality_specifications: data.quality_specifications || data.quality_requirements,
+    status: data.status || "open",
+    is_active: true,
+    is_verified: true,
+    source: "KisaanBuddy verified buyer requirement",
+    created_at: new Date().toISOString(),
+  };
+  buyerRequirementsStore.unshift(item);
+  return item;
+}
+
+export function getGovernmentProcurement(params?: {
+  crop_name?: string;
+  state?: string;
+  district?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}) {
+  let list = [...governmentProcurementStore];
+  if (params?.crop_name && params.crop_name !== "all") {
+    list = list.filter((i) => i.crop_name.toLowerCase().includes(params.crop_name!.toLowerCase()));
+  }
+  if (params?.state && params.state !== "all") {
+    list = list.filter((i) => i.state.toLowerCase() === params.state!.toLowerCase());
+  }
+  if (params?.district && params.district !== "all") {
+    list = list.filter((i) => i.district.toLowerCase().includes(params.district!.toLowerCase()));
+  }
+  if (params?.search) {
+    const q = params.search.toLowerCase();
+    list = list.filter((i) =>
+      i.crop_name.toLowerCase().includes(q) ||
+      (i.procurement_centre_name || i.procurement_center).toLowerCase().includes(q) ||
+      i.nodal_agency.toLowerCase().includes(q) ||
+      i.district.toLowerCase().includes(q)
+    );
+  }
+  const total = list.length;
+  const page = params?.page || 1;
+  const limit = params?.limit || 50;
+  const start = (page - 1) * limit;
+  const items = list.slice(start, start + limit);
+  return {
+    total,
+    page,
+    limit,
+    disclaimer: "Government procurement is conducted exclusively at designated state centers for registered farmers under statutory MSP rules. KisaanBuddy does not promise eligibility or procurement acceptance.",
+    items,
+  };
+}
+

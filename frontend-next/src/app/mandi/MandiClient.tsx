@@ -84,6 +84,7 @@ import {
   ListingReportItem,
   mandiApi,
 } from "@/lib/farmer-api"
+import marketplaceData from "@/lib/data/marketplace-data.json"
 
 /* ------------------------------------------------------------------ */
 /*  Types & Constants                                                 */
@@ -360,19 +361,25 @@ export default function MandiPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   // Tab 2: Buy Requirements State
-  const [buyerReqs, setBuyerReqs] = useState<BuyerRequirementItem[]>([])
+  const [buyerReqs, setBuyerReqs] = useState<BuyerRequirementItem[]>(
+    () => ((marketplaceData as any).buyer_requirements || [])
+  )
   const [loadingBuy, setLoadingBuy] = useState(false)
   const [buySearch, setBuySearch] = useState("")
   const [buyState, setBuyState] = useState("All")
 
   // Tab 3: Sell Offers State
-  const [sellOffers, setSellOffers] = useState<ProduceListingItem[]>([])
+  const [sellOffers, setSellOffers] = useState<ProduceListingItem[]>(
+    () => ((marketplaceData as any).produce_listings || [])
+  )
   const [loadingSell, setLoadingSell] = useState(false)
   const [sellSearch, setSellSearch] = useState("")
   const [sellState, setSellState] = useState("All")
 
   // Tab 4: Government Procurement State
-  const [govItems, setGovItems] = useState<GovernmentProcurementItem[]>([])
+  const [govItems, setGovItems] = useState<GovernmentProcurementItem[]>(
+    () => ((marketplaceData as any).government_procurement || [])
+  )
   const [loadingGov, setLoadingGov] = useState(false)
   const [govSearch, setGovSearch] = useState("")
   const [govState, setGovState] = useState("All")
@@ -438,10 +445,13 @@ export default function MandiPage() {
   const fetchBuyRequirements = useCallback(async () => {
     try {
       setLoadingBuy(true)
-      const res = await buyerRequirementsApi.list()
-      setBuyerReqs(res.items || [])
+      const res: any = await buyerRequirementsApi.list()
+      const items = Array.isArray(res) ? res : (res?.items || [])
+      if (items.length > 0) {
+        setBuyerReqs(items)
+      }
     } catch {
-      // silent fallback
+      // silent fallback preserves initial data
     } finally {
       setLoadingBuy(false)
     }
@@ -451,10 +461,13 @@ export default function MandiPage() {
   const fetchSellOffers = useCallback(async () => {
     try {
       setLoadingSell(true)
-      const res = await produceListingsApi.list()
-      setSellOffers(res.items || [])
+      const res: any = await produceListingsApi.list()
+      const items = Array.isArray(res) ? res : (res?.items || [])
+      if (items.length > 0) {
+        setSellOffers(items)
+      }
     } catch {
-      // silent fallback
+      // silent fallback preserves initial data
     } finally {
       setLoadingSell(false)
     }
@@ -464,10 +477,13 @@ export default function MandiPage() {
   const fetchGovProcurement = useCallback(async () => {
     try {
       setLoadingGov(true)
-      const res = await governmentProcurementApi.list()
-      setGovItems(res || [])
+      const res: any = await governmentProcurementApi.list()
+      const items = Array.isArray(res) ? res : (res?.items || [])
+      if (items.length > 0) {
+        setGovItems(items)
+      }
     } catch {
-      // silent fallback
+      // silent fallback preserves initial data
     } finally {
       setLoadingGov(false)
     }
@@ -532,7 +548,7 @@ export default function MandiPage() {
   }, [crops])
 
   const buyStates = useMemo(() => {
-    const s = new Set(buyerReqs.map((b) => b.buyer_location_state).filter(Boolean))
+    const s = new Set(buyerReqs.map((b) => b.buyer_location_state || (b as any).state).filter(Boolean))
     return ["All", ...Array.from(s).sort()]
   }, [buyerReqs])
 
@@ -572,14 +588,20 @@ export default function MandiPage() {
   // Filtered buy requirements
   const filteredBuy = useMemo(() => {
     return buyerReqs.filter((b) => {
-      const q = buySearch.toLowerCase()
+      const q = (buySearch || "").trim().toLowerCase()
+      const commodity = (b.commodity || "").toLowerCase()
+      const variety = (b.variety || "").toLowerCase()
+      const buyerName = (b.buyer_name || "").toLowerCase()
+      const district = (b.buyer_location_district || (b as any).district || "").toLowerCase()
+      const state = (b.buyer_location_state || (b as any).state || "").toLowerCase()
+
       const matchSearch =
         !q ||
-        b.commodity.toLowerCase().includes(q) ||
-        (b.variety && b.variety.toLowerCase().includes(q)) ||
-        b.buyer_name.toLowerCase().includes(q) ||
-        b.buyer_location_district.toLowerCase().includes(q)
-      const matchState = buyState === "All" || b.buyer_location_state.toLowerCase() === buyState.toLowerCase()
+        commodity.includes(q) ||
+        variety.includes(q) ||
+        buyerName.includes(q) ||
+        district.includes(q)
+      const matchState = buyState === "All" || state === buyState.toLowerCase()
       return matchSearch && matchState
     })
   }, [buyerReqs, buySearch, buyState])
@@ -602,15 +624,22 @@ export default function MandiPage() {
   // Filtered government procurement
   const filteredGov = useMemo(() => {
     return govItems.filter((g) => {
-      const q = govSearch.toLowerCase()
+      const q = (govSearch || "").trim().toLowerCase()
+      const cropName = (g.crop_name || "").toLowerCase()
+      const variety = (g.variety || "").toLowerCase()
+      const centre = (g.procurement_centre_name || (g as any).procurement_center || "").toLowerCase()
+      const agency = (g.nodal_agency || "").toLowerCase()
+      const district = (g.district || "").toLowerCase()
+      const state = (g.state || "").toLowerCase()
+
       const matchSearch =
         !q ||
-        g.crop_name.toLowerCase().includes(q) ||
-        (g.variety && g.variety.toLowerCase().includes(q)) ||
-        g.procurement_centre_name.toLowerCase().includes(q) ||
-        g.nodal_agency.toLowerCase().includes(q) ||
-        g.district.toLowerCase().includes(q)
-      const matchState = govState === "All" || g.state.toLowerCase() === govState.toLowerCase()
+        cropName.includes(q) ||
+        variety.includes(q) ||
+        centre.includes(q) ||
+        agency.includes(q) ||
+        district.includes(q)
+      const matchState = govState === "All" || state === govState.toLowerCase()
       return matchSearch && matchState
     })
   }, [govItems, govSearch, govState])
@@ -1104,9 +1133,9 @@ export default function MandiPage() {
                     <div className="flex items-start justify-between gap-2">
                       <OriginBadge origin={b.source || "KisaanBuddy verified buyer requirement"} />
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        b.status === "open" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
+                        (b.status as string) === "open" || (b.status as string) === "active" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
                       }`}>
-                        {b.status.toUpperCase()}
+                        {(b.status || "OPEN").toUpperCase()}
                       </span>
                     </div>
 
@@ -1123,7 +1152,9 @@ export default function MandiPage() {
                       <div>
                         <span className="text-[10px] text-muted-foreground uppercase font-bold">Target Price</span>
                         <p className="font-bold text-teal-600 dark:text-teal-400 text-sm">
-                          {b.expected_price_min && b.expected_price_max ? `₹${b.expected_price_min} - ₹${b.expected_price_max}` : "Market Negotiable"}
+                          {b.expected_price_min && b.expected_price_max
+                            ? `₹${b.expected_price_min.toLocaleString()} - ₹${b.expected_price_max.toLocaleString()}`
+                            : ((b as any).expected_price ? `₹${(b as any).expected_price.toLocaleString()}` : "Market Negotiable")}
                         </p>
                       </div>
                     </div>
@@ -1136,11 +1167,11 @@ export default function MandiPage() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span>Delivery to: {b.delivery_destination || `${b.buyer_location_district}, ${b.buyer_location_state}`}</span>
+                        <span>Delivery to: {b.delivery_destination || `${b.buyer_location_district || (b as any).district}, ${b.buyer_location_state || (b as any).state}`}</span>
                       </div>
-                      {b.quality_specifications && (
+                      {(b.quality_specifications || (b as any).quality_requirements) && (
                         <div className="text-[11px] text-muted-foreground italic">
-                          Specs: {b.quality_specifications}
+                          Specs: {b.quality_specifications || (b as any).quality_requirements}
                         </div>
                       )}
                     </div>
@@ -1407,18 +1438,18 @@ export default function MandiPage() {
 
                     <div>
                       <h3 className="text-lg font-black text-foreground font-display">{g.crop_name}</h3>
-                      <p className="text-xs text-muted-foreground">Centre: <strong className="text-foreground">{g.procurement_centre_name}</strong></p>
+                      <p className="text-xs text-muted-foreground">Centre: <strong className="text-foreground">{g.procurement_centre_name || (g as any).procurement_center}</strong></p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 bg-purple-500/5 border border-purple-500/20 p-3 rounded-xl text-xs">
                       <div>
                         <span className="text-[10px] text-muted-foreground uppercase font-bold">Base MSP Rate</span>
-                        <p className="font-bold text-foreground text-sm">₹{g.msp_rate_per_quintal.toLocaleString()}/qtl</p>
+                        <p className="font-bold text-foreground text-sm">₹{(g.msp_rate_per_quintal || (g as any).msp_rate || 0).toLocaleString()}/qtl</p>
                       </div>
                       <div>
                         <span className="text-[10px] text-purple-600 dark:text-purple-400 uppercase font-bold">Effective Rate</span>
                         <p className="font-bold text-purple-600 dark:text-purple-400 text-sm">
-                          ₹{g.effective_procurement_rate.toLocaleString()}/qtl
+                          ₹{(g.effective_procurement_rate || g.msp_rate_per_quintal || (g as any).msp_rate || 0).toLocaleString()}/qtl
                         </p>
                       </div>
                     </div>
@@ -1432,15 +1463,15 @@ export default function MandiPage() {
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span>Location: {g.district}, {g.state}</span>
                       </div>
-                      {g.faq_specs && (
+                      {(g.faq_specs || (g as any).faq_specifications) && (
                         <div className="p-2.5 rounded-lg bg-muted/40 border border-border text-[11px] text-muted-foreground">
                           <span className="font-bold text-foreground block mb-0.5">FAQ Specifications:</span>
-                          {g.faq_specs}
+                          {g.faq_specs || (g as any).faq_specifications}
                         </div>
                       )}
-                      {g.eligibility_criteria && (
+                      {(g.eligibility_criteria || (g as any).registration_requirements) && (
                         <div className="text-[11px] text-muted-foreground">
-                          Requirements: {g.eligibility_criteria}
+                          Requirements: {g.eligibility_criteria || (g as any).registration_requirements}
                         </div>
                       )}
                     </div>
