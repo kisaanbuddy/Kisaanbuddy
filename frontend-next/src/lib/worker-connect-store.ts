@@ -639,7 +639,10 @@ export function getFallbackWorkers(query: WorkerSearchQuery): WorkerSearchRespon
   if (query.viewer_phone) {
     list = list.map((w) => {
       const isApproved = activeRequests.some(
-        (r) => r.worker_id === w.id && r.requester_phone === query.viewer_phone && r.status === "approved"
+        (r) =>
+          r.worker_id === w.id &&
+          (r.unmasked_requester_phone === query.viewer_phone || r.masked_requester_phone === query.viewer_phone) &&
+          r.status === "approved"
       )
       return isApproved
         ? { ...w, unmasked_phone: w.masked_phone.replace("XXX-XX", "984-50") }
@@ -650,8 +653,7 @@ export function getFallbackWorkers(query: WorkerSearchQuery): WorkerSearchRespon
   return {
     workers: list,
     total: list.length,
-    page: 1,
-    limit: query.limit || 50,
+    filters_applied: { ...query },
   }
 }
 
