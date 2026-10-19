@@ -13,6 +13,7 @@ Every classification provides transparent, itemized explanations.
 from __future__ import annotations
 
 import json
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 from db.models import Scheme
 from schemas.scheme import SchemeFinderInput, SchemeMatchResult, SchemeResponse
@@ -76,7 +77,7 @@ def evaluate_scheme_eligibility(
             hard_disqualifiers.append(
                 f"Published guidelines specify minimum cultivable holding of {min_land} acres (Farmer has {land_acres} acres)."
             )
-        elif max_land is not None and land_acres > max_land:
+        elif max_land is not None and float(land_acres) > float(max_land):
             hard_disqualifiers.append(
                 f"Scheme benefits are capped at landholding up to {max_land} acres (Small & Marginal farmer criteria; farmer has {land_acres} acres)."
             )
@@ -198,9 +199,9 @@ def evaluate_scheme_eligibility(
         "verification_status": scheme.verification_status,
         "data_source": scheme.data_source,
         "is_active": scheme.is_active,
-        "last_verified_at": scheme.last_verified_at,
-        "created_at": scheme.created_at,
-        "updated_at": scheme.updated_at
+        "last_verified_at": scheme.last_verified_at or datetime.utcnow(),
+        "created_at": scheme.created_at or datetime.utcnow(),
+        "updated_at": scheme.updated_at or datetime.utcnow()
     }
     scheme_response = SchemeResponse(**scheme_dict)
 

@@ -1,13 +1,35 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowRight, TrendingUp, Store, Users, CheckCircle2, ShieldCheck, MapPin, Sparkles } from 'lucide-react';
+import { 
+  ArrowRight, 
+  TrendingUp, 
+  Store, 
+  Users, 
+  CheckCircle2, 
+  ShieldCheck, 
+  Sparkles, 
+  Activity, 
+  ArrowUpRight, 
+  ArrowDownRight, 
+  Building2, 
+  Sprout, 
+  Radio,
+  ChevronRight,
+  Shield,
+  Zap,
+  CloudSun,
+  Flame,
+  BadgeCheck
+} from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 import { getHomepageI18n } from '@/lib/homepage-i18n';
 
 export function MarketplaceHero() {
   const { lang } = useLanguage();
   const t = getHomepageI18n(lang).hero;
+  const [activeTab, setActiveTab] = useState<'rates' | 'buyers' | 'advisory'>('rates');
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-emerald-50/60 via-white to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-16 border-b border-stone-200/80 dark:border-stone-800">
@@ -85,42 +107,295 @@ export function MarketplaceHero() {
 
           </div>
 
-          {/* Right Column: Authentic Agricultural Photography & Live Marketplace Signal */}
+          {/* Right Column: Modern Interactive Market & Farm Intelligence Desk */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 shadow-xl bg-white dark:bg-stone-900">
-              <img
-                src="/images/hero/hero-indian-farmer.jpg"
-                alt="Indian farmer in wheat field examining produce"
-                className="w-full h-[340px] sm:h-[400px] object-cover object-center transform hover:scale-102 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            
+            {/* Ambient Background Glow Effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500/20 via-teal-500/10 to-amber-500/20 rounded-3xl blur-xl opacity-70 dark:opacity-40 pointer-events-none" />
 
-              {/* In-Photo Live APMC Market Context Badge */}
-              <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-2xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border border-stone-200 dark:border-stone-800 shadow-md">
-                <div className="flex items-center justify-between text-xs font-bold text-stone-900 dark:text-white pb-1.5 border-b border-stone-100 dark:border-stone-800">
-                  <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                    <span>e-NAM Wholesale Trading</span>
+            {/* Top Floating Trust Badge */}
+            <div className="hidden sm:inline-flex items-center gap-2 absolute -top-3.5 right-6 z-20 px-3 py-1 rounded-full bg-white dark:bg-stone-800 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 shadow-md">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span>0% Middleman Fee • Direct Payment</span>
+            </div>
+
+            {/* Main Interactive Terminal Card */}
+            <div className="relative rounded-3xl overflow-hidden border border-emerald-900/10 dark:border-stone-700/80 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md shadow-2xl transition-all">
+              
+              {/* Header: Live APMC Status & Real-time Indicator */}
+              <div className="px-5 py-4 border-b border-stone-100 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/80 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500" />
+                  </span>
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-stone-900 dark:text-white flex items-center gap-1.5">
+                      <span>e-NAM & APMC Live Desk</span>
+                    </h3>
+                    <p className="text-[10px] text-stone-500 dark:text-stone-400">Direct mandi benchmarks</p>
                   </div>
-                  <span className="text-[11px] font-medium text-stone-500">Official Daily Mandi Data</span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 pt-2 text-center">
-                  <div className="p-1.5 rounded-lg bg-stone-50 dark:bg-stone-800/60">
-                    <span className="text-[10px] text-stone-500 block">Wheat (Indore)</span>
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">₹2,275/q</span>
-                  </div>
-                  <div className="p-1.5 rounded-lg bg-stone-50 dark:bg-stone-800/60">
-                    <span className="text-[10px] text-stone-500 block">Basmati (Karnal)</span>
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">₹3,850/q</span>
-                  </div>
-                  <div className="p-1.5 rounded-lg bg-stone-50 dark:bg-stone-800/60">
-                    <span className="text-[10px] text-stone-500 block">Soybean (Ujjain)</span>
-                    <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">₹4,600/q</span>
-                  </div>
+
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                  <Activity className="w-3 h-3 animate-pulse" />
+                  <span>LIVE FEED</span>
                 </div>
               </div>
 
+              {/* Interactive Tabs */}
+              <div className="grid grid-cols-3 p-1.5 bg-stone-100/70 dark:bg-stone-800/60 border-b border-stone-200/60 dark:border-stone-800 text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('rates')}
+                  className={`py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === 'rates'
+                      ? 'bg-white dark:bg-stone-900 text-emerald-700 dark:text-emerald-400 font-bold shadow-xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                  }`}
+                >
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  <span>Mandi Rates</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('buyers')}
+                  className={`py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === 'buyers'
+                      ? 'bg-white dark:bg-stone-900 text-amber-700 dark:text-amber-400 font-bold shadow-xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Active Buyers</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('advisory')}
+                  className={`py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                    activeTab === 'advisory'
+                      ? 'bg-white dark:bg-stone-900 text-teal-700 dark:text-teal-400 font-bold shadow-xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>AI Advisory</span>
+                </button>
+              </div>
+
+              {/* Tab 1 Content: Mandi Rates */}
+              {activeTab === 'rates' && (
+                <div className="p-4 space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
+                    <span>Commodity & Mandi</span>
+                    <span>Rate / Quintal</span>
+                  </div>
+
+                  {/* Crop 1: Wheat */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Wheat (Sharbati)</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-medium">Indore Mandi</span>
+                      </div>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-400">Modal Arrival: 450 Qtl</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-extrabold text-stone-900 dark:text-white">₹2,420<span className="text-[11px] font-normal text-stone-500">/q</span></div>
+                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                        <ArrowUpRight className="w-3 h-3" /> +3.8%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Crop 2: Basmati Rice */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Basmati 1121</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-800 dark:text-amber-300 font-medium">Karnal Mandi</span>
+                      </div>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-400">Modal Arrival: 820 Qtl</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-extrabold text-stone-900 dark:text-white">₹3,950<span className="text-[11px] font-normal text-stone-500">/q</span></div>
+                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                        <ArrowUpRight className="w-3 h-3" /> +2.4%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Crop 3: Soybean */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Soybean (Yellow)</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-200 dark:bg-stone-700 text-stone-800 dark:text-stone-200 font-medium">Ujjain Mandi</span>
+                      </div>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-400">Modal Arrival: 320 Qtl</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-extrabold text-stone-900 dark:text-white">₹4,680<span className="text-[11px] font-normal text-stone-500">/q</span></div>
+                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                        <ArrowDownRight className="w-3 h-3" /> -0.6%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action */}
+                  <Link
+                    href="/mandi"
+                    className="w-full mt-1 py-2.5 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <span>Track All 1,200+ Live APMC Mandis</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
+
+              {/* Tab 2 Content: Active Buyers */}
+              {activeTab === 'buyers' && (
+                <div className="p-4 space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
+                    <span>Verified Buyer Requirements</span>
+                    <span>Target Price</span>
+                  </div>
+
+                  {/* Buyer 1 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">MP Agro Processing Mills</span>
+                        <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
+                      <div className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
+                        Looking for: <span className="font-semibold text-emerald-700 dark:text-emerald-400">300 Qtl Sharbati Wheat</span>
+                      </div>
+                      <span className="text-[10px] text-stone-500">Indore, MP • Instant RTGS Payment</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs sm:text-sm font-extrabold text-amber-700 dark:text-amber-400">₹2,450/q</div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold">Ready to buy</span>
+                    </div>
+                  </div>
+
+                  {/* Buyer 2 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Karnal Grain Exporters</span>
+                        <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
+                      <div className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
+                        Looking for: <span className="font-semibold text-emerald-700 dark:text-emerald-400">150 Qtl Basmati 1121</span>
+                      </div>
+                      <span className="text-[10px] text-stone-500">Karnal, HR • Farm-gate Pickup</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs sm:text-sm font-extrabold text-amber-700 dark:text-amber-400">₹4,050/q</div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold">Ready to buy</span>
+                    </div>
+                  </div>
+
+                  {/* Buyer 3 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Shree Sai Edible Oils</span>
+                        <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
+                      <div className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
+                        Looking for: <span className="font-semibold text-emerald-700 dark:text-emerald-400">500 Qtl Soybean</span>
+                      </div>
+                      <span className="text-[10px] text-stone-500">Ujjain, MP • Direct Yard Weighing</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs sm:text-sm font-extrabold text-amber-700 dark:text-amber-400">₹4,720/q</div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold">Ready to buy</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action */}
+                  <Link
+                    href="/marketplace?tab=buyers"
+                    className="w-full mt-1 py-2.5 px-3 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-900 dark:text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <span>Connect with 450+ Verified Institutional Buyers</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
+
+              {/* Tab 3 Content: AI Advisory */}
+              {activeTab === 'advisory' && (
+                <div className="p-4 space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
+                    <span>Farm Intelligence & Early Warnings</span>
+                    <span>Status</span>
+                  </div>
+
+                  {/* Advisory 1 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-teal-50/40 dark:hover:bg-teal-950/20 border border-stone-200/60 dark:border-stone-800 transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2">
+                        <CloudSun className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+                        <div>
+                          <span className="font-bold text-stone-900 dark:text-white text-xs block">Optimal Sowing Window (Next 48 hrs)</span>
+                          <p className="text-[11px] text-stone-600 dark:text-stone-300 mt-0.5">
+                            Soil moisture index at 68%. Ideal condition for wheat seed germination and basal fertilizer application.
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-bold shrink-0">Favorable</span>
+                    </div>
+                  </div>
+
+                  {/* Advisory 2 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-teal-50/40 dark:hover:bg-teal-950/20 border border-stone-200/60 dark:border-stone-800 transition-colors">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2">
+                        <Sprout className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                        <div>
+                          <span className="font-bold text-stone-900 dark:text-white text-xs block">AI Crop Doctor Leaf Scan</span>
+                          <p className="text-[11px] text-stone-600 dark:text-stone-300 mt-0.5">
+                            Instant fungal and pest identification with organic & chemical treatment solutions.
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold shrink-0">98% Accuracy</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action */}
+                  <Link
+                    href="/crop-doctor"
+                    className="w-full mt-1 py-2.5 px-3 rounded-xl bg-teal-600/10 hover:bg-teal-600/20 text-teal-900 dark:text-teal-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <span>Launch AI Crop Doctor & Field Diagnosis</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
+
+              {/* Bottom Card Footer */}
+              <div className="px-5 py-3 bg-stone-100/60 dark:bg-stone-950/60 border-t border-stone-200/60 dark:border-stone-800 flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
+                <span className="flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Govt DMI & e-NAM Verified</span>
+                </span>
+                <span className="font-medium">Direct mandi benchmarks</span>
+              </div>
+
             </div>
+
+            {/* Bottom Floating Pill */}
+            <div className="hidden sm:inline-flex items-center gap-2 absolute -bottom-3.5 left-6 z-20 px-3 py-1 rounded-full bg-white dark:bg-stone-800 text-[11px] font-bold text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shadow-md">
+              <Zap className="w-3.5 h-3.5 text-amber-500" />
+              <span>Real-time trades across 28 states</span>
+            </div>
+
           </div>
 
         </div>

@@ -142,14 +142,21 @@ async def _tool_list_schemes(
             "count": len(schemes),
             "schemes": [
                 {
+                    "scheme_id": s.get("scheme_id"),
                     "name": s.get("name"),
                     "category": s.get("category"),
                     "state": s.get("state"),
+                    "benefits": s.get("benefits"),
                     "summary": s.get("summary"),
-                    "url": s.get("url"),
+                    "eligibility": s.get("eligibility"),
+                    "deadline": s.get("deadline"),
+                    "official_source_url": s.get("url"),
+                    "application_url": s.get("application_url"),
+                    "last_verified": s.get("last_verified"),
                 }
-                for s in schemes[:25]
+                for s in schemes[:15]
             ],
+            "disclaimer": "All schemes are grounded in official government gazettes. KisaanBuddy does not guarantee scheme approval.",
         }
     except Exception as e:
         log.warning("tool list_schemes failed: %s", e)

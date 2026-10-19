@@ -72,6 +72,9 @@ class SchemeResponse(SchemeBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+Scheme = SchemeResponse  # Backward compatibility alias
+
+
 # --- Finder / Matching Engine Schemas ---
 class SchemeFinderInput(BaseModel):
     state: str = Field(default="All")

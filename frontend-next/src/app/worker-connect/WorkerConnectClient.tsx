@@ -198,10 +198,13 @@ export default function WorkerConnectClient() {
   })()
   const [activeTab, setActiveTab] = useState<TabMode>(initialTab)
 
+  const stateFromQuery = searchParams.get("state")
+  const initialState = (stateFromQuery && INDIAN_STATES.includes(stateFromQuery)) ? stateFromQuery : "All States"
+
   // Jobs search & application states for Agricultural Workers
   const [jobListings, setJobListings] = useState<LabourJobPostOut[]>([])
   const [loadingJobs, setLoadingJobs] = useState<boolean>(false)
-  const [jobSearchState, setJobSearchState] = useState<string>("All States")
+  const [jobSearchState, setJobSearchState] = useState<string>(initialState)
   const [jobSearchDistrict, setJobSearchDistrict] = useState<string>("")
   const [jobSearchCategory, setJobSearchCategory] = useState<string>("")
   const [selectedJobForApply, setSelectedJobForApply] = useState<LabourJobPostOut | null>(null)
@@ -220,13 +223,30 @@ export default function WorkerConnectClient() {
   // Search state
   const [workers, setWorkers] = useState<WorkerProfile[]>([])
   const [loadingWorkers, setLoadingWorkers] = useState<boolean>(false)
-  const [searchState, setSearchState] = useState<string>("All States")
+  const [searchState, setSearchState] = useState<string>(initialState)
   const [searchDistrict, setSearchDistrict] = useState<string>("")
   const [workerTypeFilter, setWorkerTypeFilter] = useState<string>("all")
   const [onlyAvailable, setOnlyAvailable] = useState<boolean>(true)
   const [minWageFilter, setMinWageFilter] = useState<string>("")
   const [maxWageFilter, setMaxWageFilter] = useState<string>("")
   const [searchTotal, setSearchTotal] = useState<number>(0)
+
+  // React to searchParams updates (e.g. clicking links from homepage)
+  useEffect(() => {
+    const tabParam = searchParams.get("tab")
+    const modeParam = searchParams.get("mode")
+    if (tabParam === "find_jobs" || modeParam === "find") setActiveTab("find_jobs")
+    else if (tabParam === "find_workers" || modeParam === "hire") setActiveTab("find_workers")
+    else if (tabParam === "post_job") setActiveTab("post_job")
+    else if (tabParam === "worker_portal") setActiveTab("worker_portal")
+    else if (tabParam === "wage_benchmarks") setActiveTab("wage_benchmarks")
+
+    const st = searchParams.get("state")
+    if (st && INDIAN_STATES.includes(st)) {
+      setSearchState(st)
+      setJobSearchState(st)
+    }
+  }, [searchParams])
 
   // Viewer / Farmer phone for authorized contact view
   const [viewerPhone, setViewerPhone] = useState<string>("")
@@ -905,6 +925,35 @@ export default function WorkerConnectClient() {
                 </div>
               </div>
 
+              {/* Quick Select State Pills */}
+              <div className="flex flex-wrap items-center gap-1.5 text-xs pt-1">
+                <span className="text-stone-400 font-medium mr-1 text-[11px]">Quick State:</span>
+                {[
+                  { label: "All States", val: "All States" },
+                  { label: "Karnataka (Dharwad, Sakleshpur)", val: "Karnataka" },
+                  { label: "Punjab (Ludhiana, Bathinda)", val: "Punjab" },
+                  { label: "Maharashtra (Nashik, Pune)", val: "Maharashtra" },
+                  { label: "Andhra Pradesh (Guntur)", val: "Andhra Pradesh" },
+                  { label: "Uttar Pradesh (Meerut)", val: "Uttar Pradesh" },
+                ].map((pill) => (
+                  <button
+                    key={pill.val}
+                    type="button"
+                    onClick={() => {
+                      setSearchState(pill.val)
+                      setSearchDistrict("")
+                    }}
+                    className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold border cursor-pointer ${
+                      searchState === pill.val
+                        ? "bg-emerald-700 text-white border-emerald-700 shadow-2xs font-bold"
+                        : "bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-700"
+                    }`}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
+
               {/* Wage and Availability Row */}
               <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-stone-100 dark:border-stone-800/50">
                 <div className="flex items-center gap-4 flex-wrap">
@@ -1523,6 +1572,7 @@ export default function WorkerConnectClient() {
                     { label: "Punjab (Ludhiana)", val: "Punjab" },
                     { label: "Maharashtra (Nashik)", val: "Maharashtra" },
                     { label: "Andhra Pradesh (Guntur)", val: "Andhra Pradesh" },
+                    { label: "Uttar Pradesh (Meerut, Sambhal)", val: "Uttar Pradesh" },
                   ].map((pill) => (
                     <button
                       key={pill.val}
