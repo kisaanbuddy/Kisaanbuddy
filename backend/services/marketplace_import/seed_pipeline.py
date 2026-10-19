@@ -8,8 +8,10 @@ import logging
 from sqlalchemy.orm import Session
 
 from db.models import (
+    BuyerRequirement,
     EquipmentCatalog,
     EquipmentListing,
+    GovernmentProcurement,
     ImportSource,
     MarketPriceRecord,
     ProduceListing,
@@ -17,8 +19,10 @@ from db.models import (
 from services.marketplace_import.equipment_importer import EquipmentCatalogueImporter
 from services.marketplace_import.agmarknet_importer import AgmarknetPriceImporter
 from services.marketplace_import.initial_catalog_data import (
+    INITIAL_BUYER_REQUIREMENTS,
     INITIAL_EQUIPMENT_CATALOG,
     INITIAL_EQUIPMENT_LISTINGS,
+    INITIAL_GOVERNMENT_PROCUREMENT,
     INITIAL_IMPORT_SOURCES,
     INITIAL_MARKET_PRICES,
     INITIAL_PRODUCE_LISTINGS,
@@ -28,12 +32,14 @@ log = logging.getLogger("krishiai.marketplace.seed")
 
 
 def seed_marketplace_catalogue(db: Session, force: bool = False) -> dict:
-    """Seed import sources, equipment reference catalogue, produce lots, and market prices."""
+    """Seed import sources, equipment reference catalogue, produce lots, buyer requirements, government procurement, and market prices."""
     summary = {
         "sources_seeded": 0,
         "equipment_catalog_seeded": 0,
         "equipment_listings_seeded": 0,
         "produce_listings_seeded": 0,
+        "buyer_requirements_seeded": 0,
+        "government_procurement_seeded": 0,
         "market_prices_seeded": 0,
     }
 
@@ -53,6 +59,9 @@ def seed_marketplace_catalogue(db: Session, force: bool = False) -> dict:
             )
             db.add(source)
             summary["sources_seeded"] += 1
+        elif force:
+            for k, v in s.items():
+                setattr(existing, k, v)
     db.commit()
 
     # 2. Seed Equipment Reference Catalogue (FMTTI / OEM Standards)
@@ -112,7 +121,47 @@ def seed_marketplace_catalogue(db: Session, force: bool = False) -> dict:
                 setattr(existing, k, v)
     db.commit()
 
-    # 5. Seed Market Prices (AGMARKNET Benchmarks)
+    # 5. Seed Buyer Requirements (Phase 3 Dedicated Section)
+    for br in INITIAL_BUYER_REQUIREMENTS:
+        existing_br = (
+            db.query(BuyerRequirement)
+            .filter(
+                BuyerRequirement.commodity == br["commodity"],
+                BuyerRequirement.buyer_name == br["buyer_name"],
+                BuyerRequirement.district == br["district"],
+            )
+            .first()
+        )
+        if not existing_br:
+            item = BuyerRequirement(**br)
+            db.add(item)
+            summary["buyer_requirements_seeded"] += 1
+        elif force:
+            for k, v in br.items():
+                setattr(existing_br, k, v)
+    db.commit()
+
+    # 6. Seed Government Procurement Info (Phase 6 Dedicated Section)
+    for gp in INITIAL_GOVERNMENT_PROCUREMENT:
+        existing_gp = (
+            db.query(GovernmentProcurement)
+            .filter(
+                GovernmentProcurement.crop_name == gp["crop_name"],
+                GovernmentProcurement.procurement_center == gp["procurement_center"],
+                GovernmentProcurement.procurement_season == gp["procurement_season"],
+            )
+            .first()
+        )
+        if not existing_gp:
+            item = GovernmentProcurement(**gp)
+            db.add(item)
+            summary["government_procurement_seeded"] += 1
+        elif force:
+            for k, v in gp.items():
+                setattr(existing_gp, k, v)
+    db.commit()
+
+    # 7. Seed Market Prices (AGMARKNET Benchmarks)
     price_count = db.query(MarketPriceRecord).count()
     if price_count == 0 or force:
         price_importer = AgmarknetPriceImporter(db)

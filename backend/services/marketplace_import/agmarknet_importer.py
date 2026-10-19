@@ -102,6 +102,7 @@ class AgmarknetPriceImporter:
                     existing.max_price = max_p
                     existing.modal_price = modal
                     existing.variety = r.get("variety") or existing.variety
+                    existing.data_retrieval_timestamp = datetime.utcnow()
                     updated += 1
                 else:
                     rec = MarketPriceRecord(
@@ -118,6 +119,7 @@ class AgmarknetPriceImporter:
                         modal_price=modal,
                         source_name=r.get("source_name") or "AGMARKNET / Directorate of Marketing & Inspection",
                         source_url=r.get("source_url") or "https://agmarknet.gov.in",
+                        data_retrieval_timestamp=datetime.utcnow(),
                     )
                     self.db.add(rec)
                     inserted += 1

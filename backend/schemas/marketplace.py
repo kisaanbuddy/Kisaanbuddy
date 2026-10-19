@@ -163,7 +163,7 @@ class EquipmentListingResponse(EquipmentListingCreate):
     model_config = ConfigDict(from_attributes=True)
 
 
-# ─── Phase 3: Produce Listings (Direct from Farms) Schemas ────────────────────
+# ─── Produce Listings (Sell Offers / Direct from Farms) Schemas ───────────────
 
 class ProduceListingCreate(BaseModel):
     crop_name: str = Field(..., min_length=2, max_length=120)
@@ -183,8 +183,11 @@ class ProduceListingCreate(BaseModel):
     contact_consent_verified: bool = True
     state: str = Field(..., min_length=2, max_length=100)
     district: str = Field(..., min_length=2, max_length=100)
+    village_or_tehsil: Optional[str] = Field(default=None, max_length=150)
     mandi_nearby: Optional[str] = Field(default=None, max_length=120)
     delivery_option: str = Field(default="Farm Gate Pickup", max_length=100)
+    photo_urls: Optional[str] = None
+    source_origin: str = Field(default="kisaanbuddy_farmer", max_length=100)
     verification_status: str = Field(default="verified", max_length=50)
     notes: Optional[str] = None
 
@@ -193,12 +196,126 @@ class ProduceListingResponse(ProduceListingCreate):
     id: int
     user_id: Optional[int] = None
     availability_status: str = "available"
+    farmer_phone_masked: Optional[str] = None
+    last_confirmation_date: Optional[date] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
 
 
-# ─── Phase 3: Market Price Record Schemas ─────────────────────────────────────
+# ─── Buyer Requirements (Purchase Demands) Schemas ───────────────────────────
+
+class BuyerRequirementCreate(BaseModel):
+    commodity: str = Field(..., min_length=2, max_length=120)
+    variety: Optional[str] = Field(default=None, max_length=100)
+    required_quantity: float = Field(..., gt=0.0)
+    quantity_unit: str = Field(default="Quintal", min_length=1, max_length=50)
+    buyer_name: str = Field(..., min_length=2, max_length=150)
+    buyer_type: str = Field(default="Wholesale Trader", max_length=50)
+    buyer_location: str = Field(..., min_length=2, max_length=150)
+    state: str = Field(..., min_length=2, max_length=100)
+    district: str = Field(..., min_length=2, max_length=100)
+    delivery_destination: Optional[str] = Field(default=None, max_length=200)
+    expected_price_min: Optional[float] = Field(default=None, ge=0.0)
+    expected_price_max: Optional[float] = Field(default=None, ge=0.0)
+    expected_price: Optional[float] = Field(default=None, ge=0.0)
+    price_unit: str = Field(default="per Quintal", min_length=1, max_length=50)
+    quality_requirements: Optional[str] = None
+    offer_expiry_date: date
+    verification_status: str = Field(default="verified", max_length=50)
+    source: str = Field(default="KisaanBuddy verified buyer requirement", max_length=150)
+    original_offer_url: Optional[str] = None
+    contact_person: Optional[str] = Field(default=None, max_length=120)
+    contact_phone: Optional[str] = Field(default=None, max_length=30)
+    contact_consent_verified: bool = True
+
+
+class BuyerRequirementResponse(BuyerRequirementCreate):
+    id: int
+    user_id: Optional[int] = None
+    status: str = "active"
+    contact_phone_masked: Optional[str] = None
+    is_expired: bool = False
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ─── Government Procurement Schemas ──────────────────────────────────────────
+
+class GovernmentProcurementCreate(BaseModel):
+    crop_name: str = Field(..., min_length=2, max_length=120)
+    variety: Optional[str] = Field(default=None, max_length=100)
+    procurement_season: str = Field(..., min_length=2, max_length=100)
+    msp_rate: float = Field(..., gt=0.0)
+    price_unit: str = Field(default="per Quintal", min_length=1, max_length=50)
+    state: str = Field(..., min_length=2, max_length=100)
+    district: str = Field(..., min_length=2, max_length=100)
+    procurement_center: str = Field(..., min_length=2, max_length=200)
+    nodal_agency: str = Field(..., min_length=2, max_length=150)
+    faq_specifications: Optional[str] = None
+    registration_requirements: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+    status: str = Field(default="active", max_length=30)
+    official_portal_url: str = Field(..., min_length=5, max_length=500)
+    source_name: str = Field(default="Food Corporation of India / State Civil Supplies", max_length=255)
+    source_url: Optional[str] = None
+    disclaimer: Optional[str] = None
+
+
+class GovernmentProcurementResponse(GovernmentProcurementCreate):
+    id: int
+    last_updated_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ─── Trade Inquiries & Quotations (Transaction Flow) Schemas ─────────────────
+
+class TradeInquiryCreate(BaseModel):
+    listing_type: Literal["produce_listing", "buyer_requirement"]
+    listing_id: int = Field(..., ge=1)
+    sender_name: str = Field(..., min_length=2, max_length=120)
+    sender_phone: str = Field(..., min_length=8, max_length=30)
+    sender_type: str = Field(default="farmer", max_length=50)
+    proposed_quantity: Optional[float] = Field(default=None, ge=0.0)
+    quantity_unit: Optional[str] = Field(default="Quintal", max_length=50)
+    proposed_price: Optional[float] = Field(default=None, ge=0.0)
+    price_unit: Optional[str] = Field(default="per Quintal", max_length=50)
+    message: Optional[str] = None
+
+
+class TradeInquiryResponse(TradeInquiryCreate):
+    id: int
+    sender_user_id: Optional[int] = None
+    status: str = "submitted"
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ─── Listing Reports & Admin Review Schemas ───────────────────────────────────
+
+class ListingReportCreate(BaseModel):
+    target_type: Literal["produce_listing", "buyer_requirement", "market_price"]
+    target_id: int = Field(..., ge=1)
+    reporter_name: Optional[str] = Field(default=None, max_length=120)
+    reporter_phone: Optional[str] = Field(default=None, max_length=30)
+    reason: Literal["misleading_price", "fake_stock", "unreachable_contact", "fraudulent", "duplicate", "other"]
+    details: Optional[str] = None
+
+
+class ListingReportResponse(ListingReportCreate):
+    id: int
+    reporter_user_id: Optional[int] = None
+    status: str = "pending_review"
+    admin_notes: Optional[str] = None
+    created_at: Optional[datetime] = None
+    resolved_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
+# ─── Market Price Record Schemas ─────────────────────────────────────────────
 
 class MarketPriceResponse(BaseModel):
     id: int
@@ -215,6 +332,9 @@ class MarketPriceResponse(BaseModel):
     modal_price: float
     source_name: str
     source_url: Optional[str] = None
+    data_retrieval_timestamp: Optional[datetime] = None
+    is_stale: bool = False
+    stale_warning: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 

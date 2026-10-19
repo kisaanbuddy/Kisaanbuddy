@@ -511,7 +511,11 @@ if Column is not None:
         district = Column(String(100), nullable=False, index=True)
         mandi_nearby = Column(String(120), nullable=True)
         delivery_option = Column(String(100), default="Farm Gate Pickup", nullable=False)  # Farm Gate Pickup, Mandi Delivery, Direct Dispatch
-        availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, under_negotiation, sold_out, inactive
+        village_or_tehsil = Column(String(150), nullable=True)
+        photo_urls = Column(Text, nullable=True)  # JSON-encoded array or comma-separated image URLs
+        last_confirmation_date = Column(Date, nullable=True)  # Seller confirmation of stock and price
+        source_origin = Column(String(100), default="kisaanbuddy_farmer", nullable=False)  # kisaanbuddy_farmer, fpo_partner, external_partner
+        availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, under_negotiation, sold_out, inactive, flagged
         verification_status = Column(String(50), default="verified", nullable=False)  # verified, fpo_member, self_declared
         notes = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -535,7 +539,102 @@ if Column is not None:
         modal_price = Column(Float, nullable=False)
         source_name = Column(String(255), default="AGMARKNET / Directorate of Marketing & Inspection", nullable=False)
         source_url = Column(String(500), nullable=True)
+        data_retrieval_timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class BuyerRequirement(Base):  # type: ignore[misc]
+        """Dedicated buyer requirement for agricultural produce from processors, millers, wholesalers, and exporters."""
+        __tablename__ = "buyer_requirements"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        commodity = Column(String(120), nullable=False, index=True)
+        variety = Column(String(100), nullable=True)
+        required_quantity = Column(Float, nullable=False)
+        quantity_unit = Column(String(50), default="Quintal", nullable=False)
+        buyer_name = Column(String(150), nullable=False)
+        buyer_type = Column(String(50), default="Wholesale Trader", nullable=False)  # Food Processor, Mill Owner, Exporter, FPO Aggregator, Wholesale Trader
+        buyer_location = Column(String(150), nullable=False)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        delivery_destination = Column(String(200), nullable=True)
+        expected_price_min = Column(Float, nullable=True)
+        expected_price_max = Column(Float, nullable=True)
+        expected_price = Column(Float, nullable=True)
+        price_unit = Column(String(50), default="per Quintal", nullable=False)
+        quality_requirements = Column(Text, nullable=True)  # e.g., "Moisture < 12%, Foreign matter < 1%, FAQ Grade"
+        offer_expiry_date = Column(Date, nullable=False, index=True)
+        verification_status = Column(String(50), default="verified", nullable=False)  # verified, enterprise_partner, fpo_certified, self_declared
+        source = Column(String(150), default="KisaanBuddy verified buyer requirement", nullable=False)
+        original_offer_url = Column(String(500), nullable=True)
+        contact_person = Column(String(120), nullable=True)
+        contact_phone = Column(String(30), nullable=True)
+        contact_consent_verified = Column(Boolean, default=True, nullable=False)
+        status = Column(String(30), default="active", nullable=False, index=True)  # active, expired, fulfilled, cancelled
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class GovernmentProcurement(Base):  # type: ignore[misc]
+        """Official government procurement centre information, seasons, and MSP benchmarks."""
+        __tablename__ = "government_procurements"
+        id = Column(Integer, primary_key=True, index=True)
+        crop_name = Column(String(120), nullable=False, index=True)
+        variety = Column(String(100), nullable=True)
+        procurement_season = Column(String(100), nullable=False, index=True)  # e.g., "Rabi Marketing Season (RMS) 2026-27"
+        msp_rate = Column(Float, nullable=False)  # Minimum Support Price per quintal
+        price_unit = Column(String(50), default="per Quintal", nullable=False)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        procurement_center = Column(String(200), nullable=False, index=True)
+        nodal_agency = Column(String(150), nullable=False)  # FCI, NAFED, State Civil Supplies Corporation, HAFED
+        faq_specifications = Column(Text, nullable=True)  # Fair Average Quality parameters
+        registration_requirements = Column(Text, nullable=True)  # Khasra land verification, Aadhaar-linked DBT account
+        start_date = Column(Date, nullable=True)
+        end_date = Column(Date, nullable=True)
+        status = Column(String(30), default="active", nullable=False, index=True)  # active, upcoming, closed
+        official_portal_url = Column(String(500), nullable=False)
+        source_name = Column(String(255), default="Food Corporation of India / State Civil Supplies", nullable=False)
+        source_url = Column(String(500), nullable=True)
+        last_updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        disclaimer = Column(Text, nullable=True)
+
+
+    class TradeInquiry(Base):  # type: ignore[misc]
+        """User quotation or expression of interest on a produce listing or buyer requirement."""
+        __tablename__ = "trade_inquiries"
+        id = Column(Integer, primary_key=True, index=True)
+        listing_type = Column(String(30), nullable=False, index=True)  # "produce_listing" or "buyer_requirement"
+        listing_id = Column(Integer, nullable=False, index=True)
+        sender_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        sender_name = Column(String(120), nullable=False)
+        sender_phone = Column(String(30), nullable=False)
+        sender_type = Column(String(50), default="farmer", nullable=False)  # farmer, buyer, fpo, trader
+        proposed_quantity = Column(Float, nullable=True)
+        quantity_unit = Column(String(50), default="Quintal", nullable=True)
+        proposed_price = Column(Float, nullable=True)
+        price_unit = Column(String(50), default="per Quintal", nullable=True)
+        message = Column(Text, nullable=True)
+        status = Column(String(30), default="submitted", nullable=False, index=True)  # submitted, in_discussion, accepted, rejected, closed
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class ListingReport(Base):  # type: ignore[misc]
+        """Audit report for misleading, fraudulent, or inaccurate listings."""
+        __tablename__ = "listing_reports"
+        id = Column(Integer, primary_key=True, index=True)
+        target_type = Column(String(50), nullable=False, index=True)  # "produce_listing", "buyer_requirement", "market_price"
+        target_id = Column(Integer, nullable=False, index=True)
+        reporter_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+        reporter_name = Column(String(120), nullable=True)
+        reporter_phone = Column(String(30), nullable=True)
+        reason = Column(String(100), nullable=False)  # misleading_price, fake_stock, unreachable_contact, fraudulent, duplicate, other
+        details = Column(Text, nullable=True)
+        status = Column(String(30), default="pending_review", nullable=False, index=True)  # pending_review, investigated, dismissed, action_taken
+        admin_notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        resolved_at = Column(DateTime, nullable=True)
 
 
     class ImportSource(Base):  # type: ignore[misc]
@@ -579,4 +678,5 @@ if Column is not None:
         record_identifier = Column(String(255), nullable=True)
         message = Column(Text, nullable=False)
         timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+
 

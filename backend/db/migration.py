@@ -118,9 +118,32 @@ def run_migrations():
                     cursor.execute(f"ALTER TABLE equipment_catalog ADD COLUMN {name} {col_type}")
                     altered = True
 
+        # Produce listing extended columns for complete sell offers
+        cursor.execute("PRAGMA table_info(produce_listings)")
+        produce_cols = [row[1] for row in cursor.fetchall()]
+        if produce_cols:
+            produce_additions = [
+                ("village_or_tehsil", "VARCHAR(150) DEFAULT NULL"),
+                ("photo_urls", "TEXT DEFAULT NULL"),
+                ("last_confirmation_date", "DATE DEFAULT NULL"),
+                ("source_origin", "VARCHAR(100) DEFAULT 'kisaanbuddy_farmer'"),
+            ]
+            for name, col_type in produce_additions:
+                if name not in produce_cols:
+                    cursor.execute(f"ALTER TABLE produce_listings ADD COLUMN {name} {col_type}")
+                    altered = True
+
+        # Market price records extended columns
+        cursor.execute("PRAGMA table_info(market_price_records)")
+        mandi_cols = [row[1] for row in cursor.fetchall()]
+        if mandi_cols:
+            if "data_retrieval_timestamp" not in mandi_cols:
+                cursor.execute("ALTER TABLE market_price_records ADD COLUMN data_retrieval_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP")
+                altered = True
+
         conn.commit()
         if altered:
-            log.info("Database schema updated with auth/review fields.")
+            log.info("Database schema updated with auth/review/marketplace fields.")
         else:
             log.info("Database schema is up to date.")
     except Exception as e:

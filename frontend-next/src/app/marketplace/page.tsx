@@ -1562,10 +1562,11 @@ export default function MarketplacePage() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-48 h-40 bg-white dark:bg-muted/30 rounded-xl p-2 flex items-center justify-center shrink-0 border border-border/40 hover:opacity-90 transition"
                 >
-                  <img
+                  <CatalogProductImage
                     src={selectedCatalogItem.image_url}
                     alt={selectedCatalogItem.model_name}
-                    className="max-h-full max-w-full object-contain"
+                    category={selectedCatalogItem.category}
+                    brand={selectedCatalogItem.brand}
                   />
                 </a>
                 <div className="flex-1 space-y-2 text-xs">
