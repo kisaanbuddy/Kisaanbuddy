@@ -443,7 +443,7 @@ export function FarmingIntelligenceSection() {
     ? ALL_FEATURES
     : ALL_FEATURES.filter((f) => f.categoryType === activeFilter);
 
-  const filterLabels = {
+  const filterLabels: Record<string, Record<string, string>> = {
     all: { en: 'All Features', hi: 'सभी सुविधाएं', kn: 'ಎಲ್ಲಾ ಸೌಲಭ್ಯಗಳು' },
     market: { en: 'Mandi & Marketplace', hi: 'मंडी व बाज़ार', kn: 'ಮಂಡಿ ಮತ್ತು ಮಾರುಕಟ್ಟೆ' },
     labour: { en: 'Workers & Labour', hi: 'श्रमिक व कार्यबल', kn: 'ಕಾರ್ಮಿಕರು' },
@@ -451,7 +451,7 @@ export function FarmingIntelligenceSection() {
     farm: { en: 'Field & Equipment', hi: 'उपकरण व खेत कार्य', kn: 'ಉಪಕರಣ ಮತ್ತು ಜಮೀನು' },
   };
 
-  const headerText = {
+  const headerText: Record<string, Record<string, string>> = {
     badge: {
       en: 'KISAANBUDDY COMPLETE PLATFORM',
       hi: 'किसान बडी की संपूर्ण सुविधाएं',

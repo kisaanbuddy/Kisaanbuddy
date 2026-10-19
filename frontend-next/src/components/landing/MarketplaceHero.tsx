@@ -197,44 +197,57 @@ export function MarketplaceHero() {
               </div>
 
               {/* Interactive Tabs */}
-              <div className="grid grid-cols-3 p-1.5 bg-stone-100/70 dark:bg-stone-800/60 border-b border-stone-200/60 dark:border-stone-800 text-xs font-medium">
+              <div className="grid grid-cols-4 p-1.5 bg-stone-100/70 dark:bg-stone-800/60 border-b border-stone-200/60 dark:border-stone-800 text-[11px] sm:text-xs font-medium">
                 <button
                   type="button"
                   onClick={() => setActiveTab('rates')}
-                  className={`py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-1 rounded-xl text-center transition-all flex items-center justify-center gap-1 ${
                     activeTab === 'rates'
                       ? 'bg-white dark:bg-stone-900 text-emerald-700 dark:text-emerald-400 font-bold shadow-xs'
                       : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                   }`}
                 >
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  <span>Mandi Rates</span>
+                  <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Mandi</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('buyers')}
-                  className={`py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-1 rounded-xl text-center transition-all flex items-center justify-center gap-1 ${
                     activeTab === 'buyers'
                       ? 'bg-white dark:bg-stone-900 text-amber-700 dark:text-amber-400 font-bold shadow-xs'
                       : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                   }`}
                 >
-                  <Users className="w-3.5 h-3.5" />
-                  <span>Active Buyers</span>
+                  <Store className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Buyers</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('workers')}
+                  className={`py-2 px-1 rounded-xl text-center transition-all flex items-center justify-center gap-1 ${
+                    activeTab === 'workers'
+                      ? 'bg-white dark:bg-stone-900 text-emerald-800 dark:text-emerald-300 font-bold shadow-xs ring-1 ring-emerald-500/30'
+                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                  }`}
+                >
+                  <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate font-semibold">Labour</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setActiveTab('advisory')}
-                  className={`py-2 px-2 rounded-xl text-center transition-all flex items-center justify-center gap-1.5 ${
+                  className={`py-2 px-1 rounded-xl text-center transition-all flex items-center justify-center gap-1 ${
                     activeTab === 'advisory'
                       ? 'bg-white dark:bg-stone-900 text-teal-700 dark:text-teal-400 font-bold shadow-xs'
                       : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>AI Advisory</span>
+                  <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Advisory</span>
                 </button>
               </div>
 
@@ -381,7 +394,81 @@ export function MarketplaceHero() {
                 </div>
               )}
 
-              {/* Tab 3 Content: AI Advisory */}
+              {/* Tab 3 Content: Workers Connect */}
+              {activeTab === 'workers' && (
+                <div className="p-4 space-y-2.5">
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
+                    <span>Labour Collective / Farm Job</span>
+                    <span>Wage Benchmark</span>
+                  </div>
+
+                  {/* Collective 1 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Dummawad Horticulture FPO</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold">Verified FPO</span>
+                      </div>
+                      <div className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
+                        Paddy Harvester & 45HP Rotavator (18 Workers)
+                      </div>
+                      <span className="text-[10px] text-stone-500">Dharwad, Karnataka • SFAC Registered CHC</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs sm:text-sm font-extrabold text-emerald-800 dark:text-emerald-300">₹450/day</div>
+                      <span className="text-[10px] text-stone-400">Labour Bureau</span>
+                    </div>
+                  </div>
+
+                  {/* Collective 2 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-emerald-50/40 dark:hover:bg-emerald-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Jagraon Harvester Wing</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold">Combine Crew</span>
+                      </div>
+                      <div className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
+                        Self-propelled Harvester & Laser Leveler (15 Workers)
+                      </div>
+                      <span className="text-[10px] text-stone-500">Ludhiana, Punjab • PAU Supported</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs sm:text-sm font-extrabold text-emerald-800 dark:text-emerald-300">₹510/day</div>
+                      <span className="text-[10px] text-stone-400">Labour Bureau</span>
+                    </div>
+                  </div>
+
+                  {/* Active Job 3 */}
+                  <div className="p-3 rounded-2xl bg-stone-50/90 dark:bg-stone-800/50 hover:bg-amber-50/40 dark:hover:bg-amber-950/20 border border-stone-200/60 dark:border-stone-800 flex items-center justify-between transition-colors">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-stone-900 dark:text-white text-xs sm:text-sm">Sugarcane Cutting & Trolley Loading</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold">Job Open</span>
+                      </div>
+                      <div className="text-[11px] text-stone-600 dark:text-stone-300 font-medium">
+                        8 Workers Needed for 6 Days • Daily Cash Payout
+                      </div>
+                      <span className="text-[10px] text-stone-500">Mandya, Karnataka • Transportation Provided</span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs sm:text-sm font-extrabold text-amber-700 dark:text-amber-400">₹470/day</div>
+                      <span className="text-[10px] text-stone-400">Evening Muster</span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action */}
+                  <Link
+                    href="/worker-connect"
+                    className="w-full mt-1 py-2.5 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  >
+                    <Users className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>Explore Worker Connect (50+ Verified Groups & Jobs)</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              )}
+
+              {/* Tab 4 Content: AI Advisory */}
               {activeTab === 'advisory' && (
                 <div className="p-4 space-y-2.5">
                   <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
