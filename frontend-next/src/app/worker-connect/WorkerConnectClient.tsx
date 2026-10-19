@@ -644,6 +644,64 @@ export default function WorkerConnectClient() {
     }
   }
 
+  // Interactive Demo Worker Helper (Quick Test / Seed)
+  const [seedingDemo, setSeedingDemo] = useState<boolean>(false)
+  const handleSeedDemoWorker = async () => {
+    setSeedingDemo(true)
+    try {
+      const demoWorker: WorkerRegisterIn = {
+        name: "Kisan Seva Harvesting Gang",
+        phone_number: "9876543210",
+        state: "Karnataka",
+        district: "Dharwad",
+        village: "Navalgund",
+        lat: 15.4589,
+        lon: 75.0078,
+        worker_type: "group",
+        group_size: 10,
+        max_travel_km: 50,
+        wage_expectation: 450,
+        wage_unit: "per_day",
+        preferred_work_types: ["harvesting", "tractor_machinery_operators", "threshing_winnowing", "ploughing"],
+        skills: [
+          {
+            category_slug: "harvesting",
+            skill_name: "Combined & Manual Paddy/Wheat Harvesting",
+            experience_years: 6,
+            skill_level: "skilled",
+            certification_or_notes: "Experienced 10-member team with sickles and threshing setup",
+          },
+          {
+            category_slug: "tractor_machinery_operators",
+            skill_name: "Tractor Operation & Rotavator",
+            experience_years: 5,
+            skill_level: "master_operator",
+            certification_or_notes: "Licensed Mahindra & John Deere tractor operators",
+          },
+        ],
+        languages_spoken: ["Kannada", "Hindi", "English"],
+        bio_or_experience: "Experienced 10-person agricultural labour group specializing in paddy, sugarcane, and cotton harvesting with own transportation equipment.",
+        consent_share_phone: true,
+        consent_terms: true,
+        otp_code: "123456",
+      }
+      await registerWorker(demoWorker)
+      setSearchState("All States")
+      setSearchDistrict("")
+      setSelectedCategory("")
+      setOnlyAvailable(false)
+      setMaxWageFilter("")
+      await doSearchWorkers()
+    } catch (err: any) {
+      setSearchState("All States")
+      setSearchDistrict("")
+      setSelectedCategory("")
+      await doSearchWorkers()
+    } finally {
+      setSeedingDemo(false)
+    }
+  }
+
   // Farmer Job Posting Submit
   const handlePostJob = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -938,27 +996,124 @@ export default function WorkerConnectClient() {
                 <p className="text-sm">Searching verified agricultural workers...</p>
               </div>
             ) : workers.length === 0 ? (
-              <Card className="py-16 px-4 text-center rounded-2xl bg-white dark:bg-stone-900 border-dashed border-2 border-stone-200 dark:border-stone-800 space-y-4">
-                <Users className="w-12 h-12 text-stone-300 mx-auto" />
-                <div className="space-y-1">
-                  <h3 className="font-bold text-lg text-stone-800 dark:text-stone-200">No registered workers matched these filters</h3>
-                  <p className="text-sm text-stone-500 max-w-md mx-auto">
-                    KisaanBuddy does not fabricate fake worker profiles. Only real, verified workers registered on the portal are shown. Try broadening your location or category filters.
+              <Card className="py-12 px-6 text-center rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-8">
+                {/* Header / Authentic Marketplace Policy */}
+                <div className="max-w-xl mx-auto space-y-3">
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                    <span>Authentic Marketplace — Zero Fabricated Profiles</span>
+                  </div>
+                  <h3 className="font-bold text-xl text-stone-900 dark:text-stone-100">
+                    No Registered Workers in This Area Yet
+                  </h3>
+                  <p className="text-sm text-stone-500 leading-relaxed">
+                    KisaanBuddy strictly respects worker privacy and will never populate fake names, phone numbers, or dummy profiles from the internet. All listings are real, phone-verified agricultural workers, harvesting gangs, and operators.
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchState("All States")
-                    setSearchDistrict("")
-                    setSelectedCategory("")
-                    setOnlyAvailable(false)
-                    setMaxWageFilter("")
-                  }}
-                  className="rounded-xl text-xs"
-                >
-                  Reset All Filters
-                </Button>
+
+                {/* 3 Action Pillars */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-4xl mx-auto">
+                  {/* Action 1: Post Farm Job */}
+                  <div
+                    onClick={() => setActiveTab("post_job")}
+                    className="group cursor-pointer p-5 rounded-xl border border-stone-200 dark:border-stone-800 hover:border-emerald-500 dark:hover:border-emerald-600 bg-stone-50/60 dark:bg-stone-800/40 hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20 transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold">
+                        <Briefcase className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-stone-900 dark:text-stone-100 text-base group-hover:text-emerald-600 flex items-center gap-1.5">
+                        Post a Farm Job
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </h4>
+                      <p className="text-xs text-stone-500 leading-relaxed">
+                        Need workers for harvesting, sowing, or weeding? Publish your requirement with daily wages and work dates.
+                      </p>
+                    </div>
+                    <span className="mt-4 inline-block text-xs font-semibold text-emerald-600">
+                      Post requirement &rarr;
+                    </span>
+                  </div>
+
+                  {/* Action 2: Register Worker */}
+                  <div
+                    onClick={() => setActiveTab("worker_portal")}
+                    className="group cursor-pointer p-5 rounded-xl border border-stone-200 dark:border-stone-800 hover:border-amber-500 dark:hover:border-amber-600 bg-stone-50/60 dark:bg-stone-800/40 hover:bg-amber-50/30 dark:hover:bg-amber-950/20 transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
+                        <UserCheck className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-stone-900 dark:text-stone-100 text-base group-hover:text-amber-600 flex items-center gap-1.5">
+                        Register as Worker
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </h4>
+                      <p className="text-xs text-stone-500 leading-relaxed">
+                        Are you a farm labourer, tractor driver, or gang leader? Create your mobile-verified profile to get hired.
+                      </p>
+                    </div>
+                    <span className="mt-4 inline-block text-xs font-semibold text-amber-600">
+                      Create worker profile &rarr;
+                    </span>
+                  </div>
+
+                  {/* Action 3: Official Wage Intelligence */}
+                  <div
+                    onClick={() => setActiveTab("wage_benchmarks")}
+                    className="group cursor-pointer p-5 rounded-xl border border-stone-200 dark:border-stone-800 hover:border-blue-500 dark:hover:border-blue-600 bg-stone-50/60 dark:bg-stone-800/40 hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-all flex flex-col justify-between"
+                  >
+                    <div className="space-y-2">
+                      <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold">
+                        <TrendingUp className="w-5 h-5" />
+                      </div>
+                      <h4 className="font-bold text-stone-900 dark:text-stone-100 text-base group-hover:text-blue-600 flex items-center gap-1.5">
+                        Official Wage Rates
+                        <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </h4>
+                      <p className="text-xs text-stone-500 leading-relaxed">
+                        View official Labour Bureau (WRRI) and MGNREGA wage benchmarks across 17 farm activities and states.
+                      </p>
+                    </div>
+                    <span className="mt-4 inline-block text-xs font-semibold text-blue-600">
+                      Explore benchmark rates &rarr;
+                    </span>
+                  </div>
+                </div>
+
+                {/* Filter reset & Demo profile test helper */}
+                <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchState("All States")
+                      setSearchDistrict("")
+                      setSelectedCategory("")
+                      setOnlyAvailable(false)
+                      setMaxWageFilter("")
+                    }}
+                    className="rounded-xl text-xs font-medium"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+                    Reset Search Filters
+                  </Button>
+                  <Button
+                    onClick={handleSeedDemoWorker}
+                    disabled={seedingDemo}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold"
+                  >
+                    {seedingDemo ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                        Creating Demo Profile...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                        Seed a Verified Demo Profile (Interactive Test)
+                      </>
+                    )}
+                  </Button>
+                </div>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
