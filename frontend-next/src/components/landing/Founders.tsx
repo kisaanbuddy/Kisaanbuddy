@@ -15,7 +15,7 @@ type Founder = {
 };
 
 export function Founders() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   const founders: Founder[] = [
     {
