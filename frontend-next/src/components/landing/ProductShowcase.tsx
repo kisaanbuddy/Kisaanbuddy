@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { 
-  ArrowRight, Bug, CloudSun, FlaskConical, TrendingUp, 
+  ArrowRight, Bug, Users, FlaskConical, TrendingUp, 
   CheckCircle2, Sparkles 
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
@@ -25,7 +25,7 @@ type ShowcaseContent = {
   tabs: {
     doctor: TabData;
     soil: TabData;
-    weather: TabData;
+    workers: TabData;
     mandi: TabData;
   };
 };
@@ -61,19 +61,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'Supports Soil Health Card upload or quick manual field estimates'
         ]
       },
-      weather: {
-        label: 'Hyperlocal Weather',
-        badge: 'Precision Radar',
-        headline: 'Know When to Irrigate, Spray, or Harvest.',
-        description: 'Spraying pesticides right before sudden downpours wastes expensive inputs. Our hyperlocal hourly forecast advises the safest windows for spraying and harvesting.',
-        buttonText: 'Check Farm Weather',
+      workers: {
+        label: 'Workers Connect',
+        badge: 'Rural Labour Network',
+        headline: 'Find Farm Workers or Discover Farming Jobs Near You.',
+        description: 'Connecting farmers who need agricultural labour for transplantation, harvesting, weeding, and machinery operations with verified rural farm workers.',
+        buttonText: 'Explore Workers Connect',
         points: [
-          'Hourly precipitation probability and wind speed for safe drift-free spraying',
-          'Proactive alerts for heatwaves, sudden frost, and unseasonal rainfall',
-          'PIN-code based 7-day agricultural forecast synced with IMD radar'
+          'Hire labour for paddy transplantation (Ropai), sowing, weeding & harvesting',
+          'Direct contact between farmers & workers with zero middleman commissions',
+          'Transparent daily & task rates aligned with Labour Bureau & MGNREGA benchmarks'
         ]
       },
-      mandi: {
+mandi: {
         label: 'Mandi Prices & Trends',
         badge: 'AGMARKNET Feeds',
         headline: 'Sell When and Where You Get Maximum Value.',
@@ -117,19 +117,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'सॉयल हेल्थ कार्ड अपलोड या मैन्युअल इनपुट दोनों समर्थित'
         ]
       },
-      weather: {
-        label: 'खेत का मौसम',
-        badge: 'स्प्रे रडार',
-        headline: 'मौसम के अनुसार सिंचाई और कीटनाशक छिड़काव की योजना बनाएं',
-        description: 'बारिश से ठीक पहले छिड़काव करने से महंगी दवा धुल जाती है। KisaanBuddy आपको 7-दिवसीय रडार और उपयुक्त स्प्रे विंडो बताता है।',
-        buttonText: 'मौसम पूर्वानुमान देखें',
+      workers: {
+        label: 'वर्कर कनेक्ट',
+        badge: 'ग्रामीण श्रम शक्ति',
+        headline: 'खेत के लिए मजदूर खोजें या अपने पास के खेतों में काम पाएं।',
+        description: 'धान रोपाई, बुवाई, निराई-गुड़ाई, कटाई और ट्रैक्टर संचालन के लिए स्थानीय खेतिहर मजदूरों और रोपाई दलों से सीधा संपर्क करें।',
+        buttonText: 'वर्कर कनेक्ट देखें',
         points: [
-          'घंटे-दर-घंटे बारिश की संभावना और हवा की गति',
-          'लू (हीटवेव) और पाला (फ्रॉस्ट) के लिए पहले से चेतावनी',
-          'खेत के पिन कोड के आधार पर 7 दिनों का पूर्वानुमान'
+          'धान रोपाई (रोपनी), बुवाई, निराई और फसल कटाई के लिए सीधे मजदूर रखें',
+          'बिचौलियों और आढ़तियों की कमीशन मुक्त सीधी पारदर्शी भर्ती',
+          'श्रम ब्यूरो व मनरेगा मानकों के अनुरूप वास्तविक किसान व पंजीकृत मजदूर'
         ]
       },
-      mandi: {
+mandi: {
         label: 'मंडी भाव व ट्रेंड',
         badge: 'eNAM लाइव रेट्स',
         headline: 'अपनी उपज बेचने से पहले 1,000+ मंडियों के ताज़ा भाव तुलना करें',
@@ -173,19 +173,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'ಸಾಯಿಲ್ ಹೆಲ್ತ್ ಕಾರ್ಡ್ ಅಪ್ಲೋಡ್ ಅಥವಾ ಅಂದಾಜು ನಮೂದು ಎರಡಕ್ಕೂ ಬೆಂಬಲ'
         ]
       },
-      weather: {
-        label: 'ಜಮೀನಿನ ಹವಾಮಾನ',
-        badge: 'ಸ್ಪ್ರೇ ರಾಡಾರ್',
-        headline: 'ಹವಾಮಾನಕ್ಕೆ ಅನುಗುಣವಾಗಿ ನೀರಾವರಿ ಮತ್ತು ಕೀಟನಾಶಕ ಸಿಂಪರಣೆ ಯೋಜನೆ',
-        description: 'ಮಳೆಗೆ ಮುಂಚೆ ಸಿಂಪಡಿಸಿದರೆ ದುಬಾರಿ ಔಷಧಿ ವ್ಯರ್ಥವಾಗುತ್ತದೆ. KisaanBuddy ನಿಮಗೆ 7 ದಿನಗಳ ಮುನ್ಸೂಚನೆ ಮತ್ತು ಸೂಕ್ತ ಸ್ಪ್ರೇ ಅವಧಿಯನ್ನು ತಿಳಿಸುತ್ತದೆ.',
-        buttonText: 'ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ನೋಡಿ',
+      workers: {
+        label: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್',
+        badge: 'ಗ್ರಾಮೀಣ ಕಾರ್ಮಿಕ ಜಾಲ',
+        headline: 'ಕೃಷಿ ಕೆಲಸಗಾರರನ್ನು ಹುಡುಕಿ ಅಥವಾ ಹತ್ತಿರದ ಕೃಷಿ ಕೆಲಸಗಳನ್ನು ಕಂಡುಕೊಳ್ಳಿ.',
+        description: 'ಭತ್ತದ ನಾಟಿ, ಬಿತ್ತನೆ, ಕಳೆ ಕೀಳುವುದು ಮತ್ತು ಕಟಾವಿಗಾಗಿ ಸ್ಥಳೀಯ ನುರಿತ ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ.',
+        buttonText: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್ ನೋಡಿ',
         points: [
-          'ಗಂಟೆ-ಗಂಟೆಯ ಮಳೆ ಸಾಧ್ಯತೆ ಮತ್ತು ಗಾಳಿಯ ವೇಗ',
-          'ಬಿಸಿಗಾಳಿ (ಹೀಟ್‌ವೇವ್) ಮತ್ತು ಹಿಮಪಾತದ ಮುಂಚಿತ ಮುನ್ನೆಚ್ಚರಿಕೆ',
-          'ಜಮೀನಿನ ಪಿನ್ ಕೋಡ್ ಆಧಾರದ ಮೇಲೆ 7 ದಿನಗಳ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ'
+          'ಭತ್ತದ ನಾಟಿ, ಬಿತ್ತನೆ, ಕಳೆ ಕೀಳುವುದು ಮತ್ತು ಕಟಾವು ಕೆಲಸಕ್ಕೆ ನೇರ ಕಾರ್ಮಿಕರು',
+          'ಮಧ್ಯವರ್ತಿಗಳ ಕಮಿಷನ್ ಇಲ್ಲದೆ ಪಾರದರ್ಶಕ ದೈನಂದಿನ ಕೂಲಿ ಒಪ್ಪಂದ',
+          'ಕಾರ್ಮಿಕ ಬ್ಯೂರೋ ಮತ್ತು ಎಂಜಿಎನ್‌ಆರ್‌ಇಜಿಎ ದರಗಳಿಗೆ ಅನುಗುಣವಾದ ದರಗಳು'
         ]
       },
-      mandi: {
+mandi: {
         label: 'ಮಂಡಿ ದರಗಳು ಮತ್ತು ಟ್ರೆಂಡ್‌ಗಳು',
         badge: 'eNAM ಲೈವ್ ದರಗಳು',
         headline: 'ನಿಮ್ಮ ಬೆಳೆಯನ್ನು ಮಾರಾಟ ಮಾಡುವ ಮುನ್ನ 1,000+ ಮಂಡಿಗಳ ಇತ್ತೀಚಿನ ದರಗಳನ್ನು ಹೋಲಿಸಿ',
@@ -229,19 +229,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'सॉइल हेल्थ कार्ड अपलोड किंवा जलद मॅन्युअल इनपुट'
         ]
       },
-      weather: {
-        label: 'शेतातील हवामान',
-        badge: 'स्प्रे रडार',
-        headline: 'हवामानानुसार पाणी आणि फवारणीचे नियोजन करा',
-        description: 'पावसाच्या आधी फवारणी केल्यास महागडी औषधे वाहून जातात. KisaanBuddy तुम्हाला ७ दिवसांचा अंदाज आणि फवारणीची योग्य वेळ सांगते.',
-        buttonText: 'हवामान अंदाज पहा',
+      workers: {
+        label: 'वर्कर्स कनेक्ट',
+        badge: 'ग्रामीण कामगार नेटवर्क',
+        headline: 'शेतासाठी मजूर शोधा किंवा जवळच्या शेतांमध्ये काम मिळवा.',
+        description: 'भात लावणी, पेरणी, निंदणी, कापणी आणि ट्रॅक्टर चालवण्यासाठी स्थानिक शेतमजुरांशी थेट संपर्क साधा.',
+        buttonText: 'वर्कर्स कनेक्ट उघडा',
         points: [
-          'तासागणिक पावसाची शक्यता आणि सुरक्षित फवारणीसाठी वाऱ्याचा वेग',
-          'उष्णतेची लाट व अवकाळी पावसाची पूर्वसूचना',
-          'पिन कोडनुसार ७ दिवसांचा स्थानिक हवामान अंदाज'
+          'भात लावणी (रोपणी), पेरणी, खुरपणी व कापणीसाठी थेट शेतमजूर मिळवा',
+          'दलालांचे कोणतेही कमिशन नाही, पारदर्शक दैनिक व साप्ताहिक मजुरी',
+          'कामगार ब्युरो व मनरेगा मानकांनुसार नोंदणीकृत खरे मजूर व शेतकरी'
         ]
       },
-      mandi: {
+mandi: {
         label: 'बाजारभाव व ट्रेंड',
         badge: 'eNAM थेट दर',
         headline: 'माल विकण्यापूर्वी १,०००+ बाजार समित्यांचे आजचे भाव तपासा',
@@ -285,19 +285,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'సాయిల్ హెల్త్ కార్డ్ అప్‌లోడ్ లేదా శీఘ్ర ఫీల్డ్ నమోదు'
         ]
       },
-      weather: {
-        label: 'పొలం వాతావరణం',
-        badge: 'స్ప్రే రాడార్',
-        headline: 'వాతావరణం ప్రకారం నీటి పారుదల మరియు మందుల పిచికారీ ప్లాన్ చేయండి',
-        description: 'వర్షం పడే ముందు పిచికారీ చేస్తే మందు వృధా అవుతుంది. KisaanBuddy 7 రోజుల సూచన మరియు సురక్షితమైన పిచికారీ సమయాన్ని తెలుపుతుంది.',
-        buttonText: 'వాతావరణం చూడండి',
+      workers: {
+        label: 'వర్కర్స్ కనెక్ట్',
+        badge: 'గ్రామీణ కూలీల నెట్‌వర్క్',
+        headline: 'వ్యవసాయ కూలీలను కనుగొనండి లేదా సమీపంలో పనులను వెతకండి.',
+        description: 'వరి నాట్లు, విత్తనాలు వేయడం, కలుపు తీత మరియు పంట కోతల కోసం నైపుణ్యం కలిగిన స్థానిక కూలీలతో నేరుగా సంప్రదించండి.',
+        buttonText: 'వర్కర్స్ కనెక్ట్ చూడండి',
         points: [
-          'గంటవారీ వర్షపాత సంభావ్యత మరియు గాలి వేగం',
-          'తీవ్ర ఎండలు మరియు అకాల వర్షాల ముందస్తు హెచ్చరికలు',
-          'పిన్ కోడ్ ఆధారంగా 7 రోజుల వ్యవసాయ వాతావరణ సూచన'
+          'వరి నాట్లు, విత్తనం నాటడం, కలుపు మరియు కోత పనులకు కూలీలు',
+          'మధ్యవర్తుల కమీషన్ లేకుండా పారదర్శక రోజువారీ వేతనం',
+          'లేబర్ బ్యూరో & ఉపాధి హామీ మార్గదర్శకాలకు అనుగుణమైన వేతనాలు'
         ]
       },
-      mandi: {
+mandi: {
         label: 'మార్కెట్ ధరలు & ట్రెండ్స్',
         badge: 'eNAM లైవ్ రేట్లు',
         headline: 'మీ పంట అమ్మే ముందు 1,000+ మార్కెట్ల తాజా ధరలను పోల్చండి',
@@ -341,19 +341,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'மண் வள அட்டை பதிவேற்றம் அல்லது நேரடி உள்ளீட்டு வசதி'
         ]
       },
-      weather: {
-        label: 'பண்ணை வானிலை',
-        badge: 'தெளிப்பு ரேடார்',
-        headline: 'வானிலைக்கு ஏற்ப பாசனம் மற்றும் மருந்து தெளிப்பை திட்டமிடுங்கள்',
-        description: 'மழைக்கு முன் தெளித்தால் மருந்துகள் வீணாகிவிடும். KisaanBuddy உங்களுக்கு 7 நாள் முன்னறிவிப்பு மற்றும் சரியான தெளிப்பு நேரத்தை வழங்குகிறது.',
-        buttonText: 'வானிலை முன்னறிவிப்பு',
+      workers: {
+        label: 'வர்க்கர்ஸ் கனெக்ட்',
+        badge: 'கிராமப்புற தொழிலாளர் நெட்வொர்க்',
+        headline: 'பண்ணை தொழிலாளர்களைக் கண்டறியுங்கள் அல்லது விவசாய வேலைகளைத் தேடுங்கள்.',
+        description: 'நெல் நடவு, விதைப்பு, களை எடுத்தல் மற்றும் அறுவடை பணிகளுக்கு உள்ளூர் விவசாயத் தொழிலாளர்களை நேரடியாகத் தொடர்பு கொள்ளுங்கள்.',
+        buttonText: 'வர்க்கர்ஸ் கனெக்ட் பார்க்க',
         points: [
-          'மணிநேர மழை வாய்ப்பு மற்றும் பாதுகாப்பான தெளிப்புக்கான காற்றின் வேகம்',
-          'வெப்ப அலை மற்றும் எதிர்பாராத மழைக் குறித்த முன்கூட்டிய எச்சரிக்கைகள்',
-          'பின்கோடு அடிப்படையிலான 7 நாள் விரிவான வானிலை முன்னறிவிப்பு'
+          'நெல் நடவு, விதைப்பு, களை எடுத்தல் மற்றும் அறுவடைக்கு நேரடி தொழிலாளர்கள்',
+          'இடைத்தரகர் கமிஷன் இல்லாத வெளிப்படையான தினசரி கூலி',
+          'தொழிலாளர் நலத்துறை வழிகாட்டுதலின்படி சரிபார்க்கப்பட்ட தொழிலாளர்கள்'
         ]
       },
-      mandi: {
+mandi: {
         label: 'மண்டி விலைகள் & போக்குகள்',
         badge: 'eNAM நேரலை விலைகள்',
         headline: 'பயிரை விற்பனை செய்வதற்கு முன் 1,000+ மண்டிகளின் விலைகளை ஒப்பிடுங்கள்',
@@ -397,19 +397,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'સોઇલ હેલ્થ કાર્ડ અપલોડ અથવા મેન્યુઅલ ઇનપુટ સમર્થન'
         ]
       },
-      weather: {
-        label: 'ખેતરનું હવામાન',
-        badge: 'સ્પ્રે રડાર',
-        headline: 'હવામાન અનુસાર પિયત અને દવાનો છંટકાવ પ્લાન કરો',
-        description: 'વરસાદ પહેલાં છંટકાવ કરવાથી મોંઘી દવા ધોવાઈ જાય છે. KisaanBuddy તમને 7 દિવસનું અનુમાન અને છંટકાવનો યોગ્ય સમય જણાવે છે.',
-        buttonText: 'હવામાન અનુમાન જુઓ',
+      workers: {
+        label: 'વર્કર્સ કનેક્ટ',
+        badge: 'ગ્રામીણ શ્રમિક નેટવર્ક',
+        headline: 'ખેતર માટે મજૂરો શોધો અથવા નજીકમાં ખેતીકામ મેળવો.',
+        description: 'ડાંગર રોપણી, વાવણી, નિંદામણ અને લણણી માટે સ્થાનિક અનુભવી ખેત મજૂરો અને ટ્રેક્ટર ચાલકો સાથે સીધો સંપર્ક કરો.',
+        buttonText: 'વર્કર્સ કનેક્ટ જુઓ',
         points: [
-          'કલાક દીઠ વરસાદની શક્યતા અને પવનની ઝડપ',
-          'હીટવેવ અને કમોસમી વરસાદ માટે અગાઉથી ચેતવણી',
-          'પિન કોડ આધારિત 7 દિવસનું ખેતી હવામાન અનુમાન'
+          'ડાંગર રોપણી, વાવણી, નિંદામણ અને પાક લણણી માટે સીધા મજૂરો રાખો',
+          'વચેટીયાઓના કમિશન વગર પારદર્શક દૈનિક મજૂરી દર',
+          'લેબર બ્યુરો અને મનરેગા મુજબ પ્રમાણિત સાચા ખેડૂતો અને શ્રમિકો'
         ]
       },
-      mandi: {
+mandi: {
         label: 'મંડી ભાવો અને વલણો',
         badge: 'eNAM લાઈવ ભાવો',
         headline: 'પાક વેચતા પહેલાં 1,000+ માર્કેટિંગ યાર્ડના તાજા ભાવો સરખાવો',
@@ -453,19 +453,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'সয়েল হেলথ কার্ড আপলোড বা দ্রুত ফিল্ড ইনপুট'
         ]
       },
-      weather: {
-        label: 'খামারের আবহাওয়া',
-        badge: 'স্প্রে রাডার',
-        headline: 'আবহাওয়া অনুযায়ী সেচ এবং কীটনাশক স্প্রে করার পরিকল্পনা করুন',
-        description: 'বৃষ্টির ঠিক আগে স্প্রে করলে দামি ওষুধ ধুয়ে যায়। KisaanBuddy আপনাকে ৭ দিনের পূর্বাভাস এবং স্প্রে করার সঠিক সময় জানায়।',
-        buttonText: 'আবহাওয়ার পূর্বাভাস দেখুন',
+      workers: {
+        label: 'ওয়ার্কার্স কানেক্ট',
+        badge: 'গ্রামীণ শ্রমিক নেটওয়ার্ক',
+        headline: 'খামারের জন্য শ্রমিক খুঁজুন অথবা কৃষিকাজ আবিষ্কার করুন।',
+        description: 'ধান রোপণ, বোনা, নিড়ানি এবং ফসল কাটার জন্য স্থানীয় নির্ভরযোগ্য কৃষি শ্রমিকদের সাথে সরাসরি যোগাযোগ করুন।',
+        buttonText: 'ওয়ার্কার্স কানেক্ট দেখুন',
         points: [
-          'ঘন্টায় ঘন্টায় বৃষ্টির সম্ভাবনা ও বাতাসের গতিবেগ',
-          'তাপপ্রবাহ ও অকাল বৃষ্টির আগাম সতর্কতা',
-          'পিন কোড ভিত্তিক ৭ দিনের কৃষি আবহাওয়ার পূর্বাভাস'
+          'ধান রোপণ, বীজ বপন, নিড়ানি ও ফসল কাটার জন্য সরাসরি শ্রমিক নিয়োগ',
+          'কোনো দালাল কমিশন নেই, স্বচ্ছ দৈনিক ও সাপ্তাহিক মজুরি',
+          'লেবার ব্যুরো ও মনরেগা মানদণ্ড অনুযায়ী প্রকৃত কৃষক ও শ্রমিক'
         ]
       },
-      mandi: {
+mandi: {
         label: 'মান্ডি দর ও প্রবণতা',
         badge: 'eNAM লাইভ দর',
         headline: 'ফসল বিক্রির আগে ১,০০০+ মান্ডির দর তুলনা করুন',
@@ -509,19 +509,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'ਸੋਇਲ ਹੈਲਥ ਕਾਰਡ ਅੱਪਲੋਡ ਜਾਂ ਤੇਜ਼ ਮੈਨੂਅਲ ਐਂਟਰੀ'
         ]
       },
-      weather: {
-        label: 'ਖੇਤ ਦਾ ਮੌਸਮ',
-        badge: 'ਸਪਰੇਅ ਰਾਡਾਰ',
-        headline: 'ਮੌਸਮ ਅਨੁਸਾਰ ਸਿੰਚਾਈ ਅਤੇ ਸਪਰੇਅ ਦੀ ਯੋਜਨਾ ਬਣਾਓ',
-        description: 'ਮੀਂਹ ਤੋਂ ਠੀਕ ਪਹਿਲਾਂ ਸਪਰੇਅ ਕਰਨ ਨਾਲ ਮਹਿੰਗੀ ਦਵਾਈ ਵਹਿ ਜਾਂਦੀ ਹੈ। KisaanBuddy ਤੁਹਾਨੂੰ 7 ਦਿਨਾਂ ਦਾ ਅਨੁਮਾਨ ਅਤੇ ਸਹੀ ਸਮਾਂ ਦੱਸਦਾ ਹੈ।',
-        buttonText: 'ਮੌਸਮ ਦੀ ਜਾਣਕਾਰੀ ਦੇਖੋ',
+      workers: {
+        label: 'ਵਰਕਰ ਕਨੈਕਟ',
+        badge: 'ਪੇਂਡੂ ਮਜ਼ਦੂਰ ਨੈੱਟਵਰਕ',
+        headline: 'ਖੇਤ ਲਈ ਮਜ਼ਦੂਰ ਲੱਭੋ ਜਾਂ ਨੇੜੇ ਖੇਤੀ ਦੇ ਕੰਮ ਲੱਭੋ।',
+        description: 'ਝੋਨੇ ਦੀ ਲਵਾਈ, ਬਿਜਾਈ, ਗੋਡੀ ਅਤੇ ਵਾਢੀ ਲਈ ਸਥਾਨਕ ਤਜਰਬੇਕਾਰ ਮਜ਼ਦੂਰਾਂ ਅਤੇ ਟਰੈਕਟਰ ਚਾਲਕਾਂ ਨਾਲ ਸਿੱਧਾ ਰਾਬਤਾ ਕਰੋ।',
+        buttonText: 'ਵਰਕਰ ਕਨੈਕਟ ਵੇਖੋ',
         points: [
-          'ਘੰਟੇ-ਵਾਰ ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ ਅਤੇ ਸੁਰੱਖਿਅਤ ਸਪਰੇਅ ਲਈ ਹਵਾ ਦੀ ਗਤੀ',
-          'ਗਰਮੀ ਦੀ ਲਹਿਰ ਅਤੇ ਬੇਮੌਸਮੀ ਮੀਂਹ ਲਈ ਪਹਿਲਾਂ ਹੀ ਚੇਤਾਵਨੀ',
-          'ਪਿੰਨ ਕੋਡ ਦੇ ਆਧਾਰ ਤੇ 7 ਦਿਨਾਂ ਦਾ ਖੇਤੀ ਮੌਸਮ ਅਨੁਮਾਨ'
+          'ਝੋਨਾ ਲਵਾਈ, ਬਿਜਾਈ, ਗੋਡੀ ਅਤੇ ਵਾਢੀ ਲਈ ਸਿੱਧੇ ਮਜ਼ਦੂਰ ਰੱਖੋ',
+          'ਵਿਚੋਲਿਆਂ ਦੇ ਕਮਿਸ਼ਨ ਤੋਂ ਬਿਨਾਂ ਪਾਰਦਰਸ਼ੀ ਦਿਹਾੜੀ',
+          'ਲੇਬਰ ਬਿਊਰੋ ਅਤੇ ਮਨਰੇਗਾ ਮਾਪਦੰਡਾਂ ਅਨੁਸਾਰ ਪ੍ਰਮਾਣਿਤ ਕਿਸਾਨ ਤੇ ਮਜ਼ਦੂਰ'
         ]
       },
-      mandi: {
+mandi: {
         label: 'ਮੰਡੀ ਭਾਅ ਅਤੇ ਰੁਝਾਨ',
         badge: 'eNAM ਲਾਈਵ ਭਾਅ',
         headline: 'ਫਸਲ ਵੇਚਣ ਤੋਂ ਪਹਿਲਾਂ 1,000+ ਮੰਡੀਆਂ ਦੇ ਤਾਜ਼ਾ ਭਾਅ ਮਿਲਾਓ',
@@ -565,19 +565,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'സോയിൽ ഹെൽത്ത് കാർഡ് അപ്‌ലോഡ് അല്ലെങ്കിൽ നേരിട്ടുള്ള വിവര ശേഖരണം'
         ]
       },
-      weather: {
-        label: 'ഫാം കാലാവസ്ഥ',
-        badge: 'സ്പ്രേ റഡാർ',
-        headline: 'കാലാവസ്ഥയ്ക്കനുസരിച്ച് നനയും കീടനാശിനി തളിക്കലും ആസൂത്രണം ചെയ്യുക',
-        description: 'മഴയ്ക്ക് തൊട്ടുമുമ്പ് മരുന്ന് തളിക്കുന്നത് ചെലവേറിയ മരുന്നുകൾ ഒലിച്ചുപോകാൻ ഇടയാക്കും. KisaanBuddy 7 ദിവസത്തെ കൃത്യമായ പ്രവചനം നൽകുന്നു.',
-        buttonText: 'കാലാവസ്ഥ പ്രവചനം കാണുക',
+      workers: {
+        label: 'വർക്കേഴ്സ് കണക്ട്',
+        badge: 'ഗ്രാമീണ തൊഴിലാളി ശൃംഖല',
+        headline: 'കാർഷിക തൊഴിലാളികളെ കണ്ടെത്തുക അല്ലെങ്കിൽ കൃഷി ജോലികൾ കണ്ടെത്തുക.',
+        description: 'ഞാറുനടീൽ, വിതയ്ക്കൽ, കള പറിക്കൽ, വിളവെടുപ്പ് എന്നിവയ്ക്കായി പ്രാദേശിക കർഷക തൊഴിലാളികളുമായി നേരിട്ട് ബന്ധപ്പെടുക.',
+        buttonText: 'വർക്കേഴ്സ് കണക്ട് കാണുക',
         points: [
-          'മണിക്കൂർ തോറുമുള്ള മഴ സാധ്യതയും കാറ്റിന്റെ വേഗതയും',
-          'ഉഷ്ണതരംഗവും അപ്രതീക്ഷിത മഴയും സംബന്ധിച്ച മുൻകൂർ മുന്നറിയിപ്പുകൾ',
-          'പിൻകോഡ് അടിസ്ഥാനമാക്കിയുള്ള 7 ദിവസത്തെ കാർഷിക കാലാവസ്ഥാ പ്രവചനം'
+          'ഞാറുനടീൽ, വിതയ്ക്കൽ, കള പറിക്കൽ, വിളവെടുപ്പ് എന്നിവയ്ക്ക് തൊഴിലാളികൾ',
+          'ഇടനിലക്കാരുടെ കമ്മീഷൻ ഇല്ലാത്ത സുതാര്യമായ വേതനം',
+          'ലേബർ ബ്യൂറോ മാനദണ്ഡങ്ങൾക്കനുസൃതമായ കാർഷിക ജോലികൾ'
         ]
       },
-      mandi: {
+mandi: {
         label: 'മാർക്കറ്റ് നിരക്കുകളും ട്രെൻഡുകളും',
         badge: 'eNAM ലൈവ് നിരക്കുകൾ',
         headline: 'വിളകൾ വിൽക്കുന്നതിന് മുൻപ് 1,000+ മാർക്കറ്റുകളിലെ വില താരതമ്യം ചെയ്യുക',
@@ -621,19 +621,19 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
           'Soil Health Card upload ya quick manual entry support'
         ]
       },
-      weather: {
-        label: 'Farm Weather',
-        badge: 'Precision Radar',
-        headline: 'Mausam ke Anusar Sinchai aur Spray ki Planning Karein',
-        description: 'Barish se theek pehle spray karne se costly dawai beh jaati hai. KisaanBuddy aapko 7-day radar aur best spray window batata hai.',
-        buttonText: 'Weather Forecast Dekhein',
+      workers: {
+        label: 'Workers Connect',
+        badge: 'Rural Labour Network',
+        headline: 'Farm ke liye mazdoor hire karein ya aas-paas kaam dhundein.',
+        description: 'Ropai, katai, nirai aur tractor kaam ke liye verified farm workers aur labour gang se directly connect karein.',
+        buttonText: 'Workers Connect Explore Karein',
         points: [
-          'Hourly rain probability aur drift-free safe spray ke liye wind speed',
-          'Heatwave aur unseasonal rain ke liye advance alerts',
-          'PIN-code based 7-day agricultural forecast IMD synced'
+          'Paddy transplantation (Ropai), sowing, weeding aur harvesting ke liye direct labour',
+          'Bina kisi middleman commission ke direct wage agreement',
+          'Labour Bureau & MGNREGA benchmarks ke sath genuine farm postings'
         ]
       },
-      mandi: {
+mandi: {
         label: 'Mandi Bhav & Trends',
         badge: 'AGMARKNET Feeds',
         headline: 'Fasal Bechne se Pehle 1,000+ Mandiyon ke Bhav Compare Karein',
@@ -652,7 +652,7 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
 const TAB_ICONS = {
   doctor: Bug,
   soil: FlaskConical,
-  weather: CloudSun,
+  workers: Users,
   mandi: TrendingUp,
 };
 
@@ -665,9 +665,9 @@ const TAB_IMAGES = {
     src: '/images/soil/soil-ph-testing.jpg',
     href: '/soil-health'
   },
-  weather: {
-    src: '/images/weather/monsoon-farmland.jpg',
-    href: '/weather'
+  workers: {
+    src: '/images/crops/indian-paddy-field.jpg',
+    href: '/worker-connect'
   },
   mandi: {
     src: '/images/mandi/grain-market-mandi.jpg',
@@ -677,13 +677,13 @@ const TAB_IMAGES = {
 
 export function ProductShowcase() {
   const { lang } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'doctor' | 'soil' | 'weather' | 'mandi'>('doctor');
+  const [activeTab, setActiveTab] = useState<'doctor' | 'soil' | 'workers' | 'mandi'>('doctor');
 
   const c = SHOWCASE_I18N[lang] || SHOWCASE_I18N.en;
   const currentTab = c.tabs[activeTab] || c.tabs.doctor;
   const currentMedia = TAB_IMAGES[activeTab] || TAB_IMAGES.doctor;
 
-  const tabKeys: Array<'doctor' | 'soil' | 'weather' | 'mandi'> = ['doctor', 'soil', 'weather', 'mandi'];
+  const tabKeys: Array<'doctor' | 'soil' | 'workers' | 'mandi'> = ['doctor', 'soil', 'workers', 'mandi'];
 
   return (
     <section id="product-showcase" className="py-16 sm:py-24 bg-muted/20 dark:bg-card/30 border-b border-border/60 relative">

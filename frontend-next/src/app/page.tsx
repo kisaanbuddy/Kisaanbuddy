@@ -6,6 +6,7 @@ import { FarmerProfileSection } from '@/components/landing/FarmerProfileSection'
 import { ProductShowcase } from '@/components/landing/ProductShowcase';
 import { Features } from '@/components/landing/Features';
 import { HowItWorks } from '@/components/landing/HowItWorks';
+import { WorkersConnectSection } from '@/components/landing/WorkersConnectSection';
 import { MarketplaceSection } from '@/components/landing/MarketplaceSection';
 import { TrustSection } from '@/components/landing/TrustSection';
 import { Founders } from '@/components/landing/Founders';
@@ -50,7 +51,10 @@ export default function LandingPage() {
       {/* 7. How It Works (3-Step Practical Workflow) */}
       <HowItWorks />
 
-      {/* 8. Marketplace: Connect Your Harvest to Market Opportunities */}
+      {/* 8. Workers Connect: Find Farm Workers or Discover Farming Jobs */}
+      <WorkersConnectSection />
+
+      {/* 9. Marketplace: Connect Your Harvest to Market Opportunities */}
       <MarketplaceSection />
 
       {/* 9. Trust, Science & Data Privacy */}

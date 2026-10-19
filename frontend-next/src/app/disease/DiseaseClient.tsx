@@ -11,6 +11,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { type AssistantRequest, type Language, streamMessage } from "@/lib/assistant-api"
+import { SprayWeatherAdvisory } from "@/components/disease/SprayWeatherAdvisory"
 
 const LANG_LABEL: Record<Language, string> = {
   auto: "Auto", en: "English", hi: "हिन्दी", kn: "ಕನ್ನಡ",
@@ -507,6 +508,12 @@ export default function DiseasePortal() {
                     <span>Model: {mlResult.model}</span>
                     <span>15-Class Taxonomy</span>
                   </div>
+
+                  {/* Contextual Spraying & Crop Protection Advisory (Requirement 2-C) */}
+                  <SprayWeatherAdvisory
+                    diseaseName={mlResult.predicted_class}
+                    language={language}
+                  />
                 </motion.div>
               )}
 

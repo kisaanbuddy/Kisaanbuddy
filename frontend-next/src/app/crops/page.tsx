@@ -26,6 +26,7 @@ import {
 } from "@/lib/farmer-api";
 import { useLanguage } from "@/lib/language";
 import { CROPS_PAGE_I18N } from "@/lib/crops-i18n";
+import { CropWeatherAdvisory } from "@/components/crops/CropWeatherAdvisory";
 
 export default function CropsPage() {
   const { lang } = useLanguage();
@@ -367,6 +368,15 @@ export default function CropsPage() {
                       </span>
                     )}
                   </div>
+
+                  {/* Contextual Weather & Irrigation Advisory (Requirement 2: A, B, C, D) */}
+                  <CropWeatherAdvisory
+                    cropName={crop}
+                    stageName={stage}
+                    irrigationType={field.irrigation_type || "Tube well"}
+                    expectedHarvest={field.expected_harvest || undefined}
+                    lang={lang}
+                  />
                 </div>
               </div>
 

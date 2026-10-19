@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Sprout, TrendingUp, CloudSun, Languages } from 'lucide-react';
+import { Sprout, TrendingUp, Users, Languages } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
 const STATS_DATA = [
@@ -36,18 +36,18 @@ const STATS_DATA = [
     },
   },
   {
-    icon: CloudSun,
-    href: '/weather',
-    iconColor: 'text-sky-600 bg-sky-500/10 border-sky-500/20',
+    icon: Users,
+    href: '/worker-connect',
+    iconColor: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/20',
     metric: {
-      en: 'Farm Weather', hi: 'खेत का मौसम', kn: 'ಜಮೀನಿನ ಹವಾಮಾನ',
-      mr: 'शेतातील हवामान', te: 'పొలం వాతావరణం', ta: 'பண்ணை வானிலை',
-      gu: 'ખેતરનું હવામાન', bn: 'খামারের আবহাওয়া', pa: 'ਖੇਤ ਦਾ ਮੌਸਮ', ml: 'ഫാം കാലാവസ്ഥ', hi_en: 'Khet ka Mausam',
+      en: 'Workers Connect', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್',
+      mr: 'वर्कर्स कनेक्ट', te: 'వర్కర్స్ కనెక్ట్', ta: 'வர்க்கர்ஸ் கனெக்ட்',
+      gu: 'વર્કર્સ કનેક્ટ', bn: 'ওয়ার্কার্স কানেক্ট', pa: 'ਵਰਕਰ ਕਨੈਕਟ', ml: 'വർക്കേഴ്സ് കണക്ട്', hi_en: 'Workers Connect',
     },
     label: {
-      en: 'Hyperlocal rain & spray radar', hi: 'सटीक बारिश व तापमान रडार', kn: 'ಸ್ಥಳೀಯ ಮಳೆ ಮತ್ತು ಸ್ಪ್ರೇ ರಾಡಾರ್',
-      mr: 'स्थानिक पाऊस व फवारणी रडार', te: 'స్థానిక వర్షం & స్ప్రే రాడార్', ta: 'உள்ளூர் மழை & தெளிப்பு ரேடார்',
-      gu: 'સ્થાનિક વરસાદ અને છંટકાવ રડાર', bn: 'স্থানীয় বৃষ্টি ও স্প্রে রাডার', pa: 'ਸਥਾਨਕ ਮੀਂਹ ਅਤੇ ਸਪਰੇਅ ਰਾਡਾਰ', ml: 'പ്രാദേശിക മഴ, സ്പ്രേ റഡാർ', hi_en: 'Local rain & spray radar',
+      en: 'Farm labour & jobs near you', hi: 'मजदूर खोजें या काम पाएं', kn: 'ಕೃಷಿ ಕಾರ್ಮಿಕರು & ಉದ್ಯೋಗಗಳು',
+      mr: 'शेतासाठी मजूर व कामे', te: 'వ్యవసాయ కూలీలు & పనులు', ta: 'பண்ணைத் தொழிலாளர்கள் & வேலைகள்',
+      gu: 'ખેત મજૂરો અને રોજગાર', bn: 'কৃষি শ্রমিক ও কাজ খুঁজুন', pa: 'ਖੇਤ ਮਜ਼ਦੂਰ ਅਤੇ ਕੰਮ', ml: 'കാർഷിക തൊഴിലാളികളും ജോലികളും', hi_en: 'Mazdoor hire karein ya kaam paayein',
     },
   },
   {

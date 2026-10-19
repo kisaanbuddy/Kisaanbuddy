@@ -37,6 +37,7 @@ import {
   ChevronRight,
 } from "lucide-react"
 
+import { JobWeatherAdvisory } from "@/components/worker-connect/JobWeatherAdvisory"
 import { useLanguage, type Lang } from "@/lib/language"
 import {
   type WorkerProfile,
@@ -71,10 +72,23 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-type TabMode = "find_workers" | "post_job" | "worker_portal" | "wage_benchmarks"
+type TabMode = "find_workers" | "find_jobs" | "post_job" | "worker_portal" | "wage_benchmarks"
 
 // Multilingual tab labels across 11 languages
 const TAB_TITLES: Record<TabMode, Record<string, string>> = {
+  find_jobs: {
+    en: "Find Farming Jobs",
+    hi: "कृषि काम खोजें",
+    kn: "ಕೃಷಿ ಕೆಲಸ ಹುಡುಕಿ",
+    te: "వ్యవసాయ పనులు వెతకండి",
+    ta: "பண்ணை வேலைகளை தேடுங்கள்",
+    mr: "शेतीची कामे शोधा",
+    gu: "ખેતી કામ શોધો",
+    bn: "কৃষিকাজ খুঁজুন",
+    pa: "ਖੇਤੀ ਕੰਮ ਲੱਭੋ",
+    ml: "കൃഷി ജോലികൾ കണ്ടെത്തുക",
+    hi_en: "Find Farm Jobs",
+  },
   find_workers: {
     en: "Find Workers",
     hi: "मज़दूर खोजें",
@@ -171,7 +185,32 @@ export default function WorkerConnectClient() {
   const { lang } = useLanguage()
   const searchParams = useSearchParams()
 
-  const [activeTab, setActiveTab] = useState<TabMode>("find_workers")
+  const initialTab: TabMode = (() => {
+    const tabParam = searchParams.get("tab")
+    const modeParam = searchParams.get("mode")
+    if (tabParam === "find_jobs" || modeParam === "find") return "find_jobs"
+    if (tabParam === "find_workers" || modeParam === "hire") return "find_workers"
+    if (tabParam === "post_job") return "post_job"
+    if (tabParam === "worker_portal") return "worker_portal"
+    if (tabParam === "wage_benchmarks") return "wage_benchmarks"
+    return "find_workers"
+  })()
+  const [activeTab, setActiveTab] = useState<TabMode>(initialTab)
+
+  // Jobs search & application states for Agricultural Workers
+  const [jobListings, setJobListings] = useState<LabourJobPostOut[]>([])
+  const [loadingJobs, setLoadingJobs] = useState<boolean>(false)
+  const [jobSearchState, setJobSearchState] = useState<string>("All States")
+  const [jobSearchDistrict, setJobSearchDistrict] = useState<string>("")
+  const [jobSearchCategory, setJobSearchCategory] = useState<string>("")
+  const [selectedJobForApply, setSelectedJobForApply] = useState<LabourJobPostOut | null>(null)
+  const [applicantName, setApplicantName] = useState<string>("")
+  const [applicantPhone, setApplicantPhone] = useState<string>("")
+  const [applicantProposedWage, setApplicantProposedWage] = useState<string>("")
+  const [applicantGroupCount, setApplicantGroupCount] = useState<number>(1)
+  const [applicantMessage, setApplicantMessage] = useState<string>("")
+  const [submittingApplication, setSubmittingApplication] = useState<boolean>(false)
+  const [applicationSuccess, setApplicationSuccess] = useState<string>("")
 
   // Category data
   const [categories, setCategories] = useState<WorkerCategory[]>([])
@@ -305,6 +344,62 @@ export default function WorkerConnectClient() {
         )
       })
   }, [])
+
+  // Load Farm Jobs for Workers when filters change
+  const doSearchJobs = useCallback(async () => {
+    setLoadingJobs(true)
+    try {
+      const data = await fetchLabourJobs({
+        state: jobSearchState !== "All States" ? jobSearchState : undefined,
+        district: jobSearchDistrict.trim() || undefined,
+        category_slug: jobSearchCategory || undefined,
+        status: "open",
+        limit: 50,
+      })
+      setJobListings(data || [])
+    } catch (e) {
+      console.error("Job search error:", e)
+      setJobListings([])
+    } finally {
+      setLoadingJobs(false)
+    }
+  }, [jobSearchState, jobSearchDistrict, jobSearchCategory])
+
+  useEffect(() => {
+    if (activeTab === "find_jobs") {
+      doSearchJobs()
+    }
+  }, [activeTab, doSearchJobs])
+
+  const handleApplyJob = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!selectedJobForApply) return
+    setSubmittingApplication(true)
+    setApplicationSuccess("")
+    try {
+      await applyForLabourJob(selectedJobForApply.id, {
+        applicant_name: applicantName,
+        applicant_phone: applicantPhone,
+        proposed_wage: applicantProposedWage ? parseFloat(applicantProposedWage) : undefined,
+        wage_unit: selectedJobForApply.wage_unit,
+        group_members_count: applicantGroupCount,
+        message: applicantMessage,
+      })
+      setApplicationSuccess("Application submitted successfully to the farm owner!")
+      setTimeout(() => {
+        setSelectedJobForApply(null)
+        setApplicationSuccess("")
+        setApplicantName("")
+        setApplicantPhone("")
+        setApplicantProposedWage("")
+        setApplicantMessage("")
+      }, 3000)
+    } catch (err: any) {
+      alert("Application failed: " + (err.message || String(err)))
+    } finally {
+      setSubmittingApplication(false)
+    }
+  }
 
   // Load Workers when filters change
   const doSearchWorkers = useCallback(async () => {
@@ -672,21 +767,22 @@ export default function WorkerConnectClient() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-stone-100 dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-inner max-w-4xl mx-auto">
-          {(["find_workers", "post_job", "worker_portal", "wage_benchmarks"] as TabMode[]).map((mode) => {
+        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-stone-100 dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-inner max-w-5xl mx-auto">
+          {(["find_workers", "find_jobs", "post_job", "worker_portal", "wage_benchmarks"] as TabMode[]).map((mode) => {
             const isSelected = activeTab === mode
             return (
               <button
                 key={mode}
                 onClick={() => setActiveTab(mode)}
-                className={`relative px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 ${
+                className={`relative px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 flex items-center gap-2 cursor-pointer ${
                   isSelected
                     ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
                     : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white hover:bg-stone-200/50 dark:hover:bg-stone-800/50"
                 }`}
               >
                 {mode === "find_workers" && <Search className="w-4 h-4" />}
-                {mode === "post_job" && <Briefcase className="w-4 h-4" />}
+                {mode === "find_jobs" && <Briefcase className="w-4 h-4" />}
+                {mode === "post_job" && <Plus className="w-4 h-4" />}
                 {mode === "worker_portal" && <Users className="w-4 h-4" />}
                 {mode === "wage_benchmarks" && <TrendingUp className="w-4 h-4" />}
                 <span>{TAB_TITLES[mode][lang] || TAB_TITLES[mode].en}</span>
@@ -1014,6 +1110,291 @@ export default function WorkerConnectClient() {
                     </Card>
                   )
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* TAB: FIND FARMING JOBS (For Agricultural Workers seeking genuine farm work)*/}
+        {/* ========================================================================= */}
+        {activeTab === "find_jobs" && (
+          <div className="space-y-6">
+            {/* Search Controls Card */}
+            <Card className="p-5 sm:p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 shadow-sm rounded-2xl space-y-5">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-4">
+                <div className="flex items-center gap-2 font-bold text-lg text-stone-900 dark:text-white">
+                  <Briefcase className="w-5 h-5 text-amber-600" />
+                  <span>Discover Open Agricultural Jobs</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-stone-500">
+                  <span>{jobListings.length} active opportunities</span>
+                </div>
+              </div>
+
+              {/* Filters Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* State */}
+                <div>
+                  <Label className="text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1.5 block">State</Label>
+                  <select
+                    value={jobSearchState}
+                    onChange={(e) => setJobSearchState(e.target.value)}
+                    className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {INDIAN_STATES.map((st) => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* District */}
+                <div>
+                  <Label className="text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1.5 block">District or Tehsil</Label>
+                  <Input
+                    placeholder="e.g. Tumkur, Karnal, Ludhiana"
+                    value={jobSearchDistrict}
+                    onChange={(e) => setJobSearchDistrict(e.target.value)}
+                    className="rounded-xl"
+                  />
+                </div>
+
+                {/* Activity / Category */}
+                <div>
+                  <Label className="text-xs font-semibold text-stone-600 dark:text-stone-400 mb-1.5 block">Work Category</Label>
+                  <select
+                    value={jobSearchCategory}
+                    onChange={(e) => setJobSearchCategory(e.target.value)}
+                    className="w-full px-3 py-2 bg-stone-50 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500"
+                  >
+                    <option value="">All Farm Activities</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.slug}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button
+                  onClick={doSearchJobs}
+                  disabled={loadingJobs}
+                  className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold px-6 py-2 shadow-sm"
+                >
+                  {loadingJobs ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Search className="w-3.5 h-3.5 mr-1.5" />}
+                  <span>Filter Jobs</span>
+                </Button>
+              </div>
+            </Card>
+
+            {/* Job Listings Grid */}
+            {loadingJobs ? (
+              <div className="py-16 text-center text-stone-500 flex flex-col items-center justify-center gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-amber-600" />
+                <p className="text-sm font-medium">Loading genuine farm job postings...</p>
+              </div>
+            ) : jobListings.length === 0 ? (
+              <Card className="p-10 text-center bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl space-y-3">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto">
+                  <Briefcase className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">
+                  No Farm Jobs Currently Listed in {jobSearchDistrict || jobSearchState}
+                </h3>
+                <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
+                  Farm owners post work requirements daily during peak sowing, transplantation (Ropai), and harvesting seasons. Post a job or register as an available worker to be notified first!
+                </p>
+                <div className="pt-2">
+                  <Button
+                    onClick={() => setActiveTab("worker_portal")}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold px-4"
+                  >
+                    Register as Available Farm Worker
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {jobListings.map((job) => (
+                  <Card
+                    key={job.id}
+                    className="p-5 sm:p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 text-[11px] font-bold border border-amber-500/20 mb-1.5">
+                            <span>{job.category_slug.replace(/_/g, " ")}</span>
+                          </div>
+                          <h4 className="text-lg font-bold text-stone-900 dark:text-white">
+                            {job.job_title}
+                          </h4>
+                          <p className="text-xs text-stone-500 flex items-center gap-1 mt-0.5">
+                            <MapPin className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                            <span>{job.village ? `${job.village}, ` : ""}{job.district}, {job.state}</span>
+                          </p>
+                        </div>
+
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 shrink-0 uppercase tracking-wide">
+                          {job.status}
+                        </span>
+                      </div>
+
+                      {/* Job details strip */}
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                        <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 space-y-0.5">
+                          <span className="text-[10px] text-stone-500 uppercase font-semibold">Wage Offer</span>
+                          <p className="font-bold text-emerald-700 dark:text-emerald-400 text-sm">
+                            ₹{job.wage_amount} <span className="text-xs font-normal text-stone-500">/{job.wage_unit.replace('_', ' ')}</span>
+                          </p>
+                          <p className="text-[10px] text-stone-400">{job.payment_terms}</p>
+                        </div>
+
+                        <div className="p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 space-y-0.5">
+                          <span className="text-[10px] text-stone-500 uppercase font-semibold">Workers Needed</span>
+                          <p className="font-bold text-stone-900 dark:text-white text-sm">
+                            {job.workers_needed} Workers
+                          </p>
+                          <p className="text-[10px] text-stone-400">Duration: {job.duration_days} days</p>
+                        </div>
+                      </div>
+
+                      {job.work_type_detail && (
+                        <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed bg-stone-50/70 dark:bg-stone-800/40 p-2.5 rounded-xl border border-stone-200/40 dark:border-stone-700/40">
+                          {job.work_type_detail}
+                        </p>
+                      )}
+
+                      <div className="space-y-1 text-[11px] text-stone-500">
+                        <p>🚜 <strong>Transport:</strong> {job.transport_info}</p>
+                        <p>🏠 <strong>Stay:</strong> {job.accommodation_info}</p>
+                        <p>📅 <strong>Start Date:</strong> {job.start_date}</p>
+                      </div>
+
+                      {/* Contextual Weather Advisory (attached to specific job location, date & work type) */}
+                      <JobWeatherAdvisory
+                        district={job.district}
+                        state={job.state}
+                        workTypeOrCategory={job.category_slug}
+                        startDate={job.start_date}
+                        lang={lang}
+                      />
+                    </div>
+
+                    <div className="pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center justify-between gap-3">
+                      <div className="text-xs">
+                        <span className="text-stone-400">Owner:</span>{' '}
+                        <span className="font-semibold text-stone-800 dark:text-stone-200">{job.contact_name}</span>
+                      </div>
+
+                      <Button
+                        size="sm"
+                        onClick={() => setSelectedJobForApply(job)}
+                        className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold px-4 py-2 shadow-sm"
+                      >
+                        Apply for Job
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Application Modal */}
+            {selectedJobForApply && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <Card className="max-w-md w-full bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl p-6 shadow-2xl space-y-5">
+                  <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-800 pb-3">
+                    <div>
+                      <h3 className="font-bold text-lg text-stone-900 dark:text-white">
+                        Apply to {selectedJobForApply.job_title}
+                      </h3>
+                      <p className="text-xs text-stone-500">
+                        {selectedJobForApply.district}, {selectedJobForApply.state} • ₹{selectedJobForApply.wage_amount}/{selectedJobForApply.wage_unit}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedJobForApply(null)}
+                      className="p-1 rounded-full text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {applicationSuccess ? (
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600" />
+                      <span>{applicationSuccess}</span>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleApplyJob} className="space-y-4">
+                      <div>
+                        <Label className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-1 block">Your Full Name *</Label>
+                        <Input
+                          placeholder="e.g. Raju Yadav"
+                          value={applicantName}
+                          onChange={(e) => setApplicantName(e.target.value)}
+                          required
+                          className="rounded-xl"
+                        />
+                      </div>
+
+                      <div>
+                        <Label className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-1 block">Your Mobile Number (10 Digits) *</Label>
+                        <Input
+                          placeholder="9876543210"
+                          value={applicantPhone}
+                          onChange={(e) => setApplicantPhone(e.target.value)}
+                          required
+                          className="rounded-xl"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-1 block">Proposed Wage (₹)</Label>
+                          <Input
+                            type="number"
+                            placeholder={String(selectedJobForApply.wage_amount)}
+                            value={applicantProposedWage}
+                            onChange={(e) => setApplicantProposedWage(e.target.value)}
+                            className="rounded-xl"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-1 block">Group / Crew Size</Label>
+                          <Input
+                            type="number"
+                            min={1}
+                            value={applicantGroupCount}
+                            onChange={(e) => setApplicantGroupCount(parseInt(e.target.value) || 1)}
+                            className="rounded-xl"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-1 block">Message / Experience (Optional)</Label>
+                        <Input
+                          placeholder="e.g. Available immediately with 4 experienced workers"
+                          value={applicantMessage}
+                          onChange={(e) => setApplicantMessage(e.target.value)}
+                          className="rounded-xl text-xs"
+                        />
+                      </div>
+
+                      <div className="pt-2">
+                        <Button
+                          type="submit"
+                          disabled={submittingApplication}
+                          className="w-full bg-amber-600 hover:bg-amber-700 text-white rounded-xl py-3 font-bold text-sm shadow-md"
+                        >
+                          {submittingApplication ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Application to Farmer"}
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+                </Card>
               </div>
             )}
           </div>
