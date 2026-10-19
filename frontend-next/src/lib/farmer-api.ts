@@ -271,7 +271,105 @@ export type ProduceListingItem = {
   availability_status: "available" | "under_negotiation" | "sold_out" | "inactive";
   verification_status: string;
   notes?: string | null;
+  farmer_phone_masked?: string | null;
+  village_or_tehsil?: string | null;
+  photo_urls?: string[] | null;
+  last_confirmation_date?: string | null;
+  source_origin?: string | null;
   created_at?: string | null;
+};
+
+export type BuyerRequirementItem = {
+  id: number;
+  user_id?: number | null;
+  commodity: string;
+  variety?: string | null;
+  required_quantity: number;
+  quantity_unit: string;
+  expected_price_min?: number | null;
+  expected_price_max?: number | null;
+  price_unit: string;
+  buyer_name: string;
+  buyer_type: string;
+  buyer_phone_masked?: string | null;
+  buyer_location_state: string;
+  buyer_location_district: string;
+  delivery_destination?: string | null;
+  quality_specifications?: string | null;
+  max_moisture_pct?: number | null;
+  target_procurement_date?: string | null;
+  offer_expiry_date: string;
+  verification_status: string;
+  is_verified: boolean;
+  source: string;
+  original_offer_url?: string | null;
+  notes?: string | null;
+  is_active: boolean;
+  status: "open" | "fulfilled" | "expired" | "cancelled";
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type GovernmentProcurementItem = {
+  id: number;
+  crop_name: string;
+  variety?: string | null;
+  procurement_season: string;
+  state: string;
+  district: string;
+  procurement_centre_name: string;
+  nodal_agency: string;
+  msp_rate_per_quintal: number;
+  bonus_rate_per_quintal?: number | null;
+  effective_procurement_rate: number;
+  start_date?: string | null;
+  end_date?: string | null;
+  registration_portal_name?: string | null;
+  registration_portal_url?: string | null;
+  eligibility_criteria?: string | null;
+  faq_specs?: string | null;
+  official_guidelines_url?: string | null;
+  contact_helpline?: string | null;
+  source_provenance: string;
+  last_updated_date?: string | null;
+  is_active: boolean;
+  created_at?: string | null;
+};
+
+export type TradeInquiryItem = {
+  id: number;
+  user_id?: number | null;
+  target_type: "produce_listing" | "buyer_requirement";
+  target_id: number;
+  inquiry_type: "quotation" | "inquiry" | "contact_request";
+  offered_price?: number | null;
+  price_unit?: string | null;
+  offered_quantity?: number | null;
+  quantity_unit?: string | null;
+  message?: string | null;
+  inquirer_name: string;
+  inquirer_phone: string;
+  inquirer_type: string;
+  status: "sent" | "accepted" | "declined" | "expired";
+  contact_revealed: boolean;
+  counter_notes?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type ListingReportItem = {
+  id: number;
+  user_id?: number | null;
+  target_type: "produce_listing" | "buyer_requirement";
+  target_id: number;
+  reason: "misleading_price" | "fake_listing" | "out_of_stock" | "phone_unreachable" | "wrong_location" | "other";
+  details?: string | null;
+  reporter_name?: string | null;
+  reporter_phone?: string | null;
+  status: "reported" | "reviewed" | "dismissed" | "action_taken";
+  admin_notes?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 };
 
 export type MarketPriceItem = {
@@ -289,6 +387,9 @@ export type MarketPriceItem = {
   modal_price: number;
   source_name: string;
   source_url?: string | null;
+  data_retrieval_timestamp?: string | null;
+  is_stale?: boolean;
+  stale_warning?: string | null;
 };
 
 export type ImportSourceItem = {
@@ -549,6 +650,87 @@ export const produceListingsApi = {
     apiPost<ProduceListingItem>(`/api/marketplace/produce-listings`, data),
   updateStatus: (id: number, status: string) =>
     apiPatch<{ id: number; availability_status: string }>(`/api/marketplace/produce-listings/${id}/status?status_value=${status}`, {}),
+  confirmStock: (id: number) =>
+    apiPost<{ message: string; last_confirmation_date: string }>(`/api/marketplace/produce-listings/${id}/confirm`, {}),
+};
+
+// ─── Buyer Requirements API ───────────────────────────────────────────────────
+export const buyerRequirementsApi = {
+  list: (params?: { commodity?: string; variety?: string; state?: string; district?: string; min_quantity?: number; status?: string; search?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.commodity) q.set("commodity", params.commodity);
+    if (params?.variety) q.set("variety", params.variety);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.min_quantity !== undefined && params.min_quantity !== null) q.set("min_quantity", String(params.min_quantity));
+    if (params?.status) q.set("status", params.status);
+    if (params?.search) q.set("search", params.search);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return apiGet<{ total: number; page: number; limit: number; items: BuyerRequirementItem[] }>(`/api/marketplace/buyer-requirements${qs ? `?${qs}` : ""}`);
+  },
+  get: (id: number) => apiGet<BuyerRequirementItem>(`/api/marketplace/buyer-requirements/${id}`),
+  create: (data: Partial<BuyerRequirementItem>) =>
+    apiPost<BuyerRequirementItem>(`/api/marketplace/buyer-requirements`, data),
+  updateStatus: (id: number, status: string) =>
+    apiPatch<{ id: number; status: string }>(`/api/marketplace/buyer-requirements/${id}/status?status_value=${status}`, {}),
+};
+
+// ─── Government Procurement (MSP Centres) API ─────────────────────────────────
+export const governmentProcurementApi = {
+  list: (params?: { crop_name?: string; state?: string; district?: string; season?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.crop_name) q.set("crop_name", params.crop_name);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.season) q.set("season", params.season);
+    const qs = q.toString();
+    return apiGet<GovernmentProcurementItem[]>(`/api/marketplace/procurement${qs ? `?${qs}` : ""}`);
+  },
+  get: (id: number) => apiGet<GovernmentProcurementItem>(`/api/marketplace/procurement/${id}`),
+};
+
+// ─── Trade Inquiries & Quotations API ─────────────────────────────────────────
+export const tradeInquiriesApi = {
+  submit: (data: Omit<TradeInquiryItem, "id" | "user_id" | "status" | "contact_revealed" | "created_at" | "updated_at">) =>
+    apiPost<TradeInquiryItem>(`/api/marketplace/inquiries`, data),
+  list: (params?: { target_type?: string; target_id?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.target_type) q.set("target_type", params.target_type);
+    if (params?.target_id) q.set("target_id", String(params.target_id));
+    const qs = q.toString();
+    return apiGet<TradeInquiryItem[]>(`/api/marketplace/inquiries${qs ? `?${qs}` : ""}`);
+  },
+  updateStatus: (id: number, status: string, notes?: string) =>
+    apiPatch<TradeInquiryItem>(`/api/marketplace/inquiries/${id}/status?status_value=${status}${notes ? `&counter_notes=${encodeURIComponent(notes)}` : ""}`, {}),
+};
+
+// ─── Listing Reports (Misleading / Fake content) API ──────────────────────────
+export const listingReportsApi = {
+  submit: (data: Omit<ListingReportItem, "id" | "user_id" | "status" | "admin_notes" | "created_at" | "updated_at">) =>
+    apiPost<ListingReportItem>(`/api/marketplace/reports`, data),
+};
+
+// ─── Mandi Crops Intelligence API ─────────────────────────────────────────────
+export const mandiApi = {
+  getCrops: (params?: { commodity?: string; variety?: string; state?: string; district?: string; market?: string; min_price?: number; max_price?: number; sort_by?: string; sort_order?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.commodity) q.set("commodity", params.commodity);
+    if (params?.variety) q.set("variety", params.variety);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.market) q.set("market", params.market);
+    if (params?.min_price !== undefined) q.set("min_price", String(params.min_price));
+    if (params?.max_price !== undefined) q.set("max_price", String(params.max_price));
+    if (params?.sort_by) q.set("sort_by", params.sort_by);
+    if (params?.sort_order) q.set("sort_order", params.sort_order);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return apiGet<{ crops: any[]; total: number; page: number; limit: number; source: string; retrieved_at: string; disclaimer: string }>(`/api/mandi/crops${qs ? `?${qs}` : ""}`);
+  },
+  refresh: () => apiPost<{ status: string; message: string; refreshed_at: string }>(`/api/mandi/refresh`, {}),
 };
 
 // ─── Market Prices (AGMARKNET Benchmark Context) API ─────────────────────────

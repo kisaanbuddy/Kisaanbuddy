@@ -138,7 +138,7 @@ def run_migrations():
         mandi_cols = [row[1] for row in cursor.fetchall()]
         if mandi_cols:
             if "data_retrieval_timestamp" not in mandi_cols:
-                cursor.execute("ALTER TABLE market_price_records ADD COLUMN data_retrieval_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP")
+                cursor.execute("ALTER TABLE market_price_records ADD COLUMN data_retrieval_timestamp DATETIME DEFAULT NULL")
                 altered = True
 
         conn.commit()
