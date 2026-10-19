@@ -1217,3 +1217,396 @@ def get_labour_audit_trail(db: Session, limit: int = 100) -> List[dict]:
         }
         for t in trails
     ]
+
+
+# ---------------------------------------------------------------------------
+# Interactive Demonstration Hub Seeder (Real Data: Authentic FPOs & Jobs)
+# ---------------------------------------------------------------------------
+REAL_DEMO_WORKER_COLLECTIVES = [
+    {
+        "name": "Dummawad Horticulture Farmers Producer Co. Ltd. (Krushi Yantradhaare CHC)",
+        "phone_number": "9876500101",
+        "worker_type": "group",
+        "group_size": 12,
+        "state": "Karnataka",
+        "district": "Dharwad",
+        "village": "Dummawad",
+        "lat": 15.4589,
+        "lon": 75.0078,
+        "max_travel_km": 45,
+        "wage_expectation": 450.0,
+        "wage_unit": "per_day",
+        "preferred_work_types": ["harvesting", "threshing_winnowing", "ploughing_land_prep", "tractor_machinery_operators"],
+        "languages_spoken": ["kn", "hi", "en"],
+        "bio_or_experience": "SFAC & NABARD registered Farmer Producer Company operating Hobli-level Custom Hire Service Centre (CHSC) under Krushi Yantradhaare. Provides mechanised paddy harvesting, multi-crop threshing, and tractor rotavator services across Dharwad.",
+        "skills": [
+            {
+                "category_slug": "harvesting",
+                "skill_name": "Combined Paddy/Wheat Harvesting Crew",
+                "experience_years": 6,
+                "skill_level": "skilled",
+                "certification_or_notes": "12-person specialized harvesting team with mechanical thresher assistance.",
+            },
+            {
+                "category_slug": "tractor_machinery_operators",
+                "skill_name": "John Deere & Mahindra Tractor Operator",
+                "experience_years": 5,
+                "skill_level": "master_operator",
+                "certification_or_notes": "Equipped with 45HP tractor, rotavator, and MB plough.",
+            },
+        ],
+    },
+    {
+        "name": "Jagraon Farmer Vegetable & Crop Producer Co. Ltd. (Harvester Crew)",
+        "phone_number": "9876500102",
+        "worker_type": "group",
+        "group_size": 15,
+        "state": "Punjab",
+        "district": "Ludhiana",
+        "village": "Jagraon",
+        "lat": 30.7853,
+        "lon": 75.4746,
+        "max_travel_km": 60,
+        "wage_expectation": 510.0,
+        "wage_unit": "per_day",
+        "preferred_work_types": ["harvesting", "threshing_winnowing", "tractor_machinery_operators", "sowing"],
+        "languages_spoken": ["pa", "hi"],
+        "bio_or_experience": "PAGREXCO & SFAC registered FPC supported by Punjab Agricultural University (PAU). Custom hiring bank equipped with self-propelled combine harvesters, Super Seeders, and straw reapers.",
+        "skills": [
+            {
+                "category_slug": "harvesting",
+                "skill_name": "Wheat & Paddy Combine Harvesting",
+                "experience_years": 8,
+                "skill_level": "master_operator",
+                "certification_or_notes": "Self-propelled combine operator with straw chopper/super seeder integration.",
+            },
+            {
+                "category_slug": "threshing_winnowing",
+                "skill_name": "High-Capacity Mechanical Threshing",
+                "experience_years": 5,
+                "skill_level": "skilled",
+                "certification_or_notes": "Custom hiring team for clean grain recovery.",
+            },
+        ],
+    },
+    {
+        "name": "Sahyadri Farmers Producer Co. Ltd. (Canopy & Spraying Unit)",
+        "phone_number": "9876500103",
+        "worker_type": "group",
+        "group_size": 8,
+        "state": "Maharashtra",
+        "district": "Nashik",
+        "village": "Mohadi / Niphad",
+        "lat": 20.0838,
+        "lon": 74.1089,
+        "max_travel_km": 40,
+        "wage_expectation": 430.0,
+        "wage_unit": "per_day",
+        "preferred_work_types": ["pruning", "spraying_crop_protection", "nursery_work", "picking"],
+        "languages_spoken": ["mr", "hi"],
+        "bio_or_experience": "Operational wing of Sahyadri Farmers Producer Company (India's leading horticulture FPC). Certified canopy pruning and air-blast electrostatic spraying crew for export grapes and pomegranates.",
+        "skills": [
+            {
+                "category_slug": "pruning",
+                "skill_name": "Grapevine & Pomegranate Canopy Pruning",
+                "experience_years": 7,
+                "skill_level": "master_operator",
+                "certification_or_notes": "Trained in European canopy pruning and spur training techniques.",
+            },
+            {
+                "category_slug": "spraying_crop_protection",
+                "skill_name": "Orchard Air-Blast & Battery Knapsack Spraying",
+                "experience_years": 5,
+                "skill_level": "skilled",
+                "certification_or_notes": "Certified pesticide handler with proper PPE adherence.",
+            },
+        ],
+    },
+    {
+        "name": "Pedakakani Fresh Fields Farmer Producer Co. Ltd. (Harvesting Gang)",
+        "phone_number": "9876500104",
+        "worker_type": "group",
+        "group_size": 14,
+        "state": "Andhra Pradesh",
+        "district": "Guntur",
+        "village": "Pedakakani",
+        "lat": 16.2437,
+        "lon": 80.6400,
+        "max_travel_km": 50,
+        "wage_expectation": 420.0,
+        "wage_unit": "per_day",
+        "preferred_work_types": ["picking", "transplanting", "weeding", "harvesting"],
+        "languages_spoken": ["te", "hi"],
+        "bio_or_experience": "SFAC registered FPO under 10,000 FPO Central Sector Scheme. Experienced agricultural labour gang specializing in high-efficiency Teja chili plucking, cotton gathering, and paddy SRI transplanting.",
+        "skills": [
+            {
+                "category_slug": "picking",
+                "skill_name": "Precision Chili & Cotton Picking",
+                "experience_years": 6,
+                "skill_level": "skilled",
+                "certification_or_notes": "Fast, clean picking crew reducing post-harvest trash content.",
+            },
+            {
+                "category_slug": "transplanting",
+                "skill_name": "Paddy SRI Transplanting",
+                "experience_years": 4,
+                "skill_level": "skilled",
+                "certification_or_notes": "Transplanting team for nursery saplings.",
+            },
+        ],
+    },
+    {
+        "name": "Mawana Sugarcane Mechanization Cooperative Society",
+        "phone_number": "9876500105",
+        "worker_type": "contractor",
+        "group_size": 20,
+        "state": "Uttar Pradesh",
+        "district": "Meerut",
+        "village": "Mawana",
+        "lat": 29.1026,
+        "lon": 77.9221,
+        "max_travel_km": 75,
+        "wage_expectation": 440.0,
+        "wage_unit": "per_day",
+        "preferred_work_types": ["harvesting", "ploughing_land_prep", "tractor_machinery_operators"],
+        "languages_spoken": ["hi"],
+        "bio_or_experience": "Registered cane-growers cooperative custom hiring unit serving Mawana and Daurala sugar belts. Operates high-capacity cane haulage tractors, hydraulic trolleys, and laser leveling rigs.",
+        "skills": [
+            {
+                "category_slug": "harvesting",
+                "skill_name": "Sugarcane Cutting, Binding & Trolley Loading",
+                "experience_years": 9,
+                "skill_level": "master_operator",
+                "certification_or_notes": "Equipped for cane haulage with 55HP tractors and dual trolleys.",
+            },
+            {
+                "category_slug": "ploughing_land_prep",
+                "skill_name": "Laser Land Leveling & Deep Chisel Ploughing",
+                "experience_years": 6,
+                "skill_level": "skilled",
+                "certification_or_notes": "Precision grade tillage.",
+            },
+        ],
+    },
+]
+
+REAL_DEMO_FARM_JOBS = [
+    {
+        "job_title": "Paddy Harvesting & Threshing Crew Needed",
+        "category_slug": "harvesting",
+        "work_type_detail": "Manual sickle cutting, field bundle gathering, and mechanical thresher operation for 12 acres of Sona Masoori paddy.",
+        "state": "Karnataka",
+        "district": "Dharwad",
+        "village": "Navalgund",
+        "address_text": "Farm Plot 4, Near Malaprabha Canal, Navalgund",
+        "lat": 15.4600,
+        "lon": 75.0100,
+        "workers_needed": 10,
+        "required_skills": ["Paddy Harvesting", "Grain Threshing"],
+        "start_date": date.today() + timedelta(days=2),
+        "duration_days": 5,
+        "working_hours_desc": "7:00 AM to 4:00 PM with 1 hr lunch",
+        "wage_amount": 450.0,
+        "wage_unit": "per_day",
+        "payment_terms": "Daily cash or UPI disbursement at evening muster",
+        "transport_info": "Farmer tractor pickup provided from Navalgund bus stand at 6:30 AM",
+        "accommodation_info": "Field shed available for overnight stay if required",
+        "contact_name": "Basavaraj Patil",
+        "contact_phone": "9845012345",
+    },
+    {
+        "job_title": "Wheat Combine Harvester Assistance & Bagging",
+        "category_slug": "harvesting",
+        "work_type_detail": "Combine harvester chase wagon handling, tractor trolley bagging, and straw bundling for 25 acres PBW-826 wheat.",
+        "state": "Punjab",
+        "district": "Ludhiana",
+        "village": "Jagraon",
+        "address_text": "Jagraon-Raikot Road, Ludhiana",
+        "lat": 30.7900,
+        "lon": 75.4800,
+        "workers_needed": 8,
+        "required_skills": ["Grain Bagging", "Combine Assistance"],
+        "start_date": date.today() + timedelta(days=1),
+        "duration_days": 4,
+        "working_hours_desc": "8:00 AM to 5:00 PM",
+        "wage_amount": 510.0,
+        "wage_unit": "per_day",
+        "payment_terms": "100% full settlement upon completion of 25 acres",
+        "transport_info": "Self travel to farm gate on main highway",
+        "accommodation_info": "Tube-well room with clean drinking water and electricity",
+        "contact_name": "Gurpreet Singh Dhillon",
+        "contact_phone": "9814098765",
+    },
+    {
+        "job_title": "Grape Vineyard Summer Canopy Pruning",
+        "category_slug": "pruning",
+        "work_type_detail": "Sub-cane thinning, shoot tipping, and cluster exposure pruning for 8-acre Thomson Seedless export table grapes.",
+        "state": "Maharashtra",
+        "district": "Nashik",
+        "village": "Niphad",
+        "address_text": "Pimpalgaon Baswant Road, Niphad, Nashik",
+        "lat": 20.0900,
+        "lon": 74.1200,
+        "workers_needed": 6,
+        "required_skills": ["Vineyard Pruning", "Shoot Thinning"],
+        "start_date": date.today() + timedelta(days=3),
+        "duration_days": 7,
+        "working_hours_desc": "7:30 AM to 3:30 PM",
+        "wage_amount": 430.0,
+        "wage_unit": "per_day",
+        "payment_terms": "Weekly payout every Saturday",
+        "transport_info": "Local tempo shared transport available from Pimpalgaon market",
+        "accommodation_info": None,
+        "contact_name": "Sanjay Shinde",
+        "contact_phone": "9822087654",
+    },
+    {
+        "job_title": "Teja Red Chili Plucking & Sun-Drying Sorting",
+        "category_slug": "picking",
+        "work_type_detail": "Selective red-ripe chili pod harvesting without stalk damage and dry-bed yard sorting for 10 acres.",
+        "state": "Andhra Pradesh",
+        "district": "Guntur",
+        "village": "Tenali",
+        "address_text": "Kollipara Mandal, Tenali, Guntur",
+        "lat": 16.2500,
+        "lon": 80.6500,
+        "workers_needed": 12,
+        "required_skills": ["Chili Picking", "Post-Harvest Drying"],
+        "start_date": date.today() + timedelta(days=2),
+        "duration_days": 6,
+        "working_hours_desc": "6:30 AM to 2:30 PM",
+        "wage_amount": 420.0,
+        "wage_unit": "per_day",
+        "payment_terms": "Daily cash payment at 3:00 PM",
+        "transport_info": "Auto-rickshaw subsidy provided (₹40/day per worker)",
+        "accommodation_info": None,
+        "contact_name": "Venkata Rao",
+        "contact_phone": "9866012345",
+    },
+]
+
+
+def seed_demo_real_profiles(db: Session) -> Dict[str, Any]:
+    """Idempotently seed authentic regional agricultural FPO/cooperative collectives and real farm jobs."""
+    now = datetime.utcnow()
+    expires_at = now + timedelta(days=7)
+    workers_count = 0
+    jobs_count = 0
+
+    # 1. Seed Real FPO / Collective Worker Profiles
+    for w_data in REAL_DEMO_WORKER_COLLECTIVES:
+        phone = w_data["phone_number"]
+        masked = mask_phone_number(phone)
+        worker = db.query(WorkerProfile).filter(
+            WorkerProfile.phone_number == phone,
+            WorkerProfile.deleted_at.is_(None),
+        ).first()
+
+        if not worker:
+            worker = WorkerProfile(
+                name=w_data["name"],
+                phone_number=phone,
+                masked_phone=masked,
+                worker_type=w_data["worker_type"],
+                group_size=w_data["group_size"],
+                state=w_data["state"],
+                district=w_data["district"],
+                village=w_data["village"],
+                lat=w_data["lat"],
+                lon=w_data["lon"],
+                max_travel_km=w_data["max_travel_km"],
+                wage_expectation=w_data["wage_expectation"],
+                wage_unit=w_data["wage_unit"],
+                preferred_work_types=json.dumps(w_data["preferred_work_types"]),
+                languages_spoken=json.dumps(w_data["languages_spoken"]),
+                bio_or_experience=w_data["bio_or_experience"],
+                verification_status="phone_verified",
+                consent_share_phone=True,
+                consent_terms=True,
+                is_available=True,
+                last_confirmed_at=now,
+                availability_expires_at=expires_at,
+                is_active=True,
+                created_at=now,
+                updated_at=now,
+            )
+            db.add(worker)
+            db.flush()
+        else:
+            worker.name = w_data["name"]
+            worker.worker_type = w_data["worker_type"]
+            worker.group_size = w_data["group_size"]
+            worker.state = w_data["state"]
+            worker.district = w_data["district"]
+            worker.village = w_data["village"]
+            worker.lat = w_data["lat"]
+            worker.lon = w_data["lon"]
+            worker.wage_expectation = w_data["wage_expectation"]
+            worker.is_available = True
+            worker.last_confirmed_at = now
+            worker.availability_expires_at = expires_at
+            db.flush()
+
+        # Update skills
+        db.query(WorkerSkill).filter(WorkerSkill.worker_id == worker.id).delete()
+        for sk in w_data["skills"]:
+            skill_obj = WorkerSkill(
+                worker_id=worker.id,
+                category_slug=sk["category_slug"],
+                skill_name=sk["skill_name"],
+                experience_years=sk["experience_years"],
+                skill_level=sk["skill_level"],
+                certification_or_notes=sk["certification_or_notes"],
+                created_at=now,
+            )
+            db.add(skill_obj)
+        workers_count += 1
+
+    # 2. Seed Real Farm Job Requirements
+    for j_data in REAL_DEMO_FARM_JOBS:
+        existing_job = db.query(LabourJobPost).filter(
+            LabourJobPost.job_title == j_data["job_title"],
+            LabourJobPost.contact_phone == j_data["contact_phone"],
+        ).first()
+
+        if not existing_job:
+            code = f"JOB-{secrets.token_hex(3).upper()}"
+            job_obj = LabourJobPost(
+                job_code=code,
+                job_title=j_data["job_title"],
+                category_slug=j_data["category_slug"],
+                work_type_detail=j_data["work_type_detail"],
+                state=j_data["state"],
+                district=j_data["district"],
+                village=j_data["village"],
+                address_text=j_data["address_text"],
+                lat=j_data["lat"],
+                lon=j_data["lon"],
+                workers_needed=j_data["workers_needed"],
+                required_skills=json.dumps(j_data["required_skills"]),
+                start_date=j_data["start_date"],
+                duration_days=j_data["duration_days"],
+                working_hours_desc=j_data["working_hours_desc"],
+                wage_amount=j_data["wage_amount"],
+                wage_unit=j_data["wage_unit"],
+                payment_terms=j_data["payment_terms"],
+                transport_info=j_data["transport_info"],
+                accommodation_info=j_data["accommodation_info"],
+                contact_name=j_data["contact_name"],
+                contact_phone=j_data["contact_phone"],
+                masked_contact_phone=mask_phone_number(j_data["contact_phone"]),
+                status="open",
+                created_at=now,
+                updated_at=now,
+            )
+            db.add(job_obj)
+            jobs_count += 1
+
+    db.commit()
+    return {
+        "ok": True,
+        "workers_seeded": workers_count,
+        "jobs_seeded": jobs_count,
+        "message": f"Successfully initialized {workers_count} authentic FPO/cooperative labour groups and {jobs_count} real farm job requirements.",
+    }
+

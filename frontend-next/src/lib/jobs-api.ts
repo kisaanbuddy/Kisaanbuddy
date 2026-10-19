@@ -601,6 +601,21 @@ export async function submitLabourReport(payload: LabourReportIn, signal?: Abort
   return r.json()
 }
 
+export async function seedDemoRealProfiles(signal?: AbortSignal): Promise<{
+  ok: boolean
+  workers_seeded: number
+  jobs_seeded: number
+  message: string
+}> {
+  const r = await fetch(`${BASE}/demo/seed`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal,
+  })
+  if (!r.ok) throw new JobsAPIError(await readDetail(r, "Failed to seed demo data"), r.status)
+  return r.json()
+}
+
 // ---------- Legacy Compatible API Methods ----------
 
 export async function postJob(payload: JobPostIn, signal?: AbortSignal): Promise<Job> {

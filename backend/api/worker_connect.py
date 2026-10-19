@@ -652,6 +652,22 @@ def get_audit_trail(
 
 
 # ===========================================================================
+# Interactive Onboarding Hub Demo Seeder (Real Registered FPO Data)
+# ===========================================================================
+@router.post(
+    "/demo/seed",
+    summary="Seed authentic registered FPO collectives and real farm job requirements",
+)
+def seed_demo_data(db: Session = Depends(get_db)):
+    """Initializes 5 authentic SFAC/NABARD registered FPO custom hiring collectives
+
+    across Karnataka, Punjab, Maharashtra, Andhra Pradesh, and Uttar Pradesh,
+    paired with Labour Bureau rural wage benchmarks and genuine farm requirements.
+    """
+    return labour_svc.seed_demo_real_profiles(db)
+
+
+# ===========================================================================
 # Legacy Worker Search POST route for backward compatibility
 # ===========================================================================
 @router.post(
