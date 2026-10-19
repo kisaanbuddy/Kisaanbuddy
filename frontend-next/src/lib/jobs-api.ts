@@ -436,7 +436,10 @@ export async function searchWorkerProfiles(
   try {
     const r = await fetch(`${BASE}/workers?${qs.toString()}`, { signal, cache: "no-store" })
     if (r.ok) {
-      return r.json()
+      const data = await r.json()
+      if (data && Array.isArray(data.workers) && data.workers.length > 0) {
+        return data
+      }
     }
   } catch (e) {
     // Network or proxy failure, fall back to client store
@@ -542,7 +545,10 @@ export async function fetchWageBenchmarks(
   try {
     const r = await fetch(`${BASE}/wage-benchmarks?${qs.toString()}`, { signal, cache: "no-store" })
     if (r.ok) {
-      return r.json()
+      const data = await r.json()
+      if (Array.isArray(data) && data.length > 0) {
+        return data
+      }
     }
   } catch (e) {
     // Network or proxy failure, fall back to client store
@@ -584,7 +590,10 @@ export async function fetchLabourJobs(
   try {
     const r = await fetch(`${BASE}/jobs?${qs.toString()}`, { signal, cache: "no-store" })
     if (r.ok) {
-      return r.json()
+      const data = await r.json()
+      if (Array.isArray(data) && data.length > 0) {
+        return data
+      }
     }
   } catch (e) {
     // Network or proxy failure, fall back to client store

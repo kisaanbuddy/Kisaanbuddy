@@ -41,7 +41,17 @@ export async function GET(
 
     if (remoteRes.ok) {
       const data = await remoteRes.json()
-      return NextResponse.json(data)
+      const isJobsEmpty = slugPath === "jobs" && Array.isArray(data) && data.length === 0
+      const isWorkersEmpty =
+        (slugPath === "workers" || slugPath === "") &&
+        data &&
+        Array.isArray(data.workers) &&
+        data.workers.length === 0
+      const isBenchmarksEmpty = slugPath === "wage-benchmarks" && Array.isArray(data) && data.length === 0
+
+      if (!isJobsEmpty && !isWorkersEmpty && !isBenchmarksEmpty) {
+        return NextResponse.json(data)
+      }
     }
   } catch (e) {
     // Backend offline or unreachable, fall back to resilient real store

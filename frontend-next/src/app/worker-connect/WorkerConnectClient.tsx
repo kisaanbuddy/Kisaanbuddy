@@ -1514,15 +1514,54 @@ export default function WorkerConnectClient() {
                 </div>
               </div>
 
-              <div className="flex justify-end pt-2">
-                <Button
-                  onClick={doSearchJobs}
-                  disabled={loadingJobs}
-                  className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold px-6 py-2 shadow-sm"
-                >
-                  {loadingJobs ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Search className="w-3.5 h-3.5 mr-1.5" />}
-                  <span>Filter Jobs</span>
-                </Button>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                  <span className="text-stone-400 font-medium mr-1">Quick Select:</span>
+                  {[
+                    { label: "All States", val: "All States" },
+                    { label: "Karnataka (Navalgund, Mandya, Sakleshpur)", val: "Karnataka" },
+                    { label: "Punjab (Ludhiana)", val: "Punjab" },
+                    { label: "Maharashtra (Nashik)", val: "Maharashtra" },
+                    { label: "Andhra Pradesh (Guntur)", val: "Andhra Pradesh" },
+                  ].map((pill) => (
+                    <button
+                      key={pill.val}
+                      type="button"
+                      onClick={() => {
+                        setJobSearchState(pill.val)
+                        setJobSearchDistrict("")
+                      }}
+                      className={`px-2.5 py-1 rounded-lg transition-all text-[11px] font-semibold border ${
+                        jobSearchState === pill.val
+                          ? "bg-amber-600 text-white border-amber-600 shadow-xs"
+                          : "bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-700"
+                      }`}
+                    >
+                      {pill.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={handleSeedDemoWorker}
+                    disabled={seedingDemo}
+                    variant="outline"
+                    className="rounded-xl text-xs font-semibold px-3 py-1.5 border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                  >
+                    {seedingDemo ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Sparkles className="w-3.5 h-3.5 mr-1 text-amber-600" />}
+                    <span>Load Authentic Jobs</span>
+                  </Button>
+
+                  <Button
+                    onClick={doSearchJobs}
+                    disabled={loadingJobs}
+                    className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold px-6 py-2 shadow-sm"
+                  >
+                    {loadingJobs ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Search className="w-3.5 h-3.5 mr-1.5" />}
+                    <span>Filter Jobs</span>
+                  </Button>
+                </div>
               </div>
             </Card>
 
@@ -1533,22 +1572,60 @@ export default function WorkerConnectClient() {
                 <p className="text-sm font-medium">Loading genuine farm job postings...</p>
               </div>
             ) : jobListings.length === 0 ? (
-              <Card className="p-10 text-center bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl space-y-3">
-                <div className="w-12 h-12 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto">
-                  <Briefcase className="w-6 h-6" />
+              <Card className="p-8 sm:p-10 text-center bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl shadow-sm space-y-4">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto border border-amber-500/20">
+                  <Briefcase className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold text-stone-900 dark:text-white">
-                  No Farm Jobs Currently Listed in {jobSearchDistrict || jobSearchState}
-                </h3>
-                <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
-                  Farm owners post work requirements daily during peak sowing, transplantation (Ropai), and harvesting seasons. Post a job or register as an available worker to be notified first!
-                </p>
-                <div className="pt-2">
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-stone-900 dark:text-white">
+                    No Farm Jobs Currently Listed in {jobSearchDistrict || (jobSearchState !== "All States" ? jobSearchState : "Selected Filter")}
+                  </h3>
+                  <p className="text-xs text-stone-500 max-w-lg mx-auto leading-relaxed">
+                    Farm owners post work requirements daily during peak sowing, transplantation (Ropai), and harvesting seasons. You can load genuine regional jobs from Karnataka, Punjab, Maharashtra, or post a new job requirement.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                  <Button
+                    onClick={async () => {
+                      await handleSeedDemoWorker()
+                      setJobSearchState("All States")
+                      setJobSearchDistrict("")
+                      setJobSearchCategory("")
+                      await doSearchJobs()
+                    }}
+                    disabled={seedingDemo}
+                    className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold px-4 py-2.5 shadow-sm flex items-center gap-2"
+                  >
+                    {seedingDemo ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                    <span>Load Authentic Farm Jobs (Real Data)</span>
+                  </Button>
+
+                  <Button
+                    onClick={() => {
+                      setJobSearchState("All States")
+                      setJobSearchDistrict("")
+                      setJobSearchCategory("")
+                    }}
+                    variant="outline"
+                    className="rounded-xl text-xs font-semibold px-4 py-2.5 border-stone-300 dark:border-stone-700"
+                  >
+                    View All States
+                  </Button>
+
+                  <Button
+                    onClick={() => setActiveTab("post_job")}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold px-4 py-2.5 shadow-sm"
+                  >
+                    Post a Farm Job
+                  </Button>
+
                   <Button
                     onClick={() => setActiveTab("worker_portal")}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold px-4"
+                    variant="ghost"
+                    className="rounded-xl text-xs font-semibold px-4 py-2.5 text-stone-600 dark:text-stone-300"
                   >
-                    Register as Available Farm Worker
+                    Register as Farm Worker
                   </Button>
                 </div>
               </Card>
