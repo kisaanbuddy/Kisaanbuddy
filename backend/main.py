@@ -46,6 +46,7 @@ from api import profile as farmer_profile, fields as farmer_fields, farm as farm
 from api import disease as disease_api
 from api import soil_tests as soil_tests_api, recommendations as recommendations_api
 from api import tasks as tasks_api, marketplace as marketplace_api
+from api import sarvam as sarvam_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -162,6 +163,7 @@ app.include_router(soil_tests_api.router, prefix="/api/farmer", tags=["Soil Test
 app.include_router(recommendations_api.router, prefix="/api/farmer", tags=["Recommendations"])
 app.include_router(tasks_api.router, prefix="/api/farmer", tags=["Farm Tasks"])
 app.include_router(marketplace_api.router, prefix="/api/marketplace", tags=["Marketplace"])
+app.include_router(sarvam_api.router, prefix="/api/sarvam", tags=["Sarvam AI"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

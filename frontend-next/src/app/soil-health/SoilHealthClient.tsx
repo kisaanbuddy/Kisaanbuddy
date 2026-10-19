@@ -9,8 +9,10 @@ import { useLanguage } from '@/lib/language'
  */
 import {
   AlertTriangle,
+  BookmarkCheck,
   CheckCircle2,
   ChevronRight,
+  FileCheck2,
   FlaskConical,
   Info,
   Leaf,
@@ -18,6 +20,9 @@ import {
   RefreshCw,
   Sparkles,
   TestTube,
+  Upload,
+  Volume2,
+  VolumeX,
   Zap,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
@@ -33,6 +38,22 @@ import { Label } from "@/components/ui/label"
 
 type NPKLevel = "low" | "medium" | "high" | ""
 type PHLevel = "acidic" | "neutral" | "alkaline" | ""
+
+export interface ExtractedSoilData {
+  soil_ph: number | null
+  nitrogen_kg_ha: number | null
+  phosphorus_kg_ha: number | null
+  potassium_kg_ha: number | null
+  organic_carbon_pct: number | null
+  ec_ds_m: number | null
+  soil_type: string | null
+  lab_name: string | null
+  test_date: string | null
+  farmer_name: string | null
+  village_or_district: string | null
+  health_summary: string | null
+  source_file: string | null
+}
 
 interface SoilForm {
   crop: string
@@ -318,8 +339,147 @@ export default function SoilHealthPage() {
     }
   }, [form, isReady])
 
+  const [scanningCard, setScanningCard] = useState(false)
+  const [extractedCard, setExtractedCard] = useState<ExtractedSoilData | null>(null)
+  const [savingToProfile, setSavingToProfile] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [ttsPlaying, setTtsPlaying] = useState(false)
+  const [ttsLoading, setTtsLoading] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const cardFileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setScanningCard(true)
+    setError(null)
+    setSaveSuccess(false)
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch("/api/sarvam/extract-soil-report", {
+        method: "POST",
+        body: fd,
+      })
+      if (!res.ok) {
+        throw new Error("Failed to scan document with Sarvam AI.")
+      }
+      const data: ExtractedSoilData = await res.json()
+      setExtractedCard(data)
+
+      // Map numerical values to NPKLevel & PHLevel
+      const newForm: Partial<SoilForm> = {}
+      if (data.nitrogen_kg_ha != null) {
+        newForm.nitrogen = data.nitrogen_kg_ha < 280 ? "low" : data.nitrogen_kg_ha > 560 ? "high" : "medium"
+      }
+      if (data.phosphorus_kg_ha != null) {
+        newForm.phosphorus = data.phosphorus_kg_ha < 10 ? "low" : data.phosphorus_kg_ha > 25 ? "high" : "medium"
+      }
+      if (data.potassium_kg_ha != null) {
+        newForm.potassium = data.potassium_kg_ha < 110 ? "low" : data.potassium_kg_ha > 280 ? "high" : "medium"
+      }
+      if (data.soil_ph != null) {
+        newForm.ph = data.soil_ph < 6.5 ? "acidic" : data.soil_ph > 7.5 ? "alkaline" : "neutral"
+      }
+      if (data.organic_carbon_pct != null) {
+        newForm.organicCarbon = data.organic_carbon_pct < 0.5 ? "low" : data.organic_carbon_pct > 0.75 ? "high" : "medium"
+      }
+      setForm((prev) => ({ ...prev, ...newForm }))
+    } catch (err: any) {
+      setError(err?.message || "Failed to scan soil card")
+    } finally {
+      setScanningCard(false)
+      if (e.target) e.target.value = ""
+    }
+  }
+
+  const handleSaveToProfile = async () => {
+    if (!extractedCard) return
+    setSavingToProfile(true)
+    try {
+      const payload = {
+        test_date: extractedCard.test_date || new Date().toISOString().split("T")[0],
+        lab_name: extractedCard.lab_name || "Soil Testing Lab (Sarvam Scan)",
+        soil_type: extractedCard.soil_type || "Standard",
+        soil_ph: extractedCard.soil_ph,
+        nitrogen_kg_ha: extractedCard.nitrogen_kg_ha,
+        phosphorus_kg_ha: extractedCard.phosphorus_kg_ha,
+        potassium_kg_ha: extractedCard.potassium_kg_ha,
+        organic_carbon_pct: extractedCard.organic_carbon_pct,
+        ec_ds_m: extractedCard.ec_ds_m,
+        is_verified: true,
+        notes: extractedCard.health_summary || "Scanned via Sarvam AI Doc Intelligence",
+      }
+      const res = await fetch("/api/farmer/soil-tests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        setSaveSuccess(true)
+      } else {
+        throw new Error("Log in required to store test to your Farm Profile.")
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to save record.")
+    } finally {
+      setSavingToProfile(false)
+    }
+  }
+
+  const handleSpeakRecommendation = async () => {
+    if (ttsPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+      }
+      setTtsPlaying(false)
+      return
+    }
+    if (!response) return
+    setTtsLoading(true)
+    try {
+      const plainText = response
+        .replace(/[#*`_-]/g, " ")
+        .replace(/\s+/g, " ")
+        .slice(0, 1500)
+      const res = await fetch("/api/sarvam/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: plainText,
+          language: form.language === "hi" ? "hi-IN" : form.language === "kn" ? "kn-IN" : "en-IN",
+          speaker: "priya",
+        }),
+      })
+      if (!res.ok) throw new Error("TTS synthesis failed")
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      const audio = new Audio(url)
+      audioRef.current = audio
+      audio.onended = () => setTtsPlaying(false)
+      audio.onerror = () => setTtsPlaying(false)
+      await audio.play()
+      setTtsPlaying(true)
+    } catch (err) {
+      console.warn("Sarvam audio playback failed:", err)
+    } finally {
+      setTtsLoading(false)
+    }
+  }
+
   const reset = () => {
     abortRef.current?.abort()
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+    setTtsPlaying(false)
+    setExtractedCard(null)
+    setSaveSuccess(false)
     setForm({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" })
     setResponse("")
     setDone(false)
@@ -383,6 +543,122 @@ export default function SoilHealthPage() {
                 <p className="text-xs text-muted-foreground">{t("soil_health.values_from_physical_card")}</p>
               </div>
             </div>
+
+            {/* Sarvam AI Soil Card Scanner */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-emerald-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    Sarvam AI Card Scanner
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Upload a photo or PDF of your Soil Health Card (SHC) to autofill parameters automatically.
+                </p>
+              </div>
+              <div>
+                <input
+                  type="file"
+                  ref={cardFileInputRef}
+                  accept="image/png,image/jpeg,application/pdf"
+                  className="hidden"
+                  onChange={handleCardUpload}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => cardFileInputRef.current?.click()}
+                  disabled={scanningCard}
+                  className="rounded-lg border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold gap-1.5 shrink-0"
+                >
+                  {scanningCard ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Scanning with Sarvam...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-3.5 w-3.5" />
+                      Upload Soil Card
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Extracted Card Verification Banner */}
+            {extractedCard && (
+              <div className="rounded-xl border border-emerald-500/30 bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileCheck2 className="h-4 w-4 text-emerald-500" />
+                    <span className="text-xs font-bold text-foreground">
+                      Verified Scan: {extractedCard.source_file || "Soil Health Card"}
+                    </span>
+                  </div>
+                  {extractedCard.test_date && (
+                    <span className="text-[10px] text-muted-foreground font-mono">
+                      {extractedCard.test_date}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Nitrogen (N)</span>
+                    <span className="font-bold text-foreground">{extractedCard.nitrogen_kg_ha != null ? `${extractedCard.nitrogen_kg_ha} kg/ha` : "N/A"}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Phosphorus (P)</span>
+                    <span className="font-bold text-foreground">{extractedCard.phosphorus_kg_ha != null ? `${extractedCard.phosphorus_kg_ha} kg/ha` : "N/A"}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Potassium (K)</span>
+                    <span className="font-bold text-foreground">{extractedCard.potassium_kg_ha != null ? `${extractedCard.potassium_kg_ha} kg/ha` : "N/A"}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Soil pH</span>
+                    <span className="font-bold text-foreground">{extractedCard.soil_ph != null ? extractedCard.soil_ph : "N/A"}</span>
+                  </div>
+                </div>
+
+                {extractedCard.health_summary && (
+                  <p className="text-xs text-muted-foreground italic border-t border-border/30 pt-2">
+                    "{extractedCard.health_summary}"
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    ✓ Form autofilled with diagnostic ranges
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSaveToProfile}
+                    disabled={savingToProfile || saveSuccess}
+                    className="text-xs gap-1.5 h-8 font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10"
+                  >
+                    {savingToProfile ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : saveSuccess ? (
+                      <>
+                        <BookmarkCheck className="h-3.5 w-3.5 text-emerald-500" />
+                        Saved to Profile
+                      </>
+                    ) : (
+                      <>
+                        <BookmarkCheck className="h-3.5 w-3.5" />
+                        Save to Farm Profile
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Crop selection & Area */}
             <div className="grid gap-4 sm:grid-cols-2">
@@ -613,8 +889,35 @@ export default function SoilHealthPage() {
                     <span className="text-sm font-bold text-foreground font-display">
                       AI Recommendation Insights
                     </span>
-                    {done && <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 ml-auto" />}
-                    {streaming && <Loader2 className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-400 ml-auto" />}
+                    <div className="ml-auto flex items-center gap-2">
+                      {response && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleSpeakRecommendation}
+                          disabled={ttsLoading}
+                          className="h-8 px-2.5 text-xs gap-1.5 rounded-lg border border-border/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                          title="Listen with Sarvam AI Voice"
+                        >
+                          {ttsLoading ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : ttsPlaying ? (
+                            <>
+                              <VolumeX className="h-3.5 w-3.5 text-rose-500" />
+                              <span className="text-[11px] text-rose-500">Stop Voice</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="h-3.5 w-3.5" />
+                              <span className="text-[11px]">Listen (Sarvam Voice)</span>
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      {done && <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                      {streaming && <Loader2 className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-400" />}
+                    </div>
                   </div>
 
                   <div className="prose prose-sm dark:prose-invert max-w-none text-xs md:text-sm leading-relaxed overflow-y-auto max-h-[500px] pr-2 space-y-4 custom-scrollbar">

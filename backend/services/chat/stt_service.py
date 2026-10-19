@@ -62,7 +62,7 @@ async def _sarvam_stt(
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
         r = await client.post(url, headers=headers, data=data, files=files)
         if r.status_code >= 400 and "model" in r.text.lower():
-            data["model"] = "saarika:v2"
+            data["model"] = "saaras:v3"
             r = await client.post(url, headers=headers, data=data, files=files)
 
     if r.status_code >= 400:

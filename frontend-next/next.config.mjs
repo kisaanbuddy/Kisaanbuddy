@@ -114,6 +114,15 @@ const nextConfig = {
       {
         source: '/api/disease/:path*',
         destination: `${backendUrl}/api/disease/:path*`
+      },
+      // Sarvam AI
+      {
+        source: '/api/sarvam/:path*/',
+        destination: `${backendUrl}/api/sarvam/:path*/`
+      },
+      {
+        source: '/api/sarvam/:path*',
+        destination: `${backendUrl}/api/sarvam/:path*`
       }
     ]
   }

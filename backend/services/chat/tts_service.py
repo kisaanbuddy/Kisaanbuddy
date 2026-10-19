@@ -57,19 +57,19 @@ async def _sarvam_tts(text: str, lang: str) -> TTSResult:
     if not key:
         raise TTSError("SARVAM_API_KEY not set")
 
-    target = _SARVAM_LANG.get(lang, "en-IN")
+    target = _SARVAM_LANG.get(lang, "hi-IN")
     url = "https://api.sarvam.ai/text-to-speech"
     headers = {"api-subscription-key": key, "Content-Type": "application/json"}
     body = {
-        "inputs": [text[:2000]],
+        "inputs": [text[:2500]],
         "target_language_code": target,
-        "speaker": "meera",
+        "speaker": "priya",
         "pitch": 0,
         "pace": 1.0,
         "loudness": 1.2,
         "speech_sample_rate": 22050,
         "enable_preprocessing": True,
-        "model": "bulbul:v1",
+        "model": "bulbul:v3",
     }
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
         r = await client.post(url, json=body, headers=headers)

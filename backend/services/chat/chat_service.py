@@ -512,10 +512,17 @@ class ChatOrchestrator:
                 base_kwargs["reasoning_effort"] = None
             if stream:
                 base_kwargs["stream"] = True
+            has_tool_messages = any(
+                isinstance(m, dict) and (m.get("role") == "tool" or bool(m.get("tool_calls")))
+                for m in messages
+            )
             attempts: List[tuple[Dict[str, Any], str]] = []
             if with_tools:
                 attempts.append((dict(base_kwargs, tools=TOOL_SCHEMAS, tool_choice="auto"), "with-tools"))
-            attempts.append((base_kwargs, "no-tools"))
+            if self._is_sarvam and has_tool_messages:
+                attempts.append((dict(base_kwargs, tools=TOOL_SCHEMAS, tool_choice="none"), "no-tools"))
+            else:
+                attempts.append((base_kwargs, "no-tools"))
 
             for kwargs, label in attempts:
                 try:
