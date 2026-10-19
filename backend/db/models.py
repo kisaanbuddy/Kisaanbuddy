@@ -680,3 +680,239 @@ if Column is not None:
         timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 
+    # =========================================================================
+    # KISAANBUDDY WORKERS CONNECT — AGRICULTURAL LABOUR MARKETPLACE MODELS
+    # =========================================================================
+
+    class WorkerCategory(Base):  # type: ignore[misc]
+        """Searchable and admin-extensible agricultural worker categories."""
+        __tablename__ = "worker_categories"
+        id = Column(Integer, primary_key=True, index=True)
+        slug = Column(String(100), unique=True, nullable=False, index=True)
+        name = Column(String(150), nullable=False)
+        description = Column(Text, nullable=True)
+        icon = Column(String(100), nullable=True)
+        is_active = Column(Boolean, default=True, nullable=False)
+        created_by_admin_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class WorkerProfile(Base):  # type: ignore[misc]
+        """Verified agricultural worker, labour group, or contractor profile."""
+        __tablename__ = "worker_profiles"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        name = Column(String(150), nullable=False)
+        phone_number = Column(String(30), nullable=False, index=True)  # stored securely
+        masked_phone = Column(String(30), nullable=False)  # e.g., +91 98XXX-XX123
+        worker_type = Column(String(50), default="individual", nullable=False, index=True)  # individual, group, contractor
+        group_size = Column(Integer, default=1, nullable=False)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        village = Column(String(150), nullable=True, index=True)
+        lat = Column(Float, nullable=True)
+        lon = Column(Float, nullable=True)
+        max_travel_km = Column(Float, default=25.0, nullable=False)
+        wage_expectation = Column(Float, nullable=False, index=True)
+        wage_unit = Column(String(30), default="per_day", nullable=False)  # per_day, per_hour, per_acre, per_task
+        preferred_work_types = Column(Text, nullable=False)  # JSON-encoded array of category slugs
+        languages_spoken = Column(Text, nullable=True)  # JSON-encoded array
+        bio_or_experience = Column(Text, nullable=True)
+        photo_url = Column(Text, nullable=True)
+        verification_status = Column(String(50), default="phone_verified", nullable=False, index=True)  # pending, phone_verified, fpo_endorsed, contractor_verified
+        consent_share_phone = Column(Boolean, default=False, nullable=False)
+        consent_terms = Column(Boolean, default=True, nullable=False)
+        is_available = Column(Boolean, default=True, nullable=False, index=True)
+        last_confirmed_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+        availability_expires_at = Column(DateTime, nullable=False, index=True)
+        is_active = Column(Boolean, default=True, nullable=False, index=True)
+        deleted_at = Column(DateTime, nullable=True)  # DPDP-compliant account deletion
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class WorkerSkill(Base):  # type: ignore[misc]
+        """Specific skills and years of experience associated with a worker profile."""
+        __tablename__ = "worker_skills"
+        id = Column(Integer, primary_key=True, index=True)
+        worker_id = Column(Integer, ForeignKey("worker_profiles.id"), nullable=False, index=True)
+        category_slug = Column(String(100), nullable=False, index=True)
+        skill_name = Column(String(150), nullable=False)
+        experience_years = Column(Float, default=1.0, nullable=False)
+        skill_level = Column(String(50), default="intermediate", nullable=False)  # beginner, intermediate, skilled, master_operator
+        certification_or_notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class WorkerAvailabilityRecord(Base):  # type: ignore[misc]
+        """Availability confirmation history and TTL expiry audit."""
+        __tablename__ = "worker_availability_records"
+        id = Column(Integer, primary_key=True, index=True)
+        worker_id = Column(Integer, ForeignKey("worker_profiles.id"), nullable=False, index=True)
+        is_available = Column(Boolean, default=True, nullable=False)
+        available_from = Column(Date, nullable=True)
+        available_to = Column(Date, nullable=True)
+        confirmation_channel = Column(String(50), default="web_app", nullable=False)  # web_app, sms_otp, phone_call, admin
+        confirmed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        expires_at = Column(DateTime, nullable=False)
+        notes = Column(Text, nullable=True)
+
+
+    class LabourJobPost(Base):  # type: ignore[misc]
+        """Detailed farm labour requirement posted by farmers or agricultural businesses."""
+        __tablename__ = "labour_job_posts"
+        id = Column(Integer, primary_key=True, index=True)
+        job_code = Column(String(50), unique=True, nullable=False, index=True)
+        farmer_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        job_title = Column(String(200), nullable=False)
+        category_slug = Column(String(100), nullable=False, index=True)
+        work_type_detail = Column(Text, nullable=True)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        village = Column(String(150), nullable=True, index=True)
+        address_text = Column(String(255), nullable=True)
+        lat = Column(Float, nullable=True)
+        lon = Column(Float, nullable=True)
+        workers_needed = Column(Integer, default=1, nullable=False)
+        required_skills = Column(Text, nullable=True)  # JSON-encoded array
+        start_date = Column(Date, nullable=False, index=True)
+        duration_days = Column(Integer, default=1, nullable=False)
+        working_hours_desc = Column(String(100), nullable=True)  # e.g., "7:00 AM - 2:00 PM (7 hours)"
+        wage_amount = Column(Float, nullable=False)
+        wage_unit = Column(String(30), default="per_day", nullable=False)
+        payment_terms = Column(String(100), default="Daily Cash on Site", nullable=False)
+        transport_info = Column(String(150), default="Worker to arrange own transport", nullable=False)
+        accommodation_info = Column(String(150), default="No accommodation provided", nullable=False)
+        application_deadline = Column(Date, nullable=True)
+        additional_instructions = Column(Text, nullable=True)
+        contact_name = Column(String(150), nullable=False)
+        contact_phone = Column(String(30), nullable=False)
+        masked_contact_phone = Column(String(30), nullable=False)
+        status = Column(String(30), default="open", nullable=False, index=True)  # open, filled, expired, cancelled
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class LabourJobApplication(Base):  # type: ignore[misc]
+        """Job application submitted by an agricultural worker or labour group."""
+        __tablename__ = "labour_job_applications"
+        id = Column(Integer, primary_key=True, index=True)
+        job_id = Column(Integer, ForeignKey("labour_job_posts.id"), nullable=False, index=True)
+        worker_id = Column(Integer, ForeignKey("worker_profiles.id"), nullable=False, index=True)
+        applicant_name = Column(String(150), nullable=False)
+        applicant_phone = Column(String(30), nullable=False)
+        applicant_masked_phone = Column(String(30), nullable=False)
+        proposed_wage = Column(Float, nullable=True)
+        wage_unit = Column(String(30), default="per_day", nullable=False)
+        group_members_count = Column(Integer, default=1, nullable=False)
+        message = Column(Text, nullable=True)
+        status = Column(String(30), default="applied", nullable=False, index=True)  # applied, shortlisted, accepted, rejected, withdrawn
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class LabourContractor(Base):  # type: ignore[misc]
+        """Labour contractor or agricultural machinery/crew provider."""
+        __tablename__ = "labour_contractors"
+        id = Column(Integer, primary_key=True, index=True)
+        worker_profile_id = Column(Integer, ForeignKey("worker_profiles.id"), nullable=False, index=True)
+        enterprise_name = Column(String(200), nullable=False)
+        crew_capacity = Column(Integer, default=10, nullable=False)
+        machinery_available = Column(Text, nullable=True)  # JSON-encoded array
+        operational_districts = Column(Text, nullable=False)  # JSON-encoded array
+        registration_license_no = Column(String(100), nullable=True)
+        contact_person = Column(String(150), nullable=False)
+        contact_phone = Column(String(30), nullable=False)
+        masked_phone = Column(String(30), nullable=False)
+        verification_status = Column(String(50), default="contractor_verified", nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class WageBenchmark(Base):  # type: ignore[misc]
+        """Official Labour Bureau & MGNREGA reported agricultural wage benchmarks."""
+        __tablename__ = "wage_benchmarks"
+        id = Column(Integer, primary_key=True, index=True)
+        state = Column(String(100), nullable=False, index=True)
+        activity_slug = Column(String(100), nullable=False, index=True)
+        activity_label = Column(String(150), nullable=False)
+        reported_wage_male = Column(Float, nullable=True)
+        reported_wage_female = Column(Float, nullable=True)
+        reported_wage_average = Column(Float, nullable=False)
+        wage_unit = Column(String(30), default="per_day", nullable=False)
+        survey_month = Column(String(30), nullable=False)
+        survey_year = Column(Integer, nullable=False)
+        source_name = Column(String(255), nullable=False)
+        source_url = Column(String(500), nullable=True)
+        legal_disclaimer = Column(Text, nullable=False)
+        last_updated_date = Column(Date, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class WorkerVerificationRecord(Base):  # type: ignore[misc]
+        """Audit log for phone OTP and institutional endorsements of workers."""
+        __tablename__ = "worker_verification_records"
+        id = Column(Integer, primary_key=True, index=True)
+        worker_id = Column(Integer, ForeignKey("worker_profiles.id"), nullable=False, index=True)
+        verification_type = Column(String(50), nullable=False)  # phone_otp, fpo_attestation, contractor_license
+        verification_channel = Column(String(50), default="sms_otp", nullable=False)
+        status = Column(String(30), default="verified", nullable=False)
+        reference_token = Column(String(100), nullable=True)
+        verified_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        notes = Column(Text, nullable=True)
+
+
+    class LabourContactRequest(Base):  # type: ignore[misc]
+        """Consent-based contact request workflow shielding worker phone numbers."""
+        __tablename__ = "labour_contact_requests"
+        id = Column(Integer, primary_key=True, index=True)
+        worker_id = Column(Integer, ForeignKey("worker_profiles.id"), nullable=False, index=True)
+        job_id = Column(Integer, ForeignKey("labour_job_posts.id"), nullable=True, index=True)
+        requester_user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        requester_name = Column(String(150), nullable=False)
+        requester_phone = Column(String(30), nullable=False)
+        purpose = Column(String(100), default="hiring_inquiry", nullable=False)
+        farm_location = Column(String(200), nullable=True)
+        work_dates = Column(String(100), nullable=True)
+        message = Column(Text, nullable=True)
+        status = Column(String(30), default="pending", nullable=False, index=True)  # pending, approved, rejected, expired
+        approved_phone_revealed = Column(Boolean, default=False, nullable=False)
+        expires_at = Column(DateTime, nullable=False)
+        resolved_at = Column(DateTime, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class LabourReviewAndReport(Base):  # type: ignore[misc]
+        """User feedback, moderation flags, and spam/fraud reports for agricultural labour."""
+        __tablename__ = "labour_reviews_and_reports"
+        id = Column(Integer, primary_key=True, index=True)
+        target_type = Column(String(50), nullable=False, index=True)  # worker, job_post, contractor, farmer
+        target_id = Column(Integer, nullable=False, index=True)
+        entry_type = Column(String(30), default="report", nullable=False)  # review, report
+        reporter_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+        reporter_name = Column(String(150), nullable=True)
+        reporter_phone = Column(String(30), nullable=True)
+        reason = Column(String(100), nullable=False)  # fake_profile, spam, non_payment, unreachable, abusive_conduct, wage_dispute, other
+        rating = Column(Integer, nullable=True)  # 1 to 5 for reviews
+        details = Column(Text, nullable=True)
+        status = Column(String(30), default="pending_review", nullable=False, index=True)  # pending_review, investigated, dismissed, action_taken
+        admin_notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        resolved_at = Column(DateTime, nullable=True)
+
+
+    class LabourAuditTrail(Base):  # type: ignore[misc]
+        """Immutable security and moderation audit trail for labour events."""
+        __tablename__ = "labour_audit_trail"
+        id = Column(Integer, primary_key=True, index=True)
+        event_type = Column(String(80), nullable=False, index=True)
+        target_type = Column(String(50), nullable=False)
+        target_id = Column(Integer, nullable=True)
+        actor_role = Column(String(50), default="user", nullable=False)
+        actor_identifier = Column(String(100), nullable=True)
+        description = Column(Text, nullable=False)
+        metadata_json = Column(Text, nullable=True)
+        ip_address = Column(String(60), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+
