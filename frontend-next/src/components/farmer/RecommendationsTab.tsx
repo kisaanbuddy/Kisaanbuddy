@@ -17,21 +17,21 @@ interface Props {
   lang: string;
 }
 
-const CATEGORY_CONFIG: Record<RecommendationCategory, { icon: React.ElementType; color: string; label: string; hiLabel: string }> = {
-  irrigation:  { icon: Droplets,   color: "text-sky-600 bg-sky-500/10 border-sky-500/20",      label: "Irrigation",     hiLabel: "सिंचाई" },
-  fertilizer:  { icon: FlaskConical, color: "text-teal-600 bg-teal-500/10 border-teal-500/20", label: "Fertilizer",     hiLabel: "उर्वरक" },
-  pest:        { icon: Bug,         color: "text-red-600 bg-red-500/10 border-red-500/20",      label: "Pest Control",   hiLabel: "कीट नियंत्रण" },
-  disease:     { icon: Bug,         color: "text-orange-600 bg-orange-500/10 border-orange-500/20", label: "Disease",   hiLabel: "रोग प्रबंधन" },
-  harvest:     { icon: Warehouse,   color: "text-amber-600 bg-amber-500/10 border-amber-500/20", label: "Harvest",     hiLabel: "कटाई" },
-  next_season: { icon: Sprout,      color: "text-indigo-600 bg-indigo-500/10 border-indigo-500/20", label: "Next Season", hiLabel: "अगली फसल" },
-  general:     { icon: Sparkles,    color: "text-purple-600 bg-purple-500/10 border-purple-500/20", label: "General",  hiLabel: "सामान्य" },
+const CATEGORY_CONFIG: Record<RecommendationCategory, { icon: React.ElementType; color: string; label: string; hiLabel: string; knLabel: string }> = {
+  irrigation:  { icon: Droplets,     color: "text-sky-600 bg-sky-500/10 border-sky-500/20",      label: "Irrigation",     hiLabel: "सिंचाई",       knLabel: "ನೀರಾವರಿ" },
+  fertilizer:  { icon: FlaskConical, color: "text-teal-600 bg-teal-500/10 border-teal-500/20", label: "Fertilizer",     hiLabel: "उर्वरक",       knLabel: "ರಸಗೊಬ್ಬರ" },
+  pest:        { icon: Bug,          color: "text-red-600 bg-red-500/10 border-red-500/20",      label: "Pest Control",   hiLabel: "कीट नियंत्रण", knLabel: "ಕೀಟ ನಿಯಂತ್ರಣ" },
+  disease:     { icon: Bug,          color: "text-orange-600 bg-orange-500/10 border-orange-500/20", label: "Disease",   hiLabel: "रोग प्रबंधन",  knLabel: "ರೋಗ ನಿರ್ವಹಣೆ" },
+  harvest:     { icon: Warehouse,    color: "text-amber-600 bg-amber-500/10 border-amber-500/20", label: "Harvest",     hiLabel: "कटाई",         knLabel: "ಕೊಯ್ಲು" },
+  next_season: { icon: Sprout,       color: "text-indigo-600 bg-indigo-500/10 border-indigo-500/20", label: "Next Season", hiLabel: "अगली फसल",     knLabel: "ಮುಂದಿನ ಹಂಗಾಮು" },
+  general:     { icon: Sparkles,     color: "text-purple-600 bg-purple-500/10 border-purple-500/20", label: "General",  hiLabel: "सामान्य",       knLabel: "ಸಾಮಾನ್ಯ" },
 };
 
-const STATUS_CONFIG: Record<RecommendationStatus, { label: string; hiLabel: string; color: string; icon: React.ElementType }> = {
-  pending:         { label: "Pending",         hiLabel: "बाकी",        color: "text-amber-600 bg-amber-500/10 border-amber-500/20",    icon: Clock },
-  completed:       { label: "Completed",       hiLabel: "पूर्ण",       color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20", icon: CheckCircle2 },
-  not_applicable:  { label: "Not Applicable",  hiLabel: "लागू नहीं",   color: "text-muted-foreground bg-muted/30 border-border",       icon: XCircle },
-  postponed:       { label: "Postponed",       hiLabel: "स्थगित",      color: "text-blue-600 bg-blue-500/10 border-blue-500/20",       icon: Clock },
+const STATUS_CONFIG: Record<RecommendationStatus, { label: string; hiLabel: string; knLabel: string; color: string; icon: React.ElementType }> = {
+  pending:         { label: "Pending",         hiLabel: "बाकी",        knLabel: "ಬಾಕಿ",          color: "text-amber-600 bg-amber-500/10 border-amber-500/20",    icon: Clock },
+  completed:       { label: "Completed",       hiLabel: "पूर्ण",       knLabel: "ಪೂರ್ಣಗೊಂಡಿದೆ",    color: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20", icon: CheckCircle2 },
+  not_applicable:  { label: "Not Applicable",  hiLabel: "लागू नहीं",   knLabel: "ಅನ್ವಯಿಸುವುದಿಲ್ಲ",  color: "text-muted-foreground bg-muted/30 border-border",       icon: XCircle },
+  postponed:       { label: "Postponed",       hiLabel: "स्थगित",      knLabel: "ಮುಂದೂಡಲಾಗಿದೆ",    color: "text-blue-600 bg-blue-500/10 border-blue-500/20",       icon: Clock },
 };
 
 const CONFIDENCE_COLOR: Record<string, string> = {
@@ -45,6 +45,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
   onStatusChange: (id: number, status: RecommendationStatus) => Promise<void>;
   lang: string;
 }) {
+  const isKn = lang === "kn";
   const hi = lang === "hi";
   const [expanded, setExpanded] = useState(false);
   const [updating, setUpdating] = useState(false);
@@ -91,7 +92,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
                 className={`flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full border transition-colors ${statusConfig.color}`}
               >
                 {updating ? <Loader2 className="h-3 w-3 animate-spin" /> : <StatusIcon className="h-3 w-3" />}
-                {hi ? statusConfig.hiLabel : statusConfig.label}
+                {isKn ? statusConfig.knLabel : hi ? statusConfig.hiLabel : statusConfig.label}
               </button>
               {showStatusMenu && (
                 <>
@@ -106,7 +107,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
                           className={`w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors ${rec.status === s ? "bg-muted font-bold" : "hover:bg-muted/60"} ${cfg.color}`}
                         >
                           <SI className="h-3.5 w-3.5" />
-                          {hi ? cfg.hiLabel : cfg.label}
+                          {isKn ? cfg.knLabel : hi ? cfg.hiLabel : cfg.label}
                         </button>
                       );
                     })}
@@ -122,14 +123,16 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
 
         {/* Action and date */}
         <div className="rounded-lg border border-border/60 bg-muted/30 p-3 space-y-1">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{hi ? "सुझाई गई कार्रवाई" : "Recommended Action"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            {isKn ? "ಶಿಫಾರಸು ಮಾಡಿದ ಕ್ರಮ" : hi ? "सुझाई गई कार्रवाई" : "Recommended Action"}
+          </p>
           <p className="text-xs font-medium text-foreground">{rec.recommended_action}</p>
         </div>
 
         {rec.date_window && (
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
             <Clock className="h-3 w-3" />
-            {hi ? "समय-सीमा:" : "Time Window:"} {rec.date_window}
+            {isKn ? "ಸಮಯ ಮಿತಿ:" : hi ? "समय-सीमा:" : "Time Window:"} {rec.date_window}
           </div>
         )}
       </div>
@@ -139,30 +142,34 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
         <div className="border-t border-border/50 p-4 space-y-3 bg-muted/10">
           {rec.explanation && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{hi ? "विवरण" : "Explanation"}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                {isKn ? "ವಿವರಣೆ" : hi ? "विवरण" : "Explanation"}
+              </p>
               <p className="text-xs text-muted-foreground leading-relaxed">{rec.explanation}</p>
             </div>
           )}
           {rec.reason && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">{hi ? "कारण" : "Why This Recommendation"}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                {isKn ? "ಕಾರಣ" : hi ? "कारण" : "Why This Recommendation"}
+              </p>
               <p className="text-xs text-muted-foreground leading-relaxed">{rec.reason}</p>
             </div>
           )}
           <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground">
             {rec.confidence && (
               <span className={`font-semibold ${CONFIDENCE_COLOR[rec.confidence] ?? ""}`}>
-                {hi ? "विश्वास:" : "Confidence:"} {rec.confidence}
+                {isKn ? "ವಿಶ್ವಾಸಾರ್ಹತೆ:" : hi ? "विश्वास:" : "Confidence:"} {rec.confidence}
               </span>
             )}
             {rec.source && (
               <span className="flex items-center gap-1">
                 <Star className="h-3 w-3 text-amber-500" />
-                {hi ? "स्रोत:" : "Source:"} {rec.source}
+                {isKn ? "ಮೂಲ:" : hi ? "स्रोत:" : "Source:"} {rec.source}
               </span>
             )}
             {rec.created_at && (
-              <span>{hi ? "बनाया:" : "Created:"} {new Date(rec.created_at).toLocaleDateString()}</span>
+              <span>{isKn ? "ರಚಿಸಲಾಗಿದೆ:" : hi ? "बनाया:" : "Created:"} {new Date(rec.created_at).toLocaleDateString(isKn ? "kn-IN" : hi ? "hi-IN" : "en-IN")}</span>
             )}
           </div>
         </div>
@@ -172,6 +179,7 @@ function RecommendationCard({ rec, onStatusChange, lang }: {
 }
 
 export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) {
+  const isKn = lang === "kn";
   const hi = lang === "hi";
   const [statusFilter, setStatusFilter] = useState<RecommendationStatus | "all">("all");
   const [categoryFilter, setCategoryFilter] = useState<RecommendationCategory | "all">("all");
@@ -208,19 +216,27 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <p className="text-2xl font-black text-foreground">{recommendations.length}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">{hi ? "कुल" : "Total"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">
+            {isKn ? "ಒಟ್ಟು" : hi ? "कुल" : "Total"}
+          </p>
         </div>
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-center">
           <p className="text-2xl font-black text-amber-600">{pendingCount}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70 mt-1">{hi ? "बाकी" : "Pending"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600/70 mt-1">
+            {isKn ? "ಬಾಕಿ" : hi ? "बाकी" : "Pending"}
+          </p>
         </div>
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-center">
           <p className="text-2xl font-black text-emerald-600">{completedCount}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 mt-1">{hi ? "पूर्ण" : "Completed"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600/70 mt-1">
+            {isKn ? "ಪೂರ್ಣಗೊಂಡಿದೆ" : hi ? "पूर्ण" : "Completed"}
+          </p>
         </div>
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <p className="text-2xl font-black text-foreground">{recommendations.filter(r => r.status === "postponed").length}</p>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">{hi ? "स्थगित" : "Postponed"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mt-1">
+            {isKn ? "ಮುಂದೂಡಲಾಗಿದೆ" : hi ? "स्थगित" : "Postponed"}
+          </p>
         </div>
       </div>
 
@@ -233,7 +249,7 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
               onClick={() => setStatusFilter(s)}
               className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border transition-colors ${statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
             >
-              {s === "all" ? (hi ? "सभी" : "All") : hi ? STATUS_CONFIG[s]?.hiLabel : STATUS_CONFIG[s]?.label}
+              {s === "all" ? (isKn ? "ಎಲ್ಲಾ" : hi ? "सभी" : "All") : isKn ? STATUS_CONFIG[s]?.knLabel : hi ? STATUS_CONFIG[s]?.hiLabel : STATUS_CONFIG[s]?.label}
             </button>
           ))}
         </div>
@@ -244,9 +260,13 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
         <div className="rounded-xl border border-dashed border-border p-10 text-center space-y-3">
           <Sparkles className="h-10 w-10 text-muted-foreground/25 mx-auto" />
           <div>
-            <p className="text-sm font-bold text-foreground">{hi ? "अभी कोई सिफारिश नहीं है।" : "No recommendations yet."}</p>
+            <p className="text-sm font-bold text-foreground">
+              {isKn ? "ಇನ್ನೂ ಯಾವುದೇ ಶಿಫಾರಸುಗಳಿಲ್ಲ." : hi ? "अभी कोई सिफारिश नहीं है।" : "No recommendations yet."}
+            </p>
             <p className="text-xs text-muted-foreground mt-1 max-w-md mx-auto">
-              {hi
+              {isKn
+                ? "ನಿಮ್ಮ ಬೆಳೆ, ಮಣ್ಣು ಮತ್ತು ಜಮೀನಿನ ವಿವರಗಳನ್ನು ಸೇರಿಸಿ ನಂತರ AI ಚಾಟ್‌ಬಾಟ್‌ನಿಂದ ಸಲಹೆ ಕೇಳಿ. AI ರಚಿಸಿದ ಶಿಫಾರಸುಗಳು ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತವೆ."
+                : hi
                 ? "अपनी फसल, मिट्टी और खेत की जानकारी जोड़ें, फिर AI चैटबॉट से सलाह लें। AI द्वारा दी गई सिफारिशें यहाँ दिखाई देंगी।"
                 : "Add your crop, soil, and field information, then ask the AI chatbot for advice. Recommendations generated by the AI will appear here."}
             </p>
@@ -266,7 +286,7 @@ export function RecommendationsTab({ recommendations, onRefresh, lang }: Props) 
         ))}
         {filtered.length === 0 && recommendations.length > 0 && (
           <p className="text-sm text-center text-muted-foreground py-8">
-            {hi ? "इस फ़िल्टर के लिए कोई सिफारिश नहीं है।" : "No recommendations match this filter."}
+            {isKn ? "ಈ ಫಿಲ್ಟರ್‌ಗೆ ಯಾವುದೇ ಶಿಫಾರಸು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ." : hi ? "इस फ़िल्टर के लिए कोई सिफारिश नहीं है।" : "No recommendations match this filter."}
           </p>
         )}
       </div>

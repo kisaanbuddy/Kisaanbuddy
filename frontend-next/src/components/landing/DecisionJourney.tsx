@@ -5,26 +5,29 @@ import { ArrowRight, Bug, CloudSun, Landmark, ScanLine, ShoppingBasket, Sparkles
 import { useLanguage } from '@/lib/language';
 
 const tools = [
-  { href: '/disease', icon: ScanLine, tone: 'bg-rose-500/10 text-rose-700', en: 'Check crop health', hi: 'फसल की जांच' },
-  { href: '/weather', icon: CloudSun, tone: 'bg-sky-500/10 text-sky-700', en: 'Plan for weather', hi: 'मौसम के अनुसार योजना' },
-  { href: '/mandi', icon: TrendingUp, tone: 'bg-amber-500/10 text-amber-700', en: 'Compare mandi prices', hi: 'मंडी भाव देखें' },
-  { href: '/schemes', icon: Landmark, tone: 'bg-violet-500/10 text-violet-700', en: 'Find useful schemes', hi: 'काम की योजनाएं खोजें' },
+  { href: '/disease', icon: ScanLine, tone: 'bg-rose-500/10 text-rose-700', en: 'Check crop health', hi: 'फसल की जांच', kn: 'ಬೆಳೆ ಆರೋಗ್ಯ ಪರಿಶೀಲಿಸಿ' },
+  { href: '/weather', icon: CloudSun, tone: 'bg-sky-500/10 text-sky-700', en: 'Plan for weather', hi: 'मौसम के अनुसार योजना', kn: 'ಹವಾಮಾನಕ್ಕೆ ತಕ್ಕ ಯೋಜನೆ' },
+  { href: '/mandi', icon: TrendingUp, tone: 'bg-amber-500/10 text-amber-700', en: 'Compare mandi prices', hi: 'मंडी भाव देखें', kn: 'ಮಂಡಿ ದರಗಳನ್ನು ಹೋಲಿಸಿ' },
+  { href: '/schemes', icon: Landmark, tone: 'bg-violet-500/10 text-violet-700', en: 'Find useful schemes', hi: 'काम की योजनाएं खोजें', kn: 'ಉಪಯುಕ್ತ ಯೋಜನೆಗಳನ್ನು ಹುಡುಕಿ' },
 ];
 
 export function DecisionJourney() {
   const { lang } = useLanguage();
+  const isKn = lang === 'kn';
   const isHi = lang === 'hi';
 
   return (
     <section className="border-y border-border/70 bg-card py-14 sm:py-20">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[.82fr_1.18fr] lg:items-center lg:px-8">
         <div>
-          <p className="eyebrow"><Sparkles className="h-3.5 w-3.5" />{isHi ? 'खेती के लिए निर्णय प्रणाली' : 'A decision system for your farm'}</p>
+          <p className="eyebrow"><Sparkles className="h-3.5 w-3.5" />{isKn ? 'ಕೃಷಿಗಾಗಿ ನಿರ್ಧಾರ ವ್ಯವಸ್ಥೆ' : isHi ? 'खेती के लिए निर्णय प्रणाली' : 'A decision system for your farm'}</p>
           <h2 className="mt-3 max-w-md text-3xl font-bold tracking-[-.04em] text-foreground sm:text-4xl">
-            {isHi ? 'सिर्फ जानकारी नहीं। आगे क्या करना है, वह भी।' : 'Not just information. A clear way forward.'}
+            {isKn ? 'ಕೇವಲ ಮಾಹಿತಿಯಲ್ಲ. ಸ್ಪಷ್ಟ ಮುನ್ನಡೆಯ ಮಾರ್ಗ.' : isHi ? 'सिर्फ जानकारी नहीं। आगे क्या करना है, वह भी।' : 'Not just information. A clear way forward.'}
           </h2>
           <p className="mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-            {isHi ? 'KisaanBuddy हर सिग्नल को आपके खेत के लिए एक उपयोगी कदम से जोड़ता है—ताकि आप कम अनुमान लगाएं और बेहतर तैयारी करें।' : 'KisaanBuddy connects every signal to a useful step for your farm—so you can spend less time guessing and more time preparing.'}
+            {isKn
+              ? 'KisaanBuddy ಪ್ರತಿ ಮುನ್ಸೂಚನೆಯನ್ನು ನಿಮ್ಮ ಜಮೀನಿಗೆ ಸೂಕ್ತವಾದ ಮುಂದಿನ ಕ್ರಮಕ್ಕೆ ಜೋಡಿಸುತ್ತದೆ — ಇದರಿಂದ ನೀವು ಊಹಿಸುವುದನ್ನು ಕಡಿಮೆ ಮಾಡಿ ಉತ್ತಮ ಸಿದ್ಧತೆ ಮಾಡಿಕೊಳ್ಳಬಹುದು.'
+              : isHi ? 'KisaanBuddy हर सिग्नल को आपके खेत के लिए एक उपयोगी कदम से जोड़ता है—ताकि आप कम अनुमान लगाएं और बेहतर तैयारी करें।' : 'KisaanBuddy connects every signal to a useful step for your farm—so you can spend less time guessing and more time preparing.'}
           </p>
           <div className="my-5 relative overflow-hidden rounded-2xl border border-border/80 shadow-xs">
             <img
@@ -33,12 +36,12 @@ export function DecisionJourney() {
               className="h-44 w-full object-cover object-center"
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white text-[11px]">
-              <span className="font-semibold block">{isHi ? 'खेत में सीधे काम आने वाली सलाह' : 'Practical, In-Field Agronomic Support'}</span>
-              <span className="text-slate-300 text-[10px]">{isHi ? 'हर सलाह आपके खेत और मौसम पर आधारित है' : 'Tailored to your specific soil, crop stage, and local weather'}</span>
+              <span className="font-semibold block">{isKn ? 'ಜಮೀನಿನಲ್ಲಿ ನೇರವಾಗಿ ಉಪಯುಕ್ತವಾಗುವ ಸಲಹೆ' : isHi ? 'खेत में सीधे काम आने वाली सलाह' : 'Practical, In-Field Agronomic Support'}</span>
+              <span className="text-slate-300 text-[10px]">{isKn ? 'ಪ್ರತಿ ಸಲಹೆಯು ನಿಮ್ಮ ಮಣ್ಣು, ಬೆಳೆ ಹಂತ ಮತ್ತು ಸ್ಥಳೀಯ ಹವಾಮಾನವನ್ನು ಆಧರಿಸಿದೆ' : isHi ? 'हर सलाह आपके खेत और मौसम पर आधारित है' : 'Tailored to your specific soil, crop stage, and local weather'}</span>
             </div>
           </div>
           <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-primary transition-colors hover:text-primary/80">
-            {isHi ? 'मेरा फार्म डैशबोर्ड खोलें' : 'Open my farm dashboard'} <ArrowRight className="h-4 w-4" />
+            {isKn ? 'ನನ್ನ ಫಾರ್ಮ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ತೆರೆಯಿರಿ' : isHi ? 'मेरा फार्म डैशबोर्ड खोलें' : 'Open my farm dashboard'} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
@@ -46,10 +49,10 @@ export function DecisionJourney() {
           <div className="absolute bottom-7 left-[15%] top-7 hidden border-l border-dashed border-primary/30 sm:block" />
           <div className="relative grid gap-3">
             {[
-              { icon: Sprout, number: '01', title: isHi ? 'खेत की जानकारी' : 'Farm data', body: isHi ? 'आपकी फसल, जगह और खेती की स्थिति' : 'Your crops, location and farm conditions' },
-              { icon: Sparkles, number: '02', title: isHi ? 'AI की समझ' : 'AI insight', body: isHi ? 'मौसम, सेहत और बाजार को एक साथ समझें' : 'Weather, crop health and market context together' },
-              { icon: Bug, number: '03', title: isHi ? 'स्पष्ट सलाह' : 'Clear recommendation', body: isHi ? 'क्या करें, कब करें और किस बात पर नजर रखें' : 'What to do, when to do it and what to watch' },
-              { icon: ShoppingBasket, number: '04', title: isHi ? 'बेहतर परिणाम' : 'Better outcomes', body: isHi ? 'कम जोखिम, बेहतर तैयारी और स्मार्ट बिक्री' : 'Lower risk, better preparation and smarter selling' },
+              { icon: Sprout, number: '01', title: isKn ? 'ಜಮೀನಿನ ಮಾಹಿತಿ' : isHi ? 'खेत की जानकारी' : 'Farm data', body: isKn ? 'ನಿಮ್ಮ ಬೆಳೆಗಳು, ಸ್ಥಳ ಮತ್ತು ಕೃಷಿ ಪರಿಸ್ಥಿತಿ' : isHi ? 'आपकी फसल, जगह और खेती की स्थिति' : 'Your crops, location and farm conditions' },
+              { icon: Sparkles, number: '02', title: isKn ? 'AI ಒಳನೋಟ' : isHi ? 'AI की समझ' : 'AI insight', body: isKn ? 'ಹವಾಮಾನ, ಬೆಳೆ ಆರೋಗ್ಯ ಮತ್ತು ಮಾರುಕಟ್ಟೆ ಸಂದರ್ಭ' : isHi ? 'मौसम, सेहत और बाजार को एक साथ समझें' : 'Weather, crop health and market context together' },
+              { icon: Bug, number: '03', title: isKn ? 'ಸ್ಪಷ್ಟ ಶಿಫಾರಸು' : isHi ? 'स्पष्ट सलाह' : 'Clear recommendation', body: isKn ? 'ಏನು ಮಾಡಬೇಕು, ಯಾವಾಗ ಮಾಡಬೇಕು ಮತ್ತು ಯಾವ ಬಗ್ಗೆ ನಿಗಾ ಇಡಬೇಕು' : isHi ? 'क्या करें, कब करें और किस बात पर नजर रखें' : 'What to do, when to do it and what to watch' },
+              { icon: ShoppingBasket, number: '04', title: isKn ? 'ಉತ್ತಮ ಫಲಿತಾಂಶ' : isHi ? 'बेहतर परिणाम' : 'Better outcomes', body: isKn ? 'ಕಡಿಮೆ ಅಪಾಯ, ಉತ್ತಮ ಸಿದ್ಧತೆ ಮತ್ತು ಸ್ಮಾರ್ಟ್ ಮಾರಾಟ' : isHi ? 'कम जोखिम, बेहतर तैयारी और स्मार्ट बिक्री' : 'Lower risk, better preparation and smarter selling' },
             ].map(({ icon: Icon, number, title, body }) => (
               <div key={number} className="relative z-10 grid grid-cols-[42px_1fr] gap-3 rounded-2xl border border-border/70 bg-card p-3.5 shadow-xs sm:grid-cols-[42px_72px_1fr] sm:items-center">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-xs font-bold text-primary-foreground shadow-sm">{number}</span>
@@ -62,10 +65,10 @@ export function DecisionJourney() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-7xl grid-cols-2 gap-3 px-4 sm:grid-cols-4 sm:px-6 lg:px-8">
-        {tools.map(({ href, icon: Icon, tone, en, hi }) => (
+        {tools.map(({ href, icon: Icon, tone, en, hi, kn }) => (
           <Link key={href} href={href} className="group rounded-2xl border border-border bg-background p-4 transition-all hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-sm">
             <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}><Icon className="h-4 w-4" /></span>
-            <p className="mt-3 text-xs font-bold text-foreground group-hover:text-primary">{isHi ? hi : en}</p>
+            <p className="mt-3 text-xs font-bold text-foreground group-hover:text-primary">{isKn ? kn : isHi ? hi : en}</p>
           </Link>
         ))}
       </div>

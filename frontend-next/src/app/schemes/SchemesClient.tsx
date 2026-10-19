@@ -79,6 +79,8 @@ function checkEligibility(scheme: Scheme, filter: EligFilter): boolean {
 export default function SchemesPage() {
   const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
+  const isHi = lang === "hi"
+  const isKn = lang === "kn"
   const [filter, setFilter] = useState<EligFilter>({
     landAcres: "",
     category: "any",
@@ -115,13 +117,17 @@ export default function SchemesPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-3">
               <Landmark className="h-3.5 w-3.5" />
-              Sarkari Yojana Portal · Government Schemes
+              {isKn ? "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಪೋರ್ಟಲ್ · ಕೃಷಿ ಯೋಜನೆಗಳು" : isHi ? "सरकारी योजना पोर्टल · सरकारी योजनाएं" : "Sarkari Yojana Portal · Government Schemes"}
             </div>
             <h1 className="text-3xl md:text-4xl font-extrabold font-display tracking-tight text-foreground flex items-center gap-3">
-              Government <span className="text-emerald-600 dark:text-emerald-400">{t("schemes.schemes")}</span>
+              {isKn ? "ಸರ್ಕಾರಿ" : isHi ? "सरकारी" : "Government"} <span className="text-emerald-600 dark:text-emerald-400">{t("schemes.schemes")}</span>
             </h1>
             <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
-              Browse government agricultural grants, crop subsidies, low-interest microcredit options, and training resources. Filter instantly based on eligibility conditions.
+              {isKn
+                ? "ಸರ್ಕಾರಿ ಕೃಷಿ ಅನುದಾನಗಳು, ಬೆಳೆ ಸಬ್ಸಿಡಿಗಳು, ಕಡಿಮೆ ಬಡ್ಡಿದರದ ಸಾಲ ಸೌಲಭ್ಯಗಳು ಮತ್ತು ತರಬೇತಿ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಅನ್ವೇಷಿಸಿ. ನಿಮ್ಮ ಅರ್ಹತೆಯ ಆಧಾರದ ಮೇಲೆ ತಕ್ಷಣ ಫಿಲ್ಟರ್ ಮಾಡಿ."
+                : isHi
+                ? "सरकारी कृषि अनुदान, फसल सब्सिडी, कम ब्याज ऋण विकल्प और प्रशिक्षण संसाधनों को ब्राउज़ करें। अपनी पात्रता के आधार पर तुरंत फ़िल्टर करें।"
+                : "Browse government agricultural grants, crop subsidies, low-interest microcredit options, and training resources. Filter instantly based on eligibility conditions."}
             </p>
           </div>
         </div>
@@ -133,7 +139,13 @@ export default function SchemesPage() {
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-muted-foreground" />
           <input
             type="text"
-            placeholder={lang === "hi" ? "योजना का नाम, लाभ या विवरण खोजें..." : "Search scheme name, benefits, description..."}
+            placeholder={
+              isKn
+                ? "ಯೋಜನೆಯ ಹೆಸರು, ಸೌಲಭ್ಯ ಅಥವಾ ವಿವರ ಹುಡುಕಿ..."
+                : isHi
+                ? "योजना का नाम, लाभ या विवरण खोजें..."
+                : "Search scheme name, benefits, description..."
+            }
             value={filter.search}
             onChange={(e) => upd("search", e.target.value)}
             className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border/50 bg-card text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all text-foreground font-medium h-11"
@@ -145,9 +157,9 @@ export default function SchemesPage() {
           onChange={(e) => upd("state", e.target.value)}
           className="h-11 rounded-xl border border-border/50 bg-card px-4 text-xs text-foreground font-semibold focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer min-w-[160px]"
         >
-          <option value="all">{lang === "hi" ? "सभी राज्य" : "All States"}</option>
-          <option value="uttar pradesh">Uttar Pradesh</option>
-          <option value="karnataka">Karnataka</option>
+          <option value="all">{isKn ? "ಎಲ್ಲಾ ರಾಜ್ಯಗಳು" : isHi ? "सभी राज्य" : "All States"}</option>
+          <option value="uttar pradesh">{isKn ? "ಉತ್ತರ ಪ್ರದೇಶ" : isHi ? "उत्तर प्रदेश" : "Uttar Pradesh"}</option>
+          <option value="karnataka">{isKn ? "ಕರ್ನಾಟಕ" : isHi ? "कर्नाटक" : "Karnataka"}</option>
         </select>
       </div>
 
@@ -166,7 +178,9 @@ export default function SchemesPage() {
             <div>
               <div className="font-bold text-foreground text-sm font-display">{t("schemes.targeted_eligibility_search")}</div>
               <div className="text-xs text-muted-foreground">
-                {filter.checked ? `${visible.length} of ${schemes.length} schemes matching your criteria` : "Fill profile parameters below to crop check match factors"}
+                {filter.checked
+                  ? (isKn ? `ನಿಮ್ಮ ಮಾನದಂಡಕ್ಕೆ ಸರಿಹೊಂದುವ ${schemes.length} ರಲ್ಲಿ ${visible.length} ಯೋಜನೆಗಳು` : isHi ? `आपके मानदंडों से मेल खाने वाली ${schemes.length} में से ${visible.length} योजनाएं` : `${visible.length} of ${schemes.length} schemes matching your criteria`)
+                  : (isKn ? "ಹೊಂದಾಣಿಕೆಯಾಗುವ ಯೋಜನೆಗಳನ್ನು ಪರಿಶೀಲಿಸಲು ಕೆಳಗೆ ನಿಮ್ಮ ಕೃಷಿ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ" : isHi ? "अपनी पात्रता की जांच करने के लिए नीचे अपना प्रोफ़ाइल विवरण भरें" : "Fill profile parameters below to crop check match factors")}
               </div>
             </div>
           </div>
@@ -177,7 +191,7 @@ export default function SchemesPage() {
                 variant="outline"
                 className="text-xs rounded-xl border border-border/50 px-4 py-2 font-semibold flex items-center gap-1.5 transition-all"
               >
-                <RefreshCw className="h-3.5 w-3.5" /> Reset Filter
+                <RefreshCw className="h-3.5 w-3.5" /> {isKn ? "ಫಿಲ್ಟರ್ ತೆರವುಗೊಳಿಸಿ" : isHi ? "फ़िल्टर रीसेट करें" : "Reset Filter"}
               </Button>
             )}
             <Button 
@@ -185,7 +199,7 @@ export default function SchemesPage() {
               className="text-xs rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 flex items-center gap-1.5 shadow-sm transition-all"
             >
               {showChecker ? <X className="h-3.5 w-3.5" /> : <Filter className="h-3.5 w-3.5" />}
-              <span>{showChecker ? "Close Filter" : t("checkEligibility")}</span>
+              <span>{showChecker ? (isKn ? "ಫಿಲ್ಟರ್ ಮುಚ್ಚಿ" : isHi ? "फ़िल्टर बंद करें" : "Close Filter") : (isKn ? "ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಿ" : t("checkEligibility"))}</span>
               {!showChecker && <ChevronDown className="h-3.5 w-3.5" />}
             </Button>
           </div>
@@ -212,7 +226,7 @@ export default function SchemesPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-wider text-muted-foreground font-bold block">Category / श्रेणी</Label>
+                  <Label className="text-xs uppercase tracking-wider text-muted-foreground font-bold block">{isKn ? "ವರ್ಗ / ಗುಂಪು" : isHi ? "श्रेणी" : "Category / श्रेणी"}</Label>
                   <select 
                     value={filter.category} 
                     onChange={(e) => upd("category", e.target.value as Category)}
@@ -243,7 +257,7 @@ export default function SchemesPage() {
                 onClick={() => { upd("checked", true); setShowChecker(false) }}
                 className="mt-5 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 flex items-center justify-center gap-2 shadow-sm"
               >
-                <CheckCircle2 className="h-4.5 w-4.5" /> Show Matching Schemes
+                <CheckCircle2 className="h-4.5 w-4.5" /> {isKn ? "ಹೊಂದಾಣಿಕೆಯಾಗುವ ಯೋಜನೆಗಳನ್ನು ತೋರಿಸಿ" : isHi ? "पात्र योजनाएं देखें" : "Show Matching Schemes"}
               </Button>
             </motion.div>
           )}
@@ -254,10 +268,10 @@ export default function SchemesPage() {
       {filter.checked && (
         <div className="flex flex-wrap gap-2.5 items-center pl-1">
           <span className="text-[10px] font-bold rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-3 py-1">
-            {visible.length} Matching Grants
+            {isKn ? `${visible.length} ಹೊಂದಾಣಿಕೆಯ ಅನುದಾನಗಳು` : isHi ? `${visible.length} उपयुक्त योजनाएं` : `${visible.length} Matching Grants`}
           </span>
-          {filter.landAcres && <span className="text-[10px] font-bold rounded-full bg-card border border-border/50 px-3 py-1 text-muted-foreground">{filter.landAcres} acres land</span>}
-          {filter.category !== "any" && <span className="text-[10px] font-bold rounded-full bg-card border border-border/50 px-3 py-1 text-muted-foreground capitalize">{filter.category} group</span>}
+          {filter.landAcres && <span className="text-[10px] font-bold rounded-full bg-card border border-border/50 px-3 py-1 text-muted-foreground">{filter.landAcres} {isKn ? "ಎಕರೆ ಜಮೀನು" : isHi ? "एकड़ भूमि" : "acres land"}</span>}
+          {filter.category !== "any" && <span className="text-[10px] font-bold rounded-full bg-card border border-border/50 px-3 py-1 text-muted-foreground capitalize">{filter.category} {isKn ? "ಗುಂಪು" : isHi ? "वर्ग" : "group"}</span>}
         </div>
       )}
 
@@ -283,11 +297,11 @@ export default function SchemesPage() {
                       </span>
                     ) : (
                       <span className="text-[9px] font-bold rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 uppercase tracking-wide">
-                        Sarkari Yojana
+                        {isKn ? "ಸರ್ಕಾರಿ ಯೋಜನೆ" : isHi ? "सरकारी योजना" : "Sarkari Yojana"}
                       </span>
                     )}
                     <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                      {scheme.state === "All" ? (lang === "hi" ? "केंद्र सरकार" : "Central Scheme") : scheme.state}
+                      {scheme.state === "All" ? (isKn ? "ಕೇಂದ್ರ ಸರ್ಕಾರ" : isHi ? "केंद्र सरकार" : "Central Scheme") : scheme.state}
                     </span>
                   </div>
 
@@ -299,11 +313,15 @@ export default function SchemesPage() {
                   <div className="flex flex-wrap gap-2 mt-3">
                     <span className="text-[10px] font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
                       <CheckSquare className="h-3 w-3 shrink-0" />
-                      {lang === "hi" ? "सत्यापित: आज ही" : `Verified: ${scheme.verifiedAt}`}
+                      {isKn ? "ದೃಢೀಕೃತ: ಇಂದೇ" : isHi ? "सत्यापित: आज ही" : `Verified: ${scheme.verifiedAt}`}
                     </span>
                     <span className="text-[10px] font-medium text-sky-700 dark:text-sky-300 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded-md flex items-center gap-1">
                       <Calendar className="h-3 w-3 shrink-0" />
-                      {lang === "hi" ? "अंतिम तिथि: " + (scheme.lastDate === "Ongoing" || scheme.lastDate === "Open All Year" ? "खुला है" : "30 जून") : `Apply by: ${scheme.lastDate}`}
+                      {isKn
+                        ? "ಕೊನೆಯ ದಿನಾಂಕ: " + (scheme.lastDate === "Ongoing" || scheme.lastDate === "Open All Year" ? "ಸಕ್ರಿಯವಾಗಿದೆ" : "30 ಜೂನ್")
+                        : isHi
+                        ? "अंतिम तिथि: " + (scheme.lastDate === "Ongoing" || scheme.lastDate === "Open All Year" ? "खुला है" : "30 जून")
+                        : `Apply by: ${scheme.lastDate}`}
                     </span>
                   </div>
 

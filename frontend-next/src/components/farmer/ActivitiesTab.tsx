@@ -23,12 +23,25 @@ const ACTIVITY_TYPES = [
   "weeding", "harvesting", "soil_testing", "land_preparation", "other"
 ];
 
+const ACTIVITY_TYPE_LABELS: Record<string, { en: string; hi: string; kn: string }> = {
+  sowing: { en: "Sowing", hi: "बुआई", kn: "ಬಿತ್ತನೆ" },
+  irrigation: { en: "Irrigation", hi: "सिंचाई", kn: "ನೀರಾವರಿ" },
+  fertilizer_application: { en: "Fertilizer Application", hi: "उर्वरಕ छिड़काव", kn: "ಗೊಬ್ಬರ ಹಾಕುವುದು" },
+  pesticide_spray: { en: "Pesticide Spray", hi: "कीटनाशक स्प्रे", kn: "ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆ" },
+  weeding: { en: "Weeding", hi: "निराई-गुड़ाई", kn: "ಕಳೆ ಕೀಳುವುದು" },
+  harvesting: { en: "Harvesting", hi: "कटाई", kn: "ಕೊಯ್ಲು" },
+  soil_testing: { en: "Soil Testing", hi: "मिट्टी परीक्षण", kn: "ಮಣ್ಣು ಪರೀಕ್ಷೆ" },
+  land_preparation: { en: "Land Preparation", hi: "खेत की तैयारी", kn: "ಭೂಮಿ ಸಿದ್ಧತೆ" },
+  other: { en: "Other", hi: "अन्य", kn: "ಇತರೆ" },
+};
+
 function ActivityForm({ fields, onSave, onCancel, lang }: {
   fields: FarmerField[];
   onSave: (data: any) => Promise<void>;
   onCancel: () => void;
   lang: string;
 }) {
+  const isKn = lang === "kn";
   const hi = lang === "hi";
   const [saving, setSaving] = useState(false);
   const [category, setCategory] = useState<"activity" | "expense" | "income">("activity");
@@ -68,7 +81,9 @@ function ActivityForm({ fields, onSave, onCancel, lang }: {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-5 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
-      <h4 className="text-sm font-bold text-foreground">{hi ? "नई प्रविष्टि जोड़ें" : "Add New Entry"}</h4>
+      <h4 className="text-sm font-bold text-foreground">
+        {isKn ? "ಹೊಸ ನಮೂದು ಸೇರಿಸಿ" : hi ? "नई प्रविष्टि जोड़ें" : "Add New Entry"}
+      </h4>
 
       {/* Category selector */}
       <div className="flex gap-2">
@@ -84,38 +99,52 @@ function ActivityForm({ fields, onSave, onCancel, lang }: {
               : "bg-card text-muted-foreground border-border hover:bg-muted"
             }`}
           >
-            {hi ? cat === "activity" ? "गतिविधि" : cat === "expense" ? "खर्च" : "आय" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+            {isKn
+              ? cat === "activity" ? "ಚಟುವಟಿಕೆ" : cat === "expense" ? "ಖರ್ಚು" : "ಆದಾಯ"
+              : hi
+              ? cat === "activity" ? "गतिविधि" : cat === "expense" ? "खर्च" : "आय"
+              : cat.charAt(0).toUpperCase() + cat.slice(1)}
           </button>
         ))}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="label-field">{hi ? "विवरण*" : "Title/Description*"}</label>
-          <input required value={form.title} onChange={e => set("title", e.target.value)} className="input-field" placeholder={hi ? "जैसे: यूरिया का छिड़काव किया" : "e.g. Applied Urea to wheat field"} />
+          <label className="label-field">{isKn ? "ವಿವರಣೆ*" : hi ? "विवरण*" : "Title/Description*"}</label>
+          <input
+            required
+            value={form.title}
+            onChange={e => set("title", e.target.value)}
+            className="input-field"
+            placeholder={isKn ? "ಉದಾ: ಯೂರಿಯಾ ಸಿಂಪಡಿಸಲಾಯಿತು" : hi ? "जैसे: यूरिया का छिड़काव किया" : "e.g. Applied Urea to wheat field"}
+          />
         </div>
         <div>
-          <label className="label-field">{hi ? "तारीख*" : "Date*"}</label>
+          <label className="label-field">{isKn ? "ದಿನಾಂಕ*" : hi ? "तारीख*" : "Date*"}</label>
           <input required type="date" value={form.activity_date} onChange={e => set("activity_date", e.target.value)} className="input-field" />
         </div>
         {fields.length > 0 && (
           <div>
-            <label className="label-field">{hi ? "भूखंड" : "Field/Plot"}</label>
+            <label className="label-field">{isKn ? "ಪ್ಲಾಟ್ / ಜಮೀನು" : hi ? "भूखंड" : "Field/Plot"}</label>
             <select value={form.field_id} onChange={e => set("field_id", e.target.value)} className="input-field">
-              <option value="">{hi ? "सभी खेत" : "All fields"}</option>
+              <option value="">{isKn ? "ಎಲ್ಲಾ ಜಮೀನುಗಳು" : hi ? "सभी खेत" : "All fields"}</option>
               {fields.map(f => <option key={f.id} value={f.id}>{f.field_name || `Field ${f.id}`}{f.current_crop ? ` (${f.current_crop})` : ""}</option>)}
             </select>
           </div>
         )}
         <div>
-          <label className="label-field">{hi ? "गतिविधि का प्रकार" : "Activity Type"}</label>
+          <label className="label-field">{isKn ? "ಚಟುವಟಿಕೆಯ ಪ್ರಕಾರ" : hi ? "गतिविधि का प्रकार" : "Activity Type"}</label>
           <select value={form.activity_type} onChange={e => set("activity_type", e.target.value)} className="input-field">
-            {ACTIVITY_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, " ")}</option>)}
+            {ACTIVITY_TYPES.map(t => (
+              <option key={t} value={t}>
+                {isKn ? ACTIVITY_TYPE_LABELS[t]?.kn ?? t : hi ? ACTIVITY_TYPE_LABELS[t]?.hi ?? t : ACTIVITY_TYPE_LABELS[t]?.en ?? t}
+              </option>
+            ))}
           </select>
         </div>
         {category !== "activity" && (
           <div>
-            <label className="label-field">{hi ? "राशि (₹)" : "Amount (₹)"}</label>
+            <label className="label-field">{isKn ? "ಮೊತ್ತ (₹)" : hi ? "राशि (₹)" : "Amount (₹)"}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
               <input type="number" min="0" step="0.01" value={form.amount} onChange={e => set("amount", e.target.value)} className="input-field pl-7" placeholder="0.00" />
@@ -123,30 +152,36 @@ function ActivityForm({ fields, onSave, onCancel, lang }: {
           </div>
         )}
         <div>
-          <label className="label-field">{hi ? "मात्रा" : "Quantity"}</label>
+          <label className="label-field">{isKn ? "ಪ್ರಮಾಣ" : hi ? "मात्रा" : "Quantity"}</label>
           <div className="flex gap-1.5">
             <input type="number" min="0" step="0.01" value={form.quantity} onChange={e => set("quantity", e.target.value)} className="input-field flex-1" placeholder="0" />
-            <input value={form.unit} onChange={e => set("unit", e.target.value)} className="input-field w-20" placeholder={hi ? "इकाई" : "unit"} />
+            <input value={form.unit} onChange={e => set("unit", e.target.value)} className="input-field w-20" placeholder={isKn ? "ಘಟಕ" : hi ? "इकाई" : "unit"} />
           </div>
         </div>
         <div>
-          <label className="label-field">{hi ? "मजदूर संख्या" : "Labour Count"}</label>
+          <label className="label-field">{isKn ? "ಕೂಲಿ ಕಾರ್ಮಿಕರ ಸಂಖ್ಯೆ" : hi ? "मजदूर संख्या" : "Labour Count"}</label>
           <input type="number" min="0" value={form.labour_count} onChange={e => set("labour_count", e.target.value)} className="input-field" placeholder="0" />
         </div>
         <div className="sm:col-span-2">
-          <label className="label-field">{hi ? "टिप्पणी" : "Notes"}</label>
-          <textarea value={form.notes} onChange={e => set("notes", e.target.value)} className="input-field resize-none" rows={2} placeholder={hi ? "अतिरिक्त जानकारी..." : "Additional details..."} />
+          <label className="label-field">{isKn ? "ಟಿಪ್ಪಣಿ" : hi ? "टिप्पणी" : "Notes"}</label>
+          <textarea
+            value={form.notes}
+            onChange={e => set("notes", e.target.value)}
+            className="input-field resize-none"
+            rows={2}
+            placeholder={isKn ? "ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ..." : hi ? "अतिरिक्त जानकारी..." : "Additional details..."}
+          />
         </div>
       </div>
 
       <div className="flex gap-2">
         <button type="submit" disabled={saving} className="btn-primary flex items-center gap-1.5 h-9 text-xs">
           {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-          {hi ? "डायरी में सहेजें" : "Save to Diary"}
+          {isKn ? "ಡೈರಿಯಲ್ಲಿ ಉಳಿಸಿ" : hi ? "डायरी में सहेजें" : "Save to Diary"}
         </button>
         <button type="button" onClick={onCancel} className="btn-secondary h-9 text-xs flex items-center gap-1.5">
           <X className="h-3.5 w-3.5" />
-          {hi ? "रद्द करें" : "Cancel"}
+          {isKn ? "ರದ್ದುಮಾಡಿ" : hi ? "रद्द करें" : "Cancel"}
         </button>
       </div>
     </form>
@@ -154,6 +189,7 @@ function ActivityForm({ fields, onSave, onCancel, lang }: {
 }
 
 export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
+  const isKn = lang === "kn";
   const hi = lang === "hi";
   const [showForm, setShowForm] = useState(false);
   const [catFilter, setCatFilter] = useState<"all" | "activity" | "expense" | "income">("all");
@@ -178,7 +214,7 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm(hi ? "क्या आप इस प्रविष्टि को हटाना चाहते हैं?" : "Delete this entry?")) return;
+    if (!confirm(isKn ? "ನೀವು ಈ ನಮೂದನ್ನು ಅಳಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?" : hi ? "क्या आप इस प्रविष्टि को हटाना चाहते हैं?" : "Delete this entry?")) return;
     setDeleting(id);
     try {
       await activitiesApi.delete(id);
@@ -206,15 +242,21 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{hi ? "कुल व्यय" : "Total Expense"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            {isKn ? "ಒಟ್ಟು ವೆಚ್ಚ" : hi ? "कुल व्यय" : "Total Expense"}
+          </p>
           <p className="text-xl font-black text-red-600 dark:text-red-400 mt-1">₹{totalExpense.toLocaleString()}</p>
         </div>
         <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{hi ? "कुल आय" : "Total Income"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            {isKn ? "ಒಟ್ಟು ಆದಾಯ" : hi ? "कुल आय" : "Total Income"}
+          </p>
           <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">₹{totalIncome.toLocaleString()}</p>
         </div>
         <div className={`rounded-xl border p-4 ${netProfit >= 0 ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"}`}>
-          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{hi ? "शुद्ध लाभ" : "Net Profit"}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+            {isKn ? "ನಿವ್ವಳ ಲಾಭ" : hi ? "शुद्ध लाभ" : "Net Profit"}
+          </p>
           <p className={`text-xl font-black mt-1 ${netProfit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
             {netProfit >= 0 ? "+" : "−"}₹{Math.abs(netProfit).toLocaleString()}
           </p>
@@ -225,7 +267,9 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-indigo-600" />
-          <h3 className="text-sm font-bold text-foreground">{hi ? "बहीखाता रिकॉर्ड" : "Farm Diary"} ({activities.length})</h3>
+          <h3 className="text-sm font-bold text-foreground">
+            {isKn ? "ಕೃಷಿ ಡೈರಿ (ಬಹಿಖಾತೆ)" : hi ? "बहीखाता रिकॉर्ड" : "Farm Diary"} ({activities.length})
+          </h3>
         </div>
         <div className="flex gap-2 flex-wrap">
           {/* Filter */}
@@ -236,14 +280,18 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
                 onClick={() => setCatFilter(cat)}
                 className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-colors ${catFilter === cat ? "bg-primary text-primary-foreground border-primary" : "bg-card text-muted-foreground border-border hover:bg-muted"}`}
               >
-                {hi ? cat === "all" ? "सभी" : cat === "activity" ? "गतिविधि" : cat === "expense" ? "खर्च" : "आय" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {isKn
+                  ? cat === "all" ? "ಎಲ್ಲಾ" : cat === "activity" ? "ಚಟುವಟಿಕೆ" : cat === "expense" ? "ಖರ್ಚು" : "ಆದಾಯ"
+                  : hi
+                  ? cat === "all" ? "सभी" : cat === "activity" ? "गतिविधि" : cat === "expense" ? "खर्च" : "आय"
+                  : cat.charAt(0).toUpperCase() + cat.slice(1)}
               </button>
             ))}
           </div>
           {!showForm && (
             <button onClick={() => setShowForm(true)} className="btn-primary h-8 text-xs flex items-center gap-1.5">
               <Plus className="h-3.5 w-3.5" />
-              {hi ? "जोड़ें" : "Add Entry"}
+              {isKn ? "ನಮೂದು ಸೇರಿಸಿ" : hi ? "जोड़ें" : "Add Entry"}
             </button>
           )}
         </div>
@@ -258,7 +306,7 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
         <div className="rounded-xl border border-dashed border-border p-10 text-center space-y-3">
           <BookOpen className="h-10 w-10 text-muted-foreground/25 mx-auto" />
           <p className="text-sm text-muted-foreground">
-            {hi ? "कोई प्रविष्टि नहीं मिली।" : "No entries found."}
+            {isKn ? "ಯಾವುದೇ ನಮೂದು ಕಂಡುಬಂದಿಲ್ಲ." : hi ? "कोई प्रविष्टि नहीं मिली।" : "No entries found."}
           </p>
         </div>
       ) : (
@@ -276,7 +324,11 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
                     act.category === "income" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" :
                     "bg-indigo-500/10 text-indigo-700 dark:text-indigo-400"
                   }`}>
-                    {hi ? act.category === "activity" ? "गतिविधि" : act.category === "expense" ? "खर्च" : "आय" : act.category}
+                    {isKn
+                      ? act.category === "activity" ? "ಚಟುವಟಿಕೆ" : act.category === "expense" ? "ಖರ್ಚು" : "ಆದಾಯ"
+                      : hi
+                      ? act.category === "activity" ? "गतिविधि" : act.category === "expense" ? "खर्च" : "आय"
+                      : act.category}
                   </span>
                   <span className="text-[11px] text-muted-foreground">{act.activity_date}</span>
                   {getFieldName(act.field_id) && (
@@ -289,7 +341,7 @@ export function ActivitiesTab({ activities, fields, onRefresh, lang }: Props) {
                 {act.quantity && (
                   <p className="text-[11px] text-muted-foreground">
                     {act.quantity} {act.unit}
-                    {act.labour_count ? ` • ${act.labour_count} ${hi ? "मजदूर" : "workers"}` : ""}
+                    {act.labour_count ? ` • ${act.labour_count} ${isKn ? "ಕೂಲಿ ಕಾರ್ಮಿಕರು" : hi ? "मजदूर" : "workers"}` : ""}
                   </p>
                 )}
               </div>

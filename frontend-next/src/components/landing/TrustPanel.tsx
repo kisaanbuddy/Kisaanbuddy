@@ -6,34 +6,35 @@ import { useLanguage } from '@/lib/language';
 
 export function TrustPanel() {
   const { lang } = useLanguage();
+  const isKn = lang === 'kn';
   const isHi = lang === 'hi';
 
   const stats = [
     {
       icon: Sprout,
-      metric: isHi ? "फसल डॉक्टर" : "Crop Doctor",
-      label: isHi ? "रोग पहचान व जैविक उपचार" : "AI disease checks & remedies",
+      metric: isKn ? "ಬೆಳೆ ಡಾಕ್ಟರ್" : isHi ? "फसल डॉक्टर" : "Crop Doctor",
+      label: isKn ? "ರೋಗ ಪತ್ತೆ ಮತ್ತು ಜೈವಿಕ ಪರಿಹಾರ" : isHi ? "रोग पहचान व जैविक उपचार" : "AI disease checks & remedies",
       href: "/disease",
       iconColor: "text-emerald-600 bg-emerald-500/10 border-emerald-500/20"
     },
     {
       icon: TrendingUp,
-      metric: isHi ? "मंडी भाव" : "Mandi Rates",
-      label: isHi ? "दैनिक eNAM थोक मंडी भाव" : "Daily eNAM wholesale prices",
+      metric: isKn ? "ಮಂಡಿ ದರಗಳು" : isHi ? "मंडी भाव" : "Mandi Rates",
+      label: isKn ? "ದೈನಂದಿನ eNAM ಸಗಟು ದರಗಳು" : isHi ? "दैनिक eNAM थोक मंडी भाव" : "Daily eNAM wholesale prices",
       href: "/mandi",
       iconColor: "text-amber-600 bg-amber-500/10 border-amber-500/20"
     },
     {
       icon: CloudSun,
-      metric: isHi ? "खेत का मौसम" : "Farm Weather",
-      label: isHi ? "सटीक बारिश व तापमान रडार" : "Hyperlocal rain & spray radar",
+      metric: isKn ? "ಜಮೀನಿನ ಹವಾಮಾನ" : isHi ? "खेत का मौसम" : "Farm Weather",
+      label: isKn ? "ಸ್ಥಳೀಯ ಮಳೆ ಮತ್ತು ಸ್ಪ್ರೇ ರಾಡಾರ್" : isHi ? "सटीक बारिश व तापमान रडार" : "Hyperlocal rain & spray radar",
       href: "/weather",
       iconColor: "text-sky-600 bg-sky-500/10 border-sky-500/20"
     },
     {
       icon: Languages,
-      metric: isHi ? "10+ भाषाएं" : "10+ Languages",
-      label: isHi ? "भारतीय भाषाओं में उपलब्ध" : "10+ Indian regional languages",
+      metric: isKn ? "10+ ಭಾಷೆಗಳು" : isHi ? "10+ भाषाएं" : "10+ Languages",
+      label: isKn ? "ಭಾರತೀಯ ಭಾಷೆಗಳಲ್ಲಿ ಲಭ್ಯವಿದೆ" : isHi ? "भारतीय भाषाओं में उपलब्ध" : "10+ Indian regional languages",
       href: "#",
       iconColor: "text-violet-600 bg-violet-500/10 border-violet-500/20"
     }

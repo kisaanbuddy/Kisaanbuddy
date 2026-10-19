@@ -79,7 +79,7 @@ function WeatherPageInner() {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
             source: "browser",
-            label: activeLang === "hi" ? "सटीक जीपीएस स्थान" : "Precise GPS Location"
+            label: activeLang === "kn" ? "ನಿಖರ ಜಿಪಿಎಸ್ ಸ್ಥಳ" : activeLang === "hi" ? "सटीक जीपीएस स्थान" : "Precise GPS Location"
           })
           setResolving(false)
         },
@@ -87,7 +87,9 @@ function WeatherPageInner() {
           console.error("GPS error:", err)
           setResolving(false)
           // Don't show hard block, just notify user
-          setError(activeLang === "hi" 
+          setError(activeLang === "kn"
+            ? "ಸ್ಥಳದ ಅನುಮತಿ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಜಿಪಿಎಸ್ ಆನ್ ಮಾಡಿ ಅಥವಾ ನಗರವನ್ನು ಆಯ್ಕೆಮಾಡಿ."
+            : activeLang === "hi" 
             ? "लोकेशन की अनुमति नहीं मिली। कृपया जीपीएस ऑन करें या शहर चुनें।" 
             : "Location permission denied. Please enable GPS or select a city.")
         },
@@ -95,7 +97,7 @@ function WeatherPageInner() {
       )
     } else {
       setResolving(false)
-      setError(activeLang === "hi" ? "आपके डिवाइस में जीपीएस उपलब्ध नहीं है।" : "GPS is not supported on this device.")
+      setError(activeLang === "kn" ? "ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜಿಪಿಎಸ್ ಲಭ್ಯವಿಲ್ಲ." : activeLang === "hi" ? "आपके डिवाइस में जीपीएस उपलब्ध नहीं है।" : "GPS is not supported on this device.")
     }
   }
 
@@ -112,7 +114,7 @@ function WeatherPageInner() {
             setResolving(false)
             return
           }
-          if (mounted) setError(activeLang === "hi" ? "स्थान नहीं मिला; आपके वर्तमान स्थान का मौसम दिखा रहे हैं।" : "Location was not found; showing weather for your current location.")
+          if (mounted) setError(activeLang === "kn" ? "ಸ್ಥಳ ಕಂಡುಬಂದಿಲ್ಲ; ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸ್ಥಳದ ಹವಾಮಾನ ತೋರಿಸಲಾಗುತ್ತಿದೆ." : activeLang === "hi" ? "स्थान नहीं मिला; आपके वर्तमान स्थान का मौसम दिखा रहे हैं।" : "Location was not found; showing weather for your current location.")
         } catch {
           // Fall through to the normal location chain. The page never invents a city.
         }
@@ -187,11 +189,13 @@ function WeatherPageInner() {
     voiceSpokenRef.current = true
     const day = forecast?.daily[0]
     const rain = day?.chance_of_rain
-    const message = activeLang === "hi"
+    const message = activeLang === "kn"
+      ? `${current.location.name} ನಲ್ಲಿ ಪ್ರಸ್ತುತ ತಾಪಮಾನ ${Math.round(current.current.temp_c)} ಡಿಗ್ರಿ ಸೆಲ್ಸಿಯಸ್ ಆಗಿದೆ.${rain != null ? ` ಮುಂದಿನ ಮುನ್ಸೂಚನೆಯಲ್ಲಿ ಮಳೆಯ ಸಾಧ್ಯತೆ ಶೇಕಡಾ ${rain} ಇದೆ.` : ""}`
+      : activeLang === "hi"
       ? `${current.location.name} में अभी तापमान ${Math.round(current.current.temp_c)} डिग्री सेल्सियस है।${rain != null ? ` अगले पूर्वानुमान में बारिश की संभावना ${rain} प्रतिशत है।` : ""}`
       : `The current temperature in ${current.location.name} is ${Math.round(current.current.temp_c)} degrees Celsius.${rain != null ? ` The forecast rain chance is ${rain} percent.` : ""}`
     const utterance = new SpeechSynthesisUtterance(message)
-    utterance.lang = activeLang === "hi" ? "hi-IN" : "en-IN"
+    utterance.lang = activeLang === "kn" ? "kn-IN" : activeLang === "hi" ? "hi-IN" : "en-IN"
     window.speechSynthesis.cancel()
     window.speechSynthesis.speak(utterance)
   }, [voiceRun, current, forecast, activeLang])
@@ -342,7 +346,7 @@ function WeatherPageInner() {
             <LocationSearch
               onSelect={onSelectLocation}
               onUseCurrentLocation={onUseCurrentLocation}
-              placeholder={activeLang === "hi" ? "शहर खोजें..." : "Search city..."}
+              placeholder={activeLang === "kn" ? "ನಗರವನ್ನು ಹುಡುಕಿ..." : activeLang === "hi" ? "शहर खोजें..." : "Search city..."}
             />
           </div>
         </div>
@@ -396,7 +400,7 @@ function WeatherPageInner() {
                         🌾 {t.farmer_advice_title}
                       </CardTitle>
                       <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">
-                        {activeLang === "hi" ? "सटीक मौसम के आधार पर दैनिक कृषि सुझाव" : "Daily farming actions matched to current forecast"}
+                        {activeLang === "kn" ? "ನಿಖರ ಹವಾಮಾನದ ಆಧಾರದ ಮೇಲೆ ದೈನಂದಿನ ಕೃಷಿ ಸಲಹೆಗಳು" : activeLang === "hi" ? "सटीक मौसम के आधार पर दैनिक कृषि सुझाव" : "Daily farming actions matched to current forecast"}
                       </p>
                     </div>
 
@@ -474,7 +478,72 @@ function WeatherPageInner() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {activeLang === "hi" ? (
+        {activeLang === "kn" ? (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಎಂದರೇನು ಮತ್ತು ಇದು ಕೃಷಿಗೆ ಏಕೆ ಮುಖ್ಯ?</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ (Weather Forecasting) ಎಂದರೆ ವಾತಾವರಣದ ಭೌತಿಕ ಪರಿಸ್ಥಿತಿಗಳನ್ನು (ತಾಪಮಾನ, ತೇವಾಂಶ, ವಾಯುಭಾರ ಮತ್ತು ಗಾಳಿಯ ವೇಗ) ಅಧ್ಯಯನ ಮಾಡಿ ಮುಂದಿನ ಹವಾಮಾನವನ್ನು ಅಂದಾಜಿಸುವ ವಿಜ್ಞಾನ. ಭಾರತೀಯ ಕೃಷಿಯಲ್ಲಿ ಬಹುಪಾಲು ರೈತರು ಮಳೆಯನ್ನೇ ಅವಲಂಬಿಸಿರುವುದರಿಂದ, ನಿಖರ ಹವಾಮಾನ ಮಾಹಿತಿಯು ಬೆಳೆಯ ಯಶಸ್ಸು ಮತ್ತು ನಷ್ಟದ ನಡುವಿನ ಪ್ರಮುಖ ನಿರ್ಧಾರಕವಾಗಿದೆ.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
+                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">🌧️ ಮಳೆ ಮತ್ತು ಬೆಳೆಗಳ ಸಂಬಂಧ: ನೀರಿನ ಸೂಕ್ತ ಸಮತೋಲನ</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  ನೀರು ಬೆಳೆಗಳ ಜೀವಾಳ, ಆದರೆ ಮಳೆ ಅತಿಯಾದರೂ ಅಥವಾ ಕಡಿಮೆಯಾದರೂ ಹಾನಿಯಾಗುತ್ತದೆ. ಉದಾಹರಣೆಗೆ, ಭತ್ತಕ್ಕೆ ಆರಂಭಿಕ ಹಂತದಲ್ಲಿ ಹೆಚ್ಚಿನ ನೀರು ಬೇಕು, ಆದರೆ ಕೊಯ್ಲಿನ ಸಮಯದಲ್ಲಿ ಒಣ ಹವೆ ಇರಬೇಕು. ಭಾರೀ ಮಳೆಯಾಗುವ ಸಾಧ್ಯತೆ ಮುಂಚಿತವಾಗಿ ತಿಳಿದರೆ, ನೀರಾವರಿಯನ್ನು ತಡೆಹಿಡಿದು ನೀರು ಮತ್ತು ವಿದ್ಯುತ್ ಉಳಿಸಬಹುದು ಹಾಗೂ ಬೆಳೆ ಕೊಳೆಯುವುದನ್ನು ತಪ್ಪಿಸಬಹುದು.
+                </p>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
+                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">📅 ಹಂಗಾಮು ಯೋಜನೆ ಮಾರ್ಗದರ್ಶಿ: ಮುಂಗಾರು (ಖಾರಿಫ್) ಮತ್ತು ಹಿಂಗಾರು (ರಬಿ)</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  ಕರ್ನಾಟಕ ಮತ್ತು ಭಾರತದಲ್ಲಿ ಎರಡು ಪ್ರಮುಖ ಬೆಳೆ ಚಕ್ರಗಳಿವೆ: <strong>ಮುಂಗಾರು / ಖಾರಿಫ್ (Monsoon crops)</strong> ಮತ್ತು <strong>ಹಿಂಗಾರು / ರಬಿ (Winter crops)</strong>. ಹತ್ತಿ, ಮೆಕ್ಕೆಜೋಳ ಬಿತ್ತನೆಗೆ ಮೊದಲ ಮುಂಗಾರು ಮಳೆಯ ಸಮಯ ತಿಳಿಯುವುದು ಅಗತ್ಯ. ರಬಿ ಬೆಳೆಗಳಾದ ಗೋಧಿ, ಕಡಲೆ ಬಿತ್ತನೆಗೆ ಕಡಿಮೆ ತಾಪಮಾನ ಮತ್ತು ಒಣ ಹವೆ ಬೇಕು. ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯು ಸರಿಯಾದ ಸಮಯದಲ್ಲಿ ಬಿತ್ತನೆ ಮಾಡಲು ನೆರವಾಗುತ್ತದೆ.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4">
+              <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">⚠️ ಪ್ರತಿಕೂಲ ಹವಾಮಾನ ಸಂದರ್ಭಗಳಲ್ಲಿ ಕೃಷಿ ನಿರ್ಧಾರಗಳು</h3>
+              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="space-y-2 border-r border-border/50 pr-4">
+                  <h4 className="font-extrabold text-foreground">1. ಬಿಸಿಗಾಳಿ (Heatwaves)</h4>
+                  <p>ತಾಪಮಾನ 38-40°C ಗಿಂತ ಹೆಚ್ಚಿರುವಾಗ ಲಘುವಾಗಿ ಮತ್ತು ಆಗಾಗ ನೀರು ಹಾಯಿಸಿ. ಮಧ್ಯಾಹ್ನ ಸಿಂಪಡಣೆ ನೀರಾವರಿ ಮಾಡಬೇಡಿ. ಮಣ್ಣಿನಲ್ಲಿ ತೇವಾಂಶ ಉಳಿಸಲು ಹೊದಿಕೆ (Mulching) ಬಳಸಿ.</p>
+                </div>
+                <div className="space-y-2 border-r border-border/50 px-4">
+                  <h4 className="font-extrabold text-foreground">2. ಬರಗಾಲ / ಮಳೆ ಕೊರತೆ</h4>
+                  <p>ಜೀವ ರಕ್ಷಕ ನೀರಾವರಿ (Life-saving irrigation) ಮಾತ್ರ ನೀಡಿ. ಕಡಿಮೆ ನೀರು ಬೇಡುವ ಸಿರಿಧಾನ್ಯಗಳು, ಬೇಳೆಕಾಳುಗಳಿಗೆ ಆದ್ಯತೆ ನೀಡಿ ಹಾಗೂ ಕಳೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ.</p>
+                </div>
+                <div className="space-y-2 pl-4">
+                  <h4 className="font-extrabold text-foreground">3. ಅತಿಯಾದ ಮಳೆ (Heavy Rain)</h4>
+                  <p>ಜಮೀನಿನಲ್ಲಿ ನೀರು ನಿಲ್ಲದಂತೆ ಬಸಿಗಾಲುವೆಗಳನ್ನು (Drainage) ಸಿದ್ಧವಾಗಿಡಿ. ಮಳೆಯ ನಂತರ ತಕ್ಷಣ ಯೂರಿಯಾ ಗೊಬ್ಬರ ಹಾಕಬೇಡಿ, ಏಕೆಂದರೆ ಅದು ನೀರಿನೊಂದಿಗೆ ಹರಿದು ಹೋಗುತ್ತದೆ.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-2xl font-display font-extrabold text-foreground">❓ ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೋತ್ತರಗಳು (FAQs)</h2>
+              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
+                  <h4 className="font-bold text-foreground">ಪ್ರ1. ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯು ಕೃಷಿಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ?</h4>
+                  <p>ಬಿತ್ತನೆ, ನೀರಾವರಿ, ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆ ಮತ್ತು ಕೊಯ್ಲು ಕಾರ್ಯಗಳನ್ನು ಸೂಕ್ತ ಸಮಯದಲ್ಲಿ ಮಾಡಲು ನೆರವಾಗುತ್ತದೆ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
+                  <h4 className="font-bold text-foreground">ಪ್ರ2. ಮಳೆಯ ತಕ್ಷಣವೇ ಯೂರಿಯಾ ಗೊಬ್ಬರ ಹಾಕಬಹುದೇ?</h4>
+                  <p>ಇಲ್ಲ, ಭಾರೀ ಮಳೆಯ ಸಮಯದಲ್ಲಿ ಅಥವಾ ನಂತರ ಯೂರಿಯಾ ಹಾಕಿದರೆ ಅದು ನೀರಿನಲ್ಲಿ ಕರಗಿ ಹರಿದು ಹೋಗುತ್ತದೆ, ಬೆಳೆಗೆ ಸಿಗುವುದಿಲ್ಲ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
+                  <h4 className="font-bold text-foreground">ಪ್ರ3. ಸಿಂಪಡಣೆ ನೀರಾವರಿಗೆ (Sprinkler) ಸೂಕ್ತ ಸಮಯ ಯಾವುದು?</h4>
+                  <p>ಗಾಳಿಯ ವೇಗ ಕಡಿಮೆಯಿರುವ ಮುಂಜಾನೆ ಅಥವಾ ಸಂಜೆಯ ವೇಳೆ ನೀರು ಹಾಯಿಸುವುದು ಉತ್ತಮ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
+                  <h4 className="font-bold text-foreground">ಪ್ರ4. ಗಾಳಿಯ ವೇಗ ಮತ್ತು ದಿಕ್ಕು ತಿಳಿಯುವುದು ಏಕೆ ಮುಖ್ಯ?</h4>
+                  <p>ವೇಗವಾಗಿ ಗಾಳಿ ಬೀಸುವಾಗ ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸಬಾರದು, ಏಕೆಂದರೆ ಔಷಧ ಪಕ್ಕದ ಜಮೀನಿಗೆ ಹಾರಿ ವ್ಯರ್ಥವಾಗುತ್ತದೆ.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : activeLang === "hi" ? (
           <div className="space-y-8 text-foreground">
             <div className="space-y-3">
               <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 मौसम पूर्वानुमान क्या है और यह खेती के लिए क्यों आवश्यक है?</h2>

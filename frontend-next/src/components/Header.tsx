@@ -379,7 +379,7 @@ export function Header() {
                     className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
                   >
                     <Sprout className="h-3.5 w-3.5" />
-                    <span>{lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}</span>
+                    <span>{lang === "kn" ? "ರೈತರ ಪ್ರೊಫೈಲ್" : lang === "hi" ? "किसान प्रोफाइल" : "Farmer Profile"}</span>
                   </Link>
                   <Link
                     href="/profile"
@@ -387,7 +387,7 @@ export function Header() {
                     className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-muted/50 border border-border/60 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
                   >
                     <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>{lang === "hi" ? "अकाउंट" : "Account"}</span>
+                    <span>{lang === "kn" ? "ಖಾತೆ" : lang === "hi" ? "अकाउंट" : "Account"}</span>
                   </Link>
                 </div>
                 <Link

@@ -763,7 +763,9 @@ export default function SoilHealthPage() {
 
             {/* Language Selector */}
             <div className="space-y-2 pt-2">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold block">Response Language / भाषा</Label>
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold block">
+                {lang === "kn" ? "ಉತ್ತರದ ಭಾಷೆ / Response Language" : lang === "hi" ? "उत्तर की भाषा / Response Language" : "Response Language"}
+              </Label>
               <div className="inline-flex rounded-xl border border-border/50 bg-muted/30 p-1 gap-1">
                 {(["hi", "en", "kn"] as Language[]).map((l) => (
                   <button
@@ -790,7 +792,13 @@ export default function SoilHealthPage() {
                 className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-sm"
               >
                 {streaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {streaming ? t("analyzing") : "Generate Recommendations"}
+                {streaming
+                  ? t("analyzing")
+                  : lang === "kn"
+                  ? "ಗೊಬ್ಬರದ ಶಿಫಾರಸು ಪಡೆಯಿರಿ"
+                  : lang === "hi"
+                  ? "खाद की सिफारिशें प्राप्त करें"
+                  : "Generate Recommendations"}
               </Button>
               {(response || done) && (
                 <Button 
@@ -967,7 +975,91 @@ export default function SoilHealthPage() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {lang === "hi" ? (
+        {lang === "kn" ? (
+          <div className="space-y-8 text-foreground">
+            <div className="space-y-3">
+              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಎಂದರೇನು ಮತ್ತು ರೈತರು ಅದನ್ನು ಹೇಗೆ ಸುಧಾರಿಸಬಹುದು?</h2>
+              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
+                ಮಣ್ಣಿನ ಆರೋಗ್ಯ (Soil Health) ಎಂದರೆ ಬೆಳೆಗಳಿಗೆ ಅಗತ್ಯವಿರುವ ಪೋಷಕಾಂಶಗಳು, ಗಾಳಿ ಮತ್ತು ನೀರನ್ನು ನಿರಂತರವಾಗಿ ಒದಗಿಸುವ ಜೈವಿಕ ಸಾಮರ್ಥ್ಯ. ಆರೋಗ್ಯಕರ ಮಣ್ಣು ಕೇವಲ ಹೆಚ್ಚಿನ ಇಳುವರಿ ನೀಡುವುದು ಮಾತ್ರವಲ್ಲದೆ, ಬರಗಾಲ ಮತ್ತು ರೋಗಗಳ ಪರಿಣಾಮವನ್ನು ಕಡಿಮೆ ಮಾಡುತ್ತದೆ. ಮಣ್ಣಿನ ಫಲವತ್ತತೆಯ ಸರಿಯಾದ ನಿರ್ವಹಣೆಗಾಗಿ ಮುಖ್ಯ ಮೂರು ಪೋಷಕಾಂಶಗಳಾದ <strong>N (ಸಾರಜನಕ)</strong>, <strong>P (ರಂಜಕ)</strong>, ಮತ್ತು <strong>K (ಪೊಟ್ಯಾಶ್)</strong> ಸಮತೋಲನವನ್ನು ತಿಳಿಯುವುದು ಅತಿ ಮುಖ್ಯ.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🧪 NPK ಮತ್ತು ಮಣ್ಣಿನ pH ಮೌಲ್ಯ ತಿಳಿಯಿರಿ</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  <strong>N (ಸಾರಜನಕ):</strong> ಸಸ್ಯಗಳ ಹಸಿರು ಮತ್ತು ಎಲೆಗಳ ದೃಢ ಬೆಳವಣಿಗೆಗೆ ಸಹಕಾರಿ. ಇದರ ಕೊರತೆಯಿಂದ ಎಲೆಗಳು ಹಳದಿಯಾಗುತ್ತವೆ.<br />
+                  <strong>P (ರಂಜಕ):</strong> ಬೇರುಗಳ ಬಲವರ್ಧನೆ ಮತ್ತು ಸಕಾಲದಲ್ಲಿ ಹೂವು, ಕಾಯಿ ಕಚ್ಚಲು ಅತ್ಯವಶ್ಯಕ.<br />
+                  <strong>K (ಪೊಟ್ಯಾಶ್):</strong> ರೋಗ ನಿರೋಧಕ ಶಕ್ತಿ, ಕಾಂಡದ ಬಲ ಮತ್ತು ಧಾನ್ಯಗಳ ತೂಕ ಹೆಚ್ಚಿಸುತ್ತದೆ.<br />
+                  <strong>pH ಮಟ್ಟ:</strong> ಮಣ್ಣಿನ pH (6.5 ರಿಂದ 7.5) ಸೂಕ್ತ ಮಟ್ಟವಾಗಿದೆ. ಆಮ್ಲೀಯ ಮಣ್ಣನ್ನು (&lt; 6.0) ಸುಧಾರಿಸಲು ಕೃಷಿ ಸುಣ್ಣ (Lime) ಬಳಸಿ. ಕ್ಷಾರೀಯ ಮಣ್ಣನ್ನು (&gt; 8.0) ಸರಿಪಡಿಸಲು ಜಿಪ್ಸಮ್ (Gypsum) ಬಳಸಿ.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🌱 ಸಾವಯವ ಇಂಗಾಲ (Organic Carbon) ಮತ್ತು ಗೊಬ್ಬರ ನಿರ್ವಹಣೆ</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  ಸಾವಯವ ಇಂಗಾಲವು ಮಣ್ಣಿನ ಜೀವನಾಡಿ. ಫಲವತ್ತಾದ ಕೃಷಿ ಭೂಮಿಯಲ್ಲಿ ಸಾವಯವ ಇಂಗಾಲದ ಮಟ್ಟ 0.8% ಕ್ಕಿಂತ ಹೆಚ್ಚಿರಬೇಕು. ಇದನ್ನು ಹೆಚ್ಚಿಸಲು ರಾಸಾಯನಿಕ ಗೊಬ್ಬರಗಳ ಮೇಲಿನ ಅತಿಯಾದ ಅವಲಂಬನೆ ಕಡಿಮೆ ಮಾಡಿ, ಎರೆಹುಳು ಗೊಬ್ಬರ (Vermicompost), ಹಟ್ಟಿ ಗೊಬ್ಬರ (FYM), ಮತ್ತು ಹಸಿರೆಲೆ ಗೊಬ್ಬರಗಳನ್ನು (ಡೈಂಚಾ, ಸೆಣಬು) ಮಣ್ಣಿಗೆ ಸೇರಿಸಿ. ಹೂವಾಡುವ ಮುನ್ನ ಹಸಿರೆಲೆ ಬೆಳೆಯನ್ನು ಮಣ್ಣಿನಲ್ಲಿ ಉತ್ತು ಸೇರಿಸುವುದರಿಂದ ನೈಟ್ರೋಜನ್ ಮತ್ತು ಇಂಗಾಲ ಶೀಘ್ರವಾಗಿ ವೃದ್ಧಿಯಾಗುತ್ತದೆ.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
+              <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📋 ವೈಜ್ಞಾನಿಕ ಮಣ್ಣು ಪರೀಕ್ಷೆ ವಿಧಾನ</h3>
+              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                <div className="space-y-2 border-r border-border/40 pr-4">
+                  <h4 className="font-bold text-foreground">1. V-ಆಕಾರದ ಗುಂಡಿ</h4>
+                  <p>ಜಮೀನಿನಲ್ಲಿ 8-10 ವಿವಿಧ ಸ್ಥಳಗಳಲ್ಲಿ ಮೇಲ್ಮೈ ಹುಲ್ಲನ್ನು ಸ್ವಚ್ಛಗೊಳಿಸಿ 15 ಸೆಂ.ಮೀ (6 ಇಂಚು) ಆಳದ 'V' ಆಕಾರದ ಗುಂಡಿ ತೋಡಿ, ಎರಡೂ ಬದಿಗಳಿಂದ 1 ಇಂಚು ದಪ್ಪದ ಮಣ್ಣಿನ ಪದರ ಸಂಗ್ರಹಿಸಿ.</p>
+                </div>
+                <div className="space-y-2 border-r border-border/40 px-4">
+                  <h4 className="font-bold text-foreground">2. ಮಿಶ್ರಣ ಮತ್ತು ಒಣಗಿಸುವುದು</h4>
+                  <p>ಸಂಗ್ರಹಿಸಿದ ಎಲ್ಲಾ ಸ್ಥಳಗಳ ಮಣ್ಣನ್ನು ಸ್ವಚ್ಛ ಪಾಲಿಥಿನ್ ಶೀಟ್ ಮೇಲೆ ಚೆನ್ನಾಗಿ ಬೆರೆಸಿ. ವೃತ್ತಾಕಾರವಾಗಿ ಹರಡಿ ನಾಲ್ಕು ಭಾಗ ಮಾಡಿ, ಎದುರುಬದುರಿನ ಎರಡು ಭಾಗಗಳನ್ನು ತೆಗೆಯಿರಿ. ಅರ್ಧ ಕೆಜಿ ಉಳಿಯುವವರೆಗೆ ಪುನರಾವರ್ತಿಸಿ, ನೆರಳಿನಲ್ಲಿ ಒಣಗಿಸಿ.</p>
+                </div>
+                <div className="space-y-2 pl-4">
+                  <h4 className="font-bold text-foreground">3. ಲ್ಯಾಬ್‌ಗೆ ಕಳುಹಿಸುವುದು</h4>
+                  <p>ಮಣ್ಣನ್ನು ಬಟ್ಟೆ ಚೀಲದಲ್ಲಿ ತುಂಬಿ ನಿಮ್ಮ ಹೆಸರು, ಮೊಬೈಲ್ ಸಂಖ್ಯೆ, ಸರ್ವೆ ನಂಬರ್ ಮತ್ತು ಬೆಳೆಯುವ ಬೆಳೆಯ ವಿವರ ನಮೂದಿಸಿ ಹತ್ತಿರದ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ ಅಥವಾ ಮಣ್ಣು ಪರೀಕ್ಷಾ ಕೇಂದ್ರಕ್ಕೆ ನೀಡಿ.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-xl font-display font-bold text-foreground">❓ ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಮತ್ತು ಪರೀಕ್ಷೆಯ ಬಗ್ಗೆ ಪ್ರಮುಖ ಪ್ರಶ್ನೋತ್ತರಗಳು (FAQs)</h2>
+              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ1. ಮಣ್ಣಿನ ಪರೀಕ್ಷೆಯನ್ನು ಎಷ್ಟು ದಿನಗಳಿಗೊಮ್ಮೆ ಮಾಡಿಸಬೇಕು?</h4>
+                  <p>ಪ್ರತಿ 2 ರಿಂದ 3 ವರ್ಷಗಳಿಗೊಮ್ಮೆ, ಬೆಳೆ ಕಟಾವಿನ ನಂತರ ಮತ್ತು ಮುಂದಿನ ಬಿತ್ತನೆಗೆ ಮೊದಲು ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮಾಡಿಸುವುದು ಕಡ್ಡಾಯ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ2. ಕ್ಷಾರೀಯ ಮಣ್ಣಿನ ಲಕ್ಷಣಗಳೇನು?</h4>
+                  <p>ಕ್ಷಾರೀಯ ಮಣ್ಣಿನ pH 8.5 ಕ್ಕಿಂತ ಹೆಚ್ಚಿರುತ್ತದೆ. ಇಂತಹ ಮಣ್ಣಿನಲ್ಲಿ ನೀರು ಇಂಗುವ ಸಾಮರ್ಥ್ಯ ಕಡಿಮೆಯಾಗಿ ಒಣಗಿದಾಗ ಬಿಳಿ ಉಪ್ಪಿನ ಪದರ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತದೆ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ3. ಸಾವಯವ ಇಂಗಾಲ ಹೆಚ್ಚಿಸಲು ಸುಲಭ ಮಾರ್ಗ ಯಾವುದು?</h4>
+                  <p>ಎಕರೆಗೆ 5-10 ಟನ್ ಕೊಟ್ಟಿಗೆ ಗೊಬ್ಬರ ಹಾಕುವುದು ಅಥವಾ ಮುಂಗಾರು ಮಳೆಗೆ ಮುನ್ನ ಡೈಂಚಾ ಬೆಳೆಸಿ ರೋಟಾವೇಟರ್ ಮೂಲಕ ಮಣ್ಣಿಗೆ ಸೇರಿಸುವುದು ಅತ್ಯಂತ ಪರಿಣಾಮಕಾರಿ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ4. ಮಣ್ಣಿನ ಆದರ್ಶ pH ಮಟ್ಟ ಎಷ್ಟು ಇರಬೇಕು?</h4>
+                  <p>ಹೆಚ್ಚಿನ ಬೆಳೆಗಳಿಗೆ (ಭತ್ತ, ಗೋಧಿ, ಮೆಕ್ಕೆಜೋಳ ಇತ್ಯಾದಿ) 6.5 ರಿಂದ 7.2 ರವರೆಗಿನ pH ಮೌಲ್ಯ ಅತ್ಯುತ್ತಮವಾಗಿದೆ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ5. ಯೂರಿಯಾ ಬದಲಿಗೆ ನೈಟ್ರೋಜನ್ ಕೊರತೆ ನೀಗಿಸುವುದು ಹೇಗೆ?</h4>
+                  <p>ಕಡಲೆ, ಹೆಸರು, ಉದ್ದು, ಸೋಯಾಬೀನ್ ಮುಂತಾದ ದ್ವಿದಳ ಧಾನ್ಯಗಳನ್ನು ಬೆಳೆಯಿರಿ. ಇವುಗಳ ಬೇರುಗಳಲ್ಲಿರುವ ರೈಜೋಬಿಯಂ ಬ್ಯಾಕ್ಟೀರಿಯಾಗಳು ವಾತಾವರಣದ ಸಾರಜನಕವನ್ನು ಮಣ್ಣಿನಲ್ಲಿ ಸ್ಥಿರೀಕರಿಸುತ್ತವೆ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ6. ಮರದ ಕೆಳಗಿರುವ ಮಣ್ಣಿನ ಮಾದರಿ ತೆಗೆದುಕೊಳ್ಳಬಹುದೇ?</h4>
+                  <p>ಇಲ್ಲ, ಮರಗಳ ಕೆಳಗೆ, ಬದುಗಳ ಬಳಿ ಅಥವಾ ಗೊಬ್ಬರದ ಗುಂಡಿಗಳ ಹತ್ತಿರದಿಂದ ಮಣ್ಣಿನ ಮಾದರಿ ಸಂಗ್ರಹಿಸಬಾರದು.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ7. SSP ಮತ್ತು DAP ಗೊಬ್ಬರಗಳ ನಡುವಿನ ವ್ಯತ್ಯಾಸವೇನು?</h4>
+                  <p>SSP (ಸಿಂಗಲ್ ಸೂಪರ್ ಫಾಸ್ಫೇಟ್) ನಲ್ಲಿ ರಂಜಕ ಮತ್ತು ಗಂಧಕ ಮಾತ್ರ ಇರುತ್ತದೆ, ಆದರೆ DAP ನಲ್ಲಿ ರಂಜಕದ ಜೊತೆಗೆ 18% ಸಾರಜನಕವೂ ಇರುತ್ತದೆ.</p>
+                </div>
+                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                  <h4 className="font-semibold text-foreground">ಪ್ರ8. KisaanBuddy ಗೊಬ್ಬರ ಕ್ಯಾಲ್ಕುಲೇಟರ್ ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ?</h4>
+                  <p>KisaanBuddy ನಿಮ್ಮ ಮಣ್ಣು ಪರೀಕ್ಷೆಯ NPK ದತ್ತಾಂಶ ಮತ್ತು ಬೆಳೆಯ ಅಗತ್ಯಕ್ಕೆ ಅನುಗುಣವಾಗಿ ವೈಜ್ಞಾನಿಕವಾಗಿ ಲೆಕ್ಕಾಚಾರ ಮಾಡಿ ನಿಖರವಾದ ಗೊಬ್ಬರದ ಪ್ರಮಾಣ ತಿಳಿಸುತ್ತದೆ.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : lang === "hi" ? (
           <div className="space-y-8 text-foreground">
             <div className="space-y-3">
               <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 मिट्टी का स्वास्थ्य क्या है और इसे कैसे सुधारें?</h2>

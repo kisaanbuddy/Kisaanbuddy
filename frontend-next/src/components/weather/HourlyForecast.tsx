@@ -21,6 +21,15 @@ function formatHourlyTime(timeStr: string, lang: Lang) {
   const hourVal = d.getHours()
   const hour12 = hourVal % 12 || 12
   
+  if (lang === "kn") {
+    let period = ""
+    if (hourVal >= 4 && hourVal < 12) period = "ಬೆಳಿಗ್ಗೆ"
+    else if (hourVal >= 12 && hourVal < 16) period = "ಮಧ್ಯಾಹ್ನ"
+    else if (hourVal >= 16 && hourVal < 20) period = "ಸಂಜೆ"
+    else period = "ರಾತ್ರಿ"
+    return `${period} ${hour12} ಗಂಟೆ`
+  }
+
   if (lang === "hi") {
     let period = ""
     if (hourVal >= 4 && hourVal < 12) period = "सुबह"
