@@ -64,6 +64,57 @@ const EQUIPMENT_CATEGORIES = [
   { key: "other_implements", labelEn: "Other Implements", icon: "🛠️" },
 ];
 
+function CatalogProductImage({
+  src,
+  alt,
+  category,
+  brand,
+}: {
+  src: string;
+  alt: string;
+  category: string;
+  brand: string;
+}) {
+  const [hasError, setHasError] = useState(false);
+
+  const categoryIcons: Record<string, string> = {
+    tractors: "🚜",
+    harvesters: "🌾",
+    rotavators: "⚙️",
+    seed_drills: "🌱",
+    cultivators: "⛏️",
+    ploughs: "🗡️",
+    sprayers: "💦",
+    threshers: "🌀",
+    agricultural_trailers: "🚛",
+    irrigation_equipment: "💧",
+    other_implements: "🛠️",
+  };
+
+  const icon = categoryIcons[category] || "🌾";
+
+  if (hasError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-500/5 to-emerald-500/15 rounded-xl p-4 text-center">
+        <span className="text-5xl mb-2 select-none filter drop-shadow-xs">{icon}</span>
+        <span className="text-xs font-bold text-foreground/90 line-clamp-1">{brand}</span>
+        <span className="text-[10px] text-muted-foreground capitalize mt-0.5">{category.replace("_", " ")}</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="max-h-full max-w-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
+      loading="lazy"
+      referrerPolicy="no-referrer"
+      onError={() => setHasError(true)}
+    />
+  );
+}
+
 export default function MarketplacePage() {
   const { lang } = useLanguage();
   const dict = MARKETPLACE_I18N[(lang as Lang) || "en"] || MARKETPLACE_I18N.en;
@@ -722,11 +773,11 @@ export default function MarketplacePage() {
                             className="block relative w-full h-48 bg-white dark:bg-muted/15 rounded-xl overflow-hidden mb-3 border border-border/40 p-2.5 group-hover:border-emerald-500/40 transition flex items-center justify-center cursor-pointer"
                             title="Click to view full product page on MachinePoint"
                           >
-                            <img
+                            <CatalogProductImage
                               src={item.image_url}
                               alt={item.model_name}
-                              className="max-h-full max-w-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
-                              loading="lazy"
+                              category={item.category}
+                              brand={item.brand}
                             />
                             {item.supplier_name && (
                               <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-700/90 text-white backdrop-blur-xs shadow-xs flex items-center gap-1">
