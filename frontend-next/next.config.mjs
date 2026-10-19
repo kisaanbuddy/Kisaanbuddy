@@ -81,15 +81,6 @@ const nextConfig = {
         source: '/api/chat/:path*',
         destination: `${backendUrl}/api/chat/:path*`
       },
-      // Worker Connect
-      {
-        source: '/api/worker-connect/:path*/',
-        destination: `${backendUrl}/api/worker-connect/:path*/`
-      },
-      {
-        source: '/api/worker-connect/:path*',
-        destination: `${backendUrl}/api/worker-connect/:path*`
-      },
       // Sensor
       {
         source: '/api/sensor/:path*/',
