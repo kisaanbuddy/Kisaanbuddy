@@ -63,41 +63,43 @@ def seed_marketplace_catalogue(db: Session, force: bool = False) -> dict:
         summary["equipment_catalog_seeded"] = res.get("records_inserted", 0) + res.get("records_updated", 0)
 
     # 3. Seed Equipment Listings (Rent / Sale)
-    eq_count = db.query(EquipmentListing).count()
-    if eq_count == 0 or force:
-        for eq in INITIAL_EQUIPMENT_LISTINGS:
-            existing = (
-                db.query(EquipmentListing)
-                .filter(
-                    EquipmentListing.title == eq["title"],
-                    EquipmentListing.owner_name == eq["owner_name"],
-                )
-                .first()
+    for eq in INITIAL_EQUIPMENT_LISTINGS:
+        existing = (
+            db.query(EquipmentListing)
+            .filter(
+                EquipmentListing.title == eq["title"],
+                EquipmentListing.owner_name == eq["owner_name"],
             )
-            if not existing:
-                item = EquipmentListing(**eq)
-                db.add(item)
-                summary["equipment_listings_seeded"] += 1
-        db.commit()
+            .first()
+        )
+        if not existing:
+            item = EquipmentListing(**eq)
+            db.add(item)
+            summary["equipment_listings_seeded"] += 1
+        elif force:
+            for k, v in eq.items():
+                setattr(existing, k, v)
+    db.commit()
 
     # 4. Seed Produce Listings (Direct from Farms)
-    prod_count = db.query(ProduceListing).count()
-    if prod_count == 0 or force:
-        for pr in INITIAL_PRODUCE_LISTINGS:
-            existing = (
-                db.query(ProduceListing)
-                .filter(
-                    ProduceListing.crop_name == pr["crop_name"],
-                    ProduceListing.farmer_name == pr["farmer_name"],
-                    ProduceListing.state == pr["state"],
-                )
-                .first()
+    for pr in INITIAL_PRODUCE_LISTINGS:
+        existing = (
+            db.query(ProduceListing)
+            .filter(
+                ProduceListing.crop_name == pr["crop_name"],
+                ProduceListing.farmer_name == pr["farmer_name"],
+                ProduceListing.state == pr["state"],
             )
-            if not existing:
-                item = ProduceListing(**pr)
-                db.add(item)
-                summary["produce_listings_seeded"] += 1
-        db.commit()
+            .first()
+        )
+        if not existing:
+            item = ProduceListing(**pr)
+            db.add(item)
+            summary["produce_listings_seeded"] += 1
+        elif force:
+            for k, v in pr.items():
+                setattr(existing, k, v)
+    db.commit()
 
     # 5. Seed Market Prices (AGMARKNET Benchmarks)
     price_count = db.query(MarketPriceRecord).count()
