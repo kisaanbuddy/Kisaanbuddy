@@ -29,7 +29,7 @@ import { getHomepageI18n } from '@/lib/homepage-i18n';
 export function MarketplaceHero() {
   const { lang } = useLanguage();
   const t = getHomepageI18n(lang).hero;
-  const [activeTab, setActiveTab] = useState<'rates' | 'buyers' | 'advisory'>('rates');
+  const [activeTab, setActiveTab] = useState<'rates' | 'buyers' | 'workers' | 'advisory'>('rates');
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-emerald-50/60 via-white to-stone-50 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-16 border-b border-stone-200/80 dark:border-stone-800">
@@ -58,12 +58,12 @@ export function MarketplaceHero() {
               {t.subtitle}
             </p>
 
-            {/* 3 Primary Action Buttons */}
-            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
+            {/* Primary Action Buttons */}
+            <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-3.5 pt-2">
               {/* Primary 1: Mandi Prices */}
               <Link
                 href="/mandi"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-sm hover:shadow transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-sm hover:shadow transition-all group"
               >
                 <TrendingUp className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
                 <span>{t.ctaMandi}</span>
@@ -73,7 +73,7 @@ export function MarketplaceHero() {
               {/* Primary 2: Sell Your Produce */}
               <Link
                 href="/marketplace?action=sell"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm hover:shadow transition-all group"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm hover:shadow transition-all group"
               >
                 <Store className="w-4 h-4 text-amber-200 group-hover:scale-110 transition-transform" />
                 <span>{t.ctaSell}</span>
@@ -82,15 +82,64 @@ export function MarketplaceHero() {
               {/* Primary 3: Find Buyers */}
               <Link
                 href="/marketplace?tab=buyers"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 font-semibold text-sm border border-stone-300 dark:border-stone-700 shadow-2xs transition-all"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 font-semibold text-sm border border-stone-300 dark:border-stone-700 shadow-2xs transition-all"
               >
-                <Users className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>{t.ctaBuyers}</span>
+              </Link>
+
+              {/* Primary 4: Worker Connect & Jobs */}
+              <Link
+                href="/worker-connect"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 font-bold text-sm border border-emerald-300 dark:border-emerald-700 shadow-2xs hover:shadow transition-all group"
+              >
+                <Users className="w-4 h-4 text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>{t.ctaWorkers}</span>
+                <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded font-extrabold uppercase tracking-wider">
+                  Live
+                </span>
               </Link>
             </div>
 
+            {/* High-visibility Workers Connect Promotion Card in Hero */}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-stone-900/90 border border-emerald-500/30 dark:border-emerald-700/50 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div className="space-y-0.5 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-xs sm:text-sm text-emerald-950 dark:text-white">
+                      Farm Workers & Harvester Crews
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-500/20">
+                      Workers Connect
+                    </span>
+                  </div>
+                  <p className="text-[11px] sm:text-xs text-stone-600 dark:text-stone-300">
+                    Connect verified harvesting gangs, combine operators, or find daily agricultural jobs across India.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+                <Link
+                  href="/worker-connect?tab=find_workers"
+                  className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-2xs"
+                >
+                  Hire Workers
+                </Link>
+                <Link
+                  href="/worker-connect?tab=find_jobs"
+                  className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-2xs"
+                >
+                  Find Farm Jobs
+                </Link>
+              </div>
+            </div>
+
             {/* Verified Public Integrity Checkmarks */}
-            <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs font-semibold text-stone-600 dark:text-stone-400">
+            <div className="pt-3 border-t border-stone-200/80 dark:border-stone-800 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-xs font-semibold text-stone-600 dark:text-stone-400">
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>{t.trustPoint1}</span>
@@ -102,6 +151,10 @@ export function MarketplaceHero() {
               <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>{t.trustPoint3}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{t.trustPointWorkers}</span>
               </div>
             </div>
 
