@@ -112,11 +112,11 @@ export interface HomepageI18n {
 export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
   en: {
     hero: {
-      badge: "AGRICULTURAL COMMERCE & INTELLIGENCE",
-      title: "Your Farm. Your Market. Better Opportunities.",
-      subtitle: "Discover mandi prices, connect with buyers, sell your produce and access the agricultural services you need — all in one place.",
-      ctaMandi: "Explore Mandi Prices",
-      ctaSell: "Sell Your Produce",
+      badge: "YOUR COMPLETE FARMING COMPANION",
+      title: "Everything You Need to Farm Smarter.",
+      subtitle: "From checking mandi prices and finding buyers to hiring farm workers, diagnosing crop diseases, and discovering government schemes, KisaanBuddy brings essential farming services together in one place.",
+      ctaMandi: "Explore Farming Services",
+      ctaSell: "Ask KisaanBuddy AI",
       ctaBuyers: "Find Verified Buyers",
       ctaWorkers: "Hire Workers & Find Jobs",
       trustPoint1: "Official APMC & e-NAM Mandi Benchmarks",
@@ -228,11 +228,11 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
   },
   hi: {
     hero: {
-      badge: "कृषि व्यापार व मंडी भाव मंच",
-      title: "आपका खेत। आपका बाज़ार। बेहतर अवसर।",
-      subtitle: "मंडी के सही भाव जानें, सीधे खरीदारों से जुड़ें, अपनी उपज बेचें और सभी आवश्यक कृषि सेवाएं एक ही मंच पर पाएं।",
-      ctaMandi: "मंडी भाव देखें",
-      ctaSell: "अपनी फसल बेचें",
+      badge: "आपका संपूर्ण खेती साथी",
+      title: "खेती को बेहतर बनाने के लिए सब कुछ एक जगह।",
+      subtitle: "मंडी भाव देखने और खरीदार ढूंढने से लेकर खेत मजदूर रखने, फसल रोगों की पहचान करने और सरकारी योजनाओं की जानकारी तक—KisaanBuddy सभी जरूरी कृषि सेवाओं को एक मंच पर लाता है।",
+      ctaMandi: "खेती सेवाएं देखें",
+      ctaSell: "KisaanBuddy AI से पूछें",
       ctaBuyers: "सत्यापित खरीदार ढूंढें",
       ctaWorkers: "मज़दूर खोजें एवं काम पाएं",
       trustPoint1: "सरकारी APMC व e-NAM अधिकृत मंडी भाव",
@@ -344,11 +344,11 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
   },
   kn: {
     hero: {
-      badge: "ಕೃಷಿ ವ್ಯಾಪಾರ ಮತ್ತು ಮಾರುಕಟ್ಟೆ ವೇದಿಕೆ",
-      title: "ನಿಮ್ಮ ಜಮೀನು. ನಿಮ್ಮ ಮಾರುಕಟ್ಟೆ. ಉತ್ತಮ ಅವಕಾಶಗಳು.",
-      subtitle: "ಮಂಡಿ ದರಗಳನ್ನು ತಿಳಿಯಿರಿ, ಖರೀದಿದಾರರೊಂದಿಗೆ ನೇರವಾಗಿ ಸಂಪರ್ಕ ಸಾಧಿಸಿ, ನಿಮ್ಮ ಬೆಳೆ ಮಾರಾಟ ಮಾಡಿ ಮತ್ತು ಕೃಷಿ ಸೇವೆಗಳನ್ನು ಒಂದೇ ಸೂರಿನಡಿ ಪಡೆಯಿರಿ.",
-      ctaMandi: "ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
-      ctaSell: "ನಿಮ್ಮ ಬೆಳೆ ಮಾರಾಟ ಮಾಡಿ",
+      badge: "ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಕೃಷಿ ಒಡನಾಡಿ",
+      title: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿಗಾಗಿ ನಿಮಗೆ ಬೇಕಾದ ಎಲ್ಲವೂ ಒಂದೇ ಸೂರಿನಡಿ.",
+      subtitle: "ಮಂಡಿ ದರಗಳನ್ನು ಪರಿಶೀಲಿಸುವುದು ಮತ್ತು ಖರೀದಿದಾರರನ್ನು ಹುಡುಕುವುದರಿಂದ ಹಿಡಿದು ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ನೇಮಿಸಿಕೊಳ್ಳುವುದು, ಬೆಳೆ ರೋಗಗಳನ್ನು ಪತ್ತೆಹಚ್ಚುವುದು ಮತ್ತು ಸರ್ಕಾರಿ ಯೋಜನೆಗಳನ್ನು ಕಂಡುಕೊಳ್ಳುವವರೆಗೆ—KisaanBuddy ಎಲ್ಲಾ ಅಗತ್ಯ ಕೃಷಿ ಸೇವೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ತರುತ್ತದೆ.",
+      ctaMandi: "ಕೃಷಿ ಸೇವೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ",
+      ctaSell: "KisaanBuddy AI ಕೇಳಿ",
       ctaBuyers: "ದೃಢೀಕೃತ ಖರೀದಿದಾರರನ್ನು ಹುಡುಕಿ",
       ctaWorkers: "ಕೃಷಿ ಕಾರ್ಮಿಕರು & ಕೆಲಸಗಳು",
       trustPoint1: "ಸರ್ಕಾರಿ APMC ಮತ್ತು e-NAM ಅಧಿಕೃತ ಮಂಡಿ ದರಗಳು",

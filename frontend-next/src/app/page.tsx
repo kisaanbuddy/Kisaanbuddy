@@ -1,22 +1,20 @@
 import type { Metadata } from 'next';
-import { MarketplaceHero } from '@/components/landing/MarketplaceHero';
+import { HeroSection } from '@/components/landing/HeroSection';
+import { FeatureShowcaseSection } from '@/components/landing/FeatureShowcaseSection';
 import { MandiIntelligenceSection } from '@/components/landing/MandiIntelligenceSection';
 import { BuySellProduceSection } from '@/components/landing/BuySellProduceSection';
 import { WorkersConnectHomeSection } from '@/components/landing/WorkersConnectHomeSection';
-import { EquipmentCatalogueSection } from '@/components/landing/EquipmentCatalogueSection';
-import { FarmingIntelligenceSection } from '@/components/landing/FarmingIntelligenceSection';
-import { GovernmentSchemesSection } from '@/components/landing/GovernmentSchemesSection';
 import { MarketplaceTrustSection } from '@/components/landing/MarketplaceTrustSection';
 
 export const metadata: Metadata = {
-  title: 'KisaanBuddy — Agricultural Marketplace & Farm Intelligence for Indian Farmers',
-  description: 'Connect with verified buyers, track live e-NAM mandi prices, hire farm workers and harvester crews, explore agricultural equipment, and access AI crop advisory.',
+  title: 'KisaanBuddy — Everything You Need to Farm Smarter | Agricultural Services for Indian Farmers',
+  description: 'Your complete farming companion. Check real-time mandi prices, connect with buyers, hire farm workers, diagnose crop diseases with AI, and discover government schemes.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'KisaanBuddy — Agricultural Marketplace & Farm Intelligence for Indian Farmers',
-    description: 'Connect with verified buyers, track live e-NAM mandi prices, hire farm workers and harvester crews, explore agricultural equipment, and access AI crop advisory.',
+    title: 'KisaanBuddy — Everything You Need to Farm Smarter',
+    description: 'Your complete farming companion. Check real-time mandi prices, connect with buyers, hire farm workers, diagnose crop diseases with AI, and discover government schemes.',
     url: '/',
     type: 'website',
   },
@@ -26,28 +24,22 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col gap-0 -mt-6 md:-mt-10 -mx-4 sm:-mx-6 lg:-mx-8 overflow-x-hidden">
       
-      {/* 1. Marketplace Hero: Your Farm. Your Market. Better Opportunities. */}
-      <MarketplaceHero />
+      {/* SECTION 1: HERO — "Everything You Need to Farm Smarter." */}
+      <HeroSection />
 
-      {/* 2. Primary Priority: Mandi Bhav & Market Intelligence (Immediately after Hero) */}
+      {/* SECTION 2: FEATURE SHOWCASE — Clean 8-Card Responsive Agricultural Grid */}
+      <FeatureShowcaseSection />
+
+      {/* LIVE WORKFLOW 1: Mandi Price Intelligence & Daily APMC Rates */}
       <MandiIntelligenceSection />
 
-      {/* 3. Primary Priority: Buy & Sell Agricultural Produce (Two clear pathways) */}
+      {/* LIVE WORKFLOW 2: Buy & Sell Agricultural Produce Directly */}
       <BuySellProduceSection />
 
-      {/* 4. Secondary Priority: Workers Connect & Farm Jobs (Prominent two-card structure) */}
+      {/* LIVE WORKFLOW 3: Workers Connect & Farm Labour Jobs */}
       <WorkersConnectHomeSection />
 
-      {/* 5. Supporting Feature: Agricultural Equipment Catalogue */}
-      <EquipmentCatalogueSection />
-
-      {/* 6. Supporting Feature: Farming Intelligence & AI Advisory (No standalone weather card) */}
-      <FarmingIntelligenceSection />
-
-      {/* 7. Official Resources: Government Schemes & Subsidies */}
-      <GovernmentSchemesSection />
-
-      {/* 8. Trust & Marketplace Transparency: Verified Public Data & Zero Fabricated Metrics */}
+      {/* INSTITUTIONAL TRUST: Verified Public Integrity & Zero Fabricated Metrics */}
       <MarketplaceTrustSection />
 
     </div>
