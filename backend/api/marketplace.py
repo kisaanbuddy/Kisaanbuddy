@@ -447,6 +447,7 @@ def create_produce_listing(
 
 
 @router.patch("/produce-listings/{item_id}/confirm")
+@router.post("/produce-listings/{item_id}/confirm")
 def confirm_produce_listing_stock(item_id: int, db: Session = Depends(get_db)) -> Any:
     """Seller action: Confirm stock and price validity (updates last_confirmation_date)."""
     item = db.query(ProduceListing).filter(ProduceListing.id == item_id).first()

@@ -85,6 +85,9 @@ export interface ProduceListingItem {
   district: string;
   mandi_nearby?: string | null;
   delivery_option: string;
+  farmer_phone_masked?: string | null;
+  village_or_tehsil?: string | null;
+  last_confirmation_date?: string | null;
   availability_status: "available" | "under_negotiation" | "sold_out" | "inactive";
   verification_status: string;
   notes?: string | null;
@@ -499,5 +502,33 @@ export function getGovernmentProcurement(params?: {
     disclaimer: "Government procurement is conducted exclusively at designated state centers for registered farmers under statutory MSP rules. KisaanBuddy does not promise eligibility or procurement acceptance.",
     items,
   };
+}
+
+export function confirmProduceListingStock(id: number): { id: number; message: string; last_confirmation_date: string } | null {
+  const item = produceListings.find((x) => x.id === id);
+  if (!item) return null;
+  const today = new Date().toISOString().split("T")[0];
+  item.last_confirmation_date = today;
+  item.updated_at = new Date().toISOString();
+  return {
+    id: item.id,
+    message: "Stock and price confirmed successfully.",
+    last_confirmation_date: today,
+  };
+}
+
+export function updateProduceListingStatus(id: number, status: string): { id: number; availability_status: string } | null {
+  const item = produceListings.find((x) => x.id === id);
+  if (!item) return null;
+  item.availability_status = status as any;
+  item.updated_at = new Date().toISOString();
+  return {
+    id: item.id,
+    availability_status: item.availability_status,
+  };
+}
+
+export function getProduceListingById(id: number): ProduceListingItem | null {
+  return produceListings.find((x) => x.id === id) || null;
 }
 

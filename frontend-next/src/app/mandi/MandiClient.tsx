@@ -529,6 +529,14 @@ export default function MandiPage() {
   async function handleConfirmStock(listingId: number) {
     try {
       const res = await produceListingsApi.confirmStock(listingId)
+      const confirmedDate = res.last_confirmation_date || new Date().toISOString()
+      setSellOffers((prev) =>
+        prev.map((item) =>
+          item.id === listingId
+            ? { ...item, last_confirmation_date: confirmedDate }
+            : item
+        )
+      )
       setToastMessage(res.message || "Stock and price confirmed successfully!")
       fetchSellOffers()
     } catch (err: any) {

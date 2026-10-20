@@ -6,7 +6,7 @@ import {
   LayoutDashboard, CloudSun, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
   FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
-  Store, BarChart3, BookOpen, Settings
+  Store, BarChart3, Settings
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -132,7 +132,6 @@ const NAV_LINK_DEFS = [
   { href: '/mandi',          icon: TrendingUp      },
   { href: '/weather',        icon: CloudSun        },
   { href: '/soil-health',    icon: FlaskConical },
-  { href: '/khet-diary',     icon: BookOpen        },
   { href: '/reports',        icon: BarChart3       },
   { href: '/schemes',        icon: Landmark        },
   { href: '/settings',       icon: Settings        },
@@ -352,10 +351,6 @@ export function Header() {
                     <Link href="/soil-health" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <FlaskConical className="h-4 w-4 text-amber-600" />
                       <span>Soil Health</span>
-                    </Link>
-                    <Link href="/khet-diary" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <BookOpen className="h-4 w-4 text-teal-600" />
-                      <span>Khet Diary</span>
                     </Link>
                     <Link href="/schemes" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <Landmark className="h-4 w-4 text-indigo-600" />
@@ -698,13 +693,6 @@ export function Header() {
                     className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
                   >
                     Soil Health
-                  </Link>
-                  <Link
-                    href="/khet-diary"
-                    onClick={() => setOpen(false)}
-                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
-                  >
-                    Khet Diary
                   </Link>
                   <Link
                     href="/schemes"
