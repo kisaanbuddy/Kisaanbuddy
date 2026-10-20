@@ -5,8 +5,15 @@ import { trackEvent } from '@/lib/analytics'
 import {
   Camera, ImagePlus, Loader2, Sparkles, X,
   Bug, CheckCircle2, AlertTriangle, Leaf,
-  Upload, FlaskConical,
+  Upload, FlaskConical, Phone, Building2, UserCheck,
+  FileText, Printer, ChevronDown, ChevronUp, Download,
+  ShieldCheck, MapPin, Search, Calendar
 } from "lucide-react"
+import Link from "next/link"
+import { IDMTreatmentTabs } from "@/components/disease/IDMTreatmentTabs"
+import { RequestExpertModal } from "@/components/disease/RequestExpertModal"
+import { KVKDirectoryModal } from "@/components/disease/KVKDirectoryModal"
+import { TrackCaseModal } from "@/components/disease/TrackCaseModal" 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
@@ -59,6 +66,20 @@ interface PredictionResult {
   model: string
   status: "ok" | "uncertain"
   note?: string
+  crop?: string
+  disease_name?: string
+  recommend_expert_review?: boolean
+  immediate_action?: string
+  cultural_control?: string
+  biological_control?: string
+  chemical_control?: string
+  cibrc_approved?: boolean
+  dosage_guidelines?: string
+  phi_days?: number
+  safety_instructions?: string
+  source_institution?: string
+  source_url?: string
+  last_verified_date?: string
 }
 
 function formatClassName(name: string): string {
@@ -91,6 +112,21 @@ export default function DiseasePortal() {
   const fileRef  = useRef<HTMLInputElement | null>(null)
   const camRef   = useRef<HTMLInputElement | null>(null)
   const abortRef = useRef<AbortController | null>(null)
+
+  // Advanced agricultural & farm context (Optional, non-blocking)
+  const [variety, setVariety] = useState("")
+  const [selectedState, setSelectedState] = useState("Madhya Pradesh")
+  const [selectedDistrict, setSelectedDistrict] = useState("Sehore")
+  const [growthStage, setGrowthStage] = useState("Vegetative")
+  const [symptomDuration, setSymptomDuration] = useState("3-5 days")
+  const [weatherCondition, setWeatherCondition] = useState("Humid / Cloudy")
+  const [showAdvancedContext, setShowAdvancedContext] = useState(false)
+
+  // Advisory Case & KVK Modals
+  const [requestModalOpen, setRequestModalOpen] = useState(false)
+  const [kvkModalOpen, setKvkModalOpen] = useState(false)
+  const [trackModalOpen, setTrackModalOpen] = useState(false)
+  const [activeCaseId, setActiveCaseId] = useState<string | null>(null)
 
   useEffect(() => {
     const requestedCrop = searchParams.get("crop")
@@ -170,7 +206,8 @@ export default function DiseasePortal() {
         const formData = new FormData()
         formData.append("file", blob, "crop_leaf.jpg")
 
-        const predictRes = await fetch("/api/disease/predict", {
+        const url = `/api/disease/predict?crop_hint=${encodeURIComponent(crop.trim())}&symptom_notes=${encodeURIComponent(symptom.trim())}`;
+        const predictRes = await fetch(url, {
           method: "POST",
           body: formData,
         })
@@ -343,6 +380,109 @@ export default function DiseasePortal() {
             />
           </div>
 
+          {/* Collapsible Advanced Farm Context (Requirement 3 & 8) */}
+          <div className="rounded-xl border border-border/60 bg-muted/20 overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setShowAdvancedContext(!showAdvancedContext)}
+              className="w-full flex items-center justify-between p-3 text-xs font-semibold text-foreground hover:bg-muted/40 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Sprout className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <span>{language === "hi" ? "अतिरिक्त खेत व फसल विवरण (वैकल्पिक)" : "Field Context & Location (Optional)"}</span>
+              </div>
+              {showAdvancedContext ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+            </button>
+
+            {showAdvancedContext && (
+              <div className="p-3 pt-0 space-y-3 text-xs border-t border-border/30 mt-1">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      {language === "hi" ? "किस्म (Variety)" : "Variety"}
+                    </label>
+                    <input
+                      value={variety}
+                      onChange={(e) => setVariety(e.target.value)}
+                      placeholder={language === "hi" ? "उदा. शरबती / पूसा 1121" : "e.g. Sharbati, Pusa 1121"}
+                      className="w-full h-8 px-2.5 text-xs rounded-lg border border-border/50 bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      {language === "hi" ? "वृद्धि अवस्था" : "Growth Stage"}
+                    </label>
+                    <select
+                      value={growthStage}
+                      onChange={(e) => setGrowthStage(e.target.value)}
+                      className="w-full h-8 px-2 text-xs rounded-lg border border-border/50 bg-background text-foreground"
+                    >
+                      <option value="Seedling">Seedling (अंकुरण)</option>
+                      <option value="Vegetative">Vegetative (वानस्पतिक)</option>
+                      <option value="Tillering">Tillering (कल्ले फूटना)</option>
+                      <option value="Flowering">Flowering (फूल आना)</option>
+                      <option value="Fruiting">Fruiting / Grain Fill (फल / दाना)</option>
+                      <option value="Maturity">Maturity (परिपक्वता)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      {language === "hi" ? "राज्य (State)" : "State"}
+                    </label>
+                    <input
+                      value={selectedState}
+                      onChange={(e) => setSelectedState(e.target.value)}
+                      placeholder="e.g. Madhya Pradesh"
+                      className="w-full h-8 px-2.5 text-xs rounded-lg border border-border/50 bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      {language === "hi" ? "जिला (District)" : "District"}
+                    </label>
+                    <input
+                      value={selectedDistrict}
+                      onChange={(e) => setSelectedDistrict(e.target.value)}
+                      placeholder="e.g. Sehore"
+                      className="w-full h-8 px-2.5 text-xs rounded-lg border border-border/50 bg-background text-foreground"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      {language === "hi" ? "लक्षण की अवधि" : "Symptom Duration"}
+                    </label>
+                    <input
+                      value={symptomDuration}
+                      onChange={(e) => setSymptomDuration(e.target.value)}
+                      placeholder="e.g. 3-5 days"
+                      className="w-full h-8 px-2.5 text-xs rounded-lg border border-border/50 bg-background text-foreground"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-1">
+                      {language === "hi" ? "हाल का मौसम" : "Recent Weather"}
+                    </label>
+                    <input
+                      value={weatherCondition}
+                      onChange={(e) => setWeatherCondition(e.target.value)}
+                      placeholder="e.g. Humid, Rain 2 days ago"
+                      className="w-full h-8 px-2.5 text-xs rounded-lg border border-border/50 bg-background text-foreground"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Language selector */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
@@ -509,11 +649,111 @@ export default function DiseasePortal() {
                     <span>15-Class Taxonomy</span>
                   </div>
 
-                  {/* Contextual Spraying & Crop Protection Advisory (Requirement 2-C) */}
+                  {/* Ambiguous Diagnosis Alert Flag */}
+                  {mlResult.status === "uncertain" && (
+                    <div className="flex items-start gap-2.5 p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-800 dark:text-amber-200 text-xs">
+                      <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="space-y-0.5">
+                        <p className="font-bold">{language === "hi" ? "निदान अनिश्चित - मानव विशेषज्ञ सत्यापन अनुशंसित" : "Diagnostic Uncertainty Detected"}</p>
+                        <p className="text-[11px] leading-relaxed">
+                          {language === "hi"
+                            ? "पत्तियों के लक्षण अस्पष्ट हैं या कई बीमारियों से मेल खाते हैं। भारी रासायनिक कीटनाशक डालने से पहले KVK विशेषज्ञ की सलाह लें।"
+                            : "Visual lesion features are ambiguous or overlap with multiple foliar conditions. Avoid aggressive chemical spraying without agricultural expert confirmation."}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Authentic ICAR/CIBRC Integrated Disease Management (IDM) Tabs */}
+                  <IDMTreatmentTabs
+                    cultural={mlResult.cultural_control}
+                    biological={mlResult.biological_control}
+                    chemical={mlResult.chemical_control}
+                    dosage={mlResult.dosage_guidelines}
+                    phiDays={mlResult.phi_days}
+                    safety={mlResult.safety_instructions}
+                    sourceInstitution={mlResult.source_institution}
+                    sourceUrl={mlResult.source_url}
+                    lastVerifiedDate={mlResult.last_verified_date}
+                    language={language}
+                  />
+
+                  {/* Contextual Spraying & Crop Protection Advisory */}
                   <SprayWeatherAdvisory
                     diseaseName={mlResult.predicted_class}
                     language={language}
                   />
+
+                  {/* ══ POST-DIAGNOSIS ACTION SUITE (Requirement 5, 6, 8) ══ */}
+                  <div className="pt-3 border-t border-border/40 space-y-2.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {language === "hi" ? "आधिकारिक सहायता व किसान कार्य (Farmer Actions)" : "Official Agricultural Support Actions"}
+                    </p>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                      {/* Action 1: Call Kisan Call Centre */}
+                      <a
+                        href="tel:18001801551"
+                        className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-colors text-center group"
+                      >
+                        <Phone className="h-4 w-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                        <span className="font-bold text-[11px] text-foreground">Call KCC 1800</span>
+                        <span className="text-[9px] text-muted-foreground">Toll-Free 24x7</span>
+                      </a>
+
+                      {/* Action 2: Find Nearby KVK */}
+                      <button
+                        type="button"
+                        onClick={() => setKvkModalOpen(true)}
+                        className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-colors text-center group"
+                      >
+                        <Building2 className="h-4 w-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                        <span className="font-bold text-[11px] text-foreground">Find KVK</span>
+                        <span className="text-[9px] text-muted-foreground">{selectedDistrict || "Regional"} Center</span>
+                      </button>
+
+                      {/* Action 3: Request Human Expert Review */}
+                      <button
+                        type="button"
+                        onClick={() => setRequestModalOpen(true)}
+                        className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 transition-colors text-center group font-bold"
+                      >
+                        <UserCheck className="h-4 w-4 mb-1 group-hover:scale-110 transition-transform" />
+                        <span className="text-[11px]">Request Expert</span>
+                        <span className="text-[9px] opacity-80">Human Review</span>
+                      </button>
+
+                      {/* Action 4: Track Case */}
+                      <button
+                        type="button"
+                        onClick={() => setTrackModalOpen(true)}
+                        className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-colors text-center group"
+                      >
+                        <Search className="h-4 w-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                        <span className="font-bold text-[11px] text-foreground">Track Case</span>
+                        <span className="text-[9px] text-muted-foreground">Advisory ID</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground">
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
+                      >
+                        <Printer className="h-3 w-3" />
+                        <span>Print Diagnostic Report</span>
+                      </button>
+
+                      <Link
+                        href="/expert-dashboard"
+                        className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 hover:underline"
+                      >
+                        <ShieldCheck className="h-3 w-3" />
+                        <span>Agronomist / Expert Portal</span>
+                      </Link>
+                    </div>
+                  </div>
                 </motion.div>
               )}
 
@@ -821,6 +1061,36 @@ export default function DiseasePortal() {
           )}
         </section>
       </div>
+      {/* ══ MODALS (Request Expert, KVK Directory, Track Case) ══ */}
+      <RequestExpertModal
+        isOpen={requestModalOpen}
+        onClose={() => setRequestModalOpen(false)}
+        cropName={crop || mlResult?.crop || "Field Crop"}
+        variety={variety}
+        state={selectedState}
+        district={selectedDistrict}
+        predictedDisease={mlResult?.disease_name || mlResult?.predicted_class}
+        confidence={mlResult?.confidence}
+        imageUrl={imageDataUrl}
+        language={language}
+        onCaseCreated={(caseId) => {
+          setActiveCaseId(caseId);
+        }}
+      />
+
+      <KVKDirectoryModal
+        isOpen={kvkModalOpen}
+        onClose={() => setKvkModalOpen(false)}
+        defaultState={selectedState}
+        language={language}
+      />
+
+      <TrackCaseModal
+        isOpen={trackModalOpen}
+        onClose={() => setTrackModalOpen(false)}
+        initialCaseId={activeCaseId}
+        language={language}
+      />
     </div>
   )
 }

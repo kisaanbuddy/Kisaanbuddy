@@ -977,5 +977,102 @@ if Column is not None:
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
 
+    class AgriculturalExpert(Base):  # type: ignore[misc]
+        """Authentic agricultural expert, KVK scientist, or extension officer."""
+        __tablename__ = "agricultural_experts"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        name = Column(String(200), nullable=False)
+        designation = Column(String(200), nullable=False)
+        institution_name = Column(String(255), nullable=False, index=True)
+        institution_type = Column(String(50), nullable=False, default="kvk")  # kvk, icar, sau, dept_agri, consultant
+        qualification = Column(String(200), nullable=True)
+        specialization = Column(String(255), nullable=False, index=True)  # Plant Pathology, Agronomy, Entomology, Soil Science
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        service_area = Column(String(255), nullable=True)
+        crops_supported = Column(Text, nullable=True)  # Comma-separated or JSON list
+        official_phone = Column(String(50), nullable=False)
+        official_email = Column(String(200), nullable=True)
+        official_website = Column(String(255), nullable=True)
+        contact_type = Column(String(50), nullable=False, default="official_published")  # official_published, individually_verified, registered_expert, referral_partner
+        is_active = Column(Boolean, default=True, nullable=False)
+        can_receive_referrals = Column(Boolean, default=False, nullable=False)
+        verification_date = Column(Date, nullable=True)
+        source_attribution = Column(String(255), nullable=False, default="ICAR-KVK Official Directory")
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+
+    class AdvisoryCase(Base):  # type: ignore[misc]
+        """Real-time farmer advisory case request for human expert review."""
+        __tablename__ = "advisory_cases"
+        id = Column(Integer, primary_key=True, index=True)
+        case_id = Column(String(64), unique=True, index=True, nullable=False)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        assigned_expert_id = Column(Integer, ForeignKey("agricultural_experts.id"), nullable=True, index=True)
+        farmer_name = Column(String(150), nullable=False)
+        farmer_phone = Column(String(50), nullable=False)
+        farmer_phone_masked = Column(String(50), nullable=True)
+        preferred_contact_method = Column(String(30), nullable=False, default="phone")  # phone, whatsapp, sms
+        consent_recorded = Column(Boolean, default=True, nullable=False)
+        crop_name = Column(String(100), nullable=False, index=True)
+        crop_variety = Column(String(100), nullable=True)
+        state = Column(String(100), nullable=False, index=True)
+        district = Column(String(100), nullable=False, index=True)
+        village_or_tehsil = Column(String(150), nullable=True)
+        growth_stage = Column(String(100), nullable=True)
+        sowing_date = Column(Date, nullable=True)
+        visible_symptoms = Column(Text, nullable=True)
+        symptom_duration_days = Column(Integer, nullable=True)
+        affected_area_acres = Column(Float, nullable=True)
+        recent_weather_conditions = Column(String(255), nullable=True)
+        fertilizer_pesticide_history = Column(Text, nullable=True)
+        image_url = Column(Text, nullable=True)
+        ai_predicted_disease = Column(String(255), nullable=True)
+        ai_confidence = Column(Float, nullable=True)
+        ai_status = Column(String(50), nullable=True, default="confident")  # confident, uncertain, unknown
+        ai_differentials = Column(Text, nullable=True)  # JSON string
+        status = Column(String(50), nullable=False, default="pending", index=True)  # pending, queued, sent, acknowledged, accepted, farmer_contacted, resolved, failed
+        priority = Column(String(20), nullable=False, default="normal")  # low, normal, urgent
+        expert_notes = Column(Text, nullable=True)
+        expert_recommendation = Column(Text, nullable=True)
+        follow_up_date = Column(Date, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+        resolved_at = Column(DateTime, nullable=True)
+
+
+    class AdvisoryNotificationLog(Base):  # type: ignore[misc]
+        """Audit trail of multi-channel notification dispatches to experts and farmers."""
+        __tablename__ = "advisory_notification_logs"
+        id = Column(Integer, primary_key=True, index=True)
+        case_id = Column(Integer, ForeignKey("advisory_cases.id"), nullable=False, index=True)
+        channel = Column(String(50), nullable=False)  # dashboard, sms, whatsapp, email
+        recipient = Column(String(255), nullable=False)
+        status = Column(String(50), nullable=False, default="queued")  # queued, sent, delivered, failed
+        message_snippet = Column(Text, nullable=True)
+        error_message = Column(Text, nullable=True)
+        sent_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class AgriculturalKnowledgeRecord(Base):  # type: ignore[misc]
+        """Unified ICAR/CIBRC agricultural knowledge record with safe treatment hierarchy."""
+        __tablename__ = "agricultural_knowledge_records"
+        id = Column(Integer, primary_key=True, index=True)
+        crop = Column(String(100), nullable=False, index=True)
+        disease_or_pest = Column(String(200), nullable=False, index=True)
+        category = Column(String(50), nullable=False)  # fungal, bacterial, viral, pest, deficiency
+        symptoms = Column(Text, nullable=False)
+        growth_stage_applicability = Column(String(150), nullable=True)
+        cultural_preventive = Column(Text, nullable=False)
+        biological_organic = Column(Text, nullable=False)
+        chemical_control = Column(Text, nullable=False)
+        cibrc_registered_compounds = Column(Text, nullable=True)
+        dosage_guidelines = Column(Text, nullable=True)
+        pre_harvest_interval_days = Column(Integer, nullable=True)
+        safety_instructions = Column(Text, nullable=False)
+        source_institution = Column(String(255), nullable=False)  # e.g. ICAR-IARI, DPPQS/CIBRC, TNAU
+        source_url = Column(String(255), nullable=True)
+        last_verified_date = Column(Date, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
