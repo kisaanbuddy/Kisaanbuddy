@@ -5,7 +5,7 @@
 
 export interface AgriculturalExpert {
   id: number;
-  name: str;
+  name: string;
   designation: string;
   institution_name: string;
   institution_type: "kvk" | "icar" | "sau" | "dept_agri" | "consultant";

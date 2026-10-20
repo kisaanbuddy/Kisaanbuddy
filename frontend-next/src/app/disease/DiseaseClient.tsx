@@ -4,7 +4,7 @@ import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import {
   Camera, ImagePlus, Loader2, Sparkles, X,
-  Bug, CheckCircle2, AlertTriangle, Leaf,
+  Bug, CheckCircle2, AlertTriangle, Leaf, Sprout,
   Upload, FlaskConical, Phone, Building2, UserCheck,
   FileText, Printer, ChevronDown, ChevronUp, Download,
   ShieldCheck, MapPin, Search, Calendar
