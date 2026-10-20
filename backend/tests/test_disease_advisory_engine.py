@@ -3,6 +3,7 @@ import unittest
 from services.disease_knowledge_engine import (
     AUTHENTIC_KVK_DIRECTORY,
     AGRICULTURAL_KNOWLEDGE_BASE,
+    normalize_crop_name,
     mask_phone_number,
     generate_advisory_case_id,
     find_matching_expert,
@@ -74,6 +75,21 @@ class TestDiseaseAdvisoryEngine(unittest.TestCase):
         parts = case_id.split("-")
         self.assertEqual(len(parts), 3)
         self.assertEqual(len(parts[1]), 8)  # YYYYMMDD
+
+    def test_crop_normalization_and_symptom_matching(self):
+        """Verifies transliterated crop names and symptom queries match ICAR records."""
+        # Misspelling or Hindi transliterations
+        self.assertEqual(normalize_crop_name("tamato"), "Tomato")
+        self.assertEqual(normalize_crop_name("tamatar"), "Tomato")
+        self.assertEqual(normalize_crop_name("gehun"), "Wheat")
+        self.assertEqual(normalize_crop_name("chawal"), "Rice")
+        self.assertEqual(normalize_crop_name("kapas"), "Cotton")
+
+        # Query knowledge base for Tomato with yellow symptoms
+        matches = query_knowledge_base("tamato", "yellow")
+        self.assertGreaterEqual(len(matches), 1)
+        self.assertEqual(matches[0]["crop"], "Tomato")
+        self.assertIn("Early Blight", matches[0]["disease_or_pest"])
 
     def test_notification_dispatch(self):
         """Verifies notification audit logging generates expected multi-channel logs."""

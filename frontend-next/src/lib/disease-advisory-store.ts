@@ -449,9 +449,27 @@ export function generateCaseId(): string {
   return `ADV-${ymd}-${rand}`;
 }
 
+export function normalizeCropName(crop: string): string {
+  if (!crop) return "Crop";
+  const c = crop.trim().toLowerCase();
+  if (c.includes("tamat") || c.includes("tomat")) return "Tomato";
+  if (c.includes("gehu") || c.includes("wheat") || c.includes("kanak")) return "Wheat";
+  if (c.includes("dhan") || c.includes("rice") || c.includes("chawal") || c.includes("paddy")) return "Rice";
+  if (c.includes("kapas") || c.includes("cotton")) return "Cotton";
+  if (c.includes("mirch") || c.includes("chilli") || c.includes("chili")) return "Chilli";
+  if (c.includes("aalu") || c.includes("alu") || c.includes("potato") || c.includes("batata")) return "Potato";
+  if (c.includes("soya") || c.includes("soybean")) return "Soybean";
+  if (c.includes("makka") || c.includes("maize") || c.includes("corn") || c.includes("bhutta")) return "Maize";
+  if (c.includes("pyaz") || c.includes("onion")) return "Onion";
+  if (c.includes("kela") || c.includes("banana")) return "Banana";
+  if (c.includes("sarson") || c.includes("mustard")) return "Mustard";
+  return crop.trim();
+}
+
 export function matchExpert(state: string, district: string, crop: string): AgriculturalExpert {
   const s = (state || "").toLowerCase().trim();
   const d = (district || "").toLowerCase().trim();
+  const c = normalizeCropName(crop).toLowerCase();
 
   // District match
   const matchDist = AUTHENTIC_EXPERTS.find(
@@ -464,6 +482,12 @@ export function matchExpert(state: string, district: string, crop: string): Agri
     (e) => e.state.toLowerCase() === s && e.id !== 8
   );
   if (matchState) return matchState;
+
+  // Crop match
+  const matchCrop = AUTHENTIC_EXPERTS.find(
+    (e) => (e.crops_supported || "").toLowerCase().includes(c) && e.id !== 8
+  );
+  if (matchCrop) return matchCrop;
 
   // National KCC Fallback
   return AUTHENTIC_EXPERTS[7]; // Kisan Call Centre
@@ -478,7 +502,8 @@ export function getExperts(params?: { state?: string; district?: string; crop?: 
     list = list.filter((e) => e.district.toLowerCase().includes(params.district!.toLowerCase()) || e.id === 8);
   }
   if (params?.crop) {
-    list = list.filter((e) => (e.crops_supported || "").toLowerCase().includes(params.crop!.toLowerCase()) || e.id === 8);
+    const c = normalizeCropName(params.crop).toLowerCase();
+    list = list.filter((e) => (e.crops_supported || "").toLowerCase().includes(c) || e.id === 8);
   }
   return list;
 }
@@ -486,10 +511,22 @@ export function getExperts(params?: { state?: string; district?: string; crop?: 
 export function getKnowledge(params?: { crop?: string; disease?: string }) {
   let list = [...KNOWLEDGE_BASE_RECORDS];
   if (params?.crop && params.crop.toLowerCase() !== "all") {
-    list = list.filter((k) => k.crop.toLowerCase().includes(params.crop!.toLowerCase()));
+    const norm = normalizeCropName(params.crop).toLowerCase();
+    const filtered = list.filter((k) => k.crop.toLowerCase().includes(norm) || norm.includes(k.crop.toLowerCase()));
+    if (filtered.length > 0) {
+      list = filtered;
+    }
   }
   if (params?.disease) {
-    list = list.filter((k) => k.disease_or_pest.toLowerCase().includes(params.disease!.toLowerCase()));
+    const dLower = params.disease.toLowerCase();
+    const tokens = dLower.replace(/_/g, " ").split(/\s+/).filter(w => w.length > 2);
+    const filtered = list.filter((k) => 
+      k.disease_or_pest.toLowerCase().includes(dLower) ||
+      tokens.some(t => k.disease_or_pest.toLowerCase().includes(t) || k.symptoms.toLowerCase().includes(t))
+    );
+    if (filtered.length > 0) {
+      list = filtered;
+    }
   }
   return list;
 }

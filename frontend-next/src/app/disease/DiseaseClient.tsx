@@ -198,30 +198,41 @@ export default function DiseasePortal() {
 
     setError(null); setResponse(""); setUsedTools([]); setMlResult(null)
 
-    // 1. Trigger Deep Learning Vision Model API (POST /api/disease/predict)
-    if (imageDataUrl) {
-      setMlLoading(true)
-      try {
+    // 1. Trigger Multi-Engine Vision & ICAR Advisory API (POST /api/disease/predict)
+    setMlLoading(true)
+    try {
+      const url = `/api/disease/predict?crop_hint=${encodeURIComponent(crop.trim())}&symptom_notes=${encodeURIComponent(symptom.trim())}`;
+      let predictRes: Response;
+      if (imageDataUrl) {
         const blob = await (await fetch(imageDataUrl)).blob()
         const formData = new FormData()
         formData.append("file", blob, "crop_leaf.jpg")
-
-        const url = `/api/disease/predict?crop_hint=${encodeURIComponent(crop.trim())}&symptom_notes=${encodeURIComponent(symptom.trim())}`;
-        const predictRes = await fetch(url, {
+        formData.append("crop_hint", crop.trim())
+        formData.append("symptom_notes", symptom.trim())
+        predictRes = await fetch(url, {
           method: "POST",
           body: formData,
         })
-        if (predictRes.ok) {
-          const data: PredictionResult = await predictRes.json()
-          setMlResult(data)
-        } else {
-          console.warn("Disease model API non-200 response:", predictRes.status)
-        }
-      } catch (err) {
-        console.warn("Disease model API request error:", err)
-      } finally {
-        setMlLoading(false)
+      } else {
+        predictRes = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            crop_hint: crop.trim(),
+            symptom_notes: symptom.trim(),
+          }),
+        })
       }
+      if (predictRes.ok) {
+        const data: PredictionResult = await predictRes.json()
+        setMlResult(data)
+      } else {
+        console.warn("Disease model API non-200 response:", predictRes.status)
+      }
+    } catch (err) {
+      console.warn("Disease model API request error:", err)
+    } finally {
+      setMlLoading(false)
     }
 
     // 2. Stream Agronomy Diagnostic Assistant Advice
@@ -555,13 +566,17 @@ export default function DiseasePortal() {
 
             {/* Content area */}
             <div className="flex-1 space-y-4">
-              {/* Deep Learning Vision AI Result Card */}
+              {/* Deep Learning Vision AI / Agronomic Result Card */}
               {mlLoading && (
                 <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex items-center gap-3 animate-pulse">
                   <Loader2 className="h-5 w-5 animate-spin text-emerald-600 dark:text-emerald-400" />
                   <div className="text-xs">
-                    <p className="font-semibold text-foreground">Analyzing leaf with EfficientNetV2-S...</p>
-                    <p className="text-muted-foreground text-[11px]">Evaluating 15 disease taxonomy classes & computing confidence</p>
+                    <p className="font-semibold text-foreground">
+                      {imageDataUrl ? "Analyzing leaf with EfficientNetV2-S..." : "Matching symptoms against ICAR & CIBRC database..."}
+                    </p>
+                    <p className="text-muted-foreground text-[11px]">
+                      {imageDataUrl ? "Evaluating 15 disease taxonomy classes & computing confidence" : "Retrieving official IDM cultural, biological, and chemical controls"}
+                    </p>
                   </div>
                 </div>
               )}
@@ -576,7 +591,7 @@ export default function DiseasePortal() {
                     <div className="flex items-center gap-2">
                       <Bug className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                       <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                        Deep Learning Prediction
+                        {imageDataUrl ? "Deep Learning Prediction" : "ICAR Symptom-Based Diagnosis"}
                       </span>
                     </div>
                     <span
@@ -759,10 +774,56 @@ export default function DiseasePortal() {
 
               <AnimatePresence mode="wait">
                 {response ? (
-                  <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
                     <pre className="whitespace-pre-wrap break-words font-sans text-xs md:text-sm leading-relaxed text-foreground">
                       {response}
                     </pre>
+
+                    {/* Fallback Action Suite if mlResult was not loaded */}
+                    {!mlResult && (
+                      <div className="pt-3 border-t border-border/40 space-y-2.5">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                          {language === "hi" ? "आधिकारिक सहायता व किसान कार्य (Farmer Actions)" : "Official Agricultural Support Actions"}
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                          <a
+                            href="tel:18001801551"
+                            className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-emerald-500/10 text-center group"
+                          >
+                            <Phone className="h-4 w-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="font-bold text-[11px] text-foreground">Call KCC 1800</span>
+                            <span className="text-[9px] text-muted-foreground">Toll-Free 24x7</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => setKvkModalOpen(true)}
+                            className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-emerald-500/10 text-center group"
+                          >
+                            <Building2 className="h-4 w-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="font-bold text-[11px] text-foreground">Find KVK</span>
+                            <span className="text-[9px] text-muted-foreground">{selectedDistrict || "Regional"}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setRequestModalOpen(true)}
+                            className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-center font-bold"
+                          >
+                            <UserCheck className="h-4 w-4 mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="text-[11px]">Request Expert</span>
+                            <span className="text-[9px] opacity-80">Human Review</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setTrackModalOpen(true)}
+                            className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-border/60 bg-muted/30 hover:bg-emerald-500/10 text-center group"
+                          >
+                            <Search className="h-4 w-4 text-emerald-600 mb-1 group-hover:scale-110 transition-transform" />
+                            <span className="font-bold text-[11px] text-foreground">Track Case</span>
+                            <span className="text-[9px] text-muted-foreground">Advisory ID</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </motion.div>
                 ) : isStreaming ? (
                   <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }}

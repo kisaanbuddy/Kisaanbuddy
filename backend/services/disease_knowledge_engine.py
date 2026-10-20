@@ -370,6 +370,36 @@ AUTHENTIC_KVK_DIRECTORY: List[Dict[str, Any]] = [
 # 3. HELPER UTILITIES & DISPATCH ENGINE
 # ---------------------------------------------------------------------------
 
+def normalize_crop_name(crop: str) -> str:
+    """Normalizes Indian transliterated crop names and common aliases to canonical names."""
+    if not crop:
+        return "Crop"
+    c = crop.strip().lower()
+    if any(k in c for k in ["tamat", "tomat"]):
+        return "Tomato"
+    if any(k in c for k in ["gehu", "wheat", "kanak"]):
+        return "Wheat"
+    if any(k in c for k in ["dhan", "rice", "chawal", "paddy"]):
+        return "Rice"
+    if any(k in c for k in ["kapas", "cotton"]):
+        return "Cotton"
+    if any(k in c for k in ["mirch", "chilli", "chili"]):
+        return "Chilli"
+    if any(k in c for k in ["aalu", "alu", "potato", "batata"]):
+        return "Potato"
+    if any(k in c for k in ["soya", "soybean"]):
+        return "Soybean"
+    if any(k in c for k in ["makka", "maize", "corn", "bhutta"]):
+        return "Maize"
+    if any(k in c for k in ["pyaz", "onion"]):
+        return "Onion"
+    if any(k in c for k in ["kela", "banana"]):
+        return "Banana"
+    if any(k in c for k in ["sarson", "mustard"]):
+        return "Mustard"
+    return crop.strip().title()
+
+
 def mask_phone_number(phone: str) -> str:
     """Masks farmer phone number for privacy preservation: e.g. +91 98*** **456."""
     clean = "".join(ch for ch in phone if ch.isdigit() or ch == "+")
@@ -391,7 +421,7 @@ def find_matching_expert(state: str, district: str, crop: str) -> Dict[str, Any]
     """Finds best matching authentic agricultural expert or KVK based on geography and crop."""
     state_clean = state.strip().lower()
     district_clean = district.strip().lower()
-    crop_clean = crop.strip().lower()
+    crop_canonical = normalize_crop_name(crop).lower()
 
     # 1. Exact state and district match
     for exp in AUTHENTIC_KVK_DIRECTORY:
@@ -403,28 +433,36 @@ def find_matching_expert(state: str, district: str, crop: str) -> Dict[str, Any]
         if exp["state"].lower() == state_clean and exp["id"] != 8:
             return exp
 
-    # 3. Fallback to National Kisan Call Centre
+    # 3. Crop specialization match if state didn't match
+    for exp in AUTHENTIC_KVK_DIRECTORY:
+        if crop_canonical in (exp.get("crops_supported") or "").lower():
+            return exp
+
+    # 4. Fallback to National Kisan Call Centre
     return AUTHENTIC_KVK_DIRECTORY[-1]
 
 
 def query_knowledge_base(crop_name: str, disease_name: Optional[str] = None) -> List[Dict[str, Any]]:
     """Returns authentic ICAR/CIBRC knowledge records matching crop and condition."""
-    crop_clean = crop_name.strip().lower()
+    crop_canonical = normalize_crop_name(crop_name).lower()
     results = []
     for rec in AGRICULTURAL_KNOWLEDGE_BASE:
-        if rec["crop"].lower() in crop_clean or crop_clean in rec["crop"].lower():
+        rec_crop = rec["crop"].lower()
+        if rec_crop in crop_canonical or crop_canonical in rec_crop:
             if disease_name:
                 dis_clean = disease_name.strip().lower()
-                if dis_clean in rec["disease_or_pest"].lower() or any(w in rec["disease_or_pest"].lower() for w in dis_clean.split("_")):
+                tokens = [t for t in dis_clean.replace("_", " ").split() if len(t) > 2]
+                if dis_clean in rec["disease_or_pest"].lower() or any(w in rec["disease_or_pest"].lower() or w in rec["symptoms"].lower() for w in tokens):
                     results.append(rec)
             else:
                 results.append(rec)
     
     if not results and disease_name:
-        # Fallback to any general matching records
+        # Fallback to any symptom / condition matching across records
+        dis_clean = disease_name.strip().lower()
+        tokens = [t for t in dis_clean.replace("_", " ").split() if len(t) > 2]
         for rec in AGRICULTURAL_KNOWLEDGE_BASE:
-            dis_clean = disease_name.strip().lower()
-            if any(w in rec["disease_or_pest"].lower() for w in dis_clean.split("_")):
+            if any(w in rec["disease_or_pest"].lower() or w in rec["symptoms"].lower() for w in tokens):
                 results.append(rec)
 
     return results if results else AGRICULTURAL_KNOWLEDGE_BASE[:2]
