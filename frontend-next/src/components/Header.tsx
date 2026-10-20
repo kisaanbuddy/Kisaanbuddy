@@ -34,8 +34,8 @@ const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
     ml: 'വിള ഡോക്ടർ', mr: 'पीक डॉक्टर', bn: 'ফসল ডাক্তার', pa: 'ਫਸਲ ਡਾਕਟਰ', gu: 'પાક ડૉક્ટર', hi_en: 'Crop Doctor',
   },
   '/marketplace': {
-    en: 'Marketplace', hi: 'मार्केटप्लेस', kn: 'ಮಾರುಕಟ್ಟೆ', ta: 'சந்தை', te: 'మార్కెట్‌ప్లేస్',
-    ml: 'മാർക്കറ്റ്‌പ്ലേസ്', mr: 'मार्केटप्लेस', bn: 'মার্কেটপ্লেস', pa: 'ਮਾਰਕੀਟਪਲੇਸ', gu: 'માર્કેટપ્લેસ', hi_en: 'Marketplace',
+    en: 'Marketplace for Farmer', hi: 'किसान मार्केटप्लेस', kn: 'ರೈತರ ಮಾರುಕಟ್ಟೆ', ta: 'விவசாயிகள் சந்தை', te: 'రైతు మార్కెట్',
+    ml: 'കർഷക വിപണി', mr: 'शेतकरी मार्केटप्लेस', bn: 'কৃষক মার্কেটপ্লেস', pa: 'ਕਿਸਾਨ ਮਾਰਕੀਟ', gu: 'ખેડૂત માર્કેટપ્લેસ', hi_en: 'Marketplace for Farmer',
   },
   '/mandi': {
     en: 'Mandi Rates', hi: 'मंडी भाव', kn: 'ಮಂಡಿ ದರಗಳು', ta: 'மண்டி விலைகள்', te: 'మండి ధరలు',
@@ -81,8 +81,12 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
     ml: "എങ്ങനെ പ്രവർത്തിക്കുന്നു", mr: "कसे कार्य करते", bn: "কীভাবে কাজ করে", pa: "ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ", gu: "કેવી રીતે કાર્ય કરે છે", hi_en: "How It Works",
   },
   marketplace: {
-    en: "Marketplace", hi: "मार्केटप्लेस", kn: "ಮಾರುಕಟ್ಟೆ", ta: "சந்தை", te: "మార్కెట్ ప్లేస్",
-    ml: "മാർക്കറ്റ് പ്ലേസ്", mr: "मार्केटप्लेस", bn: "মার্কেটপ্লেস", pa: "ਮਾਰਕੀਟਪਲੇਸ", gu: "માર્કેટપ્લેસ", hi_en: "Marketplace",
+    en: "Marketplace for Farmer", hi: "किसान मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
+    ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
+  },
+  marketplace_for_farmer: {
+    en: "Marketplace for Farmer", hi: "किसान मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
+    ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
   },
   worker_connect: {
     en: "Worker Connect", hi: "वर्कर कनेक्ट", kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್", ta: "பணியாளர் இணைப்பு", te: "వర్కర్ కనెక్ట్",
@@ -252,7 +256,7 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav (Prioritizing Mandi, Buy & Sell, Workers Connect, Equipment, Crop Advisory, AI Assistant) ── */}
+          {/* ── Desktop Nav (Prioritizing Mandi, Marketplace for Farmer, Worker Connect, Features, AI Assistant) ── */}
           <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Main Navigation">
             <Link
               href="/mandi"
@@ -269,13 +273,13 @@ export function Header() {
             <Link
               href="/marketplace"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/marketplace') && !pathname.includes('equipment')
+                isActive('/marketplace')
                   ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
                   : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
               <Store className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>{lang === 'hi' ? 'खरीद व बिक्री' : lang === 'kn' ? 'ಖರೀದಿ & ಮಾರಾಟ' : 'Buy & Sell'}</span>
+              <span>{PUBLIC_NAV_LABELS.marketplace_for_farmer[lang] || "Marketplace for Farmer"}</span>
             </Link>
 
             <Link
@@ -287,18 +291,7 @@ export function Header() {
               }`}
             >
               <Users className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Workers Connect"}</span>
-            </Link>
-
-            <Link
-              href="/marketplace?tab=equipment"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                pathname.includes('equipment')
-                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
-                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <span>{lang === 'hi' ? 'कृषि उपकरण' : lang === 'kn' ? 'ಉಪಕರಣಗಳು' : 'Equipment'}</span>
+              <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
             </Link>
 
             <Link
@@ -652,7 +645,7 @@ export function Header() {
                   className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
                   <Store className="h-4 w-4 text-emerald-600" />
-                  <span>{lang === 'hi' ? 'खरीद व बिक्री (Buy & Sell)' : lang === 'kn' ? 'ಖರೀದಿ ಮತ್ತು ಮಾರಾಟ' : 'Buy & Sell Produce'}</span>
+                  <span>{PUBLIC_NAV_LABELS.marketplace_for_farmer[lang] || "Marketplace for Farmer"}</span>
                 </Link>
 
                 <Link
@@ -661,15 +654,7 @@ export function Header() {
                   className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
                   <Users className="h-4 w-4 text-emerald-600" />
-                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Workers Connect"}</span>
-                </Link>
-
-                <Link
-                  href="/marketplace?tab=equipment"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-                >
-                  <span>🚜 {lang === 'hi' ? 'कृषि उपकरण कैटलॉग' : lang === 'kn' ? 'ಕೃಷಿ ಉಪಕರಣಗಳು' : 'Equipment Catalogue'}</span>
+                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
                 </Link>
 
                 <Link
