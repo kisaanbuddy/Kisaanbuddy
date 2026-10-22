@@ -74,6 +74,22 @@ const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
 };
 
 const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
+  home: {
+    en: "Home", hi: "होम", kn: "ಮುಖಪುಟ", ta: "முகப்பு", te: "హోమ్",
+    ml: "ഹോം", mr: "मुख्यपृष्ठ", bn: "হোম", pa: "ਮੁੱਖ ਪੰਨਾ", gu: "હોમ", hi_en: "Home",
+  },
+  crop_doctor: {
+    en: "Crop Doctor", hi: "फसल डॉक्टर", kn: "ಬೆಳೆ ವೈದ್ಯ", ta: "பயிர் மருத்துவர்", te: "పంట డాక్టర్",
+    ml: "വിള ഡോക്ടർ", mr: "पीक डॉक्टर", bn: "ফসল ডাক্তার", pa: "ਫਸਲ ਡਾਕਟਰ", gu: "પાક ડૉક્ટર", hi_en: "Crop Doctor",
+  },
+  schemes: {
+    en: "Govt Schemes", hi: "सरकारी योजनाएं", kn: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು", ta: "அரசுத் திட்டங்கள்", te: "ప్రభుత్వ పథకాలు",
+    ml: "സർക്കാർ പദ്ധതികൾ", mr: "सरकारी योजना", bn: "সরকারি প্রকল্প", pa: "ਸਰਕਾਰੀ ਯੋਜਨਾਵਾਂ", gu: "સરકારી યોજનાઓ", hi_en: "Govt Schemes",
+  },
+  ai_assistant: {
+    en: "AI Assistant", hi: "AI सहायक", kn: "AI ಸಹಾಯಕ", ta: "AI உதவியாளர்", te: "AI సహాయకుడు",
+    ml: "AI അസിസ്റ്റന്റ്", mr: "AI सहाय्यक", bn: "AI সহকারী", pa: "AI ਸਹਾਇਕ", gu: "AI સહાયક", hi_en: "AI Assistant",
+  },
   features: {
     en: "Features", hi: "सुविधाएं", kn: "ವೈಶಿಷ್ಟ್ಯಗಳು", ta: "அம்சங்கள்", te: "ఫీచర్లు",
     ml: "സവിശേഷതകൾ", mr: "वैशिष्ट्ये", bn: "বৈশিষ্ট্য", pa: "ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ", gu: "વિશેષતાઓ", hi_en: "Features",
@@ -259,66 +275,77 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav (Prioritizing Mandi, Marketplace for Farmer, Worker Connect, Features, AI Assistant) ── */}
-          <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Main Navigation">
+          {/* ── Desktop Nav (Home, Mandi Marketplace, Crop Doctor, Worker Connect, Schemes, AI Assistant) ── */}
+          <nav className="hidden xl:flex items-center gap-1 text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
-              href="/mandi"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/mandi')
-                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
-                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              href="/"
+              className={`px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                pathname === '/'
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <TrendingUp className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.mandi[lang] || "Mandi"}</span>
+              <span>{PUBLIC_NAV_LABELS.home?.[lang] || "Home"}</span>
             </Link>
 
             <Link
-              href="/marketplace"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/marketplace')
-                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
-                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              href="/mandi"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/mandi')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <Store className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.marketplace_for_farmer[lang] || "Marketplace for Farmer"}</span>
+              <TrendingUp className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Marketplace"}</span>
+            </Link>
+
+            <Link
+              href="/disease"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/disease')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Bug className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.crop_doctor?.[lang] || "Crop Doctor"}</span>
             </Link>
 
             <Link
               href="/worker-connect"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/worker-connect')
-                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
-                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <Users className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+              <Users className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
               <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
             </Link>
 
             <Link
-              href="/features"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/features')
-                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
-                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+              href="/schemes"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/schemes')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <Sparkles className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.features[lang] || "Features"}</span>
+              <Landmark className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.schemes?.[lang] || "Govt Schemes"}</span>
             </Link>
 
             <Link
               href="/chatbot"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors duration-150 ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/chatbot')
-                  ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/20'
-                  : 'text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <Mic className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>{lang === 'hi' ? 'AI सहायक' : lang === 'kn' ? 'AI ಸಹಾಯಕ' : 'AI Assistant'}</span>
+              <Mic className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.ai_assistant?.[lang] || "AI Assistant"}</span>
             </Link>
 
             {/* More Tools Dropdown */}

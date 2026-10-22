@@ -3,21 +3,17 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  ArrowDown,
-  Sparkles,
   TrendingUp,
   Store,
   Users,
   Bug,
+  Sparkles,
   CheckCircle2,
-  ShieldCheck,
-  ChevronRight,
-  PhoneCall,
-  Globe,
+  ArrowRight,
 } from 'lucide-react';
-import { useLanguage, type Lang } from '@/lib/language';
+import { useLanguage } from '@/lib/language';
 import { motion } from 'framer-motion';
-import { StaggerList, StaggerItem, MotionCard } from '@/components/motion/MotionComponents';
+import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
 
 interface HeroI18nContent {
   smallBadge: string;
@@ -28,109 +24,109 @@ interface HeroI18nContent {
   trustPoint1: string;
   trustPoint2: string;
   trustPoint3: string;
-  farmerTag: string;
+  trustPoint4: string;
   liveBadge: string;
-  freeTag: string;
+  farmerTag: string;
 }
 
 const HERO_TRANSLATIONS: Record<string, HeroI18nContent> = {
   en: {
-    smallBadge: 'YOUR COMPLETE FARMING COMPANION',
-    heading: 'Everything You Need to Farm Smarter.',
+    smallBadge: 'PREMIUM AGRICULTURAL TECHNOLOGY',
+    heading: 'Your Farm. Your Decisions. Your KisaanBuddy.',
     supportingText:
-      'From checking mandi prices and finding buyers to hiring farm workers, diagnosing crop diseases, and discovering government schemes, KisaanBuddy brings essential farming services together in one place.',
-    ctaExplore: 'Explore Farming Services',
-    ctaAi: 'Ask KisaanBuddy AI',
-    trustPoint1: 'Official e-NAM & APMC Mandi Rates',
-    trustPoint2: 'Direct Trade with Zero Middleman Cut',
-    trustPoint3: 'Support for 11 Indian Languages & Voice',
-    farmerTag: 'Authentic Indian Agriculture',
+      'Smart farming advice, live mandi prices, crop protection, and agricultural services—all in one place.',
+    ctaExplore: 'Explore Mandi Prices',
+    ctaAi: 'Ask KisaanBuddy',
+    trustPoint1: 'Official e-NAM & APMC Rates',
+    trustPoint2: 'Direct Trade, Zero Cut',
+    trustPoint3: 'AI Crop Doctor Diagnosis',
+    trustPoint4: 'Hindi, Kannada & 9+ Languages',
     liveBadge: '1,000+ Mandis Live',
-    freeTag: '100% Free for Farmers',
+    farmerTag: 'Field-Verified Indian Agriculture',
   },
   hi: {
-    smallBadge: 'आपका संपूर्ण खेती साथी',
-    heading: 'खेती को बेहतर बनाने के लिए सब कुछ एक जगह।',
+    smallBadge: 'भारतीय किसानों का भरोसेमंद मंच',
+    heading: 'आपका खेत। आपके फैसले। आपका KisaanBuddy।',
     supportingText:
-      'मंडी भाव देखने और खरीदार ढूंढने से लेकर खेत मजदूर रखने, फसल रोगों की पहचान करने और सरकारी योजनाओं की जानकारी तक—KisaanBuddy सभी जरूरी कृषि सेवाओं को एक मंच पर लाता है।',
-    ctaExplore: 'खेती सेवाएं देखें',
-    ctaAi: 'KisaanBuddy AI से पूछें',
-    trustPoint1: 'सरकारी e-NAM व APMC अधिकृत मंडी भाव',
-    trustPoint2: 'बिना दलाली सीधे खरीदारों से जुड़ें',
-    trustPoint3: '11 भारतीय भाषाओं में बोलकर या लिखकर सहायता',
-    farmerTag: 'सत्यापित भारतीय कृषि मंच',
+      'सटीक खेती सलाह, लाइव मंडी भाव, फसल सुरक्षा और कृषि सेवाएं—सब कुछ एक ही मंच पर।',
+    ctaExplore: 'मंडी भाव देखें',
+    ctaAi: 'KisaanBuddy से पूछें',
+    trustPoint1: 'सरकारी e-NAM व APMC दरें',
+    trustPoint2: 'बिना दलाली सीधी बिक्री',
+    trustPoint3: 'AI फसल रोग पहचान',
+    trustPoint4: 'हिंदी, कन्नड़ और 9+ भाषाओं में',
     liveBadge: '1,000+ मंडियां लाइव',
-    freeTag: 'किसानों के लिए पूर्णतः निःशुल्क',
+    farmerTag: 'सत्यापित भारतीय कृषि मंच',
   },
   kn: {
-    smallBadge: 'ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಕೃಷಿ ಒಡನಾಡಿ',
-    heading: 'ಸ್ಮಾರ್ಟ್ ಕೃಷಿಗಾಗಿ ನಿಮಗೆ ಬೇಕಾದ ಎಲ್ಲವೂ ಒಂದೇ ಸೂರಿನಡಿ.',
+    smallBadge: 'ರೈತರ ನೆಚ್ಚಿನ ಕೃಷಿ ತಂತ್ರಜ್ಞಾನ',
+    heading: 'ನಿಮ್ಮ ಜಮೀನು. ನಿಮ್ಮ ನಿರ್ಧಾರ. ನಿಮ್ಮ KisaanBuddy.',
     supportingText:
-      'ಮಂಡಿ ದರಗಳನ್ನು ಪರಿಶೀಲಿಸುವುದು ಮತ್ತು ಖರೀದಿದಾರರನ್ನು ಹುಡುಕುವುದರಿಂದ ಹಿಡಿದು ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ನೇಮಿಸಿಕೊಳ್ಳುವುದು, ಬೆಳೆ ರೋಗಗಳನ್ನು ಪತ್ತೆಹಚ್ಚುವುದು ಮತ್ತು ಸರ್ಕಾರಿ ಯೋಜನೆಗಳನ್ನು ಕಂಡುಕೊಳ್ಳುವವರೆಗೆ—KisaanBuddy ಎಲ್ಲಾ ಅಗತ್ಯ ಕೃಷಿ ಸೇವೆಗಳನ್ನು ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ ತರುತ್ತದೆ.',
-    ctaExplore: 'ಕೃಷಿ ಸೇವೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
-    ctaAi: 'KisaanBuddy AI ಕೇಳಿ',
-    trustPoint1: 'ಸರ್ಕಾರಿ e-NAM ಮತ್ತು APMC ಅಧಿಕೃತ ಮಂಡಿ ದರಗಳು',
-    trustPoint2: 'ಯಾವುದೇ ಕಮಿಷನ್ ಇಲ್ಲದೆ ನೇರ ಸಂಪರ್ಕ',
-    trustPoint3: 'ಕನ್ನಡ ಸೇರಿ 11 ಭಾರತೀಯ ಭಾಷೆಗಳಲ್ಲಿ ಧ್ವನಿ ಬೆಂಬಲ',
+      'ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹೆ, ನೇರ ಮಂಡಿ ದರಗಳು, ಬೆಳೆ ಸಂರಕ್ಷಣೆ ಮತ್ತು ಕೃಷಿ ಸೇವೆಗಳು—ಎಲ್ಲವೂ ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ.',
+    ctaExplore: 'ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+    ctaAi: 'KisaanBuddy ಕೇಳಿ',
+    trustPoint1: 'ಸರ್ಕಾರಿ e-NAM & APMC ದರಗಳು',
+    trustPoint2: 'ಕಮಿಷನ್ ರಹಿತ ನೇರ ವ್ಯಾಪಾರ',
+    trustPoint3: 'AI ಬೆಳೆ ರೋಗ ತಪಾಸಣೆ',
+    trustPoint4: 'ಕನ್ನಡ ಸೇರಿ 11 ಭಾಷೆಗಳ ಧ್ವನಿ ಬೆಂಬಲ',
+    liveBadge: '1,000+ ಮಂಡಿಗಳು ನೇರ',
     farmerTag: 'ನೈಜ ಭಾರತೀಯ ಕೃಷಿ ವೇದಿಕೆ',
-    liveBadge: '1,000+ ಮಂಡಿಗಳು ಲೈವ್',
-    freeTag: 'ರೈತರಿಗೆ ಸಂಪೂರ್ಣ ಉಚಿತ',
   },
   mr: {
-    smallBadge: 'तुमचा संपूर्ण शेती साथीदार',
-    heading: 'स्मार्ट शेतीसाठी आवश्यक सर्वकाही एकाच ठिकाणी.',
+    smallBadge: 'शेतकऱ्यांसाठी आधुनिक व्यासपीठ',
+    heading: 'तुमची शेती. तुमचे निर्णय. तुमचा KisaanBuddy.',
     supportingText:
-      'मंडी भाव तपासणे आणि खरेदीदार शोधण्यापासून ते शेतमजूर मिळवणे, पिकांचे रोग ओळखणे आणि सरकारी योजना शोधण्यापर्यंत—KisaanBuddy सर्व आवश्यक कृषी सेवा एकाच ठिकाणी उपलब्ध करून देतो.',
-    ctaExplore: 'कृषी सेवा पहा',
-    ctaAi: 'KisaanBuddy AI ला विचारा',
-    trustPoint1: 'अधिकृत e-NAM व APMC थेट बाजारभाव',
-    trustPoint2: 'मध्यस्थ व कमिशनशिवाय थेट खरेदीदार',
-    trustPoint3: 'मराठीसह 11 भारतीय भाषांमध्ये उपलब्ध',
-    farmerTag: 'सत्यापित भारतीय कृषी मंच',
+      'स्मार्ट शेती सल्ला, थेट बाजारभाव, पीक संरक्षण आणि कृषी सेवा—सर्व एकाच ठिकाणी.',
+    ctaExplore: 'बाजारभाव तपासा',
+    ctaAi: 'KisaanBuddy ला विचारा',
+    trustPoint1: 'अधिकृत e-NAM व APMC थेट दर',
+    trustPoint2: 'दलालांशिवाय थेट खरेदी',
+    trustPoint3: 'AI पीक रोग निदान',
+    trustPoint4: 'मराठीसह 11 भाषांमध्ये',
     liveBadge: '1,000+ मंडया थेट',
-    freeTag: 'शेतकऱ्यांसाठी मोफत',
+    farmerTag: 'सत्यापित भारतीय कृषी मंच',
   },
   te: {
-    smallBadge: 'మీ పూర్తి వ్యవసాయ సహచరుడు',
-    heading: 'స్మార్ట్ వ్యవసాయం కోసం మీకు అవసరమైనవన్నీ ఒకే చోట.',
+    smallBadge: 'రైతుల కోసం స్మార్ట్ వ్యవసాయం',
+    heading: 'మీ పొలం. మీ నిర్ణయాలు. మీ KisaanBuddy.',
     supportingText:
-      'మండి ధరలను తనిఖీ చేయడం మరియు కొనుగోలుదారులను కనుగొనడం నుండి వ్యవసాయ కూలీలను నియమించుకోవడం, పంట తెగుళ్లను గుర్తించడం మరియు ప్రభుత్వ పథకాలను తెలుసుకోవడం వరకు—KisaanBuddy అవసరమైన అన్ని సేవలను ఒకే చోట అందిస్తుంది.',
-    ctaExplore: 'వ్యవసాయ సేవలను అన్వేషించండి',
-    ctaAi: 'KisaanBuddy AI ని అడగండి',
-    trustPoint1: 'అధికారిక e-NAM మరియు APMC మార్కెట్ ధరలు',
-    trustPoint2: 'ఎలాంటి కమిషన్ లేకుండా ప్రత్యక్ష వ్యాపారం',
-    trustPoint3: 'తెలుగుతో సహా 11 భారతీయ భాషల్లో వాయిస్ మద్దతు',
-    farmerTag: 'భారతీయ రైతుల వేదిక',
+      'స్మార్ట్ వ్యవసాయ సలహాలు, ప్రత్యక్ష మండి ధరలు, పంట రక్షణ మరియు వ్యవసాయ సేవలు—అన్నీ ఒకే చోట.',
+    ctaExplore: 'మండి ధరలను చూడండి',
+    ctaAi: 'KisaanBuddy ని అడగండి',
+    trustPoint1: 'అధికారిక e-NAM & APMC ధరలు',
+    trustPoint2: 'కమిషన్ లేని ప్రత్యక్ష అమ్మకాలు',
+    trustPoint3: 'AI పంట వ్యాధి నిర్ధారణ',
+    trustPoint4: 'తెలుగు సహా 11 భాషల్లో',
     liveBadge: '1,000+ మార్కెట్లు లైవ్',
-    freeTag: 'రైతులకు ఉచితం',
+    farmerTag: 'భారతీయ రైతుల వేదిక',
   },
   ta: {
-    smallBadge: 'உங்கள் முழுமையான விவசாயத் தோழன்',
-    heading: 'புத்திசாலித்தனமான விவசாயத்திற்கு தேவையான அனைத்தும் ஒரே இடத்தில்.',
+    smallBadge: 'விவசாயிகளுக்கான நவீன தளம்',
+    heading: 'உங்கள் பண்ணை. உங்கள் முடிவுகள். உங்கள் KisaanBuddy.',
     supportingText:
-      'மண்டி விலைகளை சரிபார்ப்பது மற்றும் வாங்குபவர்களைக் கண்டறிவது முதல் பண்ணைத் தொழிலாளர்களை நியமிப்பது, பயிர் நோய்களைக் கண்டறிவது மற்றும் அரசுத் திட்டங்களை அறிவது வரை—KisaanBuddy அத்தியாவசிய விவசாய சேவைகளை ஒரே இடத்தில் வழங்குகிறது.',
-    ctaExplore: 'விவசாய சேவைகளை காண்க',
-    ctaAi: 'KisaanBuddy AI-யிடம் கேளுங்கள்',
-    trustPoint1: 'அதிகாரப்பூர்வ e-NAM & APMC நேரலை மண்டி விலைகள்',
-    trustPoint2: 'இடைத்தரகர்கள் இன்றி நேரடி விற்பனை',
-    trustPoint3: 'தமிழ் உட்பட 11 இந்திய மொழிகளில் குரல் ஆதரவு',
-    farmerTag: 'இந்திய விவசாய மேடை',
+      'ஸ்மார்ட் விவசாய ஆலோசனை, நேரலை மண்டி விலைகள், பயிர் பாதுகாப்பு மற்றும் விவசாய சேவைகள்—அனைத்தும் ஒரே இடத்தில்.',
+    ctaExplore: 'மண்டி விலைகளை காண்க',
+    ctaAi: 'KisaanBuddy-யிடம் கேளுங்கள்',
+    trustPoint1: 'அதிகாரப்பூர்வ e-NAM & APMC விலைகள்',
+    trustPoint2: 'இடைத்தரகர் இல்லாத நேரடி விற்பனை',
+    trustPoint3: 'AI பயிர் நோய் கண்டறிதல்',
+    trustPoint4: 'தமிழ் உட்பட 11 மொழிகளில்',
     liveBadge: '1,000+ சந்தைகள் நேரலை',
-    freeTag: 'விவசாயிகளுக்கு முற்றிலும் இலவசம்',
+    farmerTag: 'இந்திய விவசாய மேடை',
   },
   hi_en: {
-    smallBadge: 'YOUR COMPLETE FARMING COMPANION',
-    heading: 'Everything You Need to Farm Smarter.',
+    smallBadge: 'PREMIUM AGRICULTURAL TECHNOLOGY',
+    heading: 'Your Farm. Your Decisions. Your KisaanBuddy.',
     supportingText:
-      'From checking mandi prices and finding buyers to hiring farm workers, diagnosing crop diseases, and discovering government schemes, KisaanBuddy brings essential farming services together in one place.',
-    ctaExplore: 'Explore Farming Services',
-    ctaAi: 'Ask KisaanBuddy AI',
-    trustPoint1: 'Official e-NAM & APMC Mandi Rates',
-    trustPoint2: 'Direct Trade with Zero Middleman Cut',
-    trustPoint3: 'Support for 11 Indian Languages & Voice',
-    farmerTag: 'Authentic Indian Agriculture',
+      'Smart farming advice, live mandi prices, crop protection, and agricultural services—all in one place.',
+    ctaExplore: 'Explore Mandi Prices',
+    ctaAi: 'Ask KisaanBuddy',
+    trustPoint1: 'Official e-NAM & APMC Rates',
+    trustPoint2: 'Direct Trade, Zero Cut',
+    trustPoint3: 'AI Crop Doctor Diagnosis',
+    trustPoint4: 'Hindi, Kannada & 9+ Languages',
     liveBadge: '1,000+ Mandis Live',
-    freeTag: '100% Free for Farmers',
+    farmerTag: 'Field-Verified Indian Agriculture',
   },
 };
 
@@ -138,48 +134,36 @@ export function HeroSection() {
   const { lang } = useLanguage();
   const t = HERO_TRANSLATIONS[lang] || HERO_TRANSLATIONS.en;
 
-  const handleScrollToFeatures = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const elem = document.getElementById('features') || document.getElementById('services');
-    if (elem) {
-      elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  };
-
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#fbfbf9] via-stone-50/70 to-white dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-16 border-b border-stone-200/80 dark:border-stone-800">
-      {/* Ambient background glowing mesh */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 -right-32 w-96 h-96 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 left-1/4 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
-      
-      {/* Background subtle agrarian pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#05966908_1px,transparent_1px),linear-gradient(to_bottom,#05966908_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
+    <section className="relative w-full overflow-hidden bg-[#F7F9F4] dark:bg-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-20 border-b border-stone-200/80 dark:border-stone-800">
+      {/* Subtle agrarian background mesh */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#78B957]/10 dark:bg-[#27834A]/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-[#174B35]/5 dark:bg-[#174B35]/15 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Column: Heading, Subtitle & Primary Actions */}
+          {/* Left Column: Editorial Headline & Actions */}
           <StaggerList className="lg:col-span-7 space-y-6 text-center lg:text-left">
             
             {/* Small Eyebrow Badge */}
             <StaggerItem>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-500/30 shadow-xs backdrop-blur-xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse ring-2 ring-emerald-500/30" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-stone-900 text-[#174B35] dark:text-[#78B957] text-xs font-bold uppercase tracking-wider border border-[#174B35]/20 dark:border-[#78B957]/30 shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-[#27834A] animate-pulse" />
                 <span>{t.smallBadge}</span>
               </div>
             </StaggerItem>
 
-            {/* Main Headline in Dark Navy */}
+            {/* Main Headline in Deep Forest Green */}
             <StaggerItem>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-[#0f241d] dark:text-white tracking-tight leading-[1.12]">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-[#174B35] dark:text-white tracking-tight leading-[1.12]">
                 {t.heading}
               </h1>
             </StaggerItem>
 
             {/* Supporting Copy */}
             <StaggerItem>
-              <p className="text-base sm:text-lg text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed mx-auto lg:mx-0">
+              <p className="text-base sm:text-lg text-[#68766C] dark:text-stone-300 max-w-2xl leading-relaxed mx-auto lg:mx-0 font-medium">
                 {t.supportingText}
               </p>
             </StaggerItem>
@@ -187,130 +171,127 @@ export function HeroSection() {
             {/* Two Primary CTA Buttons */}
             <StaggerItem>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
-                {/* CTA 1: Explore Farming Services */}
-                <a
-                  href="#features"
-                  onClick={handleScrollToFeatures}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:via-emerald-700 hover:to-teal-800 text-white font-bold text-sm sm:text-base shadow-md shadow-emerald-700/25 hover:shadow-lg hover:shadow-emerald-700/35 transition-all duration-200 active:scale-95 group cursor-pointer"
+                {/* Primary CTA: Explore Mandi Prices */}
+                <Link
+                  href="/mandi"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#174B35] hover:bg-[#27834A] text-white font-bold text-sm sm:text-base shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all duration-200 active:scale-95 group"
                 >
                   <span>{t.ctaExplore}</span>
-                  <ArrowDown className="w-4 h-4 text-emerald-200 group-hover:translate-y-0.5 transition-transform" />
-                </a>
+                  <ArrowRight className="w-4 h-4 text-[#78B957] group-hover:translate-x-1 transition-transform" />
+                </Link>
 
-                {/* CTA 2: Ask KisaanBuddy AI */}
+                {/* Secondary CTA: Ask KisaanBuddy */}
                 <Link
                   href="/chatbot"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/95 dark:bg-stone-900/95 hover:bg-stone-50 dark:hover:bg-stone-800 text-[#0f241d] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300/80 dark:border-stone-700 shadow-xs hover:shadow-md hover:border-emerald-500/40 transition-all duration-200 active:scale-95 group backdrop-blur-xs"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-[#174B35] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300 dark:border-stone-700 shadow-xs hover:border-[#27834A]/50 transition-all duration-200 active:scale-95 group"
                 >
-                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                  <Sparkles className="w-4 h-4 text-[#F2B84B] group-hover:scale-110 transition-transform" />
                   <span>{t.ctaAi}</span>
                 </Link>
               </div>
             </StaggerItem>
 
-            {/* Three Institutional Trust Pillars */}
+            {/* Small, Elegant Trust Indicator Bar */}
             <StaggerItem>
-              <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-stone-600 dark:text-stone-400">
+              <div className="pt-5 border-t border-stone-200 dark:border-stone-800 grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-[#68766C] dark:text-stone-400">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
                   <span>{t.trustPoint1}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
                   <span>{t.trustPoint2}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
                   <span>{t.trustPoint3}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
+                  <span>{t.trustPoint4}</span>
                 </div>
               </div>
             </StaggerItem>
 
           </StaggerList>
 
-          {/* Right Column: Authentic Indian Farming Visual Card */}
+          {/* Right Column: Real Indian Farming Photography */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-5 relative group"
           >
-            {/* Ambient halo glow */}
-            <div className="absolute -inset-1.5 rounded-[32px] bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-amber-500/20 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
-            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-shadow">
+            {/* Soft natural drop shadow */}
+            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_12px_40px_rgba(23,75,53,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
               
               {/* Authentic Indian Farmer Photograph */}
-              <div className="relative h-64 sm:h-72 md:h-80 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
+              <div className="relative h-72 sm:h-80 md:h-96 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
                 <img
                   src="/images/hero/hero-indian-farmer.jpg"
                   alt="Authentic Indian Farmer in Agricultural Field"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
                   loading="eager"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/80 via-[#174B35]/15 to-transparent pointer-events-none" />
 
-                {/* Floating Badge: Live Mandis */}
-                <div className="absolute top-3 left-3 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-600/20 shadow-xs flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                {/* Live Mandis Verified Tag */}
+                <div className="absolute top-3.5 left-3.5 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold text-[#174B35] dark:text-[#78B957] border border-[#27834A]/20 shadow-xs flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[#27834A] animate-pulse" />
                   <span>{t.liveBadge}</span>
                 </div>
 
-                {/* Floating Badge: Free for Farmers */}
-                <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-xs text-white px-2.5 py-1 rounded-full text-[11px] font-bold border border-white/20">
-                  {t.freeTag}
-                </div>
-
-                {/* Bottom Photo Caption */}
-                <div className="absolute bottom-3 left-3 right-3 text-white">
-                  <p className="text-xs font-bold uppercase tracking-wider text-emerald-300">
-                    KisaanBuddy
-                  </p>
-                  <p className="text-sm font-extrabold line-clamp-1">
-                    Connecting Farmers with Mandis, Buyers & Essential Services
+                {/* Bottom Caption */}
+                <div className="absolute bottom-4 left-4 right-4 text-white">
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#F2B84B] text-[#174B35] text-[10px] font-black uppercase tracking-wider mb-1">
+                    {t.farmerTag}
+                  </div>
+                  <p className="text-sm sm:text-base font-bold text-white leading-snug">
+                    Empowering farmers with verified market prices & diagnostic tools
                   </p>
                 </div>
               </div>
 
-              {/* Bottom Quick Access Strip */}
-              <div className="p-4 bg-stone-50/80 dark:bg-stone-900/80 border-t border-stone-200/70 dark:border-stone-800">
+              {/* Bottom Quick Service Shortcut Strip */}
+              <div className="p-3 sm:p-4 bg-white dark:bg-stone-900 border-t border-stone-200 dark:border-stone-800">
                 <div className="grid grid-cols-4 gap-2 text-center">
                   <Link
                     href="/mandi"
-                    className="p-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-emerald-500/50 transition-all group"
+                    className="p-2 rounded-xl bg-[#F7F9F4] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#27834A] transition-all group"
                   >
-                    <TrendingUp className="w-4 h-4 mx-auto text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform mb-1" />
-                    <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 block line-clamp-1">
-                      Mandi Rates
+                    <TrendingUp className="w-4 h-4 mx-auto text-[#174B35] dark:text-[#78B957] group-hover:scale-110 transition-transform mb-1" />
+                    <span className="text-[11px] font-bold text-[#1D2B22] dark:text-stone-300 block line-clamp-1">
+                      Mandi
                     </span>
                   </Link>
 
                   <Link
                     href="/marketplace"
-                    className="p-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-emerald-500/50 transition-all group"
+                    className="p-2 rounded-xl bg-[#F7F9F4] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#27834A] transition-all group"
                   >
-                    <Store className="w-4 h-4 mx-auto text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform mb-1" />
-                    <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 block line-clamp-1">
-                      Marketplace
+                    <Store className="w-4 h-4 mx-auto text-[#27834A] dark:text-[#78B957] group-hover:scale-110 transition-transform mb-1" />
+                    <span className="text-[11px] font-bold text-[#1D2B22] dark:text-stone-300 block line-clamp-1">
+                      Sell Crop
                     </span>
                   </Link>
 
                   <Link
                     href="/worker-connect"
-                    className="p-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-emerald-500/50 transition-all group"
+                    className="p-2 rounded-xl bg-[#F7F9F4] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#27834A] transition-all group"
                   >
-                    <Users className="w-4 h-4 mx-auto text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform mb-1" />
-                    <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 block line-clamp-1">
-                      Farm Labour
+                    <Users className="w-4 h-4 mx-auto text-[#174B35] dark:text-[#78B957] group-hover:scale-110 transition-transform mb-1" />
+                    <span className="text-[11px] font-bold text-[#1D2B22] dark:text-stone-300 block line-clamp-1">
+                      Labour
                     </span>
                   </Link>
 
                   <Link
                     href="/disease"
-                    className="p-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-emerald-500/50 transition-all group"
+                    className="p-2 rounded-xl bg-[#F7F9F4] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#27834A] transition-all group"
                   >
-                    <Bug className="w-4 h-4 mx-auto text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform mb-1" />
-                    <span className="text-[11px] font-bold text-stone-700 dark:text-stone-300 block line-clamp-1">
-                      Crop Health
+                    <Bug className="w-4 h-4 mx-auto text-[#27834A] dark:text-[#78B957] group-hover:scale-110 transition-transform mb-1" />
+                    <span className="text-[11px] font-bold text-[#1D2B22] dark:text-stone-300 block line-clamp-1">
+                      Doctor
                     </span>
                   </Link>
                 </div>

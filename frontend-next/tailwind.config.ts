@@ -54,7 +54,17 @@ const config = {
         glass: {
           DEFAULT: "rgba(255, 255, 255, 0.05)",
           morphism: "rgba(255, 255, 255, 0.1)",
-          glow: "rgba(34, 197, 94, 0.15)",
+          glow: "rgba(39, 131, 74, 0.15)",
+        },
+        kb: {
+          forest: '#174B35',
+          green: '#27834A',
+          leaf: '#78B957',
+          sand: '#F7F9F4',
+          text: '#1D2B22',
+          muted: '#68766C',
+          amber: '#F2B84B',
+          white: '#FFFFFF',
         },
       },
       fontFamily: {

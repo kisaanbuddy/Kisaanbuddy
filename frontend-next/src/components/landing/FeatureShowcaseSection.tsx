@@ -2,686 +2,812 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   TrendingUp,
-  Store,
-  Users,
   Bug,
+  Users,
   Landmark,
-  Sparkles,
   CloudSun,
-  Wrench,
+  Sparkles,
   ArrowRight,
-  LucideIcon,
+  CheckCircle2,
+  Mic,
+  Calendar,
+  IndianRupee,
+  ShieldCheck,
+  ExternalLink,
+  ChevronRight,
 } from 'lucide-react';
 import { useLanguage, type Lang } from '@/lib/language';
 import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
-import { fadeUp, cardHover, pressFeedback } from '@/lib/motion';
 
-interface FeatureCardData {
-  id: string;
-  category: string;
-  title: string;
-  description: string;
-  cta: string;
-  link: string;
-  image: string;
-  alt: string;
-  icon: LucideIcon;
-}
-
-interface ShowcaseI18n {
+interface SectionI18n {
   eyebrow: string;
   heading: string;
   subtitle: string;
-  cards: Record<string, {
-    category: string;
+  mandi: {
+    badge: string;
     title: string;
-    description: string;
+    desc: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    bullet4: string;
     cta: string;
-  }>;
+  };
+  cropDoctor: {
+    badge: string;
+    title: string;
+    desc: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    bullet4: string;
+    cta: string;
+  };
+  workers: {
+    badge: string;
+    title: string;
+    desc: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    bullet4: string;
+    cta: string;
+  };
+  schemes: {
+    badge: string;
+    title: string;
+    desc: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    bullet4: string;
+    cta: string;
+  };
+  weather: {
+    badge: string;
+    title: string;
+    desc: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    bullet4: string;
+    cta: string;
+  };
+  assistant: {
+    badge: string;
+    title: string;
+    desc: string;
+    voiceBadge: string;
+    voiceDesc: string;
+    bullet1: string;
+    bullet2: string;
+    bullet3: string;
+    bullet4: string;
+    sampleQ1: string;
+    sampleQ2: string;
+    sampleQ3: string;
+    cta: string;
+  };
 }
 
-const SHOWCASE_TRANSLATIONS: Record<string, ShowcaseI18n> = {
+const SECTION_TRANSLATIONS: Record<string, SectionI18n> = {
   en: {
     eyebrow: 'CORE AGRICULTURAL SERVICES',
-    heading: 'Everything You Can Do on KisaanBuddy.',
+    heading: 'Everything You Need for Successful Farming',
     subtitle:
-      'Designed for Indian farmers, smallholders, and rural producers. Explore transparent market prices, connect with buyers, hire labour, diagnose leaf health, and access official schemes.',
-    cards: {
-      mandi: {
-        category: 'MARKET PRICES',
-        title: 'Know the Right Price for Your Crops',
-        description:
-          'Check available mandi prices, compare markets, and use price information to make better selling decisions.',
-        cta: 'Check Mandi Prices',
-      },
-      marketplace: {
-        category: 'BUYERS & SELLERS',
-        title: 'Find Buyers for Your Produce',
-        description:
-          'Explore opportunities to connect with agricultural buyers, traders, and input suppliers through the marketplace.',
-        cta: 'Explore Marketplace',
-      },
-      workers: {
-        category: 'FARM LABOUR',
-        title: 'Find Workers for Your Farm',
-        description:
-          'Find agricultural workers and labour crews for paddy transplantation, sowing, harvesting, weeding, and other farm work.',
-        cta: 'Find Farm Workers',
-      },
-      disease: {
-        category: 'CROP HEALTH',
-        title: 'Identify Crop Problems Early',
-        description:
-          'Upload a crop photograph to access the available crop disease diagnosis functionality and receive relevant guidance.',
-        cta: 'Check Crop Health',
-      },
-      schemes: {
-        category: 'FARMER BENEFITS',
-        title: 'Discover Government Schemes',
-        description:
-          'Explore relevant agricultural schemes, eligibility criteria, application instructions, and official government resources.',
-        cta: 'Explore Schemes',
-      },
-      assistant: {
-        category: 'AI ADVISORY',
-        title: 'Get Farming Guidance in Your Language',
-        description:
-          'Ask farming questions and get assistance through the existing KisaanBuddy AI assistant, with support for available languages.',
-        cta: 'Ask KisaanBuddy',
-      },
-      weather: {
-        category: 'WEATHER INTELLIGENCE',
-        title: 'Plan Your Farming Around Weather',
-        description:
-          'Access the available weather information to help plan field activities, irrigation, and other farming operations.',
-        cta: 'Check Weather',
-      },
-      inputs: {
-        category: 'FARM INPUTS',
-        title: 'Explore Agricultural Inputs',
-        description:
-          'Explore available agricultural input suppliers and relevant products or services through the existing marketplace.',
-        cta: 'Explore Inputs',
-      },
+      'Engineered specifically for Indian farmers. Transparent market prices, instant crop protection, farm labour access, official subsidies, and multilingual voice advisory.',
+    mandi: {
+      badge: 'MARKET PRICES & DIRECT TRADE',
+      title: 'Mandi Marketplace & Price Intelligence',
+      desc: 'Transparent price discovery and direct trading opportunities to maximize your harvest earnings.',
+      bullet1: 'Available mandi prices updated daily across 1,000+ APMC & e-NAM mandis',
+      bullet2: 'Crop selling opportunities directly connecting you to verified traders',
+      bullet3: 'Buyer discovery for wholesale commodities with direct contact',
+      bullet4: 'Price comparison across district markets to select the best selling mandi',
+      cta: 'Explore Mandi Prices',
+    },
+    cropDoctor: {
+      badge: 'AI PLANT DIAGNOSTICS',
+      title: 'Crop Doctor & Pest Protection',
+      desc: 'Instant visual leaf health diagnosis trained on Indian crop diseases and local agronomic practices.',
+      bullet1: 'Upload a crop photograph of affected leaves, stems, or fruits',
+      bullet2: 'Identify potential crop diseases, fungal infections, and pest damage',
+      bullet3: 'Provide treatment guidance with organic remedies and approved sprays',
+      bullet4: 'Show relevant expert contacts and KVK advisors when verified & available',
+      cta: 'Diagnose Crop Health',
+    },
+    workers: {
+      badge: 'FARM LABOUR NETWORK',
+      title: 'Worker Connect',
+      desc: 'Connect directly with agricultural labour crews for seasonal sowing, weeding, and harvesting.',
+      bullet1: 'Find agricultural labour crews for field transplantation and harvest operations',
+      bullet2: 'Discover available farming jobs in nearby villages and districts',
+      bullet3: 'View location, work dates, daily wages, and direct telephone contact',
+      bullet4: 'Zero intermediary commission—direct farmer-to-worker agreements',
+      cta: 'Find Farm Workers',
+    },
+    schemes: {
+      badge: 'FARMER WELFARE & SUBSIDIES',
+      title: 'Government Schemes Portal',
+      desc: 'Clear, up-to-date information on central and state agricultural support initiatives.',
+      bullet1: 'Discover relevant schemes including PM-KISAN, PMFBY insurance, and Soil Health Cards',
+      bullet2: 'Show eligibility criteria translated into regional languages for easy understanding',
+      bullet3: 'Display application deadlines when verified so you never miss financial support',
+      bullet4: 'Direct links to official government application pages and departmental portals',
+      cta: 'Explore Government Schemes',
+    },
+    weather: {
+      badge: 'METEOROLOGICAL INTELLIGENCE',
+      title: 'Weather Intelligence for Agriculture',
+      desc: 'Hyper-local weather forecasts and rainfall projections tailored to practical farming operations.',
+      bullet1: 'Display actual weather information including temperature, humidity, and wind speed',
+      bullet2: 'Show rainfall forecasts with 7-day precipitation outlook for field planning',
+      bullet3: 'Farming-relevant alerts for pesticide spraying, irrigation, and crop protection',
+      bullet4: 'Seasonal advisory tailored to specific crop stages in your local region',
+      cta: 'Check Weather Forecast',
+    },
+    assistant: {
+      badge: 'MULTILINGUAL AI ADVISOR',
+      title: 'AI Farming Assistant with Voice Support',
+      desc: 'Instant farming answers in your mother tongue. Speak or type to receive verified agronomic recommendations.',
+      voiceBadge: 'Voice Supported: Hindi, Kannada & English',
+      voiceDesc: 'Tap the microphone and speak naturally in your regional language.',
+      bullet1: 'Support for Hindi, English, and Kannada (plus 8 additional Indian languages)',
+      bullet2: 'Provide agricultural guidance through the existing assistant integration',
+      bullet3: 'Voice interaction easy to discover and designed for rural field usage',
+      bullet4: 'Guidance on fertilizer dosage, pest control remedies, and sowing calendar',
+      sampleQ1: 'टमाटर की पत्ती मुड़ने का क्या कारण है? (Hindi)',
+      sampleQ2: 'ಟೊಮೇಟೊ ಎಲೆ ಸುರುಳಿಯಾಗಲು ಕಾರಣವೇನು? (Kannada)',
+      sampleQ3: 'Best fertilizer schedule for wheat tillering? (English)',
+      cta: 'Ask KisaanBuddy Assistant',
     },
   },
   hi: {
     eyebrow: 'प्रमुख कृषि सेवाएं',
-    heading: 'खेती के हर काम के लिए KisaanBuddy की सेवाएं।',
+    heading: 'सफल खेती के लिए सभी आवश्यक सेवाएं',
     subtitle:
-      'भारतीय किसानों और उत्पादकों के लिए समर्पित मंच। सही मंडी भाव जानें, खरीदार ढूंढें, मजदूर रखें, फसल स्वास्थ्य जांचें और सरकारी योजनाएं खोजें।',
-    cards: {
-      mandi: {
-        category: 'मंडी भाव',
-        title: 'फसलों का सही भाव जानें',
-        description:
-          'दैनिक मंडी भाव देखें, विभिन्न बाज़ारों की तुलना करें और सही मूल्य की जानकारी से बेहतर बिक्री निर्णय लें।',
-        cta: 'मंडी भाव देखें',
-      },
-      marketplace: {
-        category: 'खरीदार व विक्रेता',
-        title: 'अपनी फसल के लिए खरीदार पाएं',
-        description:
-          'मार्केटप्लेस के माध्यम से कृषि खरीदारों, व्यापारियों और सामग्री आपूर्तिकर्ताओं से सीधे जुड़ने के अवसर खोजें।',
-        cta: 'मार्केटप्लेस देखें',
-      },
-      workers: {
-        category: 'कृषि श्रमिक',
-        title: 'अपने खेत के लिए मजदूर पाएं',
-        description:
-          'धान रोपाई, बुवाई, कटाई, निराई और खेत के अन्य कार्यों के लिए कृषि श्रमिक और मजदूर दल खोजें।',
-        cta: 'खेत मजदूर खोजें',
-      },
-      disease: {
-        category: 'फसल स्वास्थ्य',
-        title: 'फसल रोगों की समय पर पहचान करें',
-        description:
-          'फसल की तस्वीर अपलोड करके उपलब्ध रोग पहचान सुविधा का उपयोग करें और व्यावहारिक मार्गदर्शन प्राप्त करें।',
-        cta: 'फसल स्वास्थ्य जांचें',
-      },
-      schemes: {
-        category: 'सरकारी लाभ',
-        title: 'सरकारी योजनाएं खोजें',
-        description:
-          'प्रासंगिक कृषि योजनाओं, पात्रता मानदंडों, आवेदन के नियमों और आधिकारिक सरकारी संसाधनों की जानकारी पाएं।',
-        cta: 'योजनाएं देखें',
-      },
-      assistant: {
-        category: 'AI कृषि परामर्श',
-        title: 'अपनी भाषा में खेती की सलाह पाएं',
-        description:
-          'उपलब्ध भाषाओं में KisaanBuddy AI सहायक से खेती के सवाल पूछें और तुरंत सहायता प्राप्त करें।',
-        cta: 'KisaanBuddy से पूछें',
-      },
-      weather: {
-        category: 'मौसम सूचना',
-        title: 'मौसम के अनुसार खेती की योजना बनाएं',
-        description:
-          'खेत कार्यों, सिंचाई और अन्य कृषि गतिविधियों की सही योजना बनाने के लिए उपलब्ध मौसम जानकारी देखें।',
-        cta: 'मौसम देखें',
-      },
-      inputs: {
-        category: 'कृषि इनपुट',
-        title: 'कृषि इनपुट व उपकरण खोजें',
-        description:
-          'मार्केटप्लेस के माध्यम से उपलब्ध कृषि इनपुट आपूर्तिकर्ताओं, उत्पादों और सेवाओं का पता लगाएं।',
-        cta: 'इनपुट देखें',
-      },
+      'भारतीय किसानों के लिए विशेष रूप से तैयार। पारदर्शी मंडी भाव, त्वरित फसल सुरक्षा, खेत मजदूर, सरकारी योजनाएं और क्षेत्रीय भाषा में वॉयस सहायता।',
+    mandi: {
+      badge: 'मंडी भाव और सीधा व्यापार',
+      title: 'मंडी मार्केटप्लेस व मूल्य जानकारी',
+      desc: 'अपनी उपज का सही मूल्य पाने के लिए सटीक भाव और सीधे खरीदारों से जुड़ने के अवसर।',
+      bullet1: '1,000+ अधिकृत मंडियों और e-NAM से दैनिक उपलब्ध मंडी भाव',
+      bullet2: 'बिना बिचौलियों के सीधे खरीदारों को फसल बेचने के सुगम अवसर',
+      bullet3: 'सत्यापित व्यापारियों और थोक खरीदारों की तुरंत खोज',
+      bullet4: 'आस-पास की मंडियों के भावों की तुलना करके सही बाजार का चुनाव',
+      cta: 'मंडी भाव देखें',
+    },
+    cropDoctor: {
+      badge: 'AI फसल निदान',
+      title: 'क्रॉप डॉक्टर व रोग नियंत्रण',
+      desc: 'भारतीय फसलों के लिए प्रशिक्षित सटीक रोग पहचान व व्यावहारिक उपचार समाधान।',
+      bullet1: 'प्रभावित पत्ती, तने या फल की तस्वीर आसानी से अपलोड करें',
+      bullet2: 'संभावित फसल रोगों, कीटों और फफूंद संक्रमण की तुरंत पहचान करें',
+      bullet3: 'जैविक उपायों और अनुशंसित दवाओं के साथ उपचार मार्गदर्शन पाएं',
+      bullet4: 'सत्यापित होने पर नजदीकी कृषि विज्ञान केंद्र (KVK) विशेषज्ञों के संपर्क सूत्र',
+      cta: 'फसल स्वास्थ्य जांचें',
+    },
+    workers: {
+      badge: 'कृषि श्रमिक नेटवर्क',
+      title: 'वर्कर कनेक्ट (खेत मजदूर)',
+      desc: 'रोपाई, निराई और कटाई के समय खेत के काम के लिए सीधे मजदूर दलों से जुड़ें।',
+      bullet1: 'रोपाई व कटाई के लिए कुशल कृषि मजदूर और दल आसानी से खोजें',
+      bullet2: 'आसपास के गांवों में उपलब्ध कृषि कार्यों और रोजगार की जानकारी',
+      bullet3: 'कार्य स्थल, तारीख, दैनिक मजदूरी और सीधा फोन नंबर देखें',
+      bullet4: 'शून्य कमीशन—किसान और मजदूर के बीच सीधा संपर्क',
+      cta: 'खेत मजदूर खोजें',
+    },
+    schemes: {
+      badge: 'सरकारी योजनाएं व सब्सिडी',
+      title: 'सरकारी योजना पोर्टल',
+      desc: 'केंद्र और राज्य सरकार की सभी प्रमुख कृषि योजनाओं की प्रामाणिक जानकारी।',
+      bullet1: 'PM-किसान, फसल बीमा योजना (PMFBY) व मृदा स्वास्थ्य कार्ड खोजें',
+      bullet2: 'अपनी भाषा में सरल शब्दों में पात्रता शर्तें समझें',
+      bullet3: 'सत्यापित आवेदन की अंतिम तिथियां देखें ताकि कोई लाभ न छूटे',
+      bullet4: 'आधिकारिक सरकारी आवेदन वेबसाइटों के सीधे लिंक',
+      cta: 'सरकारी योजनाएं देखें',
+    },
+    weather: {
+      badge: 'मौसम पूर्वानुमान',
+      title: 'कृषि मौसम सूचना',
+      desc: 'खेत के कार्यों, सिंचाई और छिड़काव की योजना के लिए सटीक मौसम पूर्वानुमान।',
+      bullet1: 'तापमान, हवा की गति और आर्द्रता सहित वास्तविक मौसम की जानकारी',
+      bullet2: 'आगामी 7 दिनों के वर्षा पूर्वानुमान के साथ खेत कार्यों की योजना',
+      bullet3: 'कीटनाशक छिड़काव और सिंचाई के लिए खेती-उपयोगी मौसम अलर्ट',
+      bullet4: 'फसल की अवस्था के अनुसार मौसमी सावधानियों की जानकारी',
+      cta: 'मौसम पूर्वानुमान देखें',
+    },
+    assistant: {
+      badge: 'वॉयस समर्थित AI सहायक',
+      title: 'AI कृषि सहायक (बोलकर पूछें)',
+      desc: 'अपनी मातृभाषा में बोलकर या लिखकर खेती से जुड़ा कोई भी सवाल पूछें।',
+      voiceBadge: 'वॉयस सपोर्ट: हिंदी, कन्नड़ और अंग्रेजी',
+      voiceDesc: 'माइक बटन दबाएं और अपनी भाषा में सहजता से बोलें।',
+      bullet1: 'हिंदी, अंग्रेजी और कन्नड़ (व 8 अन्य भारतीय भाषाओं) में पूर्ण समर्थन',
+      bullet2: 'उपलब्ध सहायक एकीकरण द्वारा सत्यापित कृषि मार्गदर्शन',
+      bullet3: 'आसानी से दिखने वाली वॉयस सुविधा जो खेत में काम करते समय उपयोगी है',
+      bullet4: 'उर्वरक की मात्रा, कीट नियंत्रण और बुवाई के सही समय की सलाह',
+      sampleQ1: 'टमाटर की पत्ती मुड़ने का क्या कारण है? (हिंदी)',
+      sampleQ2: 'ಟೊಮೇಟೊ ಎಲೆ ಸುರುಳಿಯಾಗಲು ಕಾರಣವೇನು? (ಕನ್ನಡ)',
+      sampleQ3: 'Best fertilizer schedule for wheat tillering? (English)',
+      cta: 'KisaanBuddy सहायक से पूछें',
     },
   },
   kn: {
     eyebrow: 'ಪ್ರಮುಖ ಕೃಷಿ ಸೇವೆಗಳು',
-    heading: 'KisaanBuddy ಮೂಲಕ ರೈತರು ಮಾಡಬಹುದಾದ ಪ್ರಮುಖ ಕಾರ್ಯಗಳು.',
+    heading: 'ಯಶಸ್ವಿ ಕೃಷಿಗಾಗಿ ನಿಮಗೆ ಬೇಕಾದ ಎಲ್ಲ ಸೇವೆಗಳು',
     subtitle:
-      'ಭಾರತೀಯ ರೈತರಿಗಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾಗಿದೆ. ಮಂಡಿ ದರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ, ಖರೀದಿದಾರರನ್ನು ಕಂಡುಕೊಳ್ಳಿ, ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ನೇಮಿಸಿಕೊಳ್ಳಿ ಮತ್ತು ಬೆಳೆ ರೋಗಗಳನ್ನು ಗುರುತಿಸಿ.',
-    cards: {
-      mandi: {
-        category: 'ಮಾರುಕಟ್ಟೆ ದರಗಳು',
-        title: 'ನಿಮ್ಮ ಬೆಳೆಗೆ ಸರಿಯಾದ ಮಂಡಿ ದರ ತಿಳಿಯಿರಿ',
-        description:
-          'ಲಭ್ಯವಿರುವ ಮಂಡಿ ದರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ, ಮಾರುಕಟ್ಟೆಗಳನ್ನು ಹೋಲಿಕೆ ಮಾಡಿ ಮತ್ತು ಉತ್ತಮ ಮಾರಾಟದ ನಿರ್ಧಾರಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಿ.',
-        cta: 'ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
-      },
-      marketplace: {
-        category: 'ಖರೀದಿದಾರರು & ಮಾರಾಟಗಾರರು',
-        title: 'ನಿಮ್ಮ ಬೆಳೆಗೆ ನೇರ ಖರೀದಿದಾರರನ್ನು ಹುಡುಕಿ',
-        description:
-          'ಮಾರುಕಟ್ಟೆಯ ಮೂಲಕ ಕೃಷಿ ಖರೀದಿದಾರರು, ವ್ಯಾಪಾರಿಗಳು ಮತ್ತು ಪರಿಕರ ಪೂರೈಕೆದಾರರೊಂದಿಗೆ ಸಂಪರ್ಕ ಸಾಧಿಸುವ ಅವಕಾಶಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
-        cta: 'ಮಾರುಕಟ್ಟೆ ಅನ್ವೇಷಿಸಿ',
-      },
-      workers: {
-        category: 'ಕೃಷಿ ಕಾರ್ಮಿಕರು',
-        title: 'ನಿಮ್ಮ ಜಮೀನಿಗೆ ಕೃಷಿ ಕೆಲಸಗಾರರನ್ನು ಪಡೆಯಿರಿ',
-        description:
-          'ಭತ್ತದ ನಾಟಿ, ಬಿತ್ತನೆ, ಕಟಾವು, ಕಳೆ ಕೀಳುವುದು ಮತ್ತು ಇತರ ಕೃಷಿ ಕೆಲಸಗಳಿಗಾಗಿ ನುರಿತ ಕೃಷಿ ಕಾರ್ಮಿಕರ ತಂಡಗಳನ್ನು ಹುಡುಕಿ.',
-        cta: 'ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ',
-      },
-      disease: {
-        category: 'ಬೆಳೆ ಆರೋಗ್ಯ',
-        title: 'ಬೆಳೆ ರೋಗಗಳನ್ನು ಮೊದಲೇ ಪತ್ತೆಹಚ್ಚಿ',
-        description:
-          'ಲಭ್ಯವಿರುವ ಬೆಳೆ ರೋಗ ಪತ್ತೆಹಚ್ಚುವಿಕೆ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲು ಮತ್ತು ಸೂಕ್ತ ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಲು ಬೆಳೆಯ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.',
-        cta: 'ಬೆಳೆ ಆರೋಗ್ಯ ಪರಿಶೀಲಿಸಿ',
-      },
-      schemes: {
-        category: 'ರೈತ ಸೌಲಭ್ಯಗಳು',
-        title: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳನ್ನು ಕಂಡುಕೊಳ್ಳಿ',
-        description:
-          'ಅರ್ಹತಾ ಮಾನದಂಡಗಳು, ಅರ್ಜಿ ಸೂಚನೆಗಳು ಮತ್ತು ಅಧಿಕೃತ ಸರ್ಕಾರಿ ಸಂಪನ್ಮೂಲಗಳನ್ನು ಒಳಗೊಂಡ ಪ್ರಮುಖ ಕೃಷಿ ಯೋಜನೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
-        cta: 'ಯೋಜನೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
-      },
-      assistant: {
-        category: 'AI ಕೃಷಿ ಸಲಹೆಗಾರ',
-        title: 'ನಿಮ್ಮದೇ ಭಾಷೆಯಲ್ಲಿ ಕೃಷಿ ಮಾರ್ಗದರ್ಶನ ಪಡೆಯಿರಿ',
-        description:
-          'ಲಭ್ಯವಿರುವ ಭಾಷೆಗಳ ಬೆಂಬಲದೊಂದಿಗೆ KisaanBuddy AI ಸಹಾಯಕ ಮೂಲಕ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳನ್ನು ಕೇಳಿ ಮತ್ತು ಸಹಾಯ ಪಡೆಯಿರಿ.',
-        cta: 'KisaanBuddy AI ಕೇಳಿ',
-      },
-      weather: {
-        category: 'ಹವಾಮಾನ ಬುದ್ಧಿಮತ್ತೆ',
-        title: 'ಹವಾಮಾನಕ್ಕೆ ಅನುಗುಣವಾಗಿ ಕೃಷಿ ಯೋಜನೆ ರೂಪಿಸಿ',
-        description:
-          'ಕೃಷಿ ಚಟುವಟಿಕೆಗಳು, ನೀರಾವರಿ ಮತ್ತು ಇತರ ಕಾರ್ಯಾಚರಣೆಗಳನ್ನು ಯೋಜಿಸಲು ಲಭ್ಯವಿರುವ ಹವಾಮಾನ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ.',
-        cta: 'ಹವಾಮಾನ ಪರಿಶೀಲಿಸಿ',
-      },
-      inputs: {
-        category: 'ಕೃಷಿ ಪರಿಕರಗಳು',
-        title: 'ಕೃಷಿ ಪರಿಕರಗಳು ಮತ್ತು ಯಂತ್ರೋಪಕರಣಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
-        description:
-          'ಮಾರುಕಟ್ಟೆಯ ಮೂಲಕ ಲಭ್ಯವಿರುವ ಕೃಷಿ ಪರಿಕರ ಪೂರೈಕೆದಾರರು ಮತ್ತು ಸೂಕ್ತ ಉತ್ಪನ್ನಗಳು ಅಥವಾ ಸೇವೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ.',
-        cta: 'ಪರಿಕರಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
-      },
+      'ಭಾರತೀಯ ರೈತರಿಗಾಗಿ ವಿನ್ಯಾಸಗೊಳಿಸಲಾಗಿದೆ. ಪಾರದರ್ಶಕ ಮಂಡಿ ದರಗಳು, ತ್ವರಿತ ಬೆಳೆ ರೋಗ ಪತ್ತೆ, ಕೃಷಿ ಕಾರ್ಮಿಕರು, ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಮತ್ತು ಕನ್ನಡ ಧ್ವನಿ ಬೆಂಬಲ.',
+    mandi: {
+      badge: 'ಮಂಡಿ ದರ ಮತ್ತು ನೇರ ವ್ಯಾಪಾರ',
+      title: 'ಮಂಡಿ ಮಾರುಕಟ್ಟೆ ಮತ್ತು ದರ ಮಾಹಿತಿ',
+      desc: 'ನಿಮ್ಮ ಬೆಳೆಗೆ ಉತ್ತಮ ಬೆಲೆ ಪಡೆಯಲು ನಿಖರ ದರಗಳು ಮತ್ತು ನೇರ ಖರೀದಿದಾರರ ಸಂಪರ್ಕ.',
+      bullet1: '1,000+ ಎಪಿಎಂಸಿ ಮತ್ತು ಇ-ನ್ಯಾಮ್ ಮಂಡಿಗಳಿಂದ ದೈನಂದಿನ ನೈಜ ಮಂಡಿ ದರಗಳು',
+      bullet2: 'ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ ನೇರವಾಗಿ ಖರೀದಿದಾರರಿಗೆ ಬೆಳೆ ಮಾರಾಟದ ಅವಕಾಶ',
+      bullet3: 'ಸಗಟು ವ್ಯಾಪಾರಿಗಳು ಮತ್ತು ಸಂಸ್ಕರಣಾಗಾರರ ತ್ವರಿತ ಶೋಧ',
+      bullet4: 'ಉತ್ತಮ ಮಾರುಕಟ್ಟೆ ಆಯ್ಕೆ ಮಾಡಲು ನೆರೆಹೊರೆಯ ಜಿಲ್ಲೆಗಳ ದರಗಳ ಹೋಲಿಕೆ',
+      cta: 'ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
     },
-  },
-  mr: {
-    eyebrow: 'प्रमुख कृषी सेवा',
-    heading: 'KisaanBuddy वरील शेतकऱ्यांसाठी आवश्यक सेवा.',
-    subtitle:
-      'भारतीय शेतकऱ्यांसाठी डिझाइन केलेले मंच. थेट बाजारभाव तपासा, खरेदीदारांशी संपर्क साधा, शेतमजूर मिळवा आणि पीक आरोग्य तपासा.',
-    cards: {
-      mandi: {
-        category: 'बाजारभाव',
-        title: 'पिकांसाठी योग्य बाजारभाव जाणून घ्या',
-        description:
-          'दैनिक बाजारभाव तपासा, बाजारांची तुलना करा आणि चांगल्या विक्री निर्णयांसाठी माहिती वापरा.',
-        cta: 'मंडी भाव तपासा',
-      },
-      marketplace: {
-        category: 'खरेदीदार व विक्रेते',
-        title: 'आपल्या पिकासाठी खरेदीदार शोधा',
-        description:
-          'मार्केटप्लेसच्या माध्यमातून कृषी खरेदीदार, व्यापारी आणि पुरवठादारांशी जोडण्याच्या संधी शोधा.',
-        cta: 'मार्केटप्लेस पहा',
-      },
-      workers: {
-        category: 'शेतमजूर',
-        title: 'आपल्या शेतीसाठी मजूर मिळवा',
-        description:
-          'भात लावणी, पेरणी, कापणी, निंदणी आणि इतर कामांसाठी कृषी कामगार व मजूर गट शोधा.',
-        cta: 'शेतमजूर शोधा',
-      },
-      disease: {
-        category: 'पीक आरोग्य',
-        title: 'पिकांच्या समस्यांची वेळेवर ओळख',
-        description:
-          'रोग निदान सुविधेचा वापर करण्यासाठी पिकाचा फोटो अपलोड करा आणि योग्य मार्गदर्शन मिळवा.',
-        cta: 'पीक आरोग्य तपासा',
-      },
-      schemes: {
-        category: 'शासकीय योजना',
-        title: 'शासकीय कृषी योजना शोधा',
-        description:
-          'पात्रता निकष, अर्ज प्रक्रिया आणि अधिकृत सरकारी संसाधनांसह संबंधित कृषी योजनांची माहिती घ्या.',
-        cta: 'योजना पहा',
-      },
-      assistant: {
-        category: 'AI कृषी सल्लागार',
-        title: 'आपल्या भाषेत शेती मार्गदर्शन मिळवा',
-        description:
-          'उपलब्ध भाषांमध्ये KisaanBuddy AI सहाय्यकाला शेतीविषयक प्रश्न विचारा आणि अचूक मदत मिळवा.',
-        cta: 'KisaanBuddy ला विचारा',
-      },
-      weather: {
-        category: 'हवामान माहिती',
-        title: 'हवामानानुसार शेतीचे नियोजन करा',
-        description:
-          'शेतीची कामे, सिंचन आणि इतर कामांचे नियोजन करण्यासाठी हवामान माहितीचा वापर करा.',
-        cta: 'हवामान तपासा',
-      },
-      inputs: {
-        category: 'कृषी निविष्ठा',
-        title: 'कृषी उपकरणे व निविष्ठा शोधा',
-        description:
-          'मार्केटप्लेसच्या माध्यमातून उपलब्ध कृषी उपकरणे आणि निविष्ठा पुरवठादारांचा शोध घ्या.',
-        cta: 'निविष्ठा पहा',
-      },
+    cropDoctor: {
+      badge: 'AI ಬೆಳೆ ರೋಗ ತಪಾಸಣೆ',
+      title: 'ಕ್ರಾಪ್ ಡಾಕ್ಟರ್ & ರೋಗ ಸಂರಕ್ಷಣೆ',
+      desc: 'ಭಾರತೀಯ ಬೆಳೆಗಳಿಗಾಗಿ ತರಬೇತಿ ಪಡೆದ ತಕ್ಷಣದ ಎಲೆ ರೋಗ ತಪಾಸಣಾ ಸಾಧನ.',
+      bullet1: 'ಬಾಧಿತ ಎಲೆ, ಕಾಂಡ ಅಥವಾ ಹಣ್ಣಿನ ಸ್ಪಷ್ಟ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ',
+      bullet2: 'ಸಂಭಾವ್ಯ ಬೆಳೆ ರೋಗಗಳು, ಶಿಲೀಂಧ್ರ ಮತ್ತು ಕೀಟ ಬಾಧೆಯನ್ನು ಪತ್ತೆಹಚ್ಚಿ',
+      bullet3: 'ಸಾವಯವ ಪರಿಹಾರಗಳು ಮತ್ತು ಶಿಫಾರಸು ಮಾಡಿದ ಔಷಧಿಗಳ ಚಿಕಿತ್ಸಾ ಮಾರ್ಗದರ್ಶನ',
+      bullet4: 'ದೃಢೀಕರಿಸಿದಾಗ ಹತ್ತಿರದ ಕೆವಿಕೆ (KVK) ಕೃಷಿ ತಜ್ಞರ ನೇರ ಸಂಪರ್ಕ ವಿವರ',
+      cta: 'ಬೆಳೆ ಆರೋಗ್ಯ ತಪಾಸಿಸಿ',
     },
-  },
-  te: {
-    eyebrow: 'ప్రధాన వ్యవసాయ సేవలు',
-    heading: 'KisaanBuddy లో రైతుల కోసం అందుబాటులో ఉన్న సేవలు.',
-    subtitle:
-      'భారతీయ రైతుల కోసం రూపొందించబడింది. మార్కెట్ ధరలు తనిఖీ చేయండి, కొనుగోలుదారులను కనుగొనండి, కూలీలను నియమించుకోండి మరియు పంట ఆరోగ్యాన్ని రక్షించండి.',
-    cards: {
-      mandi: {
-        category: 'మార్కెట్ ధరలు',
-        title: 'మీ పంటలకు సరైన మార్కెట్ ధరను తెలుసుకోండి',
-        description:
-          'మండి ధరలను తనిఖీ చేయండి, మార్కెట్లను పోల్చండి మరియు సరైన విక్రయ నిర్ణయాలు తీసుకోండి.',
-        cta: 'మండి ధరలు చూడండి',
-      },
-      marketplace: {
-        category: 'కొనుగోలుదారులు & విక్రేతలు',
-        title: 'మీ పంటలకు కొనుగోలుదారులను కనుగొనండి',
-        description:
-          'మార్కెట్‌ప్లేస్ ద్వారా వ్యవసాయ కొనుగోలుదారులు, వ్యాపారులు మరియు సరఫరాదారులతో కనెక్ట్ అవ్వండి.',
-        cta: 'మార్కెట్‌ప్లేస్ చూడండి',
-      },
-      workers: {
-        category: 'వ్యవసాయ కూలీలు',
-        title: 'మీ పొలం కోసం కూలీలను కనుగొనండి',
-        description:
-          'వరి నాట్లు, విత్తనాలు వేయడం, పంట కోత, కలుపు తీత పనుల కోసం నైపుణ్యం కలిగిన కూలీల బృందాలను కనుగొనండి.',
-        cta: 'కూలీలను కనుగొనండి',
-      },
-      disease: {
-        category: 'పంట ఆరోగ్యం',
-        title: 'పంట సమస్యలను ముందుగానే గుర్తించండి',
-        description:
-          'రోగ నిర్ధారణ ఫీచర్‌ను ఉపయోగించడానికి మరియు తగిన మార్గదర్శకత్వం పొందడానికి పంట ఫోటోను అప్‌లోడ్ చేయండి.',
-        cta: 'పంట ఆరోగ్యం తనిఖీ చేయండి',
-      },
-      schemes: {
-        category: 'రైతు ప్రయోజనాలు',
-        title: 'ప్రభుత్వ పథకాలను కనుగొనండి',
-        description:
-          'అర్హత ప్రమాణాలు, దరఖాస్తు సూచనలు మరియు అధికారిక వనరులతో వ్యవసాయ పథకాలను అన్వేషించండి.',
-        cta: 'పథకాలను అన్వేషించండి',
-      },
-      assistant: {
-        category: 'AI వ్యవసాయ సలహాదారు',
-        title: 'మీ భాషలోనే వ్యవసాయ మార్గదర్శకత్వం పొందండి',
-        description:
-          'అందుబాటులో ఉన్న భాషల్లో KisaanBuddy AI సహాయకుడిని ప్రశ్నలు అడిగి మార్గదర్శకత్వం పొందండి.',
-        cta: 'KisaanBuddy ని అడగండి',
-      },
-      weather: {
-        category: 'వాతావరణ నిఘా',
-        title: 'వాతావరణం ఆధారంగా వ్యవసాయ పనులను ప్లాన్ చేయండి',
-        description:
-          'పొలం పనులు, నీటిపారుదల మరియు ఇతర కార్యకలాపాలను ప్లాన్ చేసుకోవడానికి వాతావరణ సమాచారాన్ని ఉపయోగించండి.',
-        cta: 'వాతావరణం చూడండి',
-      },
-      inputs: {
-        category: 'వ్యవసాయ పరికరాలు',
-        title: 'వ్యవసాయ పరికరాలు & ఇన్‌పుట్‌లను అన్వేషించండి',
-        description:
-          'మార్కెట్‌ప్లేస్ ద్వారా అందుబాటులో ఉన్న వ్యవసాయ పరికరాలు మరియు ఉత్పత్తులను కనుగొనండి.',
-        cta: 'పరికరాలను చూడండి',
-      },
+    workers: {
+      badge: 'ಕೃಷಿ ಕಾರ್ಮಿಕರ ಜಾಲ',
+      title: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್ (ಕೃಷಿ ಕಾರ್ಮಿಕರು)',
+      desc: 'ನಾಟಿ, ಕಳೆ ಕೀಳುವಿಕೆ ಮತ್ತು ಕೊಯ್ಲು ಕಾರ್ಯಕ್ಕಾಗಿ ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ.',
+      bullet1: 'ನಾಟಿ ಮತ್ತು ಕೊಯ್ಲು ಕೆಲಸಗಳಿಗಾಗಿ ಕೃಷಿ ಕಾರ್ಮಿಕರ ತಂಡಗಳನ್ನು ಹುಡುಕಿ',
+      bullet2: 'ಹತ್ತಿರದ ಹಳ್ಳಿಗಳಲ್ಲಿ ಲಭ್ಯವಿರುವ ಕೃಷಿ ಉದ್ಯೋಗಗಳ ಮಾಹಿತಿ ಪಡೆಯಿರಿ',
+      bullet3: 'ಸ್ಥಳ, ಕೆಲಸದ ದಿನಾಂಕ, ದೈನಂದಿನ ಕೂಲಿ ಮತ್ತು ನೇರ ಫೋನ್ ಸಂಖ್ಯೆ ವೀಕ್ಷಿಸಿ',
+      bullet4: 'ಯಾವುದೇ ಕಮಿಷನ್ ಇಲ್ಲ—ರೈತರು ಮತ್ತು ಕಾರ್ಮಿಕರ ನಡುವೆ ನೇರ ಒಪ್ಪಂದ',
+      cta: 'ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ',
     },
-  },
-  ta: {
-    eyebrow: 'முக்கிய விவசாய சேவைகள்',
-    heading: 'KisaanBuddy மூலம் விவசாயிகள் செய்யக்கூடிய சேவைகள்.',
-    subtitle:
-      'இந்திய விவசாயிகளுக்காக பிரத்யேகமாக உருவாக்கப்பட்டது. மண்டி விலைகளை சரிபார்க்கவும், வாங்குபவர்களைக் கண்டறியவும், பண்ணை தொழிலாளர்களை பெறவும்.',
-    cards: {
-      mandi: {
-        category: 'சந்தை விலைகள்',
-        title: 'உங்கள் பயிர்களுக்கான சரியான விலையை அறிந்து கொள்ளுங்கள்',
-        description:
-          'கிடைக்கக்கூடிய மண்டி விலைகளை சரிபார்த்து, சந்தைகளை ஒப்பிட்டு சிறந்த விற்பனை முடிவுகளை எடுங்கள்.',
-        cta: 'மண்டி விலைகளை சரிபார்க்கவும்',
-      },
-      marketplace: {
-        category: 'வாங்குவோர் & விற்போர்',
-        title: 'உங்கள் விளைபொருட்களுக்கான வாங்குபவர்களைக் கண்டறியுங்கள்',
-        description:
-          'சந்தை மூலம் விவசாய வாங்குபவர்கள், வர்த்தகர்கள் மற்றும் சப்ளையர்களுடன் நேரடியாக இணையுங்கள்.',
-        cta: 'சந்தையை காண்க',
-      },
-      workers: {
-        category: 'பண்ணைத் தொழிலாளர்கள்',
-        title: 'உங்கள் பண்ணைக்கு தொழிலாளர்களைக் கண்டறியுங்கள்',
-        description:
-          'நாற்று நடுதல், விதைத்தல், அறுவடை, களை எடுத்தல் போன்ற பணிகளுக்கு பண்ணை தொழிலாளர்களை கண்டறியுங்கள்.',
-        cta: 'தொழிலாளர்களை கண்டறியுங்கள்',
-      },
-      disease: {
-        category: 'பயிர் ஆரோக்கியம்',
-        title: 'பயிர் நோய்களை முன்கூட்டியே கண்டறியுங்கள்',
-        description:
-          'பயிர் நோய் கண்டறிதல் அம்சத்தை அணுகவும் தகுந்த வழிகாட்டுதலைப் பெறவும் பயிர் புகைப்படத்தை பதிவேற்றவும்.',
-        cta: 'பயிர் ஆரோக்கியத்தை சரிபார்க்கவும்',
-      },
-      schemes: {
-        category: 'விவசாயிகள் சலுகைகள்',
-        title: 'அரசுத் திட்டங்களைக் கண்டறியுங்கள்',
-        description:
-          'விவசாய திட்டங்கள், தகுதி வரம்புகள், விண்ணப்ப வழிமுறைகள் மற்றும் அதிகாரப்பூர்வ அரசாங்க ஆதாரங்களை அறியுங்கள்.',
-        cta: 'திட்டங்களை காண்க',
-      },
-      assistant: {
-        category: 'AI விவசாய ஆலோசகர்',
-        title: 'உங்கள் தாய்மொழியில் விவசாய வழிகாட்டுதலைப் பெறுங்கள்',
-        description:
-          'KisaanBuddy AI உதவியாளர் மூலம் விவசாய கேள்விகளைக் கேட்டு உடனடி வழிகாட்டுதல் பெறுங்கள்.',
-        cta: 'KisaanBuddy-யிடம் கேளுங்கள்',
-      },
-      weather: {
-        category: 'வானிலை தகவல்',
-        title: 'வானிலைக்கு ஏற்ப விவசாயத்தை திட்டமிடுங்கள்',
-        description:
-          'களப் பணிகள் மற்றும் பாசனத்தை திட்டமிட கிடைக்கக்கூடிய வானிலை தகவல்களைப் பயன்படுத்துங்கள்.',
-        cta: 'வானிலை சரிபார்க்கவும்',
-      },
-      inputs: {
-        category: 'விவசாய உபகரணங்கள்',
-        title: 'விவசாய உபகரணங்கள் மற்றும் உள்ளீடுகளை காண்க',
-        description:
-          'சந்தை மூலம் கிடைக்கக்கூடிய விவசாய உள்ளீட்டு சப்ளையர்கள் மற்றும் சேவைகளை கண்டறியுங்கள்.',
-        cta: 'உபகரணங்களை காண்க',
-      },
+    schemes: {
+      badge: 'ರೈತರ ಕಲ್ಯಾಣ ಮತ್ತು ಸಬ್ಸಿಡಿ',
+      title: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಮಾಹಿತಿ',
+      desc: 'ಕೇಂದ್ರ ಮತ್ತು ರಾಜ್ಯ ಸರ್ಕಾರಗಳ ಕೃಷಿ ಯೋಜನೆಗಳ ನಿಖರ ಹಾಗೂ ನವೀಕೃತ ಮಾಹಿತಿ.',
+      bullet1: 'ಪಿಎಂ-ಕಿಸಾನ್, ಬೆಳೆ ವಿಮೆ (PMFBY), ಮತ್ತು ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಯೋಜನೆಗಳು',
+      bullet2: 'ಸುಲಭವಾಗಿ ಅರ್ಥವಾಗುವಂತೆ ಪ್ರಾದೇಶಿಕ ಭಾಷೆಯಲ್ಲಿ ಅರ್ಹತಾ ಮಾನದಂಡಗಳು',
+      bullet3: 'ಅರ್ಜಿ ಸಲ್ಲಿಸಲು ಪರಿಶೀಲಿಸಿದ ಕೊನೆಯ ದಿನಾಂಕಗಳ ಪ್ರದರ್ಶನ',
+      bullet4: 'ಅಧಿಕೃತ ಸರ್ಕಾರಿ ಅರ್ಜಿ ಜಾಲತಾಣಗಳಿಗೆ ನೇರ ಲಿಂಕ್‌ಗಳು',
+      cta: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳನ್ನು ನೋಡಿ',
     },
-  },
-  hi_en: {
-    eyebrow: 'CORE AGRICULTURAL SERVICES',
-    heading: 'Everything You Can Do on KisaanBuddy.',
-    subtitle:
-      'Designed for Indian farmers, smallholders, and rural producers. Explore transparent market prices, connect with buyers, hire labour, diagnose leaf health, and access official schemes.',
-    cards: {
-      mandi: {
-        category: 'MARKET PRICES',
-        title: 'Know the Right Price for Your Crops',
-        description:
-          'Check available mandi prices, compare markets, and use price information to make better selling decisions.',
-        cta: 'Check Mandi Prices',
-      },
-      marketplace: {
-        category: 'BUYERS & SELLERS',
-        title: 'Find Buyers for Your Produce',
-        description:
-          'Explore opportunities to connect with agricultural buyers, traders, and input suppliers through the marketplace.',
-        cta: 'Explore Marketplace',
-      },
-      workers: {
-        category: 'FARM LABOUR',
-        title: 'Find Workers for Your Farm',
-        description:
-          'Find agricultural workers and labour crews for paddy transplantation, sowing, harvesting, weeding, and other farm work.',
-        cta: 'Find Farm Workers',
-      },
-      disease: {
-        category: 'CROP HEALTH',
-        title: 'Identify Crop Problems Early',
-        description:
-          'Upload a crop photograph to access the available crop disease diagnosis functionality and receive relevant guidance.',
-        cta: 'Check Crop Health',
-      },
-      schemes: {
-        category: 'FARMER BENEFITS',
-        title: 'Discover Government Schemes',
-        description:
-          'Explore relevant agricultural schemes, eligibility criteria, application instructions, and official government resources.',
-        cta: 'Explore Schemes',
-      },
-      assistant: {
-        category: 'AI ADVISORY',
-        title: 'Get Farming Guidance in Your Language',
-        description:
-          'Ask farming questions and get assistance through the existing KisaanBuddy AI assistant, with support for available languages.',
-        cta: 'Ask KisaanBuddy',
-      },
-      weather: {
-        category: 'WEATHER INTELLIGENCE',
-        title: 'Plan Your Farming Around Weather',
-        description:
-          'Access the available weather information to help plan field activities, irrigation, and other farming operations.',
-        cta: 'Check Weather',
-      },
-      inputs: {
-        category: 'FARM INPUTS',
-        title: 'Explore Agricultural Inputs',
-        description:
-          'Explore available agricultural input suppliers and relevant products or services through the existing marketplace.',
-        cta: 'Explore Inputs',
-      },
+    weather: {
+      badge: 'ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ',
+      title: 'ಕೃಷಿ ಹವಾಮಾನ ಮಾಹಿತಿ',
+      desc: 'ಕೃಷಿ ಕೆಲಸಗಳು, ನೀರಾವರಿ ಮತ್ತು ಸಿಂಪಡಣೆ ಯೋಜನೆಗಾಗಿ ಹೈಪರ್-ಲೋಕಲ್ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ.',
+      bullet1: 'ತಾಪಮಾನ, ಗಾಳಿಯ ವೇಗ ಮತ್ತು ತೇವಾಂಶ ಸೇರಿದಂತೆ ನೈಜ ಹವಾಮಾನ ವಿವರ',
+      bullet2: 'ಹೊಲದ ಯೋಜನೆಗಾಗಿ ಮುಂಬರುವ 7 ದಿನಗಳ ಮಳೆಯ ಮುನ್ಸೂಚನೆ',
+      bullet3: 'ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆ ಮತ್ತು ನೀರಾವರಿಗಾಗಿ ಕೃಷಿ-ಉಪಯುಕ್ತ ಎಚ್ಚರಿಕೆಗಳು',
+      bullet4: 'ಸ್ಥಳೀಯ ಬೆಳೆ ಹಂತಗಳಿಗೆ ತಕ್ಕಂತೆ ಕಾಲೋಚಿತ ಹವಾಮಾನ ಮುನ್ನೆಚ್ಚರಿಕೆಗಳು',
+      cta: 'ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಪರಿಶೀಲಿಸಿ',
+    },
+    assistant: {
+      badge: 'ಧ್ವನಿ ಬೆಂಬಲಿತ AI ಸಹಾಯಕ',
+      title: 'AI ಕೃಷಿ ಸಹಾಯಕ (ಮಾತನಾಡಿ ಕೇಳಿ)',
+      desc: 'ನಿಮ್ಮ ಮಾತೃಭಾಷೆಯಲ್ಲಿ ಮಾತನಾಡುವ ಮೂಲಕ ಅಥವಾ ಬರೆಯುವ ಮೂಲಕ ಕೃಷಿ ಸಲಹೆ ಪಡೆಯಿರಿ.',
+      voiceBadge: 'ಧ್ವನಿ ಬೆಂಬಲ: ಕನ್ನಡ, ಹಿಂದಿ ಮತ್ತು ಇಂಗ್ಲಿಷ್',
+      voiceDesc: 'ಮೈಕ್ರೊಫೋನ್ ಒತ್ತಿ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಸರಳವಾಗಿ ಮಾತನಾಡಿ.',
+      bullet1: 'ಕನ್ನಡ, ಹಿಂದಿ ಮತ್ತು ಇಂಗ್ಲಿಷ್ (ಹಾಗೂ 8 ಇತರೆ ಭಾಷೆಗಳಲ್ಲಿ) ಪೂರ್ಣ ಬೆಂಬಲ',
+      bullet2: 'ಅಸ್ತಿತ್ವದಲ್ಲಿರುವ ಸಹಾಯಕ ಏಕೀಕರಣದ ಮೂಲಕ ಕೃಷಿ ಮಾರ್ಗದರ್ಶನ',
+      bullet3: 'ಸುಲಭವಾಗಿ ಗೋಚರಿಸುವ ಧ್ವನಿ ವೈಶಿಷ್ಟ್ಯ—ಹೊಲದಲ್ಲಿ ಕೆಲಸ ಮಾಡುವಾಗ ಅತ್ಯಂತ ಉಪಯುಕ್ತ',
+      bullet4: 'ಗೊಬ್ಬರದ ಪ್ರಮಾಣ, ಕೀಟ ನಿಯಂತ್ರಣ ಮತ್ತು ಬಿತ್ತನೆ ವೇಳಾಪಟ್ಟಿಯ ನಿಖರ ಸಲಹೆ',
+      sampleQ1: 'ಟೊಮೇಟೊ ಎಲೆ ಸುರುಳಿಯಾಗಲು ಕಾರಣವೇನು? (ಕನ್ನಡ)',
+      sampleQ2: 'टमाटर की पत्ती मुड़ने का क्या कारण है? (हिंदी)',
+      sampleQ3: 'Best fertilizer schedule for wheat tillering? (English)',
+      cta: 'KisaanBuddy ಸಹಾಯಕನನ್ನು ಕೇಳಿ',
     },
   },
 };
 
+// Fallback mapping for other languages
+SECTION_TRANSLATIONS.mr = SECTION_TRANSLATIONS.hi;
+SECTION_TRANSLATIONS.te = SECTION_TRANSLATIONS.en;
+SECTION_TRANSLATIONS.ta = SECTION_TRANSLATIONS.en;
+SECTION_TRANSLATIONS.hi_en = SECTION_TRANSLATIONS.en;
+
 export function FeatureShowcaseSection() {
   const { lang } = useLanguage();
-  const dict = SHOWCASE_TRANSLATIONS[lang] || SHOWCASE_TRANSLATIONS.en;
-  const enCards = SHOWCASE_TRANSLATIONS.en.cards;
-
-  const getCard = (key: keyof typeof enCards) => {
-    return dict.cards[key] || enCards[key];
-  };
-
-  const featureCards: FeatureCardData[] = [
-    {
-      id: 'mandi-price-intelligence',
-      category: getCard('mandi').category,
-      title: getCard('mandi').title,
-      description: getCard('mandi').description,
-      cta: getCard('mandi').cta,
-      link: '/mandi',
-      image: '/images/mandi/grain-market-mandi.jpg',
-      alt: 'Authentic Indian farmer at grain wholesale mandi market',
-      icon: TrendingUp,
-    },
-    {
-      id: 'direct-marketplace',
-      category: getCard('marketplace').category,
-      title: getCard('marketplace').title,
-      description: getCard('marketplace').description,
-      cta: getCard('marketplace').cta,
-      link: '/marketplace',
-      image: '/images/marketplace/vegetable-mandi.jpg',
-      alt: 'Agricultural produce vendor in traditional vegetable mandi',
-      icon: Store,
-    },
-    {
-      id: 'worker-connect',
-      category: getCard('workers').category,
-      title: getCard('workers').title,
-      description: getCard('workers').description,
-      cta: getCard('workers').cta,
-      link: '/worker-connect',
-      image: '/images/crops/indian-paddy-field.jpg',
-      alt: 'Indian rural paddy field during transplanting and crop season',
-      icon: Users,
-    },
-    {
-      id: 'crop-disease-diagnosis',
-      category: getCard('disease').category,
-      title: getCard('disease').title,
-      description: getCard('disease').description,
-      cta: getCard('disease').cta,
-      link: '/disease',
-      image: '/images/crop-doctor/powdery-mildew-leaf.jpg',
-      alt: 'Crop leaf diagnosed with agricultural plant disease',
-      icon: Bug,
-    },
-    {
-      id: 'government-schemes',
-      category: getCard('schemes').category,
-      title: getCard('schemes').title,
-      description: getCard('schemes').description,
-      cta: getCard('schemes').cta,
-      link: '/schemes',
-      image: '/images/hero/hero-indian-farmer.jpg',
-      alt: 'Indian farmer in agricultural field discovering schemes',
-      icon: Landmark,
-    },
-    {
-      id: 'ai-farming-assistant',
-      category: getCard('assistant').category,
-      title: getCard('assistant').title,
-      description: getCard('assistant').description,
-      cta: getCard('assistant').cta,
-      link: '/chatbot',
-      image: '/images/farmers/farmer-field-tending.jpg',
-      alt: 'Farmer tending crop field with agronomic advisory',
-      icon: Sparkles,
-    },
-    {
-      id: 'weather-farm-planning',
-      category: getCard('weather').category,
-      title: getCard('weather').title,
-      description: getCard('weather').description,
-      cta: getCard('weather').cta,
-      link: '/weather',
-      image: '/images/weather/monsoon-farmland.jpg',
-      alt: 'Monsoon rainclouds over agricultural farmland',
-      icon: CloudSun,
-    },
-    {
-      id: 'agricultural-inputs',
-      category: getCard('inputs').category,
-      title: getCard('inputs').title,
-      description: getCard('inputs').description,
-      cta: getCard('inputs').cta,
-      link: '/marketplace',
-      image: '/images/crops/punjab-wheat-field.jpg',
-      alt: 'Lush agricultural wheat field and farm equipment in India',
-      icon: Wrench,
-    },
-  ];
+  const t = SECTION_TRANSLATIONS[lang] || SECTION_TRANSLATIONS.en;
 
   return (
     <section
       id="features"
-      className="relative w-full py-16 sm:py-24 bg-[#faf9f5] dark:bg-stone-950 border-b border-stone-200/80 dark:border-stone-800 scroll-mt-12"
+      className="relative w-full py-16 sm:py-24 bg-[#F7F9F4] dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 scroll-mt-12"
     >
-      {/* Background subtle agrarian tint */}
-      <div className="absolute inset-0 bg-[radial-gradient(#10b98108_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700/10 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-700/20 mb-3 shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-600" />
-            <span>{dict.eyebrow}</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-stone-900 text-[#174B35] dark:text-[#78B957] text-xs font-bold uppercase tracking-wider border border-[#174B35]/20 dark:border-[#78B957]/30 shadow-xs mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#27834A]" />
+            <span>{t.eyebrow}</span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0f241d] dark:text-white tracking-tight leading-[1.16]">
-            {dict.heading}
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#174B35] dark:text-white tracking-tight leading-[1.14]">
+            {t.heading}
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-stone-600 dark:text-stone-300 leading-relaxed font-normal">
-            {dict.subtitle}
+          <p className="mt-4 text-base sm:text-lg text-[#68766C] dark:text-stone-300 leading-relaxed font-normal">
+            {t.subtitle}
           </p>
         </div>
 
-        {/* 8-Card Responsive Grid with Staggered Entrance */}
-        <StaggerList
-          staggerDelay={0.06}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-        >
-          {featureCards.map((card) => {
-            const Icon = card.icon;
+        {/* ASYMMETRICAL EDITORIAL GRID */}
+        <div className="space-y-6 sm:space-y-8">
+          
+          {/* ROW 1: Asymmetrical 7:5 Bento Split */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+            
+            {/* 1. Mandi Marketplace (lg:col-span-7) */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35 }}
+              className="lg:col-span-7 flex flex-col justify-between rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_24px_rgba(23,75,53,0.05)] hover:shadow-[0_12px_36px_rgba(23,75,53,0.1)] transition-all overflow-hidden group"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-12 h-full">
+                {/* Photo half */}
+                <div className="sm:col-span-5 relative h-56 sm:h-auto min-h-[220px] overflow-hidden bg-stone-100 dark:bg-stone-800">
+                  <img
+                    src="/images/mandi/grain-market-mandi.jpg"
+                    alt="Indian Mandi Market Wholesale Trading"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/70 via-transparent to-transparent pointer-events-none" />
+                  <div className="absolute top-3 left-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#174B35] dark:text-[#78B957] border border-stone-200 shadow-xs">
+                      <TrendingUp className="w-3 h-3 text-[#27834A]" />
+                      {t.mandi.badge}
+                    </span>
+                  </div>
+                  <div className="absolute bottom-3 left-3 text-white">
+                    <span className="text-[11px] font-bold bg-[#174B35]/90 px-2 py-0.5 rounded text-emerald-100">
+                      1,000+ Regulated Markets
+                    </span>
+                  </div>
+                </div>
 
-            return (
-              <StaggerItem key={card.id}>
+                {/* Content half */}
+                <div className="sm:col-span-7 p-6 sm:p-7 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-[#174B35] dark:text-white leading-snug mb-2 group-hover:text-[#27834A] transition-colors">
+                      {t.mandi.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
+                      {t.mandi.desc}
+                    </p>
+
+                    {/* 4 Core Features */}
+                    <ul className="space-y-2 text-xs sm:text-sm text-[#1D2B22] dark:text-stone-200">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                        <span>{t.mandi.bullet1}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                        <span>{t.mandi.bullet2}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                        <span>{t.mandi.bullet3}</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                        <span>{t.mandi.bullet4}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="pt-5 mt-5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
+                    <Link
+                      href="/mandi"
+                      className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#174B35] dark:text-[#78B957] hover:text-[#27834A] group/link"
+                    >
+                      <span>{t.mandi.cta}</span>
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 2. Crop Doctor (lg:col-span-5) */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: 0.05 }}
+              className="lg:col-span-5 flex flex-col justify-between rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_24px_rgba(23,75,53,0.05)] hover:shadow-[0_12px_36px_rgba(23,75,53,0.1)] transition-all overflow-hidden group"
+            >
+              {/* Photo top */}
+              <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
+                <img
+                  src="/images/crop-doctor/powdery-mildew-leaf.jpg"
+                  alt="Crop Leaf Disease Diagnostic Scan"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/70 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute top-3 left-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#174B35] dark:text-[#78B957] border border-stone-200 shadow-xs">
+                    <Bug className="w-3 h-3 text-[#27834A]" />
+                    {t.cropDoctor.badge}
+                  </span>
+                </div>
+                <div className="absolute bottom-3 left-3 text-white">
+                  <span className="text-[11px] font-bold bg-[#174B35]/90 px-2 py-0.5 rounded text-emerald-100">
+                    Instant AI Visual Scan
+                  </span>
+                </div>
+              </div>
+
+              {/* Content bottom */}
+              <div className="p-6 sm:p-7 flex flex-col justify-between flex-1">
+                <div>
+                  <h3 className="text-xl font-bold text-[#174B35] dark:text-white leading-snug mb-2 group-hover:text-[#27834A] transition-colors">
+                    {t.cropDoctor.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
+                    {t.cropDoctor.desc}
+                  </p>
+
+                  <ul className="space-y-2 text-xs sm:text-sm text-[#1D2B22] dark:text-stone-200">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.cropDoctor.bullet1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.cropDoctor.bullet2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.cropDoctor.bullet3}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.cropDoctor.bullet4}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="pt-5 mt-5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
+                  <Link
+                    href="/disease"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#174B35] dark:text-[#78B957] hover:text-[#27834A] group/link"
+                  >
+                    <span>{t.cropDoctor.cta}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+          </div>
+
+          {/* ROW 2: 3-Pillar Distinctive Grid (Worker Connect, Schemes, Weather) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            
+            {/* 3. Worker Connect */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: 0.1 }}
+              className="flex flex-col justify-between rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_24px_rgba(23,75,53,0.05)] hover:shadow-[0_12px_36px_rgba(23,75,53,0.1)] transition-all overflow-hidden group"
+            >
+              <div className="relative h-44 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
+                <img
+                  src="/images/farmers/farmer-field-tending.jpg"
+                  alt="Indian Farmers Working in Field"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/70 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute top-3 left-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#174B35] dark:text-[#78B957] border border-stone-200 shadow-xs">
+                    <Users className="w-3 h-3 text-[#27834A]" />
+                    {t.workers.badge}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#174B35] dark:text-white leading-snug mb-2 group-hover:text-[#27834A] transition-colors">
+                    {t.workers.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
+                    {t.workers.desc}
+                  </p>
+
+                  <ul className="space-y-2 text-xs sm:text-sm text-[#1D2B22] dark:text-stone-200">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.workers.bullet1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.workers.bullet2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.workers.bullet3}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.workers.bullet4}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="pt-4 mt-5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
+                  <Link
+                    href="/worker-connect"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#174B35] dark:text-[#78B957] hover:text-[#27834A] group/link"
+                  >
+                    <span>{t.workers.cta}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 4. Government Schemes */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: 0.15 }}
+              className="flex flex-col justify-between rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_24px_rgba(23,75,53,0.05)] hover:shadow-[0_12px_36px_rgba(23,75,53,0.1)] transition-all overflow-hidden group"
+            >
+              {/* Emblem Header Block */}
+              <div className="p-6 bg-gradient-to-br from-[#174B35] to-[#27834A] text-white">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/20 text-white backdrop-blur-xs">
+                    <Landmark className="w-3 h-3 text-[#F2B84B]" />
+                    {t.schemes.badge}
+                  </span>
+                  <ShieldCheck className="w-5 h-5 text-[#78B957]" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-bold text-white leading-snug">
+                  {t.schemes.title}
+                </h3>
+                <p className="text-xs text-emerald-100 mt-1">
+                  PM-KISAN, PMFBY, Soil Health Card & Subsidies
+                </p>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
+                    {t.schemes.desc}
+                  </p>
+
+                  <ul className="space-y-2 text-xs sm:text-sm text-[#1D2B22] dark:text-stone-200">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.schemes.bullet1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.schemes.bullet2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.schemes.bullet3}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.schemes.bullet4}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="pt-4 mt-5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
+                  <Link
+                    href="/schemes"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#174B35] dark:text-[#78B957] hover:text-[#27834A] group/link"
+                  >
+                    <span>{t.schemes.cta}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 5. Weather Intelligence */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: 0.2 }}
+              className="flex flex-col justify-between rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_24px_rgba(23,75,53,0.05)] hover:shadow-[0_12px_36px_rgba(23,75,53,0.1)] transition-all overflow-hidden group md:col-span-2 lg:col-span-1"
+            >
+              <div className="relative h-44 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
+                <img
+                  src="/images/weather/monsoon-farmland.jpg"
+                  alt="Monsoon Farmland Rain Forecast"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/70 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute top-3 left-3">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#174B35] dark:text-[#78B957] border border-stone-200 shadow-xs">
+                    <CloudSun className="w-3 h-3 text-[#27834A]" />
+                    {t.weather.badge}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6 flex flex-col justify-between flex-1">
+                <div>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#174B35] dark:text-white leading-snug mb-2 group-hover:text-[#27834A] transition-colors">
+                    {t.weather.title}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
+                    {t.weather.desc}
+                  </p>
+
+                  <ul className="space-y-2 text-xs sm:text-sm text-[#1D2B22] dark:text-stone-200">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.weather.bullet1}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.weather.bullet2}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.weather.bullet3}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
+                      <span>{t.weather.bullet4}</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="pt-4 mt-5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
+                  <Link
+                    href="/weather"
+                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#174B35] dark:text-[#78B957] hover:text-[#27834A] group/link"
+                  >
+                    <span>{t.weather.cta}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+          </div>
+
+          {/* ROW 3: AI Farming Assistant (Full-Width Voice Advisory Banner) */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4 }}
+            className="rounded-3xl bg-gradient-to-br from-[#174B35] via-[#1c563e] to-[#27834A] text-white p-6 sm:p-8 md:p-10 shadow-[0_12px_40px_rgba(23,75,53,0.15)] relative overflow-hidden"
+          >
+            {/* Ambient decorative aura */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-[#78B957]/15 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-10 left-10 w-80 h-80 bg-[#F2B84B]/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              {/* Left Column: Information & Voice Callout */}
+              <div className="lg:col-span-7 space-y-4">
+                
+                {/* Voice Prominence Pill */}
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 backdrop-blur-xs text-[#F2B84B] text-xs font-bold uppercase tracking-wider border border-white/20">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#F2B84B] animate-ping" />
+                  <Mic className="w-3.5 h-3.5" />
+                  <span>{t.assistant.voiceBadge}</span>
+                </div>
+
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+                  {t.assistant.title}
+                </h3>
+
+                <p className="text-sm sm:text-base text-emerald-100 max-w-xl leading-relaxed">
+                  {t.assistant.desc}
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 text-xs sm:text-sm text-emerald-50">
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#78B957] shrink-0 mt-0.5" />
+                    <span>{t.assistant.bullet1}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#78B957] shrink-0 mt-0.5" />
+                    <span>{t.assistant.bullet2}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#78B957] shrink-0 mt-0.5" />
+                    <span>{t.assistant.bullet3}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#78B957] shrink-0 mt-0.5" />
+                    <span>{t.assistant.bullet4}</span>
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <Link
+                    href="/chatbot"
+                    className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#F2B84B] hover:bg-[#e2aa3f] text-[#174B35] font-black text-sm sm:text-base shadow-md transition-all active:scale-95 group"
+                  >
+                    <Mic className="w-4 h-4 text-[#174B35]" />
+                    <span>{t.assistant.cta}</span>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Column: Interactive Voice Question Preview Cards */}
+              <div className="lg:col-span-5 space-y-3">
+                <p className="text-xs font-bold text-emerald-200 uppercase tracking-wider mb-2">
+                  Try asking in Hindi, Kannada or English:
+                </p>
+
                 <Link
-                  href={card.link}
-                  className="group flex flex-col justify-between h-full rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_36px_rgba(5,150,105,0.12)] hover:-translate-y-1.5 hover:border-emerald-500/40 transition-all duration-300 overflow-hidden"
+                  href="/chatbot"
+                  className="block p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-xs border border-white/15 transition-all text-xs sm:text-sm group"
                 >
-                  {/* Real Agricultural Photograph with Small Category Badge */}
-                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
-                    <img
-                      src={card.image}
-                      alt={card.alt}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
-
-                    {/* Small category badge over the image */}
-                    <div className="absolute top-3 left-3">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#0f241d] dark:text-stone-200 border border-stone-200/80 dark:border-stone-700 shadow-xs backdrop-blur-xs">
-                        {card.category}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between text-[#F2B84B] font-bold text-[11px] mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <Mic className="w-3 h-3" /> Hindi Voice
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
-
-                  {/* Card Body */}
-                  <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
-                    <div>
-                      {/* Feature title with a small icon */}
-                      <div className="flex items-start gap-2.5 mb-2.5">
-                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 mt-0.5 group-hover:from-emerald-600 group-hover:to-teal-600 group-hover:text-white transition-all duration-300">
-                          <Icon className="w-4 h-4" />
-                        </div>
-                        <h3 className="font-bold text-base sm:text-lg text-[#0f241d] dark:text-stone-100 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors duration-200">
-                          {card.title}
-                        </h3>
-                      </div>
-
-                      {/* Short, farmer-friendly description */}
-                      <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed mb-4">
-                        {card.description}
-                      </p>
-                    </div>
-
-                    {/* Bottom action link with a right arrow */}
-                    <div className="pt-3 border-t border-stone-100 dark:border-stone-800/80 mt-auto flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 transition-colors">
-                      <span>{card.cta}</span>
-                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-                    </div>
-                  </div>
+                  <p className="text-white font-medium">"{t.assistant.sampleQ1}"</p>
                 </Link>
-              </StaggerItem>
-            );
-          })}
-        </StaggerList>
+
+                <Link
+                  href="/chatbot"
+                  className="block p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-xs border border-white/15 transition-all text-xs sm:text-sm group"
+                >
+                  <div className="flex items-center justify-between text-[#78B957] font-bold text-[11px] mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <Mic className="w-3 h-3" /> Kannada Voice
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <p className="text-white font-medium">"{t.assistant.sampleQ2}"</p>
+                </Link>
+
+                <Link
+                  href="/chatbot"
+                  className="block p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 backdrop-blur-xs border border-white/15 transition-all text-xs sm:text-sm group"
+                >
+                  <div className="flex items-center justify-between text-emerald-300 font-bold text-[11px] mb-1">
+                    <span className="flex items-center gap-1.5">
+                      <Mic className="w-3 h-3" /> English Voice
+                    </span>
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <p className="text-white font-medium">"{t.assistant.sampleQ3}"</p>
+                </Link>
+              </div>
+
+            </div>
+          </motion.div>
+
+        </div>
 
       </div>
     </section>
