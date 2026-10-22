@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useLanguage } from '@/lib/language'
 import ALL_SCHEMES_DATA from '@/lib/schemes-data.json'
 import { Search, X, Landmark, Cpu, HelpCircle, ArrowRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { modalBackdropVariants, modalDialogVariants } from '@/lib/motion'
 
 interface SearchResultItem {
   id: string
@@ -385,13 +387,25 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     onClose()
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-background/80 dark:bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="absolute inset-0" onClick={onClose} />
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          variants={modalBackdropVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-[100] flex items-start justify-center pt-24 px-4 bg-background/80 dark:bg-black/80 backdrop-blur-sm"
+        >
+          <div className="absolute inset-0" onClick={onClose} />
 
-      <div className="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md flex flex-col max-h-[500px]">
+          <motion.div
+            variants={modalDialogVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="relative w-full max-w-2xl bg-card border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md flex flex-col max-h-[500px]"
+          >
         {/* Input Header */}
         <div className="flex items-center border-b border-border px-4 py-3 shrink-0">
           <Search className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -469,7 +483,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           )}
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

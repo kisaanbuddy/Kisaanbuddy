@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { modalBackdropVariants, modalDialogVariants } from "@/lib/motion";
 import { X, Search, Phone, Mail, Globe, MapPin, Building2, CheckCircle2, ShieldCheck, ExternalLink } from "lucide-react";
 import { AUTHENTIC_EXPERTS, AgriculturalExpert } from "@/lib/disease-advisory-store";
 
@@ -45,8 +47,6 @@ export function KVKDirectoryModal({
     }
   }, [defaultState]);
 
-  if (!isOpen) return null;
-
   const filtered = experts.filter((e) => {
     const matchState = selectedState === "All" || e.state.toLowerCase() === selectedState.toLowerCase() || e.id === 8;
     const matchSearch =
@@ -59,8 +59,22 @@ export function KVKDirectoryModal({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="relative w-full max-w-2xl rounded-2xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          variants={modalBackdropVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+        >
+          <motion.div
+            variants={modalDialogVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="relative w-full max-w-2xl rounded-2xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col"
+          >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border/40 pb-3">
           <div className="space-y-0.5">
@@ -202,7 +216,9 @@ export function KVKDirectoryModal({
             ))
           )}
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/motion/MotionComponents";
 import Link from "next/link";
 import {
   Sprout,
@@ -174,7 +176,7 @@ export default function CropsPage() {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <PageTransition className="space-y-8 pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
@@ -428,9 +430,22 @@ export default function CropsPage() {
       )}
 
       {/* Modal for Add / Edit Plot */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative">
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
+            >
             <button
               onClick={() => setShowModal(false)}
               className="absolute top-4 right-4 p-1.5 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
@@ -599,9 +614,10 @@ export default function CropsPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-    </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </PageTransition>
   );
 }

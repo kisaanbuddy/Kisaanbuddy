@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { PageTransition } from "@/components/motion/MotionComponents";
 import Link from "next/link";
 import {
   BarChart3,
@@ -85,7 +86,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <PageTransition className="space-y-8 pb-16">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
@@ -313,6 +314,6 @@ export default function ReportsPage() {
           </div>
         </div>
       )}
-    </div>
+    </PageTransition>
   );
 }

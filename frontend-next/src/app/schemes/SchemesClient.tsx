@@ -967,11 +967,18 @@ export default function SchemesClient() {
       {/* MODAL 1: SCHEME DETAILS MODAL */}
       <AnimatePresence>
         {selectedScheme && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm overflow-y-auto">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto"
+          >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 12 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               className="relative w-full max-w-3xl my-8 bg-card border border-border/60 rounded-3xl shadow-xl p-6 md:p-8 space-y-6 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex items-start justify-between gap-4 border-b border-border/50 pb-4">
@@ -1107,7 +1114,7 @@ export default function SchemesClient() {
                 </a>
               </div>
             </motion.div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

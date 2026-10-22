@@ -397,38 +397,54 @@ export default function CropPredictor() {
         <div className="md:col-span-5 flex flex-col justify-start gap-4">
           <AnimatePresence mode="wait">
             {!result ? (
-              <Card className="h-full min-h-[320px] flex flex-col items-center justify-center text-center p-6 border-dashed">
-                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground mb-3">
-                  <Activity className="h-6 w-6" />
-                </div>
-                <h3 className="text-sm font-semibold text-foreground mb-1">
-                  {dict.readyForAnalysis}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
-                  {t("crop_predictor.adjust_the_sliders_to")}
-                </p>
-              </Card>
-            ) : (
-              <Card className="p-6 border-primary/40 bg-primary/5 space-y-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                    {t("crop_predictor.recommended_crop")}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-black font-display text-foreground capitalize mt-1">
-                    {result}
-                  </h2>
-                </div>
-
-                <div className="rounded-lg border border-border bg-card p-4 space-y-2 text-xs">
-                  <div className="flex items-center gap-1.5 text-primary font-semibold">
-                    <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span>{dict.compatibilityScore}</span>
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.22 }}
+              >
+                <Card className="h-full min-h-[320px] flex flex-col items-center justify-center text-center p-6 border-dashed">
+                  <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground mb-3">
+                    <Activity className="h-6 w-6" />
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {dict.compatibilityDesc}
+                  <h3 className="text-sm font-semibold text-foreground mb-1">
+                    {dict.readyForAnalysis}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+                    {t("crop_predictor.adjust_the_sliders_to")}
                   </p>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Card className="p-6 border-primary/40 bg-primary/5 space-y-4 shadow-lg">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {t("crop_predictor.recommended_crop")}
+                    </span>
+                    <h2 className="text-3xl sm:text-4xl font-black font-display text-foreground capitalize mt-1">
+                      {result}
+                    </h2>
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-2 text-xs">
+                    <div className="flex items-center gap-1.5 text-primary font-semibold">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span>{dict.compatibilityScore}</span>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {dict.compatibilityDesc}
+                    </p>
+                  </div>
+                </Card>
+              </motion.div>
             )}
           </AnimatePresence>
 

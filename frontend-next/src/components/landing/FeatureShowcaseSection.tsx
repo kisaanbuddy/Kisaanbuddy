@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   TrendingUp,
   Store,
@@ -15,6 +16,8 @@ import {
   LucideIcon,
 } from 'lucide-react';
 import { useLanguage, type Lang } from '@/lib/language';
+import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
+import { fadeUp, cardHover, pressFeedback } from '@/lib/motion';
 
 interface FeatureCardData {
   id: string;
@@ -617,64 +620,68 @@ export function FeatureShowcaseSection() {
           </p>
         </div>
 
-        {/* 8-Card Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* 8-Card Responsive Grid with Staggered Entrance */}
+        <StaggerList
+          staggerDelay={0.06}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
           {featureCards.map((card) => {
             const Icon = card.icon;
 
             return (
-              <Link
-                key={card.id}
-                href={card.link}
-                className="group flex flex-col justify-between h-full rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden"
-              >
-                {/* Real Agricultural Photograph with Small Category Badge */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
-                  <img
-                    src={card.image}
-                    alt={card.alt}
-                    loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
+              <StaggerItem key={card.id}>
+                <Link
+                  href={card.link}
+                  className="group flex flex-col justify-between h-full rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                >
+                  {/* Real Agricultural Photograph with Small Category Badge */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
+                    <img
+                      src={card.image}
+                      alt={card.alt}
+                      loading="lazy"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent pointer-events-none" />
 
-                  {/* Small category badge over the image */}
-                  <div className="absolute top-3 left-3">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#0f241d] dark:text-stone-200 border border-stone-200/80 dark:border-stone-700 shadow-xs backdrop-blur-xs">
-                      {card.category}
-                    </span>
+                    {/* Small category badge over the image */}
+                    <div className="absolute top-3 left-3">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#0f241d] dark:text-stone-200 border border-stone-200/80 dark:border-stone-700 shadow-xs backdrop-blur-xs">
+                        {card.category}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {/* Card Body */}
-                <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
-                  <div>
-                    {/* Feature title with a small icon */}
-                    <div className="flex items-start gap-2.5 mb-2.5">
-                      <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/70 dark:border-emerald-800/70 mt-0.5 group-hover:bg-emerald-700 group-hover:text-white transition-colors duration-200">
-                        <Icon className="w-4 h-4" />
+                  {/* Card Body */}
+                  <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
+                    <div>
+                      {/* Feature title with a small icon */}
+                      <div className="flex items-start gap-2.5 mb-2.5">
+                        <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/70 dark:border-emerald-800/70 mt-0.5 group-hover:bg-emerald-700 group-hover:text-white transition-colors duration-200">
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <h3 className="font-bold text-base sm:text-lg text-[#0f241d] dark:text-stone-100 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors duration-200">
+                          {card.title}
+                        </h3>
                       </div>
-                      <h3 className="font-bold text-base sm:text-lg text-[#0f241d] dark:text-stone-100 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors duration-200">
-                        {card.title}
-                      </h3>
+
+                      {/* Short, farmer-friendly description */}
+                      <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed mb-4">
+                        {card.description}
+                      </p>
                     </div>
 
-                    {/* Short, farmer-friendly description */}
-                    <p className="text-stone-600 dark:text-stone-400 text-xs sm:text-sm leading-relaxed mb-4">
-                      {card.description}
-                    </p>
+                    {/* Bottom action link with a right arrow */}
+                    <div className="pt-3 border-t border-stone-100 dark:border-stone-800/80 mt-auto flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 transition-colors">
+                      <span>{card.cta}</span>
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    </div>
                   </div>
-
-                  {/* Bottom action link with a right arrow */}
-                  <div className="pt-3 border-t border-stone-100 dark:border-stone-800/80 mt-auto flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 group-hover:text-emerald-800 dark:group-hover:text-emerald-300 transition-colors">
-                    <span>{card.cta}</span>
-                    <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
-                  </div>
-                </div>
-              </Link>
+                </Link>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerList>
 
       </div>
     </section>

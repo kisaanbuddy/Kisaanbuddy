@@ -3,6 +3,7 @@
 import { ShieldCheck, Database, Lock, Globe, CheckCircle2, FileText, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 import { getHomepageI18n } from '@/lib/homepage-i18n';
+import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
 
 export function MarketplaceTrustSection() {
   const { lang } = useLanguage();
@@ -53,37 +54,41 @@ export function MarketplaceTrustSection() {
           </p>
         </div>
 
-        {/* 4 Pillars Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* 4 Pillars Grid with Staggered Entrance */}
+        <StaggerList
+          staggerDelay={0.06}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+        >
           {pillars.map((pil, idx) => {
             const Icon = pil.icon;
             return (
-              <div
-                key={idx}
-                className="rounded-2xl p-5 bg-stone-50 dark:bg-stone-800/50 border border-stone-200/80 dark:border-stone-700/60 flex flex-col justify-between space-y-3 shadow-2xs"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shadow-2xs">
-                      <Icon className="w-5 h-5" />
+              <StaggerItem key={idx}>
+                <div
+                  className="rounded-2xl p-5 bg-stone-50 dark:bg-stone-800/50 border border-stone-200/80 dark:border-stone-700/60 flex flex-col justify-between space-y-3 shadow-2xs hover:shadow-md hover:border-emerald-500/40 transition-all h-full"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="w-10 h-10 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-emerald-700 dark:text-emerald-400 shadow-2xs">
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
+                        {pil.tag}
+                      </span>
                     </div>
-                    <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider">
-                      {pil.tag}
-                    </span>
+
+                    <h3 className="text-base font-bold text-stone-900 dark:text-white leading-snug">
+                      {pil.title}
+                    </h3>
+
+                    <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+                      {pil.desc}
+                    </p>
                   </div>
-
-                  <h3 className="text-base font-bold text-stone-900 dark:text-white leading-snug">
-                    {pil.title}
-                  </h3>
-
-                  <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-                    {pil.desc}
-                  </p>
                 </div>
-              </div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerList>
 
         {/* Audit & Dispute Reporting Strip */}
         <div className="p-4 sm:p-5 rounded-2xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-stone-600 dark:text-stone-400">

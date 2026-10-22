@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Briefcase, ArrowRight, CheckCircle2, ShieldCheck,
   MapPin, Calendar, Clock, Sparkles, UserCheck, PhoneCall,
@@ -9,6 +10,8 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 import { getHomepageI18n } from '@/lib/homepage-i18n';
+import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
+import { fadeUp, cardHover, pressFeedback, MOTION_DURATIONS, MOTION_EASINGS } from '@/lib/motion';
 
 interface WorkerCollectiveItem {
   id: number;
@@ -357,7 +360,13 @@ export function WorkersConnectHomeSection() {
           {/* CARD A: HIRE WORKERS & LABOUR COLLECTIVES (FOR FARMERS)  */}
           {/* ======================================================== */}
           {(viewMode === "both" || viewMode === "hire_workers") && (
-            <div className="rounded-3xl p-6 sm:p-8 bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/80 shadow-xs flex flex-col justify-between space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: MOTION_DURATIONS.reveal, ease: MOTION_EASINGS.gentle }}
+              className="rounded-3xl p-6 sm:p-8 bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/80 shadow-xs flex flex-col justify-between space-y-6"
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="px-3 py-1 rounded-full bg-emerald-700 text-white text-xs font-bold shadow-2xs">
@@ -464,14 +473,20 @@ export function WorkersConnectHomeSection() {
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* ======================================================== */}
           {/* CARD B: FIND FARMING JOBS (FOR LABOURERS & WORKERS)      */}
           {/* ======================================================== */}
           {(viewMode === "both" || viewMode === "find_jobs") && (
-            <div className="rounded-3xl p-6 sm:p-8 bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/80 shadow-xs flex flex-col justify-between space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: MOTION_DURATIONS.reveal, delay: 0.08, ease: MOTION_EASINGS.gentle }}
+              className="rounded-3xl p-6 sm:p-8 bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700/80 shadow-xs flex flex-col justify-between space-y-6"
+            >
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="px-3 py-1 rounded-full bg-amber-600 text-white text-xs font-bold shadow-2xs">
@@ -570,7 +585,7 @@ export function WorkersConnectHomeSection() {
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Link>
               </div>
-            </div>
+            </motion.div>
           )}
 
         </div>

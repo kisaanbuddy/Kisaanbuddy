@@ -4,9 +4,11 @@ import { useLanguage } from "@/lib/language";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Sparkles, Phone, ArrowRight, Check, RefreshCw, AlertTriangle } from "lucide-react";
 import { useAuth, sendOtp, verifyOtp, completeOtpRegistration, verifyAndLogin } from "@/lib/auth";
 import { OtpInput } from "@/components/auth/OtpInput";
+import { fadeDown, MOTION_DURATIONS, MOTION_EASINGS } from "@/lib/motion";
 
 function postLoginPath(role?: string) {
   if (role === "Admin") return "/admin";
@@ -211,7 +213,12 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-[76vh] items-center justify-center py-6 sm:py-10">
-      <div className="grid w-[min(100%,56rem)] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_60px_-34px_rgba(24,57,42,.42)] md:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: MOTION_DURATIONS.modal, ease: MOTION_EASINGS.gentle }}
+        className="grid w-[min(100%,56rem)] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_60px_-34px_rgba(24,57,42,.42)] md:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]"
+      >
         <aside className="relative hidden min-w-0 overflow-hidden bg-primary p-8 text-primary-foreground md:flex md:flex-col">
           <div className="relative z-10">
             <div className="flex items-center gap-2 text-sm font-bold"><span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15">🌱</span> KisaanBuddy</div>
@@ -278,28 +285,40 @@ export default function LoginPage() {
         </div>
 
         {/* Status Messages */}
-        {error && (
-          <div
-            className={`mb-5 flex items-start gap-2.5 rounded-xl p-3 text-xs ${
-              isLocked
-                ? "border border-destructive/30 bg-destructive/10 text-destructive"
-                : "border border-destructive/20 bg-destructive/5 text-destructive"
-            }`}
-            role="alert"
-          >
-            <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div
+              key="err"
+              variants={fadeDown}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className={`mb-5 flex items-start gap-2.5 rounded-xl p-3 text-xs ${
+                isLocked
+                  ? "border border-destructive/30 bg-destructive/10 text-destructive"
+                  : "border border-destructive/20 bg-destructive/5 text-destructive"
+              }`}
+              role="alert"
+            >
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </motion.div>
+          )}
 
-        {notice && (
-          <div
-            className="mb-5 rounded-xl border border-primary/30 bg-primary/10 p-2.5 text-center text-xs font-medium text-primary"
-            role="status"
-          >
-            {notice}
-          </div>
-        )}
+          {notice && (
+            <motion.div
+              key="note"
+              variants={fadeDown}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              className="mb-5 rounded-xl border border-primary/30 bg-primary/10 p-2.5 text-center text-xs font-medium text-primary"
+              role="status"
+            >
+              {notice}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Option A: Email & Password Login */}
         {authMode === "password" && (
@@ -507,7 +526,7 @@ export default function LoginPage() {
           </form>
         )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

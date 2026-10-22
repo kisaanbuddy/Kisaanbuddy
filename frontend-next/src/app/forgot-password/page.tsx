@@ -3,7 +3,9 @@
 import { useLanguage } from "@/lib/language";
 import { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Sparkles, Mail, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { fadeDown, MOTION_DURATIONS, MOTION_EASINGS } from "@/lib/motion";
 
 export default function ForgotPasswordPage() {
   const { t } = useLanguage();
@@ -64,7 +66,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-[75vh] items-center justify-center px-4 py-8">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: MOTION_DURATIONS.modal, ease: MOTION_EASINGS.gentle }}
+        className="w-full max-w-md rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-sm"
+      >
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-6">
           <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-3">
@@ -152,7 +159,7 @@ export default function ForgotPasswordPage() {
             </div>
           </form>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

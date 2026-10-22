@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   TrendingUp, TrendingDown, Minus, Search, ArrowRight,
   Filter, Calendar, Clock, RefreshCw, AlertCircle, MapPin, Tag
@@ -9,6 +10,8 @@ import {
 import { mandiApi } from '@/lib/farmer-api';
 import { useLanguage } from '@/lib/language';
 import { getHomepageI18n } from '@/lib/homepage-i18n';
+import { StaggerList, StaggerItem, SkeletonShimmer } from '@/components/motion/MotionComponents';
+import { cardHover, pressFeedback } from '@/lib/motion';
 
 interface MandiCropItem {
   id: number;
@@ -220,9 +223,21 @@ export function MandiIntelligenceSection() {
 
         {/* Data Display: Compact Responsive Grid of Market Price Cards */}
         {loading ? (
-          <div className="py-16 text-center text-stone-500 flex flex-col items-center justify-center gap-3">
-            <RefreshCw className="w-7 h-7 animate-spin text-emerald-600" />
-            <p className="text-sm font-semibold">Retrieving official wholesale mandi arrivals...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 w-2/3">
+                    <SkeletonShimmer className="h-4 w-20 rounded-full" />
+                    <SkeletonShimmer className="h-6 w-36 rounded-lg" />
+                  </div>
+                  <SkeletonShimmer className="h-5 w-14 rounded-full" />
+                </div>
+                <SkeletonShimmer className="h-4 w-44 rounded-md" />
+                <SkeletonShimmer className="h-16 w-full rounded-xl" />
+                <SkeletonShimmer className="h-10 w-full rounded-xl" />
+              </div>
+            ))}
           </div>
         ) : filteredCrops.length === 0 ? (
           <div className="p-10 text-center bg-stone-50 dark:bg-stone-800/40 border border-stone-200 dark:border-stone-800 rounded-2xl space-y-2">
@@ -237,100 +252,102 @@ export function MandiIntelligenceSection() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <StaggerList
+            staggerDelay={0.05}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
+          >
             {filteredCrops.slice(0, 6).map((crop) => {
               const modalVal = crop.modal_price || crop.price || 0;
               const minVal = crop.min_price || Math.round(modalVal * 0.92);
               const maxVal = crop.max_price || Math.round(modalVal * 1.08);
 
               return (
-                <div
-                  key={crop.id}
-                  className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
-                >
-                  <div className="space-y-3">
-                    {/* Top Row: Commodity & Trend Badge */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-bold mb-1 border border-stone-200 dark:border-stone-700">
-                          <span>{crop.category || 'Agricultural Crop'}</span>
+                <StaggerItem key={crop.id}>
+                  <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-4 h-full">
+                    <div className="space-y-3">
+                      {/* Top Row: Commodity & Trend Badge */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-bold mb-1 border border-stone-200 dark:border-stone-700">
+                            <span>{crop.category || 'Agricultural Crop'}</span>
+                          </div>
+                          <h3 className="text-lg font-bold text-stone-900 dark:text-white leading-tight">
+                            {crop.name}
+                          </h3>
+                          {crop.variety && (
+                            <p className="text-xs text-stone-500 font-medium">
+                              Variety: <span className="text-stone-700 dark:text-stone-300 font-semibold">{crop.variety}</span>
+                            </p>
+                          )}
                         </div>
-                        <h3 className="text-lg font-bold text-stone-900 dark:text-white leading-tight">
-                          {crop.name}
-                        </h3>
-                        {crop.variety && (
-                          <p className="text-xs text-stone-500 font-medium">
-                            Variety: <span className="text-stone-700 dark:text-stone-300 font-semibold">{crop.variety}</span>
-                          </p>
+
+                        {/* Trend Pill */}
+                        {crop.trend === 'up' ? (
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[11px] font-bold">
+                            <TrendingUp className="w-3 h-3 text-emerald-600 shrink-0" />
+                            <span>+{crop.change_percent || 2.1}%</span>
+                          </div>
+                        ) : crop.trend === 'down' ? (
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 text-[11px] font-bold">
+                            <TrendingDown className="w-3 h-3 text-rose-600 shrink-0" />
+                            <span>-{crop.change_percent || 1.4}%</span>
+                          </div>
+                        ) : (
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 text-[11px] font-bold">
+                            <Minus className="w-3 h-3 text-stone-500 shrink-0" />
+                            <span>Stable</span>
+                          </div>
                         )}
                       </div>
 
-                      {/* Trend Pill */}
-                      {crop.trend === 'up' ? (
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[11px] font-bold">
-                          <TrendingUp className="w-3 h-3 text-emerald-600 shrink-0" />
-                          <span>+{crop.change_percent || 2.1}%</span>
+                      {/* Market / Location Info */}
+                      <div className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-400">
+                        <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="font-semibold text-stone-800 dark:text-stone-200">{crop.mandi}</span>
+                        <span>&bull;</span>
+                        <span>{crop.state}</span>
+                      </div>
+
+                      {/* Price Metrics Strip */}
+                      <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 text-center">
+                        <div>
+                          <span className="text-[10px] text-stone-500 uppercase block font-semibold">{t.minPrice}</span>
+                          <span className="text-xs font-bold text-stone-700 dark:text-stone-300">₹{minVal.toLocaleString()}</span>
                         </div>
-                      ) : crop.trend === 'down' ? (
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 text-[11px] font-bold">
-                          <TrendingDown className="w-3 h-3 text-rose-600 shrink-0" />
-                          <span>-{crop.change_percent || 1.4}%</span>
+                        <div className="border-x border-stone-200 dark:border-stone-700 px-1">
+                          <span className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase block font-extrabold">{t.modalPrice}</span>
+                          <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">₹{modalVal.toLocaleString()}</span>
                         </div>
-                      ) : (
-                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 text-[11px] font-bold">
-                          <Minus className="w-3 h-3 text-stone-500 shrink-0" />
-                          <span>Stable</span>
+                        <div>
+                          <span className="text-[10px] text-stone-500 uppercase block font-semibold">{t.maxPrice}</span>
+                          <span className="text-xs font-bold text-stone-700 dark:text-stone-300">₹{maxVal.toLocaleString()}</span>
                         </div>
-                      )}
+                      </div>
                     </div>
 
-                    {/* Market / Location Info */}
-                    <div className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-400">
-                      <MapPin className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                      <span className="font-semibold text-stone-800 dark:text-stone-200">{crop.mandi}</span>
-                      <span>&bull;</span>
-                      <span>{crop.state}</span>
-                    </div>
+                    {/* Card Footer: Arrival volume & Action */}
+                    <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
+                      <div className="text-[11px] text-stone-500">
+                        {crop.arrival_tonnes ? (
+                          <span>Arrivals: <strong>{crop.arrival_tonnes.toLocaleString()} T</strong></span>
+                        ) : (
+                          <span>Unit: <strong>{t.unit}</strong></span>
+                        )}
+                      </div>
 
-                    {/* Price Metrics Strip */}
-                    <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 text-center">
-                      <div>
-                        <span className="text-[10px] text-stone-500 uppercase block font-semibold">{t.minPrice}</span>
-                        <span className="text-xs font-bold text-stone-700 dark:text-stone-300">₹{minVal.toLocaleString()}</span>
-                      </div>
-                      <div className="border-x border-stone-200 dark:border-stone-700 px-1">
-                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400 uppercase block font-extrabold">{t.modalPrice}</span>
-                        <span className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">₹{modalVal.toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-stone-500 uppercase block font-semibold">{t.maxPrice}</span>
-                        <span className="text-xs font-bold text-stone-700 dark:text-stone-300">₹{maxVal.toLocaleString()}</span>
-                      </div>
+                      <Link
+                        href={`/mandi?commodity=${encodeURIComponent(crop.name)}`}
+                        className="font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline flex items-center gap-1 group"
+                      >
+                        <span>Compare Rates</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
                     </div>
                   </div>
-
-                  {/* Card Footer: Arrival volume & Action */}
-                  <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-xs">
-                    <div className="text-[11px] text-stone-500">
-                      {crop.arrival_tonnes ? (
-                        <span>Arrivals: <strong>{crop.arrival_tonnes.toLocaleString()} T</strong></span>
-                      ) : (
-                        <span>Unit: <strong>{t.unit}</strong></span>
-                      )}
-                    </div>
-
-                    <Link
-                      href={`/mandi?commodity=${encodeURIComponent(crop.name)}`}
-                      className="font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 hover:underline flex items-center gap-1"
-                    >
-                      <span>Compare Rates</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerList>
         )}
 
         {/* Legal Mandi Data Transparency Strip */}

@@ -304,9 +304,17 @@ export default function DiseasePortal() {
               <div className="relative mt-2 overflow-hidden rounded-xl border border-emerald-500/30 shadow-sm group select-none">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={imageDataUrl} alt={t("disease.selected_leaf")} className="aspect-square w-full object-cover rounded-xl" />
+                {isStreaming && (
+                  <motion.div
+                    initial={{ top: "0%" }}
+                    animate={{ top: ["0%", "96%", "0%"] }}
+                    transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_12px_2px_rgba(52,211,153,0.8)] pointer-events-none z-10"
+                  />
+                )}
                 <button
                   type="button" onClick={() => setImage(null)}
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-black/70 text-white hover:bg-red-500 hover:scale-105 active:scale-95 transition-all"
+                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-black/70 text-white hover:bg-red-500 hover:scale-105 active:scale-95 transition-all z-20"
                   title={t("disease.remove_image")}
                 >
                   <X className="h-4 w-4" />

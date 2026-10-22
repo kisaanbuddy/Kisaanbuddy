@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { modalBackdropVariants, modalDialogVariants } from "@/lib/motion";
 import { X, Search, CheckCircle2, Clock, AlertTriangle, Shield, Building2, Calendar, FileText, Loader2 } from "lucide-react";
 import { AdvisoryCase } from "@/lib/disease-advisory-store";
 
@@ -37,8 +39,6 @@ export function TrackCaseModal({
       }
     } catch {}
   }, [initialCaseId]);
-
-  if (!isOpen) return null;
 
   async function fetchCase(idToSearch: string) {
     if (!idToSearch.trim()) return;
@@ -94,8 +94,22 @@ export function TrackCaseModal({
   const currentStep = caseData ? getStepIndex(caseData.status) : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="relative w-full max-w-lg rounded-2xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          variants={modalBackdropVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+        >
+          <motion.div
+            variants={modalDialogVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="relative w-full max-w-lg rounded-2xl border border-border/80 bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto"
+          >
         <button
           type="button"
           onClick={onClose}
@@ -243,7 +257,9 @@ export function TrackCaseModal({
             </div>
           </div>
         )}
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

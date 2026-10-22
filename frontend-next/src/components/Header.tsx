@@ -9,6 +9,8 @@ import {
   Store, BarChart3, Settings
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { dropdownVariants } from '@/lib/motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useLanguage, LANG_NAMES, LANG_DETAILS, SELECTABLE_LANGS, type Lang } from '@/lib/language';
@@ -328,10 +330,17 @@ export function Header() {
                 <span>{PUBLIC_NAV_LABELS.more_tools[lang] || "More"}</span>
                 <ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
               </button>
-              {toolsOpen && (
-                <>
-                  <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
-                  <div className="absolute right-0 top-9 z-50 grid w-56 grid-cols-1 gap-1 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-2 shadow-xl">
+              <AnimatePresence>
+                {toolsOpen && (
+                  <>
+                    <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      className="absolute right-0 top-9 z-50 grid w-56 grid-cols-1 gap-1 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-2 shadow-xl"
+                    >
                     <Link href="/dashboard" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <LayoutDashboard className="h-4 w-4 text-emerald-600" />
                       <span>Dashboard</span>
@@ -360,9 +369,10 @@ export function Header() {
                     <Link href="/about" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <span>About KisaanBuddy</span>
                     </Link>
-                  </div>
+                  </motion.div>
                 </>
               )}
+              </AnimatePresence>
             </div>
           </nav>
 
@@ -396,10 +406,17 @@ export function Header() {
                 <span className="hidden sm:inline">{LANG_NAMES[lang]}</span>
                 <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-150 ${langOpen ? 'rotate-180' : ''}`} />
               </button>
-              {langOpen && (
-                <>
-                  <button className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} aria-label={t("header.close")} />
-                  <div className="absolute right-0 top-10 z-50 w-48 max-h-80 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg p-1.5 space-y-0.5">
+              <AnimatePresence>
+                {langOpen && (
+                  <>
+                    <button className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} aria-label={t("header.close")} />
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      className="absolute right-0 top-10 z-50 w-48 max-h-80 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg p-1.5 space-y-0.5"
+                    >
                     {SELECTABLE_LANGS.map((l) => (
                       <button
                         key={l}
@@ -422,9 +439,10 @@ export function Header() {
                         {lang === l && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
                       </button>
                     ))}
-                  </div>
+                  </motion.div>
                 </>
               )}
+              </AnimatePresence>
             </div>
 
             {/* Logged-out Login + Start Free CTAs */}
@@ -513,19 +531,28 @@ export function Header() {
       </header>
 
       {/* ── Mobile Drawer ── */}
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-label={t("header.close_menu")}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-default transition-opacity"
-            onClick={() => setOpen(false)}
-          />
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.button
+              type="button"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              aria-label={t("header.close_menu")}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-default"
+              onClick={() => setOpen(false)}
+            />
 
-          <nav
-            className="fixed top-16 left-3 right-3 z-50 lg:hidden rounded-2xl border border-border bg-card p-4 shadow-xl flex flex-col gap-1.5 max-h-[82vh] overflow-y-auto"
-            aria-label={t("header.mobile_navigation")}
-          >
+            <motion.nav
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed top-16 left-3 right-3 z-50 lg:hidden rounded-2xl border border-border bg-card p-4 shadow-xl flex flex-col gap-1.5 max-h-[82vh] overflow-y-auto"
+              aria-label={t("header.mobile_navigation")}
+            >
             {showFullNav ? (
               <>
                 {/* User Info Row */}
@@ -721,9 +748,10 @@ export function Header() {
                 </div>
               </div>
             )}
-          </nav>
+          </motion.nav>
         </>
       )}
+      </AnimatePresence>
 
       {/* Global Search Modal Overlay */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

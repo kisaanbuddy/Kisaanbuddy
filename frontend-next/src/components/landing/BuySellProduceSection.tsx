@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Store, ArrowRight, CheckCircle2, ShieldCheck, MapPin,
   Calendar, Package, Sparkles, Building2, Tag, PlusCircle, Search
@@ -9,6 +10,7 @@ import {
 import { produceListingsApi, buyerRequirementsApi, ProduceListingItem, BuyerRequirementItem } from '@/lib/farmer-api';
 import { useLanguage } from '@/lib/language';
 import { getHomepageI18n } from '@/lib/homepage-i18n';
+import { slideInLeft, slideInRight, pressFeedback, MOTION_DURATIONS, MOTION_EASINGS } from '@/lib/motion';
 
 export function BuySellProduceSection() {
   const { lang } = useLanguage();
@@ -58,7 +60,13 @@ export function BuySellProduceSection() {
           {/* ======================================================== */}
           {/* PATHWAY A: SELL YOUR PRODUCE (FOR FARMERS & FPOs) */}
           {/* ======================================================== */}
-          <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between space-y-6">
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: MOTION_DURATIONS.reveal, ease: MOTION_EASINGS.gentle }}
+            className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-6"
+          >
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-800 dark:text-amber-300 text-xs font-bold border border-amber-500/20">
@@ -100,7 +108,7 @@ export function BuySellProduceSection() {
                   {produceItems.slice(0, 2).map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 space-y-1"
+                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 space-y-1 hover:border-emerald-500/40 transition-colors"
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-stone-900 dark:text-white">{item.crop_name}</span>
@@ -123,19 +131,25 @@ export function BuySellProduceSection() {
             <div className="pt-2">
               <Link
                 href="/marketplace?action=sell"
-                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-sm transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>{t.sellerCta}</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </div>
-          </div>
+          </motion.div>
 
           {/* ======================================================== */}
           {/* PATHWAY B: FIND PRODUCE & BUYERS (FOR TRADERS & FPOs) */}
           {/* ======================================================== */}
-          <div className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm flex flex-col justify-between space-y-6">
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: MOTION_DURATIONS.reveal, ease: MOTION_EASINGS.gentle }}
+            className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-6"
+          >
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 text-xs font-bold border border-emerald-500/20">
@@ -177,7 +191,7 @@ export function BuySellProduceSection() {
                   {buyerItems.slice(0, 2).map((item) => (
                     <div
                       key={item.id}
-                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 space-y-1"
+                      className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60 space-y-1 hover:border-emerald-500/40 transition-colors"
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-xs text-stone-900 dark:text-white">{item.commodity}</span>
@@ -202,14 +216,14 @@ export function BuySellProduceSection() {
             <div className="pt-2">
               <Link
                 href="/marketplace"
-                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white font-bold text-sm shadow-sm transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-stone-800 hover:bg-stone-900 dark:bg-stone-700 dark:hover:bg-stone-600 text-white font-bold text-sm shadow-sm hover:shadow-md transition-all active:scale-[0.99]"
               >
                 <Search className="w-4 h-4" />
                 <span>{t.buyerCta}</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>
             </div>
-          </div>
+          </motion.div>
 
         </div>
 

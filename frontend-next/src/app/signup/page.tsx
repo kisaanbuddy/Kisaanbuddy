@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { fadeDown, MOTION_DURATIONS, MOTION_EASINGS } from "@/lib/motion";
 import {
   Sprout,
   ShieldCheck,
@@ -223,7 +225,12 @@ export default function SignupPage() {
 
         {/* Right column: Signup Card */}
         <div className="md:col-span-6">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: MOTION_DURATIONS.modal, ease: MOTION_EASINGS.gentle }}
+            className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl"
+          >
             <div className="mb-6">
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
                 {step === "phone" && dict.stepPhoneTitle}
@@ -430,7 +437,7 @@ export default function SignupPage() {
                 {dict.signInLink}
               </Link>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

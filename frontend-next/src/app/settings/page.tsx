@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { PageTransition } from "@/components/motion/MotionComponents";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -79,7 +81,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 pb-16">
+    <PageTransition className="max-w-4xl mx-auto space-y-8 pb-16">
       {/* Header */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2">
@@ -257,6 +259,6 @@ export default function SettingsPage() {
           <span>Sign Out of KisaanBuddy</span>
         </button>
       </div>
-    </div>
+    </PageTransition>
   );
 }

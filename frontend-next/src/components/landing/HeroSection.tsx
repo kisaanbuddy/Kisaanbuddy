@@ -16,6 +16,8 @@ import {
   Globe,
 } from 'lucide-react';
 import { useLanguage, type Lang } from '@/lib/language';
+import { motion } from 'framer-motion';
+import { StaggerList, StaggerItem, MotionCard } from '@/components/motion/MotionComponents';
 
 interface HeroI18nContent {
   smallBadge: string;
@@ -153,67 +155,82 @@ export function HeroSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Column: Heading, Subtitle & Primary Actions */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+          <StaggerList className="lg:col-span-7 space-y-6 text-center lg:text-left">
             
             {/* Small Eyebrow Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-700/10 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-700/20 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              <span>{t.smallBadge}</span>
-            </div>
+            <StaggerItem>
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-700/10 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-700/20 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                <span>{t.smallBadge}</span>
+              </div>
+            </StaggerItem>
 
             {/* Main Headline in Dark Navy */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-[#0f241d] dark:text-white tracking-tight leading-[1.12]">
-              {t.heading}
-            </h1>
+            <StaggerItem>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-[#0f241d] dark:text-white tracking-tight leading-[1.12]">
+                {t.heading}
+              </h1>
+            </StaggerItem>
 
             {/* Supporting Copy */}
-            <p className="text-base sm:text-lg text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed mx-auto lg:mx-0">
-              {t.supportingText}
-            </p>
+            <StaggerItem>
+              <p className="text-base sm:text-lg text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed mx-auto lg:mx-0">
+                {t.supportingText}
+              </p>
+            </StaggerItem>
 
             {/* Two Primary CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
-              {/* CTA 1: Explore Farming Services */}
-              <a
-                href="#features"
-                onClick={handleScrollToFeatures}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow transition-all group"
-              >
-                <span>{t.ctaExplore}</span>
-                <ArrowDown className="w-4 h-4 text-emerald-200 group-hover:translate-y-0.5 transition-transform" />
-              </a>
+            <StaggerItem>
+              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
+                {/* CTA 1: Explore Farming Services */}
+                <a
+                  href="#features"
+                  onClick={handleScrollToFeatures}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-95 group cursor-pointer"
+                >
+                  <span>{t.ctaExplore}</span>
+                  <ArrowDown className="w-4 h-4 text-emerald-200 group-hover:translate-y-0.5 transition-transform" />
+                </a>
 
-              {/* CTA 2: Ask KisaanBuddy AI */}
-              <Link
-                href="/chatbot"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-[#0f241d] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300/90 dark:border-stone-700 shadow-2xs hover:shadow transition-all group"
-              >
-                <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
-                <span>{t.ctaAi}</span>
-              </Link>
-            </div>
+                {/* CTA 2: Ask KisaanBuddy AI */}
+                <Link
+                  href="/chatbot"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-[#0f241d] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300/90 dark:border-stone-700 shadow-2xs hover:shadow-md transition-all active:scale-95 group"
+                >
+                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                  <span>{t.ctaAi}</span>
+                </Link>
+              </div>
+            </StaggerItem>
 
             {/* Three Institutional Trust Pillars */}
-            <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-stone-600 dark:text-stone-400">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{t.trustPoint1}</span>
+            <StaggerItem>
+              <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-stone-600 dark:text-stone-400">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{t.trustPoint1}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{t.trustPoint2}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{t.trustPoint3}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{t.trustPoint2}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>{t.trustPoint3}</span>
-              </div>
-            </div>
+            </StaggerItem>
 
-          </div>
+          </StaggerList>
 
           {/* Right Column: Authentic Indian Farming Visual Card */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-md">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5 relative"
+          >
+            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl transition-shadow">
               
               {/* Authentic Indian Farmer Photograph */}
               <div className="relative h-64 sm:h-72 md:h-80 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
@@ -293,7 +310,7 @@ export function HeroSection() {
               </div>
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>
