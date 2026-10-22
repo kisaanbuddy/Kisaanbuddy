@@ -5,10 +5,34 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Phone, ArrowRight, Check, RefreshCw, AlertTriangle } from "lucide-react";
-import { useAuth, sendOtp, verifyOtp, completeOtpRegistration, verifyAndLogin } from "@/lib/auth";
+import {
+  Loader2,
+  Sparkles,
+  Phone,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  RefreshCw,
+  AlertTriangle,
+  X,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  CheckCircle2,
+  Smartphone,
+  KeyRound,
+} from "lucide-react";
+import {
+  useAuth,
+  sendOtp,
+  verifyOtp,
+  completeOtpRegistration,
+  verifyAndLogin,
+} from "@/lib/auth";
 import { OtpInput } from "@/components/auth/OtpInput";
-import { fadeDown, MOTION_DURATIONS, MOTION_EASINGS } from "@/lib/motion";
+import { fadeDown } from "@/lib/motion";
 
 function postLoginPath(role?: string) {
   if (role === "Admin") return "/admin";
@@ -19,26 +43,7 @@ function postLoginPath(role?: string) {
 }
 
 export default function LoginPage() {
-  const { t } = useLanguage();
-  const lt = {
-    welcomeBack: t("login.welcomeBack"),
-    signInToAccess: t("login.signInToAccess"),
-    phoneLabel: t("login.phoneLabel"),
-    phonePlaceholder: t("login.phonePlaceholder"),
-    sendOtp: t("login.sendOtp"),
-    sendingOtp: t("login.sendingOtp"),
-    otpLabel: t("login.otpLabel"),
-    otpPlaceholder: t("login.otpPlaceholder"),
-    verifyOtp: t("login.verifyOtp"),
-    verifyingOtp: t("login.verifyingOtp"),
-    nameLabel: t("login.nameLabel"),
-    namePlaceholder: t("login.namePlaceholder"),
-    completeRegistration: t("login.completeRegistration"),
-    phoneError: t("login.phoneError"),
-    otpError: t("login.otpError"),
-    nameError: t("login.nameError"),
-    incorrectOtp: t("login.incorrectOtp"),
-  };
+  const { t, lang } = useLanguage();
   const router = useRouter();
   const { user, ready } = useAuth();
 
@@ -54,14 +59,39 @@ export default function LoginPage() {
   const [authMode, setAuthMode] = useState<"otp" | "password">("otp");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Translations
+  const isHi = lang === "hi";
+  const isKn = lang === "kn";
+
+  const labels = {
+    title: isHi ? "किसान लॉगिन" : isKn ? "ರೈತರ ಲಾಗಿನ್" : "Farmer Login",
+    subtitle: isHi
+      ? "अपने मोबाइल नंबर से 1-क्लिक OTP द्वारा सुरक्षित प्रवेश करें"
+      : isKn
+      ? "ನಿಮ್ಮ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಸುರಕ್ಷಿತವಾಗಿ ಪ್ರವೇಶಿಸಿ"
+      : "Sign in with your mobile number to access your farm services.",
+    phoneTab: isHi ? "मोबाइल OTP" : isKn ? "ಮೊಬೈಲ್ OTP" : "Mobile OTP",
+    passwordTab: isHi ? "ईमेल व पासवर्ड" : isKn ? "ಇಮೇಲ್ & ಪಾಸ್‌ವರ್ಡ್" : "Email & Password",
+    phonePlaceholder: isHi ? "10 अंकों का मोबाइल नंबर" : isKn ? "10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" : "Enter 10-digit mobile number",
+    sendOtpBtn: isHi ? "OTP भेजें" : isKn ? "OTP ಕಳುಹಿಸಿ" : "Send Login OTP",
+    sending: isHi ? "OTP भेजा जा रहा है..." : isKn ? "ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ..." : "Sending OTP...",
+    verifyBtn: isHi ? "सत्यापित करें और आगे बढ़ें" : isKn ? "ದೃಢೀಕರಿಸಿ ಮುಂದುವರಿಯಿರಿ" : "Verify & Open Farm",
+    verifying: isHi ? "सत्यापित हो रहा है..." : isKn ? "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ..." : "Verifying code...",
+    otpSentTo: isHi ? "OTP इस नंबर पर भेजा गया:" : isKn ? "OTP ಕಳುಹಿಸಲಾದ ಸಂಖ್ಯೆ:" : "6-digit OTP sent to",
+    changeNumber: isHi ? "नंबर बदलें" : isKn ? "ಸಂಖ್ಯೆ ಬದಲಿಸಿ" : "Change number",
+    resend: isHi ? "OTP पुनः भेजें" : isKn ? "ಮತ್ತೆ ಕಳುಹಿಸಿ" : "Resend OTP",
+    resendIn: isHi ? "सेकंड बाद पुनः भेजें" : isKn ? "ಸೆಕೆಂಡುಗಳ ನಂತರ" : "Resend in",
+    namePrompt: isHi ? "आपका शुभ नाम" : isKn ? "ನಿಮ್ಮ ಹೆಸರು" : "Your Full Name",
+    namePlaceholder: isHi ? "उदा. रमेश कुमार" : isKn ? "ಉದಾ. ರಮೇಶ್ ಕುಮಾರ್" : "e.g. Ramesh Kumar",
+    completeReg: isHi ? "प्रोफाइल बनाएं व शुरू करें" : isKn ? "ಖಾತೆ ತೆರೆಯಿರಿ" : "Complete & Enter Dashboard",
+    trustSecure: isHi ? "100% सुरक्षित और निःशुल्क" : isKn ? "100% ಸುರಕ್ಷಿತ & ಉಚಿತ" : "100% Secure & Free for Farmers",
+    trustEnam: isHi ? "अधिकृत e-NAM व कृषि गेटवे" : isKn ? "ಅಧಿಕೃತ e-NAM ಕೃಷಿ ವೇದಿಕೆ" : "Official e-NAM & APMC Connected",
+  };
 
   // Only redirect if the session was already valid BEFORE the user reached
   // this page (e.g. they typed /login in the address bar while logged in).
-  // Post-login handlers below use window.location.href — a full-page
-  // navigation — so the HttpOnly Set-Cookie header from /api/auth/verify-otp
-  // is committed to the browser jar BEFORE Next.js middleware calls
-  // /api/auth/me on the destination route.  router.replace() is a client-side
-  // SPA hop that races with cookie propagation and causes the OTP loop.
   useEffect(() => {
     if (ready && user) {
       window.location.replace(postLoginPath(user.role));
@@ -77,8 +107,8 @@ export default function LoginPage() {
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  const handleSendOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const cleanPhone = phone.trim().replace(/[^0-9]/g, "");
     const indianPhoneRegex = /^[6-9]\d{9}$/;
     const fakeNumbers = [
@@ -88,10 +118,14 @@ export default function LoginPage() {
       "3333333333",
       "4444444444",
       "5555555555",
-      "1234567890"
+      "1234567890",
     ];
     if (!indianPhoneRegex.test(cleanPhone) || fakeNumbers.includes(cleanPhone)) {
-      setError(t("ui.auth.invalid_phone"));
+      setError(
+        isHi
+          ? "कृपया 10 अंकों का वैध भारतीय मोबाइल नंबर दर्ज करें (6-9 से शुरू)।"
+          : "Please enter a valid 10-digit Indian mobile number starting with 6-9."
+      );
       return;
     }
 
@@ -101,65 +135,55 @@ export default function LoginPage() {
 
     const res = await sendOtp(cleanPhone);
     setLoading(false);
+
     if (res.ok) {
       setStep("otp");
-      setResendCooldown(res.resendAfter || 30);
-      setNotice(t("ui.auth.otp_sent"));
+      setResendCooldown(30);
+      setNotice(
+        isHi
+          ? `+91 ${cleanPhone} पर 6-अंकों का OTP भेजा गया है।`
+          : `6-digit OTP sent to +91 ${cleanPhone}.`
+      );
     } else {
-      setError(res.error || t("ui.auth.otp_send_failed"));
+      setError(res.error || "Failed to send OTP. Please try again.");
     }
   };
 
-  const handleResendOtp = async () => {
-    if (resendCooldown > 0) return;
-    setLoading(true);
-    setError(null);
-    setNotice(null);
-    const res = await sendOtp(phone);
-    setLoading(false);
-    if (res.ok) {
-      setResendCooldown(res.resendAfter || 30);
-      setNotice(t("ui.auth.otp_resent"));
-    } else {
-      setError(res.error || t("ui.auth.otp_resend_failed"));
-    }
-  };
-
-  const handleVerifyOtp = async (e?: React.FormEvent, otpOverride?: string) => {
-    if (e && "preventDefault" in e) e.preventDefault();
-    const targetOtp = otpOverride || otp;
-    const cleanOtp = targetOtp.trim().replace(/[^0-9]/g, "");
-    if (cleanOtp.length !== 6) {
-      setError(lt.otpError);
+  const handleVerifyOtp = async (codeToVerify?: string) => {
+    const finalOtp = codeToVerify || otp;
+    if (!finalOtp || finalOtp.length !== 6) {
+      setError(isHi ? "कृपया 6 अंकों का OTP दर्ज करें।" : "Please enter the full 6-digit OTP code.");
       return;
     }
 
+    const cleanPhone = phone.trim().replace(/[^0-9]/g, "");
     setLoading(true);
     setError(null);
     setNotice(null);
 
-    const res = await verifyOtp(phone, cleanOtp);
+    const res = await verifyOtp(cleanPhone, finalOtp);
+
     if (res.ok) {
-      if (res.registered) {
-        // Full-page navigation: browser flushes the Set-Cookie header from
-        // verify-otp BEFORE middleware validates the session on destination.
-        window.location.href = postLoginPath(res.user.role);
-      } else {
+      if (!res.registered) {
         setRegistrationToken(res.registrationToken);
-        setLoading(false);
         setStep("register");
+        setLoading(false);
+      } else {
+        // Full page reload committed to browser cookie jar
+        window.location.href = postLoginPath(res.user?.role);
       }
     } else {
       setLoading(false);
-      setError(res.error || t("ui.auth.otp_incorrect"));
+      setError(
+        res.error || (isHi ? "गलत OTP कोड। कृपया पुनः प्रयास करें।" : "Incorrect OTP code. Please check and try again.")
+      );
     }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanName = name.trim();
-    if (!cleanName) {
-      setError(lt.nameError);
+    if (!name.trim()) {
+      setError(isHi ? "कृपया अपना नाम दर्ज करें।" : "Please enter your full name.");
       return;
     }
 
@@ -167,20 +191,19 @@ export default function LoginPage() {
     setError(null);
     setNotice(null);
 
-    const res = await completeOtpRegistration(registrationToken, cleanName);
+    const res = await completeOtpRegistration(registrationToken, name.trim());
     if (res.ok) {
-      // Full-page navigation to onboarding wizard so new farmers set up their farm profile
-      window.location.href = "/onboarding";
+      window.location.href = postLoginPath(res.user?.role);
     } else {
       setLoading(false);
-      setError(res.error || "Registration failed. Please try again.");
+      setError(res.error || "Failed to complete registration.");
     }
   };
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError(isHi ? "कृपया ईमेल और पासवर्ड दोनों दर्ज करें।" : "Please enter both email and password.");
       return;
     }
     setLoading(true);
@@ -188,343 +211,447 @@ export default function LoginPage() {
     setNotice(null);
     const res = await verifyAndLogin(email, password);
     if (res.ok) {
-      // Full-page navigation so cookie is committed before middleware runs.
       window.location.href = postLoginPath(res.user.role);
     } else {
       setLoading(false);
-      setError(res.error || "Invalid email or password.");
+      setError(res.error || (isHi ? "अमान्य ईमेल या पासवर्ड।" : "Invalid email or password."));
     }
   };
 
-  const isLocked = error?.toLowerCase().includes("lock") || error?.toLowerCase().includes("too many");
+  const handleClose = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/");
+    }
+  };
 
-  // Do not flash the OTP form while the root auth provider validates the
-  // persistent HttpOnly-cookie session.
+  const isLocked =
+    error?.toLowerCase().includes("lock") || error?.toLowerCase().includes("too many");
+
+  // Loading session check
   if (!ready || user) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center" role="status" aria-live="polite">
-        <div className="flex items-center gap-3 text-sm font-semibold text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          {user ? "Opening your dashboard…" : "Checking your secure session…"}
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#F7F9F4]/90 dark:bg-stone-950/90 backdrop-blur-md">
+        <div className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl">
+          <Loader2 className="h-6 w-6 animate-spin text-[#27834A]" />
+          <span className="text-xs font-bold text-[#174B35] dark:text-stone-200">
+            {user ? "Opening your farm dashboard…" : "Verifying secure session…"}
+          </span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-[76vh] items-center justify-center py-6 sm:py-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto bg-stone-950/60 backdrop-blur-md">
+      {/* Background ambient glowing orbs */}
+      <div className="absolute top-1/4 -left-20 w-80 h-80 rounded-full bg-[#27834A]/25 blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-[#F2B84B]/20 blur-[100px] pointer-events-none" />
+
+      {/* Floating Modal Window */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.98, y: 12 }}
+        initial={{ opacity: 0, scale: 0.94, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: MOTION_DURATIONS.modal, ease: MOTION_EASINGS.gentle }}
-        className="grid w-[min(100%,56rem)] overflow-hidden rounded-[1.5rem] border border-border bg-card shadow-[0_24px_60px_-34px_rgba(24,57,42,.42)] md:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]"
+        exit={{ opacity: 0, scale: 0.94, y: 16 }}
+        transition={{ type: "spring", damping: 26, stiffness: 320 }}
+        className="relative w-full max-w-md sm:max-w-lg rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-[0_24px_70px_rgba(23,75,53,0.18)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.7)] overflow-hidden my-auto"
       >
-        <aside className="relative hidden min-w-0 overflow-hidden bg-primary p-8 text-primary-foreground md:flex md:flex-col">
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 text-sm font-bold"><span className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15">🌱</span> KisaanBuddy</div>
-            <p className="mt-16 text-3xl font-bold leading-tight tracking-tight">{t("login.welcomeBack")}</p>
-            <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/75">One simple place for the information that matters on your farm.</p>
+        {/* Top Decorative Agrarian Header Bar */}
+        <div className="relative px-6 pt-6 pb-5 bg-gradient-to-r from-[#174B35] to-[#27834A] text-white">
+          {/* Close Button */}
+          <button
+            onClick={handleClose}
+            aria-label="Close"
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-all active:scale-95 cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          {/* Eyebrow Pill */}
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-xs text-[11px] font-bold text-emerald-100 mb-2.5 border border-white/20">
+            <span className="w-2 h-2 rounded-full bg-[#78B957] animate-pulse" />
+            <span>KisaanBuddy Secure Login</span>
           </div>
-          <div className="relative z-10 mt-auto rounded-2xl border border-white/15 bg-white/10 p-4 text-xs leading-relaxed text-white/85">
-            <p className="font-semibold text-white">{t("login.phoneLabel")}</p>
-            <p className="mt-1">Use a mobile number to sign in securely with a one-time password.</p>
-          </div>
-          <div className="absolute -bottom-20 -right-14 h-64 w-64 rounded-full border-[28px] border-white/10" />
-          <div className="absolute right-10 top-28 h-16 w-16 rounded-full bg-[#f3c76d]/80" />
-        </aside>
-        <div className="min-w-0 w-full p-6 sm:p-8 md:p-10">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center mb-6">
-          <div className="h-11 w-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-3">
-            <Sparkles className="h-5 w-5" />
-          </div>
-          <h1 className="text-2xl font-bold font-display text-foreground tracking-tight">
-            {lt.welcomeBack}
-          </h1>
-          <p className="text-xs md:text-sm text-muted-foreground mt-1.5 max-w-xs leading-relaxed">
-            {authMode === "password"
-              ? "Sign in with your Email & Password (Founders / Admin / Users)"
-              : step === "phone"
-              ? lt.signInToAccess
-              : step === "otp"
-              ? `${lt.otpLabel} sent to +91 ${phone.substring(0, 2)}******${phone.substring(8, 10)}`
-              : lt.namePlaceholder}
+
+          <h2 className="text-2xl sm:text-[26px] font-black text-white tracking-tight leading-tight">
+            {labels.title}
+          </h2>
+
+          <p className="text-xs sm:text-[13px] text-emerald-50/85 mt-1 leading-relaxed">
+            {labels.subtitle}
           </p>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-muted/60 mb-5 text-xs font-semibold">
-          <button
-            type="button"
-            onClick={() => {
-              setAuthMode("otp");
-              setError(null);
-            }}
-            className={`py-2 rounded-lg transition-all ${
-              authMode === "otp"
-                ? "bg-card text-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            📱 Mobile OTP
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setAuthMode("password");
-              setError(null);
-            }}
-            className={`py-2 rounded-lg transition-all ${
-              authMode === "password"
-                ? "bg-card text-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            🔑 Email & Password
-          </button>
-        </div>
-
-        {/* Status Messages */}
-        <AnimatePresence mode="wait">
-          {error && (
-            <motion.div
-              key="err"
-              variants={fadeDown}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className={`mb-5 flex items-start gap-2.5 rounded-xl p-3 text-xs ${
-                isLocked
-                  ? "border border-destructive/30 bg-destructive/10 text-destructive"
-                  : "border border-destructive/20 bg-destructive/5 text-destructive"
+        {/* Modal Body */}
+        <div className="p-5 sm:p-7 space-y-5">
+          {/* Advanced Tab Switcher */}
+          <div className="grid grid-cols-2 p-1 rounded-2xl bg-stone-100 dark:bg-stone-800/80 border border-stone-200/80 dark:border-stone-700/60 text-xs font-bold relative">
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("otp");
+                setError(null);
+              }}
+              className={`relative z-10 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-colors ${
+                authMode === "otp"
+                  ? "text-[#174B35] dark:text-white"
+                  : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
               }`}
-              role="alert"
             >
-              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
-              <span>{error}</span>
-            </motion.div>
-          )}
-
-          {notice && (
-            <motion.div
-              key="note"
-              variants={fadeDown}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              className="mb-5 rounded-xl border border-primary/30 bg-primary/10 p-2.5 text-center text-xs font-medium text-primary"
-              role="status"
-            >
-              {notice}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Option A: Email & Password Login */}
-        {authMode === "password" && (
-          <form onSubmit={handlePasswordLogin} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Email Address
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="aditya@kisaanbuddy.com"
-                disabled={loading}
-                className="input-base h-11"
-                autoFocus
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Password
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-[11px] text-primary hover:underline font-medium"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                disabled={loading}
-                className="input-base h-11"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full h-11 gap-2 text-sm font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Signing In...</span>
-                </>
-              ) : (
-                <>
-                  <span>Sign In as Admin / User</span>
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </form>
-        )}
-
-        {/* Option B: Mobile OTP Form */}
-        {authMode === "otp" && step === "phone" && (
-          <form onSubmit={handleSendOtp} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {lt.phoneLabel}
-              </label>
-              <div className="relative flex items-center">
-                <div className="absolute left-3 flex items-center gap-1.5 text-muted-foreground">
-                  <Phone className="h-4 w-4 text-muted-foreground/70" />
-                  <span className="text-xs font-semibold text-foreground border-r border-border pr-2">
-                    +91
-                  </span>
-                </div>
-                <input
-                  type="tel"
-                  required
-                  value={phone}
-                  maxLength={10}
-                  onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder={lt.phonePlaceholder}
-                  disabled={loading}
-                  className="w-full h-11 rounded-lg border border-border bg-background pl-[78px] pr-4 text-sm font-medium font-mono text-foreground placeholder:text-muted-foreground/60 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-50"
-                  autoFocus
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>{labels.phoneTab}</span>
+              {authMode === "otp" && (
+                <motion.div
+                  layoutId="activeLoginTab"
+                  className="absolute inset-0 bg-white dark:bg-stone-700 rounded-xl shadow-xs -z-10"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full h-11 gap-2 text-sm font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{lt.sendingOtp}</span>
-                </>
-              ) : (
-                <>
-                  <span>{lt.sendOtp}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </>
               )}
             </button>
-          </form>
-        )}
 
-        {/* Step 2: OTP Verification Form */}
-        {authMode === "otp" && step === "otp" && (
-          <form onSubmit={handleVerifyOtp} className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {lt.otpPlaceholder}
-              </label>
-              <OtpInput value={otp} onChange={setOtp} onComplete={(code) => { if (!loading) handleVerifyOtp(undefined, code); }} disabled={loading} />
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode("password");
+                setError(null);
+              }}
+              className={`relative z-10 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-colors ${
+                authMode === "password"
+                  ? "text-[#174B35] dark:text-white"
+                  : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
+              }`}
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span>{labels.passwordTab}</span>
+              {authMode === "password" && (
+                <motion.div
+                  layoutId="activeLoginTab"
+                  className="absolute inset-0 bg-white dark:bg-stone-700 rounded-xl shadow-xs -z-10"
+                  transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                />
+              )}
+            </button>
+          </div>
 
-            <div className="flex justify-between items-center text-xs pt-1">
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => { setStep("phone"); setError(null); }}
-                className="text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50 font-medium"
+          {/* Status Feedback Alerts */}
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div
+                key="err"
+                variants={fadeDown}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className={`p-3 rounded-2xl text-xs flex items-start gap-2.5 ${
+                  isLocked
+                    ? "border border-red-300 bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300"
+                    : "border border-red-200 bg-red-50/90 text-red-700 dark:bg-red-950/30 dark:text-red-300"
+                }`}
+                role="alert"
               >
-                ← {t("ui.auth.change_phone")}
-              </button>
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-red-600" />
+                <span className="leading-snug">{error}</span>
+              </motion.div>
+            )}
 
-              {resendCooldown > 0 ? (
-                <span className="text-muted-foreground flex items-center gap-1.5 font-medium">
-                  <RefreshCw className="h-3 w-3 animate-spin text-primary" />
-                  {t("ui.auth.resend_in").replace("{seconds}", String(resendCooldown))}
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleResendOtp}
-                  disabled={loading}
-                  className="text-primary hover:underline font-semibold transition-colors disabled:opacity-50"
-                >
-                  {t("ui.auth.resend_otp")}
-                </button>
+            {notice && (
+              <motion.div
+                key="note"
+                variants={fadeDown}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="p-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold flex items-center gap-2"
+                role="status"
+              >
+                <CheckCircle2 className="h-4 w-4 text-[#27834A] shrink-0" />
+                <span>{notice}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* FLOW A: MOBILE PHONE + OTP */}
+          {authMode === "otp" && (
+            <div className="space-y-4">
+              {/* STEP 1: Phone Entry */}
+              {step === "phone" && (
+                <form onSubmit={handleSendOtp} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300 flex items-center justify-between">
+                      <span>{isHi ? "मोबाइल नंबर" : "Mobile Phone Number"}</span>
+                      <span className="text-[11px] text-stone-500 font-normal">
+                        {phone.replace(/\D/g, "").length}/10 {isHi ? "अंक" : "digits"}
+                      </span>
+                    </label>
+
+                    {/* Styled Phone Input with Indian Flag Badge */}
+                    <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden shadow-2xs">
+                      <div className="flex items-center gap-1.5 px-3.5 py-3 bg-stone-100/90 dark:bg-stone-700/80 border-r border-stone-200 dark:border-stone-700 text-xs font-bold text-stone-800 dark:text-stone-200 select-none">
+                        <span className="text-base leading-none">🇮🇳</span>
+                        <span>+91</span>
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, "").slice(0, 10);
+                          setPhone(val);
+                          if (error) setError(null);
+                        }}
+                        placeholder={labels.phonePlaceholder}
+                        disabled={loading}
+                        className="w-full px-3.5 py-3 text-sm font-semibold tracking-wider text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                        autoFocus
+                        inputMode="numeric"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || phone.replace(/\D/g, "").length !== 10}
+                    className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>{labels.sending}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{labels.sendOtpBtn}</span>
+                        <ArrowRight className="w-4 h-4 text-[#78B957]" />
+                      </>
+                    )}
+                  </button>
+                </form>
+              )}
+
+              {/* STEP 2: 6-Digit OTP Verification */}
+              {step === "otp" && (
+                <div className="space-y-4">
+                  <div className="p-3.5 rounded-2xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/80 dark:border-stone-700/60 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-stone-500 block text-[11px] font-medium">
+                        {labels.otpSentTo}
+                      </span>
+                      <span className="font-bold text-[#174B35] dark:text-white text-sm tracking-wide">
+                        +91 {phone}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep("phone");
+                        setOtp("");
+                        setError(null);
+                      }}
+                      className="px-2.5 py-1 rounded-lg text-[11px] font-bold text-[#27834A] hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors"
+                    >
+                      {labels.changeNumber}
+                    </button>
+                  </div>
+
+                  {/* 6 Individual OTP Boxes */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300 block text-center">
+                      {isHi ? "6 अंकों का OTP दर्ज करें" : "Enter 6-digit OTP code"}
+                    </label>
+                    <OtpInput
+                      value={otp}
+                      onChange={(val) => {
+                        setOtp(val);
+                        if (error) setError(null);
+                      }}
+                      onComplete={(val) => handleVerifyOtp(val)}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  {/* Verify Action Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleVerifyOtp()}
+                    disabled={loading || otp.length !== 6}
+                    className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>{labels.verifying}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{labels.verifyBtn}</span>
+                        <Check className="w-4 h-4 text-[#78B957]" />
+                      </>
+                    )}
+                  </button>
+
+                  {/* Resend Cooldown Counter */}
+                  <div className="text-center pt-1 text-xs">
+                    {resendCooldown > 0 ? (
+                      <span className="text-stone-500 font-medium">
+                        {labels.resendIn}{" "}
+                        <span className="font-mono font-bold text-[#174B35] dark:text-emerald-400">
+                          {resendCooldown}s
+                        </span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleSendOtp()}
+                        disabled={loading}
+                        className="inline-flex items-center gap-1.5 font-bold text-[#27834A] hover:underline"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>{labels.resend}</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* STEP 3: Complete Name Registration (First-time user) */}
+              {step === "register" && (
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-[#174B35] dark:text-emerald-200">
+                    <p className="font-bold">
+                      {isHi ? "स्वागत है! आपकी प्रोफाइल पूरी करें" : "Welcome! Please enter your name to finish setup"}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                      {labels.namePrompt}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder={labels.namePlaceholder}
+                      disabled={loading}
+                      className="w-full px-3.5 py-3 rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 focus:border-[#27834A] focus:ring-2 focus:ring-[#27834A]/20 outline-none"
+                      autoFocus
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading || !name.trim()}
+                    className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 text-white font-bold text-sm shadow-md transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>{labels.verifying}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{labels.completeReg}</span>
+                        <ArrowRight className="w-4 h-4 text-[#78B957]" />
+                      </>
+                    )}
+                  </button>
+                </form>
               )}
             </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full h-11 gap-2 text-sm font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{lt.verifyingOtp}</span>
-                </>
-              ) : (
-                <>
-                  <span>{lt.verifyOtp}</span>
-                  <Check className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </form>
-        )}
+          {/* FLOW B: EMAIL & PASSWORD (Admin / Staff / Users) */}
+          {authMode === "password" && (
+            <form onSubmit={handlePasswordLogin} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                  {isHi ? "ईमेल पता" : "Email Address"}
+                </label>
+                <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                  <div className="pl-3.5 pr-2 text-stone-400">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="farmer@kisaanbuddy.com"
+                    disabled={loading}
+                    className="w-full pr-3.5 py-3 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                    autoFocus
+                  />
+                </div>
+              </div>
 
-        {/* Step 3: Registration Form (For first-time phone numbers) */}
-        {step === "register" && (
-          <form onSubmit={handleRegister} className="space-y-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {lt.nameLabel}
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={lt.namePlaceholder}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                    {isHi ? "पासवर्ड" : "Password"}
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-[11px] font-bold text-[#27834A] hover:underline"
+                  >
+                    {isHi ? "पासवर्ड भूल गए?" : "Forgot password?"}
+                  </Link>
+                </div>
+
+                <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                  <div className="pl-3.5 pr-2 text-stone-400">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    disabled={loading}
+                    className="w-full pr-10 py-3 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
                 disabled={loading}
-                className="input-base h-11"
-                autoFocus
-              />
-            </div>
+                className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>{isHi ? "साइन इन हो रहा है..." : "Signing in..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{isHi ? "पासवर्ड से साइन इन करें" : "Sign In with Password"}</span>
+                    <ArrowRight className="w-4 h-4 text-[#78B957]" />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full h-11 gap-2 text-sm font-semibold"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>{lt.verifyingOtp}</span>
-                </>
-              ) : (
-                <>
-                  <span>{lt.completeRegistration}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </form>
-        )}
+          {/* Bottom Trust & Security Pill Strip */}
+          <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-[11px] text-stone-500 font-medium">
+            <div className="flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#27834A]" />
+              <span>{labels.trustSecure}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#27834A]" />
+              <span>{labels.trustEnam}</span>
+            </div>
+          </div>
         </div>
       </motion.div>
     </div>
