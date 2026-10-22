@@ -226,10 +226,10 @@ export function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 w-full transition-all duration-200 border-b ${
+        className={`sticky top-0 z-40 w-full transition-all duration-300 border-b ${
           scrolled
-            ? 'bg-background/90 backdrop-blur-md border-border/80 shadow-2xs'
-            : 'bg-background/70 backdrop-blur-xs border-border/60'
+            ? 'bg-white/85 dark:bg-stone-950/85 backdrop-blur-md border-emerald-500/10 shadow-[0_4px_20px_-4px_rgba(5,150,105,0.08)]'
+            : 'bg-white/70 dark:bg-stone-950/70 backdrop-blur-sm border-border/50'
         }`}
       >
         <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -237,17 +237,19 @@ export function Header() {
           <Link
             href={user ? '/dashboard' : '/'}
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 shrink-0 group select-none"
+            className="flex items-center gap-2.5 shrink-0 group select-none"
           >
-          <img
-            src="/logo.jpeg"
-            alt="KisaanBuddy Logo"
-           className="w-7 h-7 object-contain"
-          />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/20 p-1 border border-emerald-500/25 shadow-xs flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <img
+                src="/logo.jpeg"
+                alt="KisaanBuddy Logo"
+                className="w-full h-full object-contain rounded-lg"
+              />
+            </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg md:text-xl tracking-tight">
-                <span className="font-extrabold text-foreground">Kisaan</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400">Buddy</span>
+                <span className="font-extrabold text-stone-900 dark:text-white">Kisaan</span>
+                <span className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Buddy</span>
               </span>
               {isPublic && !user && (
                 <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80">
@@ -456,7 +458,7 @@ export function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex h-8 items-center justify-center rounded-lg bg-[#14532D] hover:bg-[#166534] px-3.5 text-xs font-semibold text-white shadow-xs transition-colors"
+                  className="inline-flex h-8.5 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:to-teal-800 px-4 text-xs font-bold text-white shadow-sm shadow-emerald-700/25 hover:shadow-md hover:shadow-emerald-700/35 active:scale-95 transition-all duration-200"
                 >
                   {PUBLIC_NAV_LABELS.get_started[lang] || PUBLIC_NAV_LABELS.get_started.en}
                 </Link>
@@ -741,7 +743,7 @@ export function Header() {
                   <Link
                     href="/signup"
                     onClick={() => setOpen(false)}
-                    className="rounded-lg bg-[#14532D] hover:bg-[#166534] px-4 py-2.5 text-center text-xs font-bold text-white shadow-xs transition-colors"
+                    className="rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:to-teal-800 px-4 py-2.5 text-center text-xs font-bold text-white shadow-md shadow-emerald-700/25 active:scale-95 transition-all duration-200"
                   >
                     {PUBLIC_NAV_LABELS.get_started[lang] || "Get Started"}
                   </Link>

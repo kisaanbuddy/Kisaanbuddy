@@ -632,7 +632,7 @@ export function FeatureShowcaseSection() {
               <StaggerItem key={card.id}>
                 <Link
                   href={card.link}
-                  className="group flex flex-col justify-between h-full rounded-2xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-xs hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+                  className="group flex flex-col justify-between h-full rounded-3xl bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_16px_36px_rgba(5,150,105,0.12)] hover:-translate-y-1.5 hover:border-emerald-500/40 transition-all duration-300 overflow-hidden"
                 >
                   {/* Real Agricultural Photograph with Small Category Badge */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
@@ -657,7 +657,7 @@ export function FeatureShowcaseSection() {
                     <div>
                       {/* Feature title with a small icon */}
                       <div className="flex items-start gap-2.5 mb-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-200/70 dark:border-emerald-800/70 mt-0.5 group-hover:bg-emerald-700 group-hover:text-white transition-colors duration-200">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/10 to-teal-500/20 text-emerald-700 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20 mt-0.5 group-hover:from-emerald-600 group-hover:to-teal-600 group-hover:text-white transition-all duration-300">
                           <Icon className="w-4 h-4" />
                         </div>
                         <h3 className="font-bold text-base sm:text-lg text-[#0f241d] dark:text-stone-100 leading-snug group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors duration-200">

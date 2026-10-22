@@ -148,6 +148,11 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#fbfbf9] via-stone-50/70 to-white dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-16 border-b border-stone-200/80 dark:border-stone-800">
+      {/* Ambient background glowing mesh */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 -right-32 w-96 h-96 bg-amber-500/10 dark:bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 left-1/4 w-80 h-80 bg-teal-500/10 dark:bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
+      
       {/* Background subtle agrarian pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#05966908_1px,transparent_1px),linear-gradient(to_bottom,#05966908_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none" />
 
@@ -159,8 +164,8 @@ export function HeroSection() {
             
             {/* Small Eyebrow Badge */}
             <StaggerItem>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-700/10 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-700/20 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50/90 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-500/30 shadow-xs backdrop-blur-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse ring-2 ring-emerald-500/30" />
                 <span>{t.smallBadge}</span>
               </div>
             </StaggerItem>
@@ -186,7 +191,7 @@ export function HeroSection() {
                 <a
                   href="#features"
                   onClick={handleScrollToFeatures}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-95 group cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:via-emerald-700 hover:to-teal-800 text-white font-bold text-sm sm:text-base shadow-md shadow-emerald-700/25 hover:shadow-lg hover:shadow-emerald-700/35 transition-all duration-200 active:scale-95 group cursor-pointer"
                 >
                   <span>{t.ctaExplore}</span>
                   <ArrowDown className="w-4 h-4 text-emerald-200 group-hover:translate-y-0.5 transition-transform" />
@@ -195,7 +200,7 @@ export function HeroSection() {
                 {/* CTA 2: Ask KisaanBuddy AI */}
                 <Link
                   href="/chatbot"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-[#0f241d] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300/90 dark:border-stone-700 shadow-2xs hover:shadow-md transition-all active:scale-95 group"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/95 dark:bg-stone-900/95 hover:bg-stone-50 dark:hover:bg-stone-800 text-[#0f241d] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300/80 dark:border-stone-700 shadow-xs hover:shadow-md hover:border-emerald-500/40 transition-all duration-200 active:scale-95 group backdrop-blur-xs"
                 >
                   <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
                   <span>{t.ctaAi}</span>
@@ -228,9 +233,11 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 relative"
+            className="lg:col-span-5 relative group"
           >
-            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-md hover:shadow-xl transition-shadow">
+            {/* Ambient halo glow */}
+            <div className="absolute -inset-1.5 rounded-[32px] bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-amber-500/20 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
+            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 shadow-[0_20px_50px_rgba(0,0,0,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-shadow">
               
               {/* Authentic Indian Farmer Photograph */}
               <div className="relative h-64 sm:h-72 md:h-80 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">

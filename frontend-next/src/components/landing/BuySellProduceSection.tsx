@@ -65,7 +65,7 @@ export function BuySellProduceSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: MOTION_DURATIONS.reveal, ease: MOTION_EASINGS.gentle }}
-            className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-6"
+            className="rounded-3xl p-6 sm:p-8 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border border-stone-200/90 dark:border-stone-800 shadow-[0_10px_35px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(5,150,105,0.08)] hover:border-emerald-500/30 transition-all duration-300 flex flex-col justify-between space-y-6"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">
@@ -148,7 +148,7 @@ export function BuySellProduceSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: '-40px' }}
             transition={{ duration: MOTION_DURATIONS.reveal, ease: MOTION_EASINGS.gentle }}
-            className="rounded-3xl p-6 sm:p-8 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between space-y-6"
+            className="rounded-3xl p-6 sm:p-8 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border border-stone-200/90 dark:border-stone-800 shadow-[0_10px_35px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(5,150,105,0.08)] hover:border-emerald-500/30 transition-all duration-300 flex flex-col justify-between space-y-6"
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">

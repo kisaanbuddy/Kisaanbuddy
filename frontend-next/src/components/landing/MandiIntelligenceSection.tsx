@@ -263,7 +263,7 @@ export function MandiIntelligenceSection() {
 
               return (
                 <StaggerItem key={crop.id}>
-                  <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs hover:shadow-md hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-4 h-full">
+                  <div className="p-6 rounded-3xl bg-white/95 dark:bg-stone-900/95 backdrop-blur-xs border border-stone-200/90 dark:border-stone-800 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_32px_rgba(5,150,105,0.1)] hover:-translate-y-1 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between space-y-4 h-full">
                     <div className="space-y-3">
                       {/* Top Row: Commodity & Trend Badge */}
                       <div className="flex items-start justify-between gap-2">

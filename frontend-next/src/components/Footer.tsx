@@ -8,7 +8,9 @@ export function Footer() {
   const { lang, t } = useLanguage();
 
   return (
-    <footer className="w-full border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 py-12 mt-auto select-none">
+    <footer className="w-full relative border-t border-stone-200/80 dark:border-stone-800/80 bg-gradient-to-b from-white to-[#fbfbf9] dark:from-stone-900 dark:to-stone-950 py-14 mt-auto select-none overflow-hidden">
+      {/* Top subtle highlight gradient */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Main 5-Column Grid */}
