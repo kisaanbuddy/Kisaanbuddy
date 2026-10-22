@@ -106,7 +106,7 @@ export function Footer() {
                 AI Farming Assistant
               </Link>
               <Link href="/disease" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Crop Doctor (Vision AI)
+                Crop Doctor & Plant Health
               </Link>
               <Link href="/crop-predictor" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Crop Selection Advisory

@@ -110,6 +110,12 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
     en: "Worker Connect", hi: "वर्कर कनेक्ट", kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್", ta: "பணியாளர் இணைப்பு", te: "వర్కర్ కనెక్ట్",
     ml: "വർക്കർ കണക്ട്", mr: "कामगार कनेक्ट", bn: "শ্রমিক সংযোগ", pa: "ਵਰਕਰ ਕਨੈਕਟ", gu: "વર્કર કનેક્ટ", hi_en: "Worker Connect",
   },
+  mandi_sell: {
+    en: "Mandi & Sell Crop", hi: "मंडी व फसल बिक्री", kn: "ಮಂಡಿ & ಬೆಳೆ ಮಾರಾಟ",
+    ta: "மண்டி & பயிர் விற்பனை", te: "మండి & పంట అమ్మకాలు", ml: "മണ്ടി & വിള വിൽപ്പന",
+    mr: "मंडी आणि पीक विक्री", bn: "মান্ডি ও ফসল বিক্রি", pa: "ਮੰਡੀ ਅਤੇ ਫਸਲ ਵਿਕਰੀ",
+    gu: "મંડી અને પાક વેચાણ", hi_en: "Mandi & Sell Crop",
+  },
   mandi: {
     en: "Mandi Prices", hi: "मंडी भाव", kn: "ಮಂಡಿ ದರಗಳು", ta: "மண்டி விலைகள்", te: "மండి ధరలు",
     ml: "മണ്ടി നിരക്കുകൾ", mr: "मंडी दर", bn: "মান্ডি দর", pa: "ਮੰਡੀ ਰੇਟ", gu: "મંડી દર", hi_en: "Mandi Rates",
@@ -275,7 +281,7 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav (Home, Mandi Marketplace, Crop Doctor, Worker Connect, Schemes, AI Assistant) ── */}
+          {/* ── Desktop Nav (Home, Crop Doctor, Mandi & Sell Crop, Workers Connect, Government Schemes) ── */}
           <nav className="hidden xl:flex items-center gap-1 text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
               href="/"
@@ -289,18 +295,6 @@ export function Header() {
             </Link>
 
             <Link
-              href="/mandi"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
-                isActive('/mandi')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <TrendingUp className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Marketplace"}</span>
-            </Link>
-
-            <Link
               href="/disease"
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/disease')
@@ -310,6 +304,18 @@ export function Header() {
             >
               <Bug className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
               <span>{PUBLIC_NAV_LABELS.crop_doctor?.[lang] || "Crop Doctor"}</span>
+            </Link>
+
+            <Link
+              href="/mandi"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/mandi')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.mandi_sell?.[lang] || "Mandi & Sell Crop"}</span>
             </Link>
 
             <Link
@@ -334,18 +340,6 @@ export function Header() {
             >
               <Landmark className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
               <span>{PUBLIC_NAV_LABELS.schemes?.[lang] || "Govt Schemes"}</span>
-            </Link>
-
-            <Link
-              href="/chatbot"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
-                isActive('/chatbot')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <Mic className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.ai_assistant?.[lang] || "AI Assistant"}</span>
             </Link>
 
             {/* More Tools Dropdown */}

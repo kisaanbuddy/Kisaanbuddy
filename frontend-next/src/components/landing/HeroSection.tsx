@@ -7,11 +7,12 @@ import {
   Store,
   Users,
   Bug,
-  Sparkles,
+  ShieldCheck,
   CheckCircle2,
   ArrowRight,
+  ArrowDown,
 } from 'lucide-react';
-import { useLanguage } from '@/lib/language';
+import { useLanguage, type Lang } from '@/lib/language';
 import { motion } from 'framer-motion';
 import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
 
@@ -20,7 +21,7 @@ interface HeroI18nContent {
   heading: string;
   supportingText: string;
   ctaExplore: string;
-  ctaAi: string;
+  ctaSell: string;
   trustPoint1: string;
   trustPoint2: string;
   trustPoint3: string;
@@ -30,109 +31,117 @@ interface HeroI18nContent {
 }
 
 const HERO_TRANSLATIONS: Record<string, HeroI18nContent> = {
-  en: {
-    smallBadge: 'PREMIUM AGRICULTURAL TECHNOLOGY',
-    heading: 'Your Farm. Your Decisions. Your KisaanBuddy.',
+  hi: {
+    smallBadge: 'KisaanBuddy — किसानों का भरोसेमंद साथी',
+    heading: 'खेती का हर काम, अब एक ही जगह।',
     supportingText:
-      'Smart farming advice, live mandi prices, crop protection, and agricultural services—all in one place.',
-    ctaExplore: 'Explore Mandi Prices',
-    ctaAi: 'Ask KisaanBuddy',
+      'फसल की सलाह पाएं, मजदूर ढूंढें, मंडी के भाव देखें और खरीदारों से जुड़ें — एक ही प्लेटफॉर्म पर।',
+    ctaExplore: 'सेवाएं देखें',
+    ctaSell: 'अपनी फसल बेचें',
+    trustPoint1: 'सरकारी e-NAM व APMC दैनिक भाव',
+    trustPoint2: 'सीधे खरीदारों से बिना दलाली व्यापार',
+    trustPoint3: 'पत्ती की फोटो से फसल रोग पहचान',
+    trustPoint4: 'हिंदी, कन्नड़ और 9+ भारतीय भाषाएं',
+    liveBadge: '1,000+ मंडियां लाइव',
+    farmerTag: 'सत्यापित भारतीय कृषि मंच',
+  },
+  hi_en: {
+    smallBadge: 'KisaanBuddy — Farmers Companion',
+    heading: 'Kheti ka har kaam, ab ek hi jagah.',
+    supportingText:
+      'Fasal ki salah paayein, mazdoor dhoondhein, mandi ke bhaav dekhein aur buyers se judein — ek hi platform par.',
+    ctaExplore: 'Explore Services',
+    ctaSell: 'Sell Your Crop',
     trustPoint1: 'Official e-NAM & APMC Rates',
     trustPoint2: 'Direct Trade, Zero Cut',
-    trustPoint3: 'AI Crop Doctor Diagnosis',
+    trustPoint3: 'Leaf Photo Crop Doctor',
     trustPoint4: 'Hindi, Kannada & 9+ Languages',
     liveBadge: '1,000+ Mandis Live',
     farmerTag: 'Field-Verified Indian Agriculture',
   },
-  hi: {
-    smallBadge: 'भारतीय किसानों का भरोसेमंद मंच',
-    heading: 'आपका खेत। आपके फैसले। आपका KisaanBuddy।',
+  en: {
+    smallBadge: 'KisaanBuddy — Digital Agricultural Companion',
+    heading: 'Kheti ka har kaam, ab ek hi jagah.',
     supportingText:
-      'सटीक खेती सलाह, लाइव मंडी भाव, फसल सुरक्षा और कृषि सेवाएं—सब कुछ एक ही मंच पर।',
-    ctaExplore: 'मंडी भाव देखें',
-    ctaAi: 'KisaanBuddy से पूछें',
-    trustPoint1: 'सरकारी e-NAM व APMC दरें',
-    trustPoint2: 'बिना दलाली सीधी बिक्री',
-    trustPoint3: 'AI फसल रोग पहचान',
-    trustPoint4: 'हिंदी, कन्नड़ और 9+ भाषाओं में',
-    liveBadge: '1,000+ मंडियां लाइव',
-    farmerTag: 'सत्यापित भारतीय कृषि मंच',
+      'Fasal ki salah paayein, mazdoor dhoondhein, mandi ke bhaav dekhein aur buyers se judein — ek hi platform par. Get crop advice, find farm workers, check live mandi rates, and connect directly with buyers.',
+    ctaExplore: 'Explore Services',
+    ctaSell: 'Sell Your Crop',
+    trustPoint1: 'Official e-NAM & APMC Mandi Rates',
+    trustPoint2: 'Direct Trade with Zero Middleman Cut',
+    trustPoint3: 'Photo-based Crop Doctor Diagnosis',
+    trustPoint4: 'Hindi, Kannada & 9+ Languages Supported',
+    liveBadge: '1,000+ Mandis Live',
+    farmerTag: 'Field-Verified Indian Agriculture',
   },
   kn: {
-    smallBadge: 'ರೈತರ ನೆಚ್ಚಿನ ಕೃಷಿ ತಂತ್ರಜ್ಞಾನ',
-    heading: 'ನಿಮ್ಮ ಜಮೀನು. ನಿಮ್ಮ ನಿರ್ಧಾರ. ನಿಮ್ಮ KisaanBuddy.',
+    smallBadge: 'KisaanBuddy — ರೈತರ ನಂಬಿಕಸ್ಥ ಒಡನಾಡಿ',
+    heading: 'ಕೃಷಿಯ ಪ್ರತಿಯೊಂದು ಕೆಲಸ, ಈಗ ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ.',
     supportingText:
-      'ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹೆ, ನೇರ ಮಂಡಿ ದರಗಳು, ಬೆಳೆ ಸಂರಕ್ಷಣೆ ಮತ್ತು ಕೃಷಿ ಸೇವೆಗಳು—ಎಲ್ಲವೂ ಒಂದೇ ಸ್ಥಳದಲ್ಲಿ.',
-    ctaExplore: 'ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
-    ctaAi: 'KisaanBuddy ಕೇಳಿ',
+      'ಬೆಳೆ ಸಲಹೆ ಪಡೆಯಿರಿ, ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ, ಮಂಡಿ ದರಗಳನ್ನು ವೀಕ್ಷಿಸಿ ಮತ್ತು ಖರೀದಿದಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ — ಒಂದೇ ವೇದಿಕೆಯಲ್ಲಿ.',
+    ctaExplore: 'ಸೇವೆಗಳನ್ನು ಅನ್ವೇಷಿಸಿ',
+    ctaSell: 'ನಿಮ್ಮ ಬೆಳೆ ಮಾರಿ',
     trustPoint1: 'ಸರ್ಕಾರಿ e-NAM & APMC ದರಗಳು',
     trustPoint2: 'ಕಮಿಷನ್ ರಹಿತ ನೇರ ವ್ಯಾಪಾರ',
-    trustPoint3: 'AI ಬೆಳೆ ರೋಗ ತಪಾಸಣೆ',
-    trustPoint4: 'ಕನ್ನಡ ಸೇರಿ 11 ಭಾಷೆಗಳ ಧ್ವನಿ ಬೆಂಬಲ',
+    trustPoint3: 'ಎಲೆಯ ಫೋಟೋ ಮೂಲಕ ರೋಗ ತಪಾಸಣೆ',
+    trustPoint4: 'ಕನ್ನಡ ಸೇರಿ 11 ಭಾಷೆಗಳ ಬೆಂಬಲ',
     liveBadge: '1,000+ ಮಂಡಿಗಳು ನೇರ',
     farmerTag: 'ನೈಜ ಭಾರತೀಯ ಕೃಷಿ ವೇದಿಕೆ',
   },
   mr: {
-    smallBadge: 'शेतकऱ्यांसाठी आधुनिक व्यासपीठ',
-    heading: 'तुमची शेती. तुमचे निर्णय. तुमचा KisaanBuddy.',
+    smallBadge: 'KisaanBuddy — शेतकऱ्यांचा डिजिटल साथीदार',
+    heading: 'शेतीचे प्रत्येक काम, आता एकाच ठिकाणी.',
     supportingText:
-      'स्मार्ट शेती सल्ला, थेट बाजारभाव, पीक संरक्षण आणि कृषी सेवा—सर्व एकाच ठिकाणी.',
-    ctaExplore: 'बाजारभाव तपासा',
-    ctaAi: 'KisaanBuddy ला विचारा',
+      'पिकांचा सल्ला मिळवा, शेतमजूर शोधा, थेट बाजारभाव पहा आणि खरेदीदारांशी जोडा — एकाच व्यासपीठावर.',
+    ctaExplore: 'कृषी सेवा पहा',
+    ctaSell: 'पीक विका',
     trustPoint1: 'अधिकृत e-NAM व APMC थेट दर',
     trustPoint2: 'दलालांशिवाय थेट खरेदी',
-    trustPoint3: 'AI पीक रोग निदान',
+    trustPoint3: 'पानाच्या फोटोद्वारे पीक रोग निदान',
     trustPoint4: 'मराठीसह 11 भाषांमध्ये',
     liveBadge: '1,000+ मंडया थेट',
     farmerTag: 'सत्यापित भारतीय कृषी मंच',
   },
   te: {
-    smallBadge: 'రైతుల కోసం స్మార్ట్ వ్యవసాయం',
-    heading: 'మీ పొలం. మీ నిర్ణయాలు. మీ KisaanBuddy.',
+    smallBadge: 'KisaanBuddy — రైతులకు డిజిటల్ సహచరుడు',
+    heading: 'వ్యవసాయంలో ప్రతి పని, ఇప్పుడు ఒకే చోట.',
     supportingText:
-      'స్మార్ట్ వ్యవసాయ సలహాలు, ప్రత్యక్ష మండి ధరలు, పంట రక్షణ మరియు వ్యవసాయ సేవలు—అన్నీ ఒకే చోట.',
-    ctaExplore: 'మండి ధరలను చూడండి',
-    ctaAi: 'KisaanBuddy ని అడగండి',
+      'పంట సలహాలు పొందండి, కూలీలను వెతకండి, మండి ధరలు చూడండి మరియు కొనుగోలుదారులతో కనెక్ట్ అవ్వండి — ఒకే ప్లాట్‌ఫారమ్‌లో.',
+    ctaExplore: 'సేవలను అన్వేషించండి',
+    ctaSell: 'పంటను అమ్మండి',
     trustPoint1: 'అధికారిక e-NAM & APMC ధరలు',
     trustPoint2: 'కమిషన్ లేని ప్రత్యక్ష అమ్మకాలు',
-    trustPoint3: 'AI పంట వ్యాధి నిర్ధారణ',
+    trustPoint3: 'ఆకు ఫోటో ద్వారా తెగులు గుర్తింపు',
     trustPoint4: 'తెలుగు సహా 11 భాషల్లో',
     liveBadge: '1,000+ మార్కెట్లు లైవ్',
     farmerTag: 'భారతీయ రైతుల వేదిక',
   },
   ta: {
-    smallBadge: 'விவசாயிகளுக்கான நவீன தளம்',
-    heading: 'உங்கள் பண்ணை. உங்கள் முடிவுகள். உங்கள் KisaanBuddy.',
+    smallBadge: 'KisaanBuddy — விவசாயிகளின் தோழன்',
+    heading: 'விவசாயத்தின் அனைத்து பணிகளும், இப்போது ஒரே இடத்தில்.',
     supportingText:
-      'ஸ்மார்ட் விவசாய ஆலோசனை, நேரலை மண்டி விலைகள், பயிர் பாதுகாப்பு மற்றும் விவசாய சேவைகள்—அனைத்தும் ஒரே இடத்தில்.',
-    ctaExplore: 'மண்டி விலைகளை காண்க',
-    ctaAi: 'KisaanBuddy-யிடம் கேளுங்கள்',
+      'பயிர் ஆலோசனை பெறுங்கள், தொழிலாளர்களைக் கண்டறியுங்கள், மண்டி விலைகளைப் பாருங்கள், வாங்குபவர்களுடன் இணையுங்கள் — ஒரே தளத்தில்.',
+    ctaExplore: 'சேவைகளை காண்க',
+    ctaSell: 'பயிரை விற்கவும்',
     trustPoint1: 'அதிகாரப்பூர்வ e-NAM & APMC விலைகள்',
     trustPoint2: 'இடைத்தரகர் இல்லாத நேரடி விற்பனை',
-    trustPoint3: 'AI பயிர் நோய் கண்டறிதல்',
+    trustPoint3: 'இலை புகைப்படத்தின் மூலம் நோய் கண்டறிதல்',
     trustPoint4: 'தமிழ் உட்பட 11 மொழிகளில்',
     liveBadge: '1,000+ சந்தைகள் நேரலை',
     farmerTag: 'இந்திய விவசாய மேடை',
-  },
-  hi_en: {
-    smallBadge: 'PREMIUM AGRICULTURAL TECHNOLOGY',
-    heading: 'Your Farm. Your Decisions. Your KisaanBuddy.',
-    supportingText:
-      'Smart farming advice, live mandi prices, crop protection, and agricultural services—all in one place.',
-    ctaExplore: 'Explore Mandi Prices',
-    ctaAi: 'Ask KisaanBuddy',
-    trustPoint1: 'Official e-NAM & APMC Rates',
-    trustPoint2: 'Direct Trade, Zero Cut',
-    trustPoint3: 'AI Crop Doctor Diagnosis',
-    trustPoint4: 'Hindi, Kannada & 9+ Languages',
-    liveBadge: '1,000+ Mandis Live',
-    farmerTag: 'Field-Verified Indian Agriculture',
   },
 };
 
 export function HeroSection() {
   const { lang } = useLanguage();
   const t = HERO_TRANSLATIONS[lang] || HERO_TRANSLATIONS.en;
+
+  const handleScrollToActions = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const elem = document.getElementById('quick-actions') || document.getElementById('features') || document.getElementById('services');
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <section className="relative w-full overflow-hidden bg-[#F7F9F4] dark:bg-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-20 border-b border-stone-200/80 dark:border-stone-800">
@@ -143,7 +152,7 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Column: Editorial Headline & Actions */}
+          {/* Left Column: Benefit-Oriented Headline & Actions */}
           <StaggerList className="lg:col-span-7 space-y-6 text-center lg:text-left">
             
             {/* Small Eyebrow Badge */}
@@ -154,7 +163,7 @@ export function HeroSection() {
               </div>
             </StaggerItem>
 
-            {/* Main Headline in Deep Forest Green */}
+            {/* Main Headline */}
             <StaggerItem>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-[#174B35] dark:text-white tracking-tight leading-[1.12]">
                 {t.heading}
@@ -168,30 +177,31 @@ export function HeroSection() {
               </p>
             </StaggerItem>
 
-            {/* Two Primary CTA Buttons */}
+            {/* Primary & Secondary Actions */}
             <StaggerItem>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
-                {/* Primary CTA: Explore Mandi Prices */}
-                <Link
-                  href="/mandi"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#174B35] hover:bg-[#27834A] text-white font-bold text-sm sm:text-base shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all duration-200 active:scale-95 group"
+                {/* Primary CTA: Explore Services */}
+                <a
+                  href="#quick-actions"
+                  onClick={handleScrollToActions}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-[#174B35] hover:bg-[#27834A] text-white font-bold text-sm sm:text-base shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all duration-200 active:scale-95 group cursor-pointer"
                 >
                   <span>{t.ctaExplore}</span>
-                  <ArrowRight className="w-4 h-4 text-[#78B957] group-hover:translate-x-1 transition-transform" />
-                </Link>
+                  <ArrowDown className="w-4 h-4 text-[#78B957] group-hover:translate-y-0.5 transition-transform" />
+                </a>
 
-                {/* Secondary CTA: Ask KisaanBuddy */}
+                {/* Secondary CTA: Sell Your Crop */}
                 <Link
-                  href="/chatbot"
+                  href="/mandi?tab=sell"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-[#174B35] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300 dark:border-stone-700 shadow-xs hover:border-[#27834A]/50 transition-all duration-200 active:scale-95 group"
                 >
-                  <Sparkles className="w-4 h-4 text-[#F2B84B] group-hover:scale-110 transition-transform" />
-                  <span>{t.ctaAi}</span>
+                  <Store className="w-4 h-4 text-[#27834A] group-hover:scale-110 transition-transform" />
+                  <span>{t.ctaSell}</span>
                 </Link>
               </div>
             </StaggerItem>
 
-            {/* Small, Elegant Trust Indicator Bar */}
+            {/* Trust Indicator Bar */}
             <StaggerItem>
               <div className="pt-5 border-t border-stone-200 dark:border-stone-800 grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-[#68766C] dark:text-stone-400">
                 <div className="flex items-center gap-1.5">
@@ -215,14 +225,13 @@ export function HeroSection() {
 
           </StaggerList>
 
-          {/* Right Column: Real Indian Farming Photography */}
+          {/* Right Column: Authentic Indian Farming Photography */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="lg:col-span-5 relative group"
           >
-            {/* Soft natural drop shadow */}
             <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_12px_40px_rgba(23,75,53,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
               
               {/* Authentic Indian Farmer Photograph */}
@@ -247,7 +256,7 @@ export function HeroSection() {
                     {t.farmerTag}
                   </div>
                   <p className="text-sm sm:text-base font-bold text-white leading-snug">
-                    Empowering farmers with verified market prices & diagnostic tools
+                    Empowering farmers with transparent prices, crop doctor & farm labour
                   </p>
                 </div>
               </div>
@@ -266,7 +275,7 @@ export function HeroSection() {
                   </Link>
 
                   <Link
-                    href="/marketplace"
+                    href="/mandi?tab=sell"
                     className="p-2 rounded-xl bg-[#F7F9F4] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#27834A] transition-all group"
                   >
                     <Store className="w-4 h-4 mx-auto text-[#27834A] dark:text-[#78B957] group-hover:scale-110 transition-transform mb-1" />

@@ -25,8 +25,8 @@ const FONT_DISPLAY =
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kisaanbuddy.com'),
-  title: 'KisaanBuddy — AI for Every Farmer | Smart Agriculture Platform',
-  description: 'AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts, khet diary and more.',
+  title: 'KisaanBuddy — Kheti ka har kaam, ab ek hi jagah | Agriculture Platform',
+  description: 'A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.',
   keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan', 'KisaanBuddy'],
   verification: {
     google: 'Zj7cIm3Lzc1qehD6ThXe1akgMLDrRU5kRFK6ZYEISlI',
@@ -42,8 +42,8 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'KisaanBuddy — AI for Every Farmer',
-    description: 'Empowering Indian farmers with AI-powered tools',
+    title: 'KisaanBuddy — Kheti ka har kaam, ab ek hi jagah',
+    description: 'A practical digital companion for Indian farmers bringing crop advice, mandi rates, and agricultural services together.',
     type: 'website',
     url: '/',
     images: [
@@ -57,8 +57,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'KisaanBuddy — AI for Every Farmer',
-    description: 'Empowering Indian farmers with AI-powered tools',
+    title: 'KisaanBuddy — Kheti ka har kaam, ab ek hi jagah',
+    description: 'A practical digital companion for Indian farmers bringing crop advice, mandi rates, and agricultural services together.',
     images: ['/logo.png'],
   },
   other: {
@@ -92,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@type": "WebSite",
               "name": "KisaanBuddy",
               "url": "https://kisaanbuddy.com",
-              "description": "AI-powered smart farming for Indian farmers - disease detection, crop prediction, live mandi prices, weather alerts, khet diary and more.",
+              "description": "A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.",
               "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu"]
             })
           }}
