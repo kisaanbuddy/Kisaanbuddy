@@ -404,6 +404,7 @@ export default function MandiPage() {
   const voiceRun = searchParams.get("voice") === "1"
   const requestedCrop = searchParams.get("crop") || ""
   const requestedState = searchParams.get("state") || ""
+  const requestedDistrict = searchParams.get("district") || ""
   const voiceSpokenRef = useRef(false)
 
   // Toast auto-clear
@@ -421,6 +422,7 @@ export default function MandiPage() {
       const qs = new URLSearchParams()
       if (requestedCrop) qs.set("commodity", requestedCrop)
       if (requestedState) qs.set("state", requestedState)
+      if (requestedDistrict) qs.set("district", requestedDistrict)
       const query = qs.toString()
       const res = await fetch(`/api/mandi/crops${query ? `?${query}` : ""}`)
       if (!res.ok) throw new Error("Failed to fetch mandi crops")
@@ -431,7 +433,7 @@ export default function MandiPage() {
     } finally {
       setLoadingPrices(false)
     }
-  }, [requestedCrop, requestedState])
+  }, [requestedCrop, requestedState, requestedDistrict])
 
   useEffect(() => {
     fetchCrops()

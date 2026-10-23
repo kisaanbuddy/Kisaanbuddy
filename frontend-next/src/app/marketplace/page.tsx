@@ -226,6 +226,32 @@ export default function MarketplacePage() {
   const [newProdNotes, setNewProdNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Voice navigation only opens or pre-fills existing UI. It never publishes a
+  // listing or contacts a buyer: those consequential actions remain behind the
+  // form and consent controls already used by this page.
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get("voice") !== "1") return;
+
+    const section = searchParams.get("section");
+    const action = searchParams.get("action");
+    const crop = searchParams.get("crop")?.trim();
+    const state = searchParams.get("state")?.trim();
+
+    if (crop) {
+      setProduceCropFilter(crop);
+      if (action === "sell") setNewProdCrop(crop);
+    }
+    if (state) setProduceStateFilter(state);
+
+    if (section === "buyers") setSectionMode("legacy_buyers");
+    if (section === "provenance") setSectionMode("provenance");
+    if (action === "sell") {
+      setSectionMode("sell_rent");
+      setShowProduceModal(true);
+    }
+  }, []);
+
   // ─── 1. Load Equipment Reference Catalogue ──────────────────────────────────
   const loadCatalog = useCallback(async () => {
     try {

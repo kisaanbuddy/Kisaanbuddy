@@ -31,7 +31,7 @@ import { MicButton } from "./MicButton"
 import { TranscriptLive } from "./TranscriptLive"
 import { useAssistant } from "./useAssistant"
 import { useSpeech, LANG_TO_BCP47 } from "./useSpeech"
-import { actionAcknowledgement, parseVoiceAction, voiceActionUrl, type VoiceFeature } from "@/lib/voice-actions"
+import { actionAcknowledgement, parseVoiceAction, requestedVoiceLanguage, voiceActionUrl, type VoiceFeature } from "@/lib/voice-actions"
 
 interface QuickPromptItem {
   key: string
@@ -168,7 +168,7 @@ const ATTACH_LABELS: Record<string, string> = {
 }
 
 export function ChatPanel({ onClose }: { onClose: () => void }) {
-  const { t } = useLanguage()
+  const { t, setLang } = useLanguage()
   const {
     messages,
     activeTool,
@@ -192,6 +192,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const lastSpokenIdRef = useRef<string | null>(null)
   const lastFeatureRef = useRef<VoiceFeature | null>(null)
+  const languageSwitchRef = useRef<(text: string) => boolean>(() => false)
 
   const executeVoiceAction = useCallback((text: string) => {
     const action = parseVoiceAction(text, lastFeatureRef.current)
@@ -203,6 +204,10 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
       utterance.lang = (language !== "auto" && LANG_TO_BCP47[language]) ? LANG_TO_BCP47[language] : "hi-IN"
       window.speechSynthesis.speak(utterance)
     }
+    if (action.historyBack) {
+      window.setTimeout(() => window.history.back(), 350)
+      return true
+    }
     window.setTimeout(() => window.location.assign(voiceActionUrl(action)), 450)
     return true
   }, [language])
@@ -211,6 +216,7 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
   const handleFinalTranscript = useCallback(
     (text: string) => {
       setInterim("")
+      if (languageSwitchRef.current(text)) return
       // Navigation/searches are safe to run without a confirmation. Pages
       // execute only their own allow-listed parameters; saving remains a
       // separate, confirmed interaction.
@@ -230,6 +236,26 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
       setInterim("")
     },
   })
+
+  const applyLanguageSwitch = useCallback((text: string) => {
+    const requested = requestedVoiceLanguage(text)
+    if (!requested) return false
+    setLanguage(requested)
+    setLang(requested)
+    const confirmation = {
+      en: "I will continue in English.",
+      hi: "अब मैं हिंदी में बात करूंगा।",
+      hi_en: "Ab main Hinglish mein baat karunga.",
+      kn: "ಇನ್ನು ನಾನು ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡುತ್ತೇನೆ.",
+    }[requested]
+    speech.stopSpeaking()
+    speech.speak(confirmation, requested)
+    return true
+  }, [setLanguage, setLang, speech])
+
+  useEffect(() => {
+    languageSwitchRef.current = applyLanguageSwitch
+  }, [applyLanguageSwitch])
 
   // Voice interruption: if user taps the mic, kill any TTS immediately.
   const toggleMic = useCallback(() => {
@@ -265,13 +291,17 @@ export function ChatPanel({ onClose }: { onClose: () => void }) {
     (text?: string) => {
       const t = (text ?? input).trim()
       if ((!t && !pendingImage) || isSending) return
+      if (t && !pendingImage && applyLanguageSwitch(t)) {
+        setInput("")
+        return
+      }
       if (t && !pendingImage && executeVoiceAction(t)) return
       const img = pendingImage
       setInput("")
       setPendingImage(null)
       void send(t, img ?? undefined)
     },
-    [input, pendingImage, isSending, send, executeVoiceAction]
+    [input, pendingImage, isSending, send, executeVoiceAction, applyLanguageSwitch]
   )
 
   // Read a chosen file as a base64 data URL — capped at ~6 MB so the request

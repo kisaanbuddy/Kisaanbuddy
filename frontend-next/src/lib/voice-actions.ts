@@ -6,8 +6,10 @@
  * a small, encoded allow-listed parameter set and executes its own real API.
  */
 export type VoiceFeature =
-  | "weather" | "mandi" | "disease" | "crop-predictor" | "schemes"
+  | "home" | "dashboard" | "weather" | "mandi" | "disease" | "crop-predictor" | "schemes"
   | "soil-health" | "soil-monitor" | "khet-diary" | "worker-connect" | "profile"
+  | "assistant" | "marketplace" | "buyers" | "sell-crop" | "enam" | "procurement"
+  | "settings" | "back"
 
 export interface VoiceAction {
   feature: VoiceFeature
@@ -15,6 +17,8 @@ export interface VoiceAction {
   label: string
   params: Record<string, string>
   requiresConfirmation?: boolean
+  /** Browser history is a UI-only action and never invokes an API. */
+  historyBack?: boolean
 }
 
 /** The auditable feature-to-action registry used by the voice router. */
@@ -23,6 +27,8 @@ export const VOICE_FEATURE_REGISTRY: Record<VoiceFeature, {
   safeActions: string[]
   requiresUserInput?: string
 }> = {
+  home: { path: "/", safeActions: ["open home"] },
+  dashboard: { path: "/dashboard", safeActions: ["open dashboard"] },
   weather: { path: "/weather", safeActions: ["current weather", "forecast", "location search"] },
   mandi: { path: "/mandi", safeActions: ["crop price search", "state filter"] },
   disease: { path: "/disease", safeActions: ["open diagnosis", "pre-fill crop"], requiresUserInput: "A crop photo or symptom description" },
@@ -33,6 +39,14 @@ export const VOICE_FEATURE_REGISTRY: Record<VoiceFeature, {
   "khet-diary": { path: "/khet-diary", safeActions: ["open records", "pre-fill entry"], requiresUserInput: "Explicit form submission to save" },
   "worker-connect": { path: "/worker-connect", safeActions: ["worker/job search", "location filter"] },
   profile: { path: "/profile", safeActions: ["open farm profile"] },
+  assistant: { path: "/chatbot", safeActions: ["open AI farming assistant"] },
+  marketplace: { path: "/marketplace", safeActions: ["open marketplace"] },
+  buyers: { path: "/marketplace", safeActions: ["open existing buyer listings", "pre-fill crop filter"] },
+  "sell-crop": { path: "/marketplace", safeActions: ["open produce listing form", "pre-fill crop"], requiresUserInput: "Explicit publish confirmation in the existing form" },
+  enam: { path: "/mandi", safeActions: ["open eNAM and mandi selling resources"] },
+  procurement: { path: "/marketplace", safeActions: ["open available provenance and procurement resources"] },
+  settings: { path: "/settings", safeActions: ["open user settings"] },
+  back: { path: "", safeActions: ["return to previous page"] },
 }
 
 const CROP_WORDS: Array<[RegExp, string]> = [
@@ -60,9 +74,24 @@ function daysFrom(text: string) {
   return "1"
 }
 function cityFrom(text: string) {
-  const match = text.match(/(?:in|for|ka|ki|के|का|की)\s+([a-zA-Z\u0900-\u097F ]{3,32}?)(?:\s+(?:weather|forecast|mausam|मौसम|kal|tomorrow|aaj|today)|$)/i)
-  const candidate = match?.[1]?.trim()
+  const afterPreposition = text.match(/(?:in|for|ka|ki|के|का|की)\s+([a-zA-Z\u0900-\u097F ]{3,32}?)(?:\s+(?:weather|forecast|mausam|मौसम|kal|tomorrow|aaj|today)|$)/i)?.[1]
+  // Natural Hindi/Hinglish phrasing commonly puts the location first:
+  // "Samastipur mein gehu ka bhav" or "Samastipur mein mausam".
+  const beforeMe = text.match(/(?:^|\b(?:aaj|today|kal|tomorrow)\s+)([a-zA-Z\u0900-\u097F ]{3,32}?)\s+(?:mein|में|\bme\b)\s+/i)?.[1]
+  const candidate = (afterPreposition || beforeMe)?.trim().replace(/^(?:aaj|today|kal|tomorrow)\s+/i, "")
   return candidate && !/^(mere|my|gaon|village|field|khet|मेरे|गाँव|गांव|खेत)$/i.test(candidate) ? candidate : undefined
+}
+
+/** Language-switch intent is handled locally, so the next turn is transcribed and
+ * answered in the requested language without a refresh or remote side effect. */
+export function requestedVoiceLanguage(transcript: string): "en" | "hi" | "hi_en" | "kn" | null {
+  const text = transcript.trim()
+  if (!/(?:language|bhasha|भाषा|भाषा में|ಭಾಷೆ|matlab|speak|baat karo|बात करो|बोलो|samjhao|समझाओ|mein|में|\bme\b|ಹೇಳಿ|ಮಾತನಾಡಿ|ನಲ್ಲಿ)/i.test(text)) return null
+  if (/kannada|ಕನ್ನಡ/i.test(text)) return "kn"
+  if (/hinglish|हिंग्लिश/i.test(text)) return "hi_en"
+  if (/hindi|हिंदी|हिन्दी/i.test(text)) return "hi"
+  if (/english|अंग्रेजी|इंग्लिश/i.test(text)) return "en"
+  return null
 }
 
 export function parseVoiceAction(transcript: string, previous?: VoiceFeature | null): VoiceAction | null {
@@ -73,6 +102,27 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
   if (crop) params.crop = crop
   if (state) params.state = state
 
+  if (/^(?:go |take me |mujhe |मुझे |mala |ನನ್ನನ್ನು )?(?:back|previous|wapas|वापस|piche|पीछे|ಹಿಂದೆ)(?:\s|$)/i.test(text))
+    return { feature: "back", path: "", label: "Previous page", params: {}, historyBack: true }
+  if (/\b(home|homepage|ghar|मुख्य पृष्ठ|होम पेज|ಮುಖಪುಟ)\b/i.test(text))
+    return { feature: "home", path: "/", label: "Home", params }
+  if (/\b(dashboard|डैशबोर्ड|डैश बोर्ड|ಡ್ಯಾಶ್‌ಬೋರ್ಡ್)\b/i.test(text))
+    return { feature: "dashboard", path: "/dashboard", label: "Dashboard", params }
+  if (/\b(settings?|सेटिंग्स|सेटिंग|ಸೆಟ್ಟಿಂಗ್ಸ್)\b/i.test(text))
+    return { feature: "settings", path: "/settings", label: "Settings", params }
+  if (/\b(ai assistant|farming assistant|chatbot|chat bot|सहायक|चैटबॉट|ಸಹಾಯಕ)\b/i.test(text))
+    return { feature: "assistant", path: "/chatbot", label: "AI farming assistant", params }
+  if (/\b(enam|e-nam|ईनाम|ई-नाम)\b/i.test(text))
+    return { feature: "enam", path: "/mandi", label: "eNAM and mandi selling", params: { ...params, tab: "sell" } }
+  if (/\b(fpo|procurement|खरीद केंद्र|प्रोक्योरमेंट|ಸಂಗ್ರಹಣೆ)\b/i.test(text))
+    return { feature: "procurement", path: "/marketplace", label: "FPO and procurement resources", params: { ...params, section: "provenance" } }
+  if (/\b(find |search |mujhe |मुझे |mere liye |मेरे लिए |ಬೇಡಿಕೆदार )(?:a )?(buyer|buyers|kharidar|खरीदार|व्यापारी|ಬೇಡಿಕೆದಾರ)\b/i.test(text) || /buyer dhoond|खरीदार ढूंढ|ಬೇಡಿಕೆದಾರ/i.test(text))
+    return { feature: "buyers", path: "/marketplace", label: "Buyer discovery", params: { ...params, section: "buyers" } }
+  if (/\b(sell|bech|बेच|बेचना|ವಿಕ್ರಯ|ಮಾರಾಟ).{0,28}\b(crop|produce|fasal|फसल|अनाज|ಬೆಳೆ)?/i.test(text))
+    return { feature: "sell-crop", path: "/marketplace", label: "Sell crop", params: { ...params, action: "sell" }, requiresConfirmation: true }
+  if (/\b(marketplace|बाज़ार|बाजार|मार्केटप्लेस|ಮಾರುಕಟ್ಟೆ)\b/i.test(text))
+    return { feature: "marketplace", path: "/marketplace", label: "Marketplace", params }
+
   const weather = /weather|mausam|मौसम|forecast|बारिश|barish|rain|temperature|तापमान/i.test(text)
   if (weather || (previous === "weather" && /kal|tomorrow|aaj|today|agle|next|दिन|din/i.test(text))) {
     params.days = daysFrom(text)
@@ -80,8 +130,11 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
     if (city) params.city = city
     return { feature: "weather", path: "/weather", label: "Weather", params }
   }
-  if (/mandi|price|rate|bhav|भाव|दाम|कीमत/i.test(text) || (previous === "mandi" && !!crop))
+  if (/mandi|price|rate|bhav|भाव|दाम|कीमत/i.test(text) || (previous === "mandi" && !!crop)) {
+    const location = cityFrom(text)
+    if (location) params.district = location
     return { feature: "mandi", path: "/mandi", label: "Mandi prices", params }
+  }
   if (/disease|bimari|बीमारी|रोग|leaf|patti|पत्ती|photo|फोटो/i.test(text))
     return { feature: "disease", path: "/disease", label: "Disease detection", params }
   if (/scheme|yojana|योजना|subsidy|सरकारी/i.test(text))
@@ -101,12 +154,13 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
   }
   if (/worker|mazdoor|मजदूर|labour|labor|कामगार/i.test(text))
     return { feature: "worker-connect", path: "/worker-connect", label: "Worker Connect", params: { ...params, mode: "find" } }
-  if (/farm map|map kholo|farm details|मेरे खेत की details/i.test(text))
+  if (/farm profile|farm map|map kholo|farm details|my profile|mera profile|मेरा प्रोफाइल|मेरी खेत प्रोफ़ाइल|ನನ್ನ ಫಾರ್ಮ್/i.test(text))
     return { feature: "profile", path: "/profile", label: "Farm profile", params }
   return null
 }
 
 export function voiceActionUrl(action: VoiceAction) {
+  if (action.historyBack) return ""
   const query = new URLSearchParams(action.params)
   return `${action.path}?${query.toString()}`
 }
@@ -114,6 +168,12 @@ export function voiceActionUrl(action: VoiceAction) {
 export function actionAcknowledgement(action: VoiceAction, langOrHindi: string | boolean): string {
   const lang = typeof langOrHindi === "boolean" ? (langOrHindi ? "hi" : "en") : (langOrHindi || "en")
   
+  if (action.historyBack) {
+    if (lang === "kn") return "ಹಿಂದಿನ ಪುಟಕ್ಕೆ ಹೋಗುತ್ತಿದ್ದೇನೆ."
+    if (lang === "hi" || lang === "hi_en") return "पिछले पेज पर वापस जा रहा हूँ।"
+    return "Going back to the previous page."
+  }
+
   if (action.requiresConfirmation) {
     switch (lang) {
       case "kn":

@@ -2,21 +2,18 @@
 
 import { usePathname } from "next/navigation";
 import { AssistantWidget } from "@/components/assistant/AssistantWidget";
-import { useAuth } from "@/lib/auth";
 
-const HIDE_ON = ["/", "/login", "/signup"];
+const HIDE_ON = ["/login", "/signup", "/forgot-password", "/reset-password", "/admin"];
 
 /**
- * Wraps AssistantWidget so it only renders for logged-in users on
- * protected pages. Avoids cluttering the landing/auth screens.
+ * Mounts the persistent assistant on every farmer-facing page. Public
+ * questions and navigation remain available before sign-in; profile and
+ * publishing routes still enforce their existing page and server auth.
  */
 export function AssistantGate() {
   const pathname = usePathname();
-  const { user, ready } = useAuth();
 
-  if (!ready) return null;
-  if (!user) return null;
-  if (HIDE_ON.includes(pathname || "")) return null;
+  if (HIDE_ON.some((path) => (pathname || "").startsWith(path))) return null;
 
   return <AssistantWidget />;
 }
