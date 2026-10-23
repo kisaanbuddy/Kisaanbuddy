@@ -36,6 +36,7 @@ class STTError(Exception):
 async def _sarvam_stt(
     audio_bytes: bytes,
     filename: str = "audio.wav",
+    content_type: str = "audio/wav",
     language: Optional[str] = None,
 ) -> STTResult:
     key = settings.SARVAM_API_KEY
@@ -57,7 +58,9 @@ async def _sarvam_stt(
     else:
         data["language_code"] = "unknown"
 
-    files = {"file": (filename or "audio.wav", audio_bytes, "audio/wav")}
+    # Keep the browser recorder's actual codec. Labelling WebM/Opus as WAV
+    # made Sarvam reject or misread otherwise valid Hindi/Kannada recordings.
+    files = {"file": (filename or "audio.wav", audio_bytes, content_type or "audio/wav")}
 
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
         r = await client.post(url, headers=headers, data=data, files=files)
@@ -93,7 +96,12 @@ async def transcribe(
 
     if settings.SARVAM_API_KEY:
         try:
-            return await _sarvam_stt(audio_bytes, filename=filename, language=language)
+            return await _sarvam_stt(
+                audio_bytes,
+                filename=filename,
+                content_type=content_type,
+                language=language,
+            )
         except Exception as e:
             log.warning("Sarvam STT failed, falling back to Whisper: %s", e)
             if not (settings.GEMINI_API_KEY or settings.OPENAI_API_KEY):

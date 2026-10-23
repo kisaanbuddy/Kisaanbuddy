@@ -14,6 +14,7 @@ the LLM handle it. This keeps the assistant resilient.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Literal
 
 log = logging.getLogger(__name__)
@@ -80,7 +81,9 @@ def detect_language(text: str) -> Lang:
     if words & _KANNADA_LATIN_HINTS:
         return "kn"
     if words & _HINDI_LATIN_HINTS:
-        return "hi"
+        # Preserve Roman Hindi as Hinglish.  The chat prompt then answers in
+        # the same natural script, and Bulbul can use its code-mixed voice.
+        return "hi_en"
 
     # Fall back to langdetect if available.
     try:
@@ -101,4 +104,14 @@ def resolve_language(requested: str, text: str) -> Lang:
     r = (requested or "").lower()
     if r in ("hi", "kn", "en", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"):
         return r  # type: ignore[return-value]
+    # Spoken/text language-change commands are part of the conversation, not
+    # merely UI state.  Match them before script detection so e.g. "Hindi mein
+    # baat karo" reliably changes the following response to Hindi.
+    lowered = (text or "").casefold()
+    if re.search(r"\b(speak|talk|reply|answer)\s+(in\s+)?english\b|\benglish\s+(mein|me)\s+(baat|bolo|boliye)", lowered):
+        return "en"
+    if re.search(r"\b(hindi|hindī)\s+(mein|me)\s+(baat|bolo|boliye|jawab)|\bhindi\s+(mein|me)\s+baat", lowered):
+        return "hi"
+    if "ಕನ್ನಡದಲ್ಲಿ" in (text or "") or "ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಿ" in (text or ""):
+        return "kn"
     return detect_language(text)

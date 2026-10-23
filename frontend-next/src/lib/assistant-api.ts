@@ -171,7 +171,13 @@ export async function transcribeAudio(
   signal?: AbortSignal
 ): Promise<STTResult> {
   const form = new FormData()
-  const fname = blob.type?.includes("wav") ? "audio.wav" : "audio.webm"
+  const fname = blob.type?.includes("wav")
+    ? "audio.wav"
+    : blob.type?.includes("mp4")
+    ? "audio.mp4"
+    : blob.type?.includes("ogg")
+    ? "audio.ogg"
+    : "audio.webm"
   form.append("audio", blob, fname)
   if (languageHint) form.append("language", languageHint)
   const r = await fetch("/api/chat/stt", { method: "POST", body: form, signal })

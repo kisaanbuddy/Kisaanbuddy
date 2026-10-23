@@ -25,7 +25,6 @@ import {
   type Message,
   type StreamEvent,
 } from "@/lib/assistant-api"
-import { useLanguage } from "@/lib/language"
 
 // ---------- Types ----------
 export interface AssistantMessage extends Message {
@@ -68,23 +67,16 @@ const LS_LOC = "KisaanBuddy.assistant.location"
 export function useAssistant(
   options: UseAssistantOptions = { restore: true }
 ): UseAssistantReturn {
-  const { lang } = useLanguage()
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [messages, setMessages] = useState<AssistantMessage[]>([])
   const [streamingText, setStreamingText] = useState<string>("")
   const [activeTool, setActiveTool] = useState<string | null>(null)
-  const [languageState, setLanguageState] = useState<Language>(
-    (["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en"] as string[]).includes(lang) ? (lang as Language) : "en"
-  )
+  // Start in automatic mode. A global page-translation preference must not
+  // force the voice pipeline to transcribe every farmer as that language.
+  const [languageState, setLanguageState] = useState<Language>("auto")
   const [location, setLocation] = useState<LocationHint | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [lastError, setLastError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if ((["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en"] as string[]).includes(lang)) {
-      setLanguageState(lang as Language)
-    }
-  }, [lang])
 
   const abortRef = useRef<AbortController | null>(null)
   const streamingRef = useRef<string>("")

@@ -11,6 +11,7 @@ import { Bot, Loader2, User, Volume2, VolumeX, Wrench } from "lucide-react"
 import { useState, useRef } from "react"
 
 import type { AssistantMessage } from "./useAssistant"
+import { synthesizeSpeech } from "@/lib/assistant-api"
 
 const TOOL_LABEL: Record<string, string> = {
   get_weather: "Weather Diagnostics",
@@ -43,17 +44,11 @@ export function ChatMessage({ msg }: { msg: AssistantMessage }) {
         .replace(/[#*`_-]/g, " ")
         .replace(/\s+/g, " ")
         .slice(0, 1500)
-      const res = await fetch("/api/sarvam/tts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: textToSpeak,
-          language: msg.language ? (msg.language === "hi" ? "hi-IN" : msg.language === "kn" ? "kn-IN" : "en-IN") : "hi-IN",
-          speaker: "priya",
-        }),
-      })
-      if (!res.ok) throw new Error("TTS failed")
-      const blob = await res.blob()
+      const result = await synthesizeSpeech(textToSpeak, msg.language ?? "auto")
+      // Do not fall back to browser synthesis here: a browser English voice
+      // mispronounces Hindi/Kannada and masks a real TTS configuration issue.
+      if (result.kind !== "audio" || !result.blob.size) throw new Error("Neural TTS unavailable")
+      const blob = result.blob
       const url = URL.createObjectURL(blob)
       if (audioRef.current) audioRef.current.pause()
       const audio = new Audio(url)

@@ -23,6 +23,9 @@ import {
   CheckCircle2,
   Smartphone,
   KeyRound,
+  User as UserIcon,
+  UserPlus,
+  LogIn,
 } from "lucide-react";
 import {
   useAuth,
@@ -30,6 +33,7 @@ import {
   verifyOtp,
   completeOtpRegistration,
   verifyAndLogin,
+  registerUser,
 } from "@/lib/auth";
 import { OtpInput } from "@/components/auth/OtpInput";
 import { fadeDown } from "@/lib/motion";
@@ -56,9 +60,17 @@ export default function LoginPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [registrationToken, setRegistrationToken] = useState("");
+  
+  // Auth Modes: OTP vs Email
   const [authMode, setAuthMode] = useState<"otp" | "password">("otp");
+  
+  // Email Submode: Login vs Register
+  const [emailSubMode, setEmailSubMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [regConfirmPassword, setRegConfirmPassword] = useState("");
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   // Translations
@@ -66,14 +78,14 @@ export default function LoginPage() {
   const isKn = lang === "kn";
 
   const labels = {
-    title: isHi ? "किसान लॉगिन" : isKn ? "ರೈತರ ಲಾಗಿನ್" : "Farmer Login",
+    title: isHi ? "किसान लॉगिन व खाता" : isKn ? "ರೈತರ ಲಾಗಿನ್ & ಖಾತೆ" : "Farmer Login & Account",
     subtitle: isHi
-      ? "अपने मोबाइल नंबर से 1-क्लिक OTP द्वारा सुरक्षित प्रवेश करें"
+      ? "मोबाइल OTP या ईमेल पासवर्ड से आसानी से लॉगिन या नया खाता बनाएं"
       : isKn
-      ? "ನಿಮ್ಮ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯೊಂದಿಗೆ ಸುರಕ್ಷಿತವಾಗಿ ಪ್ರವೇಶಿಸಿ"
-      : "Sign in with your mobile number to access your farm services.",
+      ? "ಮೊಬೈಲ್ OTP ಅಥವಾ ಇಮೇಲ್ ಮೂಲಕ ಲಾಗಿನ್ ಮಾಡಿ"
+      : "Sign in with mobile OTP or email, or create a new account in seconds.",
     phoneTab: isHi ? "मोबाइल OTP" : isKn ? "ಮೊಬೈಲ್ OTP" : "Mobile OTP",
-    passwordTab: isHi ? "ईमेल व पासवर्ड" : isKn ? "ಇಮೇಲ್ & ಪಾಸ್‌ವರ್ಡ್" : "Email & Password",
+    passwordTab: isHi ? "ईमेल से एक्सेस" : isKn ? "ಇಮೇಲ್ ಪ್ರವೇಶ" : "Email Access",
     phonePlaceholder: isHi ? "10 अंकों का मोबाइल नंबर" : isKn ? "10 ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" : "Enter 10-digit mobile number",
     sendOtpBtn: isHi ? "OTP भेजें" : isKn ? "OTP ಕಳುಹಿಸಿ" : "Send Login OTP",
     sending: isHi ? "OTP भेजा जा रहा है..." : isKn ? "ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ..." : "Sending OTP...",
@@ -90,8 +102,7 @@ export default function LoginPage() {
     trustEnam: isHi ? "अधिकृत e-NAM व कृषि गेटवे" : isKn ? "ಅಧಿಕೃತ e-NAM ಕೃಷಿ ವೇದಿಕೆ" : "Official e-NAM & APMC Connected",
   };
 
-  // Only redirect if the session was already valid BEFORE the user reached
-  // this page (e.g. they typed /login in the address bar while logged in).
+  // Only redirect if the session was already valid BEFORE the user reached this page
   useEffect(() => {
     if (ready && user) {
       window.location.replace(postLoginPath(user.role));
@@ -214,7 +225,48 @@ export default function LoginPage() {
       window.location.href = postLoginPath(res.user.role);
     } else {
       setLoading(false);
-      setError(res.error || (isHi ? "अमान्य ईमेल या पासवर्ड।" : "Invalid email or password."));
+      setError(res.error || (isHi ? "अमान्य ईमेल या पासवर्ड। यदि नया खाता बनाना है तो नीचे 'रजिस्टर करें' चुनें।" : "Invalid email or password. If you are new, click 'Register with Email' below."));
+    }
+  };
+
+  const handleEmailRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes("@") || !cleanEmail.includes(".")) {
+      setError(isHi ? "कृपया एक वैध ईमेल पता दर्ज करें।" : "Please enter a valid email address.");
+      return;
+    }
+    if (!password || password.length < 8) {
+      setError(
+        isHi
+          ? "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।"
+          : "Password must be at least 8 characters long."
+      );
+      return;
+    }
+    if (password !== regConfirmPassword) {
+      setError(isHi ? "दोनों पासवर्ड मेल नहीं खाते हैं।" : "Passwords do not match. Please verify.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setNotice(null);
+
+    const res = await registerUser(
+      cleanEmail,
+      password,
+      regName.trim() || undefined,
+      regPhone.trim() || undefined
+    );
+
+    if (res.ok) {
+      window.location.href = postLoginPath((res as any).user?.role);
+    } else {
+      setLoading(false);
+      setError(
+        res.error || (isHi ? "रजिस्ट्रेशन असफल रहा। कृपया पुनः प्रयास करें।" : "Registration failed. Please try again.")
+      );
     }
   };
 
@@ -271,7 +323,7 @@ export default function LoginPage() {
           {/* Eyebrow Pill */}
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-xs text-[11px] font-bold text-emerald-100 mb-2.5 border border-white/20">
             <span className="w-2 h-2 rounded-full bg-[#78B957] animate-pulse" />
-            <span>KisaanBuddy Secure Login</span>
+            <span>KisaanBuddy Secure Portal</span>
           </div>
 
           <h2 className="text-2xl sm:text-[26px] font-black text-white tracking-tight leading-tight">
@@ -285,13 +337,14 @@ export default function LoginPage() {
 
         {/* Modal Body */}
         <div className="p-5 sm:p-7 space-y-5">
-          {/* Advanced Tab Switcher */}
+          {/* Advanced Tab Switcher (Mobile OTP vs Email) */}
           <div className="grid grid-cols-2 p-1 rounded-2xl bg-stone-100 dark:bg-stone-800/80 border border-stone-200/80 dark:border-stone-700/60 text-xs font-bold relative">
             <button
               type="button"
               onClick={() => {
                 setAuthMode("otp");
                 setError(null);
+                setNotice(null);
               }}
               className={`relative z-10 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-colors ${
                 authMode === "otp"
@@ -315,6 +368,7 @@ export default function LoginPage() {
               onClick={() => {
                 setAuthMode("password");
                 setError(null);
+                setNotice(null);
               }}
               className={`relative z-10 flex items-center justify-center gap-2 py-2.5 rounded-xl transition-colors ${
                 authMode === "password"
@@ -371,7 +425,9 @@ export default function LoginPage() {
             )}
           </AnimatePresence>
 
-          {/* FLOW A: MOBILE PHONE + OTP */}
+          {/* ======================================================== */}
+          {/* FLOW A: MOBILE PHONE + OTP                              */}
+          {/* ======================================================== */}
           {authMode === "otp" && (
             <div className="space-y-4">
               {/* STEP 1: Phone Entry */}
@@ -514,7 +570,7 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {/* STEP 3: Complete Name Registration (First-time user) */}
+              {/* STEP 3: Complete Name Registration (First-time phone number) */}
               {step === "register" && (
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-[#174B35] dark:text-emerald-200">
@@ -561,84 +617,303 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* FLOW B: EMAIL & PASSWORD (Admin / Staff / Users) */}
+          {/* ======================================================== */}
+          {/* FLOW B: EMAIL ACCESS (Login OR Register with Email)     */}
+          {/* ======================================================== */}
           {authMode === "password" && (
-            <form onSubmit={handlePasswordLogin} className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
-                  {isHi ? "ईमेल पता" : "Email Address"}
-                </label>
-                <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
-                  <div className="pl-3.5 pr-2 text-stone-400">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="farmer@kisaanbuddy.com"
-                    disabled={loading}
-                    className="w-full pr-3.5 py-3 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
-                    autoFocus
-                  />
-                </div>
+            <div className="space-y-4">
+              {/* Sub-mode switcher (Sign In vs Register with Email) */}
+              <div className="flex items-center justify-between p-1 rounded-xl bg-stone-100 dark:bg-stone-800 text-xs font-semibold">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmailSubMode("login");
+                    setError(null);
+                    setNotice(null);
+                  }}
+                  className={`flex-1 py-1.5 rounded-lg transition-all text-center ${
+                    emailSubMode === "login"
+                      ? "bg-white dark:bg-stone-700 text-[#174B35] dark:text-white shadow-xs font-bold"
+                      : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
+                  }`}
+                >
+                  {isHi ? "लॉगिन करें" : "Sign In"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmailSubMode("register");
+                    setError(null);
+                    setNotice(null);
+                  }}
+                  className={`flex-1 py-1.5 rounded-lg transition-all text-center ${
+                    emailSubMode === "register"
+                      ? "bg-white dark:bg-stone-700 text-[#174B35] dark:text-white shadow-xs font-bold"
+                      : "text-stone-500 hover:text-stone-800 dark:hover:text-stone-200"
+                  }`}
+                >
+                  {isHi ? "ईमेल से रजिस्टर करें" : "Register with Email"}
+                </button>
               </div>
 
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
-                    {isHi ? "पासवर्ड" : "Password"}
-                  </label>
-                  <Link
-                    href="/forgot-password"
-                    className="text-[11px] font-bold text-[#27834A] hover:underline"
-                  >
-                    {isHi ? "पासवर्ड भूल गए?" : "Forgot password?"}
-                  </Link>
-                </div>
-
-                <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
-                  <div className="pl-3.5 pr-2 text-stone-400">
-                    <Lock className="w-4 h-4" />
+              {/* Sub-mode 1: Sign In with Email & Password */}
+              {emailSubMode === "login" && (
+                <form onSubmit={handlePasswordLogin} className="space-y-3.5">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                      {isHi ? "ईमेल पता" : "Email Address"}
+                    </label>
+                    <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                      <div className="pl-3.5 pr-2 text-stone-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="yourname@gmail.com"
+                        disabled={loading}
+                        className="w-full pr-3.5 py-3 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                        autoFocus
+                      />
+                    </div>
                   </div>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    disabled={loading}
-                    className="w-full pr-10 py-3 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
-                  />
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                        {isHi ? "पासवर्ड" : "Password"}
+                      </label>
+                      <Link
+                        href="/forgot-password"
+                        className="text-[11px] font-bold text-[#27834A] hover:underline"
+                      >
+                        {isHi ? "पासवर्ड भूल गए?" : "Forgot password?"}
+                      </Link>
+                    </div>
+
+                    <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                      <div className="pl-3.5 pr-2 text-stone-400">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        disabled={loading}
+                        className="w-full pr-10 py-3 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        className="absolute right-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
                   <button
-                    type="button"
-                    onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>{isHi ? "साइन इन हो रहा है..." : "Signing in..."}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{isHi ? "पासवर्ड से साइन इन करें" : "Sign In with Password"}</span>
+                        <ArrowRight className="w-4 h-4 text-[#78B957]" />
+                      </>
+                    )}
                   </button>
-                </div>
-              </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin text-white" />
-                    <span>{isHi ? "साइन इन हो रहा है..." : "Signing in..."}</span>
-                  </>
-                ) : (
-                  <>
-                    <span>{isHi ? "पासवर्ड से साइन इन करें" : "Sign In with Password"}</span>
-                    <ArrowRight className="w-4 h-4 text-[#78B957]" />
-                  </>
-                )}
-              </button>
-            </form>
+                  <div className="text-center pt-1">
+                    <p className="text-xs text-stone-500">
+                      {isHi ? "नया खाता बनाना है?" : "Don't have an account yet?"}{" "}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailSubMode("register");
+                          setError(null);
+                        }}
+                        className="font-bold text-[#27834A] hover:underline cursor-pointer"
+                      >
+                        {isHi ? "ईमेल से रजिस्टर करें" : "Register with Email"}
+                      </button>
+                    </p>
+                  </div>
+                </form>
+              )}
+
+              {/* Sub-mode 2: Create Account / Register with Email */}
+              {emailSubMode === "register" && (
+                <form onSubmit={handleEmailRegister} className="space-y-3">
+                  <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-[#174B35] dark:text-emerald-200 flex items-center gap-2">
+                    <UserPlus className="w-4 h-4 shrink-0 text-[#27834A]" />
+                    <span className="font-semibold">
+                      {isHi ? "ईमेल से नया खाता बनाएं — सभी किसानों के लिए निःशुल्क" : "Create your free KisaanBuddy account with email"}
+                    </span>
+                  </div>
+
+                  {/* Name Input */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                      {isHi ? "पूरा नाम" : "Full Name"}
+                    </label>
+                    <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                      <div className="pl-3.5 pr-2 text-stone-400">
+                        <UserIcon className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={regName}
+                        onChange={(e) => setRegName(e.target.value)}
+                        placeholder={isHi ? "उदा. रमेश कुमार" : "e.g. Ramesh Kumar"}
+                        disabled={loading}
+                        className="w-full pr-3.5 py-2.5 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email Input */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                      {isHi ? "ईमेल पता" : "Email Address"}
+                    </label>
+                    <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                      <div className="pl-3.5 pr-2 text-stone-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="yourname@gmail.com"
+                        disabled={loading}
+                        className="w-full pr-3.5 py-2.5 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password Input */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                        {isHi ? "पासवर्ड (कम से कम 8 अक्षर)" : "Password (min 8 chars)"}
+                      </label>
+                      <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                        <div className="pl-3 pr-1 text-stone-400">
+                          <Lock className="w-3.5 h-3.5" />
+                        </div>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          disabled={loading}
+                          className="w-full pr-8 py-2.5 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          className="absolute right-2.5 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                        >
+                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300">
+                        {isHi ? "पासवर्ड दोबारा लिखें" : "Confirm Password"}
+                      </label>
+                      <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                        <div className="pl-3 pr-1 text-stone-400">
+                          <Lock className="w-3.5 h-3.5" />
+                        </div>
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          required
+                          value={regConfirmPassword}
+                          onChange={(e) => setRegConfirmPassword(e.target.value)}
+                          placeholder="••••••••"
+                          disabled={loading}
+                          className="w-full pr-3 py-2.5 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Optional Phone */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1D2B22] dark:text-stone-300 flex items-center justify-between">
+                      <span>{isHi ? "मोबाइल नंबर (वैकल्पिक)" : "Phone Number (Optional)"}</span>
+                      <span className="text-[10px] text-stone-500 font-normal">For SMS mandi alerts</span>
+                    </label>
+                    <div className="relative flex items-center rounded-2xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 focus-within:border-[#27834A] focus-within:ring-2 focus-within:ring-[#27834A]/20 transition-all overflow-hidden">
+                      <div className="flex items-center gap-1 px-3 py-2.5 bg-stone-100/90 dark:bg-stone-700/80 border-r border-stone-200 dark:border-stone-700 text-xs font-bold text-stone-800 dark:text-stone-200 select-none">
+                        <span>🇮🇳 +91</span>
+                      </div>
+                      <input
+                        type="tel"
+                        value={regPhone}
+                        onChange={(e) => setRegPhone(e.target.value.replace(/[^0-9]/g, "").slice(0, 10))}
+                        placeholder="9876543210"
+                        disabled={loading}
+                        className="w-full px-3 py-2.5 text-sm font-semibold text-stone-900 dark:text-white placeholder-stone-400 bg-transparent outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Register Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={loading || !email || password.length < 8 || password !== regConfirmPassword || !regName.trim()}
+                    className="w-full h-12 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#174B35] hover:bg-[#27834A] disabled:opacity-50 text-white font-bold text-sm shadow-md shadow-[#174B35]/20 hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>{isHi ? "खाता बन रहा है..." : "Creating Account..."}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>{isHi ? "खाता बनाएं और प्रवेश करें" : "Create Account & Enter Farm"}</span>
+                        <ArrowRight className="w-4 h-4 text-[#78B957]" />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="text-center pt-1">
+                    <p className="text-xs text-stone-500">
+                      {isHi ? "पहले से खाता है?" : "Already have an account?"}{" "}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEmailSubMode("login");
+                          setError(null);
+                        }}
+                        className="font-bold text-[#27834A] hover:underline cursor-pointer"
+                      >
+                        {isHi ? "लॉगिन करें" : "Sign In"}
+                      </button>
+                    </p>
+                  </div>
+                </form>
+              )}
+            </div>
           )}
 
           {/* Bottom Trust & Security Pill Strip */}

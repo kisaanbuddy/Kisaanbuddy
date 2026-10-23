@@ -34,9 +34,15 @@ type Message = {
   isPlaying?: boolean;
 }
 
-type Lang = "hi" | "en" | "kn" | "te" | "ta" | "bn" | "mr"
+type Lang = "auto" | "hi" | "en" | "kn" | "te" | "ta" | "bn" | "mr"
 
 const LANG_CONFIG: Record<Lang, { label: string; speechCode: string; welcome: string; placeholder: string }> = {
+  auto: {
+    label: "Auto",
+    speechCode: "en-IN",
+    welcome: "Namaste! Speak naturally in English, Hindi/Hinglish, or Kannada.",
+    placeholder: "Tap the microphone and speak in your language..."
+  },
   hi: {
     label: "हिंदी (Hindi)",
     speechCode: "hi-IN",
@@ -208,10 +214,10 @@ const CHATBOT_FAQS = {
 }
 
 function ChatbotInner() {
-  const { t, lang: globalLang } = useLanguage()
+  const { t } = useLanguage()
   const searchParams = useSearchParams()
 
-  const [activeLang, setActiveLang] = useState<Lang>("hi")
+  const [activeLang, setActiveLang] = useState<Lang>("auto")
   const [messages, setMessages] = useState<Message[]>([])
   const [faqOpenIndex, setFaqOpenIndex] = useState<number | null>(null)
   
@@ -226,7 +232,11 @@ function ChatbotInner() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const mediaStreamRef = useRef<MediaStream | null>(null)
+  const recorderChunksRef = useRef<Blob[]>([])
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+  const playbackGenerationRef = useRef(0)
   // Keep a server conversation alive across voice turns. State alone is stale
   // inside SpeechRecognition callbacks, so refs are deliberately used here.
   const assistantSessionRef = useRef<string | null>(null)
@@ -235,16 +245,19 @@ function ChatbotInner() {
 
   useEffect(() => { attachedImageRef.current = attachedImage }, [attachedImage])
 
-  // Map global UI language to our local voice assistant languages
-  useEffect(() => {
-    if (globalLang === "kn") setActiveLang("kn")
-    else if (globalLang === "en") setActiveLang("en")
-    else if (globalLang === "te") setActiveLang("te")
-    else if (globalLang === "ta") setActiveLang("ta")
-    else if (globalLang === "bn") setActiveLang("bn")
-    else if (globalLang === "mr") setActiveLang("mr")
-    else setActiveLang("hi")
-  }, [globalLang])
+  // Do not leave microphone tracks or a queued response playing after the
+  // farmer navigates away from the full-screen assistant.
+  useEffect(() => () => {
+    playbackGenerationRef.current += 1
+    currentAudioRef.current?.pause()
+    window.speechSynthesis?.cancel()
+    try { recognitionRef.current?.abort() } catch { /* browser cleanup */ }
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.onstop = null
+      mediaRecorderRef.current.stop()
+    }
+    mediaStreamRef.current?.getTracks().forEach(track => track.stop())
+  }, [])
 
   // Pre-load welcome message
   useEffect(() => {
@@ -268,10 +281,12 @@ function ChatbotInner() {
 
   // Stop current audio playback
   const stopCurrentAudio = () => {
+    playbackGenerationRef.current += 1
     if (currentAudioRef.current) {
       currentAudioRef.current.pause()
       currentAudioRef.current = null
     }
+    window.speechSynthesis?.cancel()
     setMessages(prev => prev.map(m => ({ ...m, isPlaying: false })))
     setIsSpeaking(false)
   }
@@ -279,6 +294,7 @@ function ChatbotInner() {
   // Play synthetic TTS audio (either cached locally, retrieved from backend, or browser fallback)
   const playAudio = async (text: string, language: string, msgId: string) => {
     stopCurrentAudio()
+    const generation = playbackGenerationRef.current
     
     try {
       setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: true } : m))
@@ -326,22 +342,24 @@ function ChatbotInner() {
         audioUrl = URL.createObjectURL(blob)
       }
 
+      if (generation !== playbackGenerationRef.current) return
+
       // Play the audio
       const audio = new Audio(audioUrl)
       currentAudioRef.current = audio
       audio.onended = () => {
+        if (generation !== playbackGenerationRef.current) return
         setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
         setIsSpeaking(false)
       }
       audio.onerror = () => {
-        // Fallback if audio file fails to load
-        speakViaBrowser(text, language === "hi" ? "hi-IN" : language === "kn" ? "kn-IN" : "en-US", msgId)
+        speakViaBrowser(text, language === "hi" || language === "hi_en" ? "hi-IN" : language === "kn" ? "kn-IN" : "en-IN", msgId)
       }
       audio.play()
 
     } catch (err) {
-      console.warn("TTS backend error, falling back to Web Speech Synthesis API:", err)
-      speakViaBrowser(text, language === "hi" ? "hi-IN" : language === "kn" ? "kn-IN" : "en-US", msgId)
+      console.warn("Neural TTS request failed:", err)
+      speakViaBrowser(text, language === "hi" || language === "hi_en" ? "hi-IN" : language === "kn" ? "kn-IN" : "en-IN", msgId)
     }
   }
 
@@ -353,9 +371,22 @@ function ChatbotInner() {
       return
     }
 
-    window.speechSynthesis.cancel() // Stop any current speaking
+    // Do not silently use an English browser voice for Indic text. It sounds
+    // robotic and mispronounces the farmer's question; keep the text visible
+    // until Sarvam speech is available again.
+    const prefix = voiceCode.split("-")[0].toLowerCase()
+    const voice = window.speechSynthesis.getVoices().find((candidate) =>
+      candidate.lang.toLowerCase().startsWith(prefix)
+    )
+    if (prefix === "hi" || prefix === "kn") {
+      setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
+      setIsSpeaking(false)
+      return
+    }
+    window.speechSynthesis.cancel()
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.lang = voiceCode
+    if (voice) utterance.voice = voice
     utterance.onend = () => {
       setMessages(prev => prev.map(m => m.id === msgId ? { ...m, isPlaying: false } : m))
       setIsSpeaking(false)
@@ -368,7 +399,7 @@ function ChatbotInner() {
   }
 
   // Send spoken query to LLM Brain
-  const sendQuery = async (queryText: string, imageBase64: string | null) => {
+  const sendQuery = async (queryText: string, imageBase64: string | null, languageHint: string = activeLang) => {
     if (!queryText.trim()) return
     
     stopCurrentAudio()
@@ -398,7 +429,7 @@ function ChatbotInner() {
         body: JSON.stringify({
           session_id: assistantSessionRef.current,
           message: queryText,
-          language: activeLang,
+          language: languageHint,
           stream: false,
           image_base64: imageBase64 || undefined
         })
@@ -408,6 +439,7 @@ function ChatbotInner() {
         const data = await response.json()
         if (data.session_id) assistantSessionRef.current = data.session_id
         const botReply = data.content || data.reply || "Sorry, I could not generate a reply."
+        const replyLanguage = data.language || languageHint
         
         setMessages(prev => [
           ...prev,
@@ -415,47 +447,105 @@ function ChatbotInner() {
             id: botMsgId,
             text: botReply,
             sender: "bot",
-            language: activeLang
+            language: replyLanguage
           }
         ])
         
         setIsThinking(false)
         // Automatically play TTS for bot response
-        playAudio(botReply, activeLang, botMsgId)
+        playAudio(botReply, replyLanguage, botMsgId)
       } else {
         throw new Error("API responded with error")
       }
     } catch (error) {
       console.error("Chat Error:", error)
-      const errorMsg = "माफ़ कीजिये, अभी संपर्क नहीं हो पा रहा है। कृपया दोबारा प्रयास करें।"
+      const errorLanguage = languageHint === "auto" ? "en" : languageHint
+      const errorMsg = errorLanguage === "kn"
+        ? "ಕ್ಷಮಿಸಿ, ಈಗ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+        : errorLanguage === "en"
+        ? "Sorry, I cannot connect right now. Please try again."
+        : "माफ़ कीजिये, अभी संपर्क नहीं हो पा रहा है। कृपया दोबारा प्रयास करें।"
       setMessages(prev => [
         ...prev,
         {
           id: botMsgId,
           text: errorMsg,
           sender: "bot",
-          language: activeLang
+          language: errorLanguage
         }
       ])
       setIsThinking(false)
-      speakViaBrowser(errorMsg, "hi-IN", botMsgId)
+      speakViaBrowser(errorMsg, errorLanguage === "kn" ? "kn-IN" : errorLanguage === "en" ? "en-IN" : "hi-IN", botMsgId)
     }
   }
 
-  // Handle Web Speech API Speech Recognition
-  const toggleListen = () => {
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
-    if (!SR) {
-      alert("Voice speech recognition is not supported in this browser. Please use Chrome on Android.")
-      return
+  const startServerRecognition = async (): Promise<boolean> => {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return false
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mimeType = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"].find(MediaRecorder.isTypeSupported) || ""
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
+      recorderChunksRef.current = []
+      recorder.ondataavailable = (event) => {
+        if (event.data.size) recorderChunksRef.current.push(event.data)
+      }
+      recorder.onstop = async () => {
+        setIsListening(false)
+        stream.getTracks().forEach(track => track.stop())
+        mediaStreamRef.current = null
+        const blob = new Blob(recorderChunksRef.current, { type: mimeType || "audio/webm" })
+        if (!blob.size) return
+        try {
+          const form = new FormData()
+          form.append("audio", blob, blob.type.includes("mp4") ? "audio.mp4" : "audio.webm")
+          if (activeLang !== "auto") form.append("language", activeLang)
+          const response = await fetch("/api/chat/stt", { method: "POST", body: form })
+          if (!response.ok) throw new Error("Speech transcription failed")
+          const result = await response.json()
+          const transcript = String(result.transcript || "").trim()
+          if (transcript) {
+            setInterimText(transcript)
+            sendQuery(transcript, attachedImageRef.current, activeLang === "auto" ? "auto" : activeLang)
+          }
+        } catch (error) {
+          console.warn("Server speech recognition failed:", error)
+          setInterimText("")
+        }
+      }
+      mediaRecorderRef.current = recorder
+      mediaStreamRef.current = stream
+      finalTranscriptRef.current = ""
+      setInterimText("")
+      setIsListening(true)
+      recorder.start()
+      return true
+    } catch (error) {
+      console.warn("Microphone recording unavailable:", error)
+      return false
     }
+  }
 
+  // Sarvam STT is primary because it can auto-detect Hindi, Hinglish and
+  // Kannada. Web Speech remains a compatibility fallback only.
+  const toggleListen = async () => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (isListening) {
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.stop()
+        return
+      }
       recognitionRef.current?.stop()
       return
     }
 
     stopCurrentAudio()
+
+    if (await startServerRecognition()) return
+
+    if (!SR) {
+      alert("Voice recording is not supported in this browser. Please use a modern browser and allow microphone access.")
+      return
+    }
 
     const recognition = new SR()
     recognitionRef.current = recognition
