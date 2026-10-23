@@ -67,7 +67,7 @@ class JobPostIn(BaseModel):
     contact_name: str = Field(..., min_length=2, max_length=80)
     contact_phone: str = Field(..., min_length=7, max_length=20)
     notes: Optional[str] = Field(None, max_length=500)
-    language: Literal["auto", "en", "hi", "kn"] = "auto"
+    language: Literal["auto", "en", "hi", "kn", "ta", "te", "mr", "gu", "bn", "pa", "ml", "hi_en"] = "auto"
 
     @field_validator("contact_phone")
     @classmethod

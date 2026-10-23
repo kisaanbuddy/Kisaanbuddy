@@ -14,8 +14,71 @@ type Founder = {
   gradient: string;
 };
 
+const FOUNDERS_I18N: Record<string, {
+  prefix: string;
+  highlight: string;
+  emailTitle: (name: string) => string;
+}> = {
+  en: {
+    prefix: 'Built by RVCE Engineers for ',
+    highlight: 'Indian Farmers 🇮🇳',
+    emailTitle: (name) => `Email ${name}`
+  },
+  hi: {
+    prefix: 'भारतीय किसानों के लिए ',
+    highlight: 'RVCE इंजीनियर्स द्वारा निर्मित 🇮🇳',
+    emailTitle: (name) => `${name} को ईमेल भेजें`
+  },
+  kn: {
+    prefix: 'ಭಾರತೀಯ ರೈತರಿಗಾಗಿ ',
+    highlight: 'RVCE ಇಂಜಿನಿಯರ್‌ಗಳಿಂದ ನಿರ್ಮಿಸಲಾಗಿದೆ 🇮🇳',
+    emailTitle: (name) => `${name} ಅವರಿಗೆ ಇಮೇಲ್ ಕಳುಹಿಸಿ`
+  },
+  mr: {
+    prefix: 'भारतीय शेतकऱ्यांसाठी ',
+    highlight: 'RVCE इंजिनिअर्सद्वारे निर्मित 🇮🇳',
+    emailTitle: (name) => `${name} यांना ईमेल पाठवा`
+  },
+  te: {
+    prefix: 'భారతీయ రైతుల కోసం ',
+    highlight: 'RVCE ఇంజనీర్లచే నిర్మితం 🇮🇳',
+    emailTitle: (name) => `${name} కి ఈమెయిల్ పంపండి`
+  },
+  ta: {
+    prefix: 'இந்திய விவசாயிகளுக்காக ',
+    highlight: 'RVCE பொறியாளர்களால் உருவாக்கப்பட்டது 🇮🇳',
+    emailTitle: (name) => `${name} அவர்களுக்கு மின்னஞ்சல் அனுப்பவும்`
+  },
+  gu: {
+    prefix: 'ભારતીય ખેડૂતો માટે ',
+    highlight: 'RVCE એન્જિનિયરો દ્વારા નિર્મિત 🇮🇳',
+    emailTitle: (name) => `${name} ને ઈમેલ મોકલો`
+  },
+  bn: {
+    prefix: 'ভারতীয় কৃষকদের জন্য ',
+    highlight: 'RVCE ইঞ্জিনিয়ারদের দ্বারা তৈরি 🇮🇳',
+    emailTitle: (name) => `${name}-কে ইমেল পাঠান`
+  },
+  pa: {
+    prefix: 'ਭਾਰਤੀ ਕਿਸਾਨਾਂ ਲਈ ',
+    highlight: 'RVCE ਇੰਜੀਨੀਅਰਾਂ ਵੱਲੋਂ ਤਿਆਰ ਕੀਤਾ ਗਿਆ 🇮🇳',
+    emailTitle: (name) => `${name} ਨੂੰ ਈਮੇਲ ਭੇਜੋ`
+  },
+  ml: {
+    prefix: 'ഇന്ത്യൻ കർഷകർക്കായി ',
+    highlight: 'RVCE എഞ്ചിനീയർമാർ നിർമ്മിച്ചത് 🇮🇳',
+    emailTitle: (name) => `${name}-ന് ഇമെയിൽ അയയ്ക്കുക`
+  },
+  hi_en: {
+    prefix: 'Indian Farmers ke liye ',
+    highlight: 'RVCE Engineers dwara Built 🇮🇳',
+    emailTitle: (name) => `${name} ko email karein`
+  }
+};
+
 export function Founders() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
+  const c = FOUNDERS_I18N[lang] || FOUNDERS_I18N.en;
 
   const founders: Founder[] = [
     {
@@ -66,9 +129,11 @@ export function Founders() {
           </div>
           
           <h2 className="text-3xl md:text-5xl font-display font-black tracking-tight text-foreground">
-            {t('founders.heading').split(' Indian')[0]}{" "}
-            <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent">
-              {t('founders.heading').includes('Indian') ? 'Indian Farmers 🇮🇳' : t('founders.heading')}
+            <span>
+              {c.prefix}
+              <span className="bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 dark:from-emerald-400 dark:via-teal-300 dark:to-emerald-400 bg-clip-text text-transparent">
+                {c.highlight}
+              </span>
             </span>
           </h2>
           
@@ -139,7 +204,7 @@ export function Founders() {
                   <a
                     href={`mailto:${f.email}`}
                     className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted/60 border border-border/70 hover:border-emerald-500/30 hover:bg-emerald-500/10 text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-[0.98] transition-all duration-200"
-                    title={`Email ${f.name.split(" ")[0]}`}
+                    title={c.emailTitle(f.name.split(" ")[0])}
                   >
                     <Mail className="h-3.5 w-3.5" />
                   </a>

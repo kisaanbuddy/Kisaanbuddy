@@ -3,7 +3,8 @@ import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
 
-import { useState, useEffect, useMemo, useCallback } from "react"
+import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Store,
@@ -28,6 +29,22 @@ import {
   Plus,
   Trash2,
   Sparkles,
+  BadgeCheck,
+  Calculator,
+  Truck,
+  Phone,
+  Mail,
+  ExternalLink,
+  ShieldCheck,
+  AlertTriangle,
+  Calendar,
+  Building2,
+  FileText,
+  Check,
+  RefreshCw,
+  Clock,
+  Flag,
+  Send,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -43,377 +60,37 @@ import {
   ResponsiveContainer,
 } from "recharts"
 
-/* ------------------------------------------------------------------ */
-/*  Multilingual eNAM Instructions                                     */
-/* ------------------------------------------------------------------ */
-const ENAM_LANG = {
-  en: {
-    title: "Fill this on eNAM",
-    state: "State",
-    apmc: "APMC / Mandi",
-    commodity: "Commodity",
-    price: "Price",
-    proceed: "Go to eNAM ↗",
-    note: "eNAM — Government of India's official mandi. Real buyers, real payments.",
-  },
-  hi: {
-    title: "eNAM पर यह भरें",
-    state: "राज्य",
-    apmc: "मंडी",
-    commodity: "फसल",
-    price: "भाव",
-    proceed: "eNAM पर जाएं ↗",
-    note: "eNAM — भारत सरकार की आधिकारिक मंडी। असली खरीदार, असली भुगतान।",
-  },
-  kn: {
-    title: "eNAM ನಲ್ಲಿ ಇದನ್ನು ತುಂಬಿ",
-    state: "ರಾಜ್ಯ",
-    apmc: "ಮಂಡಿ",
-    commodity: "ಬೆಳೆ",
-    price: "ಬೆಲೆ",
-    proceed: "eNAM ಗೆ ಹೋಗಿ ↗",
-    note: "eNAM — ಭಾರತ ಸರ್ಕಾರದ ಅಧಿಕೃತ ಮಂಡಿ। ನೈಜ ಖರೀದಿದಾರರು, ನೈಜ ಪಾವತಿ.",
-  },
-}
-
-const ALERT_LANG = {
-  en: {
-    panelTitle: "Target Price Notifications",
-    setupMonitors: "Setup push price monitors for selected commodities",
-    activeMonitors: (count: number) => `${count} active monitors`,
-    enableNotifications: "Enable Notifications",
-    checkStatus: "Check Status",
-    cancel: "Cancel",
-    addTargetPrice: "Add Target Price",
-    cropCommodity: "Crop / Commodity",
-    selectCommodity: "Select commodity",
-    triggerRule: "Trigger Rule",
-    goesAbove: "Goes Above",
-    goesBelow: "Goes Below",
-    targetPriceLabel: "Target (₹ per Qtl)",
-    targetPricePlaceholder: "Target price",
-    createTrigger: "Create Trigger"
-  },
-  hi: {
-    panelTitle: "लक्ष्य मूल्य सूचनाएं",
-    setupMonitors: "चयनित फसलों के लिए मूल्य अलर्ट सेट करें",
-    activeMonitors: (count: number) => `${count} सक्रिय अलर्ट`,
-    enableNotifications: "सूचनाएं सक्षम करें",
-    checkStatus: "स्थिति जांचें",
-    cancel: "रद्द करें",
-    addTargetPrice: "लक्ष्य मूल्य जोड़ें",
-    cropCommodity: "फसल / वस्तु",
-    selectCommodity: "फसल चुनें",
-    triggerRule: "अलर्ट नियम",
-    goesAbove: "ऊपर जाने पर",
-    goesBelow: "नीचे जाने पर",
-    targetPriceLabel: "लक्ष्य (₹ प्रति क्विंटल)",
-    targetPricePlaceholder: "लक्ष्य मूल्य",
-    createTrigger: "अलर्ट सेट करें"
-  },
-  kn: {
-    panelTitle: "ಗುರಿ ಬೆಲೆ ಅಧಿಸೂಚನೆಗಳು",
-    setupMonitors: "ಆಯ್ಕೆ ಮಾಡಿದ ಬೆಳೆಗಳಿಗೆ ಬೆಲೆ ಅಲರ್ಟ್ ಸೆಟ್ ಮಾಡಿ",
-    activeMonitors: (count: number) => `${count} ಸಕ್ರಿಯ ಅಲರ್ಟ್‌ಗಳು`,
-    enableNotifications: "ಅಧಿಸೂಚನೆ ಸಕ್ರಿಯಗೊಳಿಸಿ",
-    checkStatus: "ಸ್ಥಿತಿ ಪರೀಕ್ಷಿಸಿ",
-    cancel: "ರದ್ದುಮಾಡಿ",
-    addTargetPrice: "ಗುರಿ ಬೆಲೆ ಸೇರಿಸಿ",
-    cropCommodity: "ಬೆಳೆ / ಪದಾರ್ಥ",
-    selectCommodity: "ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ",
-    triggerRule: "ನಿಯಮ",
-    goesAbove: "ಹೆಚ್ಚಾದಾಗ",
-    goesBelow: "ಕಡಿಮೆಯಾದಾಗ",
-    targetPriceLabel: "ಗುರಿ ಬೆಲೆ (₹ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್)",
-    targetPricePlaceholder: "ಗುರಿ ಬೆಲೆ",
-    createTrigger: "ಅಲರ್ಟ್ ರಚಿಸಿ"
-  }
-}
-
-const MANDI_PAGE_LANG = {
-  en: {
-    enamConnected: "eNAM Connected Mandi",
-    mandi: "Mandi",
-    marketplace: "Marketplace",
-    heroDesc: "Real-time commodity valuation indexes from national APMC centers. Place orders, monitor trading trends, or list inventories directly with automated government verification.",
-    totalCrops: "Total Crops",
-    mandiArrivals: "Mandi Arrivals",
-    searchPlaceholder: "Search commodities, APMC mandis, states...",
-    syncingIndex: "Synchronizing Mandi Pricing Index...",
-    noCommodities: "No commodities found matching filter.",
-    returnMarketplace: "Return to Marketplace",
-    varietyLabel: "Specific variety: ",
-    livePriceIndex: "Live Price Index",
-    arrivalTonnes: "Arrival Tonnes",
-    low: "Low",
-    currentModel: "Current Model",
-    high: "High",
-    apmcMandi: "APMC Mandi",
-    stateCenter: "State Center",
-    priceHistory: "Market Price History",
-    historyTrend: "Historical fluctuation trend for the past 7 days",
-    liveGraph: "Live Graph",
-    buy: "Buy",
-    sell: "Sell",
-    retry: "Retry Connection",
-    removeAlert: "Remove alert",
-  },
-  hi: {
-    enamConnected: "eNAM कनेक्टेड मंडी",
-    mandi: "मंडी",
-    marketplace: "बाजार",
-    heroDesc: "राष्ट्रीय APMC केंद्रों से वास्तविक समय में फसल मूल्य सूचकांक। सीधे सरकारी सत्यापन के साथ ऑर्डर दें, व्यापार के रुझान देखें या अपनी फसल सूचीबद्ध करें।",
-    totalCrops: "कुल फसलें",
-    mandiArrivals: "मंडी आवक",
-    searchPlaceholder: "फसलें, APMC मंडियां, राज्य खोजें...",
-    syncingIndex: "मंडी मूल्य सूचकांक सिंक किया जा रहा है...",
-    noCommodities: "फिल्टर से मेल खाने वाली कोई फसल नहीं मिली।",
-    returnMarketplace: "बाजार पर वापस जाएं",
-    varietyLabel: "विशिष्ट किस्म: ",
-    livePriceIndex: "लाइव मूल्य सूचकांक",
-    arrivalTonnes: "आवक टन",
-    low: "न्यूनतम",
-    currentModel: "वर्तमान मॉडल",
-    high: "अधिकतम",
-    apmcMandi: "APMC मंडी",
-    stateCenter: "राज्य केंद्र",
-    priceHistory: "बाजार मूल्य इतिहास",
-    historyTrend: "पिछले 7 दिनों के लिए ऐतिहासिक उतार-चढ़ाव का रुझान",
-    liveGraph: "लाइव ग्राफ",
-    buy: "खरीदें",
-    sell: "बेचें",
-    retry: "कनेक्शन पुनः प्रयास करें",
-    removeAlert: "अलर्ट हटाएं",
-  },
-  kn: {
-    enamConnected: "eNAM ಸಂಪರ್ಕಿತ ಮಂಡಿ",
-    mandi: "ಮಂಡಿ",
-    marketplace: "ಮಾರುಕಟ್ಟೆ",
-    heroDesc: "ರಾಷ್ಟ್ರೀಯ APMC ಕೇಂದ್ರಗಳಿಂದ ನೈಜ-ಸಮಯದ ಬೆಳೆ ಮೌಲ್ಯ ಸೂಚ್ಯಂಕಗಳು. ಆರ್ಡರ್ ಮಾಡಿ, ವ್ಯಾಪಾರ ಪ್ರವೃತ್ತಿ ಗಮನಿಸಿ, ಅಥವಾ ಸರ್ಕಾರದ ಪರಿಶೀಲನೆಯೊಂದಿಗೆ ನಿಮ್ಮ ದಾಸ್ತಾನು ಪಟ್ಟಿ ಮಾಡಿ.",
-    totalCrops: "ಒಟ್ಟು ಬೆಳೆಗಳು",
-    mandiArrivals: "ಮಂಡಿ ಆವಕ",
-    searchPlaceholder: "ಬೆಳೆಗಳು, APMC ಮಂಡಿಗಳು, ರಾಜ್ಯಗಳನ್ನು ಹುಡುಕಿ...",
-    syncingIndex: "ಮಂಡಿ ಬೆಲೆ ಸೂಚ್ಯಂಕವನ್ನು ಸಿಂಕ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
-    noCommodities: "ಫಿಲ್ಟರ್‌ಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಯಾವುದೇ ಪದಾರ್ಥಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
-    returnMarketplace: "ಮಾರುಕಟ್ಟೆಗೆ ಹಿಂತಿರುಗಿ",
-    varietyLabel: "ನಿರ್ದಿಷ್ಟ ತಳಿ: ",
-    livePriceIndex: "ಲೈವ್ ಬೆಲೆ ಸೂಚ್ಯಂಕ",
-    arrivalTonnes: "ಆವಕ ಟನ್‌ಗಳು",
-    low: "ಕಡಿಮೆ",
-    currentModel: "ಪ್ರಸ್ತುತ ಮಾದರಿ",
-    high: "ಹೆಚ್ಚು",
-    apmcMandi: "APMC ಮಂಡಿ",
-    stateCenter: "ರಾಜ್ಯ ಕೇಂದ್ರ",
-    priceHistory: "ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಇತಿಹಾಸ",
-    historyTrend: "ಕಳೆದ 7 ದಿನಗಳ ಐತಿಹಾಸಿಕ ಏರಿಳಿತದ ಪ್ರವೃತ್ತಿ",
-    liveGraph: "ಲೈವ್ ಗ್ರಾಫ್",
-    buy: "ಖರೀದಿಸಿ",
-    sell: "ಮಾರಿ",
-    retry: "ಮರುಸಂಪರ್ಕಿಸಿ",
-    removeAlert: "ಅಲರ್ಟ್ ತೆಗೆದುಹಾಕಿ",
-  }
-}
-
-const TRADE_LANG = {
-  en: {
-    tradeCommodity: "Trade Commodity",
-    tradeDesc: "Initiate instant trading signals or direct transactions across our verified regional logistics networks.",
-    buy: "Buy",
-    sell: "Sell",
-    connectingBroker: "Connecting eNAM broker...",
-    securingPipeline: "Securing encrypted pipeline with registered trading agents for",
-    in: "in",
-    agentConnected: "eNAM Agent Connected!",
-    nam: "National Agriculture Market",
-    govIndia: "Govt of India • Verification Center",
-    tradingValue: "Trading Value",
-    cancel: "Cancel",
-  },
-  hi: {
-    tradeCommodity: "फसल का व्यापार",
-    tradeDesc: "हमारे सत्यापित क्षेत्रीय लॉजिस्टिक्स नेटवर्क पर त्वरित व्यापार संकेत या सीधे लेनदेन शुरू करें।",
-    buy: "खरीदें",
-    sell: "बेचें",
-    connectingBroker: "eNAM ब्रोकर से कनेक्ट किया जा रहा है...",
-    securingPipeline: "सत्यापित ट्रेडिंग एजेंटों के साथ सुरक्षित एन्क्रिप्टेड कनेक्शन स्थापित किया जा रहा है - ",
-    in: "मंडी:",
-    agentConnected: "eNAM एजेंट कनेक्ट हो गया!",
-    nam: "राष्ट्रीय कृषि बाजार (eNAM)",
-    govIndia: "भारत सरकार • सत्यापन केंद्र",
-    tradingValue: "व्यापार मूल्य",
-    cancel: "रद्द करें",
-  },
-  kn: {
-    tradeCommodity: "ಬೆಳೆ ವ್ಯಾಪಾರ",
-    tradeDesc: "ನಮ್ಮ ಪರಿಶೀಲಿಸಿದ ಪ್ರಾದೇಶಿಕ ಲಾಜಿಸ್ಟಿಕ್ಸ್ ನೆಟ್‌ವರ್ಕ್‌ಗಳಲ್ಲಿ ತ್ವರಿತ ವ್ಯಾಪಾರ ಸಂಕೇತಗಳು ಅಥವಾ ನೇರ ವಹಿವಾಟುಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ.",
-    buy: "ಖರೀದಿಸಿ",
-    sell: "ಮಾರಿ",
-    connectingBroker: "eNAM ಬ್ರೋಕರ್ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...",
-    securingPipeline: "ನೋಂದಾಯಿತ ವ್ಯಾಪಾರ ಏಜೆಂಟ್‌ಗಳೊಂದಿಗೆ ಸುರಕ್ಷಿತ ಎನ್‌ಕ್ರಿಪ್ಟ್ ಮಾಡಿದ ಸಂಪರ್ಕ ಸಾಧಿಸಲಾಗುತ್ತಿದೆ - ಬೆಳೆ:",
-    in: "ಮಂಡಿ:",
-    agentConnected: "eNAM ಏಜೆಂಟ್ ಸಂಪರ್ಕಗೊಂಡಿದೆ!",
-    nam: "ರಾಷ್ಟ್ರೀಯ ಕೃಷಿ ಮಾರುಕಟ್ಟೆ (eNAM)",
-    govIndia: "ಭಾರತ ಸರ್ಕಾರ • ಪರಿಶೀಲನಾ ಕೇಂದ್ರ",
-    tradingValue: "ವ್ಯಾಪಾರದ ಮೌಲ್ಯ",
-    cancel: "ರದ್ದುಮಾಡಿ",
-  }
-}
-
-const CATEGORY_LANG = {
-  en: {
-    Cereal: "Cereal",
-    Oilseed: "Oilseed",
-    Pulse: "Pulse",
-    Fiber: "Fiber",
-    Vegetable: "Vegetable",
-    "Cash Crop": "Cash Crop",
-    All: "All"
-  },
-  hi: {
-    Cereal: "अनाज",
-    Oilseed: "तिलहन",
-    Pulse: "दलहन",
-    Fiber: "रेशेदार फसल",
-    Vegetable: "सब्जी",
-    "Cash Crop": "नकदी फसल",
-    All: "सभी"
-  },
-  kn: {
-    Cereal: "ಧಾನ್ಯಗಳು",
-    Oilseed: "ಎಣ್ಣೆಕಾಳುಗಳು",
-    Pulse: "ಬೇಳೆಕಾಳುಗಳು",
-    Fiber: "ನಾರಿನ ಬೆಳೆಗಳು",
-    Vegetable: "ತರಕಾರಿ",
-    "Cash Crop": "ನಗದು ಬೆಳೆ",
-    All: "ಎಲ್ಲಾ"
-  }
-} as any
-
-const DATA_TRANSLATIONS: Record<string, Record<string, string>> = {
-  hi: {
-    // Crop names
-    "Wheat (गेहूं)": "गेहूं",
-    "Rice (चावल)": "चावल",
-    "Soybean (सोयाबीन)": "सोयाबीन",
-    "Cotton (कपास)": "कपास",
-    "Mustard (सरसों)": "सरसों",
-    "Chana (चना)": "चना",
-    "Tur/Arhar Dal (तूर दाल)": "तूर दाल (अरहर)",
-    "Onion (प्याज)": "प्याज",
-    "Potato (आलू)": "आलू",
-    "Sugarcane (गन्ना)": "गन्ना",
-    "Maize (मक्का)": "मक्का",
-    "Groundnut (मूंगफली)": "मूंगफली",
-    // Varieties
-    "Sharbati": "शरबती",
-    "Basmati 1121": "बासमती 1121",
-    "Yellow": "पीला",
-    "Medium Staple": "मध्यम रेशा",
-    "Laha": "लाहा",
-    "Desi": "देशी",
-    "FAQ": "एफएक्यू (सामान्य)",
-    "Nasik Red": "नाशिक लाल",
-    "Jyoti": "ज्योति",
-    "Co-0238": "को-0238",
-    "Bold": "बोल्ड",
-    // States
-    "Madhya Pradesh": "मध्य प्रदेश",
-    "Haryana": "हरियाणा",
-    "Gujarat": "गुजरात",
-    "Rajasthan": "राजस्थान",
-    "Maharashtra": "महाराष्ट्र",
-    "Karnataka": "कर्नाटक",
-    "Uttar Pradesh": "उत्तर प्रदेश",
-    // Mandis
-    "Indore Mandi": "इंदौर मंडी",
-    "Karnal Mandi": "करनाल मंडी",
-    "Ujjain Mandi": "उज्जयिनी मंडी",
-    "Rajkot Mandi": "राजकोट मंडी",
-    "Alwar Mandi": "अलवर मंडी",
-    "Latur Mandi": "लातूर मंडी",
-    "Gulbarga Mandi": "गुलबर्गा मंडी",
-    "Nashik Mandi": "नाशिक मंडी",
-    "Agra Mandi": "आगरा मंडी",
-    "Muzaffarnagar Mandi": "मुजफ्फरनगर मंडी",
-    "Davangere Mandi": "दावणगेरे मंडी",
-    "Junagadh Mandi": "जूनागढ़ मंडी",
-    "per quintal": "प्रति क्विंटल",
-    "Tons": "टन",
-  },
-  kn: {
-    // Crop names
-    "Wheat (गेहूं)": "ಗೋಧಿ",
-    "Rice (चावल)": "ಅಕ್ಕಿ",
-    "Soybean (सोयाबीन)": "ಸೋಯಾಬೀನ್",
-    "Cotton (कपास)": "ಹತ್ತಿ",
-    "Mustard (सरसों)": "ಸಾಸಿವೆ",
-    "Chana (चना)": "ಕಡಲೆ",
-    "Tur/Arhar Dal (तूर दाल)": "ತೊಗರಿ ಬೇಳೆ",
-    "Onion (प्याज)": "ಈರುಳ್ಳಿ",
-    "Potato (आलू)": "ಆಲೂಗಡ್ಡೆ",
-    "Sugarcane (गन्ना)": "ಕಬ್ಬು",
-    "Maize (मक्का)": "ಮೆಕ್ಕೆಜೋಳ",
-    "Groundnut (मूंगफली)": "ಕಡಲೆಕಾಯಿ",
-    // Varieties
-    "Sharbati": "ಶರಬತಿ",
-    "Basmati 1121": "ಬಾಸ್ಮತಿ 1121",
-    "Yellow": "ಹಳದಿ",
-    "Medium Staple": "ಮಧ್ಯಮ ಸ್ಟೇಪಲ್",
-    "Laha": "ಲಹಾ",
-    "Desi": "ದೇಸಿ",
-    "FAQ": "FAQ (ಸಾಮಾನ್ಯ)",
-    "Nasik Red": "ನಾಸಿಕ್ ಕೆಂಪು",
-    "Jyoti": "ಜ್ಯೋತಿ",
-    "Co-0238": "ಕೋ-0238",
-    "Bold": "ಬೋಲ್ಡ್",
-    // States
-    "Madhya Pradesh": "ಮಧ್ಯಪ್ರದೇಶ",
-    "Haryana": "ಹರಿಯಾಣ",
-    "Gujarat": "ಗುಜರಾತ್",
-    "Rajasthan": "ರಾಜಸ್ಥಾನ",
-    "Maharashtra": "ಮಹಾರಾಷ್ಟ್ರ",
-    "Karnataka": "ಕರ್ನಾಟಕ",
-    "Uttar Pradesh": "ಉತ್ತರ ಪ್ರದೇಶ",
-    // Mandis
-    "Indore Mandi": "ಇಂದೋರ್ ಮಂಡಿ",
-    "Karnal Mandi": "ಕರ್ನಾಲ್ ಮಂಡಿ",
-    "Ujjain Mandi": "ಉಜ್ಜಯಿನಿ ಮಂಡಿ",
-    "Rajkot Mandi": "ರಾಜಕೋಟ್ ಮಂಡಿ",
-    "Alwar Mandi": "ಅಲ್ವಾರ್ ಮಂಡಿ",
-    "Latur Mandi": "ಲಾತೂರ್ ಮಂಡಿ",
-    "Gulbarga Mandi": "ಗುಲ್ಬರ್ಗ ಮಂಡಿ",
-    "Nashik Mandi": "ನಾಸಿಕ್ ಮಂಡಿ",
-    "Agra Mandi": "ಆಗ್ರಾ ಮಂಡಿ",
-    "Muzaffarnagar Mandi": "ಮುಜಫರ್‌ನಗರ ಮಂಡಿ",
-    "Davangere Mandi": "ದಾವಣಗೆರೆ ಮಂಡಿ",
-    "Junagadh Mandi": "ಜುನಾಗಢ್ ಮಂಡಿ",
-    "per quintal": "ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್",
-    "Tons": "ಟನ್ಗಳು",
-  },
-  en: {
-    "Wheat (गेहूं)": "Wheat",
-    "Rice (चावल)": "Rice",
-    "Soybean (सोयाबीन)": "Soybean",
-    "Cotton (कपास)": "Cotton",
-    "Mustard (सरसों)": "Mustard",
-    "Chana (चना)": "Chana",
-    "Tur/Arhar Dal (तूर दाल)": "Tur/Arhar Dal",
-    "Onion (प्याज)": "Onion",
-    "Potato (आलू)": "Potato",
-    "Sugarcane (गन्ना)": "Sugarcane",
-    "Maize (मक्का)": "Maize",
-    "Groundnut (मूंगफلی)": "Groundnut",
-  }
-}
-
-function translateData(val: string, lang: "en" | "hi" | "kn"): string {
-  if (!val) return val
-  return DATA_TRANSLATIONS[lang]?.[val] ?? DATA_TRANSLATIONS[lang]?.[val.trim()] ?? val
-}
+import { Lang, LANG_NAMES } from "@/lib/language"
+import {
+  ENAM_LANG,
+  ALERT_LANG,
+  MANDI_PAGE_LANG,
+  TRADE_LANG,
+  CATEGORY_LANG,
+  SPEECH_MANDI,
+  translateMandiData as translateData,
+  MANDI_TABS_LANG,
+} from "@/lib/mandi-i18n"
+import {
+  buyerRequirementsApi,
+  BuyerRequirementItem,
+  governmentProcurementApi,
+  GovernmentProcurementItem,
+  produceListingsApi,
+  ProduceListingItem,
+  tradeInquiriesApi,
+  TradeInquiryItem,
+  listingReportsApi,
+  ListingReportItem,
+  mandiApi,
+} from "@/lib/farmer-api"
+import marketplaceData from "@/lib/data/marketplace-data.json"
 
 /* ------------------------------------------------------------------ */
-/*  Types                                                             */
+/*  Types & Constants                                                 */
 /* ------------------------------------------------------------------ */
+type ActiveTab = "prices" | "buy" | "sell" | "gov"
+
 interface MandiCrop {
   id: number
   name: string
@@ -422,6 +99,7 @@ interface MandiCrop {
   unit: string
   mandi: string
   state: string
+  district?: string
   category: string
   trend: "up" | "down" | "stable"
   change_percent: number
@@ -429,18 +107,32 @@ interface MandiCrop {
   max_price: number
   modal_price: number
   arrival_tonnes: number
+  arrival_date?: string
+  is_stale?: boolean
+  stale_warning?: string
+  source_origin?: string
+  source_url?: string
 }
 
-/* ------------------------------------------------------------------ */
-/*  Category Info Map                                                 */
-/* ------------------------------------------------------------------ */
 const CATEGORY_COLORS: Record<string, string> = {
-  Cereal: "from-amber-500/10 to-yellow-500/10 border-amber-500/20 text-amber-400",
-  Oilseed: "from-lime-500/10 to-green-500/10 border-lime-500/20 text-lime-400",
-  Pulse: "from-orange-500/10 to-red-500/10 border-orange-500/20 text-orange-400",
-  Fiber: "from-blue-500/10 to-indigo-500/10 border-blue-500/20 text-blue-400",
-  Vegetable: "from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-400",
-  "Cash Crop": "from-purple-500/10 to-fuchsia-500/10 border-purple-500/20 text-purple-400",
+  Cereal: "from-amber-500/10 to-yellow-500/10 border-amber-500/20 text-amber-500 dark:text-amber-400",
+  Oilseed: "from-lime-500/10 to-green-500/10 border-lime-500/20 text-lime-600 dark:text-lime-400",
+  Pulse: "from-orange-500/10 to-red-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400",
+  Fiber: "from-blue-500/10 to-indigo-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400",
+  Vegetable: "from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400",
+  "Cash Crop": "from-purple-500/10 to-fuchsia-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400",
+}
+
+function getCategoryGradient(category: string): string {
+  const map: Record<string, string> = {
+    Cereal: "from-amber-400 to-yellow-500",
+    Oilseed: "from-lime-400 to-green-500",
+    Pulse: "from-orange-400 to-red-500",
+    Fiber: "from-blue-400 to-indigo-500",
+    Vegetable: "from-emerald-400 to-teal-500",
+    "Cash Crop": "from-purple-400 to-fuchsia-500",
+  }
+  return map[category] || "from-gray-400 to-gray-500"
 }
 
 /* ------------------------------------------------------------------ */
@@ -461,8 +153,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
   const [permGranted, setPermGranted] = useState(false)
   const [checking, setChecking] = useState(false)
   
-  const activeAlertLang = (lang === "hi" || lang === "kn") ? lang : "en"
-  const currentLang = ALERT_LANG[activeAlertLang]
+  const activeAlertLang = (lang as Lang) || "en"
+  const currentLang = ALERT_LANG[activeAlertLang] || ALERT_LANG.en
 
   useEffect(() => { if (typeof window !== "undefined" && "Notification" in window) setPermGranted(Notification.permission === "granted") }, [])
   
@@ -483,11 +175,9 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       if (!match) return alert
       const triggered = alert.direction === "above" ? match.modal_price >= alert.threshold : match.modal_price <= alert.threshold
       if (triggered && !alert.fired) { 
-        const notifTitle = t("mandi.KisaanBuddy_mandi_alert");
+        const notifTitle = t("mandi.KisaanBuddy_mandi_alert") || "KisaanBuddy Price Alert";
         const cropTranslated = translateData(match.name, activeAlertLang);
-        const notifBody = t("mandi.translatedata_match_name_lang")
-          .replace("${translateData(match.name, lang)}", cropTranslated)
-          .replace("${match.modal_price}", match.modal_price.toString());
+        const notifBody = `${cropTranslated}: ₹${match.modal_price} reached!`;
         
         new Notification(notifTitle, { 
           body: notifBody, 
@@ -497,7 +187,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       }
       return alert
     }); setAlerts(updated); saveAlerts(updated); setTimeout(() => setChecking(false), 800)
-  }, [alerts, crops, permGranted, lang])
+  }, [alerts, crops, permGranted, lang, activeAlertLang, t])
 
   const uniqueCrops = Array.from(new Set(crops.map((c) => c.name))).sort()
 
@@ -506,7 +196,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
-            <Bell className="h-5 w-5 text-amber-400" />
+            <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />
           </div>
           <div>
             <div className="font-bold text-foreground text-sm font-display">{currentLang.panelTitle}</div>
@@ -551,14 +241,9 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
                   : "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400"
               }`}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
-              <span>{translateData(alert.cropName, activeAlertLang)} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
-              <button 
-                onClick={() => removeAlert(alert.id)} 
-                className="hover:text-foreground transition-colors"
-                title={t("mandi.remove_alert")}
-              >
-                <X className="h-3.5 w-3.5 ml-1" />
+              <span>{alert.cropName} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
+              <button onClick={() => removeAlert(alert.id)} className="hover:text-red-500 transition-colors">
+                <Trash2 className="h-3 w-3" />
               </button>
             </div>
           ))}
@@ -566,47 +251,32 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       )}
 
       {showForm && (
-        <div className="mt-4 pt-4 border-t border-border/50 grid gap-4 sm:flex sm:items-end sm:flex-wrap">
-          <div className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{currentLang.cropCommodity}</span>
-            <select 
-              value={newCrop} 
-              onChange={(e) => setNewCrop(e.target.value)} 
-              className="w-full sm:w-48 rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
-            >
-              <option value="" className="bg-card text-foreground">{currentLang.selectCommodity}</option>
-              {uniqueCrops.map((c) => <option key={c} value={c} className="bg-card text-foreground">{translateData(c, activeAlertLang)}</option>)}
-            </select>
-          </div>
-          <div className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{currentLang.triggerRule}</span>
-            <div className="flex p-0.5 rounded-xl border border-border bg-card">
-              <button 
-                onClick={() => setNewDir("above")} 
-                type="button"
-                className={`text-[11px] rounded-lg px-3 py-1.5 font-bold transition-all ${newDir === "above" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {currentLang.goesAbove}
-              </button>
-              <button 
-                onClick={() => setNewDir("below")} 
-                type="button"
-                className={`text-[11px] rounded-lg px-3 py-1.5 font-bold transition-all ${newDir === "below" ? "bg-amber-500 text-white" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {currentLang.goesBelow}
-              </button>
-            </div>
-          </div>
-          <div className="space-y-1">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">{currentLang.targetPriceLabel}</span>
-            <input 
-              type="number" 
-              value={newThreshold} 
-              onChange={(e) => setNewThreshold(e.target.value)} 
-              placeholder={currentLang.targetPricePlaceholder} 
-              className="w-full sm:w-32 rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500" 
-            />
-          </div>
+        <div className="mt-4 p-4 rounded-xl bg-card border border-border flex flex-wrap gap-3 items-center">
+          <select 
+            value={newCrop} 
+            onChange={(e) => setNewCrop(e.target.value)} 
+            className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+          >
+            <option value="">{currentLang.selectCommodity}</option>
+            {uniqueCrops.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+          <select 
+            value={newDir} 
+            onChange={(e) => setNewDir(e.target.value as "above" | "below")} 
+            className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+          >
+            <option value="above">{currentLang.goesAbove}</option>
+            <option value="below">{currentLang.goesBelow}</option>
+          </select>
+          <input 
+            type="number" 
+            value={newThreshold} 
+            onChange={(e) => setNewThreshold(e.target.value)} 
+            placeholder={currentLang.targetPricePlaceholder} 
+            className="w-full sm:w-32 rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500" 
+          />
           <Button 
             onClick={addAlert} 
             disabled={!newCrop || !newThreshold} 
@@ -621,82 +291,370 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Origin Badge Component                                            */
+/* ------------------------------------------------------------------ */
+function OriginBadge({ origin, className = "" }: { origin: string; className?: string }) {
+  if (origin === "Official market-price data") {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 ${className}`}>
+        <Building2 className="h-3 w-3" />
+        Official market-price data
+      </span>
+    )
+  }
+  if (origin === "Government procurement information") {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 ${className}`}>
+        <ShieldCheck className="h-3 w-3" />
+        Government procurement information
+      </span>
+    )
+  }
+  if (origin === "External partner offer") {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 ${className}`}>
+        <ExternalLink className="h-3 w-3" />
+        External partner offer
+      </span>
+    )
+  }
+  if (origin === "KisaanBuddy verified buyer requirement") {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 ${className}`}>
+        <CheckCircle2 className="h-3 w-3" />
+        KisaanBuddy verified buyer requirement
+      </span>
+    )
+  }
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 ${className}`}>
+      <BadgeCheck className="h-3 w-3" />
+      KisaanBuddy verified seller listing
+    </span>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Page Component                                                */
 /* ------------------------------------------------------------------ */
 export default function MandiPage() {
-  const { t, lang: appLang } = useLanguage()
+  const searchParams = useSearchParams()
+  const { t, lang, setLang } = useLanguage()
+  const plang = (lang as Lang) || "en"
+  const tabT = MANDI_TABS_LANG[plang] || MANDI_TABS_LANG.en
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState<ActiveTab>("prices")
+
+  // Tab 1: Prices State
   const [crops, setCrops] = useState<MandiCrop[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loadingPrices, setLoadingPrices] = useState(true)
+  const [errorPrices, setErrorPrices] = useState<string | null>(null)
   const [selectedCrop, setSelectedCrop] = useState<MandiCrop | null>(null)
   const [buySellMode, setBuySellMode] = useState<"buy" | "sell" | null>(null)
+  const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
-  const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
-  const [lang, setLang] = useState<"en" | "hi" | "kn">((appLang === "hi" || appLang === "kn") ? appLang : "en")
-  const [mounted, setMounted] = useState(false)
+  const [stateFilter, setStateFilter] = useState<string>("All")
+  const [priceSort, setPriceSort] = useState<"default" | "price_desc" | "price_asc" | "date">("default")
+  const [refreshingPrices, setRefreshingPrices] = useState(false)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
-  useEffect(() => {
-    setLang((appLang === "hi" || appLang === "kn") ? appLang : "en")
-  }, [appLang])
+  // Tab 2: Buy Requirements State
+  const [buyerReqs, setBuyerReqs] = useState<BuyerRequirementItem[]>(
+    () => ((marketplaceData as any).buyer_requirements || [])
+  )
+  const [loadingBuy, setLoadingBuy] = useState(false)
+  const [buySearch, setBuySearch] = useState("")
+  const [buyState, setBuyState] = useState("All")
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  // Tab 3: Sell Offers State
+  const [sellOffers, setSellOffers] = useState<ProduceListingItem[]>(
+    () => ((marketplaceData as any).produce_listings || [])
+  )
+  const [loadingSell, setLoadingSell] = useState(false)
+  const [sellSearch, setSellSearch] = useState("")
+  const [sellState, setSellState] = useState("All")
 
-  /* ---- Fetch crops from backend ---- */
+  // Tab 4: Government Procurement State
+  const [govItems, setGovItems] = useState<GovernmentProcurementItem[]>(
+    () => ((marketplaceData as any).government_procurement || [])
+  )
+  const [loadingGov, setLoadingGov] = useState(false)
+  const [govSearch, setGovSearch] = useState("")
+  const [govState, setGovState] = useState("All")
+
+  // Modals state
+  const [showPostProduceModal, setShowPostProduceModal] = useState(false)
+  const [showPostRequirementModal, setShowPostRequirementModal] = useState(false)
+  const [inquiryTarget, setInquiryTarget] = useState<{
+    type: "produce_listing" | "buyer_requirement"
+    id: number
+    title: string
+    defaultPrice?: number
+    defaultQty?: number
+    unit?: string
+  } | null>(null)
+  const [reportTarget, setReportTarget] = useState<{
+    type: "produce_listing" | "buyer_requirement"
+    id: number
+    title: string
+  } | null>(null)
+
+  const voiceRun = searchParams.get("voice") === "1"
+  const requestedCrop = searchParams.get("crop") || ""
+  const requestedState = searchParams.get("state") || ""
+  const requestedDistrict = searchParams.get("district") || ""
+  const voiceSpokenRef = useRef(false)
+
+  // Toast auto-clear
   useEffect(() => {
-    let cancelled = false
-    async function fetchCrops() {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await fetch("/api/mandi/crops")
-        if (!res.ok) throw new Error("Failed to fetch crop data")
-        const data = await res.json()
-        if (!cancelled) setCrops(data.crops)
-      } catch (err: any) {
-        if (!cancelled) setError(err?.message || "Unable to load mandi data.")
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
+    if (!toastMessage) return
+    const timer = setTimeout(() => setToastMessage(null), 4000)
+    return () => clearTimeout(timer)
+  }, [toastMessage])
+
+  /* ---- Fetch Mandi Crops ---- */
+  const fetchCrops = useCallback(async () => {
+    try {
+      setLoadingPrices(true)
+      setErrorPrices(null)
+      const qs = new URLSearchParams()
+      if (requestedCrop) qs.set("commodity", requestedCrop)
+      if (requestedState) qs.set("state", requestedState)
+      if (requestedDistrict) qs.set("district", requestedDistrict)
+      const query = qs.toString()
+      const res = await fetch(`/api/mandi/crops${query ? `?${query}` : ""}`)
+      if (!res.ok) throw new Error("Failed to fetch mandi crops")
+      const data = await res.json()
+      setCrops(data.crops || [])
+    } catch (err: any) {
+      setErrorPrices(err?.message || "Unable to load mandi data.")
+    } finally {
+      setLoadingPrices(false)
     }
+  }, [requestedCrop, requestedState, requestedDistrict])
+
+  useEffect(() => {
     fetchCrops()
-    return () => { cancelled = true }
+  }, [fetchCrops])
+
+  useEffect(() => {
+    if (requestedCrop) setSearchQuery(requestedCrop)
+  }, [requestedCrop])
+
+  /* ---- Fetch Buy Requirements ---- */
+  const fetchBuyRequirements = useCallback(async () => {
+    try {
+      setLoadingBuy(true)
+      const res: any = await buyerRequirementsApi.list()
+      const items = Array.isArray(res) ? res : (res?.items || [])
+      if (items.length > 0) {
+        setBuyerReqs(items)
+      }
+    } catch {
+      // silent fallback preserves initial data
+    } finally {
+      setLoadingBuy(false)
+    }
   }, [])
 
-  /* ---- Derived data ---- */
-  const categories = useMemo(() => {
+  /* ---- Fetch Sell Offers ---- */
+  const fetchSellOffers = useCallback(async () => {
+    try {
+      setLoadingSell(true)
+      const res: any = await produceListingsApi.list()
+      const items = Array.isArray(res) ? res : (res?.items || [])
+      if (items.length > 0) {
+        setSellOffers(items)
+      }
+    } catch {
+      // silent fallback preserves initial data
+    } finally {
+      setLoadingSell(false)
+    }
+  }, [])
+
+  /* ---- Fetch Government Procurement ---- */
+  const fetchGovProcurement = useCallback(async () => {
+    try {
+      setLoadingGov(true)
+      const res: any = await governmentProcurementApi.list()
+      const items = Array.isArray(res) ? res : (res?.items || [])
+      if (items.length > 0) {
+        setGovItems(items)
+      }
+    } catch {
+      // silent fallback preserves initial data
+    } finally {
+      setLoadingGov(false)
+    }
+  }, [])
+
+  // Lazy load tab data when clicked
+  useEffect(() => {
+    if (activeTab === "buy" && buyerReqs.length === 0) fetchBuyRequirements()
+    if (activeTab === "sell" && sellOffers.length === 0) fetchSellOffers()
+    if (activeTab === "gov" && govItems.length === 0) fetchGovProcurement()
+  }, [activeTab, buyerReqs.length, sellOffers.length, govItems.length, fetchBuyRequirements, fetchSellOffers, fetchGovProcurement])
+
+  // Voice Run handler
+  useEffect(() => {
+    if (!voiceRun || loadingPrices || voiceSpokenRef.current || crops.length === 0) return
+    voiceSpokenRef.current = true
+    const first = crops[0]
+    const speechCfg = SPEECH_MANDI[lang as Lang] || SPEECH_MANDI.en
+    const message = `${translateData(first.name, lang as Lang)}: ₹${first.price} ${first.unit}. ${translateData(first.mandi, lang as Lang)}, ${translateData(first.state, lang as Lang)}.`
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel()
+      const utterance = new SpeechSynthesisUtterance(message)
+      utterance.lang = speechCfg.bcp
+      window.speechSynthesis.speak(utterance)
+    }
+  }, [voiceRun, loadingPrices, crops, lang])
+
+  /* ---- Handle Refresh Prices ---- */
+  async function handleRefreshPrices() {
+    try {
+      setRefreshingPrices(true)
+      const res = await mandiApi.refresh()
+      setToastMessage(res.message || "Mandi price intelligence updated.")
+      await fetchCrops()
+    } catch (err: any) {
+      setToastMessage("Failed to refresh prices. Using cached dataset.")
+    } finally {
+      setRefreshingPrices(false)
+    }
+  }
+
+  /* ---- Handle Confirm Stock on a Sell Listing ---- */
+  async function handleConfirmStock(listingId: number) {
+    try {
+      const res = await produceListingsApi.confirmStock(listingId)
+      const confirmedDate = res.last_confirmation_date || new Date().toISOString()
+      setSellOffers((prev) =>
+        prev.map((item) =>
+          item.id === listingId
+            ? { ...item, last_confirmation_date: confirmedDate }
+            : item
+        )
+      )
+      setToastMessage(res.message || "Stock and price confirmed successfully!")
+      fetchSellOffers()
+    } catch (err: any) {
+      setToastMessage("Error confirming stock. Please try again.")
+    }
+  }
+
+  /* ---- Derived States for Filters ---- */
+  const cropCategories = useMemo(() => {
     const cats = new Set(crops.map((c) => c.category))
     return ["All", ...Array.from(cats)]
   }, [crops])
 
+  const priceStates = useMemo(() => {
+    const s = new Set(crops.map((c) => c.state).filter(Boolean))
+    return ["All", ...Array.from(s).sort()]
+  }, [crops])
+
+  const buyStates = useMemo(() => {
+    const s = new Set(buyerReqs.map((b) => b.buyer_location_state || (b as any).state).filter(Boolean))
+    return ["All", ...Array.from(s).sort()]
+  }, [buyerReqs])
+
+  const sellStates = useMemo(() => {
+    const s = new Set(sellOffers.map((o) => o.state).filter(Boolean))
+    return ["All", ...Array.from(s).sort()]
+  }, [sellOffers])
+
+  const govStates = useMemo(() => {
+    const s = new Set(govItems.map((g) => g.state).filter(Boolean))
+    return ["All", ...Array.from(s).sort()]
+  }, [govItems])
+
+  // Filtered crops
   const filteredCrops = useMemo(() => {
-    return crops.filter((c) => {
+    return crops
+      .filter((c) => {
+        const matchSearch =
+          c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.variety.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.mandi.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.state.toLowerCase().includes(searchQuery.toLowerCase())
+        const matchCat = categoryFilter === "All" || c.category === categoryFilter
+        const matchState = stateFilter === "All" || c.state.toLowerCase() === stateFilter.toLowerCase()
+        return matchSearch && matchCat && matchState
+      })
+      .sort((a, b) => {
+        if (priceSort === "price_desc") return b.price - a.price
+        if (priceSort === "price_asc") return a.price - b.price
+        if (priceSort === "date" && a.arrival_date && b.arrival_date) {
+          return new Date(b.arrival_date).getTime() - new Date(a.arrival_date).getTime()
+        }
+        return 0
+      })
+  }, [crops, searchQuery, categoryFilter, stateFilter, priceSort])
+
+  // Filtered buy requirements
+  const filteredBuy = useMemo(() => {
+    return buyerReqs.filter((b) => {
+      const q = (buySearch || "").trim().toLowerCase()
+      const commodity = (b.commodity || "").toLowerCase()
+      const variety = (b.variety || "").toLowerCase()
+      const buyerName = (b.buyer_name || "").toLowerCase()
+      const district = (b.buyer_location_district || (b as any).district || "").toLowerCase()
+      const state = (b.buyer_location_state || (b as any).state || "").toLowerCase()
+
       const matchSearch =
-        c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.variety.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.mandi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.state.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchCategory = categoryFilter === "All" || c.category === categoryFilter
-      return matchSearch && matchCategory
+        !q ||
+        commodity.includes(q) ||
+        variety.includes(q) ||
+        buyerName.includes(q) ||
+        district.includes(q)
+      const matchState = buyState === "All" || state === buyState.toLowerCase()
+      return matchSearch && matchState
     })
-  }, [crops, searchQuery, categoryFilter])
+  }, [buyerReqs, buySearch, buyState])
 
-  /* ---- Simulate connection ---- */
-  function handleConnect(mode: "buy" | "sell") {
-    setBuySellMode(mode)
-    setConnectionStatus("connecting")
-    setTimeout(() => setConnectionStatus("connected"), 2000)
-  }
+  // Filtered sell offers
+  const filteredSell = useMemo(() => {
+    return sellOffers.filter((s) => {
+      const q = sellSearch.toLowerCase()
+      const matchSearch =
+        !q ||
+        s.crop_name.toLowerCase().includes(q) ||
+        (s.variety && s.variety.toLowerCase().includes(q)) ||
+        s.farmer_name.toLowerCase().includes(q) ||
+        s.district.toLowerCase().includes(q)
+      const matchState = sellState === "All" || s.state.toLowerCase() === sellState.toLowerCase()
+      return matchSearch && matchState
+    })
+  }, [sellOffers, sellSearch, sellState])
 
-  function handleBack() {
-    setSelectedCrop(null)
-    setBuySellMode(null)
-    setConnectionStatus("idle")
-  }
+  // Filtered government procurement
+  const filteredGov = useMemo(() => {
+    return govItems.filter((g) => {
+      const q = (govSearch || "").trim().toLowerCase()
+      const cropName = (g.crop_name || "").toLowerCase()
+      const variety = (g.variety || "").toLowerCase()
+      const centre = (g.procurement_centre_name || (g as any).procurement_center || "").toLowerCase()
+      const agency = (g.nodal_agency || "").toLowerCase()
+      const district = (g.district || "").toLowerCase()
+      const state = (g.state || "").toLowerCase()
 
-  // Generate historical data wave for Recharts
+      const matchSearch =
+        !q ||
+        cropName.includes(q) ||
+        variety.includes(q) ||
+        centre.includes(q) ||
+        agency.includes(q) ||
+        district.includes(q)
+      const matchState = govState === "All" || state === govState.toLowerCase()
+      return matchSearch && matchState
+    })
+  }, [govItems, govSearch, govState])
+
+  // Historical data for Recharts
   const chartData = useMemo(() => {
     if (!selectedCrop) return []
     const days = 8
@@ -709,328 +667,911 @@ export default function MandiPage() {
       const date = new Date()
       date.setDate(date.getDate() - i)
       const dateString = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-      
       let price = 0
       if (i === 0) {
         price = selectedCrop.price
       } else {
-        const noise = (Math.sin(i * 1.6) + Math.cos(i * 0.9)) / 2 
+        const noise = (Math.sin(i * 1.6) + Math.cos(i * 0.9)) / 2
         price = Math.round(basePrice + noise * (variance * 0.6))
         price = Math.max(selectedCrop.min_price, Math.min(selectedCrop.max_price, price))
       }
-
-      data.push({
-        date: dateString,
-        Price: price,
-      })
+      data.push({ date: dateString, Price: price })
     }
     return data
   }, [selectedCrop])
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto pb-12 relative">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16 relative">
       {/* Decorative Blob */}
-      <div className="absolute top-[-10%] right-[10%] w-[350px] h-[350px] rounded-full bg-orange-500/5 blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute bottom-[20%] left-[5%] w-[300px] h-[300px] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute top-[-10%] right-[10%] w-[350px] h-[350px] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[20%] left-[5%] w-[300px] h-[300px] rounded-full bg-orange-500/5 blur-[100px] pointer-events-none -z-10" />
+
+      {/* Toast alert */}
+      <AnimatePresence>
+        {toastMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-6 right-6 z-50 bg-emerald-600 text-white font-bold text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-emerald-400/30"
+          >
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <span>{toastMessage}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ---- Page Header ---- */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.6 }}
-        className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-r from-orange-950/20 via-slate-950 to-emerald-950/15 p-6 md:p-8 backdrop-blur-xl shadow-2xl"
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative overflow-hidden rounded-[1.75rem] border border-[#1b6248] bg-[#123f31] p-5 shadow-[0_22px_55px_-30px_rgba(11,57,40,.85)] sm:p-7 md:p-8"
       >
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
+          <img
+            src="/images/mandi/grain-market-mandi.jpg"
+            alt="Mandi Market"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
+        <div className="pointer-events-none absolute -right-12 -top-14 h-52 w-52 rounded-full bg-[#e7ae42]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl" />
+        <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-xs font-semibold text-orange-400 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-emerald-100 backdrop-blur-sm">
               <Store className="h-3.5 w-3.5" />
-              {MANDI_PAGE_LANG[lang].enamConnected}
+              {MANDI_PAGE_LANG[plang].enamConnected}
             </div>
-            <h1 className="text-3xl md:text-5xl font-black font-display tracking-tight text-foreground flex items-center gap-3">
-              {MANDI_PAGE_LANG[lang].mandi} <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-emerald-600 bg-clip-text text-transparent">{MANDI_PAGE_LANG[lang].marketplace}</span>
+            <h1 className="mt-4 text-3xl font-bold tracking-[-.045em] text-white sm:text-4xl md:text-5xl font-display">
+              <>{MANDI_PAGE_LANG[plang].heroTitleLead}<span className="text-[#f4c96b]">{MANDI_PAGE_LANG[plang].heroTitleAccent}</span></>
             </h1>
-            <p className="text-muted-foreground text-sm md:text-base mt-2 max-w-2xl leading-relaxed">
-              {MANDI_PAGE_LANG[lang].heroDesc}
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50/80 md:text-base">
+              {MANDI_PAGE_LANG[plang].heroSubtitle}
             </p>
           </div>
-          {/* Stats widget */}
-          <div className="flex gap-3 flex-wrap">
-            <div className="rounded-2xl border border-border bg-card p-4 min-w-[120px] shadow-xs">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].totalCrops}</div>
-              <div className="text-xl font-extrabold text-foreground flex items-center gap-1.5">
-                <Package className="h-4.5 w-4.5 text-orange-500" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+            <div className="min-w-[120px] rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm">
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/70">Mandi Crops</div>
+              <div className="mt-1 flex items-center gap-1.5 text-lg font-bold text-white">
+                <Package className="h-4 w-4 text-[#f4c96b]" />
                 {crops.length}
               </div>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-4 min-w-[150px] shadow-xs">
-              <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">{MANDI_PAGE_LANG[lang].mandiArrivals}</div>
-              <div className="text-xl font-extrabold text-foreground flex items-center gap-1.5">
-                <Users className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" />
-                {crops.reduce((a, c) => a + c.arrival_tonnes, 0).toLocaleString()} {t("mandi.t")}
+            <div className="min-w-[120px] rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm">
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/70">Buyer Demands</div>
+              <div className="mt-1 flex items-center gap-1.5 text-lg font-bold text-white">
+                <ShoppingCart className="h-4 w-4 text-emerald-200" />
+                {buyerReqs.length || 6}
+              </div>
+            </div>
+            <div className="min-w-[120px] rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm col-span-2 sm:col-span-1">
+              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/70">MSP Centres</div>
+              <div className="mt-1 flex items-center gap-1.5 text-lg font-bold text-white">
+                <Building2 className="h-4 w-4 text-purple-200" />
+                {govItems.length || 6}
               </div>
             </div>
           </div>
         </div>
+        <div className="relative z-10 mt-6 grid gap-2 border-t border-white/10 pt-4 text-[11px] text-emerald-50/80 sm:grid-cols-3">
+          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{tabT.badgeOfficialPrice}</span>
+          <span className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#f4c96b]" />{tabT.badgeVerifiedBuyer}</span>
+          <span className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{tabT.badgeGovProcurement}</span>
+        </div>
       </motion.div>
 
-      {/* Price Alert Panel */}
-      <PriceAlertPanel crops={crops} />
+      {/* ---- 4-TAB NAVIGATION BAR ---- */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-muted/60 border border-border backdrop-blur-md">
+        <button
+          onClick={() => { setActiveTab("prices"); setSelectedCrop(null) }}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+            activeTab === "prices"
+              ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-md border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+          }`}
+        >
+          <Store className="h-4 w-4 shrink-0" />
+          <span>{tabT.tabPrices}</span>
+          <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            {crops.length}
+          </span>
+        </button>
 
-      <AnimatePresence mode="wait">
-        {/* ============================================================ */}
-        {/*  CROP LIST VIEW                                               */}
-        {/* ============================================================ */}
-        {!selectedCrop && (
-          <motion.div
-            key="crop-list"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-col gap-6"
-          >
-            {/* Search + Filter bar */}
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  id="mandi-search"
-                  type="text"
-                  placeholder={MANDI_PAGE_LANG[lang].searchPlaceholder}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-11 pr-10 py-3 rounded-2xl border border-border bg-card shadow-xs text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all text-foreground font-medium"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-4.5 w-4.5" />
-                  </button>
-                )}
-              </div>
-              <div className="flex gap-1.5 flex-wrap items-center overflow-x-auto pb-1 md:pb-0">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setCategoryFilter(cat)}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-300 ${
-                      categoryFilter === cat
-                        ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/15"
-                        : "border-border bg-card hover:bg-accent text-muted-foreground hover:text-foreground shadow-xs"
-                    }`}
-                  >
-                    {CATEGORY_LANG[lang]?.[cat] || cat}
-                  </button>
-                ))}
-              </div>
+        <button
+          onClick={() => { setActiveTab("buy"); setSelectedCrop(null) }}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+            activeTab === "buy"
+              ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-md border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+          }`}
+        >
+          <ShoppingCart className="h-4 w-4 shrink-0" />
+          <span>{tabT.tabBuy}</span>
+          <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400">
+            {buyerReqs.length || 6}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { setActiveTab("sell"); setSelectedCrop(null) }}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+            activeTab === "sell"
+              ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-md border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+          }`}
+        >
+          <Wheat className="h-4 w-4 shrink-0" />
+          <span>{tabT.tabSell}</span>
+          <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            {sellOffers.length || 6}
+          </span>
+        </button>
+
+        <button
+          onClick={() => { setActiveTab("gov"); setSelectedCrop(null) }}
+          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+            activeTab === "gov"
+              ? "bg-card text-purple-600 dark:text-purple-400 shadow-md border border-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+          }`}
+        >
+          <Building2 className="h-4 w-4 shrink-0" />
+          <span>{tabT.tabGov}</span>
+          <span className="ml-1 text-[10px] px-1.5 py-0.2 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400">
+            {govItems.length || 6}
+          </span>
+        </button>
+      </div>
+
+      {/* ============================================================ */}
+      {/*  TAB 1: MANDI PRICES                                         */}
+      {/* ============================================================ */}
+      {activeTab === "prices" && (
+        <div className="flex flex-col gap-6">
+          {/* Disclaimer Banner */}
+          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3.5 text-xs text-muted-foreground flex items-start gap-2.5">
+            <ShieldCheck className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <span className="font-bold text-foreground">AGMARKNET Reference Intelligence: </span>
+              {tabT.referenceDisclaimer}
             </div>
+            <button
+              onClick={handleRefreshPrices}
+              disabled={refreshingPrices}
+              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border text-[11px] font-bold text-foreground hover:bg-accent transition-all shadow-xs"
+            >
+              <RefreshCw className={`h-3 w-3 ${refreshingPrices ? "animate-spin text-emerald-500" : ""}`} />
+              <span>{tabT.refreshPrices}</span>
+            </button>
+          </div>
 
-            {/* Loading state */}
-            {loading && (
-              <div className="flex flex-col items-center justify-center py-24 gap-4">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-                <p className="text-muted-foreground text-sm font-medium">{MANDI_PAGE_LANG[lang].syncingIndex}</p>
-              </div>
-            )}
+          <AnimatePresence mode="wait">
+            {!selectedCrop && (
+              <motion.div
+                key="crop-list"
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col gap-6"
+              >
+                {/* Search & Multi-Filters */}
+                <div className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-3">
+                  <div className="flex flex-col md:flex-row gap-3">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <input
+                        id="mandi-search"
+                        type="text"
+                        placeholder={tabT.searchPlaceholder}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-11 pr-10 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                      />
+                      {searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
 
-            {/* Error state */}
-            {error && !loading && (
-              <GlassCard className="border border-red-500/20 bg-red-500/5 p-8 text-center rounded-2xl">
-                <p className="text-red-400 font-bold">{error}</p>
-                <Button variant="outline" className="mt-4 border-white/[0.08]" onClick={() => location.reload()}>
-                  {MANDI_PAGE_LANG[lang].retry}
-                </Button>
-              </GlassCard>
-            )}
+                    <div className="flex gap-2">
+                      <select
+                        value={stateFilter}
+                        onChange={(e) => setStateFilter(e.target.value)}
+                        className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      >
+                        <option value="All">All States</option>
+                        {priceStates.filter((s) => s !== "All").map((s) => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
 
-            {/* Crop cards grid */}
-            {!loading && !error && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCrops.map((crop, i) => (
-                  <CropCard
-                    key={crop.id}
-                    crop={crop}
-                    index={i}
-                    onClick={() => {
-                      trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang });
-                      setSelectedCrop(crop);
-                    }}
-                    lang={lang}
-                  />
-                ))}
-                {filteredCrops.length === 0 && (
-                  <div className="col-span-full text-center py-20">
-                    <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                    <p className="text-muted-foreground font-semibold">{MANDI_PAGE_LANG[lang].noCommodities}</p>
+                      <select
+                        value={priceSort}
+                        onChange={(e) => setPriceSort(e.target.value as any)}
+                        className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      >
+                        <option value="default">Sort: Default</option>
+                        <option value="price_desc">Price: High to Low</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="date">Reporting Date: Newest</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Category Filter Pills */}
+                  <div className="flex gap-1.5 flex-wrap items-center pt-1 border-t border-border/50">
+                    {cropCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setCategoryFilter(cat)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                          categoryFilter === cat
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                            : "border-border bg-card hover:bg-accent text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {CATEGORY_LANG[lang]?.[cat] || cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Loading State */}
+                {loadingPrices && (
+                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+                    <p className="text-muted-foreground text-xs font-semibold">Syncing AGMARKNET Market Registry...</p>
                   </div>
                 )}
-              </div>
+
+                {/* Error State */}
+                {errorPrices && !loadingPrices && (
+                  <GlassCard className="border border-red-500/20 bg-red-500/5 p-6 text-center rounded-2xl">
+                    <p className="text-red-500 font-bold text-sm">{errorPrices}</p>
+                    <Button variant="outline" className="mt-3 text-xs" onClick={() => fetchCrops()}>
+                      Retry
+                    </Button>
+                  </GlassCard>
+                )}
+
+                {/* Crop Cards Grid */}
+                {!loadingPrices && !errorPrices && (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {filteredCrops.map((crop, i) => (
+                        <CropCard
+                          key={crop.id}
+                          crop={crop}
+                          index={i}
+                          onClick={() => {
+                            trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang });
+                            setSelectedCrop(crop);
+                          }}
+                          lang={plang}
+                        />
+                      ))}
+                      {filteredCrops.length === 0 && (
+                        <div className="col-span-full text-center py-16 bg-card border border-border rounded-2xl">
+                          <Search className="h-10 w-10 mx-auto mb-2 text-muted-foreground/30" />
+                          <p className="text-muted-foreground text-xs font-semibold">No commodities match the selected filters.</p>
+                        </div>
+                      )}
+                    </div>
+                    <PriceAlertPanel crops={crops} />
+                  </>
+                )}
+              </motion.div>
             )}
-          </motion.div>
-        )}
 
-        {/* ============================================================ */}
-        {/*  CROP DETAIL + BUY/SELL VIEW                                  */}
-        {/* ============================================================ */}
-        {selectedCrop && (
-          <motion.div
-            key="crop-detail"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-col gap-6"
-          >
-            {/* Back button */}
-            <button
-              onClick={handleBack}
-              className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors w-fit pb-2"
+            {/* Crop Detail View */}
+            {selectedCrop && (
+              <motion.div
+                key="crop-detail"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="flex flex-col gap-6"
+              >
+                <button
+                  onClick={() => setSelectedCrop(null)}
+                  className="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors w-fit pb-1"
+                >
+                  <ArrowLeft className="h-4 w-4" /> {MANDI_PAGE_LANG[plang].returnMarketplace}
+                </button>
+
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+                  <GlassCard className="lg:col-span-3 overflow-hidden border border-border bg-card">
+                    <div className={`h-2 bg-gradient-to-r ${getCategoryGradient(selectedCrop.category)}`} />
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <OriginBadge origin={selectedCrop.source_origin || "Official market-price data"} />
+                          <CardTitle className="text-2xl font-black text-foreground mt-2 font-display">
+                            {translateData(selectedCrop.name, lang)}
+                          </CardTitle>
+                          <p className="text-muted-foreground text-xs mt-0.5">
+                            Variety: <span className="font-semibold text-foreground">{translateData(selectedCrop.variety, lang)}</span>
+                          </p>
+                        </div>
+                        <TrendBadge trend={selectedCrop.trend} change={selectedCrop.change_percent} size="lg" />
+                      </div>
+                    </CardHeader>
+
+                    <CardContent className="space-y-6">
+                      {selectedCrop.is_stale && (
+                        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2 font-medium">
+                          <AlertTriangle className="h-4 w-4 shrink-0" />
+                          <span>{tabT.staleWarning}</span>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-blue-500" />} label="Min Price" value={`₹${selectedCrop.min_price.toLocaleString()}`} />
+                        <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-emerald-500" />} label="Modal Price" value={`₹${selectedCrop.modal_price.toLocaleString()}`} />
+                        <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-rose-500" />} label="Max Price" value={`₹${selectedCrop.max_price.toLocaleString()}`} />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded-xl bg-muted/40 border border-border">
+                          <span className="text-[10px] uppercase font-bold text-muted-foreground">Market Center</span>
+                          <p className="font-bold text-foreground mt-0.5">{selectedCrop.mandi}, {selectedCrop.state}</p>
+                        </div>
+                        <div className="p-3 rounded-xl bg-muted/40 border border-border">
+                          <span className="text-[10px] uppercase font-bold text-muted-foreground">Arrival Volume</span>
+                          <p className="font-bold text-foreground mt-0.5">{selectedCrop.arrival_tonnes.toLocaleString()} {t("mandi.t") || "Tonnes"}</p>
+                        </div>
+                      </div>
+
+                      {/* Area Chart */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="font-bold text-foreground">7-Day Modal Price Trend</span>
+                          <span className="text-[10px] text-muted-foreground font-mono">₹/Quintal</span>
+                        </div>
+                        <div className="h-44 w-full">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                              <defs>
+                                <linearGradient id="priceGlow" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
+                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                </linearGradient>
+                              </defs>
+                              <XAxis dataKey="date" stroke="rgba(150,150,150,0.4)" fontSize={9} tickLine={false} axisLine={false} />
+                              <YAxis stroke="rgba(150,150,150,0.4)" fontSize={9} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
+                              <Tooltip
+                                contentStyle={{ backgroundColor: '#090d16', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '11px', color: '#fff' }}
+                              />
+                              <Area type="monotone" dataKey="Price" stroke="#10b981" strokeWidth={2} fill="url(#priceGlow)" />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </GlassCard>
+
+                  {/* eNAM Direct Assistance Panel */}
+                  <div className="lg:col-span-2">
+                    <BuySellPanel
+                      crop={selectedCrop}
+                      mode={buySellMode}
+                      connectionStatus={connectionStatus}
+                      onConnect={(m) => {
+                        setBuySellMode(m)
+                        setConnectionStatus("connecting")
+                        setTimeout(() => setConnectionStatus("connected"), 1200)
+                      }}
+                      onReset={() => { setBuySellMode(null); setConnectionStatus("idle") }}
+                      lang={lang}
+                      onLangChange={setLang}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/*  TAB 2: BUY REQUIREMENTS                                     */}
+      {/* ============================================================ */}
+      {activeTab === "buy" && (
+        <div className="flex flex-col gap-6">
+          {/* Header Action Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-2xl bg-card border border-border">
+            <div>
+              <h2 className="text-base font-bold text-foreground">Verified Buyer Requirements</h2>
+              <p className="text-xs text-muted-foreground">Aggregated from verified institutional buyers, FPOs, and traders.</p>
+            </div>
+            <Button
+              onClick={() => setShowPostRequirementModal(true)}
+              className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-teal-600/10"
             >
-              <ArrowLeft className="h-4.5 w-4.5" /> {MANDI_PAGE_LANG[lang].returnMarketplace}
-            </button>
+              <Plus className="h-3.5 w-3.5" />
+              {tabT.postRequirement}
+            </Button>
+          </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
-              {/* Crop detail card */}
-              <GlassCard className="lg:col-span-3 overflow-hidden border border-border backdrop-blur-md shadow-xl bg-card">
-                <div className={`h-2 bg-gradient-to-r ${getCategoryGradient(selectedCrop.category)}`} />
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r ${CATEGORY_COLORS[selectedCrop.category] || "from-gray-500/20 to-gray-500/20 text-gray-500"}`}>
-                        {CATEGORY_LANG[lang]?.[selectedCrop.category] || selectedCrop.category}
-                      </span>
-                      <CardTitle className="text-3xl font-black font-display text-foreground mt-3">{translateData(selectedCrop.name, lang)}</CardTitle>
-                      <p className="text-muted-foreground text-xs mt-1">{MANDI_PAGE_LANG[lang].varietyLabel}<span className="font-semibold text-foreground/80">{translateData(selectedCrop.variety, lang)}</span></p>
-                    </div>
-                    <TrendBadge trend={selectedCrop.trend} change={selectedCrop.change_percent} size="lg" />
-                  </div>
-                </CardHeader>
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search commodity, buyer, district..."
+                value={buySearch}
+                onChange={(e) => setBuySearch(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
+              />
+            </div>
+            <select
+              value={buyState}
+              onChange={(e) => setBuyState(e.target.value)}
+              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
+            >
+              <option value="All">All Buyer States</option>
+              {buyStates.filter((s) => s !== "All").map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
 
-                <CardContent className="space-y-6">
-                  {/* Price display row */}
-                  <div className="p-5 rounded-2xl bg-muted/40 border border-border flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].livePriceIndex}</span>
-                      <div className="flex items-baseline gap-1.5 mt-1">
-                        <IndianRupee className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-display">
-                          {selectedCrop.price.toLocaleString()}
-                        </span>
-                        <span className="text-muted-foreground text-xs font-medium">/{translateData(selectedCrop.unit, lang)}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].arrivalTonnes}</span>
-                      <span className="text-xl font-bold text-foreground block mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} {t("mandi.tons")}</span>
-                    </div>
-                  </div>
+          {/* Disclaimer */}
+          <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-center gap-2">
+            <Clock className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+            <span>Offers expire automatically at expiry date. Submitting quotation initiates direct discussion; it does not constitute an automated debit or transaction.</span>
+          </div>
 
-                  {/* Price Range Visualizer */}
+          {/* Buy Requirements Grid */}
+          {loadingBuy ? (
+            <div className="flex justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredBuy.map((b) => (
+                <div key={b.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-teal-500/30 transition-all">
                   <div className="space-y-3">
-                    <div className="flex justify-between text-xs text-muted-foreground font-semibold">
-                      <span>{t("mandi.low")}: ₹{selectedCrop.min_price.toLocaleString()}</span>
-                      <span className="text-foreground">{t("mandi.current_model")}: ₹{selectedCrop.modal_price.toLocaleString()}</span>
-                      <span>{t("mandi.high")}: ₹{selectedCrop.max_price.toLocaleString()}</span>
-                    </div>
-                    <div className="relative h-2 rounded-full bg-muted border border-border/50 overflow-hidden">
-                      {/* Range slider indicator */}
-                      <div
-                        className="absolute top-0 h-full w-2.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.7)]"
-                        style={{
-                          left: `${((selectedCrop.modal_price - selectedCrop.min_price) / (selectedCrop.max_price - selectedCrop.min_price)) * 100}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Details grid */}
-                  <div className="grid grid-cols-2 gap-4 pt-2">
-                    <InfoTile icon={<MapPin className="h-4 w-4 text-orange-500" />} label={MANDI_PAGE_LANG[lang].apmcMandi} value={translateData(selectedCrop.mandi, lang)} />
-                    <InfoTile icon={<MapPin className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />} label={MANDI_PAGE_LANG[lang].stateCenter} value={translateData(selectedCrop.state, lang)} />
-                  </div>
-
-                  {/* Historical Graph Chart */}
-                  <div className="pt-4 border-t border-border">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <span className="text-xs uppercase font-bold text-foreground tracking-wider block">{MANDI_PAGE_LANG[lang].priceHistory}</span>
-                        <span className="text-[10px] text-muted-foreground">{MANDI_PAGE_LANG[lang].historyTrend}</span>
-                      </div>
-                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" /> {MANDI_PAGE_LANG[lang].liveGraph}
+                    <div className="flex items-start justify-between gap-2">
+                      <OriginBadge origin={b.source || "KisaanBuddy verified buyer requirement"} />
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        (b.status as string) === "open" || (b.status as string) === "active" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {(b.status || "OPEN").toUpperCase()}
                       </span>
                     </div>
-                    
-                    <div className="h-56 w-full pr-4 pt-2">
-                      {mounted && (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                            <defs>
-                              <linearGradient id="priceGlow" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.25}/>
-                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                              </linearGradient>
-                            </defs>
-                            <XAxis 
-                              dataKey="date" 
-                              stroke="rgba(255,255,255,0.2)" 
-                              fontSize={9} 
-                              tickLine={false} 
-                              axisLine={false} 
-                              className="font-mono text-muted-foreground"
-                            />
-                            <YAxis 
-                              stroke="rgba(255,255,255,0.2)" 
-                              fontSize={9} 
-                              tickLine={false} 
-                              axisLine={false} 
-                              domain={['auto', 'auto']}
-                              className="font-mono text-muted-foreground"
-                            />
-                            <Tooltip 
-                              contentStyle={{ 
-                                backgroundColor: '#090d16', 
-                                borderColor: 'rgba(255,255,255,0.08)', 
-                                borderRadius: '14px',
-                                fontSize: '12px',
-                                color: '#fff'
-                              }} 
-                              labelStyle={{ color: '#64748b', fontWeight: 'bold' }} 
-                            />
-                            <Area 
-                              type="monotone" 
-                              dataKey="Price" 
-                              stroke="#10b981" 
-                              strokeWidth={2.5} 
-                              fillOpacity={1} 
-                              fill="url(#priceGlow)" 
-                            />
-                          </AreaChart>
-                        </ResponsiveContainer>
+
+                    <div>
+                      <h3 className="text-lg font-black text-foreground font-display">{b.commodity}</h3>
+                      <p className="text-xs text-muted-foreground">Variety: <span className="font-semibold text-foreground">{b.variety || "Standard Grade"}</span></p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 bg-muted/30 border border-border/60 p-3 rounded-xl text-xs">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Required Volume</span>
+                        <p className="font-bold text-foreground text-sm">{b.required_quantity.toLocaleString()} {b.quantity_unit}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Target Price</span>
+                        <p className="font-bold text-teal-600 dark:text-teal-400 text-sm">
+                          {b.expected_price_min && b.expected_price_max
+                            ? `₹${b.expected_price_min.toLocaleString()} - ₹${b.expected_price_max.toLocaleString()}`
+                            : ((b as any).expected_price ? `₹${(b as any).expected_price.toLocaleString()}` : "Market Negotiable")}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="font-bold text-foreground">{b.buyer_name}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-muted">({b.buyer_type})</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span>Delivery to: {b.delivery_destination || `${b.buyer_location_district || (b as any).district}, ${b.buyer_location_state || (b as any).state}`}</span>
+                      </div>
+                      {(b.quality_specifications || (b as any).quality_requirements) && (
+                        <div className="text-[11px] text-muted-foreground italic">
+                          Specs: {b.quality_specifications || (b as any).quality_requirements}
+                        </div>
                       )}
                     </div>
                   </div>
-                </CardContent>
-              </GlassCard>
 
-              {/* Buy/Sell Panel */}
-              <div className="lg:col-span-2 flex flex-col gap-6">
-                <BuySellPanel
-                  crop={selectedCrop}
-                  mode={buySellMode}
-                  connectionStatus={connectionStatus}
-                  onConnect={handleConnect}
-                  onReset={() => { setBuySellMode(null); setConnectionStatus("idle") }}
-                  lang={lang}
-                  onLangChange={setLang}
-                />
-              </div>
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
+                    <span className="text-[10px] text-muted-foreground font-mono">
+                      Expires: {b.offer_expiry_date ? new Date(b.offer_expiry_date).toLocaleDateString() : "Active"}
+                    </span>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setReportTarget({ type: "buyer_requirement", id: b.id, title: `${b.commodity} requirement` })}
+                        className="text-xs text-muted-foreground hover:text-red-500 h-8 px-2"
+                      >
+                        <Flag className="h-3 w-3 mr-1" /> Report
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => setInquiryTarget({
+                          type: "buyer_requirement",
+                          id: b.id,
+                          title: `Supply Offer for ${b.commodity}`,
+                          defaultQty: b.required_quantity,
+                          defaultPrice: b.expected_price_min || undefined,
+                          unit: b.quantity_unit,
+                        })}
+                        className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs h-8 px-3 rounded-lg"
+                      >
+                        <Send className="h-3 w-3 mr-1" /> {tabT.submitQuote}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {filteredBuy.length === 0 && (
+                <div className="col-span-full text-center py-12 bg-card border border-border rounded-2xl">
+                  <p className="text-xs text-muted-foreground">No buyer requirements currently match your criteria.</p>
+                </div>
+              )}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/*  TAB 3: SELL OFFERS                                          */}
+      {/* ============================================================ */}
+      {activeTab === "sell" && (
+        <div className="flex flex-col gap-6">
+          {/* Header Action Bar */}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-2xl bg-card border border-border">
+            <div>
+              <h2 className="text-base font-bold text-foreground">Verified Farmer & FPO Sell Listings</h2>
+              <p className="text-xs text-muted-foreground">Source directly from genuine harvest lots with stock verification.</p>
+            </div>
+            <Button
+              onClick={() => setShowPostProduceModal(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-600/10"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {tabT.postListing}
+            </Button>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search crop, variety, farmer, district..."
+                value={sellSearch}
+                onChange={(e) => setSellSearch(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+            <select
+              value={sellState}
+              onChange={(e) => setSellState(e.target.value)}
+              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            >
+              <option value="All">All Producer States</option>
+              {sellStates.filter((s) => s !== "All").map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Disclaimer */}
+          <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-center gap-2">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>Farmers maintain full control. Contacting a seller or expressing interest opens direct negotiation with mutual consent.</span>
+          </div>
+
+          {/* Sell Listings Grid */}
+          {loadingSell ? (
+            <div className="flex justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredSell.map((s) => (
+                <div key={s.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-emerald-500/30 transition-all">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <OriginBadge origin={s.source_origin || "KisaanBuddy verified seller listing"} />
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        s.availability_status === "available" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {s.availability_status.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-black text-foreground font-display">{s.crop_name}</h3>
+                      <p className="text-xs text-muted-foreground">Variety: <span className="font-semibold text-foreground">{s.variety || "Standard"}</span></p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 bg-muted/30 border border-border/60 p-3 rounded-xl text-xs">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Lot Size</span>
+                        <p className="font-bold text-foreground text-sm">{s.quantity.toLocaleString()} {s.quantity_unit}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Asking Price</span>
+                        <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
+                          ₹{s.asking_price.toLocaleString()}/{s.price_unit}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span className="font-bold text-foreground">{s.farmer_name}</span>
+                        <span className="text-[10px] font-mono bg-muted px-1.5 py-0.2 rounded">{s.farmer_phone_masked || "+91 98*** *****"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span>{s.village_or_tehsil ? `${s.village_or_tehsil}, ` : ""}{s.district}, {s.state}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] pt-1">
+                        <span>Quality: <strong className="text-foreground">{s.grade_or_quality}</strong></span>
+                        {s.moisture_pct !== null && s.moisture_pct !== undefined && (
+                          <span>Moisture: <strong className="text-foreground">{s.moisture_pct}%</strong></span>
+                        )}
+                        <span>Delivery: <strong className="text-foreground">{s.delivery_option}</strong></span>
+                      </div>
+                    </div>
+
+                    {s.last_confirmation_date && (
+                      <div className="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
+                        <Check className="h-3 w-3" />
+                        <span>Stock confirmed by seller on {new Date(s.last_confirmation_date).toLocaleDateString()}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleConfirmStock(s.id)}
+                      className="text-[11px] h-8 px-2.5 rounded-lg border-border hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
+                    >
+                      <Check className="h-3 w-3 mr-1" /> {tabT.confirmStock}
+                    </Button>
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => setReportTarget({ type: "produce_listing", id: s.id, title: `${s.crop_name} lot` })}
+                        className="text-xs text-muted-foreground hover:text-red-500 h-8 px-2"
+                      >
+                        <Flag className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => setInquiryTarget({
+                          type: "produce_listing",
+                          id: s.id,
+                          title: `Inquiry for ${s.crop_name} (${s.quantity} ${s.quantity_unit})`,
+                          defaultQty: s.quantity,
+                          defaultPrice: s.asking_price,
+                          unit: s.quantity_unit,
+                        })}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-3 rounded-lg"
+                      >
+                        <Phone className="h-3 w-3 mr-1" /> {tabT.contactSeller}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {filteredSell.length === 0 && (
+                <div className="col-span-full text-center py-12 bg-card border border-border rounded-2xl">
+                  <p className="text-xs text-muted-foreground">No produce listings found matching the criteria.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/*  TAB 4: GOVERNMENT PROCUREMENT (MSP)                         */}
+      {/* ============================================================ */}
+      {activeTab === "gov" && (
+        <div className="flex flex-col gap-6">
+          {/* Official MSP Notice Banner */}
+          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4 space-y-2">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <h2 className="text-sm font-bold text-foreground">Official Government Procurement & Fair Average Quality (FAQ) MSP Centres</h2>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {tabT.mspDisclaimer}
+            </p>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search crop, procurement centre, agency..."
+                value={govSearch}
+                onChange={(e) => setGovSearch(e.target.value)}
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+            </div>
+            <select
+              value={govState}
+              onChange={(e) => setGovState(e.target.value)}
+              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-purple-500"
+            >
+              <option value="All">All Procurement States</option>
+              {govStates.filter((s) => s !== "All").map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Procurement Centres Grid */}
+          {loadingGov ? (
+            <div className="flex justify-center py-16">
+              <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredGov.map((g) => (
+                <div key={g.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-purple-500/30 transition-all">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <OriginBadge origin={g.source_provenance || "Government procurement information"} />
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                        {g.procurement_season}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-black text-foreground font-display">{g.crop_name}</h3>
+                      <p className="text-xs text-muted-foreground">Centre: <strong className="text-foreground">{g.procurement_centre_name || (g as any).procurement_center}</strong></p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 bg-purple-500/5 border border-purple-500/20 p-3 rounded-xl text-xs">
+                      <div>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Base MSP Rate</span>
+                        <p className="font-bold text-foreground text-sm">₹{(g.msp_rate_per_quintal || (g as any).msp_rate || 0).toLocaleString()}/qtl</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-purple-600 dark:text-purple-400 uppercase font-bold">Effective Rate</span>
+                        <p className="font-bold text-purple-600 dark:text-purple-400 text-sm">
+                          ₹{(g.effective_procurement_rate || g.msp_rate_per_quintal || (g as any).msp_rate || 0).toLocaleString()}/qtl
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1.5">
+                        <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span>Nodal Agency: <strong className="text-foreground">{g.nodal_agency}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        <span>Location: {g.district}, {g.state}</span>
+                      </div>
+                      {(g.faq_specs || (g as any).faq_specifications) && (
+                        <div className="p-2.5 rounded-lg bg-muted/40 border border-border text-[11px] text-muted-foreground">
+                          <span className="font-bold text-foreground block mb-0.5">FAQ Specifications:</span>
+                          {g.faq_specs || (g as any).faq_specifications}
+                        </div>
+                      )}
+                      {(g.eligibility_criteria || (g as any).registration_requirements) && (
+                        <div className="text-[11px] text-muted-foreground">
+                          Requirements: {g.eligibility_criteria || (g as any).registration_requirements}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
+                    {g.contact_helpline ? (
+                      <a
+                        href={`tel:${g.contact_helpline}`}
+                        className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1"
+                      >
+                        <Phone className="h-3 w-3" /> {g.contact_helpline}
+                      </a>
+                    ) : <span />}
+
+                    {g.registration_portal_url && (
+                      <a
+                        href={g.registration_portal_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-600/10 transition-all"
+                      >
+                        <span>{g.registration_portal_name || "Official Portal"}</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {filteredGov.length === 0 && (
+                <div className="col-span-full text-center py-12 bg-card border border-border rounded-2xl">
+                  <p className="text-xs text-muted-foreground">No government procurement centres found for this search.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/*  MODALS                                                      */}
+      {/* ============================================================ */}
+
+      {/* Post Produce Listing Modal */}
+      {showPostProduceModal && (
+        <PostProduceListingModal
+          onClose={() => setShowPostProduceModal(false)}
+          onSuccess={() => {
+            setShowPostProduceModal(false)
+            setToastMessage("Produce listing created successfully!")
+            fetchSellOffers()
+          }}
+        />
+      )}
+
+      {/* Post Buyer Requirement Modal */}
+      {showPostRequirementModal && (
+        <PostBuyerRequirementModal
+          onClose={() => setShowPostRequirementModal(false)}
+          onSuccess={() => {
+            setShowPostRequirementModal(false)
+            setToastMessage("Buyer requirement posted successfully!")
+            fetchBuyRequirements()
+          }}
+        />
+      )}
+
+      {/* Trade Inquiry Modal */}
+      {inquiryTarget && (
+        <SubmitInquiryModal
+          target={inquiryTarget}
+          onClose={() => setInquiryTarget(null)}
+          onSuccess={() => {
+            setInquiryTarget(null)
+            setToastMessage("Inquiry / Quotation sent to party successfully!")
+          }}
+        />
+      )}
+
+      {/* Report Listing Modal */}
+      {reportTarget && (
+        <ReportListingModal
+          target={reportTarget}
+          onClose={() => setReportTarget(null)}
+          onSuccess={() => {
+            setReportTarget(null)
+            setToastMessage("Report submitted to review team. Thank you for keeping the marketplace safe.")
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -1040,30 +1581,27 @@ export default function MandiPage() {
 /* ================================================================== */
 
 /* ---- Crop Card ---- */
-function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: "en" | "hi" | "kn" }) {
+function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: Lang }) {
   const { t } = useLanguage()
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }} 
       animate={{ opacity: 1, y: 0 }} 
-      transition={{ delay: Math.min(index * 0.05, 0.4), duration: 0.4 }}
-      whileHover={{ y: -4 }}
+      transition={{ delay: Math.min(index * 0.04, 0.3), duration: 0.3 }}
+      whileHover={{ y: -3 }}
     >
       <GlassCard
-        className="cursor-pointer group overflow-hidden relative border border-border backdrop-blur-md shadow-sm hover:shadow-lg hover:border-emerald-500/30 transition-all duration-300 bg-card h-full flex flex-col justify-between"
+        className="cursor-pointer group overflow-hidden relative border border-border backdrop-blur-md shadow-xs hover:shadow-lg hover:border-emerald-500/30 transition-all duration-300 bg-card h-full flex flex-col justify-between"
         onClick={onClick}
       >
         <div>
-          {/* Top accent bar */}
           <div className={`h-1.5 bg-gradient-to-r ${getCategoryGradient(crop.category)}`} />
 
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-gradient-to-r ${CATEGORY_COLORS[crop.category] || "from-gray-500/20 to-gray-500/20 text-gray-500"}`}>
-                  {CATEGORY_LANG[lang]?.[crop.category] || crop.category}
-                </span>
-                <CardTitle className="text-base font-extrabold text-foreground mt-3 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate font-display">
+                <OriginBadge origin={crop.source_origin || "Official market-price data"} className="mb-2" />
+                <CardTitle className="text-base font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate font-display">
                   {translateData(crop.name, lang)}
                 </CardTitle>
                 <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{translateData(crop.variety, lang)}</p>
@@ -1072,10 +1610,9 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
             </div>
           </CardHeader>
 
-          <CardContent className="space-y-4">
-            {/* Price */}
+          <CardContent className="space-y-3">
             <div className="flex items-baseline gap-1 bg-muted/40 border border-border p-3 rounded-xl justify-between">
-              <span className="text-[10px] text-muted-foreground font-semibold">{t("mandi.modal_price")}</span>
+              <span className="text-[10px] text-muted-foreground font-semibold">{t("mandi.modal_price") || "Modal Price"}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-display">
                   ₹{crop.price.toLocaleString()}
@@ -1084,41 +1621,58 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
               </div>
             </div>
 
-            {/* Mandi + State */}
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400/80" />
               <span className="truncate">{translateData(crop.mandi, lang)}, {translateData(crop.state, lang)}</span>
             </div>
+
+            {crop.is_stale && (
+              <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                <span>Daily Reported (Historical)</span>
+              </div>
+            )}
           </CardContent>
         </div>
 
-        <div className="px-6 pb-6">
-          {/* Actions */}
-          <div className="flex gap-2.5 pt-2">
-            <Button
-              size="sm"
-              className="flex-1 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md shadow-emerald-600/10 rounded-xl"
-            >
-              <ShoppingCart className="h-3.5 w-3.5 mr-1" /> {MANDI_PAGE_LANG[lang].buy}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 text-xs border-border hover:bg-accent text-orange-600 dark:text-orange-400 font-bold rounded-xl"
-            >
-              <Tag className="h-3.5 w-3.5 mr-1" /> {MANDI_PAGE_LANG[lang].sell}
-            </Button>
-          </div>
+        <div className="px-5 pb-5">
+          <Button
+            size="sm"
+            className="w-full text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs"
+          >
+            <span>View Price Intelligence</span>
+          </Button>
         </div>
-
-        {/* Hover accent glow */}
-        <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </GlassCard>
     </motion.div>
   )
 }
 
-/* ---- Buy / Sell Panel ---- */
+function TrendBadge({ trend, change, size = "sm" }: { trend: string; change: number; size?: "sm" | "lg" }) {
+  const Icon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus
+  const color = trend === "up" ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : trend === "down" ? "text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20" : "text-muted-foreground bg-muted border border-border"
+  const sizeClass = size === "lg" ? "px-3 py-1.5 text-xs gap-1.5 rounded-xl" : "px-2 py-0.5 text-[9px] gap-1 rounded-lg"
+  return (
+    <span className={`inline-flex items-center font-bold ${color} ${sizeClass}`}>
+      <Icon className={size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"} />
+      {change > 0 ? "+" : ""}{change}%
+    </span>
+  )
+}
+
+function InfoTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="p-3 rounded-xl bg-muted/40 border border-border">
+      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">
+        {icon} 
+        <span>{label}</span>
+      </div>
+      <p className="text-sm font-bold text-foreground truncate">{value}</p>
+    </div>
+  )
+}
+
+/* ---- Buy/Sell Drilldown Panel with eNAM ---- */
 function BuySellPanel({
   crop,
   mode,
@@ -1133,224 +1687,822 @@ function BuySellPanel({
   connectionStatus: "idle" | "connecting" | "connected"
   onConnect: (m: "buy" | "sell") => void
   onReset: () => void
-  lang: "en" | "hi" | "kn"
-  onLangChange: (l: "en" | "hi" | "kn") => void
+  lang: string
+  onLangChange: (l: Lang) => void
 }) {
-  const { t } = useLanguage()
+  const enam = ENAM_LANG[lang as Lang] || ENAM_LANG.en
   return (
-    <div className="space-y-6">
-      {/* Choose action */}
-      <GlassCard className="border border-border backdrop-blur-md shadow-xl bg-card">
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-md font-bold font-display text-foreground">
-            <ArrowUpDown className="h-4.5 w-4.5 text-orange-500" />
-            Trade Commodity
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Initiate instant trading signals or direct transactions across our verified regional logistics networks.
+    <GlassCard className="border border-border bg-card">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base font-bold text-foreground flex items-center gap-2 font-display">
+          <Store className="h-4 w-4 text-emerald-500" />
+          Official e-NAM & Trading Desk
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {connectionStatus === "idle" && (
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Connect with APMC mandi desks or explore institutional procurement options for {crop.name}.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                onClick={() => onConnect("buy")}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-10"
+              >
+                <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Buyer Guidance
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => onConnect("sell")}
+                className="border-border text-foreground hover:bg-accent font-bold text-xs rounded-xl h-10"
+              >
+                <Wheat className="h-3.5 w-3.5 mr-1" /> Seller Guidance
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {connectionStatus === "connecting" && (
+          <div className="py-8 text-center space-y-2">
+            <Loader2 className="h-6 w-6 animate-spin text-emerald-500 mx-auto" />
+            <p className="text-xs text-muted-foreground font-semibold">Connecting to APMC Directory...</p>
+          </div>
+        )}
+
+        {connectionStatus === "connected" && (
+          <div className="space-y-4 pt-1">
+            <div className="rounded-xl p-3 space-y-2 border border-emerald-500/20 bg-emerald-500/5 text-xs">
+              <p className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" /> {enam.title}
+              </p>
+              <div className="grid grid-cols-2 gap-y-1 text-muted-foreground">
+                <span>{enam.state}:</span>
+                <span className="font-bold text-foreground text-right">{crop.state}</span>
+                <span>{enam.commodity}:</span>
+                <span className="font-bold text-foreground text-right">{crop.name.split("(")[0].trim()}</span>
+                <span>{enam.price}:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">₹{crop.price.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <a
+                href="tel:18002700224"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-10 flex items-center justify-center gap-2 text-xs shadow-xs transition-all"
+              >
+                <Phone className="h-3.5 w-3.5" />
+                <span>{enam.callHelpdesk}</span>
+              </a>
+              <a
+                href="mailto:enam.helpdesk@gmail.com"
+                className="w-full border border-border bg-card hover:bg-accent text-foreground font-semibold rounded-xl h-10 flex items-center justify-center gap-2 text-xs transition-all"
+              >
+                <Mail className="h-3.5 w-3.5 text-emerald-500" />
+                <span>{enam.emailHelpdesk}</span>
+              </a>
+              <Button variant="ghost" onClick={onReset} className="w-full text-xs text-muted-foreground h-8">
+                {enam.cancel}
+              </Button>
+            </div>
+
+            <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+              {enam.helpdeskNote}
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </GlassCard>
+  )
+}
+
+/* ================================================================== */
+/*  MODAL COMPONENTS                                                  */
+/* ================================================================== */
+
+function PostProduceListingModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [cropName, setCropName] = useState("")
+  const [variety, setVariety] = useState("")
+  const [quantity, setQuantity] = useState("")
+  const [quantityUnit, setQuantityUnit] = useState("Quintal")
+  const [askingPrice, setAskingPrice] = useState("")
+  const [priceUnit, setPriceUnit] = useState("Quintal")
+  const [state, setState] = useState("Madhya Pradesh")
+  const [district, setDistrict] = useState("")
+  const [village, setVillage] = useState("")
+  const [grade, setGrade] = useState("FAQ")
+  const [moisture, setMoisture] = useState("")
+  const [delivery, setDelivery] = useState("Farmgate Pickup")
+  const [farmerName, setFarmerName] = useState("")
+  const [farmerPhone, setFarmerPhone] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!cropName || !quantity || !askingPrice || !farmerName || !farmerPhone) {
+      setErr("Please fill all required fields.")
+      return
+    }
+    try {
+      setSubmitting(true)
+      setErr(null)
+      await produceListingsApi.create({
+        crop_name: cropName,
+        variety: variety || undefined,
+        category: "Produce",
+        quantity: parseFloat(quantity),
+        quantity_unit: quantityUnit,
+        asking_price: parseFloat(askingPrice),
+        price_unit: priceUnit,
+        is_negotiable: true,
+        grade_or_quality: grade,
+        moisture_pct: moisture ? parseFloat(moisture) : undefined,
+        farmer_name: farmerName,
+        farmer_phone: farmerPhone,
+        contact_consent_verified: true,
+        state,
+        district: district || "Bhopal",
+        village_or_tehsil: village || undefined,
+        delivery_option: delivery,
+        verification_status: "verified",
+      } as any)
+      onSuccess()
+    } catch (error: any) {
+      setErr(error?.message || "Failed to create listing.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl relative my-8">
+        <button onClick={onClose} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+          <X className="h-5 w-5" />
+        </button>
+        <h3 className="text-lg font-bold text-foreground font-display">List Your Produce for Sale</h3>
+        <p className="text-xs text-muted-foreground mb-4">Reach verified buyers directly. Your contact number remains masked to prevent spam.</p>
+
+        {err && <p className="text-xs text-red-500 font-semibold mb-3">{err}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Crop Name *</label>
+              <input
+                required
+                type="text"
+                placeholder="e.g. Wheat, Soybean"
+                value={cropName}
+                onChange={(e) => setCropName(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Variety</label>
+              <input
+                type="text"
+                placeholder="e.g. Sharbati, Lokwan"
+                value={variety}
+                onChange={(e) => setVariety(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Available Quantity *</label>
+              <div className="flex gap-1">
+                <input
+                  required
+                  type="number"
+                  placeholder="e.g. 50"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+                <select
+                  value={quantityUnit}
+                  onChange={(e) => setQuantityUnit(e.target.value)}
+                  className="rounded-xl border border-border bg-card px-2 text-foreground"
+                >
+                  <option value="Quintal">Qtl</option>
+                  <option value="Tonnes">Ton</option>
+                  <option value="Bags">Bags</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Asking Price (₹) *</label>
+              <div className="flex gap-1">
+                <input
+                  required
+                  type="number"
+                  placeholder="e.g. 2400"
+                  value={askingPrice}
+                  onChange={(e) => setAskingPrice(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                />
+                <select
+                  value={priceUnit}
+                  onChange={(e) => setPriceUnit(e.target.value)}
+                  className="rounded-xl border border-border bg-card px-2 text-foreground"
+                >
+                  <option value="Quintal">/Qtl</option>
+                  <option value="Tonnes">/Ton</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">State *</label>
+              <select
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              >
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Gujarat">Gujarat</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+              </select>
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">District *</label>
+              <input
+                required
+                type="text"
+                placeholder="District name"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Quality Grade</label>
+              <select
+                value={grade}
+                onChange={(e) => setGrade(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              >
+                <option value="FAQ">FAQ (Fair Average Quality)</option>
+                <option value="Grade A">Grade A</option>
+                <option value="Organic">Certified Organic</option>
+                <option value="Commercial">Commercial Standard</option>
+              </select>
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Moisture % (Optional)</label>
+              <input
+                type="number"
+                step="0.1"
+                placeholder="e.g. 11.5"
+                value={moisture}
+                onChange={(e) => setMoisture(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Farmer / FPO Name *</label>
+              <input
+                required
+                type="text"
+                placeholder="Your full name"
+                value={farmerName}
+                onChange={(e) => setFarmerName(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Contact Phone *</label>
+              <input
+                required
+                type="tel"
+                placeholder="10-digit mobile"
+                value={farmerPhone}
+                onChange={(e) => setFarmerPhone(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+          </div>
+
+          <p className="text-[10px] text-muted-foreground pt-1">
+            By publishing, you confirm ownership of the stock and consent to receiving quotation inquiries from verified buyers.
           </p>
-          <div className="flex gap-3">
-            <Button
-              className={`flex-1 text-xs font-bold h-10 rounded-xl transition-all ${
-                mode === "buy"
-                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
-                  : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-              }`}
-              onClick={() => onConnect("buy")}
-              disabled={connectionStatus === "connecting"}
-            >
-              <ShoppingCart className="h-3.5 w-3.5 mr-2" />
-              Buy
+
+          <div className="flex gap-2 pt-3">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1 rounded-xl text-xs">
+              Cancel
             </Button>
             <Button
-              className={`flex-1 text-xs font-bold h-10 rounded-xl transition-all ${
-                mode === "sell"
-                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20"
-                  : "bg-orange-500/10 border border-orange-500/20 text-orange-400 hover:bg-orange-500/20"
-              }`}
-              onClick={() => onConnect("sell")}
-              disabled={connectionStatus === "connecting"}
+              type="submit"
+              disabled={submitting}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs"
             >
-              <Tag className="h-3.5 w-3.5 mr-2" />
-              Sell
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Publish Produce Listing"}
             </Button>
           </div>
-        </CardContent>
-      </GlassCard>
-
-      {/* Connection status */}
-      <AnimatePresence mode="wait">
-        {mode && (
-          <motion.div
-            key={`${mode}-${connectionStatus}`}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            <GlassCard
-              className={`border-2 backdrop-blur-md shadow-xl ${
-                connectionStatus === "connected"
-                  ? "border-emerald-500/30 bg-emerald-500/5"
-                  : connectionStatus === "connecting"
-                  ? "border-amber-500/30 bg-amber-500/5 animate-pulse"
-                  : "border-white/[0.08] bg-slate-950/20"
-              }`}
-            >
-              <CardContent className="pt-6 space-y-4">
-                {connectionStatus === "connecting" && (
-                  <div className="flex flex-col items-center gap-3 py-6">
-                    <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
-                    <p className="text-sm font-bold text-foreground font-display">
-                      Connecting eNAM broker...
-                    </p>
-                    <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                      Securing encrypted pipeline with registered trading agents for{" "}
-                      <span className="font-semibold text-foreground">{crop.name}</span> in {crop.mandi}
-                    </p>
-                  </div>
-                )}
-
-                {connectionStatus === "connected" && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-                      <CheckCircle2 className="h-5 w-5" />
-                      <span className="font-bold text-sm font-display">
-                        eNAM Agent Connected!
-                      </span>
-                    </div>
-
-                    <div className="p-4 rounded-xl bg-muted/40 border border-border space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-orange-400 to-emerald-500 flex items-center justify-center text-white font-black text-[10px] shadow-md shadow-orange-500/10">
-                          eNAM
-                        </div>
-                        <div>
-                          <p className="font-bold text-xs text-foreground">{t("mandi.national_agriculture_market")}</p>
-                          <p className="text-[10px] text-muted-foreground">
-                            Govt of India • Verification Center
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                        <MapPin className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                        {crop.mandi}, {crop.state}
-                      </div>
-
-                      <div className="pt-2 border-t border-border flex items-center justify-between">
-                        <div>
-                          <p className="text-[9px] text-muted-foreground uppercase font-bold">{t("mandi.trading_value")}</p>
-                          <p className="text-base font-extrabold text-emerald-600 dark:text-emerald-400 font-display">
-                            ₹{crop.price.toLocaleString()}
-                            <span className="text-[10px] font-normal text-muted-foreground">
-                              /{crop.unit}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Language switcher */}
-                    <div className="flex gap-1.5 justify-center">
-                      {(["hi", "en", "kn"] as const).map((l) => (
-                        <button
-                          key={l}
-                          onClick={() => onLangChange(l)}
-                          className={`px-3 py-1.5 rounded-lg text-[10px] font-bold border transition-all ${
-                            lang === l
-                              ? "bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/15"
-                              : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-                          }`}
-                        >
-                          {l === "hi" ? "हिंदी" : l === "kn" ? "ಕನ್ನಡ" : "English"}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* eNAM fill instructions */}
-                    <div className="rounded-xl p-3.5 space-y-2 border border-emerald-500/20 bg-emerald-500/5">
-                      <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5" /> {ENAM_LANG[lang].title}:
-                      </p>
-                      <div className="grid grid-cols-2 gap-y-1 gap-x-2 text-[11px] text-muted-foreground font-medium">
-                        <span>{ENAM_LANG[lang].state}:</span>
-                        <span className="font-bold text-foreground text-right">{crop.state}</span>
-                        <span>{ENAM_LANG[lang].commodity}:</span>
-                        <span className="font-bold text-foreground text-right">{crop.name.split("(")[0].trim()}</span>
-                        <span>{ENAM_LANG[lang].price}:</span>
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">&#x20B9;{crop.price.toLocaleString()}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-lg shadow-emerald-600/15 rounded-xl h-10"
-                        onClick={() => {
-                          const commodity = crop.name.split("(")[0].trim()
-                          const url = `https://enam.gov.in/web/dashboard/trade-data?state=${encodeURIComponent(crop.state)}&commodity=${encodeURIComponent(commodity)}`
-                          window.open(url, "_blank", "noopener,noreferrer")
-                        }}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-1.5" />
-                        {ENAM_LANG[lang].proceed}
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="border-border hover:bg-accent text-muted-foreground hover:text-foreground rounded-xl text-xs h-10" 
-                        onClick={onReset}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                    <p className="text-[9px] text-muted-foreground/80 leading-relaxed text-center">
-                      {ENAM_LANG[lang].note}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </GlassCard>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-function TrendBadge({ trend, change, size = "sm" }: { trend: string; change: number; size?: "sm" | "lg" }) {
-  const Icon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus
-  const color = trend === "up" ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/10 shadow-[0_0_8px_rgba(16,185,129,0.1)]" : trend === "down" ? "text-rose-400 bg-rose-500/10 border border-rose-500/10" : "text-muted-foreground bg-white/[0.03] border border-white/[0.04]"
-  const sizeClass = size === "lg" ? "px-3 py-1.5 text-xs gap-1.5 rounded-xl" : "px-2.5 py-1 text-[9px] gap-1 rounded-lg"
-  return (
-    <span className={`inline-flex items-center font-bold tracking-tight ${color} ${sizeClass}`}>
-      <Icon className={size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"} />
-      {change > 0 ? "+" : ""}{change}%
-    </span>
-  )
-}
-
-function InfoTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="p-3.5 rounded-xl bg-muted/40 border border-border">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1">
-        {icon} 
-        <span>{label}</span>
+        </form>
       </div>
-      <p className="text-sm font-bold text-foreground truncate">{value}</p>
     </div>
   )
 }
 
-function getCategoryGradient(category: string): string {
-  const map: Record<string, string> = {
-    Cereal: "from-amber-400 to-yellow-500",
-    Oilseed: "from-lime-400 to-green-500",
-    Pulse: "from-orange-400 to-red-500",
-    Fiber: "from-blue-400 to-indigo-500",
-    Vegetable: "from-emerald-400 to-teal-500",
-    "Cash Crop": "from-purple-400 to-fuchsia-500",
+function PostBuyerRequirementModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
+  const [commodity, setCommodity] = useState("")
+  const [variety, setVariety] = useState("")
+  const [quantity, setQuantity] = useState("")
+  const [quantityUnit, setQuantityUnit] = useState("Quintal")
+  const [minPrice, setMinPrice] = useState("")
+  const [maxPrice, setMaxPrice] = useState("")
+  const [buyerName, setBuyerName] = useState("")
+  const [buyerType, setBuyerType] = useState("Wholesaler")
+  const [phone, setPhone] = useState("")
+  const [state, setState] = useState("Madhya Pradesh")
+  const [district, setDistrict] = useState("")
+  const [destination, setDestination] = useState("")
+  const [specs, setSpecs] = useState("")
+  const [expiryDays, setExpiryDays] = useState("14")
+  const [submitting, setSubmitting] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!commodity || !quantity || !buyerName || !phone) {
+      setErr("Please fill all required fields.")
+      return
+    }
+    try {
+      setSubmitting(true)
+      setErr(null)
+      const expiry = new Date()
+      expiry.setDate(expiry.getDate() + parseInt(expiryDays))
+
+      await buyerRequirementsApi.create({
+        commodity,
+        variety: variety || undefined,
+        required_quantity: parseFloat(quantity),
+        quantity_unit: quantityUnit,
+        expected_price_min: minPrice ? parseFloat(minPrice) : undefined,
+        expected_price_max: maxPrice ? parseFloat(maxPrice) : undefined,
+        price_unit: "Quintal",
+        buyer_name: buyerName,
+        buyer_type: buyerType,
+        buyer_phone_masked: `+91 ${phone.slice(0, 2)}*** ${phone.slice(-4)}`,
+        buyer_location_state: state,
+        buyer_location_district: district || "Indore",
+        delivery_destination: destination || undefined,
+        quality_specifications: specs || undefined,
+        offer_expiry_date: expiry.toISOString(),
+        verification_status: "verified",
+        source: "KisaanBuddy verified buyer requirement",
+      })
+      onSuccess()
+    } catch (error: any) {
+      setErr(error?.message || "Failed to post requirement.")
+    } finally {
+      setSubmitting(false)
+    }
   }
-  return map[category] || "from-gray-400 to-gray-500"
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl relative my-8">
+        <button onClick={onClose} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+          <X className="h-5 w-5" />
+        </button>
+        <h3 className="text-lg font-bold text-foreground font-display">Post Buyer Requirement</h3>
+        <p className="text-xs text-muted-foreground mb-4">Publish your procurement demand to reach thousands of farmers and FPOs directly.</p>
+
+        {err && <p className="text-xs text-red-500 font-semibold mb-3">{err}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Commodity *</label>
+              <input
+                required
+                type="text"
+                placeholder="e.g. Chana, Mustard"
+                value={commodity}
+                onChange={(e) => setCommodity(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Variety</label>
+              <input
+                type="text"
+                placeholder="e.g. Desi, Kabuli"
+                value={variety}
+                onChange={(e) => setVariety(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Required Quantity *</label>
+              <div className="flex gap-1">
+                <input
+                  required
+                  type="number"
+                  placeholder="e.g. 200"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
+                />
+                <select
+                  value={quantityUnit}
+                  onChange={(e) => setQuantityUnit(e.target.value)}
+                  className="rounded-xl border border-border bg-card px-2 text-foreground"
+                >
+                  <option value="Quintal">Qtl</option>
+                  <option value="Tonnes">Ton</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Price Range (₹/Qtl)</label>
+              <div className="flex gap-1">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-2 py-2 text-foreground"
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-2 py-2 text-foreground"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Buyer / Org Name *</label>
+              <input
+                required
+                type="text"
+                placeholder="Enterprise or trader name"
+                value={buyerName}
+                onChange={(e) => setBuyerName(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Buyer Type</label>
+              <select
+                value={buyerType}
+                onChange={(e) => setBuyerType(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              >
+                <option value="Wholesaler">Wholesaler</option>
+                <option value="Processor / Mill">Processor / Mill</option>
+                <option value="FPO">FPO / Cooperative</option>
+                <option value="Retail Chain">Retail Chain</option>
+                <option value="Exporter">Exporter</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">State *</label>
+              <input
+                required
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">District / Mandi</label>
+              <input
+                type="text"
+                placeholder="District or delivery hub"
+                value={district}
+                onChange={(e) => setDistrict(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Contact Phone *</label>
+              <input
+                required
+                type="tel"
+                placeholder="10-digit mobile"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Validity (Days)</label>
+              <select
+                value={expiryDays}
+                onChange={(e) => setExpiryDays(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              >
+                <option value="7">7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="font-bold text-foreground block mb-1">Quality Specifications</label>
+            <textarea
+              rows={2}
+              placeholder="e.g. Max moisture 12%, clean sorted, sound grains only"
+              value={specs}
+              onChange={(e) => setSpecs(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+            />
+          </div>
+
+          <div className="flex gap-2 pt-3">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1 rounded-xl text-xs">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs"
+            >
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Post Requirement"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function SubmitInquiryModal({
+  target,
+  onClose,
+  onSuccess,
+}: {
+  target: {
+    type: "produce_listing" | "buyer_requirement"
+    id: number
+    title: string
+    defaultPrice?: number
+    defaultQty?: number
+    unit?: string
+  }
+  onClose: () => void
+  onSuccess: () => void
+}) {
+  const [offeredPrice, setOfferedPrice] = useState(target.defaultPrice ? String(target.defaultPrice) : "")
+  const [offeredQty, setOfferedQty] = useState(target.defaultQty ? String(target.defaultQty) : "")
+  const [inquirerName, setInquirerName] = useState("")
+  const [inquirerPhone, setInquirerPhone] = useState("")
+  const [message, setMessage] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!inquirerName || !inquirerPhone) {
+      setErr("Please provide your name and phone number.")
+      return
+    }
+    try {
+      setSubmitting(true)
+      setErr(null)
+      await tradeInquiriesApi.submit({
+        target_type: target.type,
+        target_id: target.id,
+        inquiry_type: offeredPrice ? "quotation" : "inquiry",
+        offered_price: offeredPrice ? parseFloat(offeredPrice) : undefined,
+        price_unit: target.unit || "Quintal",
+        offered_quantity: offeredQty ? parseFloat(offeredQty) : undefined,
+        quantity_unit: target.unit || "Quintal",
+        message: message || undefined,
+        inquirer_name: inquirerName,
+        inquirer_phone: inquirerPhone,
+        inquirer_type: target.type === "produce_listing" ? "buyer" : "farmer",
+      })
+      onSuccess()
+    } catch (error: any) {
+      setErr(error?.message || "Failed to submit inquiry.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl relative">
+        <button onClick={onClose} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+          <X className="h-5 w-5" />
+        </button>
+        <h3 className="text-base font-bold text-foreground font-display">Send Quotation / Express Interest</h3>
+        <p className="text-xs text-muted-foreground mb-4">{target.title}</p>
+
+        {err && <p className="text-xs text-red-500 font-semibold mb-3">{err}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Your Offered Price (₹)</label>
+              <input
+                type="number"
+                placeholder="e.g. 2350"
+                value={offeredPrice}
+                onChange={(e) => setOfferedPrice(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Lot Quantity ({target.unit || "Qtl"})</label>
+              <input
+                type="number"
+                placeholder="e.g. 50"
+                value={offeredQty}
+                onChange={(e) => setOfferedQty(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="font-bold text-foreground block mb-1">Your Full Name *</label>
+              <input
+                required
+                type="text"
+                placeholder="Your name"
+                value={inquirerName}
+                onChange={(e) => setInquirerName(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+            <div>
+              <label className="font-bold text-foreground block mb-1">Your Contact Phone *</label>
+              <input
+                required
+                type="tel"
+                placeholder="10-digit number"
+                value={inquirerPhone}
+                onChange={(e) => setInquirerPhone(e.target.value)}
+                className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="font-bold text-foreground block mb-1">Message / Notes</label>
+            <textarea
+              rows={2}
+              placeholder="Include pickup timing, payment terms or quality specifics..."
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+            />
+          </div>
+
+          <p className="text-[10px] text-muted-foreground pt-1">
+            Note: Submitting an inquiry connects you directly with the other party. Transactions are completed upon inspection and mutual settlement.
+          </p>
+
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1 rounded-xl text-xs">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs"
+            >
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Send Quotation"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function ReportListingModal({
+  target,
+  onClose,
+  onSuccess,
+}: {
+  target: { type: "produce_listing" | "buyer_requirement"; id: number; title: string }
+  onClose: () => void
+  onSuccess: () => void
+}) {
+  const [reason, setReason] = useState<string>("misleading_price")
+  const [details, setDetails] = useState("")
+  const [reporterName, setReporterName] = useState("")
+  const [reporterPhone, setReporterPhone] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    try {
+      setSubmitting(true)
+      setErr(null)
+      await listingReportsApi.submit({
+        target_type: target.type,
+        target_id: target.id,
+        reason: reason as any,
+        details: details || undefined,
+        reporter_name: reporterName || undefined,
+        reporter_phone: reporterPhone || undefined,
+      })
+      onSuccess()
+    } catch (error: any) {
+      setErr(error?.message || "Failed to submit report.")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl relative">
+        <button onClick={onClose} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+          <X className="h-5 w-5" />
+        </button>
+        <h3 className="text-base font-bold text-foreground font-display flex items-center gap-1.5 text-red-500">
+          <Flag className="h-4 w-4" /> Report Listing
+        </h3>
+        <p className="text-xs text-muted-foreground mb-4">Help us keep KisaanBuddy accurate and trustworthy.</p>
+
+        {err && <p className="text-xs text-red-500 font-semibold mb-3">{err}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+          <div>
+            <label className="font-bold text-foreground block mb-1">Issue / Reason</label>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+            >
+              <option value="misleading_price">Misleading or false price</option>
+              <option value="fake_listing">Fake listing / scam</option>
+              <option value="out_of_stock">Out of stock / already sold</option>
+              <option value="phone_unreachable">Phone number unreachable</option>
+              <option value="wrong_location">Incorrect location or market</option>
+              <option value="other">Other reason</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="font-bold text-foreground block mb-1">Details (Optional)</label>
+            <textarea
+              rows={2}
+              placeholder="Explain the issue..."
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+            />
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="ghost" onClick={onClose} className="flex-1 rounded-xl text-xs">
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs"
+            >
+              {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Submit Report"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }

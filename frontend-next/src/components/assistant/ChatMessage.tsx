@@ -7,7 +7,8 @@
  *   - Tool-call chips above assistant messages that used tools
  *   - A typing cursor while still streaming
  */
-import { Bot, User, Wrench } from "lucide-react"
+import { Bot, Loader2, User, Volume2, VolumeX, Wrench } from "lucide-react"
+import { useState, useRef } from "react"
 
 import type { AssistantMessage } from "./useAssistant"
 
@@ -21,7 +22,52 @@ const TOOL_LABEL: Record<string, string> = {
 export function ChatMessage({ msg }: { msg: AssistantMessage }) {
   const isUser = msg.role === "user"
   const isSystem = msg.role === "system" || msg.role === "tool"
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
   if (isSystem) return null
+
+  const handleSpeak = async () => {
+    if (isPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+      }
+      setIsPlaying(false)
+      return
+    }
+    setIsLoading(true)
+    try {
+      const textToSpeak = msg.content
+        .replace(/[#*`_-]/g, " ")
+        .replace(/\s+/g, " ")
+        .slice(0, 1500)
+      const res = await fetch("/api/sarvam/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: textToSpeak,
+          language: msg.language ? (msg.language === "hi" ? "hi-IN" : msg.language === "kn" ? "kn-IN" : "en-IN") : "hi-IN",
+          speaker: "priya",
+        }),
+      })
+      if (!res.ok) throw new Error("TTS failed")
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      if (audioRef.current) audioRef.current.pause()
+      const audio = new Audio(url)
+      audioRef.current = audio
+      audio.onended = () => setIsPlaying(false)
+      audio.onerror = () => setIsPlaying(false)
+      await audio.play()
+      setIsPlaying(true)
+    } catch (e) {
+      console.warn("Sarvam TTS error:", e)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div
@@ -68,6 +114,33 @@ export function ChatMessage({ msg }: { msg: AssistantMessage }) {
         {/* Streaming Blink Cursor */}
         {msg.streaming && (
           <span className="ml-1 inline-block h-3.5 w-1.5 animate-pulse bg-emerald-400 align-middle rounded font-bold" />
+        )}
+
+        {/* Sarvam TTS voice playback action */}
+        {!isUser && !msg.streaming && msg.content && (
+          <div className="mt-2 flex items-center justify-end border-t border-border/30 pt-1.5">
+            <button
+              type="button"
+              onClick={handleSpeak}
+              disabled={isLoading}
+              title="Listen with Sarvam AI Voice"
+              className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-emerald-500 transition-colors py-0.5 px-1.5 rounded hover:bg-emerald-500/10"
+            >
+              {isLoading ? (
+                <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
+              ) : isPlaying ? (
+                <>
+                  <VolumeX className="h-3 w-3 text-rose-500" />
+                  <span className="text-rose-500">Stop</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="h-3 w-3" />
+                  <span>Listen (Sarvam Voice)</span>
+                </>
+              )}
+            </button>
+          </div>
         )}
       </div>
     </div>

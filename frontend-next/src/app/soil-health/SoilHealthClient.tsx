@@ -1,5 +1,6 @@
 "use client"
 import { useLanguage } from '@/lib/language'
+import { SOIL_HEALTH_GUIDE_I18N } from '@/lib/soil-health-guide-i18n'
 /**
  * KisaanBuddy — Soil Health & Fertilizer Recommendation
  *
@@ -9,8 +10,10 @@ import { useLanguage } from '@/lib/language'
  */
 import {
   AlertTriangle,
+  BookmarkCheck,
   CheckCircle2,
   ChevronRight,
+  FileCheck2,
   FlaskConical,
   Info,
   Leaf,
@@ -18,9 +21,13 @@ import {
   RefreshCw,
   Sparkles,
   TestTube,
+  Upload,
+  Volume2,
+  VolumeX,
   Zap,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { streamMessage, type Language } from "@/lib/assistant-api"
 import { Card, GlassCard, CardHeader } from "@/components/ui/card"
@@ -28,10 +35,54 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
+const SOIL_PAGE_I18N: Record<string, { responseLanguageLabel: string; getRecommendationBtn: string }> = {
+  en: { responseLanguageLabel: "Response Language", getRecommendationBtn: "Get Soil & Fertilizer Advisory" },
+  hi: { responseLanguageLabel: "उत्तर की भाषा / Response Language", getRecommendationBtn: "मिट्टी और खाद की सलाह प्राप्त करें" },
+  kn: { responseLanguageLabel: "ಉತ್ತರದ ಭಾಷೆ / Response Language", getRecommendationBtn: "ಮಣ್ಣು ಮತ್ತು ಗೊಬ್ಬರ ಸಲಹೆ ಪಡೆಯಿರಿ" },
+  te: { responseLanguageLabel: "సమాధాన భాష / Response Language", getRecommendationBtn: "నేల మరియు ఎరువుల సలహా పొందండి" },
+  ta: { responseLanguageLabel: "பதில் மொழி / Response Language", getRecommendationBtn: "மண் மற்றும் உர ஆலோசனை பெறவும்" },
+  mr: { responseLanguageLabel: "उत्तराची भाषा / Response Language", getRecommendationBtn: "माती आणि खत सल्ला मिळवा" },
+  gu: { responseLanguageLabel: "જવાબની ભાષા / Response Language", getRecommendationBtn: "જમીન અને ખાતર સલાહ મેળવો" },
+  bn: { responseLanguageLabel: "উত্তরের ভাষা / Response Language", getRecommendationBtn: "মাটি ও সার পরামর্শ পান" },
+  pa: { responseLanguageLabel: "ਜਵਾਬ ਦੀ ਭਾਸ਼ਾ / Response Language", getRecommendationBtn: "ਮਿੱਟੀ ਅਤੇ ਖਾਦ ਸਲਾਹ ਪ੍ਰਾਪਤ ਕਰੋ" },
+  ml: { responseLanguageLabel: "മറുപടി ഭാഷ / Response Language", getRecommendationBtn: "മണ്ണും വളവും ഉപദേശം നേടുക" },
+  hi_en: { responseLanguageLabel: "Jawab ki Bhasha / Response Language", getRecommendationBtn: "Mitti aur Khad ki Salah Payein" },
+};
+
+const ALL_LANG_OPTIONS: Array<{ code: Language; label: string }> = [
+  { code: "hi", label: "हिन्दी" },
+  { code: "en", label: "English" },
+  { code: "kn", label: "ಕನ್ನಡ" },
+  { code: "te", label: "తెలుగు" },
+  { code: "ta", label: "தமிழ்" },
+  { code: "mr", label: "मराठी" },
+  { code: "gu", label: "ગુજરાતી" },
+  { code: "bn", label: "বাংলা" },
+  { code: "pa", label: "ਪੰਜਾਬੀ" },
+  { code: "ml", label: "മലയാളം" },
+  { code: "hi_en", label: "Hinglish" },
+];
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type NPKLevel = "low" | "medium" | "high" | ""
 type PHLevel = "acidic" | "neutral" | "alkaline" | ""
+
+export interface ExtractedSoilData {
+  soil_ph: number | null
+  nitrogen_kg_ha: number | null
+  phosphorus_kg_ha: number | null
+  potassium_kg_ha: number | null
+  organic_carbon_pct: number | null
+  ec_ds_m: number | null
+  soil_type: string | null
+  lab_name: string | null
+  test_date: string | null
+  farmer_name: string | null
+  village_or_district: string | null
+  health_summary: string | null
+  source_file: string | null
+}
 
 interface SoilForm {
   crop: string
@@ -118,7 +169,20 @@ const INITIAL: SoilForm = {
 // ─── Prompt builder ───────────────────────────────────────────────────────────
 
 function buildPrompt(f: SoilForm): string {
-  const lang = f.language === "hi" ? "Hindi" : f.language === "kn" ? "Kannada" : "English"
+  const langMap: Record<string, string> = {
+    hi: "Hindi",
+    kn: "Kannada",
+    te: "Telugu",
+    ta: "Tamil",
+    mr: "Marathi",
+    gu: "Gujarati",
+    bn: "Bengali",
+    pa: "Punjabi",
+    ml: "Malayalam",
+    hi_en: "Hinglish (Hindi written in Roman script)",
+    en: "English",
+  }
+  const lang = langMap[f.language] || "English"
   return `You are KisaanBuddy's expert agronomist. Based on the soil health card readings below, give a precise fertilizer recommendation.
 
 Soil Report:
@@ -265,12 +329,18 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 // ─── Main Soil Page Component ──────────────────────────────────────────────────
 
 export default function SoilHealthPage() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
-  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
+  const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang as Language) || "hi" }))
   
   useEffect(() => {
-    setForm((f) => ({ ...f, language: (lang === "hi" || lang === "kn") ? lang : "en" }))
+    setForm((f) => ({ ...f, language: (lang as Language) || "en" }))
   }, [lang])
+
+  useEffect(() => {
+    const crop = searchParams.get("crop")
+    if (searchParams.get("voice") === "1" && crop) setForm((f) => ({ ...f, crop }))
+  }, [searchParams])
 
   const [response, setResponse] = useState("")
   const [streaming, setStreaming] = useState(false)
@@ -311,9 +381,161 @@ export default function SoilHealthPage() {
     }
   }, [form, isReady])
 
+  const [scanningCard, setScanningCard] = useState(false)
+  const [extractedCard, setExtractedCard] = useState<ExtractedSoilData | null>(null)
+  const [savingToProfile, setSavingToProfile] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [ttsPlaying, setTtsPlaying] = useState(false)
+  const [ttsLoading, setTtsLoading] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const cardFileInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleCardUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setScanningCard(true)
+    setError(null)
+    setSaveSuccess(false)
+    try {
+      const fd = new FormData()
+      fd.append("file", file)
+      const res = await fetch("/api/sarvam/extract-soil-report", {
+        method: "POST",
+        body: fd,
+      })
+      if (!res.ok) {
+        throw new Error("Failed to scan document with Sarvam AI.")
+      }
+      const data: ExtractedSoilData = await res.json()
+      setExtractedCard(data)
+
+      // Map numerical values to NPKLevel & PHLevel
+      const newForm: Partial<SoilForm> = {}
+      if (data.nitrogen_kg_ha != null) {
+        newForm.nitrogen = data.nitrogen_kg_ha < 280 ? "low" : data.nitrogen_kg_ha > 560 ? "high" : "medium"
+      }
+      if (data.phosphorus_kg_ha != null) {
+        newForm.phosphorus = data.phosphorus_kg_ha < 10 ? "low" : data.phosphorus_kg_ha > 25 ? "high" : "medium"
+      }
+      if (data.potassium_kg_ha != null) {
+        newForm.potassium = data.potassium_kg_ha < 110 ? "low" : data.potassium_kg_ha > 280 ? "high" : "medium"
+      }
+      if (data.soil_ph != null) {
+        newForm.ph = data.soil_ph < 6.5 ? "acidic" : data.soil_ph > 7.5 ? "alkaline" : "neutral"
+      }
+      if (data.organic_carbon_pct != null) {
+        newForm.organicCarbon = data.organic_carbon_pct < 0.5 ? "low" : data.organic_carbon_pct > 0.75 ? "high" : "medium"
+      }
+      setForm((prev) => ({ ...prev, ...newForm }))
+    } catch (err: any) {
+      setError(err?.message || "Failed to scan soil card")
+    } finally {
+      setScanningCard(false)
+      if (e.target) e.target.value = ""
+    }
+  }
+
+  const handleSaveToProfile = async () => {
+    if (!extractedCard) return
+    setSavingToProfile(true)
+    try {
+      const payload = {
+        test_date: extractedCard.test_date || new Date().toISOString().split("T")[0],
+        lab_name: extractedCard.lab_name || "Soil Testing Lab (Sarvam Scan)",
+        soil_type: extractedCard.soil_type || "Standard",
+        soil_ph: extractedCard.soil_ph,
+        nitrogen_kg_ha: extractedCard.nitrogen_kg_ha,
+        phosphorus_kg_ha: extractedCard.phosphorus_kg_ha,
+        potassium_kg_ha: extractedCard.potassium_kg_ha,
+        organic_carbon_pct: extractedCard.organic_carbon_pct,
+        ec_ds_m: extractedCard.ec_ds_m,
+        is_verified: true,
+        notes: extractedCard.health_summary || "Scanned via Sarvam AI Doc Intelligence",
+      }
+      const res = await fetch("/api/farmer/soil-tests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      if (res.ok) {
+        setSaveSuccess(true)
+      } else {
+        throw new Error("Log in required to store test to your Farm Profile.")
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to save record.")
+    } finally {
+      setSavingToProfile(false)
+    }
+  }
+
+  const handleSpeakRecommendation = async () => {
+    if (ttsPlaying) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+      }
+      setTtsPlaying(false)
+      return
+    }
+    if (!response) return
+    setTtsLoading(true)
+    try {
+      const plainText = response
+        .replace(/[#*`_-]/g, " ")
+        .replace(/\s+/g, " ")
+        .slice(0, 1500)
+      const bcpMap: Record<string, string> = {
+        hi: "hi-IN",
+        kn: "kn-IN",
+        te: "te-IN",
+        ta: "ta-IN",
+        mr: "mr-IN",
+        gu: "gu-IN",
+        bn: "bn-IN",
+        pa: "pa-IN",
+        ml: "ml-IN",
+        hi_en: "hi-IN",
+        en: "en-IN",
+      }
+      const res = await fetch("/api/sarvam/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: plainText,
+          language: bcpMap[form.language] || "en-IN",
+          speaker: "priya",
+        }),
+      })
+      if (!res.ok) throw new Error("TTS synthesis failed")
+      const blob = await res.blob()
+      const url = URL.createObjectURL(blob)
+      if (audioRef.current) {
+        audioRef.current.pause()
+      }
+      const audio = new Audio(url)
+      audioRef.current = audio
+      audio.onended = () => setTtsPlaying(false)
+      audio.onerror = () => setTtsPlaying(false)
+      await audio.play()
+      setTtsPlaying(true)
+    } catch (err) {
+      console.warn("Sarvam audio playback failed:", err)
+    } finally {
+      setTtsLoading(false)
+    }
+  }
+
   const reset = () => {
     abortRef.current?.abort()
-    setForm({ ...INITIAL, language: (lang === "hi" || lang === "kn") ? lang : "en" })
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }
+    setTtsPlaying(false)
+    setExtractedCard(null)
+    setSaveSuccess(false)
+    setForm({ ...INITIAL, language: (lang as Language) || "en" })
     setResponse("")
     setDone(false)
     setError(null)
@@ -330,8 +552,15 @@ export default function SoilHealthPage() {
         initial={{ opacity: 0, y: -10 }} 
         animate={{ opacity: 1, y: 0 }} 
         transition={{ duration: 0.5 }}
-        className="rounded-2xl border border-border/50 bg-card p-6 md:p-8 shadow-sm"
+        className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-6 md:p-8 shadow-sm"
       >
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
+          <img
+            src="/images/soil/soil-ph-testing.jpg"
+            alt="Scientific field testing of soil pH and nutrients"
+            className="w-full h-full object-cover object-center"
+          />
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">
@@ -369,6 +598,122 @@ export default function SoilHealthPage() {
                 <p className="text-xs text-muted-foreground">{t("soil_health.values_from_physical_card")}</p>
               </div>
             </div>
+
+            {/* Sarvam AI Soil Card Scanner */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-emerald-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                    Sarvam AI Card Scanner
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Upload a photo or PDF of your Soil Health Card (SHC) to autofill parameters automatically.
+                </p>
+              </div>
+              <div>
+                <input
+                  type="file"
+                  ref={cardFileInputRef}
+                  accept="image/png,image/jpeg,application/pdf"
+                  className="hidden"
+                  onChange={handleCardUpload}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => cardFileInputRef.current?.click()}
+                  disabled={scanningCard}
+                  className="rounded-lg border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold gap-1.5 shrink-0"
+                >
+                  {scanningCard ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      Scanning with Sarvam...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-3.5 w-3.5" />
+                      Upload Soil Card
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Extracted Card Verification Banner */}
+            {extractedCard && (
+              <div className="rounded-xl border border-emerald-500/30 bg-card p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileCheck2 className="h-4 w-4 text-emerald-500" />
+                    <span className="text-xs font-bold text-foreground">
+                      Verified Scan: {extractedCard.source_file || "Soil Health Card"}
+                    </span>
+                  </div>
+                  {extractedCard.test_date && (
+                    <span className="text-[10px] text-muted-foreground font-mono">
+                      {extractedCard.test_date}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Nitrogen (N)</span>
+                    <span className="font-bold text-foreground">{extractedCard.nitrogen_kg_ha != null ? `${extractedCard.nitrogen_kg_ha} kg/ha` : "N/A"}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Phosphorus (P)</span>
+                    <span className="font-bold text-foreground">{extractedCard.phosphorus_kg_ha != null ? `${extractedCard.phosphorus_kg_ha} kg/ha` : "N/A"}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Potassium (K)</span>
+                    <span className="font-bold text-foreground">{extractedCard.potassium_kg_ha != null ? `${extractedCard.potassium_kg_ha} kg/ha` : "N/A"}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-muted/30 border border-border/40">
+                    <span className="text-[10px] text-muted-foreground block">Soil pH</span>
+                    <span className="font-bold text-foreground">{extractedCard.soil_ph != null ? extractedCard.soil_ph : "N/A"}</span>
+                  </div>
+                </div>
+
+                {extractedCard.health_summary && (
+                  <p className="text-xs text-muted-foreground italic border-t border-border/30 pt-2">
+                    "{extractedCard.health_summary}"
+                  </p>
+                )}
+
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                    ✓ Form autofilled with diagnostic ranges
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={handleSaveToProfile}
+                    disabled={savingToProfile || saveSuccess}
+                    className="text-xs gap-1.5 h-8 font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10"
+                  >
+                    {savingToProfile ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : saveSuccess ? (
+                      <>
+                        <BookmarkCheck className="h-3.5 w-3.5 text-emerald-500" />
+                        Saved to Profile
+                      </>
+                    ) : (
+                      <>
+                        <BookmarkCheck className="h-3.5 w-3.5" />
+                        Save to Farm Profile
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
 
             {/* Crop selection & Area */}
             <div className="grid gap-4 sm:grid-cols-2">
@@ -473,20 +818,22 @@ export default function SoilHealthPage() {
 
             {/* Language Selector */}
             <div className="space-y-2 pt-2">
-              <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold block">Response Language / भाषा</Label>
-              <div className="inline-flex rounded-xl border border-border/50 bg-muted/30 p-1 gap-1">
-                {(["hi", "en", "kn"] as Language[]).map((l) => (
+              <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold block">
+                {(SOIL_PAGE_I18N[lang] || SOIL_PAGE_I18N.en).responseLanguageLabel}
+              </Label>
+              <div className="inline-flex flex-wrap rounded-xl border border-border/50 bg-muted/30 p-1 gap-1">
+                {ALL_LANG_OPTIONS.map(({ code: l, label }) => (
                   <button
                     key={l}
                     type="button"
                     onClick={() => upd("language", l)}
-                    className={`rounded-lg px-3.5 py-1.5 transition-all text-xs font-semibold ${
+                    className={`rounded-lg px-2.5 py-1.5 transition-all text-xs font-semibold ${
                       form.language === l 
                         ? "bg-emerald-600 text-white shadow-sm" 
                         : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
-                    {l === "hi" ? "हिन्दी" : l === "kn" ? "ಕನ್ನಡ" : "English"}
+                    {label}
                   </button>
                 ))}
               </div>
@@ -500,7 +847,7 @@ export default function SoilHealthPage() {
                 className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 flex items-center justify-center gap-2 disabled:opacity-50 transition-all shadow-sm"
               >
                 {streaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {streaming ? t("analyzing") : "Generate Recommendations"}
+                {streaming ? t("analyzing") : (SOIL_PAGE_I18N[lang] || SOIL_PAGE_I18N.en).getRecommendationBtn}
               </Button>
               {(response || done) && (
                 <Button 
@@ -599,8 +946,35 @@ export default function SoilHealthPage() {
                     <span className="text-sm font-bold text-foreground font-display">
                       AI Recommendation Insights
                     </span>
-                    {done && <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 ml-auto" />}
-                    {streaming && <Loader2 className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-400 ml-auto" />}
+                    <div className="ml-auto flex items-center gap-2">
+                      {response && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleSpeakRecommendation}
+                          disabled={ttsLoading}
+                          className="h-8 px-2.5 text-xs gap-1.5 rounded-lg border border-border/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
+                          title="Listen with Sarvam AI Voice"
+                        >
+                          {ttsLoading ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : ttsPlaying ? (
+                            <>
+                              <VolumeX className="h-3.5 w-3.5 text-rose-500" />
+                              <span className="text-[11px] text-rose-500">Stop Voice</span>
+                            </>
+                          ) : (
+                            <>
+                              <Volume2 className="h-3.5 w-3.5" />
+                              <span className="text-[11px]">Listen (Sarvam Voice)</span>
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      {done && <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                      {streaming && <Loader2 className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-400" />}
+                    </div>
                   </div>
 
                   <div className="prose prose-sm dark:prose-invert max-w-none text-xs md:text-sm leading-relaxed overflow-y-auto max-h-[500px] pr-2 space-y-4 custom-scrollbar">
@@ -650,191 +1024,75 @@ export default function SoilHealthPage() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {lang === "hi" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 मिट्टी का स्वास्थ्य क्या है और इसे कैसे सुधारें?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                मिट्टी का स्वास्थ्य (Soil Health) भूमि की वह जैविक और भौतिक क्षमता है जिससे वह फसलों को आवश्यक पोषक तत्व, हवा और पानी प्रदान कर सके। एक स्वस्थ मिट्टी न केवल अधिक पैदावार देती है बल्कि सूखे और बीमारियों के प्रभाव को भी कम करती है। मिट्टी की उर्वरता का सही आंकलन करने के लिए मुख्य तीन तत्वों <strong>N (नाइट्रोजन)</strong>, <strong>P (फास्फोरस)</strong>, और <strong>K (पोटेशियम)</strong> का संतुलन समझना आवश्यक है।
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🧪 NPK और मिट्टी का पीएच (pH) मान समझना</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>N (नाइट्रोजन):</strong> पत्तों की हरियाली और वानस्पतिक विकास बढ़ाता है। इसकी कमी से पत्ते पीले पड़ जाते हैं।<br />
-                  <strong>P (फास्फोरस):</strong> जड़ों का मजबूत विकास और समय पर फूल-फल बनना सुनिश्चित करता है।<br />
-                  <strong>K (पोटेशियम):</strong> फसलों को रोगों से लड़ने और सूखे को सहन करने की क्षमता प्रदान करता है। अनाज का दाना मजबूत बनता है।<br />
-                  <strong>pH मान:</strong> मिट्टी का पीएच (6.5 से 7.5) उदासीन माना जाता है जो अधिकांश फसलों के लिए सर्वोत्तम है। अम्लीय मिट्टी (&lt; 6.0) को सुधारने के लिए चूना (Lime) डालें। क्षारीय मिट्टी (&gt; 8.0) को सुधारने के लिए जिप्सम (Gypsum) का प्रयोग करें।
+        {(() => {
+          const guide = SOIL_HEALTH_GUIDE_I18N[lang as keyof typeof SOIL_HEALTH_GUIDE_I18N] || SOIL_HEALTH_GUIDE_I18N.en
+          return (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">
+                  {guide.title}
+                </h2>
+                <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
+                  {guide.desc}
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🌱 जैविक कार्बन (Organic Carbon) और खाद प्रबंधन</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  जैविक कार्बन मिट्टी की आत्मा है। एक आदर्श मिट्टी में जैविक कार्बन का स्तर 0.8% से अधिक होना चाहिए। इसे सुधारने के लिए रासायनिक उर्वरकों का उपयोग घटाएं और हरी खाद (जैसे ढैंचा या सनई), केंचुआ खाद (Vermicompost) और गोबर की सड़ी खाद (FYM) को खेत में मिलाएं। हरी खाद उगाने के बाद उसे फूल आने से पहले मिट्टी में पलट देने से नाइट्रोजन और जैविक कार्बन की मात्रा तेजी से बढ़ती है।
-                </p>
-              </div>
-            </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                  <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card1_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {guide.card1_desc}
+                  </p>
+                </div>
 
-            <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
-              <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📋 मिट्टी परीक्षण (Soil Testing) की सही प्रक्रिया</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/40 pr-4">
-                  <h4 className="font-bold text-foreground">1. वी-आकार (V-Shape) का कट</h4>
-                  <p>खेत में 8-10 अलग-अलग स्थानों से ऊपरी घास साफ कर 15 सेमी (6 इंच) गहरा 'V' आकार का गड्ढा बनाएं। गड्ढे के दोनों किनारों से एक-एक इंच मोटी मिट्टी की परत काट लें।</p>
+                <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                  <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card2_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {guide.card2_desc}
+                  </p>
                 </div>
-                <div className="space-y-2 border-r border-border/40 px-4">
-                  <h4 className="font-bold text-foreground">2. मिश्रण और सुखाना</h4>
-                  <p>एकत्रित सभी स्थानों की मिट्टी को साफ प्लास्टिक शीट पर अच्छी तरह मिलाएं। फिर मिट्टी को गोल फैलाकर चार हिस्सों में बांटें, आमने-सामने के दो हिस्से फेंक दें। यह प्रक्रिया तब तक दोहराएं जब तक आधा किलो मिट्टी न बचे। इसे छांव में सुखाएं।</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-bold text-foreground">3. लैब भेजना</h4>
-                  <p>मिट्टी को सूती थैली में डालें। थैली पर अपना नाम, मोबाइल नंबर, खेत का खसरा नंबर और पहले बोई गई व आगे बोई जाने वाली फसल का नाम लिखकर नजदीकी मिट्टी जांच प्रयोगशाला में भेजें।</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ मिट्टी के स्वास्थ्य और परीक्षण के बारे में FAQs</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q1. मिट्टी की जांच कितने समय में करवानी चाहिए?</h4>
-                  <p>हर दो से तीन साल में एक बार, फसल की कटाई के बाद और अगली बुवाई से पहले मिट्टी की जांच जरूर करवानी चाहिए।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q2. क्षारीय मिट्टी (Alkaline Soil) के क्या लक्षण हैं?</h4>
-                  <p>क्षारीय मिट्टी का पीएच 8.5 से अधिक होता है। ऐसी मिट्टी में पानी सोखने की क्षमता कम हो जाती है और सूखने पर जमीन पर सफेद नमक की परत दिखने लगती है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q3. जैविक कार्बन बढ़ाने का सबसे त्वरित तरीका क्या है?</h4>
-                  <p>खेत में प्रति एकड़ 5-10 टन गोबर की सड़ी खाद डालना या खरीफ सीजन से पहले ढैंचा उगाकर उसे मिट्टी में रोटावेटर से मिलाना (हरी खाद) सबसे प्रभावी है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q4. मिट्टी का आदर्श पीएच (pH) मान क्या होना चाहिए?</h4>
-                  <p>ज्यादातर फसलों (जैसे गेहूं, धान, मक्का) के लिए 6.5 से 7.2 का पीएच मान सर्वोत्तम माना जाता है क्योंकि इस रेंज में सभी पोषक तत्व आसानी से उपलब्ध होते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q5. नाइट्रोजन (N) की कमी को यूरिया के बिना कैसे दूर करें?</h4>
-                  <p>दलहनी फसलें (जैसे मूंग, उड़द, चना, सोयाबीन) लगाएं। इनकी जड़ों में राइजोबियम बैक्टीरिया होते हैं जो हवा से नाइट्रोजन लेकर मिट्टी में स्थिर करते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q6. क्या खेत के पेड़ों के नीचे से मिट्टी का नमूना ले सकते हैं?</h4>
-                  <p>नहीं, पेड़ों के नीचे, मेड़ों के पास, खाद के ढेर के नजदीक या सिंचाई नाली के पास से कभी भी मिट्टी का नमूना नहीं लेना चाहिए, इससे गलत रिपोर्ट आती है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q7. एसएसपी (SSP) और डीएपी (DAP) खाद में क्या अंतर है?</h4>
-                  <p>एसएसपी (सिंगल सुपर फास्फेट) में केवल फास्फोरस और सल्फर होता है, जबकि डीएपी (डाई अमोनियम फास्फेट) में फास्फोरस के साथ 18% नाइट्रोजन भी होता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q8. क्या लवणीय (Saline) मिट्टी में सामान्य पानी देना चाहिए?</h4>
-                  <p>लवणीय मिट्टी में अच्छे निकास की व्यवस्था होनी चाहिए। पानी भरकर नमक को बहाने (Leaching) से और जैविक खादों के अधिक उपयोग से लाभ होता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q9. माइक्रोन्यूट्रिएंट्स (Micronutrients) क्या हैं?</h4>
-                  <p>लोहा, जस्ता (Zinc), तांबा, बोरॉन और मैंगनीज सूक्ष्म पोषक तत्व हैं। ये मिट्टी में बहुत कम मात्रा में चाहिए होते हैं लेकिन फलों की चमक और वजन के लिए जरूरी हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q10. KisaanBuddy उर्वरक कैलकुलेटर कैसे काम करता है?</h4>
-                  <p>KisaanBuddy आपके द्वारा दर्ज किए गए मिट्टी परीक्षण डेटा या लक्षित फसल के आधार पर वैज्ञानिक एनपीके संतुलन की गणना कर सटीक खाद की मात्रा बताता है।</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 What is Soil Health and How Can Farmers Improve It?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                Soil health refers to the continuous capacity of soil to function as a vital living ecosystem that sustains plants, animals, and humans. A healthy soil profile provides critical crop nutrition, resists compaction, and retains water. To correctly balance soil fertility, understanding the primary macro-nutrients—<strong>Nitrogen (N)</strong>, <strong>Phosphorus (P)</strong>, and <strong>Potassium (K)</strong>—is vital.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🧪 Deciphering NPK Ratios and Soil pH Levels</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>Nitrogen (N):</strong> Promotes lush leaf growth and vegetative structure. Deficiencies lead to leaf chlorosis (yellowing).<br />
-                  <strong>Phosphorus (P):</strong> Essential for robust root establishment, cell division, and early flower and seed setting.<br />
-                  <strong>Potassium (K):</strong> Strengthens crop stems, improves drought tolerance, and activates enzyme systems to fight diseases.<br />
-                  <strong>pH Level:</strong> A soil pH between 6.5 and 7.5 is neutral and optimal for plant nutrient uptake. Reclaim acidic soils (&lt; 6.0) using agricultural lime. Counteract alkaline soils (&gt; 8.0) using gypsum.
-                </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">🌱 The Power of Organic Carbon (OC) and Fertilizer Schedules</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Organic Carbon is the foundation of biological soil fertility. Healthy arable land should sustain an organic carbon level above 0.8%. Farmers can raise OC by shifting from pure chemical fertilization to integrated systems incorporating Vermicompost, farmyard manure (FYM), and green manures (like Dhaincha or Sunn hemp). Sowing green manure and tilling it back during flowering cycles rapidly locks nitrogen into the topsoil.
-                </p>
+              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
+                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                  {guide.steps_title}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                  <div className="space-y-2 border-r border-border/40 pr-4">
+                    <h4 className="font-bold text-foreground">{guide.step1_title}</h4>
+                    <p>{guide.step1_desc}</p>
+                  </div>
+                  <div className="space-y-2 border-r border-border/40 px-4">
+                    <h4 className="font-bold text-foreground">{guide.step2_title}</h4>
+                    <p>{guide.step2_desc}</p>
+                  </div>
+                  <div className="space-y-2 pl-4">
+                    <h4 className="font-bold text-foreground">{guide.step3_title}</h4>
+                    <p>{guide.step3_desc}</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-4 shadow-sm">
-              <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📋 Scientific Soil Sampling Process</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/40 pr-4">
-                  <h4 className="font-bold text-foreground">1. V-Shaped Digging</h4>
-                  <p>Clear surface vegetation at 8-10 random grid points in your field. Dig a V-shaped hole exactly 15 cm (6 inches) deep. Slice a uniform 1-inch thick slice of soil along the inner face.</p>
-                </div>
-                <div className="space-y-2 border-r border-border/40 px-4">
-                  <h4 className="font-bold text-foreground">2. Quartering Technique</h4>
-                  <p>Mix the collected soil inside a clean container. Place it on a clean sheet, form a circle, and divide it into four quadrants. Discard opposite quarters. Repeat this process until 500g of dry composite sample remains.</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-bold text-foreground">3. Dispatching to Lab</h4>
-                  <p>Pack the soil in a dry cotton bag. Label it with your name, village name, survey number, previous crop, and intended crop, then submit it to the nearest state soil testing laboratory.</p>
+              <div className="space-y-4">
+                <h2 className="text-xl font-display font-bold text-foreground">
+                  {guide.faq_title}
+                </h2>
+                <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
+                  {guide.faqs.map((faq, idx) => (
+                    <div key={idx} className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                      <h4 className="font-semibold text-foreground">{faq.q}</h4>
+                      <p>{faq.a}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ Soil Health & Testing FAQs</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q1. How often should soil analysis be conducted?</h4>
-                  <p>Once every 2 to 3 years, preferably after harvesting a crop and before sowing the next cycle.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q2. What are the signs of saline/alkaline soils?</h4>
-                  <p>Saline soils display white crusty salt patches on the dry surface, low water penetration rates, and stunted plant roots.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q3. What is the fastest method to increase Soil Organic Carbon?</h4>
-                  <p>Incorporating green manure (like Dhaincha) before the monsoon season or applying 5-10 tons of well-composted farmyard manure per acre.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q4. What is the optimal pH range for arable crop fields?</h4>
-                  <p>A pH range between 6.5 and 7.2 is perfect, as it maximizes the availability of both macronutrients and micronutrients.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q5. How can I correct nitrogen deficiency without synthetic urea?</h4>
-                  <p>Cultivate leguminous crops like chickpeas, lentils, or mung beans, which host symbiotic Rhizobium bacteria that fix atmospheric nitrogen in root nodules.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q6. Can soil samples be collected from under trees?</h4>
-                  <p>No. Avoid collecting soil near trees, fences, compost heaps, irrigation canals, or farm boundaries, as these yield unrepresentative results.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q7. What is the difference between SSP and DAP?</h4>
-                  <p>Single Super Phosphate (SSP) supplies Phosphorus, Calcium, and Sulfur, whereas Di-Ammonium Phosphate (DAP) provides both Nitrogen (18%) and Phosphorus (46%).</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q8. How does organic carbon benefit sandy soils?</h4>
-                  <p>It acts like a sponge, gluing sandy particles together to significantly improve water holding capacity and prevent nutrient leaching.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q9. What are micronutrients and why are they necessary?</h4>
-                  <p>Zinc, Iron, Boron, Copper, and Manganese. While required in trace amounts, they are crucial for fruit set, grain filling, and crop disease resistance.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q10. How does the KisaanBuddy NPK advisor work?</h4>
-                  <p>KisaanBuddy calculates optimal crop fertilizing ratios based on local soil test values compared to crop nutrition benchmarks.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        })()}
       </section>
     </div>
   )

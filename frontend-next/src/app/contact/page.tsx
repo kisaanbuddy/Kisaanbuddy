@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { ContactClient } from './ContactClient';
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default function ContactPage() {
     'description': 'Contact page for KisaanBuddy with co-founders emails, support details, and inquiry form.',
     'contactPoint': {
       '@type': 'ContactPoint',
-      'email': 'contact@kisaanbuddy.com',
+      'email': 'info@kisaanbuddy.com',
       'contactType': 'customer support',
       'availableLanguage': ['English', 'Hindi', 'Kannada']
     }

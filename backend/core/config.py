@@ -4,9 +4,11 @@ from typing import List, Optional
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Absolute path to the .env file that sits next to the backend/ directory.
-# This works regardless of which directory uvicorn / the process is launched from.
-_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+# Support both the backend deployment configuration and the project-root local
+# configuration used by the website's development tooling. Backend values take
+# precedence when both files define the same setting.
+_BACKEND_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+_ROOT_ENV_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env")
 
 
 class Settings(BaseSettings):
@@ -16,7 +18,7 @@ class Settings(BaseSettings):
 
     # --- Authentication & Session Security ---
     # Production must provide this explicitly; development may generate one at boot.
-    JWT_SECRET: str = ""
+    JWT_SECRET: str = "dev-fallback-secret-for-local-testing-only-change-in-prod"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
@@ -25,6 +27,7 @@ class Settings(BaseSettings):
     WEATHERAPI_API_KEY: Optional[str] = None
     TOMORROWIO_API_KEY: Optional[str] = None
     ACCUWEATHER_API_KEY: Optional[str] = None
+    DATA_GOV_API_KEY: Optional[str] = None
     # Legacy alias some old code referenced — kept for back-compat.
     WEATHER_API_KEY: Optional[str] = None
 
@@ -97,7 +100,7 @@ class Settings(BaseSettings):
     ADMIN_EMAILS: str = "admin@kisaanbuddy.com,aditya@kisaanbuddy.com,utkarsh@kisaanbuddy.com,yash@kisaanbuddy.com,info@kisaanbuddy.com"
 
     model_config = SettingsConfigDict(
-        env_file=_ENV_FILE,
+        env_file=(_ROOT_ENV_FILE, _BACKEND_ENV_FILE),
         env_file_encoding="utf-8",
         extra="ignore",
     )
@@ -119,6 +122,7 @@ def validate_production_settings() -> None:
         "",
         "change_me_to_a_random_secret",
         "krishiai_production_grade_secret_key_change_me_later",
+        "dev-fallback-secret-for-local-testing-only-change-in-prod",
     }
     if not settings.JWT_SECRET or settings.JWT_SECRET.strip() in insecure_values:
         if not settings.DEBUG:

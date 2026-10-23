@@ -7,7 +7,7 @@
  * SpeechRecognition / MediaRecorder don't execute server-side.
  */
 import { AnimatePresence, motion } from "framer-motion"
-import { Bot, X } from "lucide-react"
+import { Mic, X } from "lucide-react"
 import dynamic from "next/dynamic"
 import { useCallback, useEffect, useState } from "react"
 
@@ -44,7 +44,8 @@ export function AssistantWidget() {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-expanded={open}
-        aria-label={open ? "Close KisaanBuddy assistant" : "Open KisaanBuddy assistant"}
+        aria-label={open ? "Close KisaanBuddy assistant" : "Open KisaanBuddy voice assistant"}
+        title={open ? "Close assistant" : "Ask KisaanBuddy by voice or text"}
         className="fixed bottom-6 right-4 z-[55] flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-emerald-600 text-white shadow-xl shadow-green-500/30 hover:shadow-2xl"
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -60,13 +61,13 @@ export function AssistantWidget() {
             </motion.span>
           ) : (
             <motion.span
-              key="bot"
+              key="mic"
               initial={{ rotate: 90, opacity: 0 }}
               animate={{ rotate: 0, opacity: 1 }}
               exit={{ rotate: -90, opacity: 0 }}
               transition={{ duration: 0.15 }}
             >
-              <Bot className="h-6 w-6" />
+              <Mic className="h-6 w-6" />
             </motion.span>
           )}
         </AnimatePresence>

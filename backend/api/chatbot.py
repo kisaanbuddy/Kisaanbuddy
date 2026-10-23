@@ -40,6 +40,7 @@ from schemas.chatbot import (
 from services.chat import stt_service, tts_service
 from services.chat.chat_service import ChatError, get_orchestrator, health_info
 from services.chat.memory import sessions
+from services.chat.farmer_context import build_farmer_context
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -91,17 +92,20 @@ async def legacy_chat(request: Request, body: _LegacyChatRequest):
 @_rate_limit(_CHAT_LIMIT)
 async def assistant_message(request: Request, body: AssistantRequest):
     orchestrator = get_orchestrator()
+    # Cookie-authenticated users receive only a compact, server-built summary
+    # of their own saved farm records. Anonymous chat remains available.
+    farmer_context = build_farmer_context(request)
 
     if not body.stream:
         try:
-            reply = await orchestrator.chat_once(body)
+            reply = await orchestrator.chat_once(body, farmer_context=farmer_context)
             return reply.model_dump(mode="json")
         except ChatError as e:
             raise HTTPException(status_code=503, detail=str(e)) from e
 
     async def event_source():
         try:
-            async for evt in orchestrator.stream_chat(body):
+            async for evt in orchestrator.stream_chat(body, farmer_context=farmer_context):
                 data = json.dumps(evt.get("data", {}), ensure_ascii=False)
                 name = evt.get("event", "message")
                 yield f"event: {name}\ndata: {data}\n\n"

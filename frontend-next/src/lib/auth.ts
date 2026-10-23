@@ -32,21 +32,52 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 // "logged in" marker in web storage.
 let sessionUser: AuthUser | null = null;
 let restorePromise: Promise<AuthUser | null> | null = null;
+let refreshSessionPromise: Promise<boolean> | null = null;
+
+export async function doRefreshSession(): Promise<boolean> {
+  if (refreshSessionPromise) return refreshSessionPromise;
+  refreshSessionPromise = (async () => {
+    try {
+      const res = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
+      return res.ok;
+    } catch {
+      return false;
+    } finally {
+      refreshSessionPromise = null;
+    }
+  })();
+  return refreshSessionPromise;
+}
 
 export function getAuthHeaders(): Record<string, string> {
   return { "Content-Type": "application/json" };
 }
 
+export function getStoredUser(): AuthUser | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem("kb_user") || localStorage.getItem("kb_user");
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
 function writeSession(user: AuthUser | null) {
   sessionUser = user;
   if (typeof window !== "undefined") {
-    // Remove the legacy UI-only cache left by older releases. It is never read
-    // as authentication state by this implementation.
     if (!user) {
       try {
         localStorage.removeItem("kb_user");
+        sessionStorage.removeItem("kb_user");
       } catch {
         // Storage may be unavailable in private browsing; it is not required.
+      }
+    } else {
+      try {
+        localStorage.setItem("kb_user", JSON.stringify(user));
+        sessionStorage.setItem("kb_user", JSON.stringify(user));
+      } catch {
       }
     }
     window.dispatchEvent(new Event(EVENT_NAME));
@@ -80,8 +111,10 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
         let response = await sessionRequest("/api/auth/me", { method: "GET" });
 
         if (response.status === 401) {
-          const refresh = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
-          if (refresh.ok) response = await sessionRequest("/api/auth/me", { method: "GET" });
+          const refreshed = await doRefreshSession();
+          if (refreshed) {
+            response = await sessionRequest("/api/auth/me", { method: "GET" });
+          }
         }
 
         if (response.ok) {
@@ -102,8 +135,16 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
       }
     }
 
-    // All attempts exhausted or definitive auth failure.
-    void lastError; // suppress unused-var lint
+    // If all attempts failed due to network unreachable (Render waking up), keep cached user
+    if (lastError) {
+      const cached = getStoredUser();
+      if (cached) {
+        restorePromise = null;
+        return cached;
+      }
+    }
+
+    // All attempts exhausted or definitive auth failure confirmed by server.
     writeSession(null);
     restorePromise = null;
     return null;
@@ -113,7 +154,10 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>({ user: null, ready: false });
+  const [state, setState] = useState<AuthState>(() => {
+    const cached = getStoredUser();
+    return { user: cached, ready: !!cached };
+  });
 
   useEffect(() => {
     let active = true;
@@ -123,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     };
     const onChange = () => {
-      if (active) setState({ user: sessionUser, ready: true });
+      if (active) setState({ user: sessionUser || getStoredUser(), ready: true });
     };
     window.addEventListener(EVENT_NAME, onChange);
     restore();
@@ -164,9 +208,10 @@ export async function fetchWithAuth(url: string, options: RequestInit = {}): Pro
   const headers = { ...(isMultipart ? {} : getAuthHeaders()), ...(options.headers || {}) };
   let response = await fetch(url, { ...options, headers, credentials: "include" });
   if (response.status === 401) {
-    const refresh = await sessionRequest("/api/auth/refresh-session", { method: "POST" });
-    if (refresh.ok) response = await fetch(url, { ...options, headers, credentials: "include" });
-    else writeSession(null);
+    const refreshed = await doRefreshSession();
+    if (refreshed) {
+      response = await fetch(url, { ...options, headers, credentials: "include" });
+    }
   }
   return response;
 }
@@ -217,9 +262,36 @@ export async function googleLogin(credential: string): Promise<LoginResult> {
   }
 }
 
+export function normalizeIndianPhone(input: string): string {
+  if (!input) return "";
+  let digits = input.trim().replace(/[^0-9]/g, "");
+  if (digits.length === 12 && digits.startsWith("91")) {
+    digits = digits.slice(2);
+  } else if (digits.length === 11 && digits.startsWith("0")) {
+    digits = digits.slice(1);
+  }
+  return digits;
+}
+
+export function isValidIndianPhone(phone: string): boolean {
+  const clean = normalizeIndianPhone(phone);
+  const regex = /^[6-9]\d{9}$/;
+  const fakeNumbers = [
+    "0000000000",
+    "1111111111",
+    "2222222222",
+    "3333333333",
+    "4444444444",
+    "5555555555",
+    "1234567890",
+  ];
+  return regex.test(clean) && !fakeNumbers.includes(clean);
+}
+
 export async function sendOtp(phone: string): Promise<{ ok: boolean; error?: string; resendAfter?: number }> {
   try {
-    const response = await sessionRequest("/api/auth/send-otp", { method: "POST", body: JSON.stringify({ phone_number: phone }) });
+    const cleanPhone = normalizeIndianPhone(phone);
+    const response = await sessionRequest("/api/auth/send-otp", { method: "POST", body: JSON.stringify({ phone_number: cleanPhone }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return { ok: false, error: data.detail || "Failed to send OTP." };
     return { ok: true, resendAfter: data.resend_after };
@@ -230,7 +302,9 @@ export async function sendOtp(phone: string): Promise<{ ok: boolean; error?: str
 
 export async function verifyOtp(phone: string, otp: string): Promise<VerifyOtpResult> {
   try {
-    const response = await sessionRequest("/api/auth/verify-otp", { method: "POST", body: JSON.stringify({ phone_number: phone, otp }) });
+    const cleanPhone = normalizeIndianPhone(phone);
+    const cleanOtp = otp.trim().replace(/[^0-9]/g, "");
+    const response = await sessionRequest("/api/auth/verify-otp", { method: "POST", body: JSON.stringify({ phone_number: cleanPhone, otp: cleanOtp }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return { ok: false, error: data.detail || "Invalid OTP code." };
     if (data.registered) {

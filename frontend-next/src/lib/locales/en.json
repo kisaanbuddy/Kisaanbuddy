@@ -483,7 +483,15 @@
     "optimize_your_harvesting_operations": "Optimize Your Harvesting Operations Today",
     "register_a_free_account": "Register a free account, test your crop disease models, and start keeping logs in Khet Diary.",
     "join_free": "Join Free",
-    "go_to_home": "Go to Home"
+    "go_to_home": "Go to Home",
+    "faq_title": "Frequently Asked Questions (FAQ)",
+    "faq_subtitle": "Common questions and answers about KisaanBuddy",
+    "faq_q1": "Q1. What is KisaanBuddy?",
+    "faq_a1": "Answer: KisaanBuddy is an AI-powered smart agriculture advisor platform. It helps Indian farmers identify crop leaf diseases, monitor soil health, check live APMC mandi prices, and receive real-time weather advisories.",
+    "faq_q2": "Q2. Is there any fee to use KisaanBuddy?",
+    "faq_a2": "Answer: No, KisaanBuddy's core advisory features, crop scanners, mandi checks, and scheme advisory tools are completely free for farmers across India.",
+    "faq_q3": "Q3. How does the disease detection tool work?",
+    "faq_a3": "Answer: Our AI model analyzes uploaded crop leaf photographs to instantly diagnose pathogens (like blight, blast, or rust) and suggest targeted organic remedies and chemical treatments."
   },
   "chatbot": {
     "could_not_connect_to": "Could not connect to backend. Make sure the server is running.",
@@ -518,7 +526,8 @@
     "please_fill_out_all": "Please fill out all required fields (Name, Email, Message).",
     "sending": "Sending...",
     "send_message": "Send Message",
-    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com"
+    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com",
+    "whatsapp_helpline": "WhatsApp Helpline"
   },
   "cookie_policy": {
     "back_to_home": "Back to home",
@@ -879,7 +888,10 @@
     "ask_your_farm_ai": "Ask Your Farm AI"
   },
   "footer": {
-    "ai": "AI"
+    "ai": "AI",
+    "features": "Platform Features",
+    "marketplace": "Marketplace (Buyers & Sellers)",
+    "reports": "Farm Reports & Analytics"
   },
   "hardware_showcase": {
     "ready_to_upgrade_your": "Ready to upgrade your farm intelligence?",
@@ -1028,16 +1040,28 @@
     "success_submit": "Spoken query sent"
   },
   "ui": {
-    "navigation": { "open_menu": "Open menu", "close_menu": "Close menu" },
-    "search": { "label": "Search", "title": "Search KisaanBuddy (Ctrl+K)" },
-    "footer": { "khet_diary": "Khet Diary (Farm Ledger)" },
+    "navigation": {
+      "open_menu": "Open menu",
+      "close_menu": "Close menu"
+    },
+    "search": {
+      "label": "Search",
+      "title": "Search KisaanBuddy (Ctrl+K)"
+    },
+    "footer": {
+      "khet_diary": "Khet Diary (Farm Ledger)"
+    },
     "home": {
       "badge": "Practical tools for Indian farming",
       "weather_cta": "Check farm weather",
       "helper": "Use your own inputs and location to get started.",
       "field_label": "Built for the field",
       "card_title": "The essentials, without the clutter.",
-      "capabilities": { "weather": "Weather for your farm", "disease": "Identify crop disease", "crop": "Plan the next crop" }
+      "capabilities": {
+        "weather": "Weather for your farm",
+        "disease": "Identify crop disease",
+        "crop": "Plan the next crop"
+      }
     },
     "auth": {
       "invalid_phone": "Please enter a valid Indian mobile number.",

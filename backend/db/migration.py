@@ -5,8 +5,9 @@ import logging
 
 log = logging.getLogger("krishiai.db.migration")
 
-# Path to local sqlite file
-DB_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "krishiai.db")
+# Path to local sqlite file (in repo root)
+_repo_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_FILE = os.path.join(_repo_root, "krishiai.db")
 
 def run_migrations():
     """Verifies table schema and appends missing auth columns to 'users' table in SQLite."""
@@ -69,6 +70,9 @@ def run_migrations():
         cursor.execute("PRAGMA table_info(farmer_fields)")
         field_columns = [row[1] for row in cursor.fetchall()]
         field_additions = [
+            ("acreage", "REAL DEFAULT NULL"),
+            ("current_crop", "VARCHAR(100) DEFAULT NULL"),
+            ("irrigation_type", "VARCHAR(100) DEFAULT NULL"),
             ("farm_id", "INTEGER DEFAULT NULL"),
             ("area_unit", "VARCHAR(20) DEFAULT 'acre'"),
             ("location_text", "VARCHAR(255) DEFAULT NULL"),
@@ -85,9 +89,61 @@ def run_migrations():
                 altered = True
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_farmer_fields_farm_id ON farmer_fields(farm_id)")
 
+        # Farmer profile extended fields
+        cursor.execute("PRAGMA table_info(farmer_profiles)")
+        profile_cols = [row[1] for row in cursor.fetchall()]
+        profile_additions = [
+            ("pin_code", "VARCHAR(10) DEFAULT NULL"),
+            ("gps_lat", "REAL DEFAULT NULL"),
+            ("gps_lon", "REAL DEFAULT NULL"),
+            ("land_ownership", "VARCHAR(50) DEFAULT NULL"),
+            ("equipment_list", "TEXT DEFAULT NULL"),
+            ("preferred_language", "VARCHAR(10) DEFAULT NULL"),
+        ]
+        for name, col_type in profile_additions:
+            if name not in profile_cols:
+                cursor.execute(f"ALTER TABLE farmer_profiles ADD COLUMN {name} {col_type}")
+                altered = True
+
+        # Equipment catalog extended columns for supplier-integrated products (e.g. MachinePoint)
+        cursor.execute("PRAGMA table_info(equipment_catalog)")
+        catalog_cols = [row[1] for row in cursor.fetchall()]
+        if catalog_cols:
+            catalog_additions = [
+                ("indicative_price", "REAL DEFAULT NULL"),
+                ("supplier_name", "VARCHAR(100) DEFAULT NULL"),
+            ]
+            for name, col_type in catalog_additions:
+                if name not in catalog_cols:
+                    cursor.execute(f"ALTER TABLE equipment_catalog ADD COLUMN {name} {col_type}")
+                    altered = True
+
+        # Produce listing extended columns for complete sell offers
+        cursor.execute("PRAGMA table_info(produce_listings)")
+        produce_cols = [row[1] for row in cursor.fetchall()]
+        if produce_cols:
+            produce_additions = [
+                ("village_or_tehsil", "VARCHAR(150) DEFAULT NULL"),
+                ("photo_urls", "TEXT DEFAULT NULL"),
+                ("last_confirmation_date", "DATE DEFAULT NULL"),
+                ("source_origin", "VARCHAR(100) DEFAULT 'kisaanbuddy_farmer'"),
+            ]
+            for name, col_type in produce_additions:
+                if name not in produce_cols:
+                    cursor.execute(f"ALTER TABLE produce_listings ADD COLUMN {name} {col_type}")
+                    altered = True
+
+        # Market price records extended columns
+        cursor.execute("PRAGMA table_info(market_price_records)")
+        mandi_cols = [row[1] for row in cursor.fetchall()]
+        if mandi_cols:
+            if "data_retrieval_timestamp" not in mandi_cols:
+                cursor.execute("ALTER TABLE market_price_records ADD COLUMN data_retrieval_timestamp DATETIME DEFAULT NULL")
+                altered = True
+
         conn.commit()
         if altered:
-            log.info("Database schema updated with auth/review fields.")
+            log.info("Database schema updated with auth/review/marketplace fields.")
         else:
             log.info("Database schema is up to date.")
     except Exception as e:

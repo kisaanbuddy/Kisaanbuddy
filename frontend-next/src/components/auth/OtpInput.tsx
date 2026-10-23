@@ -6,7 +6,7 @@ import { useLanguage } from "@/lib/language";
 type OtpInputProps = {
   value: string;
   onChange: (value: string) => void;
-  onComplete?: () => void;
+  onComplete?: (code: string) => void;
   disabled?: boolean;
 };
 
@@ -26,8 +26,7 @@ export function OtpInput({ value, onChange, onComplete, disabled = false }: OtpI
     onChange(newValue);
     // Auto-submit when all 6 digits are filled
     if (newValue.length === OTP_LENGTH && onComplete) {
-      // Small delay so React can flush the state update before form submission
-      setTimeout(() => onComplete(), 50);
+      onComplete(newValue);
     }
   };
   
@@ -62,19 +61,19 @@ export function OtpInput({ value, onChange, onComplete, disabled = false }: OtpI
     inputs.current[Math.min(pasted.length, OTP_LENGTH - 1)]?.focus();
     // Auto-submit on paste if all 6 digits received
     if (pasted.length === OTP_LENGTH && onComplete) {
-      setTimeout(() => onComplete(), 50);
+      onComplete(pasted);
     }
   };
 
   return (
-    <div className="flex justify-between gap-2 sm:gap-2.5" role="group" aria-label={t("ui.auth.otp_group") }>
+    <div className="grid grid-cols-6 gap-2 sm:gap-2.5" role="group" aria-label={t("ui.auth.otp_group") }>
       {digits.map((digit, index) => (
         <input
           key={index}
           ref={(element) => { inputs.current[index] = element; }}
           aria-label={`${t("ui.auth.otp_digit")} ${index + 1}`}
           autoComplete={index === 0 ? "one-time-code" : "off"}
-          className={`h-12 sm:h-13 min-w-0 flex-1 rounded-lg border text-center font-mono text-xl font-bold transition-all outline-none ${
+          className={`h-11 sm:h-12 min-w-0 w-full rounded-lg border text-center font-mono text-lg sm:text-xl font-bold transition-all outline-none ${
             digit 
               ? "border-primary/60 bg-primary/5 text-foreground" 
               : "border-border bg-background text-foreground hover:border-border/80"

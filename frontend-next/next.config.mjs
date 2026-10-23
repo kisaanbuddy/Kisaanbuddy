@@ -5,6 +5,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'plus.unsplash.com' },
+      { protocol: 'https', hostname: 'cdn.shopify.com' },
+      { protocol: 'https', hostname: 'machinepoint.in' },
     ],
   },
   async headers() {
@@ -17,7 +19,7 @@ const nextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://adservice.google.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://plus.unsplash.com https://pagead2.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com https://krishiai-api.onrender.com; frame-src 'self' https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://adservice.google.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://plus.unsplash.com https://cdn.shopify.com https://*.shopify.com https://machinepoint.in https://*.machinepoint.in https://pagead2.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com https://krishiai-api.onrender.com; frame-src 'self' https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com;"
           }
         ]
       }
@@ -79,15 +81,6 @@ const nextConfig = {
         source: '/api/chat/:path*',
         destination: `${backendUrl}/api/chat/:path*`
       },
-      // Worker Connect
-      {
-        source: '/api/worker-connect/:path*/',
-        destination: `${backendUrl}/api/worker-connect/:path*/`
-      },
-      {
-        source: '/api/worker-connect/:path*',
-        destination: `${backendUrl}/api/worker-connect/:path*`
-      },
       // Sensor
       {
         source: '/api/sensor/:path*/',
@@ -114,6 +107,15 @@ const nextConfig = {
       {
         source: '/api/disease/:path*',
         destination: `${backendUrl}/api/disease/:path*`
+      },
+      // Sarvam AI
+      {
+        source: '/api/sarvam/:path*/',
+        destination: `${backendUrl}/api/sarvam/:path*/`
+      },
+      {
+        source: '/api/sarvam/:path*',
+        destination: `${backendUrl}/api/sarvam/:path*`
       }
     ]
   }

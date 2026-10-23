@@ -5,29 +5,175 @@ import {
   Menu, X, LogOut, User as UserIcon,
   LayoutDashboard, CloudSun, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
-  FlaskConical, Landmark, Search, Sparkles, Globe, Shield
+  FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
+  Store, BarChart3, Settings
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { dropdownVariants } from '@/lib/motion';
 import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useLanguage, LANG_NAMES, SELECTABLE_LANGS, type Lang } from '@/lib/language';
+import { useLanguage, LANG_NAMES, LANG_DETAILS, SELECTABLE_LANGS, type Lang } from '@/lib/language';
 import { useAuth, logoutUser } from '@/lib/auth';
 import SearchModal from '@/components/SearchModal';
 import { trackEvent } from '@/lib/analytics';
 
+const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
+  '/dashboard': {
+    en: 'Dashboard', hi: 'डैशबोर्ड', kn: 'ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', ta: 'டாஷ்போர்டு', te: 'డాష్‌బోర్డ్',
+    ml: 'ഡാഷ്‌ബോർഡ്', mr: 'डॅशबोर्ड', bn: 'ড্যাশবোর্ড', pa: 'ਡੈਸ਼ਬੋਰਡ', gu: 'ડેશબોર્ડ', hi_en: 'Dashboard',
+  },
+  '/profile': {
+    en: 'My Farm', hi: 'मेरा खेत', kn: 'ನನ್ನ ಜಮೀನು', ta: 'என் பண்ணை', te: 'నా పొలం',
+    ml: 'എന്റെ കൃഷിയിടം', mr: 'माझे शेत', bn: 'আমার খামার', pa: 'ਮੇਰਾ ਖੇਤ', gu: 'મારું ખેતર', hi_en: 'Mera Khet',
+  },
+  '/chatbot': {
+    en: 'AI Advisor', hi: 'AI सलाहकार', kn: 'AI ಸಲಹೆಗಾರ', ta: 'AI ஆலோசகர்', te: 'AI సలహాదారు',
+    ml: 'AI ഉപദേശകൻ', mr: 'AI सल्लागार', bn: 'AI উপদেষ্টা', pa: 'AI ਸਲਾਹਕਾਰ', gu: 'AI સલાહકાર', hi_en: 'AI Advisor',
+  },
+  '/disease': {
+    en: 'Crop Doctor', hi: 'फसल डॉक्टर', kn: 'ಬೆಳೆ ವೈದ್ಯ', ta: 'பயிர் மருத்துவர்', te: 'పంట డాక్టర్',
+    ml: 'വിള ഡോക്ടർ', mr: 'पीक डॉक्टर', bn: 'ফসল ডাক্তার', pa: 'ਫਸਲ ਡਾਕਟਰ', gu: 'પાક ડૉક્ટર', hi_en: 'Crop Doctor',
+  },
+  '/marketplace': {
+    en: 'Marketplace for Farmer', hi: 'किसान मार्केटप्लेस', kn: 'ರೈತರ ಮಾರುಕಟ್ಟೆ', ta: 'விவசாயிகள் சந்தை', te: 'రైతు మార్కెట్',
+    ml: 'കർഷക വിപണി', mr: 'शेतकरी मार्केटप्लेस', bn: 'কৃষক মার্কেটপ্লেস', pa: 'ਕਿਸਾਨ ਮਾਰਕੀਟ', gu: 'ખેડૂત માર્કેટપ્લેસ', hi_en: 'Marketplace for Farmer',
+  },
+  '/mandi': {
+    en: 'Mandi Rates', hi: 'मंडी भाव', kn: 'ಮಂಡಿ ದರಗಳು', ta: 'மண்டி விலைகள்', te: 'మండి ధరలు',
+    ml: 'മണ്ടി നിരക്കുകൾ', mr: 'मंडी दर', bn: 'মান্ডি দর', pa: 'ਮੰਡੀ ਰੇਟ', gu: 'મંડી દર', hi_en: 'Mandi Rates',
+  },
+  '/weather': {
+    en: 'Weather', hi: 'मौसम', kn: 'ಹವಾಮಾನ', ta: 'வானிலை', te: 'వాతావరణం',
+    ml: 'കാലാവസ്ഥ', mr: 'हवामान', bn: 'আবহাওয়া', pa: 'ਮੌਸਮ', gu: 'હવામાન', hi_en: 'Mausam',
+  },
+  '/soil-health': {
+    en: 'Soil Health', hi: 'मिट्टी स्वास्थ्य', kn: 'ಮಣ್ಣಿನ ಆರೋಗ್ಯ', ta: 'மண் ஆரோக்கியம்', te: 'నేల ఆరోగ్యం',
+    ml: 'മണ്ണ് ആരോഗ്യം', mr: 'माती आरोग्य', bn: 'মাটির স্বাস্থ্য', pa: 'ਮਿੱਟੀ ਦੀ ਸਿਹਤ', gu: 'જમીન આરોગ્ય', hi_en: 'Mitti Health',
+  },
+  '/khet-diary': {
+    en: 'Farm Diary', hi: 'खेत डायरी', kn: 'ಕೃಷಿ ಡೈರಿ', ta: 'பண்ணை நாட்குறிப்பு', te: 'వ్యవసాయ డైరీ',
+    ml: 'ഫാം ഡയറി', mr: 'शेत डायरी', bn: 'খামার ডায়েরি', pa: 'ਖੇਤ ਡਾਇਰੀ', gu: 'ખેતર ડાયરી', hi_en: 'Khet Diary',
+  },
+  '/reports': {
+    en: 'Reports', hi: 'रिपोर्ट्स', kn: 'ವರದಿಗಳು', ta: 'அறிக்கைகள்', te: 'నివేదికలు',
+    ml: 'റിപ്പോർട്ടുകൾ', mr: 'अहवाल', bn: 'প্রতিবেদন', pa: 'ਰਿਪੋਰਟਾਂ', gu: 'અહેવાલો', hi_en: 'Reports',
+  },
+  '/schemes': {
+    en: 'Schemes', hi: 'योजनाएं', kn: 'ಯೋಜನೆಗಳು', ta: 'திட்டங்கள்', te: 'పథకాలు',
+    ml: 'പദ്ധതികൾ', mr: 'योजना', bn: 'প্রকল্প', pa: 'ਯੋਜਨਾਵਾਂ', gu: 'યોજનાઓ', hi_en: 'Schemes',
+  },
+  '/worker-connect': {
+    en: 'Worker Connect', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್', ta: 'பணியாளர் இணைப்பு', te: 'వర్కర్ కనెక్ట్',
+    ml: 'വർക്കർ കണക്ട്', mr: 'कामगार कनेक्ट', bn: 'শ্রমিক সংযোগ', pa: 'ਵਰਕਰ ਕਨੈਕਟ', gu: 'વર્કર કનેક્ટ', hi_en: 'Worker Connect',
+  },
+  '/settings': {
+    en: 'Settings', hi: 'सेटिंग्स', kn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', ta: 'அமைப்புகள்', te: 'సెట్టింగ్‌లు',
+    ml: 'ക്രമീകരണങ്ങൾ', mr: 'सेटिंग्ज', bn: 'সেটিংস', pa: 'ਸੈਟਿੰਗਾਂ', gu: 'સેટિંગ્સ', hi_en: 'Settings',
+  },
+};
+
+const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
+  home: {
+    en: "Home", hi: "होम", kn: "ಮುಖಪುಟ", ta: "முகப்பு", te: "హోమ్",
+    ml: "ഹോം", mr: "मुख्यपृष्ठ", bn: "হোম", pa: "ਮੁੱਖ ਪੰਨਾ", gu: "હોમ", hi_en: "Home",
+  },
+  crop_doctor: {
+    en: "Crop Doctor", hi: "फसल डॉक्टर", kn: "ಬೆಳೆ ವೈದ್ಯ", ta: "பயிர் மருத்துவர்", te: "పంట డాక్టర్",
+    ml: "വിള ഡോക്ടർ", mr: "पीक डॉक्टर", bn: "ফসল ডাক্তার", pa: "ਫਸਲ ਡਾਕਟਰ", gu: "પાક ડૉક્ટર", hi_en: "Crop Doctor",
+  },
+  schemes: {
+    en: "Govt Schemes", hi: "सरकारी योजनाएं", kn: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು", ta: "அரசுத் திட்டங்கள்", te: "ప్రభుత్వ పథకాలు",
+    ml: "സർക്കാർ പദ്ധതികൾ", mr: "सरकारी योजना", bn: "সরকারি প্রকল্প", pa: "ਸਰਕਾਰੀ ਯੋਜਨਾਵਾਂ", gu: "સરકારી યોજનાઓ", hi_en: "Govt Schemes",
+  },
+  ai_assistant: {
+    en: "AI Assistant", hi: "AI सहायक", kn: "AI ಸಹಾಯಕ", ta: "AI உதவியாளர்", te: "AI సహాయకుడు",
+    ml: "AI അസിസ്റ്റന്റ്", mr: "AI सहाय्यक", bn: "AI সহকারী", pa: "AI ਸਹਾਇਕ", gu: "AI સહાયક", hi_en: "AI Assistant",
+  },
+  features: {
+    en: "Features", hi: "सुविधाएं", kn: "ವೈಶಿಷ್ಟ್ಯಗಳು", ta: "அம்சங்கள்", te: "ఫీచర్లు",
+    ml: "സവിശേഷതകൾ", mr: "वैशिष्ट्ये", bn: "বৈশিষ্ট্য", pa: "ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ", gu: "વિશેષતાઓ", hi_en: "Features",
+  },
+  how_it_works: {
+    en: "How It Works", hi: "कैसे काम करता है", kn: "ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ", ta: "எவ்வாறு செயல்படுகிறது", te: "ఎలా పనిచేస్తుంది",
+    ml: "എങ്ങനെ പ്രവർത്തിക്കുന്നു", mr: "कसे कार्य करते", bn: "কীভাবে কাজ করে", pa: "ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ", gu: "કેવી રીતે કાર્ય કરે છે", hi_en: "How It Works",
+  },
+  marketplace: {
+    en: "Marketplace for Farmer", hi: "किसान मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
+    ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
+  },
+  marketplace_for_farmer: {
+    en: "Marketplace for Farmer", hi: "किसान मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
+    ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
+  },
+  worker_connect: {
+    en: "Worker Connect", hi: "वर्कर कनेक्ट", kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್", ta: "பணியாளர் இணைப்பு", te: "వర్కర్ కనెక్ట్",
+    ml: "വർക്കർ കണക്ട്", mr: "कामगार कनेक्ट", bn: "শ্রমিক সংযোগ", pa: "ਵਰਕਰ ਕਨੈਕਟ", gu: "વર્કર કનેક્ટ", hi_en: "Worker Connect",
+  },
+  mandi_sell: {
+    en: "Mandi & Sell Crop", hi: "मंडी व फसल बिक्री", kn: "ಮಂಡಿ & ಬೆಳೆ ಮಾರಾಟ",
+    ta: "மண்டி & பயிர் விற்பனை", te: "మండి & పంట అమ్మకాలు", ml: "മണ്ടി & വിള വിൽപ്പന",
+    mr: "मंडी आणि पीक विक्री", bn: "মান্ডি ও ফসল বিক্রি", pa: "ਮੰਡੀ ਅਤੇ ਫਸਲ ਵਿਕਰੀ",
+    gu: "મંડી અને પાક વેચાણ", hi_en: "Mandi & Sell Crop",
+  },
+  mandi: {
+    en: "Mandi Prices", hi: "मंडी भाव", kn: "ಮಂಡಿ ದರಗಳು", ta: "மண்டி விலைகள்", te: "மండి ధరలు",
+    ml: "മണ്ടി നിരക്കുകൾ", mr: "मंडी दर", bn: "মান্ডি দর", pa: "ਮੰਡੀ ਰੇਟ", gu: "મંડી દર", hi_en: "Mandi Rates",
+  },
+  weather: {
+    en: "Weather", hi: "मौसम", kn: "ಹವಾಮಾನ", ta: "வானிலை", te: "వాతావరణం",
+    ml: "കാലാവസ്ഥ", mr: "हवामान", bn: "আবহাওয়া", pa: "ਮੌਸਮ", gu: "હવામાન", hi_en: "Mausam",
+  },
+  about: {
+    en: "About", hi: "हमारे बारे में", kn: "ನಮ್ಮ ಬಗ್ಗೆ", ta: "எங்களை பற்றி", te: "మా గురించి",
+    ml: "ഞങ്ങളെ കുറിച്ച്", mr: "आमच्याबद्दल", bn: "আমাদের সম্পর্কে", pa: "ਸਾਡੇ ਬਾਰੇ", gu: "અમારા વિશે", hi_en: "About",
+  },
+  get_started: {
+    en: "Get Started", hi: "शुरू करें", kn: "ಪ್ರಾರಂಭಿಸಿ", ta: "தொடங்குங்கள்", te: "ప్రారంਭించండి",
+    ml: "ആരംഭിക്കുക", mr: "सुरू करा", bn: "শুরু করুন", pa: "ਸ਼ੁਰੂ ਕਰੋ", gu: "શરૂ કરો", hi_en: "Shuru Karein",
+  },
+  farmer_profile: {
+    en: "Farmer Profile", hi: "किसान प्रोफाइल", kn: "ರೈತರ ಪ್ರೊಫೈಲ್", ta: "விவசாயி சுயவிவரம்", te: "రైతు ప్రొఫైల్",
+    ml: "കർഷക പ്രൊഫൈൽ", mr: "शेतकरी प्रोफाइल", bn: "কৃষক প্রোফাইল", pa: "ਕਿਸਾਨ ਪ੍ਰੋਫਾਈਲ", gu: "ખેડૂત પ્રોફાઇલ", hi_en: "Farmer Profile",
+  },
+  account: {
+    en: "Account", hi: "अकाउंट", kn: "ಖಾತೆ", ta: "கணக்கு", te: "ఖాతా",
+    ml: "അക്കൗണ്ട്", mr: "खाते", bn: "অ্যাকাউন্ট", pa: "ਖਾਤਾ", gu: "ખાતું", hi_en: "Account",
+  },
+  more_tools: {
+    en: "More tools", hi: "और टूल", kn: "ಇನ್ನಷ್ಟು ಪರಿಕರಗಳು", ta: "கூடுதல் கருவிகள்", te: "మరిన్ని సాధనాలు",
+    ml: "കൂടുതൽ ടൂളുകൾ", mr: "आणखी टूल्स", bn: "আরও সরঞ্জাম", pa: "ਹੋਰ ਸੰਦ", gu: "વધુ ટૂલ્સ", hi_en: "More tools",
+  },
+};
+
 const NAV_LINK_DEFS = [
-  { href: '/dashboard',      key: 'dashboard',      icon: LayoutDashboard },
-  { href: '/weather',        key: 'weather',        icon: CloudSun        },
-  { href: '/crop-predictor', key: 'aiPredictor',    icon: Sprout          },
-  { href: '/disease',        key: 'diseaseDetect',  icon: Bug             },
-  { href: '/soil-health',    key: 'soilHealth',     icon: FlaskConical    },
-  { href: '/schemes',        key: 'schemes',        icon: Landmark        },
-  { href: '/mandi',          key: 'mandi',          icon: TrendingUp      },
-  { href: '/worker-connect', key: 'workers',        icon: Users           },
-  { href: '/chatbot',        key: 'aiChatbot',      icon: Mic             },
+  { href: '/dashboard',      icon: LayoutDashboard },
+  { href: '/profile',        icon: Sprout          },
+  { href: '/chatbot',        icon: Mic             },
+  { href: '/disease',        icon: Bug             },
+  { href: '/marketplace',    icon: Store           },
+  { href: '/worker-connect', icon: Users           },
+  { href: '/mandi',          icon: TrendingUp      },
+  { href: '/weather',        icon: CloudSun        },
+  { href: '/soil-health',    icon: FlaskConical },
+  { href: '/reports',        icon: BarChart3       },
+  { href: '/schemes',        icon: Landmark        },
+  { href: '/settings',       icon: Settings        },
 ] as const;
 
-const PUBLIC_ROUTES = ['/', '/login', '/signup', '/about', '/contact', '/privacy', '/terms', '/disclaimer', '/cookie-policy'];
+const PUBLIC_ROUTES = [
+  '/',
+  '/features',
+  '/login',
+  '/signup',
+  '/onboarding',
+  '/about',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/disclaimer',
+  '/cookie-policy',
+];
 
 
 
@@ -41,7 +187,11 @@ export function Header() {
   const [langOpen, setLangOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [toolsOpen, setToolsOpen]   = useState(false);
-  const NAV_LINKS = NAV_LINK_DEFS.map(d => ({ href: d.href, label: t(d.key as any) as string, icon: d.icon }));
+  const NAV_LINKS = NAV_LINK_DEFS.map(d => ({
+    href: d.href,
+    label: NAV_LINK_LABELS[d.href]?.[lang] || NAV_LINK_LABELS[d.href]?.en || 'Menu',
+    icon: d.icon,
+  }));
 
   /* close drawer on route change */
   useEffect(() => { setOpen(false); setToolsOpen(false); }, [pathname]);
@@ -98,28 +248,30 @@ export function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-40 w-full transition-all duration-200 border-b ${
+        className={`sticky top-0 z-40 w-full transition-all duration-300 border-b ${
           scrolled
-            ? 'bg-background/90 backdrop-blur-md border-border/80 shadow-2xs'
-            : 'bg-background/70 backdrop-blur-xs border-border/60'
+            ? 'bg-white/85 dark:bg-stone-950/85 backdrop-blur-md border-emerald-500/10 shadow-[0_4px_20px_-4px_rgba(5,150,105,0.08)]'
+            : 'bg-white/70 dark:bg-stone-950/70 backdrop-blur-sm border-border/50'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 md:px-8">
+        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* ── Logo ── */}
           <Link
             href={user ? '/dashboard' : '/'}
             onClick={() => setOpen(false)}
-            className="flex items-center gap-2 shrink-0 group select-none"
+            className="flex items-center gap-2.5 shrink-0 group select-none"
           >
-          <img
-            src="/logo.jpeg"
-            alt="KisaanBuddy Logo"
-           className="w-7 h-7 object-contain"
-          />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/20 p-1 border border-emerald-500/25 shadow-xs flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <img
+                src="/logo.jpeg"
+                alt="KisaanBuddy Logo"
+                className="w-full h-full object-contain rounded-lg"
+              />
+            </div>
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg md:text-xl tracking-tight">
-                <span className="font-extrabold text-foreground">Kisaan</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400">Buddy</span>
+                <span className="font-extrabold text-stone-900 dark:text-white">Kisaan</span>
+                <span className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Buddy</span>
               </span>
               {isPublic && !user && (
                 <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80">
@@ -129,65 +281,123 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav ── */}
-          {showFullNav ? (
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-medium" aria-label="Primary navigation">
-              {NAV_LINKS.slice(0, 4).map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-colors duration-150 ${
-                    isActive(href)
-                      ? 'bg-primary/10 text-primary font-semibold border border-primary/20'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
-                  }`}
-                >
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span>{label}</span>
-                </Link>
-              ))}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setToolsOpen(value => !value)}
-                  aria-expanded={toolsOpen}
-                  className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
-                >
-                  <span>{lang === 'hi' ? 'और टूल' : 'More tools'}</span><ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
-                </button>
+          {/* ── Desktop Nav (Home, Crop Doctor, Mandi & Sell Crop, Workers Connect, Government Schemes) ── */}
+          <nav className="hidden xl:flex items-center gap-1 text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
+            <Link
+              href="/"
+              className={`px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                pathname === '/'
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <span>{PUBLIC_NAV_LABELS.home?.[lang] || "Home"}</span>
+            </Link>
+
+            <Link
+              href="/disease"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/disease')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Bug className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.crop_doctor?.[lang] || "Crop Doctor"}</span>
+            </Link>
+
+            <Link
+              href="/mandi"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/mandi')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <TrendingUp className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.mandi_sell?.[lang] || "Mandi & Sell Crop"}</span>
+            </Link>
+
+            <Link
+              href="/worker-connect"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/worker-connect')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Users className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
+            </Link>
+
+            <Link
+              href="/schemes"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/schemes')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Landmark className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.schemes?.[lang] || "Govt Schemes"}</span>
+            </Link>
+
+            {/* More Tools Dropdown */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setToolsOpen((v) => !v)}
+                aria-expanded={toolsOpen}
+                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-foreground"
+              >
+                <span>{PUBLIC_NAV_LABELS.more_tools[lang] || "More"}</span>
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
                 {toolsOpen && (
                   <>
                     <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
-                    <div className="absolute left-0 top-9 z-50 grid w-60 grid-cols-1 gap-1 rounded-xl border border-border bg-popover p-1.5 shadow-lg">
-                      {NAV_LINKS.slice(4).map(({ href, label, icon: Icon }) => (
-                        <Link key={href} href={href} onClick={() => setToolsOpen(false)} className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs transition-colors ${isActive(href) ? 'bg-primary/10 font-semibold text-primary' : 'text-foreground hover:bg-muted'}`}>
-                          <Icon className="h-3.5 w-3.5 text-primary" /><span>{label}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            </nav>
-          ) : (
-            <nav className="hidden lg:flex items-center gap-1 text-xs font-semibold" aria-label="Public navigation">
-              <Link href="/#features" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "सुविधाएं" : "Features"}
-              </Link>
-              <Link href="/mandi" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "मंडी भाव" : "Mandi"}
-              </Link>
-              <Link href="/weather" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "मौसम" : "Weather"}
-              </Link>
-              <Link href="/schemes" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "योजनाएं" : "Schemes"}
-              </Link>
-              <Link href="/about" className="px-3 py-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors">
-                {lang === 'hi' ? "हमारे बारे में" : "About"}
-              </Link>
-            </nav>
-          )}
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      className="absolute right-0 top-9 z-50 grid w-56 grid-cols-1 gap-1 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-2 shadow-xl"
+                    >
+                    <Link href="/dashboard" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <LayoutDashboard className="h-4 w-4 text-emerald-600" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link href="/crop-predictor" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Sprout className="h-4 w-4 text-emerald-600" />
+                      <span>{lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
+                    </Link>
+                    <Link href="/profile" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Sprout className="h-4 w-4 text-emerald-600" />
+                      <span>{PUBLIC_NAV_LABELS.farmer_profile[lang] || "Farmer Profile"}</span>
+                    </Link>
+                    <Link href="/disease" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Bug className="h-4 w-4 text-rose-600" />
+                      <span>Crop Doctor</span>
+                    </Link>
+                    <Link href="/soil-health" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <FlaskConical className="h-4 w-4 text-amber-600" />
+                      <span>Soil Health</span>
+                    </Link>
+                    <Link href="/schemes" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Landmark className="h-4 w-4 text-indigo-600" />
+                      <span>Govt Schemes</span>
+                    </Link>
+                    <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
+                    <Link href="/about" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <span>About KisaanBuddy</span>
+                    </Link>
+                  </motion.div>
+                </>
+              )}
+              </AnimatePresence>
+            </div>
+          </nav>
 
           {/* ── Right side controls ── */}
           <div className="flex items-center gap-1.5 md:gap-2">
@@ -196,7 +406,7 @@ export function Header() {
               type="button"
               onClick={() => setSearchOpen(true)}
               title={t("ui.search.title")}
-              className="flex h-8 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
+              className="hidden md:flex h-8 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
             >
               <Search className="h-3.5 w-3.5" />
               <span className="hidden sm:inline text-[11px]">{t("ui.search.label")}</span>
@@ -205,7 +415,7 @@ export function Header() {
               </kbd>
             </button>
             
-            <ThemeToggle />
+            <div className="hidden sm:flex items-center"><ThemeToggle /></div>
 
             {/* Language Selector */}
             <div className="relative">
@@ -219,10 +429,17 @@ export function Header() {
                 <span className="hidden sm:inline">{LANG_NAMES[lang]}</span>
                 <ChevronDown className={`h-3 w-3 text-muted-foreground transition-transform duration-150 ${langOpen ? 'rotate-180' : ''}`} />
               </button>
-              {langOpen && (
-                <>
-                  <button className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} aria-label={t("header.close")} />
-                  <div className="absolute right-0 top-10 z-50 w-36 rounded-xl border border-border bg-popover shadow-lg overflow-hidden p-1">
+              <AnimatePresence>
+                {langOpen && (
+                  <>
+                    <button className="fixed inset-0 z-40 cursor-default" onClick={() => setLangOpen(false)} aria-label={t("header.close")} />
+                    <motion.div
+                      variants={dropdownVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      className="absolute right-0 top-10 z-50 w-48 max-h-80 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg p-1.5 space-y-0.5"
+                    >
                     {SELECTABLE_LANGS.map((l) => (
                       <button
                         key={l}
@@ -232,19 +449,23 @@ export function Header() {
                           setLang(l);
                           setLangOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-colors ${
+                        className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors ${
                           lang === l
                             ? "bg-primary/10 text-primary font-bold"
                             : "text-foreground hover:bg-muted/70 font-medium"
                         }`}
                       >
-                        <span>{LANG_NAMES[l]}</span>
+                        <div className="flex flex-col text-left">
+                          <span className="font-semibold text-xs">{LANG_NAMES[l]}</span>
+                          <span className="text-[10px] text-muted-foreground">{LANG_DETAILS[l]?.en}</span>
+                        </div>
                         {lang === l && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
                       </button>
                     ))}
-                  </div>
+                  </motion.div>
                 </>
               )}
+              </AnimatePresence>
             </div>
 
             {/* Logged-out Login + Start Free CTAs */}
@@ -258,9 +479,9 @@ export function Header() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="inline-flex h-8 items-center justify-center rounded-lg bg-emerald-700 hover:bg-emerald-800 px-3.5 text-xs font-semibold text-white transition-colors"
+                  className="inline-flex h-8.5 items-center justify-center rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:to-teal-800 px-4 text-xs font-bold text-white shadow-sm shadow-emerald-700/25 hover:shadow-md hover:shadow-emerald-700/35 active:scale-95 transition-all duration-200"
                 >
-                  {lang === 'hi' ? "मुफ़्त शुरू करें" : "Start Free"}
+                  {PUBLIC_NAV_LABELS.get_started[lang] || PUBLIC_NAV_LABELS.get_started.en}
                 </Link>
               </div>
             )}
@@ -278,6 +499,14 @@ export function Header() {
                     <span className="hidden xl:inline">Admin</span>
                   </Link>
                 )}
+                <Link
+                  href="/farmer-profile"
+                  title={PUBLIC_NAV_LABELS.farmer_profile[lang] || PUBLIC_NAV_LABELS.farmer_profile.en}
+                  className="flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:border-primary/40 hover:bg-primary/10 transition-colors"
+                >
+                  <Sprout className="h-3.5 w-3.5" />
+                  <span className="hidden xl:inline">{PUBLIC_NAV_LABELS.farmer_profile[lang] || PUBLIC_NAV_LABELS.farmer_profile.en}</span>
+                </Link>
                 <Link
                   href="/profile"
                   className="flex items-center gap-2 rounded-lg border border-border/80 bg-card/60 px-2 py-1 text-xs hover:border-primary/40 hover:bg-muted/60 transition-colors"
@@ -325,22 +554,49 @@ export function Header() {
       </header>
 
       {/* ── Mobile Drawer ── */}
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-label={t("header.close_menu")}
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-default transition-opacity"
-            onClick={() => setOpen(false)}
-          />
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.button
+              type="button"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              aria-label={t("header.close_menu")}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-xs lg:hidden cursor-default"
+              onClick={() => setOpen(false)}
+            />
 
-          <nav
-            className="fixed top-16 left-3 right-3 z-50 lg:hidden rounded-2xl border border-border bg-card p-4 shadow-xl flex flex-col gap-1.5 max-h-[82vh] overflow-y-auto"
-            aria-label={t("header.mobile_navigation")}
-          >
+            <motion.nav
+              initial={{ opacity: 0, y: -10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="fixed top-16 left-3 right-3 z-50 lg:hidden rounded-2xl border border-border bg-card p-4 shadow-xl flex flex-col gap-1.5 max-h-[82vh] overflow-y-auto"
+              aria-label={t("header.mobile_navigation")}
+            >
             {showFullNav ? (
               <>
                 {/* User Info Row */}
+                <div className="grid grid-cols-2 gap-1.5 mb-1.5">
+                  <Link
+                    href="/farmer-profile"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-primary/10 border border-primary/20 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
+                  >
+                    <Sprout className="h-3.5 w-3.5" />
+                    <span>{PUBLIC_NAV_LABELS.farmer_profile[lang] || "Farmer Profile"}</span>
+                  </Link>
+                  <Link
+                    href="/profile"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-muted/50 border border-border/60 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    <UserIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span>{PUBLIC_NAV_LABELS.account[lang] || "Account"}</span>
+                  </Link>
+                </div>
                 <Link
                   href="/profile"
                   onClick={() => setOpen(false)}
@@ -418,27 +674,107 @@ export function Header() {
                 </button>
               </>
             ) : (
-              <div className="flex flex-col gap-2 pt-1">
+              <div className="flex flex-col gap-1 pt-1">
                 <Link
-                  href="/login"
+                  href="/mandi"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg bg-primary px-4 py-2.5 text-center text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary/90 transition-colors"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 transition-colors"
                 >
-                  {t("loginLabel")}
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.mandi[lang] || "Mandi Rates"}</span>
                 </Link>
+
                 <Link
-                  href="/founders"
+                  href="/marketplace"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg border border-border px-4 py-2 text-center text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors flex items-center justify-center gap-2"
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
-                  <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500/20" />
-                  <span>{t("founders")}</span>
+                  <Store className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.marketplace_for_farmer[lang] || "Marketplace for Farmer"}</span>
                 </Link>
+
+                <Link
+                  href="/worker-connect"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  <Users className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
+                </Link>
+
+                <Link
+                  href="/features"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  <Sparkles className="h-4 w-4 text-emerald-600" />
+                  <span>{PUBLIC_NAV_LABELS.features[lang] || "Features"}</span>
+                </Link>
+
+                <Link
+                  href="/chatbot"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                >
+                  <Mic className="h-4 w-4 text-emerald-600" />
+                  <span>{lang === 'hi' ? 'AI खेती सहायक' : lang === 'kn' ? 'AI ಸಹಾಯಕ' : 'AI Assistant'}</span>
+                </Link>
+
+                <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
+
+                <div className="grid grid-cols-2 gap-1 text-[11px]">
+                  <Link
+                    href="/crop-predictor"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    {lang === 'hi' ? 'फसल सलाह' : 'Crop Advisory'}
+                  </Link>
+                  <Link
+                    href="/disease"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Crop Doctor
+                  </Link>
+                  <Link
+                    href="/soil-health"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Soil Health
+                  </Link>
+                  <Link
+                    href="/schemes"
+                    onClick={() => setOpen(false)}
+                    className="px-2.5 py-1.5 rounded-lg text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  >
+                    Govt Schemes
+                  </Link>
+                </div>
+
+                <div className="border-t border-border/80 pt-2.5 mt-1 flex flex-col gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="rounded-lg border border-border px-4 py-2 text-center text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    {t("loginLabel")}
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setOpen(false)}
+                    className="rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:to-teal-800 px-4 py-2.5 text-center text-xs font-bold text-white shadow-md shadow-emerald-700/25 active:scale-95 transition-all duration-200"
+                  >
+                    {PUBLIC_NAV_LABELS.get_started[lang] || "Get Started"}
+                  </Link>
+                </div>
               </div>
             )}
-          </nav>
+          </motion.nav>
         </>
       )}
+      </AnimatePresence>
 
       {/* Global Search Modal Overlay */}
       <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />

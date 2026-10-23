@@ -227,6 +227,13 @@ function ChatbotInner() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const recognitionRef = useRef<any>(null)
   const currentAudioRef = useRef<HTMLAudioElement | null>(null)
+  // Keep a server conversation alive across voice turns. State alone is stale
+  // inside SpeechRecognition callbacks, so refs are deliberately used here.
+  const assistantSessionRef = useRef<string | null>(null)
+  const finalTranscriptRef = useRef("")
+  const attachedImageRef = useRef<string | null>(null)
+
+  useEffect(() => { attachedImageRef.current = attachedImage }, [attachedImage])
 
   // Map global UI language to our local voice assistant languages
   useEffect(() => {
@@ -389,6 +396,7 @@ function ChatbotInner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          session_id: assistantSessionRef.current,
           message: queryText,
           language: activeLang,
           stream: false,
@@ -398,6 +406,7 @@ function ChatbotInner() {
 
       if (response.ok) {
         const data = await response.json()
+        if (data.session_id) assistantSessionRef.current = data.session_id
         const botReply = data.content || data.reply || "Sorry, I could not generate a reply."
         
         setMessages(prev => [
@@ -458,6 +467,7 @@ function ChatbotInner() {
     recognition.onstart = () => {
       setIsListening(true)
       setInterimText("")
+      finalTranscriptRef.current = ""
     }
 
     recognition.onresult = (event: any) => {
@@ -470,6 +480,7 @@ function ChatbotInner() {
       }
       
       if (final) {
+        finalTranscriptRef.current += final
         setInterimText(final)
       } else {
         setInterimText(interim)
@@ -485,8 +496,9 @@ function ChatbotInner() {
     recognition.onend = () => {
       setIsListening(false)
       // Send the query automatically when speaking ends
-      if (interimText.trim()) {
-        sendQuery(interimText, attachedImage)
+      const spoken = finalTranscriptRef.current.trim()
+      if (spoken) {
+        sendQuery(spoken, attachedImageRef.current)
       }
     }
 
@@ -526,22 +538,22 @@ function ChatbotInner() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-132px)] max-w-4xl flex-col px-0 pb-2">
+    <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 pb-8">
       {/* Language Switcher bar */}
-      <div className="mb-3 flex shrink-0 flex-col gap-3 border-b border-border/60 pb-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex shrink-0 flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow"><Sparkles className="h-3.5 w-3.5" /> KisaanBuddy AI</p>
-          <h1 className="mt-1 text-xl font-bold">Your farming assistant</h1>
+          <h1 className="mt-1 text-xl sm:text-2xl font-bold">Your farming assistant</h1>
           <p className="mt-1 text-xs text-muted-foreground">Ask by voice, or add a crop photo for more context.</p>
         </div>
-        <div className="flex max-w-full overflow-x-auto gap-1.5 custom-scrollbar scrollbar-none">
+        <div className="flex max-w-full overflow-x-auto gap-1.5 custom-scrollbar pb-1">
         {(Object.keys(LANG_CONFIG) as Lang[]).map((code) => {
           const isSelected = activeLang === code
           return (
             <button
               key={code}
               onClick={() => handleLangSelect(code)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 whitespace-nowrap border ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 whitespace-nowrap border cursor-pointer ${
                 isSelected
                   ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
                   : "bg-card border-border/50 text-muted-foreground hover:text-foreground"
@@ -554,8 +566,8 @@ function ChatbotInner() {
         </div>
       </div>
 
-      {/* Main layout split (Top: Giant mic, Bottom: bubble list) */}
-      <div className="flex-1 flex flex-col justify-between overflow-hidden gap-4">
+      {/* Main layout (Top: Voice control, Bottom: Recent Conversations card) */}
+      <div className="w-full flex flex-col gap-6">
         
         {/* UPPER PORTION: Voice control panel */}
         <div className="relative flex flex-col items-center justify-center rounded-2xl border border-border bg-card/70 py-4 shadow-xs select-none">
@@ -662,90 +674,97 @@ function ChatbotInner() {
           </div>
         </div>
 
-        {/* LOWER PORTION: Conversation bubbles */}
-        <div className="flex-1 overflow-hidden flex flex-col border border-border/50 shadow-sm bg-card rounded-2xl relative">
+        {/* LOWER PORTION: Recent Conversations card */}
+        <div className="w-full flex flex-col border border-border/60 shadow-sm bg-card rounded-2xl overflow-hidden">
           
-          <div className="px-5 py-3 border-b border-border/50 bg-muted/20 flex items-center justify-between shrink-0">
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-1.5">
-              <History className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <div className="px-5 py-3.5 border-b border-border/50 bg-muted/20 flex items-center justify-between shrink-0">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-bold flex items-center gap-2">
+              <History className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               {t("voice_assistant.history")}
             </span>
             {messages.length > 1 && (
               <button 
-                onClick={() => setMessages([{ id: "welcome", text: LANG_CONFIG[activeLang].welcome, sender: "bot", language: activeLang }])}
-                className="text-[10px] text-muted-foreground hover:text-foreground font-semibold flex items-center gap-1 border border-border/50 px-2.5 py-1 rounded-lg transition-all"
+                onClick={() => {
+                  assistantSessionRef.current = null
+                  setMessages([{ id: "welcome", text: LANG_CONFIG[activeLang].welcome, sender: "bot", language: activeLang }])
+                }}
+                className="text-xs text-muted-foreground hover:text-foreground font-semibold flex items-center gap-1 border border-border/60 px-2.5 py-1 rounded-lg transition-all hover:bg-muted/50 cursor-pointer"
               >
                 Clear
               </button>
             )}
           </div>
 
-          {/* List scroll panel */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-4 custom-scrollbar">
-            <AnimatePresence initial={false}>
-              {messages.map((msg) => {
-                const isBot = msg.sender === "bot"
-                const showPlay = isBot && msg.id !== "welcome"
-                
-                return (
-                  <motion.div
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 15, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.2 }}
-                    className={`flex items-start gap-2 max-w-[85%] ${isBot ? "mr-auto" : "ml-auto flex-row-reverse"}`}
-                  >
-                    {/* Message Bubble wrapper */}
-                    <div className={`rounded-2xl p-3 text-xs md:text-sm leading-relaxed relative flex flex-col gap-2 transition-all duration-200 shadow-sm ${
-                      isBot
-                        ? "bg-muted/50 border border-border/50 text-foreground rounded-tl-sm"
-                        : "bg-emerald-600 text-white rounded-tr-sm font-normal"
-                    }`}>
-                      
-                      {/* Optional attached query image */}
-                      {msg.imageUrl && (
-                        <div className="rounded-lg overflow-hidden border border-border/50 max-h-40 overflow-hidden mb-1">
-                          <img src={msg.imageUrl} className="w-full object-cover max-h-40" alt="Query reference crop" />
-                        </div>
-                      )}
-
-                      {/* Text content block */}
-                      <p className="whitespace-pre-wrap">{msg.text}</p>
-
-                      {/* Audio voice note button */}
-                      {showPlay && (
-                        <div className="flex items-center gap-2 pt-1.5 border-t border-border/50 mt-1 shrink-0">
-                          <button
-                            onClick={() => msg.isPlaying ? stopCurrentAudio() : playAudio(msg.text, msg.language, msg.id)}
-                            className={`h-7 w-7 rounded-full flex items-center justify-center transition-all ${
-                              msg.isPlaying 
-                                ? "bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30" 
-                                : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
-                            }`}
-                          >
-                            {msg.isPlaying ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current ml-0.5" />}
-                          </button>
+          {/* Card body - expands naturally based on content */}
+          <div className="p-5 md:p-6 space-y-6">
+            {messages.length > 0 && (
+              <div className="space-y-4">
+                <AnimatePresence initial={false}>
+                  {messages.map((msg) => {
+                    const isBot = msg.sender === "bot"
+                    const showPlay = isBot && msg.id !== "welcome"
+                    
+                    return (
+                      <motion.div
+                        key={msg.id}
+                        initial={{ opacity: 0, y: 15, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                        className={`flex items-start gap-2 max-w-[85%] ${isBot ? "mr-auto" : "ml-auto flex-row-reverse"}`}
+                      >
+                        {/* Message Bubble wrapper */}
+                        <div className={`rounded-2xl p-3 text-xs md:text-sm leading-relaxed relative flex flex-col gap-2 transition-all duration-200 shadow-sm ${
+                          isBot
+                            ? "bg-muted/50 border border-border/50 text-foreground rounded-tl-sm"
+                            : "bg-emerald-600 text-white rounded-tr-sm font-normal"
+                        }`}>
                           
-                          {/* Animated voice sound waves visualization */}
-                          {msg.isPlaying ? (
-                            <div className="flex items-center gap-0.5 h-3 px-1">
-                              <span className="w-0.5 h-2 bg-emerald-500 rounded animate-[pulse_0.4s_infinite_alternate]" />
-                              <span className="w-0.5 h-3 bg-emerald-500 rounded animate-[pulse_0.3s_infinite_alternate_0.1s]" />
-                              <span className="w-0.5 h-1.5 bg-emerald-500 rounded animate-[pulse_0.5s_infinite_alternate_0.2s]" />
-                              <span className="w-0.5 h-2 bg-emerald-500 rounded animate-[pulse_0.4s_infinite_alternate]" />
+                          {/* Optional attached query image */}
+                          {msg.imageUrl && (
+                            <div className="rounded-lg overflow-hidden border border-border/50 max-h-40 overflow-hidden mb-1">
+                              <img src={msg.imageUrl} className="w-full object-cover max-h-40" alt="Query reference crop" />
                             </div>
-                          ) : (
-                            <span className="text-[10px] text-muted-foreground font-medium">
-                              Tap to hear response
-                            </span>
+                          )}
+
+                          {/* Text content block */}
+                          <p className="whitespace-pre-wrap">{msg.text}</p>
+
+                          {/* Audio voice note button */}
+                          {showPlay && (
+                            <div className="flex items-center gap-2 pt-1.5 border-t border-border/50 mt-1 shrink-0">
+                              <button
+                                onClick={() => msg.isPlaying ? stopCurrentAudio() : playAudio(msg.text, msg.language, msg.id)}
+                                className={`h-7 w-7 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                                  msg.isPlaying 
+                                    ? "bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30" 
+                                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
+                                }`}
+                              >
+                                {msg.isPlaying ? <Pause className="h-3 w-3 fill-current" /> : <Play className="h-3 w-3 fill-current ml-0.5" />}
+                              </button>
+                              
+                              {/* Animated voice sound waves visualization */}
+                              {msg.isPlaying ? (
+                                <div className="flex items-center gap-0.5 h-3 px-1">
+                                  <span className="w-0.5 h-2 bg-emerald-500 rounded animate-[pulse_0.4s_infinite_alternate]" />
+                                  <span className="w-0.5 h-3 bg-emerald-500 rounded animate-[pulse_0.3s_infinite_alternate_0.1s]" />
+                                  <span className="w-0.5 h-1.5 bg-emerald-500 rounded animate-[pulse_0.5s_infinite_alternate_0.2s]" />
+                                  <span className="w-0.5 h-2 bg-emerald-500 rounded animate-[pulse_0.4s_infinite_alternate]" />
+                                </div>
+                              ) : (
+                                <span className="text-[10px] text-muted-foreground font-medium">
+                                  Tap to hear response
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )
-              })}
-            </AnimatePresence>
+                      </motion.div>
+                    )
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
 
             {isThinking && (
               <motion.div 
@@ -763,7 +782,7 @@ function ChatbotInner() {
 
             {/* Empty state onboarding helper dashboard & FAQs */}
             {messages.length <= 1 && (
-              <div className="mt-8 border-t border-border/50 pt-8 space-y-8 animate-fade-in text-left">
+              <div className="space-y-8 animate-fade-in text-left">
                 {/* Onboarding suggestions */}
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">
@@ -810,26 +829,26 @@ function ChatbotInner() {
                   <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">
                     {activeLang === 'en' ? ONBOARDING_HELPERS.en.faqTitle : ONBOARDING_HELPERS.hi.faqTitle}
                   </h4>
-                  <div className="space-y-2">
+                  <div className="space-y-2.5">
                     {(activeLang === 'en' ? CHATBOT_FAQS.en : CHATBOT_FAQS.hi).map((faq, i) => {
                       const isOpen = faqOpenIndex === i
                       return (
                         <div 
                           key={i} 
-                          className="rounded-xl border border-border/50 bg-card overflow-hidden transition-all duration-200"
+                          className="rounded-xl border border-border/60 bg-card overflow-hidden transition-all duration-200"
                         >
                           <button
                             type="button"
                             onClick={() => setFaqOpenIndex(isOpen ? null : i)}
-                            className="w-full text-left p-3.5 flex justify-between items-center text-xs font-bold text-foreground hover:bg-muted/30 transition-colors cursor-pointer"
+                            className="w-full text-left p-3.5 sm:p-4 flex justify-between items-center text-xs sm:text-sm font-semibold text-foreground hover:bg-muted/30 transition-colors cursor-pointer"
                           >
-                            <span>{faq.q}</span>
+                            <span className="pr-2">{faq.q}</span>
                             <span className="text-muted-foreground text-sm font-light leading-none shrink-0 ml-2">
                               {isOpen ? '−' : '+'}
                             </span>
                           </button>
                           {isOpen && (
-                            <div className="p-3.5 pt-0 border-t border-border/50 text-xs text-muted-foreground leading-relaxed bg-muted/10 font-normal animate-fade-in">
+                            <div className="p-3.5 sm:p-4 pt-0 border-t border-border/50 text-xs sm:text-sm text-muted-foreground leading-relaxed bg-muted/10 font-normal animate-fade-in">
                               {faq.a}
                             </div>
                           )}
@@ -845,8 +864,8 @@ function ChatbotInner() {
           </div>
 
           {/* Footer warning */}
-          <div className="p-3 border-t border-border/50 bg-muted/20 text-center flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground shrink-0">
-            <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <div className="p-3.5 border-t border-border/50 bg-muted/20 text-center flex items-center justify-center gap-2 text-xs text-muted-foreground shrink-0">
+            <ShieldAlert className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span>AI advisor recommendations. Always cross-verify with local agronomists.</span>
           </div>
 

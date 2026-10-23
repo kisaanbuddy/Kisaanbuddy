@@ -615,7 +615,200 @@ def delete_media(
         raise HTTPException(status_code=404, detail="Media asset not found.")
     db.delete(asset)
     record_activity(db, "admin.media_deleted", user_id=admin.id, details={"media_id": media_id}, request=request)
-    db.commit()
-
     return None
+
+
+# ===========================================================================
+# Marketplace & Catalogue Admin Management
+# ===========================================================================
+
+@router.get("/marketplace/summary")
+def get_marketplace_admin_summary(db: Session = Depends(get_db)):
+    """Summary of catalogue records, active listings, and import jobs."""
+    cat_count = db.query(models.EquipmentCatalog).count()
+    rent_count = db.query(models.EquipmentListing).filter(models.EquipmentListing.listing_type == "rent").count()
+    sale_count = db.query(models.EquipmentListing).filter(models.EquipmentListing.listing_type == "sale").count()
+    produce_count = db.query(models.ProduceListing).count()
+    price_count = db.query(models.MarketPriceRecord).count()
+    job_count = db.query(models.ImportJob).count()
+    sources_count = db.query(models.ImportSource).count()
+
+    return {
+        "equipment_catalog_total": cat_count,
+        "equipment_rentals_active": rent_count,
+        "equipment_sales_active": sale_count,
+        "produce_lots_active": produce_count,
+        "market_price_records": price_count,
+        "import_jobs_total": job_count,
+        "sources_registered": sources_count,
+    }
+
+
+@router.get("/marketplace/sources")
+def get_admin_import_sources(db: Session = Depends(get_db)):
+    """List registered external sources with statistics."""
+    sources = db.query(models.ImportSource).all()
+    return sources
+
+
+@router.post("/marketplace/sources/{source_slug}/trigger")
+def trigger_source_import(
+    source_slug: str,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Trigger import from a registered source."""
+    source = db.query(models.ImportSource).filter(models.ImportSource.source_slug == source_slug).first()
+    if not source:
+        raise HTTPException(status_code=404, detail=f"Source {source_slug} not found.")
+
+    if source_slug == "agmarknet_mandi":
+        from services.marketplace_import.agmarknet_importer import AgmarknetPriceImporter
+        importer = AgmarknetPriceImporter(db)
+        res = importer.import_benchmarks()
+        return {"status": "success", "result": res}
+    elif source_slug == "machinepoint":
+        from services.marketplace_import.machinepoint_importer import MachinePointImporter
+        importer = MachinePointImporter(db)
+        res = importer.import_all(update_existing=True)
+        return {"status": "success", "result": res}
+    else:
+        from services.marketplace_import.equipment_importer import EquipmentCatalogueImporter
+        from services.marketplace_import.initial_catalog_data import INITIAL_EQUIPMENT_CATALOG
+        importer = EquipmentCatalogueImporter(db, source_slug=source_slug)
+        res = importer.import_records(INITIAL_EQUIPMENT_CATALOG, update_existing=True)
+        return {"status": "success", "result": res}
+
+
+@router.post("/marketplace/upload-catalogue")
+async def upload_catalogue_data(
+    file: UploadFile = File(...),
+    source_slug: str = Query(default="mfg_catalogues"),
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Upload CSV or JSON file to import equipment reference catalogue records."""
+    from services.marketplace_import.equipment_importer import EquipmentCatalogueImporter
+
+    content_bytes = await file.read()
+    text = content_bytes.decode("utf-8", errors="replace")
+
+    importer = EquipmentCatalogueImporter(db, source_slug=source_slug)
+    filename = (file.filename or "").lower()
+
+    if filename.endswith(".json") or text.strip().startswith("["):
+        res = importer.import_json_text(text, update_existing=True)
+    elif filename.endswith(".csv") or "," in text:
+        res = importer.import_csv_text(text, update_existing=True)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file format. Please upload a CSV or JSON file.")
+
+    return {"status": "success", "result": res}
+
+
+@router.get("/marketplace/jobs")
+def get_import_jobs(
+    limit: int = Query(default=20, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    """List recent import execution jobs."""
+    jobs = db.query(models.ImportJob).order_by(models.ImportJob.started_at.desc()).limit(limit).all()
+    return jobs
+
+
+@router.get("/marketplace/jobs/{job_id}/logs")
+def get_import_job_logs(job_id: int, db: Session = Depends(get_db)):
+    """Retrieve detailed logs for an import job."""
+    logs = db.query(models.ImportLog).filter(models.ImportLog.job_id == job_id).order_by(models.ImportLog.timestamp.asc()).all()
+    return logs
+
+
+@router.patch("/marketplace/catalog/{item_id}")
+def update_catalog_item(
+    item_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Update or toggle active state of reference catalogue item."""
+    item = db.query(models.EquipmentCatalog).filter(models.EquipmentCatalog.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Catalogue item not found.")
+
+    for k, v in payload.items():
+        if hasattr(item, k) and k not in ("id", "created_at"):
+            setattr(item, k, v)
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return item
+
+
+@router.post("/marketplace/catalog/merge")
+def merge_catalog_duplicates(
+    primary_id: int = Query(...),
+    duplicate_ids: List[int] = Query(...),
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Merge duplicate catalogue items into primary_id and reassign listings."""
+    primary = db.query(models.EquipmentCatalog).filter(models.EquipmentCatalog.id == primary_id).first()
+    if not primary:
+        raise HTTPException(status_code=404, detail="Primary catalogue item not found.")
+
+    merged_count = 0
+    for dup_id in duplicate_ids:
+        if dup_id == primary_id:
+            continue
+        dup = db.query(models.EquipmentCatalog).filter(models.EquipmentCatalog.id == dup_id).first()
+        if dup:
+            # Reassign any equipment listings linked to dup
+            db.query(models.EquipmentListing).filter(models.EquipmentListing.catalog_id == dup_id).update(
+                {"catalog_id": primary_id}
+            )
+            # Deactivate duplicate
+            dup.is_active = False
+            dup.description = (dup.description or "") + f" [Merged into ID #{primary_id}]"
+            merged_count += 1
+
+    db.commit()
+    return {"status": "success", "primary_id": primary_id, "merged_count": merged_count}
+
+
+@router.patch("/marketplace/equipment-listings/{item_id}")
+def moderate_equipment_listing(
+    item_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Admin moderate equipment listing (change status, verify, or disable)."""
+    item = db.query(models.EquipmentListing).filter(models.EquipmentListing.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Equipment listing not found.")
+    for k, v in payload.items():
+        if hasattr(item, k) and k not in ("id", "created_at"):
+            setattr(item, k, v)
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return item
+
+
+@router.patch("/marketplace/produce-listings/{item_id}")
+def moderate_produce_listing(
+    item_id: int,
+    payload: dict,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_admin),
+):
+    """Admin moderate produce listing (verify, disable stale listing)."""
+    item = db.query(models.ProduceListing).filter(models.ProduceListing.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Produce listing not found.")
+    for k, v in payload.items():
+        if hasattr(item, k) and k not in ("id", "created_at"):
+            setattr(item, k, v)
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return item
+
 

@@ -30,12 +30,20 @@ async def _tool_get_weather(
     try:
         from services.weather_service import orchestrator
 
+        if lat is None or lon is None:
+            if city:
+                try:
+                    hits = await orchestrator.search(city, limit=1)
+                    if hits:
+                        lat, lon = hits[0].lat, hits[0].lon
+                except Exception:
+                    pass
+
         if lat is not None and lon is not None:
-            data = await orchestrator.get_current(lat=lat, lon=lon)
-        elif city:
-            data = await orchestrator.get_current_by_city(city)
+            res = await orchestrator.get_current(lat=lat, lon=lon)
+            data = res.payload if hasattr(res, "payload") else res
         else:
-            return {"error": "Need either lat/lon or city."}
+            return {"error": f"Could not determine coordinates for '{city or 'unknown'}'."}
         return {
             "location": data.get("location"),
             "temperature_c": data.get("temperature_c"),
@@ -60,12 +68,20 @@ async def _tool_get_forecast(
         from services.weather_service import orchestrator
 
         days = max(1, min(7, int(days or 5)))
+        if lat is None or lon is None:
+            if city:
+                try:
+                    hits = await orchestrator.search(city, limit=1)
+                    if hits:
+                        lat, lon = hits[0].lat, hits[0].lon
+                except Exception:
+                    pass
+
         if lat is not None and lon is not None:
-            data = await orchestrator.get_forecast(lat=lat, lon=lon, days=days)
-        elif city:
-            data = await orchestrator.get_forecast_by_city(city, days=days)
+            res = await orchestrator.get_forecast(lat=lat, lon=lon, days=days)
+            data = res.payload if hasattr(res, "payload") else res
         else:
-            return {"error": "Need either lat/lon or city."}
+            return {"error": f"Could not determine coordinates for '{city or 'unknown'}'."}
         # Compact: keep daily summary only — keeps response small for the model.
         daily = data.get("daily") or []
         return {
@@ -126,14 +142,21 @@ async def _tool_list_schemes(
             "count": len(schemes),
             "schemes": [
                 {
+                    "scheme_id": s.get("scheme_id"),
                     "name": s.get("name"),
                     "category": s.get("category"),
                     "state": s.get("state"),
+                    "benefits": s.get("benefits"),
                     "summary": s.get("summary"),
-                    "url": s.get("url"),
+                    "eligibility": s.get("eligibility"),
+                    "deadline": s.get("deadline"),
+                    "official_source_url": s.get("url"),
+                    "application_url": s.get("application_url"),
+                    "last_verified": s.get("last_verified"),
                 }
-                for s in schemes[:25]
+                for s in schemes[:15]
             ],
+            "disclaimer": "All schemes are grounded in official government gazettes. KisaanBuddy does not guarantee scheme approval.",
         }
     except Exception as e:
         log.warning("tool list_schemes failed: %s", e)
@@ -149,11 +172,25 @@ async def _tool_get_mandi_prices(
     market: Optional[str] = None,
 ) -> Dict[str, Any]:
     try:
-        from services.providers.mandi_provider import get_prices
+        # Reuse the same AGMARKNET-backed source exposed by the API route.
+        # Its explicit source label prevents the assistant from presenting a
+        # fallback record as a live market quotation.
+        from api.mandi import fetch_live_crops
 
-        crops = get_prices(crop=crop, state=state, market=market)
+        crops, source = await fetch_live_crops()
+        if crop:
+            crops = [c for c in crops if crop.casefold() in c["name"].casefold()]
+        if state:
+            crops = [c for c in crops if state.casefold() in c["state"].casefold()]
+        if market:
+            crops = [c for c in crops if market.casefold() in c["mandi"].casefold()]
         return {
             "count": len(crops),
+            "source": source,
+            "observation_note": (
+                "Live AGMARKNET data" if source == "live"
+                else "Fallback reference data; it is not a live market quote."
+            ),
             "crops": [
                 {
                     "name": c.get("name"),

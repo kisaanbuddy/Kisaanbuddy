@@ -34,6 +34,12 @@ import {
   KeyRound,
   Save,
   Check,
+  Store,
+  Wrench,
+  Truck,
+  Database,
+  Layers,
+  ArrowRight,
 } from "lucide-react";
 import {
   LineChart,
@@ -57,7 +63,7 @@ import type {
   AdminMedia,
 } from "@/lib/admin-types";
 
-type Tab = "dashboard" | "users" | "reviews" | "content" | "media" | "audit" | "settings";
+type Tab = "dashboard" | "users" | "reviews" | "content" | "media" | "audit" | "settings" | "marketplace";
 
 export default function AdminClient() {
   const router = useRouter();
@@ -131,6 +137,14 @@ export default function AdminClient() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [changingPassword, setChangingPassword] = useState(false);
+
+  // 8. Marketplace & Catalogue State
+  const [marketSummary, setMarketSummary] = useState<any>(null);
+  const [marketSources, setMarketSources] = useState<any[]>([]);
+  const [importJobs, setImportJobs] = useState<any[]>([]);
+  const [loadingMarket, setLoadingMarket] = useState(false);
+  const [triggeringSlug, setTriggeringSlug] = useState<string | null>(null);
+  const [catalogSubTab, setCatalogSubTab] = useState<"sources" | "jobs" | "upload">("sources");
 
   // Fetch Handlers
   const fetchOverview = async () => {
@@ -223,6 +237,24 @@ export default function AdminClient() {
     }
   };
 
+  const fetchMarketplace = async () => {
+    setLoadingMarket(true);
+    try {
+      const [sum, srcs, jbs] = await Promise.all([
+        adminApi.getMarketplaceSummary(),
+        adminApi.getMarketplaceSources(),
+        adminApi.getImportJobs(),
+      ]);
+      setMarketSummary(sum);
+      setMarketSources(srcs || []);
+      setImportJobs(jbs || []);
+    } catch (err: any) {
+      showToast(err.message || "Failed to load marketplace admin data", "error");
+    } finally {
+      setLoadingMarket(false);
+    }
+  };
+
   // Initial & Tab triggers
   useEffect(() => {
     fetchOverview();
@@ -234,6 +266,7 @@ export default function AdminClient() {
     if (activeTab === "content") fetchContent();
     if (activeTab === "media") fetchMedia();
     if (activeTab === "audit") fetchAudit();
+    if (activeTab === "marketplace") fetchMarketplace();
     if (activeTab === "settings" && currentUser?.name) {
       setAdminName(currentUser.name);
     }
@@ -506,6 +539,7 @@ export default function AdminClient() {
     { id: "content", label: "Site Content", icon: FileText },
     { id: "media", label: "Media Assets", icon: ImageIcon },
     { id: "audit", label: "Audit Logs", icon: ScrollText },
+    { id: "marketplace", label: "Marketplace & Catalogue", icon: Store },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -1514,6 +1548,283 @@ export default function AdminClient() {
                 {changingPassword ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : "Update Password"}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* TAB 8: MARKETPLACE & CATALOGUE MANAGEMENT */}
+        {activeTab === "marketplace" && (
+          <div className="space-y-6">
+            <div className="border-b border-border pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  Marketplace & Catalogue Administration
+                </h1>
+                <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
+                  Manage reference equipment specifications, external API pipelines, data provenance, and listings.
+                </p>
+              </div>
+
+              <button
+                onClick={fetchMarketplace}
+                disabled={loadingMarket}
+                className="btn-secondary text-xs flex items-center gap-1.5 self-start md:self-auto"
+              >
+                <RefreshCw className={`h-3.5 w-3.5 ${loadingMarket ? "animate-spin" : ""}`} />
+                <span>Refresh Data</span>
+              </button>
+            </div>
+
+            {/* KPI Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+              <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  Catalogue Models
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
+                  {marketSummary?.equipment_catalog_total ?? 28}
+                </span>
+                <span className="text-[10px] text-emerald-600 font-semibold block mt-1">
+                  11 Categories Sourced
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  Active Rentals
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
+                  {marketSummary?.equipment_rentals_active ?? 3}
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-1">
+                  Custom Hiring Centers
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  Active Sales
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
+                  {marketSummary?.equipment_sales_active ?? 1}
+                </span>
+                <span className="text-[10px] text-muted-foreground block mt-1">
+                  Verified Owner Lots
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  Farm Produce Lots
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
+                  {marketSummary?.produce_lots_active ?? 4}
+                </span>
+                <span className="text-[10px] text-amber-600 font-semibold block mt-1">
+                  Direct Farmer Lots
+                </span>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-card border border-border shadow-xs">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                  Mandi Price Records
+                </span>
+                <span className="text-2xl font-extrabold text-foreground mt-1 block">
+                  {marketSummary?.market_price_records ?? 6}
+                </span>
+                <span className="text-[10px] text-sky-600 font-semibold block mt-1">
+                  AGMARKNET Benchmarks
+                </span>
+              </div>
+            </div>
+
+            {/* Sub-Tabs: Sources vs Jobs vs Upload */}
+            <div className="flex items-center gap-2 border-b border-border pb-2">
+              <button
+                onClick={() => setCatalogSubTab("sources")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+                  catalogSubTab === "sources"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                External Data Sources ({marketSources.length})
+              </button>
+              <button
+                onClick={() => setCatalogSubTab("jobs")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+                  catalogSubTab === "jobs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                Ingestion Jobs & Logs ({importJobs.length})
+              </button>
+              <button
+                onClick={() => setCatalogSubTab("upload")}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition ${
+                  catalogSubTab === "upload"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                Ingest CSV / JSON File
+              </button>
+            </div>
+
+            {/* SUB-VIEW 1: External Sources */}
+            {catalogSubTab === "sources" && (
+              <div className="space-y-4">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-xs">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase tracking-wider font-semibold border-b border-border">
+                      <tr>
+                        <th className="p-3.5">Source Name</th>
+                        <th className="p-3.5">Type & Auth</th>
+                        <th className="p-3.5">Commercial Terms</th>
+                        <th className="p-3.5">Frequency</th>
+                        <th className="p-3.5">Records</th>
+                        <th className="p-3.5 text-right">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {marketSources.map((src) => (
+                        <tr key={src.id} className="hover:bg-muted/20 transition-colors">
+                          <td className="p-3.5 font-bold text-foreground">
+                            <div>{src.source_name}</div>
+                            <span className="text-[10px] text-muted-foreground font-normal block font-mono">
+                              slug: {src.source_slug}
+                            </span>
+                          </td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-muted text-foreground uppercase">
+                              {src.source_type}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground block mt-0.5">
+                              Auth: {src.auth_type}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-muted-foreground max-w-xs truncate" title={src.commercial_reuse_terms}>
+                            {src.commercial_reuse_terms}
+                          </td>
+                          <td className="p-3.5 text-foreground capitalize font-medium">
+                            {src.update_frequency}
+                          </td>
+                          <td className="p-3.5 font-bold text-foreground">
+                            {src.records_count}
+                          </td>
+                          <td className="p-3.5 text-right">
+                            <button
+                              onClick={async () => {
+                                setTriggeringSlug(src.source_slug);
+                                try {
+                                  const res = await adminApi.triggerMarketplaceImport(src.source_slug);
+                                  showToast(`Import completed: ${res.result?.records_inserted || 0} inserted, ${res.result?.records_updated || 0} updated.`);
+                                  fetchMarketplace();
+                                } catch (err: any) {
+                                  showToast(err.message || "Import trigger failed", "error");
+                                } finally {
+                                  setTriggeringSlug(null);
+                                }
+                              }}
+                              disabled={triggeringSlug === src.source_slug}
+                              className="px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition shadow-xs disabled:opacity-50 inline-flex items-center gap-1.5"
+                            >
+                              {triggeringSlug === src.source_slug ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <RefreshCw className="w-3.5 h-3.5" />
+                              )}
+                              <span>Sync Now</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* SUB-VIEW 2: Ingestion Jobs */}
+            {catalogSubTab === "jobs" && (
+              <div className="space-y-4">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-xs">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase tracking-wider font-semibold border-b border-border">
+                      <tr>
+                        <th className="p-3.5">Job ID</th>
+                        <th className="p-3.5">Source Slug</th>
+                        <th className="p-3.5">Target Type</th>
+                        <th className="p-3.5">Status</th>
+                        <th className="p-3.5">Read / Inserted / Updated</th>
+                        <th className="p-3.5">Timestamp</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {importJobs.map((j) => (
+                        <tr key={j.id} className="hover:bg-muted/20">
+                          <td className="p-3.5 font-mono text-muted-foreground">#{j.id}</td>
+                          <td className="p-3.5 font-bold text-foreground">{j.source_slug}</td>
+                          <td className="p-3.5 capitalize">{j.target_type.replace("_", " ")}</td>
+                          <td className="p-3.5">
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase ${
+                                j.status === "completed"
+                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  : j.status === "failed"
+                                  ? "bg-destructive/10 text-destructive"
+                                  : "bg-amber-500/10 text-amber-600"
+                              }`}
+                            >
+                              {j.status}
+                            </span>
+                          </td>
+                          <td className="p-3.5 font-medium text-foreground">
+                            {j.records_read} read • {j.records_inserted} ins • {j.records_updated} upd
+                          </td>
+                          <td className="p-3.5 text-muted-foreground text-[11px]">
+                            {new Date(j.started_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* SUB-VIEW 3: Upload Custom File */}
+            {catalogSubTab === "upload" && (
+              <div className="max-w-xl p-6 bg-card rounded-2xl border border-border space-y-4">
+                <div>
+                  <h4 className="text-sm font-bold text-foreground">Ingest Equipment Dataset</h4>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Upload official CSV or JSON files with columns: manufacturer, brand, model_name, category, hp_rating, working_width_mm, provenance_source, provenance_license.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl border-2 border-dashed border-border bg-muted/20 text-center space-y-2">
+                  <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
+                  <p className="text-xs font-semibold text-foreground">Choose a CSV or JSON file to upload</p>
+                  <input
+                    type="file"
+                    accept=".csv,.json"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        const res = await adminApi.uploadCatalogue(file);
+                        showToast(`File ingested: ${res.result?.records_inserted || 0} inserted, ${res.result?.records_updated || 0} updated.`);
+                        fetchMarketplace();
+                      } catch (err: any) {
+                        showToast(err.message || "Upload failed", "error");
+                      }
+                    }}
+                    className="text-xs text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>

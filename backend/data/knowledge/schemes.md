@@ -86,15 +86,34 @@ All amounts and eligibility criteria as of the last stable update — advise far
 - **What**: 25–35% subsidy on project cost up to ₹50 lakh (manufacturing), ₹20 lakh (services).
 - **Apply**: KVIC portal or DIC.
 
+## Bihar DBT Agricultural Mechanization (कृषि यांत्रिकीकरण योजना)
+- **What**: 40% to 80% subsidy on modern farm machinery (power tillers, rotavators, reapers, straw management).
+- **Who**: Farmers registered in Bihar with valid 13-digit Bihar DBT Farmer ID (Kisan Panjikaran).
+- **Portal**: dbtagriculture.bihar.gov.in / farmech.bih.nic.in (OFMAS).
+- **Apply**: Online via OFMAS, get permit (Kray Aadesh), purchase from empanelled dealer, undergo coordinator geotag verification.
+- **Helpline**: 0612-2233555 / 1800-180-1551.
+
+## Bihar Diesel Anudan Scheme (बिहार डीजल अनुदान योजना)
+- **What**: Emergency irrigation subsidy of ₹75/litre (₹750/acre per irrigation, up to 3–5 irrigations) during dry spells.
+- **Who**: Owner farmers and verified tenant/sharecropper farmers (gair-raiyat) with 13-digit Bihar DBT ID.
+- **Portal**: dbtagriculture.bihar.gov.in.
+- **Apply**: Upload computerized petrol pump receipt with DBT ID and land receipt (or tenant declaration signed by 2 adjacent farmers).
+
+## Uttar Pradesh Free Borewell Scheme (निःशुल्क बोरिंग योजना)
+- **What**: 100% free shallow boring + up to ₹10,000 pump set subsidy.
+- **Who**: Small (1–2 ha) and marginal (<1 ha) farmers in non-dark zone blocks of Uttar Pradesh.
+- **Portal**: upagripardarshi.gov.in.
+
 ## State-Specific Highlights
-- **Karnataka**: Raita Vidya Nidhi (farmer child scholarship), Krishi Bhagya (farm ponds, 90% subsidy for small farmers), Ksheera Bhagya (dairy incentive).
-- **Maharashtra**: Mahatma Jyotirao Phule Kisan Karj Mukti Yojana (loan waiver); Dr. BAMCAI — Vidarbha cotton drip scheme.
-- **Punjab**: Happy Seeder subsidy (80%) to avoid stubble burning.
-- **Telangana**: Rythu Bandhu — ₹10,000/acre/year input subsidy (was ₹8,000 earlier — check current).
-- **Andhra Pradesh**: YSR Rythu Bharosa — ₹13,500/year (Centre ₹6,000 + State ₹7,500) + other components.
-- **Odisha**: KALIA — ₹10,000/year for small/marginal.
-- **Tamil Nadu**: Uzhavan App, free power to agri pumps.
-- **Kerala**: Subhiksha Keralam vegetable scheme; Coconut Development Board schemes.
+- **Karnataka**: Krishi Bhagya (farm ponds/Krishi Honda, 80–90% subsidy via FRUITS portal), Raita Vidya Nidhi, Ksheera Bhagya.
+- **Bihar**: DBT Agriculture Portal (dbtagriculture.bihar.gov.in) for machinery subsidies, diesel anudan, organic input grants.
+- **Maharashtra**: Mahatma Jyotirao Phule Kisan Karj Mukti Yojana; Dr. BAMCAI Vidarbha drip scheme.
+- **Punjab**: Subsidies on Happy Seeder, Super Seeder, and CRM machinery to prevent stubble burning.
+- **Telangana**: Rythu Bandhu input assistance.
+- **Andhra Pradesh**: YSR Rythu Bharosa + PM-KISAN integration.
+- **Odisha**: KALIA scheme for small/marginal farmers and landless agricultural households.
+- **Tamil Nadu**: Uzhavan App, subsidized micro-irrigation, free agricultural power supply.
+- **Kerala**: Subhiksha Keralam vegetable scheme; Coconut Development Board replanting assistance.
 
 ## How to Actually Apply — Walk-through
 1. Check Aadhaar + bank account are linked.

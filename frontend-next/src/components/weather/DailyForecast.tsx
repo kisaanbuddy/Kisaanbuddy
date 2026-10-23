@@ -15,20 +15,19 @@ interface Props {
   loading?: boolean
 }
 
+const BCP47_MAP: Record<string, string> = {
+  en: "en-IN", hi: "hi-IN", kn: "kn-IN", mr: "mr-IN", te: "te-IN",
+  ta: "ta-IN", gu: "gu-IN", bn: "bn-IN", pa: "pa-IN", ml: "ml-IN", hi_en: "hi-IN"
+}
+
 function dayLabel(date: string, index: number, lang: Lang) {
   const t = WEATHER_T[lang] || WEATHER_T.hi
   if (index === 0) return t.today
   if (index === 1) return t.tomorrow
   const d = new Date(date + "T12:00:00")
+  const locale = BCP47_MAP[lang] || "en-IN"
   
-  if (lang === "hi") {
-    const weekdays = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"]
-    const months = ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"]
-    return `${weekdays[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`
-  }
-  
-  // Default format
-  return d.toLocaleDateString(lang === "en" ? "en-US" : undefined, { 
+  return d.toLocaleDateString(locale, { 
     weekday: "short", 
     day: "numeric", 
     month: "short" 

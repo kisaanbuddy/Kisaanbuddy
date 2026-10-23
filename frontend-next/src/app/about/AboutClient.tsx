@@ -241,41 +241,19 @@ export function AboutClient() {
         <div className="mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold font-display text-foreground">
-              {lang === 'hi' ? 'अक्सर पूछे जाने वाले प्रश्न (FAQ)' : 'Frequently Asked Questions (FAQ)'}
+              {t("about.faq_title")}
             </h2>
             <p className="text-xs text-muted-foreground mt-2">
-              {lang === 'hi' ? 'किसानमित्र के बारे में सामान्य प्रश्न और उत्तर' : 'Common questions and answers about KisaanBuddy'}
+              {t("about.faq_subtitle")}
             </p>
           </div>
 
           <div className="space-y-6">
-            {(lang === 'hi' ? [
-              {
-                q: "प्रश्न 1. किसानमित्र (KisaanBuddy) क्या है?",
-                a: "उत्तर: किसानमित्र एक एआई-संचालित स्मार्ट कृषि सलाहकार मंच है। यह भारतीय किसानों को फसल के रोगों की पहचान करने, मिट्टी के स्वास्थ्य के अनुसार खाद की सलाह देने, लाइव मंडी भाव जांचने और मौसम के अनुसार कृषि सलाह प्रदान करने में मदद करता है।"
-              },
-              {
-                q: "प्रश्न 2. क्या किसानमित्र का उपयोग करने के लिए कोई शुल्क है?",
-                a: "उत्तर: नहीं, किसानमित्र के सभी बुनियादी सलाहकार उपकरण, रोग स्कैनर, मंडी दरें और योजना खोजक उपकरण भारतीय किसानों के लिए पूरी तरह से मुफ्त हैं।"
-              },
-              {
-                q: "प्रश्न 3. किसानमित्र रोगों की पहचान कैसे करता है?",
-                a: "उत्तर: हमारा एआई मॉडल फसल की पत्ती की फोटो का विश्लेषण करके संक्रमण (जैसे ब्लास्ट, झुलसा या रतुआ) की तुरंत पहचान करता है और जैविक उपचार व रासायनिक रोकथाम के सटीक उपाय सुझाता है।"
-              }
-            ] : [
-              {
-                q: "Q1. What is KisaanBuddy?",
-                a: "Answer: KisaanBuddy is an AI-powered smart agriculture advisor platform. It helps Indian farmers identify crop leaf diseases, monitor soil health, check live APMC mandi prices, and receive real-time weather advisories."
-              },
-              {
-                q: "Q2. Is there any fee to use KisaanBuddy?",
-                a: "Answer: No, KisaanBuddy's core advisory features, crop scanners, mandi checks, and scheme advisory tools are completely free for farmers across India."
-              },
-              {
-                q: "Q3. How does the disease detection tool work?",
-                a: "Answer: Our AI model analyzes uploaded crop leaf photographs to instantly diagnose pathogens (like blight, blast, or rust) and suggest targeted organic remedies and chemical treatments."
-              }
-            ]).map((faq, idx) => (
+            {[
+              { q: t("about.faq_q1"), a: t("about.faq_a1") },
+              { q: t("about.faq_q2"), a: t("about.faq_a2") },
+              { q: t("about.faq_q3"), a: t("about.faq_a3") },
+            ].map((faq, idx) => (
               <div key={idx} className="border border-border/20 bg-card/25 p-5 rounded-2xl backdrop-blur-sm">
                 <h4 className="text-sm font-bold text-foreground font-display mb-2">{faq.q}</h4>
                 <p className="text-xs text-muted-foreground leading-relaxed font-semibold">{faq.a}</p>

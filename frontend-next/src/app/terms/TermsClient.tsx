@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { Scale, ArrowLeft, Shield, AlertTriangle, HelpCircle } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
+import { PageTransition } from '@/components/motion/MotionComponents';
 
 export function TermsClient() {
   const { t, lang } = useLanguage();
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-2 md:px-6">
+    <PageTransition className="max-w-4xl mx-auto py-8 px-2 md:px-6">
       
       {/* Back button */}
       <Link
@@ -115,6 +116,6 @@ export function TermsClient() {
         </section>
 
       </div>
-    </div>
+    </PageTransition>
   );
 }

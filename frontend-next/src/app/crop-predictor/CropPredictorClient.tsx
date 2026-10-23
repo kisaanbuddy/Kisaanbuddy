@@ -1,8 +1,10 @@
 "use client"
 
-import { useLanguage } from '@/lib/language'
+import { useLanguage, type Lang } from '@/lib/language'
+import { CROP_PREDICTOR_I18N } from "@/lib/crop-predictor-i18n"
 import { trackEvent } from '@/lib/analytics'
 import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { Sparkles, BrainCircuit, Activity, ChevronRight, Loader2, CheckCircle2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +16,9 @@ import { LocationAutoFill, type AutoFillValues } from "@/components/LocationAuto
 import { SensorAutoFill, type SensorValues } from "@/components/SensorAutoFill"
 
 export default function CropPredictor() {
+  const searchParams = useSearchParams()
   const { t, lang } = useLanguage()
+  const dict = CROP_PREDICTOR_I18N[lang] || CROP_PREDICTOR_I18N.en
   const [params, setParams] = useState({ N: 90, P: 42, K: 43, temperature: 25, humidity: 82, ph: 6.5, rainfall: 200 })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<string | null>(null)
@@ -139,6 +143,15 @@ export default function CropPredictor() {
     }
   }
 
+  // Voice navigation deliberately runs the same submit handler as the visible
+  // form so the recommendation and loading/error states are identical.
+  useEffect(() => {
+    if (searchParams.get("voice") !== "1") return
+    void handlePredict({ preventDefault: () => undefined } as React.FormEvent)
+    // The command URL is immutable for this mounted page.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleSlider = (key: keyof typeof params, value: number[]) => setParams(p => ({ ...p, [key]: value[0] }))
 
   // Apply auto-detected weather to the 3 climate sliders only
@@ -160,6 +173,7 @@ export default function CropPredictor() {
     }))
   }
 
+
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto">
       {/* Page Header */}
@@ -167,15 +181,13 @@ export default function CropPredictor() {
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Machine Learning Agronomy</span>
+            <span>{dict.tag}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold font-display text-foreground tracking-tight">
-            AI Crop Prediction & Yield Optimization
+            {dict.title}
           </h1>
           <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-xl">
-            {lang === "hi"
-              ? "मिट्टी के रासायनिक तत्वों (NPK), पीएच और स्थानीय मौसम के अनुसार सर्वाधिक लाभदायक फसल की पहचान करें।"
-              : "Analyze soil chemistry (N-P-K), pH, and regional climate metrics to discover your farm's highest-yield crop."}
+            {dict.subtitle}
           </p>
         </div>
       </div>
@@ -186,7 +198,7 @@ export default function CropPredictor() {
           <CardHeader className="p-0 pb-3 border-b border-border flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Activity className="text-primary h-4 w-4" />
-              <span>Farm & Soil Parameters</span>
+              <span>{dict.parametersTitle}</span>
             </CardTitle>
           </CardHeader>
 
@@ -199,7 +211,7 @@ export default function CropPredictor() {
           {/* Mode Switcher */}
           <div className="p-3 rounded-xl border border-border bg-muted/30 flex flex-col gap-2">
             <span className="text-xs font-semibold text-muted-foreground">
-              {lang === "hi" ? "मिट्टी जांच (NPK) रिपोर्ट का प्रकार:" : "Input method for soil metrics:"}
+              {dict.inputMethodLabel}
             </span>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -211,7 +223,7 @@ export default function CropPredictor() {
                     : "bg-background border border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {lang === "hi" ? "सटीक मान (स्लाइडर)" : "Enter NPK Values"}
+                {dict.inputManual}
               </button>
               <button
                 type="button"
@@ -222,7 +234,7 @@ export default function CropPredictor() {
                     : "bg-background border border-border text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {lang === "hi" ? "अनुमान लगाएं (प्रश्नावली)" : "Estimate by Soil Type"}
+                {dict.inputEstimate}
               </button>
             </div>
           </div>
@@ -234,65 +246,65 @@ export default function CropPredictor() {
                 {/* Soil Type Select */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {lang === "hi" ? "1. मिट्टी का प्रकार" : "1. Soil Type"}
+                    {dict.soilTypeLabel}
                   </Label>
                   <select
                     value={soilType}
                     onChange={(e) => setSoilType(e.target.value)}
                     className="select-base"
                   >
-                    <option value="loamy">{lang === "hi" ? "दोमट मिट्टी (Loamy Soil)" : "Loamy Soil"}</option>
-                    <option value="black">{lang === "hi" ? "काली मिट्टी (Black Soil)" : "Black Soil"}</option>
-                    <option value="red">{lang === "hi" ? "लाल मिट्टी (Red Soil)" : "Red Soil"}</option>
-                    <option value="sandy">{lang === "hi" ? "बलुई मिट्टी (Sandy Soil)" : "Sandy Soil"}</option>
+                    <option value="loamy">{dict.soilLoamy}</option>
+                    <option value="black">{dict.soilBlack}</option>
+                    <option value="red">{dict.soilRed}</option>
+                    <option value="sandy">{dict.soilSandy}</option>
                   </select>
                 </div>
 
                 {/* Last Crop Select */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {lang === "hi" ? "2. पिछली फसल" : "2. Last Crop Grown"}
+                    {dict.lastCropLabel}
                   </Label>
                   <select
                     value={lastCrop}
                     onChange={(e) => setLastCrop(e.target.value)}
                     className="select-base"
                   >
-                    <option value="none">{lang === "hi" ? "कोई नहीं / पहली बार" : "None / First time"}</option>
-                    <option value="pulses">{lang === "hi" ? "दालें / फलियां (Legumes)" : "Pulses / Legumes"}</option>
-                    <option value="grains">{lang === "hi" ? "धान या गेहूं (Paddy / Wheat)" : "Paddy or Wheat"}</option>
-                    <option value="sugarcane">{lang === "hi" ? "गन्ना या कपास (Cash Crops)" : "Cash Crops"}</option>
+                    <option value="none">{dict.lastCropNone}</option>
+                    <option value="pulses">{dict.lastCropPulses}</option>
+                    <option value="grains">{dict.lastCropGrains}</option>
+                    <option value="sugarcane">{dict.lastCropCash}</option>
                   </select>
                 </div>
 
                 {/* Irrigation Method */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {lang === "hi" ? "3. पानी की सुविधा" : "3. Water Availability"}
+                    {dict.waterLabel}
                   </Label>
                   <select
                     value={irrigation}
                     onChange={(e) => setIrrigation(e.target.value)}
                     className="select-base"
                   >
-                    <option value="canal">{lang === "hi" ? "भरपूर पानी (नहर / बोरवेल)" : "Irrigated (Canal / Tube well)"}</option>
-                    <option value="rainfed">{lang === "hi" ? "केवल वर्षा आधारित" : "Rainfed only"}</option>
+                    <option value="canal">{dict.waterIrrigated}</option>
+                    <option value="rainfed">{dict.waterRainfed}</option>
                   </select>
                 </div>
 
                 {/* Water Retention */}
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold">
-                    {lang === "hi" ? "4. जल निकासी" : "4. Drainage Rate"}
+                    {dict.drainageLabel}
                   </Label>
                   <select
                     value={retention}
                     onChange={(e) => setRetention(e.target.value)}
                     className="select-base"
                   >
-                    <option value="normal">{lang === "hi" ? "सामान्य (Normal)" : "Normal"}</option>
-                    <option value="stagnant">{lang === "hi" ? "जलभराव (Slow drainage)" : "Slow drainage"}</option>
-                    <option value="fast">{lang === "hi" ? "शीघ्र रिसाव (Fast drainage)" : "Fast drainage"}</option>
+                    <option value="normal">{dict.drainageNormal}</option>
+                    <option value="stagnant">{dict.drainageStagnant}</option>
+                    <option value="fast">{dict.drainageFast}</option>
                   </select>
                 </div>
 
@@ -302,7 +314,7 @@ export default function CropPredictor() {
                   <span>P: {params.P} mg/kg</span>
                   <span>K: {params.K} mg/kg</span>
                   <span>pH: {params.ph}</span>
-                  <span>Rain: {params.rainfall} mm</span>
+                  <span>{dict.rainLabel} {params.rainfall} mm</span>
                 </div>
               </div>
             ) : (
@@ -385,38 +397,54 @@ export default function CropPredictor() {
         <div className="md:col-span-5 flex flex-col justify-start gap-4">
           <AnimatePresence mode="wait">
             {!result ? (
-              <Card className="h-full min-h-[320px] flex flex-col items-center justify-center text-center p-6 border-dashed">
-                <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground mb-3">
-                  <Activity className="h-6 w-6" />
-                </div>
-                <h3 className="text-sm font-semibold text-foreground mb-1">
-                  Ready for Crop Analysis
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
-                  {t("crop_predictor.adjust_the_sliders_to")}
-                </p>
-              </Card>
-            ) : (
-              <Card className="p-6 border-primary/40 bg-primary/5 space-y-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
-                    {t("crop_predictor.recommended_crop")}
-                  </span>
-                  <h2 className="text-3xl sm:text-4xl font-black font-display text-foreground capitalize mt-1">
-                    {result}
-                  </h2>
-                </div>
-
-                <div className="rounded-lg border border-border bg-card p-4 space-y-2 text-xs">
-                  <div className="flex items-center gap-1.5 text-primary font-semibold">
-                    <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span>94.2% Agronomic Match Score</span>
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.96 }}
+                transition={{ duration: 0.22 }}
+              >
+                <Card className="h-full min-h-[320px] flex flex-col items-center justify-center text-center p-6 border-dashed">
+                  <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground mb-3">
+                    <Activity className="h-6 w-6" />
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Based on your soil's NPK balance, pH of {params.ph}, and regional rainfall of {params.rainfall}mm, this crop delivers the highest predicted yield margin.
+                  <h3 className="text-sm font-semibold text-foreground mb-1">
+                    {dict.readyForAnalysis}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+                    {t("crop_predictor.adjust_the_sliders_to")}
                   </p>
-                </div>
-              </Card>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Card className="p-6 border-primary/40 bg-primary/5 space-y-4 shadow-lg">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                      {t("crop_predictor.recommended_crop")}
+                    </span>
+                    <h2 className="text-3xl sm:text-4xl font-black font-display text-foreground capitalize mt-1">
+                      {result}
+                    </h2>
+                  </div>
+
+                  <div className="rounded-lg border border-border bg-card p-4 space-y-2 text-xs">
+                    <div className="flex items-center gap-1.5 text-primary font-semibold">
+                      <CheckCircle2 className="h-4 w-4 shrink-0" />
+                      <span>{dict.compatibilityScore}</span>
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {dict.compatibilityDesc}
+                    </p>
+                  </div>
+                </Card>
+              </motion.div>
             )}
           </AnimatePresence>
 

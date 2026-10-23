@@ -18,11 +18,16 @@ from typing import Literal
 
 log = logging.getLogger(__name__)
 
-Lang = Literal["en", "hi", "kn"]
+Lang = Literal["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"]
 
 # Unicode block ranges (inclusive).
 _DEVANAGARI = (0x0900, 0x097F)   # Hindi, Marathi, Sanskrit
 _KANNADA = (0x0C80, 0x0CFF)
+_BENGALI = (0x0980, 0x09FF)
+_GUJARATI = (0x0A80, 0x0AFF)
+_GURMUKHI = (0x0A00, 0x0A7F)
+_TAMIL = (0x0B80, 0x0BFF)
+_TELUGU = (0x0C00, 0x0C7F)
 
 # Small Hinglish/Kanglish keyword bias so langdetect doesn't misfire on short input.
 _HINDI_LATIN_HINTS = {
@@ -50,21 +55,24 @@ def detect_language(text: str) -> Lang:
     s = text.strip()
 
     # Script-based detection — exact and fast.
-    hi_count = kn_count = total_letters = 0
+    counts = {"hi": 0, "kn": 0, "bn": 0, "gu": 0, "pa": 0, "ta": 0, "te": 0}
+    total_letters = 0
     for ch in s:
         cp = ord(ch)
         if ch.isalpha():
             total_letters += 1
-        if _DEVANAGARI[0] <= cp <= _DEVANAGARI[1]:
-            hi_count += 1
-        elif _KANNADA[0] <= cp <= _KANNADA[1]:
-            kn_count += 1
+        if _DEVANAGARI[0] <= cp <= _DEVANAGARI[1]: counts["hi"] += 1
+        elif _KANNADA[0] <= cp <= _KANNADA[1]: counts["kn"] += 1
+        elif _BENGALI[0] <= cp <= _BENGALI[1]: counts["bn"] += 1
+        elif _GUJARATI[0] <= cp <= _GUJARATI[1]: counts["gu"] += 1
+        elif _GURMUKHI[0] <= cp <= _GURMUKHI[1]: counts["pa"] += 1
+        elif _TAMIL[0] <= cp <= _TAMIL[1]: counts["ta"] += 1
+        elif _TELUGU[0] <= cp <= _TELUGU[1]: counts["te"] += 1
 
     if total_letters > 0:
-        if kn_count / max(total_letters, 1) > 0.25:
-            return "kn"
-        if hi_count / max(total_letters, 1) > 0.25:
-            return "hi"
+        winner, count = max(counts.items(), key=lambda item: item[1])
+        if count / total_letters > 0.25:
+            return winner  # type: ignore[return-value]
 
     # Latin script — keyword bias first (catches "barish hogi kya?").
     lowered = s.lower()
@@ -80,10 +88,8 @@ def detect_language(text: str) -> Lang:
 
         DetectorFactory.seed = 0
         code = detect(s)
-        if code in ("hi", "mr", "ne"):  # treat Marathi/Nepali as Hindi for our 3-lang set
-            return "hi"
-        if code == "kn":
-            return "kn"
+        if code in ("hi", "mr", "bn", "kn", "te", "ta", "gu", "pa"):
+            return code  # type: ignore[return-value]
     except Exception as e:  # ImportError or LangDetectException
         log.debug("langdetect unavailable or failed: %s", e)
 
@@ -93,6 +99,6 @@ def detect_language(text: str) -> Lang:
 def resolve_language(requested: str, text: str) -> Lang:
     """Honour an explicit user choice; else auto-detect."""
     r = (requested or "").lower()
-    if r in ("hi", "kn", "en"):
+    if r in ("hi", "kn", "en", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"):
         return r  # type: ignore[return-value]
     return detect_language(text)

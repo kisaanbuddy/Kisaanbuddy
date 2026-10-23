@@ -1,9 +1,15 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle } from 'lucide-react'
-import { useLanguage } from '@/lib/language'
+import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle, Loader2, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+import { useLanguage, type Lang } from '@/lib/language'
+import { KHET_DIARY_I18N } from '@/lib/khet-diary-i18n'
+import { KHET_DIARY_GUIDE_I18N } from '@/lib/khet-diary-guide-i18n'
+import { useAuth } from '@/lib/auth'
+import { activitiesApi, fieldsApi, type FarmActivity, type FarmerField } from '@/lib/farmer-api'
 import { GlassCard, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
@@ -16,7 +22,8 @@ type LogEntry = {
   crop: string
 }
 
-export default function KhetDiaryPage() {
+function KhetDiaryContent() {
+  const searchParams = useSearchParams()
   const { lang } = useLanguage()
   const [logs, setLogs] = useState<LogEntry[]>([])
   
@@ -26,35 +33,120 @@ export default function KhetDiaryPage() {
   const [amount, setAmount] = useState('')
   const [crop, setCrop] = useState('')
 
+  // A voice command may prepare an entry, but it never saves it. The farmer
+  // reviews the real form and explicitly submits, preserving confirmation for
+  // a record-writing operation.
   useEffect(() => {
-    // Load mock initial logs
-    setLogs([
-      { id: '1', date: '2026-06-18', activity: 'Sowing Wheat seeds (HD-3086)', category: 'activity', amount: 0, crop: 'Wheat' },
-      { id: '2', date: '2026-06-18', activity: 'Purchased Urea & NPK fertilizers', category: 'expense', amount: 3200, crop: 'Wheat' },
-      { id: '3', date: '2026-06-19', activity: 'Sold Mustard harvest in eNAM mandi', category: 'income', amount: 48000, crop: 'Mustard' }
-    ])
-  }, [])
+    if (searchParams.get('voice') !== '1') return
+    const requestedCrop = searchParams.get('crop')
+    const requestedActivity = searchParams.get('activity')
+    if (requestedCrop) setCrop(requestedCrop)
+    if (requestedActivity) setActivity(requestedActivity)
+  }, [searchParams])
 
-  const handleAddEntry = (e: React.FormEvent) => {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  const loadActivities = async () => {
+    if (!user) {
+      setLogs([
+        { id: '1', date: '2026-06-18', activity: 'Sowing Wheat seeds (HD-3086)', category: 'activity', amount: 0, crop: 'Wheat' },
+        { id: '2', date: '2026-06-18', activity: 'Purchased Urea & NPK fertilizers', category: 'expense', amount: 3200, crop: 'Wheat' },
+        { id: '3', date: '2026-06-19', activity: 'Sold Mustard harvest in eNAM mandi', category: 'income', amount: 48000, crop: 'Mustard' }
+      ])
+      return
+    }
+    setLoading(true)
+    try {
+      const data = await activitiesApi.list()
+      if (data && data.length > 0) {
+        setLogs(data.map(d => ({
+          id: String(d.id),
+          date: d.activity_date,
+          activity: d.title,
+          category: d.category,
+          amount: d.amount || 0,
+          crop: d.notes || 'General'
+        })))
+      } else {
+        setLogs([])
+      }
+    } catch {
+      // Keep existing
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadActivities()
+  }, [user])
+
+  const handleAddEntry = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!activity.trim() || !crop.trim()) return
 
-    const newLog: LogEntry = {
-      id: Date.now().toString(),
-      date: new Date().toISOString().split('T')[0],
-      activity: activity.trim(),
-      category,
-      amount: category === 'activity' ? 0 : Number(amount) || 0,
-      crop: crop.trim()
+    const numAmount = category === 'activity' ? 0 : Number(amount) || 0
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    if (user) {
+      setSubmitting(true)
+      try {
+        const saved = await activitiesApi.create({
+          activity_date: todayStr,
+          activity_type: category === 'activity' ? 'sowing' : category === 'expense' ? 'fertilizer_application' : 'harvesting',
+          title: activity.trim(),
+          category,
+          amount: numAmount > 0 ? numAmount : undefined,
+          notes: crop.trim(),
+        })
+        const newLog: LogEntry = {
+          id: String(saved.id),
+          date: saved.activity_date,
+          activity: saved.title,
+          category: saved.category,
+          amount: saved.amount || 0,
+          crop: saved.notes || crop.trim()
+        }
+        setLogs([newLog, ...logs])
+      } catch (err) {
+        // Fallback local
+        const newLog: LogEntry = {
+          id: Date.now().toString(),
+          date: todayStr,
+          activity: activity.trim(),
+          category,
+          amount: numAmount,
+          crop: crop.trim()
+        }
+        setLogs([newLog, ...logs])
+      } finally {
+        setSubmitting(false)
+      }
+    } else {
+      const newLog: LogEntry = {
+        id: Date.now().toString(),
+        date: todayStr,
+        activity: activity.trim(),
+        category,
+        amount: numAmount,
+        crop: crop.trim()
+      }
+      setLogs([newLog, ...logs])
     }
 
-    setLogs([newLog, ...logs])
     setActivity('')
     setAmount('')
     setCrop('')
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (user && !isNaN(Number(id))) {
+      try {
+        await activitiesApi.delete(Number(id))
+      } catch {}
+    }
     setLogs(logs.filter(l => l.id !== id))
   }
 
@@ -112,6 +204,8 @@ export default function KhetDiaryPage() {
     ]
   };
 
+  const dict = KHET_DIARY_I18N[(lang as Lang) || 'en'] || KHET_DIARY_I18N.en
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">
       <script
@@ -132,22 +226,29 @@ export default function KhetDiaryPage() {
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl border border-border/50 bg-card p-6 md:p-8 shadow-sm"
       >
-        <div className="flex items-center gap-2.5 mb-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-            <BookOpen className="h-4.5 w-4.5" />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <BookOpen className="h-4.5 w-4.5" />
+            </div>
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              {dict.tag}
+            </span>
           </div>
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
-            {lang === 'hi' ? 'खेत डायरी — डिजिटल रिकॉर्ड' : 'Khet Diary — Digital Records'}
-          </span>
+          <Link
+            href="/farmer-profile"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl hover:bg-emerald-500/20 transition-colors w-fit"
+          >
+            <span>{dict.completeProfile}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold font-display tracking-tight text-foreground">
-          {lang === 'hi' ? 'मेरा डिजिटल ' : 'My Digital '}<span className="text-emerald-600 dark:text-emerald-400">{lang === 'hi' ? 'बहीखाता' : 'Farm Logbook'}</span>
+          {dict.headingPrefix}<span className="text-emerald-600 dark:text-emerald-400">{dict.headingHighlight}</span>
         </h1>
         <p className="text-muted-foreground text-xs md:text-sm mt-1.5 max-w-2xl leading-relaxed">
-          {lang === 'hi' 
-            ? 'अपने खेत के खर्चों, आय, और दैनिक गतिविधियों को ट्रैक करें। बैंक लोन और सरकारी योजनाओं के दस्तावेज़ीकरण के लिए बेहद उपयोगी।' 
-            : 'Track your farm expenses, income, and daily agricultural activities. Essential for bank loans and government crop documentation.'}
+          {dict.description}
         </p>
       </motion.div>
 
@@ -158,19 +259,19 @@ export default function KhetDiaryPage() {
           <div className="border border-border/50 bg-card p-6 rounded-2xl shadow-sm">
             <div className="pb-4 mb-4 border-b border-border/40">
               <h3 className="text-base font-bold text-foreground font-display">
-                {lang === 'hi' ? 'नयी प्रविष्टि जोड़ें' : 'Add New Entry'}
+                {dict.addEntryTitle}
               </h3>
             </div>
             <form onSubmit={handleAddEntry} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  {lang === 'hi' ? 'फसल का नाम' : 'Crop Name'}
+                  {dict.cropName}
                 </label>
                 <input 
                   type="text" 
                   value={crop}
                   onChange={(e) => setCrop(e.target.value)}
-                  placeholder={lang === 'hi' ? 'जैसे: गेहूँ, धान, टमाटर' : 'e.g. Wheat, Rice, Tomato'}
+                  placeholder={dict.cropPlaceholder}
                   className="w-full h-10 rounded-xl bg-background border border-border/50 focus:border-emerald-500 px-3.5 text-sm text-foreground focus:outline-none transition-colors"
                   required
                 />
@@ -178,23 +279,23 @@ export default function KhetDiaryPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  {lang === 'hi' ? 'श्रेणी' : 'Category'}
+                  {dict.category}
                 </label>
                 <select 
                   value={category}
                   onChange={(e) => setCategory(e.target.value as any)}
                   className="w-full h-10 rounded-xl bg-background border border-border/50 focus:border-emerald-500 px-3 text-sm text-foreground focus:outline-none transition-colors cursor-pointer"
                 >
-                  <option value="expense">{lang === 'hi' ? 'खर्च (Expense)' : 'Expense'}</option>
-                  <option value="income">{lang === 'hi' ? 'आय (Income)' : 'Income'}</option>
-                  <option value="activity">{lang === 'hi' ? 'गतिविधि (Task Log)' : 'Activity/Task Log'}</option>
+                  <option value="expense">{dict.categoryExpense}</option>
+                  <option value="income">{dict.categoryIncome}</option>
+                  <option value="activity">{dict.categoryActivity}</option>
                 </select>
               </div>
 
               {category !== 'activity' && (
                 <div>
                   <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                    {lang === 'hi' ? 'रुपये (राशि)' : 'Amount (₹)'}
+                    {dict.amount}
                   </label>
                   <div className="relative">
                     <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">₹</span>
@@ -212,12 +313,12 @@ export default function KhetDiaryPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                  {lang === 'hi' ? 'विवरण' : 'Details'}
+                  {dict.details}
                 </label>
                 <textarea 
                   value={activity}
                   onChange={(e) => setActivity(e.target.value)}
-                  placeholder={lang === 'hi' ? 'जैसे: यूरिया खाद का छिड़काव किया' : 'e.g. Sprayed neem oil pesticide'}
+                  placeholder={dict.detailsPlaceholder}
                   className="w-full h-20 rounded-xl bg-background border border-border/50 focus:border-emerald-500 p-3 text-sm text-foreground focus:outline-none transition-colors resize-none"
                   required
                 />
@@ -225,7 +326,7 @@ export default function KhetDiaryPage() {
 
               <Button type="submit" className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center justify-center gap-2 shadow-sm">
                 <Plus className="h-4 w-4" />
-                {lang === 'hi' ? 'डायरी में सहेजें' : 'Save to Diary'}
+                {dict.saveBtn}
               </Button>
             </form>
           </div>
@@ -237,7 +338,7 @@ export default function KhetDiaryPage() {
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="p-4 rounded-xl border border-border/50 bg-card flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{lang === 'hi' ? 'कुल व्यय' : 'Total Expense'}</span>
+                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{dict.totalExpense}</span>
                 <p className="text-xl font-black text-rose-600 dark:text-rose-400 font-display mt-0.5">₹{totalExpense}</p>
               </div>
               <div className="h-9 w-9 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
@@ -247,7 +348,7 @@ export default function KhetDiaryPage() {
 
             <div className="p-4 rounded-xl border border-border/50 bg-card flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{lang === 'hi' ? 'कुल आय' : 'Total Income'}</span>
+                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{dict.totalIncome}</span>
                 <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-display mt-0.5">₹{totalIncome}</p>
               </div>
               <div className="h-9 w-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -257,7 +358,7 @@ export default function KhetDiaryPage() {
 
             <div className="p-4 rounded-xl border border-border/50 bg-card flex items-center justify-between shadow-sm">
               <div>
-                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{lang === 'hi' ? 'शुद्ध लाभ' : 'Net Income'}</span>
+                <span className="text-[11px] uppercase font-semibold text-muted-foreground tracking-wider">{dict.netIncome}</span>
                 <p className={`text-xl font-black font-display mt-0.5 ${netProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                   ₹{netProfit}
                 </p>
@@ -272,10 +373,10 @@ export default function KhetDiaryPage() {
           <div className="border border-border/50 bg-card p-6 rounded-2xl shadow-sm">
             <div className="pb-4 mb-4 border-b border-border/40 flex flex-row items-center justify-between">
               <h3 className="text-base font-bold text-foreground font-display">
-                {lang === 'hi' ? 'बहीखाता रिकॉर्ड' : 'Logbook Entries'}
+                {dict.logbookTitle}
               </h3>
               <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full select-none">
-                {logs.length} {lang === 'hi' ? 'रिकॉर्ड' : 'Records'}
+                {dict.recordsCount(logs.length)}
               </span>
             </div>
 
@@ -283,7 +384,7 @@ export default function KhetDiaryPage() {
               <AnimatePresence initial={false}>
                 {logs.length === 0 ? (
                   <div className="text-center py-10 text-muted-foreground text-sm">
-                    {lang === 'hi' ? 'कोई प्रविष्टि नहीं है। बायीं तरफ से जोड़ें।' : 'No entries found. Add your first record from the form.'}
+                    {dict.emptyLog}
                   </div>
                 ) : (
                   logs.map(log => (
@@ -300,8 +401,7 @@ export default function KhetDiaryPage() {
                             log.category === 'expense' ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400' :
                             log.category === 'income' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400'
                           }`}>
-                            {log.category === 'expense' ? (lang === 'hi' ? 'खर्च' : 'Expense') :
-                             log.category === 'income' ? (lang === 'hi' ? 'आय' : 'Income') : (lang === 'hi' ? 'कार्य' : 'Task')}
+                            {log.category === 'expense' ? dict.catBadgeExpense : log.category === 'income' ? dict.catBadgeIncome : dict.catBadgeTask}
                           </span>
                           <span className="text-[11px] text-muted-foreground font-medium">{log.date}</span>
                           <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold bg-emerald-500/5 border border-emerald-500/15 px-2 py-0.5 rounded-full">{log.crop}</span>
@@ -333,154 +433,68 @@ export default function KhetDiaryPage() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {lang === "hi" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 खेत डायरी क्या है और डिजिटल रिकॉर्ड क्यों आवश्यक हैं?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                खेत डायरी (Khet Diary) किसानों के लिए एक डिजिटल बहीखाता (Ledger) प्रणाली है। पारंपरिक खेती में किसान अपने खर्चों, खाद की खरीद, पानी की लागत और अंत में प्राप्त उपज (Yield) का सटीक हिसाब नहीं रख पाते हैं, जिससे फसल की वास्तविक उत्पादन लागत और मुनाफे का आंकलन करना मुश्किल हो जाता है। डिजिटल रिकॉर्ड रखने से खेती एक सुनियोजित व्यवसाय का रूप लेती है।
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📈 व्यय और उपज का सटीक ट्रैकिंग गाइड</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>व्यय ट्रैकिंग (Expense Tracking):</strong> बीज खरीद, जुताई (डीजल खर्च), उर्वरक (यूरिया, डीएपी), कीटनाशकों और मजदूरों के दैनिक भुगतान का तत्काल हिसाब रखें। इससे पता चलता है कि किस इनपुट पर अनावश्यक पैसा खर्च हो रहा है।<br />
-                  <strong>उपज ट्रैकिंग (Yield Tracking):</strong> फसल कटाई के बाद कुल प्राप्त मात्रा (क्विंटल में) और मंडी में मिले प्रति क्विंटल भाव का रिकॉर्ड सहेजें। इससे आपको प्रति एकड़ शुद्ध आय (Net profit) की सटीक गणना करने में मदद मिलती है।
+        {(() => {
+          const guide = KHET_DIARY_GUIDE_I18N[lang as keyof typeof KHET_DIARY_GUIDE_I18N] || KHET_DIARY_GUIDE_I18N.en
+          return (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">
+                  {guide.title}
+                </h2>
+                <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
+                  {guide.desc}
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📁 सरकारी दस्तावेज़ीकरण और डिजिटल रिकॉर्ड के लाभ</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>लोन और बैंक सहायता:</strong> जब किसान फसल ऋण (KCC - किसान क्रेडिट कार्ड) के लिए आवेदन करते हैं, तो बैंकों द्वारा पिछले 2-3 वर्षों के खेती रिकॉर्ड मांगे जाते हैं। डिजिटल खेत डायरी का रिकॉर्ड बैंक अधिकारियों को दिखाने से ऋण स्वीकृति आसान होती है।<br />
-                  <strong>फसल बीमा दावे:</strong> सूखा, बाढ़ या बेमौसम बारिश से हुए नुकसान का दावा करने के लिए बुवाई की तारीख, बीज बिल और सिंचाई की तारीखों का डिजिटल प्रमाण बीमा कंपनियों द्वारा आसानी से स्वीकार कर लिया जाता है।
-                </p>
-              </div>
-            </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                  <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card1_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {guide.card1_desc}
+                  </p>
+                </div>
 
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ खेत डायरी और रिकॉर्ड रखने के बारे में FAQs</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q1. खेत डायरी में मुझे क्या-क्या जानकारी लिखनी चाहिए?</h4>
-                  <p>आपको बुवाई की तारीख, खाद और कीटनाशक की मात्रा व कीमत, सिंचाई का खर्च, जुताई का किराया, कटाई का कुल खर्च और कुल बिक्री आय लिखनी चाहिए।</p>
+                <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
+                  <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card2_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {guide.card2_desc}
+                  </p>
                 </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q2. क्या मैं इस डेटा को एक्सेल (Excel) या पीडीएफ (PDF) में डाउनलोड कर सकता हूँ?</h4>
-                  <p>हाँ, KisaanBuddy में भविष्य के अपडेट में आपके डिजिटल बहीखाते को एक क्लिक में रिपोर्ट (PDF/Excel) के रूप में डाउनलोड करने की सुविधा दी जाएगी।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q3. क्या यह रिकॉर्ड फसल ऋण (KCC) प्राप्त करने में मदद करेगा?</h4>
-                  <p>हाँ, बैंक अधिकारी किसान की वित्तीय स्थिरता और कृषि खर्चों के अनुशासन को देखकर केसीसी ऋण सीमा आसानी से बढ़ा देते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q4. क्या केसीसी (KCC) लोन के लिए फसल चक्र का रिकॉर्ड रखना जरूरी है?</h4>
-                  <p>हाँ, बैंक यह देखना चाहते हैं कि किसान भूमि की उर्वरता बनाए रखने के लिए फसल चक्र बदल रहा है या नहीं, इससे ऋण चुकाने की क्षमता प्रभावित होती है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q5. फसल बीमा (Fasal Bima) क्लेम में यह डायरी कैसे उपयोगी है?</h4>
-                  <p>प्राकृतिक आपदा आने पर बीमा अधिकारी बुवाई और खर्चों के दस्तावेजी प्रमाण मांगते हैं। आपकी डायरी का डेटा नुकसान के मूल्यांकन में सहायक बनता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q6. क्या मेरी डायरी का विवरण अन्य किसानों को दिखाई देगा?</h4>
-                  <p>नहीं, आपका व्यक्तिगत खेत बहीखाता पूरी तरह से सुरक्षित और निजी है। इसे केवल आप ही देख सकते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q7. उत्पादन लागत (Cost of Production) की गणना कैसे करें?</h4>
-                  <p>फसल बोने से लेकर बेचने तक के सभी खर्चों (बीज, खाद, पानी, मजदूरी) को जोड़कर कुल उपज (क्विंटल) से भाग देने पर प्रति क्विंटल उत्पादन लागत पता चलती है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q8. क्या मैं एक साथ कई अलग-अलग खेतों (मेड़ों) का हिसाब रख सकता हूँ?</h4>
-                  <p>हाँ, प्रविष्टि दर्ज करते समय आप फसल के नाम के साथ खेत संख्या या खसरा संख्या जोड़कर अलग-अलग खेतों का बहीखाता अलग रख सकते हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q9. क्या डिजिटल रिकॉर्ड रखने से टैक्स (कर) में कोई छूट मिलती है?</h4>
-                  <p>भारत में प्रत्यक्ष कृषि आय कर-मुक्त है। हालांकि, संगठित तरीके से हिसाब रखने पर आपको व्यापारिक कृषि ऋणों और ब्याज सब्सिडी दावों में लाभ मिलता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q10. क्या KisaanBuddy का ऑफलाइन बहीखाता उपलब्ध है?</h4>
-                  <p>हाँ, KisaanBuddy ऐप आपके द्वारा दर्ज डेटा को स्थानीय फोन स्टोरेज में सुरक्षित रखता है ताकि खराब नेटवर्क में भी आपकी डायरी काम करती रहे।</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-xl md:text-2xl font-display font-bold text-foreground">🌾 What is Khet Diary and Why Are Digital Records Vital?</h2>
-              <p className="text-muted-foreground text-xs md:text-sm leading-relaxed max-w-4xl">
-                Khet Diary is a digital farm logbook and ledger designed specifically for modern cultivators. In traditional farming, growers frequently struggle to tally their total operational costs, fertilizer purchases, diesel leases, and harvest yields, making it difficult to calculate true production cost and net profits. Keeping digital records turns farming into a structured, databased business.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📈 Expense and Yield Tracking Guidelines</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>Expense Tracking:</strong> Tally up seed purchase costs, plowing rentals, fertilizer quantities (Urea, DAP, NPK), pesticides, and daily wages paid to workers. Identifying these figures prevents resource leakages.<br />
-                  <strong>Yield Tracking:</strong> Tally up the total harvested volume (in quintals or metric tonnes) and the selling rate obtained per unit inside the mandi. Subtracting total expenses from sales revenue delivers your true net returns.
-                </p>
               </div>
 
-              <div className="p-5 rounded-2xl border border-border/50 bg-card space-y-3 shadow-sm">
-                <h3 className="text-base font-bold text-emerald-600 dark:text-emerald-400 font-display">📁 Government Documentation and Digital Advantages</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <strong>Bank Credit and KCC Loans:</strong> To secure crop credit cards (KCC), banks inspect financial discipline and agricultural outputs. Presenting a digital logbook speeds up validation and credit limits.<br />
-                  <strong>Crop Insurance (Fasal Bima):</strong> To process damage claims from weather disasters, insurers verify sowing logs and input purchase bills. Digital logs provide verifiable proof to support your claim.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-xl font-display font-bold text-foreground">❓ Farm Logbook & Ledger FAQs</h2>
-              <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q1. What specific entries should I write down in Khet Diary?</h4>
-                  <p>Record sowing dates, fertilizer/pesticide prices, irrigation charges, diesel fuel leases, labor wages, and harvesting sales revenue.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q2. Can I export my digital records to Excel or PDF format?</h4>
-                  <p>Yes. KisaanBuddy features a future export tool to generate downloadable Excel sheets and PDF ledgers directly from your phone.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q3. Does the ledger assist in bank loans?</h4>
-                  <p>Yes, presenting systematic production costs and cash flows builds bank trust, facilitating credit card clearances.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q4. Is crop cycle history verified for KCC updates?</h4>
-                  <p>Yes, rotating nitrogen-fixing legumes prevents soil exhaustion, which is factored into regional bank farm credit ratings.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q5. How does this help in crop insurance claims?</h4>
-                  <p>It acts as evidence of crop planting times, inputs, and investments if fields get waterlogged or affected by drought.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q6. Is my farm ledger data shared publicly?</h4>
-                  <p>No, your farm diary entries are completely encrypted, private, and visible only to you on your registered account.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q7. How do I calculate my crop's unit production cost?</h4>
-                  <p>Sum all input costs (seed, chemicals, labor, irrigation) and divide by the total yield volume (in quintals) to get the cost per unit.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q8. Can I manage multiple fields inside the same diary?</h4>
-                  <p>Yes, you can tag entries with specific survey numbers or land descriptors to split accounts between different plots.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q9. Are agricultural profits subject to tax in India?</h4>
-                  <p>Direct agricultural profits are tax-free under section 10(1). However, audit logs are valuable for checking commercial credit subsidies.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
-                  <h4 className="font-semibold text-foreground">Q10. Can I write entries without a network connection?</h4>
-                  <p>Yes. KisaanBuddy caches entries locally and synchronizes them to your cloud backup once your mobile signal is restored.</p>
+              <div className="space-y-4">
+                <h2 className="text-xl font-display font-bold text-foreground">
+                  {guide.faq_title}
+                </h2>
+                <div className="grid gap-3 md:grid-cols-2 text-xs text-muted-foreground">
+                  {guide.faqs.map((faq, idx) => (
+                    <div key={idx} className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
+                      <h4 className="font-semibold text-foreground">{faq.q}</h4>
+                      <p>{faq.a}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </section>
     </div>
+  )
+}
+
+export default function KhetDiaryPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    }>
+      <KhetDiaryContent />
+    </Suspense>
   )
 }

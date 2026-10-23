@@ -7,11 +7,17 @@ class FarmerProfileCreate(BaseModel):
     block_name: Optional[str] = None
     district_name: Optional[str] = None
     state_name: Optional[str] = None
+    pin_code: Optional[str] = Field(default=None, max_length=10)
+    gps_lat: Optional[float] = Field(default=None, ge=-90.0, le=90.0)
+    gps_lon: Optional[float] = Field(default=None, ge=-180.0, le=180.0)
     experience_years: Optional[int] = Field(default=0, ge=0)
     primary_crop: Optional[str] = None
     land_holding_acres: Optional[float] = Field(default=0.0, ge=0.0)
+    land_ownership: Optional[str] = Field(default=None, max_length=50)  # owned, leased, both
     has_irrigation: Optional[bool] = False
     has_tractor: Optional[bool] = False
+    equipment_list: Optional[str] = None  # comma-separated list
+    preferred_language: Optional[str] = Field(default=None, max_length=10)
 
 class FarmerProfileResponse(FarmerProfileCreate):
     id: int

@@ -3,9 +3,16 @@
 import { useEffect, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth } from "@/lib/auth";
+import { useAuth, getStoredUser } from "@/lib/auth";
 
-const PROTECTED_PATHS = ["/dashboard", "/profile", "/soil-health", "/khet-diary", "/settings"];
+const PROTECTED_PATHS = [
+  "/dashboard",
+  "/profile",
+  "/farmer-profile",
+  "/soil-health",
+  "/khet-diary",
+  "/settings",
+];
 
 function isProtectedPath(pathname: string) {
   return PROTECTED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -20,7 +27,14 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (protectedRoute && ready && !user) {
-      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      // If storage still holds a cached user session, restoration may still be resolving
+      const cached = getStoredUser();
+      if (cached) return;
+
+      const timer = setTimeout(() => {
+        router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [pathname, protectedRoute, ready, router, user]);
 

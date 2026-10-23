@@ -24,9 +24,15 @@ from schemas.chatbot import TTSBrowserHint
 
 log = logging.getLogger(__name__)
 
-# Map our 3-lang codes to each provider's locale code.
-_SARVAM_LANG = {"hi": "hi-IN", "kn": "kn-IN", "en": "en-IN"}
-_GOOGLE_LANG = {"hi": "hi-IN", "kn": "kn-IN", "en": "en-IN"}
+# Locale choices are a routing hint, not proof of a provider voice's quality.
+# Bhojpuri and Maithili intentionally use Hindi as a transparent fallback until
+# dedicated voices pass the voice benchmark.
+_BCP47 = {
+    "en": "en-IN", "hi": "hi-IN", "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN",
+    "te": "te-IN", "ta": "ta-IN", "gu": "gu-IN", "pa": "pa-IN", "bho": "hi-IN", "mai": "hi-IN",
+}
+_SARVAM_LANG = _BCP47
+_GOOGLE_LANG = _BCP47
 _GOOGLE_VOICE = {"hi": "hi-IN-Neural2-A", "kn": "kn-IN-Standard-A", "en": "en-IN-Neural2-A"}
 
 
@@ -51,19 +57,19 @@ async def _sarvam_tts(text: str, lang: str) -> TTSResult:
     if not key:
         raise TTSError("SARVAM_API_KEY not set")
 
-    target = _SARVAM_LANG.get(lang, "en-IN")
+    target = _SARVAM_LANG.get(lang, "hi-IN")
     url = "https://api.sarvam.ai/text-to-speech"
     headers = {"api-subscription-key": key, "Content-Type": "application/json"}
     body = {
-        "inputs": [text[:2000]],
+        "inputs": [text[:2500]],
         "target_language_code": target,
-        "speaker": "meera",
+        "speaker": "priya",
         "pitch": 0,
         "pace": 1.0,
         "loudness": 1.2,
         "speech_sample_rate": 22050,
         "enable_preprocessing": True,
-        "model": "bulbul:v1",
+        "model": "bulbul:v3",
     }
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
         r = await client.post(url, json=body, headers=headers)
@@ -95,10 +101,12 @@ async def _google_tts(text: str, lang: str) -> TTSResult:
     def _run() -> bytes:
         client = texttospeech.TextToSpeechClient()
         synthesis_input = texttospeech.SynthesisInput(text=text[:3000])
-        voice = texttospeech.VoiceSelectionParams(
-            language_code=_GOOGLE_LANG.get(lang, "en-IN"),
-            name=_GOOGLE_VOICE.get(lang, _GOOGLE_VOICE["en"]),
-        )
+        voice_args = {"language_code": _GOOGLE_LANG.get(lang, "en-IN")}
+        # Let Google select its locale default when no named tested voice is
+        # configured, rather than accidentally forcing an English voice.
+        if lang in _GOOGLE_VOICE:
+            voice_args["name"] = _GOOGLE_VOICE[lang]
+        voice = texttospeech.VoiceSelectionParams(**voice_args)
         audio_cfg = texttospeech.AudioConfig(audio_encoding=texttospeech.AudioEncoding.MP3)
         resp = client.synthesize_speech(input=synthesis_input, voice=voice, audio_config=audio_cfg)
         return resp.audio_content
@@ -158,7 +166,7 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
     return TTSBrowserHint(
         browser=True,
         language=language,  # type: ignore[arg-type]
-        voice_suggestion={"hi": "hi-IN", "kn": "kn-IN", "en": "en-IN"}.get(language, "en-IN"),
+        voice_suggestion=_BCP47.get(language, "en-IN"),
     )
 
 

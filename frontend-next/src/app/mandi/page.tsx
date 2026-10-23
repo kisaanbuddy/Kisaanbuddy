@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import MandiClient from './MandiClient';
 
 export const metadata: Metadata = {
@@ -33,7 +34,13 @@ export default function MandiPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
       />
-      <MandiClient />
+      <Suspense fallback={
+        <div className="min-h-[400px] flex items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        </div>
+      }>
+        <MandiClient />
+      </Suspense>
     </div>
   );
 }

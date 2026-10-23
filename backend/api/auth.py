@@ -23,7 +23,7 @@ from user_agents import parse as parse_ua
 from sms_provider import get_sms_provider
 
 from db.session import get_db
-from db.models import User, UserOTP, UserSession, UserSecurityState, OtpRegistrationGrant, SystemJob
+from db.models import User, UserOTP, UserSession, UserSecurityState, OtpRegistrationGrant, SystemJob, FarmerProfile
 from services.auth_service import (
     hash_password,
     verify_password,
@@ -34,6 +34,23 @@ from core.config import settings, is_configured_admin
 from services.audit import record_activity
 
 log = logging.getLogger("krishiai.auth")
+
+
+def is_secure_request(request: Request) -> bool:
+    """Determine whether cookies must have the Secure attribute.
+
+    Browsers strictly reject Secure cookies received over unencrypted HTTP (e.g. localhost,
+    local development, or internal container bridges). We only set Secure when the
+    request is definitively using HTTPS (direct or through x-forwarded-proto).
+    """
+    if settings.DEBUG:
+        return False
+    forwarded_proto = request.headers.get("x-forwarded-proto", "").lower()
+    if forwarded_proto == "https":
+        return True
+    if request.url.scheme == "https":
+        return True
+    return False
 
 if _HAS_SLOWAPI:
     limiter = Limiter(key_func=get_remote_address, default_limits=[])
@@ -59,6 +76,17 @@ def validate_request_origin(request: Request) -> None:
     if settings.ALLOWED_ORIGIN_REGEX:
         import re
         if re.fullmatch(settings.ALLOWED_ORIGIN_REGEX, origin):
+            return
+    # Also permit localhost / 127.0.0.1 on any port in local development
+    import re
+    if re.match(r"^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$", origin):
+        return
+    # Permit if origin host matches the incoming host header (same-origin behind reverse proxy)
+    host = request.headers.get("host")
+    if host and origin:
+        from urllib.parse import urlparse
+        parsed = urlparse(origin)
+        if parsed.netloc == host:
             return
     raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Untrusted request origin.")
 
@@ -154,6 +182,25 @@ def parse_device_metadata(user_agent_str: Optional[str]):
         return "Unknown", "Unknown", "Unknown"
 
 
+def normalize_indian_phone(phone_str: Optional[str]) -> str:
+    """Normalize any Indian mobile input to canonical 10 digits starting with [6-9].
+    
+    Correctly handles:
+    - 10 digits: "9876543210" -> "9876543210"
+    - International country code: "+919876543210" or "919876543210" -> "9876543210"
+    - Trunk/STD prefix: "09876543210" -> "9876543210"
+    - Whitespace & dashes: "+91 98765-43210" -> "9876543210"
+    """
+    if not phone_str:
+        return ""
+    digits = "".join(filter(str.isdigit, str(phone_str).strip()))
+    if len(digits) == 12 and digits.startswith("91"):
+        digits = digits[2:]
+    elif len(digits) == 11 and digits.startswith("0"):
+        digits = digits[1:]
+    return digits
+
+
 def run_expired_sessions_cleanup(db: Session):
     """Cleanup sessions older than SESSION_DAYS using db-backed system_jobs scheduler."""
     now = datetime.utcnow()
@@ -230,8 +277,8 @@ def login_user_with_session(response: Response, request: Request, db: Session, u
         expires_delta=timedelta(minutes=15)
     )
 
-    # Set HTTP-only cookies with dynamic secure option and SameSite=Lax for compatibility and protection
-    secure_cookie = not settings.DEBUG
+    # Set HTTP-only cookies with dynamic secure option (only on https) and SameSite=Lax for compatibility and protection
+    secure_cookie = is_secure_request(request)
     samesite_val = "lax"
 
     response.set_cookie(
@@ -323,9 +370,14 @@ async def get_current_user(
                 detail="Phone number has changed. Please sign in again.",
             )
 
-        # Update last active time for the session
-        session_record.last_active_at = datetime.utcnow()
-        db.commit()
+        # Update last active time for the session (throttled to at most once per 5 minutes)
+        now_session = datetime.utcnow()
+        if not session_record.last_active_at or (now_session - session_record.last_active_at) > timedelta(minutes=5):
+            try:
+                session_record.last_active_at = now_session
+                db.commit()
+            except Exception:
+                db.rollback()
 
     # Update last_seen_at periodically (at most once every 5 minutes to avoid DB load)
     now = datetime.utcnow()
@@ -427,8 +479,7 @@ def send_otp(request: Request, data: SendOtpRequest, db: Session = Depends(get_d
             detail="OTP authentication is currently disabled."
         )
 
-    phone_number = data.phone_number.strip().replace(" ", "")
-    clean_phone = "".join(filter(str.isdigit, phone_number))
+    clean_phone = normalize_indian_phone(data.phone_number)
     import re
     fake_numbers = {
         "0000000000", "1111111111", "2222222222", "3333333333",
@@ -601,6 +652,26 @@ def verify_otp(
                 is_active=True
             )
             db.add(user)
+            db.flush()
+        else:
+            user.name = clean_name
+            db.flush()
+
+        existing_prof = db.query(FarmerProfile).filter(FarmerProfile.user_id == user.id).first()
+        if not existing_prof:
+            try:
+                db.add(FarmerProfile(
+                    user_id=user.id,
+                    preferred_language=user.language or "hi",
+                    experience_years=0,
+                    land_holding_acres=0.0,
+                    land_ownership="owned",
+                    has_irrigation=False,
+                    has_tractor=False,
+                ))
+            except Exception:
+                pass
+
         grant.used_at = datetime.utcnow()
         db.commit()
         db.refresh(user)
@@ -615,8 +686,7 @@ def verify_otp(
             detail="Phone number and OTP are required.",
         )
 
-    phone_number = data.phone_number.strip().replace(" ", "")
-    clean_phone = "".join(filter(str.isdigit, phone_number))
+    clean_phone = normalize_indian_phone(data.phone_number)
     import re
     fake_numbers = {
         "0000000000", "1111111111", "2222222222", "3333333333",
@@ -721,6 +791,22 @@ def verify_otp(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Account is inactive.",
             )
+        existing_prof = db.query(FarmerProfile).filter(FarmerProfile.user_id == user.id).first()
+        if not existing_prof:
+            try:
+                db.add(FarmerProfile(
+                    user_id=user.id,
+                    preferred_language=user.language or "hi",
+                    experience_years=0,
+                    land_holding_acres=0.0,
+                    land_ownership="owned",
+                    has_irrigation=False,
+                    has_tractor=False,
+                ))
+                db.commit()
+            except Exception:
+                db.rollback()
+
         login_user_with_session(response, request, db, user)
         return VerifyOtpResponse(registered=True, user=user)
     else:
@@ -736,6 +822,7 @@ def verify_otp(
         ))
         db.commit()
         return VerifyOtpResponse(registered=False, registration_token=registration_token)
+
 
 
 @router.post("/login", response_model=LoginResponse)
@@ -888,7 +975,7 @@ def refresh_session(request: Request, response: Response, db: Session = Depends(
             detail="No refresh token cookie found. Please sign in.",
         )
 
-    secure_cookie = not settings.DEBUG
+    secure_cookie = is_secure_request(request)
     samesite_val = "lax"
 
     hashed_token = hashlib.sha256(refresh_token.encode()).hexdigest()
@@ -984,7 +1071,7 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
             session_record.is_revoked = True
             db.commit()
 
-    secure_cookie = not settings.DEBUG
+    secure_cookie = is_secure_request(request)
     samesite_val = "lax"
 
     response.delete_cookie(

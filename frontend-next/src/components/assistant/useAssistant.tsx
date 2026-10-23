@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 /**
  * Session + streaming orchestration for the KisaanBuddy assistant.
  *
@@ -73,13 +73,17 @@ export function useAssistant(
   const [messages, setMessages] = useState<AssistantMessage[]>([])
   const [streamingText, setStreamingText] = useState<string>("")
   const [activeTool, setActiveTool] = useState<string | null>(null)
-  const [languageState, setLanguageState] = useState<Language>((lang === "hi" || lang === "kn") ? lang : "en")
+  const [languageState, setLanguageState] = useState<Language>(
+    (["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en"] as string[]).includes(lang) ? (lang as Language) : "en"
+  )
   const [location, setLocation] = useState<LocationHint | null>(null)
   const [isSending, setIsSending] = useState(false)
   const [lastError, setLastError] = useState<string | null>(null)
 
   useEffect(() => {
-    setLanguageState((lang === "hi" || lang === "kn") ? lang : "en")
+    if ((["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en"] as string[]).includes(lang)) {
+      setLanguageState(lang as Language)
+    }
   }, [lang])
 
   const abortRef = useRef<AbortController | null>(null)
@@ -98,9 +102,9 @@ export function useAssistant(
   useEffect(() => {
     if (!options.restore || typeof window === "undefined") return
     try {
-      const lang = localStorage.getItem(LS_LANG)
-      if (lang === "en" || lang === "hi" || lang === "kn" || lang === "auto") {
-        setLanguageState(lang)
+      const savedLang = localStorage.getItem(LS_LANG)
+      if (savedLang && ["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai", "auto"].includes(savedLang)) {
+        setLanguageState(savedLang as Language)
       }
       const loc = localStorage.getItem(LS_LOC)
       if (loc) {
@@ -375,7 +379,6 @@ interface EventHandlers {
 }
 
 function handleEvent(evt: StreamEvent, h: EventHandlers) {
-  const { t } = useLanguage()
   switch (evt.type) {
     case "session":
       h.onSession(evt.session_id, evt.language)

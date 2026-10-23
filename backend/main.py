@@ -44,6 +44,9 @@ from services.weather_service import orchestrator
 from api import weather, schemes, ml, chatbot, mandi, worker_connect, sensor, auth, reviews, testimonials, admin, content, media
 from api import profile as farmer_profile, fields as farmer_fields, farm as farm_api
 from api import disease as disease_api
+from api import soil_tests as soil_tests_api, recommendations as recommendations_api
+from api import tasks as tasks_api, marketplace as marketplace_api
+from api import sarvam as sarvam_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -87,6 +90,19 @@ async def lifespan(app: FastAPI):
                 seed_founders()
             except Exception as se:
                 log.warning("Founder seeding warning: %s", se)
+
+            try:
+                from services.marketplace_import import seed_marketplace_catalogue
+                from services.labour_seed_data import seed_labour_reference_data
+                from services.schemes_seed_service import seed_verified_schemes
+                from db.session import SessionLocal
+                if SessionLocal:
+                    with SessionLocal() as db_session:
+                        seed_marketplace_catalogue(db_session)
+                        seed_labour_reference_data(db_session)
+                        seed_verified_schemes(db_session)
+            except Exception as me:
+                log.warning("Marketplace, Labour or Schemes seeding warning: %s", me)
     except Exception as e:
         log.error("DB init error: %s", e)
 
@@ -156,6 +172,11 @@ app.include_router(farmer_profile.router, prefix="/api/farmer", tags=["Farmer Pr
 app.include_router(farmer_fields.router, prefix="/api/farmer", tags=["Farmer Fields"])
 app.include_router(farm_api.router, prefix="/api/farmer", tags=["Farm Context & Diary"])
 app.include_router(disease_api.router, prefix="/api/disease", tags=["Disease"])
+app.include_router(soil_tests_api.router, prefix="/api/farmer", tags=["Soil Tests"])
+app.include_router(recommendations_api.router, prefix="/api/farmer", tags=["Recommendations"])
+app.include_router(tasks_api.router, prefix="/api/farmer", tags=["Farm Tasks"])
+app.include_router(marketplace_api.router, prefix="/api/marketplace", tags=["Marketplace"])
+app.include_router(sarvam_api.router, prefix="/api/sarvam", tags=["Sarvam AI"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

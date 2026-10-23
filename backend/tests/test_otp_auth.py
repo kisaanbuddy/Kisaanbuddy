@@ -92,6 +92,27 @@ class TestOTPAuthSystem(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("Please enter a valid Indian mobile number", response.json()["detail"])
 
+    def test_send_otp_normalized_formats(self):
+        # All valid Indian representations must be accepted and normalized to 10 digits
+        formats = ["+919876543210", "919876543210", "09876543210", "+91 98765-43210"]
+        for num in formats:
+            db = TestingSessionLocal()
+            db.query(UserOTP).delete()
+            from db.models import UserSecurityState
+            db.query(UserSecurityState).delete()
+            db.commit()
+            db.close()
+
+            response = self.client.post("/api/auth/send-otp", json={"phone_number": num})
+            self.assertEqual(response.status_code, 200, f"Failed for format: {num}")
+            self.assertTrue(response.json()["ok"])
+
+            # Verify it was stored as 10 digits
+            db = TestingSessionLocal()
+            otp_record = db.query(UserOTP).filter(UserOTP.phone_number == "9876543210").first()
+            self.assertIsNotNone(otp_record, f"Did not normalize {num} to 9876543210 in DB")
+            db.close()
+
     def test_verify_otp_unregistered_yields_token(self):
         # Send OTP first
         self.client.post("/api/auth/send-otp", json={"phone_number": "9876543210"})

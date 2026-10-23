@@ -76,3 +76,9 @@ frontend.log.err
 
 # --- Claude / Agent Workspaces ---
 .claude/
+
+# --- Temporary & Local Cache ---
+.pnpm-store/
+output/
+tmp/
+sarvam_chat.py

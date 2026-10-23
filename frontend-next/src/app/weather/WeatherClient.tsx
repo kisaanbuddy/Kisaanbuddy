@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { CloudSun, Info, MapPin, Volume2, VolumeX, Share2 } from "lucide-react"
 import { useLanguage } from '@/lib/language'
@@ -8,6 +9,7 @@ import { useLanguage } from '@/lib/language'
 import {
   getCurrentByCoords,
   getForecastByCoords,
+  searchLocations,
   resolveUserLocation,
   WeatherAPIError,
   type ForecastBundle,
@@ -24,7 +26,8 @@ import { DailyForecast } from "@/components/weather/DailyForecast"
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 
-import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice } from "@/lib/weather-translations"
+import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice, getWeatherSpeech } from "@/lib/weather-translations"
+import { WEATHER_GUIDE_I18N } from "@/lib/weather-guide-i18n"
 
 interface ActiveLocation {
   lat: number
@@ -42,6 +45,7 @@ export default function WeatherPage() {
 }
 
 function WeatherPageInner() {
+  const searchParams = useSearchParams()
   const { lang } = useLanguage()
   const activeLang = (lang as Lang) in WEATHER_T ? (lang as Lang) : "hi"
   const t = WEATHER_T[activeLang]
@@ -58,6 +62,10 @@ function WeatherPageInner() {
   const [loadingForecast, setLoadingForecast] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [speaking, setSpeaking] = useState(false)
+  const voiceRun = searchParams.get("voice") === "1"
+  const voiceCity = searchParams.get("city")?.trim()
+  const voiceDays = Math.max(1, Math.min(7, Number(searchParams.get("days")) || 5))
+  const voiceSpokenRef = useRef(false)
 
   const abortRef = useRef<AbortController | null>(null)
 
@@ -72,7 +80,7 @@ function WeatherPageInner() {
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
             source: "browser",
-            label: activeLang === "hi" ? "सटीक जीपीएस स्थान" : "Precise GPS Location"
+            label: t.gps_precise_label || "Precise GPS Location"
           })
           setResolving(false)
         },
@@ -80,15 +88,13 @@ function WeatherPageInner() {
           console.error("GPS error:", err)
           setResolving(false)
           // Don't show hard block, just notify user
-          setError(activeLang === "hi" 
-            ? "लोकेशन की अनुमति नहीं मिली। कृपया जीपीएस ऑन करें या शहर चुनें।" 
-            : "Location permission denied. Please enable GPS or select a city.")
+          setError(t.gps_denied_err || "Location permission denied. Please enable GPS or select a city.")
         },
         { enableHighAccuracy: true, timeout: 8000 }
       )
     } else {
       setResolving(false)
-      setError(activeLang === "hi" ? "आपके डिवाइस में जीपीएस उपलब्ध नहीं है।" : "GPS is not supported on this device.")
+      setError(t.gps_unsupported_err || "GPS is not supported on this device.")
     }
   }
 
@@ -96,6 +102,20 @@ function WeatherPageInner() {
   useEffect(() => {
     let mounted = true
     ;(async () => {
+      if (voiceCity) {
+        try {
+          const found = await searchLocations(voiceCity, 1)
+          const hit = found.results[0]
+          if (mounted && hit) {
+            setLoc({ lat: hit.lat, lon: hit.lon, label: hit.display_name, source: "manual" })
+            setResolving(false)
+            return
+          }
+          if (mounted) setError(t.location_not_found || "Location was not found; showing weather for your current area.")
+        } catch {
+          // Fall through to the normal location chain. The page never invents a city.
+        }
+      }
       const r = await resolveUserLocation()
       if (!mounted) return
       setLoc({
@@ -109,7 +129,7 @@ function WeatherPageInner() {
     return () => {
       mounted = false
     }
-  }, [])
+  }, [voiceCity, activeLang])
 
   // Fetch weather data whenever location changes
   const fetchAll = useCallback(async (target: ActiveLocation) => {
@@ -122,12 +142,26 @@ function WeatherPageInner() {
     setLoadingForecast(true)
 
     try {
-      const [cur, fc] = await Promise.all([
+      const [curRes, fcRes] = await Promise.allSettled([
         getCurrentByCoords(target.lat, target.lon, ctrl.signal),
-        getForecastByCoords(target.lat, target.lon, 7, ctrl.signal),
+        getForecastByCoords(target.lat, target.lon, voiceDays, ctrl.signal),
       ])
-      setCurrent(cur)
-      setForecast(fc)
+
+      if (curRes.status === "fulfilled") {
+        setCurrent(curRes.value)
+      } else if (curRes.reason?.name !== "AbortError") {
+        const msg =
+          curRes.reason instanceof WeatherAPIError
+            ? curRes.reason.message
+            : curRes.reason?.message || t.load_fail
+        setError(msg)
+      }
+
+      if (fcRes.status === "fulfilled") {
+        setForecast(fcRes.value)
+      } else {
+        setForecast(null)
+      }
     } catch (err: any) {
       if (err?.name === "AbortError") return
       const msg =
@@ -139,11 +173,38 @@ function WeatherPageInner() {
       setLoadingCurrent(false)
       setLoadingForecast(false)
     }
-  }, [t.load_fail])
+  }, [t.load_fail, voiceDays])
 
   useEffect(() => {
     if (loc) fetchAll(loc)
   }, [loc, fetchAll])
+
+  // A voice-triggered request speaks only values returned by the configured
+  // weather service; errors remain visible and are not converted into advice.
+  useEffect(() => {
+    if (!voiceRun || !current || voiceSpokenRef.current || typeof window === "undefined") return
+    voiceSpokenRef.current = true
+    const day = forecast?.daily[0]
+    const rain = day?.chance_of_rain
+    const message = getWeatherSpeech(activeLang, current.location.name, current.current.temp_c, rain)
+    const bcpMap: Record<string, string> = {
+      kn: "kn-IN",
+      hi: "hi-IN",
+      te: "te-IN",
+      ta: "ta-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      bn: "bn-IN",
+      pa: "pa-IN",
+      ml: "ml-IN",
+      hi_en: "hi-IN",
+      en: "en-IN",
+    }
+    const utterance = new SpeechSynthesisUtterance(message)
+    utterance.lang = bcpMap[activeLang] || "en-IN"
+    window.speechSynthesis.cancel()
+    window.speechSynthesis.speak(utterance)
+  }, [voiceRun, current, forecast, activeLang])
 
   // Cleanup speech synthesis on language changes or unmount
   useEffect(() => {
@@ -224,7 +285,20 @@ function WeatherPageInner() {
     }
 
     const utterance = new SpeechSynthesisUtterance(speechText)
-    utterance.lang = activeLang === "en" ? "en-IN" : `${activeLang}-IN`
+    const bcpMap: Record<string, string> = {
+      kn: "kn-IN",
+      hi: "hi-IN",
+      te: "te-IN",
+      ta: "ta-IN",
+      mr: "mr-IN",
+      gu: "gu-IN",
+      bn: "bn-IN",
+      pa: "pa-IN",
+      ml: "ml-IN",
+      hi_en: "hi-IN",
+      en: "en-IN",
+    }
+    utterance.lang = bcpMap[activeLang] || "en-IN"
     
     utterance.onend = () => setSpeaking(false)
     utterance.onerror = () => setSpeaking(false)
@@ -268,7 +342,14 @@ function WeatherPageInner() {
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
         className="flex flex-col gap-4"
       >
-        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5 md:p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-15 pointer-events-none hidden md:block">
+            <img
+              src="/images/weather/monsoon-farmland.jpg"
+              alt="Monsoon rainclouds over Indian agricultural farmland"
+              className="w-full h-full object-cover object-center"
+            />
+          </div>
           <div>
             <h1 className="flex items-center gap-3 text-3xl font-display font-bold tracking-tight text-foreground md:text-4xl">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-500 shadow-sm animate-float">
@@ -284,7 +365,7 @@ function WeatherPageInner() {
             <LocationSearch
               onSelect={onSelectLocation}
               onUseCurrentLocation={onUseCurrentLocation}
-              placeholder={activeLang === "hi" ? "शहर खोजें..." : "Search city..."}
+              placeholder={t.search_city_placeholder || "Search city or district..."}
             />
           </div>
         </div>
@@ -319,6 +400,8 @@ function WeatherPageInner() {
             loading={loadingCurrent}
             error={error}
             onRetry={() => loc && fetchAll(loc)}
+            sunrise={forecast?.daily?.[0]?.sunrise}
+            sunset={forecast?.daily?.[0]?.sunset}
           />
 
           {/* Farmer Advisory Engine Card */}
@@ -336,7 +419,7 @@ function WeatherPageInner() {
                         🌾 {t.farmer_advice_title}
                       </CardTitle>
                       <p className="text-[11px] text-muted-foreground font-semibold mt-0.5">
-                        {activeLang === "hi" ? "सटीक मौसम के आधार पर दैनिक कृषि सुझाव" : "Daily farming actions matched to current forecast"}
+                        {t.advisory_subtitle || "Daily agriculture advisory based on precise weather conditions"}
                       </p>
                     </div>
 
@@ -414,185 +497,85 @@ function WeatherPageInner() {
 
       {/* ── Educational Guide Section ── */}
       <section className="mt-12 border-t border-border/50 pt-10 select-none">
-        {activeLang === "hi" ? (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 मौसम पूर्वानुमान क्या है और यह खेती के लिए क्यों आवश्यक है?</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
-                मौसम पूर्वानुमान (Weather Forecasting) विज्ञान की वह शाखा है जो वायुमंडल की भौतिकीय स्थितियों (जैसे तापमान, आर्द्रता, वायुदाब और पवन की गति) का अध्ययन कर आने वाले समय के मौसम का अनुमान लगाती है। भारतीय उपमहाद्वीप में, जहां अधिकांश किसान मानसून पर निर्भर रहते हैं, मौसम की सटीक जानकारी कृषि उत्पादन की सफलता और असफलता के बीच का मुख्य अंतर होती है।
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">🌧️ वर्षा और फसलों का संबंध: पानी का सही संतुलन</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  पानी फसलों का जीवन है, लेकिन इसकी अधिकता या कमी दोनों ही नुकसानदेह हैं। उदाहरण के लिए, धान (धान की खेती) को विकास के शुरुआती चरणों में अत्यधिक पानी की आवश्यकता होती है, लेकिन कटाई के समय सूखा मौसम आवश्यक होता है। यदि किसान को पहले से पता हो कि भारी वर्षा होने वाली है, तो वे सिंचाई को रोक सकते हैं, जिससे पानी और बिजली की बचत होती है और फसलें सड़ने से बचती हैं।
+        {(() => {
+          const guide = WEATHER_GUIDE_I18N[activeLang] || WEATHER_GUIDE_I18N.en
+          return (
+            <div className="space-y-8 text-foreground">
+              <div className="space-y-3">
+                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">
+                  {guide.title}
+                </h2>
+                <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
+                  {guide.desc}
                 </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">📅 मौसमी नियोजन मार्गदर्शिका: खरीफ बनाम रबी मौसम</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  भारत में दो मुख्य फसल चक्र होते हैं: <strong>खरीफ (Monsoon crops)</strong> और <strong>रबी (Winter crops)</strong>। खरीफ फसलों (जैसे कपास, मक्का) की बुवाई के लिए पहली मानसून बारिश का सटीक समय जानना जरूरी है। इसके विपरीत, रबी फसलों (जैसे गेहूं, सरसों) की बुवाई के लिए तापमान में हल्की गिरावट और कम आर्द्रता की आवश्यकता होती है। मौसम पूर्वानुमान इन दोनों चक्रों के बीच सुचारू संक्रमण सुनिश्चित करता है।
-                </p>
-              </div>
-            </div>
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3 shadow-sm">
+                  <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card1_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {guide.card1_desc}
+                  </p>
+                </div>
 
-            <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4">
-              <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">⚠️ विपरीत मौसम परिस्थितियों में कृषि निर्णय</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/50 pr-4">
-                  <h4 className="font-extrabold text-foreground">1. लू (Heatwaves)</h4>
-                  <p>तापमान 40 डिग्री सेल्सियस से ऊपर जाने पर हल्की और बार-बार सिंचाई करें। दोपहर के समय छिड़काव सिंचाई (Sprinkler irrigation) से बचें। मल्चिंग का उपयोग कर मिट्टी की नमी को उड़ने से रोकें।</p>
+                <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3 shadow-sm">
+                  <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">
+                    {guide.card2_title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {guide.card2_desc}
+                  </p>
                 </div>
-                <div className="space-y-2 border-r border-border/50 px-4">
-                  <h4 className="font-extrabold text-foreground">2. सूखा (Drought)</h4>
-                  <p>सूखे की स्थिति में केवल जीवन रक्षक सिंचाई (Life-saving irrigation) का उपयोग करें। कम पानी चाहने वाली फसलों (जैसे बाजरा, ग्वार) को प्राथमिकता दें और खरपतवार नियंत्रण पर विशेष ध्यान दें ताकि पानी केवल फसल को मिले।</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-extrabold text-foreground">3. अत्यधिक वर्षा (Heavy Rain)</h4>
-                  <p>खेतों में जलभराव न होने दें। जल निकासी (Drainage channels) को तुरंत साफ करें। भारी बारिश के बाद नाइट्रोजन उर्वरकों (जैसे यूरिया) का छिड़काव न करें, क्योंकि वे पानी के साथ बह जाते हैं।</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-display font-extrabold text-foreground">❓ अक्सर पूछे जाने वाले प्रश्न (FAQs)</h2>
-              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q1. मौसम पूर्वानुमान खेती में कैसे मदद करता है?</h4>
-                  <p>यह किसानों को बुवाई, सिंचाई, कीटनाशकों के छिड़काव और फसल की कटाई के समय का सही निर्णय लेने में मदद करता है ताकि नुकसान कम से कम हो।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q2. क्या बारिश के तुरंत बाद यूरिया डालना सही है?</h4>
-                  <p>नहीं, भारी बारिश के दौरान या तुरंत बाद यूरिया डालने से वह पानी में बह जाता है या रिसकर जमीन के नीचे चला जाता है, जिससे फसल को पोषक तत्व नहीं मिल पाते।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q3. छिड़काव सिंचाई (Sprinkler) का सही समय क्या है?</h4>
-                  <p>हवा की गति कम होने पर सुबह या शाम के समय छिड़काव सिंचाई सर्वोत्तम है। तेज धूप में पानी का वाष्पीकरण हो जाता है।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q4. ओलावृष्टि (Hailstorm) की चेतावनी मिलने पर क्या करें?</h4>
-                  <p>यदि फसल पक चुकी है तो तुरंत कटाई कर लें और सुरक्षित स्थान पर रखें। यदि फसल खड़ी है तो यदि संभव हो तो एंटी-हेल नेट का उपयोग करें।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q5. हवा की गति और दिशा जानना क्यों जरूरी है?</h4>
-                  <p>तेज हवाओं में कीटनाशक का छिड़काव नहीं करना चाहिए क्योंकि दवा उड़कर दूसरी जगह चली जाती है। छिड़काव हमेशा हवा की दिशा के अनुकूल करना चाहिए।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q6. पाला (Frost) पड़ने की संभावना होने पर फसलों को कैसे बचाएं?</h4>
-                  <p>पाले की संभावना होने पर खेत के चारों ओर धुआं करें या हल्की सिंचाई करें। इससे खेत का तापमान सामान्य रहता है और फसलें ठिठुरती नहीं हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q7. सापेक्षिक आर्द्रता (Relative Humidity) का फसलों पर क्या प्रभाव पड़ता है?</h4>
-                  <p>अधिक आर्द्रता के साथ गर्म मौसम कवक जनित बीमारियों (Fungal diseases) के फैलने के लिए अनुकूल होता है। ऐसे समय में रोग नियंत्रण के उपाय जरूरी हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q8. खरीफ सीजन की मुख्य फसलें कौन सी हैं?</h4>
-                  <p>धान (चावल), मक्का, बाजरा, कपास, सोयाबीन, मूंगफली और दालें खरीफ सीजन की मुख्य फसलें हैं जो बरसात के मौसम में उगाई जाती हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q9. रबी सीजन की मुख्य फसलें कौन सी हैं?</h4>
-                  <p>गेहूं, जौ, चना, मटर, सरसों, अलसी और आलू रबी सीजन की मुख्य फसलें हैं जो सर्दियों के मौसम में उगाई जाती हैं।</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q10. क्या KisaanBuddy का मौसम डेटा लाइव है?</h4>
-                  <p>हाँ, KisaanBuddy लाइव मौसम डेटा उपग्रह इमेजरी और राष्ट्रीय ग्रिड स्टेशनों से संकलित कर सटीक कृषि परामर्श प्रदान करता है।</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-8 text-foreground">
-            <div className="space-y-3">
-              <h2 className="text-2xl md:text-3xl font-display font-extrabold text-foreground">🌾 What is Weather Forecasting and Why Do Farmers Need It?</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed max-w-4xl">
-                Weather forecasting is the scientific process of predicting atmospheric conditions—such as temperature, precipitation, humidity, and wind speed—for a specific geographic location. In Indian agriculture, where a majority of farms rely on seasonal monsoons, accessing accurate weather information represents the critical boundary between a successful harvest and crop failure.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">🌧️ Rainfall and Crop Growth: The Delicate Balance</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Water is key to plant growth, but excess or deficit can destroy crop yields. For example, Paddy (rice cultivation) requires standing water during early growth stages, but dry, warm weather during harvesting. If farmers anticipate heavy rainfall through our forecast, they can delay irrigation, saving water, electricity, and preventing root rot.
-                </p>
               </div>
 
-              <div className="p-6 rounded-2xl border border-border/50 bg-card hover:border-emerald-500/30 transition-colors space-y-3">
-                <h3 className="text-lg font-bold text-emerald-600 dark:text-emerald-400 font-display">📅 Seasonal Planning Guide: Kharif vs. Rabi Seasons</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  India relies on two major cropping cycles: <strong>Kharif (Monsoon)</strong> and <strong>Rabi (Winter)</strong>. Sowing Kharif crops (like Cotton, Maize) requires precise tracking of the monsoon arrival. Conversely, Rabi crops (like Wheat, Mustard) depend on mild temperature drops and lower humidity. Weather advisory guides ensure smooth transition planning between these cycles.
-                </p>
+              <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4 shadow-sm">
+                <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">
+                  {guide.alert_title}
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
+                  <div className="space-y-2 border-r border-border/50 pr-4">
+                    <h4 className="font-extrabold text-foreground">{guide.alert1_title}</h4>
+                    <p>{guide.alert1_desc}</p>
+                  </div>
+                  <div className="space-y-2 border-r border-border/50 px-4">
+                    <h4 className="font-extrabold text-foreground">{guide.alert2_title}</h4>
+                    <p>{guide.alert2_desc}</p>
+                  </div>
+                  <div className="space-y-2 pl-4">
+                    <h4 className="font-extrabold text-foreground">{guide.alert3_title}</h4>
+                    <p>{guide.alert3_desc}</p>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-4">
-              <h3 className="text-lg font-bold text-amber-600 dark:text-amber-400 font-display">⚠️ Farming Decisions Under Extreme Weather Conditions</h3>
-              <div className="grid gap-4 sm:grid-cols-3 text-xs leading-relaxed text-muted-foreground">
-                <div className="space-y-2 border-r border-border/50 pr-4">
-                  <h4 className="font-extrabold text-foreground">1. Heatwaves</h4>
-                  <p>When temperatures exceed 40°C, apply light and frequent irrigation. Avoid sprinkler irrigation during peak noon heat to minimize evaporation. Use organic mulching to protect soil moisture.</p>
-                </div>
-                <div className="space-y-2 border-r border-border/50 px-4">
-                  <h4 className="font-extrabold text-foreground">2. Drought</h4>
-                  <p>Prioritize life-saving irrigation. Sow drought-resistant varieties like Pearl Millet (Bajra) or Cluster Beans (Guar), and strictly eliminate weeds to prevent them from stealing moisture.</p>
-                </div>
-                <div className="space-y-2 pl-4">
-                  <h4 className="font-extrabold text-foreground">3. Heavy Rain</h4>
-                  <p>Avoid waterlogging by maintaining functional drainage channels. Do not apply nitrogen fertilizers like urea during heavy rain as they will wash away into run-off channels.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <h2 className="text-2xl font-display font-extrabold text-foreground">❓ Frequently Asked Questions (FAQs)</h2>
-              <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q1. How does weather forecasting assist farmers?</h4>
-                  <p>It helps schedule sowing, fertilizing, spraying pesticides, and harvesting. This minimizes risk and reduces resource waste.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q2. Is it good to apply urea right after rain?</h4>
-                  <p>No, heavy rain washes away urea or causes it to leach below root zones, leaving crops nutrient-deprived.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q3. When is the best time for sprinkler irrigation?</h4>
-                  <p>Morning or evening hours when wind speeds are low and evaporation rates are minimal.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q4. What should be done on a hailstorm warning?</h4>
-                  <p>If the crops are mature, harvest them immediately. If not, secure anti-hail netting if available.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q5. Why are wind speed and direction important?</h4>
-                  <p>High winds cause pesticide sprays to drift away. Sprays should be executed in the direction of the wind and during calm hours.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q6. How do you prevent frost damage?</h4>
-                  <p>Generate smoke rings around fields or apply light irrigation. This raises the microclimate temperature of the farm fields.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q7. What is the impact of high relative humidity?</h4>
-                  <p>Warm and highly humid conditions encourage fungal pathogens. Monitor leaves closely for early blight or rust.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q8. What are the key Kharif crops?</h4>
-                  <p>Paddy, Maize, Cotton, Soybeans, Groundnuts, and certain pulses grown during the rainy season.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q9. What are the key Rabi crops?</h4>
-                  <p>Wheat, Mustard, Barley, Peas, Gram, and Potatoes grown during the cool winter season.</p>
-                </div>
-                <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2">
-                  <h4 className="font-bold text-foreground">Q10. Is the weather data on KisaanBuddy live?</h4>
-                  <p>Yes, weather indicators are fetched in real-time using local station data and satellite monitoring systems.</p>
+              <div className="space-y-4">
+                <h2 className="text-2xl font-display font-extrabold text-foreground">
+                  {guide.faq_title}
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 text-xs text-muted-foreground">
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq1_q}</h4>
+                    <p>{guide.faq1_a}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq2_q}</h4>
+                    <p>{guide.faq2_a}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq3_q}</h4>
+                    <p>{guide.faq3_a}</p>
+                  </div>
+                  <div className="p-4 rounded-xl border border-border/50 bg-card space-y-2 shadow-sm">
+                    <h4 className="font-bold text-foreground">{guide.faq4_q}</h4>
+                    <p>{guide.faq4_a}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        })()}
       </section>
     </div>
   )

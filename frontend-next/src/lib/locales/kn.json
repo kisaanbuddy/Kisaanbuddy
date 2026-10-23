@@ -9,7 +9,7 @@
     "disease_detect": "ರೋಗ ಪತ್ತೆ",
     "ai_chatbot": "AI ಚಾಟ್‌ಬಾಟ್",
     "workers": "ಕೆಲಸಗಾರರು",
-    "schemes": "ಸರ್ಕಾರಿ योजनाएं",
+    "schemes": "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು",
     "soil_health": "ಮಣ್ಣಿನ ಆರೋಗ್ಯ",
     "khet_diary": "ಹೊಲ ಡೈರಿ",
     "mandi_rates": "ಮಂಡಿ ದರಗಳು",
@@ -48,7 +48,7 @@
     "e_g_2_5": "ಉದಾ. 2.5",
     "land_holding_acres": "ಭೂಮಿ ಹಿಡುವಳಿ (ಎಕರೆ)",
     "targeted_eligibility_search": "ಉದ್ದೇಶಿತ ಅರ್ಹತಾ ಹುಡುಕಾಟ",
-    "schemes": "ಸರ್ಕಾರಿ योजनाएं"
+    "schemes": "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು"
   },
   "mandi": {
     "KisaanBuddy_mandi_alert": "Kisaan Buddy ಮಂಡಿ ಅಲರ್ಟ್",
@@ -350,7 +350,7 @@
   "welcomeBack": "ಮರಳಿ ಸ್ವಾಗತ",
   "guestBanner": "Account ಇಲ್ಲದೆ ಬಳಸುತ್ತಿದ್ದೀರಿ — data save ಆಗುವುದಿಲ್ಲ.",
   "createFreeAccountBtn": "ಉಚಿತ Account ತೆರೆಯಿರಿ",
-  "quickAccess": "Quick Access",
+  "quickAccess": "ತ್ವರಿತ ಪ್ರವೇಶ",
   "recentActivity": "ಇತ್ತೀಚಿನ ಚಟುವಟಿಕೆ",
   "farmInsights": "ಹೊಲ Insights",
   "mandiTitle": "Live ಮಂಡಿ ದರ",
@@ -410,12 +410,12 @@
   "schemesTitle": "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು",
   "schemesSubtitle": "ಕೇಂದ್ರ ಯೋಜನೆಗಳು · ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಿ ನೇರ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.",
   "checkEligibility": "ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಿ",
-  "reset": "Reset",
+  "reset": "ಮರುಹೊಂದಿಸಿ",
   "landAcres": "ಭೂಮಿ (ಎಕರೆ)",
   "category": "ವರ್ಗ",
   "age": "ವಯಸ್ಸು",
   "showSchemes": "ನನಗಾಗಿ Schemes ತೋರಿಸಿ",
-  "matchingSchemes": "matching schemes",
+  "matchingSchemes": "ಹೊಂದಾಣಿಕೆಯಾಗುವ ಯೋಜನೆಗಳು",
   "central": "ಕೇಂದ್ರ",
   "soilTitle": "ಮಣ್ಣು ಆರೋಗ್ಯ & ಗೊಬ್ಬರ AI",
   "soilSubtitle": "ನಿಮ್ಮ ಮಣ್ಣಿನ details ನಮೂದಿಸಿ — AI ಗೊಬ್ಬರ ಸಲಹೆ ಪಡೆಯಿರಿ",
@@ -425,7 +425,7 @@
   "phosphorusLevel": "ಫಾಸ್ಫರಸ್ (P)",
   "potassiumLevel": "ಪೊಟ್ಯಾಸಿಯಮ್ (K)",
   "phLevel": "ಮಣ್ಣು pH",
-  "organicCarbon": "Organic Carbon",
+  "organicCarbon": "ಸಾವಯವ ಇಂಗಾಲ",
   "getRecommendation": "AI Recommendation ಪಡೆಯಿರಿ",
   "analyzing": "ವಿಶ್ಲೇಷಿಸುತ್ತಿದೆ...",
   "low": "ಕಡಿಮೆ",
@@ -435,11 +435,11 @@
   "diarySubtitle": "ದೈನಂದಿನ ಕೃಷಿ ಚಟುವಟಿಕೆ log",
   "addEntry": "Entry ಸೇರಿಸಿ",
   "activityType": "ಚಟುವಟಿಕೆ ಪ್ರಕಾರ",
-  "notes": "Notes",
+  "notes": "ಟಿಪ್ಪಣಿಗಳು",
   "save": "Save ಮಾಡಿ",
   "cancel": "ರದ್ದು ಮಾಡಿ",
   "noEntries": "ಇನ್ನೂ entries ಇಲ್ಲ",
-  "workerTitle": "Worker Connect",
+  "workerTitle": "ಕಾರ್ಮಿಕ ಸಂಪರ್ಕ",
   "workerSubtitle": "ಹತ್ತಿರದ skilled farm workers ಹುಡುಕಿ",
   "callBtn": "ಕರೆ",
   "whatsappBtn": "WhatsApp",
@@ -482,13 +482,21 @@
     "optimize_your_harvesting_operations": "ಇಂದೇ ನಿಮ್ಮ ಕೊಯ್ಲು ಕಾರ್ಯಾಚರಣೆಗಳನ್ನು ಉತ್ತಮಗೊಳಿಸಿ",
     "register_a_free_account": "ಉಚಿತ ಖಾತೆಯನ್ನು ನೋಂದಾಯಿಸಿ, ಬೆಳೆ ರೋಗ ಮಾದರಿಗಳನ್ನು ಪರೀಕ್ಷಿಸಿ ಮತ್ತು ಹೊಲ ಡೈರಿಯಲ್ಲಿ ದಾಖಲೆಗಳನ್ನು ಬರೆಯಲು ಪ್ರಾರಂಭಿಸಿ.",
     "join_free": "ಉಚಿತವಾಗಿ ಸೇರಿ",
-    "go_to_home": "ಹೋಮ್ ಪೇಜ್‌ಗೆ ಹೋಗಿ"
+    "go_to_home": "ಹೋಮ್ ಪೇಜ್‌ಗೆ ಹೋಗಿ",
+    "faq_title": "ಪದೇ ಪದೇ ಕೇಳಲಾಗುವ ಪ್ರಶ್ನೆಗಳು (FAQ)",
+    "faq_subtitle": "KisaanBuddy ಬಗ್ಗೆ ಸಾಮಾನ್ಯ ಪ್ರಶ್ನೆಗಳು ಮತ್ತು ಉತ್ತರಗಳು",
+    "faq_q1": "ಪ್ರಶ್ನೆ 1. KisaanBuddy (ಕಿಸಾನ್‌ಬಡ್ಡಿ) ಎಂದರೇನು?",
+    "faq_a1": "ಉತ್ತರ: KisaanBuddy ಎಂಬುದು AI-ಚಾಲಿತ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ವೇದಿಕೆಯಾಗಿದೆ. ಇದು ಭಾರತೀಯ ರೈತರಿಗೆ ಬೆಳೆ ಎಲೆ ರೋಗಗಳನ್ನು ಪತ್ತೆಹಚ್ಚಲು, ಮಣ್ಣಿನ ಆರೋಗ್ಯವನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಲು, ಲೈವ್ ಎಪಿಎಂಸಿ ಮಂಡಿ ದರಗಳನ್ನು ಪರಿಶೀಲಿಸಲು ಮತ್ತು ನೈಜ-ಸಮಯದ ಹವಾಮಾನ ಸಲಹೆಗಳನ್ನು ಒದಗಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.",
+    "faq_q2": "ಪ್ರಶ್ನೆ 2. KisaanBuddy ಬಳಸಲು ಯಾವುದೇ ಶುಲ್ಕವಿದೆಯೇ?",
+    "faq_a2": "ಉತ್ತರ: ಇಲ್ಲ, ಭಾರತದಾದ್ಯಂತ ಇರುವ ರೈತರಿಗಾಗಿ KisaanBuddy ಯ ಪ್ರಮುಖ ಕೃಷಿ ಸಲಹಾ ಸಾಧನಗಳು, ಬೆಳೆ ಸ್ಕ್ಯಾನರ್‌ಗಳು, ಮಂಡಿ ಪರಿಶೀಲನೆ ಮತ್ತು ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಮಾರ್ಗದರ್ಶಿ ಸಂಪೂರ್ಣವಾಗಿ ಉಚಿತವಾಗಿದೆ.",
+    "faq_q3": "ಪ್ರಶ್ನೆ 3. ಬೆಳೆ ರೋಗ ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಉಪಕರಣವು ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ?",
+    "faq_a3": "ಉತ್ತರ: ನಮ್ಮ ಸುಧಾರಿತ AI ಮಾದರಿಯು ನೀವು ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ಬೆಳೆ ಎಲೆಯ ಛಾಯಾಚಿತ್ರವನ್ನು ವಿಶ್ಲೇಷಿಸಿ ರೋಗಕಾರಕಗಳನ್ನು (ಬ್ಲೈಟ್, ಬ್ಲಾಸ್ಟ್ ಅಥವಾ ರಸ್ಟ್) ತಕ್ಷಣವೇ ಪತ್ತೆ ಮಾಡುತ್ತದೆ ಮತ್ತು ನಿಖರ ಸಾವಯವ ಹಾಗೂ ರಾಸಾಯನಿಕ ಚಿಕಿತ್ಸಾ ಕ್ರಮಗಳನ್ನು ಶಿಫಾರಸು ಮಾಡುತ್ತದೆ."
   },
   "chatbot": {
-    "could_not_connect_to": "Could not connect to backend. Make sure the server is running.",
-    "voice_not_supported_in": "Voice not supported in this browser. Please use Google Chrome.",
-    "listening": "Listening...",
-    "recording_voice_processing_will": "Recording voice... processing will trigger when you stop speaking",
+    "could_not_connect_to": "ಸರ್ವರ್‌ಗೆ ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಸರ್ವರ್ ಚಾಲನೆಯಲ್ಲಿದೆಯೇ ಎಂದು ಪರಿಶೀಲಿಸಿ.",
+    "voice_not_supported_in": "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು Google Chrome ಬಳಸಿ.",
+    "listening": "ಆಲಿಸಲಾಗುತ್ತಿದೆ...",
+    "recording_voice_processing_will": "ಧ್ವನಿಯನ್ನು ರೆಕಾರ್ಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ... ನೀವು ಮಾತನಾಡುವುದನ್ನು ನಿಲ್ಲಿಸಿದ ನಂತರ ಪ್ರಕ್ರಿಯೆ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ",
     "configuring_voice_ai_pipeline": "ಧ್ವನಿ AI ಪೈಪ್‌ಲೈನ್ ಅನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗುತ್ತಿದೆ...",
     "ai_advisor_metrics_always": "AI ಸಲಹೆಗಾರ ಮೆಟ್ರಿಕ್ಸ್. ಸ್ಥಳೀಯ ಕೃಷಿ ವೃತ್ತಿಪರರೊಂದಿಗೆ ಯಾವಾಗಲೂ ರೋಗನಿರ್ಣಯವನ್ನು ದೃಢೀಕರಿಸಿ."
   },
@@ -517,7 +525,8 @@
     "please_fill_out_all": "ದಯವಿಟ್ಟು ಎಲ್ಲಾ ಅಗತ್ಯ ಕ್ಷೇತ್ರಗಳನ್ನು (ಹೆಸರು, ಇಮೇಲ್, ಸಂದೇಶ) ಭರ್ತಿ ಮಾಡಿ.",
     "sending": "ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...",
     "send_message": "ಸಂದೇಶ ಕಳುಹಿಸಿ",
-    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com"
+    "https_KisaanBuddyindia_vercel_app": "https://kisaanbuddy.com",
+    "whatsapp_helpline": "ವಾಟ್ಸಾಪ್ ಸಹಾಯವಾಣಿ"
   },
   "cookie_policy": {
     "back_to_home": "ಹೋಮ್ ಪೇಜ್‌ಗೆ ಹಿಂತಿರುಗಿ",
@@ -731,7 +740,9 @@
     "ai_intelligence_tools": "AI ಇಂಟೆಲಿಜೆನ್ಸ್ ಪರಿಕರಗಳು",
     "205_mg_kg": "205 mg/kg",
     "48_mg_kg": "48 mg/kg",
-    "92_mg_kg": "92 mg/kg"
+    "92_mg_kg": "92 mg/kg",
+    "free_forever": "100% ಶಾಶ್ವತವಾಗಿ ಉಚಿತ",
+    "indian_languages": "10 ಭಾರತೀಯ ಭಾಷೆಗಳು"
   },
   "landing_testimonials": {
     "ramesh_patel": "ರಮೇಶ್ ಪಟೇಲ್",
@@ -873,12 +884,15 @@
     "agronomist_suggestions": "ಕೃಷಿ ತಜ್ಞರ ಸಲಹೆಗಳು",
     "analysis_verdict_basis": "ವಿಶ್ಲೇಷಣೆಯ ತೀರ್ಪಿನ ಆಧಾರ",
     "check_suitability": "ಸೂಕ್ತತೆಯನ್ನು ಪರಿಶೀಲಿಸಿ",
-    "analyzing": "Analyzing...",
+    "analyzing": "ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...",
     "ask_about_your_farm": "ನಿಮ್ಮ ಹೊಲದ ಬಗ್ಗೆ ಕೇಳಿ... (ಉದಾ. 'ಗೋಧಿ ಬೆಳೆಯುವುದು ಸರಿಯೇ?')",
     "ask_your_farm_ai": "ನಿಮ್ಮ ಫಾರ್ಮ್ AI ಅನ್ನು ಕೇಳಿ"
   },
   "footer": {
-    "ai": "AI"
+    "ai": "AI",
+    "features": "ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ವೈಶಿಷ್ಟ್ಯಗಳು",
+    "marketplace": "ಮಾರುಕಟ್ಟೆ (ಖರೀದಿದಾರರು ಮತ್ತು ಮಾರಾಟಗಾರರು)",
+    "reports": "ಕೃಷಿ ವರದಿಗಳು ಮತ್ತು ವಿಶ್ಲೇಷಣೆ"
   },
   "hardware_showcase": {
     "ready_to_upgrade_your": "ನಿಮ್ಮ ಹೊಲದ ಬುದ್ಧಿವಂತಿಕೆಯನ್ನು ನವೀಕರಿಸಲು ಸಿದ್ಧರಿದ್ದೀರಾ?",
@@ -918,8 +932,8 @@
     "ai": "AI"
   },
   "location_autofill": {
-    "type_a_city_name": "Type a city name (e.g. Pune, Bengaluru, Lucknow)...",
-    "auto_fill_from_your": "Auto-fill from your location"
+    "type_a_city_name": "ನಗರದ ಹೆಸರನ್ನು ಟೈಪ್ ಮಾಡಿ (ಉದಾ. ಪುಣೆ, ಬೆಂಗಳೂರು, ಲಖನೌ)...",
+    "auto_fill_from_your": "ನಿಮ್ಮ ಸ್ಥಳದಿಂದ ಸ್ವಯಂ ಭರ್ತಿ ಮಾಡಿ"
   },
   "scheme_video": {
     "watch_tutorial_on_youtube": "YouTube ನಲ್ಲಿ ಟ್ಯುಟೋರಿಯಲ್ ವೀಕ್ಷಿಸಿ"
@@ -931,16 +945,16 @@
     "toggle_theme": "ಥೀಮ್ ಬದಲಿಸಿ"
   },
   "common": {
-    "send_message": "Send message",
-    "stop_generating": "Stop generating",
-    "remove_photo": "Remove photo",
-    "uploaded_leaf": "Uploaded leaf",
+    "send_message": "ಸಂದೇಶ ಕಳುಹಿಸಿ",
+    "stop_generating": "ರಚಿಸುವುದನ್ನು ನಿಲ್ಲಿಸಿ",
+    "remove_photo": "ಫೋಟೋ ತೆಗೆದುಹಾಕಿ",
+    "uploaded_leaf": "ಅಪ್‌ಲೋಡ್ ಮಾಡಿದ ಎಲೆ",
     "close_assistant": "ಮುಚ್ಚಿ assistant",
     "close": "ಮುಚ್ಚಿ",
-    "reset_conversation": "Reset conversation",
-    "new_conversation": "New conversation",
-    "KisaanBuddy_assistant": "Kisaan Buddy assistant",
-    "promise": "Promise"
+    "reset_conversation": "ಸಂಭಾಷಣೆಯನ್ನು ಮರುಹೊಂದಿಸಿ",
+    "new_conversation": "ಹೊಸ ಸಂಭಾಷಣೆ",
+    "KisaanBuddy_assistant": "KisaanBuddy AI ಸಹಾಯಕ",
+    "promise": "ಭರವಸೆ"
   },
   "hero": {
     "title": "ರೈತರಿಗಾಗಿ ಭಾರತದ ಐ ಕೊಪೈಲಟ್",
@@ -978,7 +992,10 @@
     "mandi_live": "ಲೈವ್ ಮಂಡಿ ಬೆಲೆಗಳು",
     "unam_live": "eNAM ಲೈವ್",
     "agra_potato": "ಆಗ್ರಾ (ಆಲೂಗಡ್ಡೆ)",
-    "delhi_wheat": "ದೆಹಲಿ (ಗೋದಿಕುಂಡಿ)"
+    "delhi_wheat": "ದೆಹಲಿ (ಗೋದಿಕುಂಡಿ)",
+    "ph_neutral: 6": {
+      "5 (Neutral)": "ಪಿಎಚ್ ಮಟ್ಟ: 6.5 (ತಟಸ್ಥ)"
+    }
   },
   "loginLabel": "ಲಾಗಿನ್",
   "technology": {
@@ -1025,5 +1042,50 @@
     "disease_photo": "ಫೋಟೋ ಲಗತ್ತಿಸಲಾಗಿದೆ",
     "speech_not_supported": "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು ಆಂಡ್ರಾಯ್ಡ್ ಕ್ರೋಮ್ ಬಳಸಿ.",
     "success_submit": "ಪ್ರಶ್ನೆ ಕಳುಹಿಸಲಾಗಿದೆ"
+  },
+  "impact": "ಪ್ರಭಾವ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+  "ui": {
+    "auth": {
+      "change_phone": "ದೂರವಾಣಿ ಸಂಖ್ಯೆ ಬದಲಾಯಿಸಿ",
+      "email_instructions": "ನಿಮ್ಮ ಇಮೇಲ್ ವಿಳಾಸವನ್ನು ನಮೂದಿಸಿ. ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಇಮೇಲ್ ಲಭ್ಯವಿದ್ದರೆ, ನಾವು ಸೂಚನೆಗಳನ್ನು ಕಳುಹಿಸುತ್ತೇವೆ.",
+      "invalid_phone": "ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ ಭಾರತೀಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.",
+      "network_error": "ನೆಟ್‌ವರ್ಕ್ ದೋಷ. ದಯವಿಟ್ಟು ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+      "otp_digit": "ದೃಢೀಕರಣ ಕೋಡ್ ಅಂಕೆ",
+      "otp_group": "ಆರು-ಅಂಕಿಯ ದೃಢೀಕರಣ ಕೋಡ್",
+      "otp_incorrect": "ದೃಢೀಕರಣ ಕೋಡ್ ತಪ್ಪಾಗಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+      "otp_resend_failed": "ನಾವು ದೃಢೀಕರಣ ಕೋಡ್ ಅನ್ನು ಮರುಕಳುಹಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+      "otp_resent": "ಹೊಸ ದೃಢೀಕರಣ ಕೋಡ್ ಅನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ.",
+      "otp_send_failed": "ದೃಢೀಕರಣ ಕೋಡ್ ಕಳುಹಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+      "otp_sent": "ದೃಢೀಕರಣ ಕೋಡ್ ಅನ್ನು SMS ಮೂಲಕ ಯಶಸ್ವಿಯಾಗಿ ಕಳುಹಿಸಲಾಗಿದೆ.",
+      "password_length": "ನಿಮ್ಮ ಹೊಸ ಪಾಸ್‌ವರ್ಡ್‌ಗಾಗಿ ಕನಿಷ್ಠ 8 ಅಕ್ಷರಗಳನ್ನು ಬಳಸಿ.",
+      "resend_in": "{seconds} ಸೆಕೆಂಡುಗಳಲ್ಲಿ ಮರುಕಳುಹಿಸಿ",
+      "resend_otp": "ದೃಢೀಕರಣ ಕೋಡ್ ಮರುಕಳುಹಿಸಿ",
+      "reset_delivery_unavailable": "ಪಾಸ್‌ವರ್ಡ್ ಮರುಹೊಂದಿಸುವ ಇಮೇಲ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ. ನಿಮ್ಮ ಖಾತೆಯನ್ನು ಪ್ರವೇಶಿಸಲು ಸಹಾಯಕ್ಕಾಗಿ ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+      "reset_failed": "ನಿಮ್ಮ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಮರುಹೊಂದಿಸಲು ನಮಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+      "reset_request_failed": "ಮರುಹೊಂದಿಸುವ ಲಿಂಕ್ ಅನ್ನು ವಿನಂತಿಸಲು ನಮಗೆ ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."
+    },
+    "footer": {
+      "khet_diary": "ಹೊಲ ಡೈರಿ (ಕೃಷಿ ಖಾತೆ ವಹಿ)"
+    },
+    "home": {
+      "badge": "ಭಾರತೀಯ ಕೃಷಿಗಾಗಿ ಪ್ರಾಯೋಗಿಕ ಉಪಕರಣಗಳು",
+      "capabilities": {
+        "crop": "ಮುಂದಿನ ಬೆಳೆಯ ಯೋಜನೆಯನ್ನು ರೂಪಿಸಿ",
+        "disease": "ಬೆಳೆ ರೋಗವನ್ನು ಗುರುತಿಸಿ",
+        "weather": "ನಿಮ್ಮ ಜಮೀನಿನ ಹವಾಮಾನ"
+      },
+      "card_title": "ಅನಗತ್ಯ ಗೊಂದಲವಿಲ್ಲದೆ ಅತ್ಯಗತ್ಯ ಸೌಲಭ್ಯಗಳು.",
+      "field_label": "ಜಮೀನಿನ ಕೆಲಸಕ್ಕಾಗಿ ನಿರ್ಮಿಸಲಾಗಿದೆ",
+      "helper": "ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಸ್ವಂತ ವಿವರಗಳು ಮತ್ತು ಸ್ಥಳವನ್ನು ಬಳಸಿ.",
+      "weather_cta": "ಜಮೀನಿನ ಹವಾಮಾನವನ್ನು ಪರಿಶೀಲಿಸಿ"
+    },
+    "navigation": {
+      "close_menu": "ಮೆನು ಮುಚ್ಚಿ",
+      "open_menu": "ಮೆನು ತೆರೆಯಿರಿ"
+    },
+    "search": {
+      "label": "ಹುಡುಕಿ",
+      "title": "KisaanBuddy ಹುಡುಕಿ (Ctrl+K)"
+    }
   }
 }
