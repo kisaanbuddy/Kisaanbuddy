@@ -28,12 +28,26 @@ log = logging.getLogger(__name__)
 # Bhojpuri and Maithili intentionally use Hindi as a transparent fallback until
 # dedicated voices pass the voice benchmark.
 _BCP47 = {
-    "en": "en-IN", "hi": "hi-IN", "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN",
+    "en": "en-IN", "hi": "hi-IN", "hi_en": "hi-IN", "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN",
     "te": "te-IN", "ta": "ta-IN", "gu": "gu-IN", "pa": "pa-IN", "bho": "hi-IN", "mai": "hi-IN",
 }
 _SARVAM_LANG = _BCP47
 _GOOGLE_LANG = _BCP47
 _GOOGLE_VOICE = {"hi": "hi-IN-Neural2-A", "kn": "kn-IN-Standard-A", "en": "en-IN-Neural2-A"}
+
+# Bulbul v4 Flash is Sarvam's current neural model.  Kannada has a much
+# smaller v4 persona roster, so use Sarvam's documented, production-tested
+# Bulbul v3 speaker there instead of guessing an unsupported v4 speaker ID.
+# Hinglish still uses Hindi text-normalisation; its v4 ``enhi`` speaker keeps
+# English crop/product names natural in otherwise Roman-Hindi responses.
+_SARVAM_PROFILE = {
+    "en": ("bulbul:v4-flash", "aparna_en_companion"),
+    "hi": ("bulbul:v4-flash", "aparna_hi_customer"),
+    "hi_en": ("bulbul:v4-flash", "simran_enhi_customer"),
+    "kn": ("bulbul:v3", "ishita"),
+}
+_SARVAM_DEFAULT_PROFILE = ("bulbul:v3", "priya")
+_SARVAM_V3_SPEAKER = {"en": "ishita", "hi": "priya", "hi_en": "priya", "kn": "ishita"}
 
 
 class TTSError(Exception):
@@ -57,30 +71,52 @@ async def _sarvam_tts(text: str, lang: str) -> TTSResult:
     if not key:
         raise TTSError("SARVAM_API_KEY not set")
 
-    target = _SARVAM_LANG.get(lang, "hi-IN")
+    # ``auto`` can reach this endpoint from text clients.  Resolve it from
+    # the text instead of accidentally speaking every unknown reply as Hindi.
+    if lang == "auto":
+        from services.chat.language_detect import detect_language
+        lang = detect_language(text)
+    target = _SARVAM_LANG.get(lang, "en-IN")
+    model, speaker = _SARVAM_PROFILE.get(lang, _SARVAM_DEFAULT_PROFILE)
     url = "https://api.sarvam.ai/text-to-speech"
     headers = {"api-subscription-key": key, "Content-Type": "application/json"}
     body = {
-        "inputs": [text[:2500]],
-        "target_language_code": target,
-        "speaker": "priya",
-        "pitch": 0,
-        "pace": 1.0,
-        "loudness": 1.2,
-        "speech_sample_rate": 22050,
-        "enable_preprocessing": True,
-        "model": "bulbul:v3",
+        "text": text[:2500],
+        # Sarvam Bulbul REST uses ``language_code``. It controls Indic text
+        # normalisation (numbers, crop names and abbreviations), not merely a
+        # display label, so it must match the response language.
+        "language_code": target,
+        "speaker": speaker,
+        # A slightly slower pace improves clarity for field use without adding
+        # artificial pauses. Bulbul handles sentence prosody itself.
+        "pace": 0.96,
+        "speech_sample_rate": 24000,
+        "output_audio_codec": "mp3",
+        "model": model,
     }
+    used_model = model
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
         r = await client.post(url, json=body, headers=headers)
+        # A key can lag a model rollout. Preserve correct-language neural
+        # speech by retrying Sarvam's stable profile, never an English voice.
+        if r.status_code >= 400 and model == "bulbul:v4-flash":
+            fallback = dict(body)
+            fallback.update({
+                "model": "bulbul:v3",
+                "speaker": _SARVAM_V3_SPEAKER.get(lang, "priya"),
+            })
+            r = await client.post(url, json=fallback, headers=headers)
+            used_model = "bulbul:v3"
     if r.status_code >= 400:
         raise TTSError(f"Sarvam TTS {r.status_code}: {r.text[:200]}")
     data = r.json()
     audios = data.get("audios", [])
     if not audios:
         raise TTSError("Sarvam returned empty audio")
-    wav = base64.b64decode(audios[0])
-    return TTSResult(wav, "audio/wav", "sarvam-bulbul")
+    # Sarvam may split a long response into multiple base64 fragments. Joining
+    # first prevents truncating the assistant's actual answer.
+    audio = base64.b64decode("".join(audios))
+    return TTSResult(audio, "audio/mpeg", f"sarvam-{used_model}")
 
 
 # ---------------------------------------------------------------------------
@@ -147,7 +183,10 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
     if not text:
         raise TTSError("Empty text")
 
-    providers = _configured_providers()
+    if language == "auto":
+        from services.chat.language_detect import detect_language
+        language = detect_language(text)
+    providers = _configured_providers(language)
     errors: list[str] = []
     for name, fn in providers:
         try:
@@ -170,13 +209,15 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
     )
 
 
-def _configured_providers() -> list[Tuple[str, callable]]:  # type: ignore[type-arg]
+def _configured_providers(language: str) -> list[Tuple[str, callable]]:  # type: ignore[type-arg]
     out: list[Tuple[str, callable]] = []
     if settings.SARVAM_API_KEY:
         out.append(("sarvam", _sarvam_tts))
     if settings.GOOGLE_APPLICATION_CREDENTIALS:
         out.append(("google", _google_tts))
-    if (settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20):
+    # OpenAI's generic voice is an English-quality fallback only. Do not
+    # substitute it for Hindi/Kannada/Hinglish where it can sound foreign.
+    if language == "en" and ((settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20)):
         out.append(("openai", _openai_tts))
     return out
 

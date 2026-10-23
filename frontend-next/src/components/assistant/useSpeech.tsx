@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { Language } from "@/lib/assistant-api"
-import { transcribeAudio } from "@/lib/assistant-api"
+import { synthesizeSpeech, transcribeAudio } from "@/lib/assistant-api"
 
 // ---------- Typings for Web Speech API (not in lib.dom yet in all TS envs) ----
 // Minimal interfaces so we don't drag in @types packages.
@@ -117,6 +117,9 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
   const mediaChunksRef = useRef<Blob[]>([])
   const mediaStreamRef = useRef<MediaStream | null>(null)
   const useServerSTTRef = useRef(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const audioUrlRef = useRef<string | null>(null)
+  const speakGenerationRef = useRef(0)
 
   // Keep latest callbacks in refs so we don't need to re-bind listeners.
   const onFinalRef = useRef(onFinalTranscript)
@@ -145,7 +148,7 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
 
   const speechSupported = !!browserSTTCtor() || hasMediaRecorder
 
-  // ---------- Browser STT (preferred path) ----------
+  // ---------- Browser STT (last-resort path) ----------
   const startWebSpeech = useCallback((): boolean => {
     const Ctor = browserSTTCtor()
     if (!Ctor) return false
@@ -197,7 +200,7 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     }
   }, [language])
 
-  // ---------- Server STT via MediaRecorder + Whisper ----------
+  // ---------- Server STT via MediaRecorder + Sarvam/Whisper ----------
   const startServerSTT = useCallback(async (): Promise<boolean> => {
     if (!hasMediaRecorder) return false
     try {
@@ -228,8 +231,11 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
         })
         if (!blob.size) return
         try {
-          const hint =
-            language === "auto" ? undefined : (language as "en" | "hi" | "kn")
+          // Sarvam's ``unknown`` mode detects Hindi, Kannada and English from
+          // the recording.  Only pin a language after the farmer explicitly
+          // chose it in the picker; pinning was the reason every utterance was
+          // previously treated as English/Hindi.
+          const hint = language === "auto" ? undefined : language
           const res = await transcribeAudio(blob, hint)
           const text = (res.transcript || "").trim()
           if (text) onFinalRef.current(text)
@@ -253,13 +259,17 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
   const startListening = useCallback(async (): Promise<boolean> => {
     if (listening) return true
     // Always hard-stop any TTS first (voice interruption).
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel()
-      setSpeaking(false)
-    }
+    speakGenerationRef.current += 1
+    audioRef.current?.pause()
+    audioRef.current = null
+    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
+    setSpeaking(false)
     useServerSTTRef.current = false
-    if (startWebSpeech()) return true
-    return await startServerSTT()
+    // Server STT is the primary path: it supports Sarvam language detection
+    // and code-mixed Hinglish/Kanglish. Web Speech is only a compatibility
+    // fallback for browsers that cannot record audio.
+    if (await startServerSTT()) return true
+    return startWebSpeech()
   }, [listening, startWebSpeech, startServerSTT])
 
   const stopListening = useCallback(() => {
@@ -300,7 +310,7 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     setListening(false)
   }, [])
 
-  // ---------- Browser TTS ----------
+  // ---------- Browser TTS: compatibility fallback for English only ----------
   const pickVoice = useCallback(
     (lang: string): SpeechSynthesisVoice | null => {
       if (typeof window === "undefined" || !("speechSynthesis" in window)) {
@@ -320,7 +330,7 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     []
   )
 
-  const speak = useCallback(
+  const speakWithBrowser = useCallback(
     (text: string, spokenLang: Language) => {
       if (typeof window === "undefined" || !("speechSynthesis" in window)) return
       if (!text?.trim()) return
@@ -361,9 +371,71 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     [pickVoice]
   )
 
+  const speak = useCallback(
+    (text: string, spokenLang: Language) => {
+      if (!text?.trim()) return
+      const generation = ++speakGenerationRef.current
+      audioRef.current?.pause()
+      audioRef.current = null
+      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
+      audioUrlRef.current = null
+      if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
+      setSpeaking(true)
+
+      void (async () => {
+        try {
+          const response = await synthesizeSpeech(text, spokenLang)
+          if (generation !== speakGenerationRef.current) return
+          if (response.kind === "audio" && response.blob.size > 0) {
+            const url = URL.createObjectURL(response.blob)
+            audioUrlRef.current = url
+            const audio = new Audio(url)
+            audioRef.current = audio
+            audio.onended = () => {
+              if (generation === speakGenerationRef.current) setSpeaking(false)
+              URL.revokeObjectURL(url)
+              if (audioUrlRef.current === url) audioUrlRef.current = null
+            }
+            audio.onerror = () => {
+              if (generation === speakGenerationRef.current) {
+                setSpeaking(false)
+                onErrorRef.current?.("Voice playback failed. Please replay the response.")
+              }
+            }
+            await audio.play()
+            return
+          }
+
+          // Never silently pronounce Hindi/Kannada text with an English
+          // browser voice. It is better to keep the visible answer available
+          // and report that neural speech is temporarily unavailable.
+          if (spokenLang === "hi" || spokenLang === "kn" || spokenLang === "hi_en") {
+            setSpeaking(false)
+            onErrorRef.current?.("Natural voice is temporarily unavailable for this language.")
+            return
+          }
+          speakWithBrowser(text, spokenLang)
+        } catch (err: any) {
+          if (generation !== speakGenerationRef.current) return
+          if (spokenLang === "hi" || spokenLang === "kn" || spokenLang === "hi_en") {
+            setSpeaking(false)
+            onErrorRef.current?.("Natural voice is temporarily unavailable for this language.")
+            return
+          }
+          speakWithBrowser(text, spokenLang)
+        }
+      })()
+    },
+    [speakWithBrowser]
+  )
+
   const stopSpeaking = useCallback(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return
-    window.speechSynthesis.cancel()
+    speakGenerationRef.current += 1
+    audioRef.current?.pause()
+    audioRef.current = null
+    if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
+    audioUrlRef.current = null
+    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
     setSpeaking(false)
   }, [])
 
@@ -381,6 +453,8 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
         /* ignore */
       }
       mediaStreamRef.current?.getTracks().forEach((t) => t.stop())
+      audioRef.current?.pause()
+      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel()
       }
