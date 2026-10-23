@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   description: 'A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.',
   keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan', 'KisaanBuddy'],
   verification: {
-    google: 'Zj7cIm3Lzc1qehD6ThXe1akgMLDrRU5kRFK6ZYEISlI',
+    google: "kfmlZ8-_aU6xz_Fa2Av0DMUDhujjqvjIMIj948TZFns" ,
   },
   icons: { icon: '/favicon.ico', apple: '/icon-192.svg' },
   manifest: '/manifest.json',
