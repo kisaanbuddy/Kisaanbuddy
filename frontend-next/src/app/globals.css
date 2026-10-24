@@ -23,7 +23,7 @@
     --secondary-foreground: 0 0% 100%;
     
     --muted: 84 15% 92%;
-    --muted-foreground: 137 6% 44%; /* #68766C Secondary Text */
+    --muted-foreground: 137 10% 34%; /* #4B5D50 High Contrast WCAG AA/AAA */
     
     /* Fresh Leaf Green (#78B957) */
     --accent: 100 42% 53%;

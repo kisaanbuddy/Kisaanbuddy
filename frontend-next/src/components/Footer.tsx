@@ -19,16 +19,16 @@ export function Footer() {
           {/* Column 1: Brand & Contact */}
           <div className="sm:col-span-2 lg:col-span-1 space-y-3.5">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/logo.jpeg" alt="KisaanBuddy Logo" className="w-7 h-7 object-contain" />
+              <img src="/logo.webp" alt="KisaanBuddy Logo" width={28} height={28} className="w-7 h-7 object-contain" />
               <span className="font-display text-lg tracking-tight">
                 <span className="font-extrabold text-stone-900 dark:text-white">Kisaan</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400">Buddy</span>
               </span>
             </Link>
-            <p className="text-xs text-stone-500 leading-relaxed">
+            <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
               India's dedicated agricultural marketplace and intelligence platform. Connecting farmers with real wholesale markets, verified buyers, and skilled farm labour.
             </p>
-            <div className="text-[11px] text-stone-500 space-y-1.5 font-medium pt-1">
+            <div className="text-[11px] text-stone-600 dark:text-stone-400 space-y-1.5 font-medium pt-1">
               <p className="flex items-start gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
                 <span>Noida: H-12, Sector 63, UP - 201301</span>
@@ -42,7 +42,7 @@ export function Footer() {
                 <a href="mailto:info@kisaanbuddy.com" className="hover:text-emerald-600 transition-colors">info@kisaanbuddy.com</a>
               </p>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-stone-500 font-medium pt-1">
+            <div className="flex items-center gap-1.5 text-[11px] text-stone-600 dark:text-stone-400 font-medium pt-1">
               <span>Made with dedication in India</span>
               <Heart className="h-3 w-3 text-red-500 fill-current" />
             </div>
@@ -163,7 +163,7 @@ export function Footer() {
         <div className="border-t border-stone-200 dark:border-stone-800" />
 
         {/* Bottom copyright and social row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500 font-medium text-center sm:text-left">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-600 dark:text-stone-400 font-medium text-center sm:text-left">
           <p>&copy; {new Date().getFullYear()} KisaanBuddy &middot; Built for Indian Farmers &middot; All Rights Reserved</p>
           <div className="flex items-center justify-center sm:justify-end gap-4">
             <a
@@ -172,6 +172,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
               title="GitHub"
+              aria-label="GitHub Repository"
             >
               <Github className="h-3.5 w-3.5" />
               <span>GitHub</span>
@@ -183,6 +184,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
               title="LinkedIn"
+              aria-label="LinkedIn Profile"
             >
               <Linkedin className="h-3.5 w-3.5" />
               <span>LinkedIn</span>

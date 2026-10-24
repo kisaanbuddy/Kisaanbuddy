@@ -2,16 +2,21 @@
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
-import hi from "./locales/hi.json"
-import kn from "./locales/kn.json"
-import ta from "./locales/ta.json"
-import te from "./locales/te.json"
-import mr from "./locales/mr.json"
-import gu from "./locales/gu.json"
-import bn from "./locales/bn.json"
-import pa from "./locales/pa.json"
-import ml from "./locales/ml.json"
-import hi_en from "./locales/hi_en.json"
+
+// Dynamic loaders for non-default languages to eliminate ~900 KB of unused JSON from initial bundle
+const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
+  en: async () => en,
+  hi: () => import("./locales/hi.json").then((m) => m.default),
+  kn: () => import("./locales/kn.json").then((m) => m.default),
+  ta: () => import("./locales/ta.json").then((m) => m.default),
+  te: () => import("./locales/te.json").then((m) => m.default),
+  mr: () => import("./locales/mr.json").then((m) => m.default),
+  gu: () => import("./locales/gu.json").then((m) => m.default),
+  bn: () => import("./locales/bn.json").then((m) => m.default),
+  pa: () => import("./locales/pa.json").then((m) => m.default),
+  ml: () => import("./locales/ml.json").then((m) => m.default),
+  hi_en: () => import("./locales/hi_en.json").then((m) => m.default),
+}
 
 export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
@@ -72,8 +77,22 @@ export const SELECTABLE_LANGS: Lang[] = [
   "hi_en",
 ]
 
-// Statically bundled complete locales for instant load without flash
-export const T: Record<string, any> = { en, hi, kn, ta, te, ml, mr, bn, pa, gu, hi_en }
+// In-memory cache of loaded locales (English bundled statically as instant fallback)
+export const T: Record<string, any> = { en }
+
+export async function loadLocale(targetLang: Lang): Promise<any> {
+  if (T[targetLang]) return T[targetLang]
+  const loader = LOCALE_LOADERS[targetLang]
+  if (!loader) return en
+  try {
+    const data = await loader()
+    T[targetLang] = data
+    return data
+  } catch (err) {
+    console.error(`Failed to load locale: ${targetLang}`, err)
+    return en
+  }
+}
 
 function applyOverrides(base: any, overrides: Record<string, string>) {
   const next = structuredClone(base)
@@ -213,7 +232,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     if (saved && SELECTABLE_LANGS.includes(saved)) {
       setLangState(saved)
-      if (T[saved]) setTranslations(T[saved])
+      if (saved === "en") {
+        setTranslations(en)
+      } else {
+        void loadLocale(saved).then((data) => {
+          setTranslations(data)
+        })
+      }
     } else {
       setLangState("en")
     }
@@ -222,7 +247,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false
     const load = async () => {
-      let base: any = T[lang] || en
+      let base: any = T[lang] || (lang === "en" ? en : await loadLocale(lang))
       try {
         const response = await fetch(`/api/content/${lang}`, { cache: "no-store" })
         const overrides = response.ok ? await response.json() : {}
@@ -242,7 +267,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const setLang = (l: Lang) => {
     if (!SELECTABLE_LANGS.includes(l)) return
     setLangState(l)
-    if (T[l]) setTranslations(T[l])
+    if (l === "en") {
+      setTranslations(en)
+    } else {
+      void loadLocale(l).then((data) => {
+        setTranslations(data)
+      })
+    }
     localStorage.setItem("kisaanbuddy_lang", l)
     document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
     localStorage.removeItem("KisaanBuddy_lang") // Clean up old reference

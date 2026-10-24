@@ -13,8 +13,8 @@ import {
   ArrowDown,
 } from 'lucide-react';
 import { useLanguage, type Lang } from '@/lib/language';
-import { motion } from 'framer-motion';
-import { StaggerList, StaggerItem } from '@/components/motion/MotionComponents';
+
+
 
 interface HeroI18nContent {
   smallBadge: string;
@@ -152,33 +152,33 @@ export function HeroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Left Column: Benefit-Oriented Headline & Actions */}
-          <StaggerList className="lg:col-span-7 space-y-6 text-center lg:text-left">
+          {/* Left Column: Benefit-Oriented Headline & Actions (Instant SSR Paint - No Opacity Delay) */}
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
             
             {/* Small Eyebrow Badge */}
-            <StaggerItem>
+            <div>
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-stone-900 text-[#174B35] dark:text-[#78B957] text-xs font-bold uppercase tracking-wider border border-[#174B35]/20 dark:border-[#78B957]/30 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-[#27834A] animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#1e6b3a] dark:bg-[#78B957] animate-pulse" />
                 <span>{t.smallBadge}</span>
               </div>
-            </StaggerItem>
+            </div>
 
             {/* Main Headline */}
-            <StaggerItem>
+            <div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-black text-[#174B35] dark:text-white tracking-tight leading-[1.12]">
                 {t.heading}
               </h1>
-            </StaggerItem>
+            </div>
 
             {/* Supporting Copy */}
-            <StaggerItem>
-              <p className="text-base sm:text-lg text-[#68766C] dark:text-stone-300 max-w-2xl leading-relaxed mx-auto lg:mx-0 font-medium">
+            <div>
+              <p className="text-base sm:text-lg text-[#4B5D50] dark:text-stone-300 max-w-2xl leading-relaxed mx-auto lg:mx-0 font-medium">
                 {t.supportingText}
               </p>
-            </StaggerItem>
+            </div>
 
             {/* Primary & Secondary Actions */}
-            <StaggerItem>
+            <div>
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
                 {/* Primary CTA: Explore Services */}
                 <a
@@ -195,52 +195,53 @@ export function HeroSection() {
                   href="/mandi?tab=sell"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-[#174B35] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300 dark:border-stone-700 shadow-xs hover:border-[#27834A]/50 transition-all duration-200 active:scale-95 group"
                 >
-                  <Store className="w-4 h-4 text-[#27834A] group-hover:scale-110 transition-transform" />
+                  <Store className="w-4 h-4 text-[#1e6b3a] dark:text-[#78B957] group-hover:scale-110 transition-transform" />
                   <span>{t.ctaSell}</span>
                 </Link>
               </div>
-            </StaggerItem>
+            </div>
 
             {/* Trust Indicator Bar */}
-            <StaggerItem>
-              <div className="pt-5 border-t border-stone-200 dark:border-stone-800 grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-[#68766C] dark:text-stone-400">
+            <div>
+              <div className="pt-5 border-t border-stone-200 dark:border-stone-800 grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2.5 text-xs font-semibold text-[#4B5D50] dark:text-stone-300">
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e6b3a] dark:text-[#78B957] shrink-0" />
                   <span>{t.trustPoint1}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e6b3a] dark:text-[#78B957] shrink-0" />
                   <span>{t.trustPoint2}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e6b3a] dark:text-[#78B957] shrink-0" />
                   <span>{t.trustPoint3}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-[#1e6b3a] dark:text-[#78B957] shrink-0" />
                   <span>{t.trustPoint4}</span>
                 </div>
               </div>
-            </StaggerItem>
+            </div>
 
-          </StaggerList>
+          </div>
 
-          {/* Right Column: Authentic Indian Farming Photography */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 relative group"
-          >
+          {/* Right Column: Authentic Indian Farming Photography (Instant SSR Paint - Preloaded WebP) */}
+          <div className="lg:col-span-5 relative group">
             <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_12px_40px_rgba(23,75,53,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
               
               {/* Authentic Indian Farmer Photograph */}
               <div className="relative h-72 sm:h-80 md:h-96 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
                 <img
-                  src="/images/hero/hero-indian-farmer.jpg"
+                  src="/images/hero/hero-indian-farmer.webp"
+                  srcSet="/images/hero/hero-indian-farmer-mobile.webp 640w, /images/hero/hero-indian-farmer.webp 1000w"
+                  sizes="(max-width: 768px) 100vw, 500px"
                   alt="Authentic Indian Farmer in Agricultural Field"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
+                  width={500}
+                  height={384}
+                  fetchPriority="high"
                   loading="eager"
+                  decoding="async"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/80 via-[#174B35]/15 to-transparent pointer-events-none" />
 
@@ -307,7 +308,7 @@ export function HeroSection() {
               </div>
 
             </div>
-          </motion.div>
+          </div>
 
         </div>
       </div>

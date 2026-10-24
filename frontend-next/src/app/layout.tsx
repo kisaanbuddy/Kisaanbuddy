@@ -7,7 +7,7 @@ import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
 import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import Script from 'next/script';
+import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 
 /* ---------- System font stacks ----------
@@ -84,6 +84,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ '--font-sans': FONT_SANS, '--font-display': FONT_DISPLAY } as React.CSSProperties}
     >
       <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero/hero-indian-farmer-mobile.webp"
+          type="image/webp"
+          fetchPriority="high"
+          media="(max-width: 640px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero/hero-indian-farmer.webp"
+          type="image/webp"
+          fetchPriority="high"
+          media="(min-width: 641px)"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -142,11 +158,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SwRegister />
           <Analytics />
           <MobileBottomNav />
-          <Script
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3770486100255800"
-            strategy="lazyOnload"
-            crossOrigin="anonymous"
-          />
+          <DeferredAdSense />
+
+
+
+
+
+
         </Providers>
       </body>
     </html>

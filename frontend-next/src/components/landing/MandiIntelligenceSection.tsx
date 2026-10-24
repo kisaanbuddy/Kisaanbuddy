@@ -160,6 +160,7 @@ export function MandiIntelligenceSection() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t.searchPlaceholder}
+                aria-label={t.searchPlaceholder || "Search crop or mandi"}
                 className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-stone-900 dark:text-white placeholder-stone-400"
               />
             </div>
@@ -168,6 +169,7 @@ export function MandiIntelligenceSection() {
             <div className="sm:col-span-3">
               <select
                 value={selectedState}
+                aria-label="Filter mandi prices by Indian State"
                 onChange={(e) => setSelectedState(e.target.value)}
                 className="w-full px-3 py-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-stone-900 dark:text-white font-medium"
               >
@@ -181,6 +183,7 @@ export function MandiIntelligenceSection() {
             <div className="sm:col-span-3">
               <select
                 value={sortBy}
+                aria-label="Sort mandi prices"
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="w-full px-3 py-2.5 bg-white dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-stone-900 dark:text-white font-medium"
               >
@@ -194,7 +197,7 @@ export function MandiIntelligenceSection() {
 
           {/* Quick Commodity Pills */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
-            <span className="text-stone-500 font-medium mr-1">Popular Crops:</span>
+            <span className="text-stone-600 dark:text-stone-400 font-medium mr-1">Popular Crops:</span>
             {QUICK_COMMODITIES.map((c) => (
               <button
                 key={c.val}

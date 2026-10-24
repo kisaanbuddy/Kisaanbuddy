@@ -104,7 +104,7 @@ export function CropDoctorHomeSection() {
             {t.title}
           </h2>
 
-          <p className="text-base text-[#68766C] dark:text-stone-300 max-w-2xl mx-auto">
+          <p className="text-base text-[#4B5D50] dark:text-stone-300 max-w-2xl mx-auto">
             {t.subtitle}
           </p>
         </div>
@@ -121,11 +121,11 @@ export function CropDoctorHomeSection() {
               <h3 className="text-lg font-bold text-[#174B35] dark:text-white">
                 {t.step1Title}
               </h3>
-              <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#4B5D50] dark:text-stone-300 leading-relaxed">
                 {t.step1Desc}
               </p>
             </div>
-            <div className="pt-2 text-xs font-semibold text-[#27834A] flex items-center gap-1.5">
+            <div className="pt-2 text-xs font-semibold text-[#1e6b3a] dark:text-[#78B957] flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>Camera or Gallery Upload</span>
             </div>
@@ -140,11 +140,11 @@ export function CropDoctorHomeSection() {
               <h3 className="text-lg font-bold text-[#174B35] dark:text-white">
                 {t.step2Title}
               </h3>
-              <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#4B5D50] dark:text-stone-300 leading-relaxed">
                 {t.step2Desc}
               </p>
             </div>
-            <div className="pt-2 text-xs font-semibold text-[#27834A] flex items-center gap-1.5">
+            <div className="pt-2 text-xs font-semibold text-[#1e6b3a] dark:text-[#78B957] flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>Identifies Fungal, Bacterial & Pest Damage</span>
             </div>
@@ -159,11 +159,11 @@ export function CropDoctorHomeSection() {
               <h3 className="text-lg font-bold text-[#174B35] dark:text-white">
                 {t.step3Title}
               </h3>
-              <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#4B5D50] dark:text-stone-300 leading-relaxed">
                 {t.step3Desc}
               </p>
             </div>
-            <div className="pt-2 text-xs font-semibold text-[#27834A] flex items-center gap-1.5">
+            <div className="pt-2 text-xs font-semibold text-[#1e6b3a] dark:text-[#78B957] flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>Organic Remedies + Approved Sprays</span>
             </div>
@@ -181,7 +181,7 @@ export function CropDoctorHomeSection() {
               <h4 className="text-sm font-bold text-[#174B35] dark:text-white">
                 {t.limitationTitle}
               </h4>
-              <p className="text-xs text-[#68766C] dark:text-stone-300 mt-1 max-w-2xl">
+              <p className="text-xs text-[#4B5D50] dark:text-stone-300 mt-1 max-w-2xl">
                 {t.limitationDesc}
               </p>
             </div>

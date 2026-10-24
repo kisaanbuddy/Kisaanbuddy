@@ -49,7 +49,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ICAR-अनुशंसित जैविक व रासायनिक उपचार उपाय',
         cta: 'फसल स्वास्थ्य जांचें',
         link: '/disease',
-        image: '/images/crop-doctor/powdery-mildew-leaf.jpg',
+        image: '/images/crop-doctor/powdery-mildew-leaf.webp',
         icon: Bug,
       },
       {
@@ -60,7 +60,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'पास की मंडियों के भावों की तुलना करके सही बाजार चुनें',
         cta: 'मंडी भाव देखें',
         link: '/mandi',
-        image: '/images/mandi/grain-market-mandi.jpg',
+        image: '/images/mandi/grain-market-mandi.webp',
         icon: TrendingUp,
       },
       {
@@ -71,7 +71,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'बिना बिचौलियों के शून्य कमीशन पर सीधी बिक्री',
         cta: 'फसल बिक्री लिस्ट करें',
         link: '/mandi?tab=sell',
-        image: '/images/crops/punjab-wheat-field.jpg',
+        image: '/images/crops/punjab-wheat-field.webp',
         icon: Store,
       },
       {
@@ -82,7 +82,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'पारदर्शी दैनिक मजदूरी दर व सीधा फोन संपर्क',
         cta: 'खेत मजदूर खोजें',
         link: '/worker-connect',
-        image: '/images/farmers/farmer-field-tending.jpg',
+        image: '/images/farmers/farmer-field-tending.webp',
         icon: Users,
       },
       {
@@ -93,7 +93,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'छिड़काव व सिंचाई के लिए सुरक्षित समय का चुनाव',
         cta: 'मौसम पूर्वानुमान देखें',
         link: '/weather',
-        image: '/images/weather/monsoon-farmland.jpg',
+        image: '/images/weather/monsoon-farmland.webp',
         icon: CloudSun,
       },
       {
@@ -104,7 +104,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'स्पष्ट पात्रता शर्तें, समय सीमा व आधिकारिक पोर्टल लिंक',
         cta: 'योजनाएं देखें',
         link: '/schemes',
-        image: '/images/hero/hero-indian-farmer.jpg',
+        image: '/images/hero/hero-indian-farmer.webp',
         icon: Landmark,
       },
     ],
@@ -122,7 +122,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'Step-by-step ICAR-approved organic & chemical remedies',
         cta: 'Diagnose Crop Health',
         link: '/disease',
-        image: '/images/crop-doctor/powdery-mildew-leaf.jpg',
+        image: '/images/crop-doctor/powdery-mildew-leaf.webp',
         icon: Bug,
       },
       {
@@ -133,7 +133,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'Compare neighboring district rates to pick the best mandi',
         cta: 'Check Mandi Prices',
         link: '/mandi',
-        image: '/images/mandi/grain-market-mandi.jpg',
+        image: '/images/mandi/grain-market-mandi.webp',
         icon: TrendingUp,
       },
       {
@@ -144,7 +144,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'Direct buyer negotiations with zero middleman cuts',
         cta: 'List Harvest for Sale',
         link: '/mandi?tab=sell',
-        image: '/images/crops/punjab-wheat-field.jpg',
+        image: '/images/crops/punjab-wheat-field.webp',
         icon: Store,
       },
       {
@@ -155,7 +155,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'Transparent daily wages with direct telephone contacts',
         cta: 'Find Farm Workers',
         link: '/worker-connect',
-        image: '/images/farmers/farmer-field-tending.jpg',
+        image: '/images/farmers/farmer-field-tending.webp',
         icon: Users,
       },
       {
@@ -166,7 +166,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'Farming-relevant alerts for irrigation and chemical sprays',
         cta: 'View Weather Forecast',
         link: '/weather',
-        image: '/images/weather/monsoon-farmland.jpg',
+        image: '/images/weather/monsoon-farmland.webp',
         icon: CloudSun,
       },
       {
@@ -177,7 +177,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'Clear eligibility criteria, deadlines & official portal links',
         cta: 'Explore Govt Schemes',
         link: '/schemes',
-        image: '/images/hero/hero-indian-farmer.jpg',
+        image: '/images/hero/hero-indian-farmer.webp',
         icon: Landmark,
       },
     ],
@@ -195,7 +195,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ಐಸಿಎಆರ್ ಅನುಮೋದಿತ ಸಾವಯವ ಮತ್ತು ರಾಸಾಯನಿಕ ಚಿಕಿತ್ಸಾ ಕ್ರಮಗಳು',
         cta: 'ಬೆಳೆ ಆರೋಗ್ಯ ತಪಾಸಿಸಿ',
         link: '/disease',
-        image: '/images/crop-doctor/powdery-mildew-leaf.jpg',
+        image: '/images/crop-doctor/powdery-mildew-leaf.webp',
         icon: Bug,
       },
       {
@@ -206,7 +206,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ಉತ್ತಮ ಬೆಲೆಗೆ ಮಾರಾಟ ಮಾಡಲು ನೆರೆಯ ಮಂಡಿ ದರಗಳ ಹೋಲಿಕೆ',
         cta: 'ಮಂಡಿ ದರ ವೀಕ್ಷಿಸಿ',
         link: '/mandi',
-        image: '/images/mandi/grain-market-mandi.jpg',
+        image: '/images/mandi/grain-market-mandi.webp',
         icon: TrendingUp,
       },
       {
@@ -217,7 +217,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ಕಮಿಷನ್ ರಹಿತ ನೇರ ನಗದು ವಹಿವಾಟು',
         cta: 'ಬೆಳೆ ಮಾರಾಟ ದಾಖಲಿಸಿ',
         link: '/mandi?tab=sell',
-        image: '/images/crops/punjab-wheat-field.jpg',
+        image: '/images/crops/punjab-wheat-field.webp',
         icon: Store,
       },
       {
@@ -228,7 +228,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ಪಾರದರ್ಶಕ ದೈನಂದಿನ ಕೂಲಿ ಮತ್ತು ನೇರ ಫೋನ್ ಸಂಖ್ಯೆ',
         cta: 'ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ',
         link: '/worker-connect',
-        image: '/images/farmers/farmer-field-tending.jpg',
+        image: '/images/farmers/farmer-field-tending.webp',
         icon: Users,
       },
       {
@@ -239,7 +239,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ಸಿಂಪರಣೆ ಮತ್ತು ನೀರಾವರಿಗೆ ಸೂಕ್ತ ಸಮಯದ ಆಯ್ಕೆ',
         cta: 'ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ನೋಡಿ',
         link: '/weather',
-        image: '/images/weather/monsoon-farmland.jpg',
+        image: '/images/weather/monsoon-farmland.webp',
         icon: CloudSun,
       },
       {
@@ -250,7 +250,7 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
         benefit: 'ಸ್ಪಷ್ಟ ಅರ್ಹತಾ ಮಾನದಂಡಗಳು ಮತ್ತು ಅಧಿಕೃತ ಜಾಲತಾಣ ಲಿಂಕ್‌ಗಳು',
         cta: 'ಯೋಜನೆಗಳನ್ನು ನೋಡಿ',
         link: '/schemes',
-        image: '/images/hero/hero-indian-farmer.jpg',
+        image: '/images/hero/hero-indian-farmer.webp',
         icon: Landmark,
       },
     ],
@@ -284,7 +284,7 @@ export function QuickActionsSection() {
             {t.heading}
           </h2>
 
-          <p className="mt-4 text-base sm:text-lg text-[#68766C] dark:text-stone-300 leading-relaxed font-normal">
+          <p className="mt-4 text-base sm:text-lg text-[#4B5D50] dark:text-stone-300 leading-relaxed font-normal">
             {t.subtitle}
           </p>
         </div>
@@ -306,7 +306,10 @@ export function QuickActionsSection() {
                     <img
                       src={item.image}
                       alt={item.title}
+                      width={760}
+                      height={475}
                       loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/80 via-transparent to-transparent pointer-events-none" />
@@ -327,7 +330,7 @@ export function QuickActionsSection() {
                         {item.title}
                       </h3>
 
-                      <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
+                      <p className="text-xs sm:text-sm text-[#4B5D50] dark:text-stone-300 leading-relaxed mb-4">
                         {item.desc}
                       </p>
 

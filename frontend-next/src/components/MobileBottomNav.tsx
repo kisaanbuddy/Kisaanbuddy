@@ -106,7 +106,9 @@ export function MobileBottomNav() {
             <Link
               key={href}
               href={href}
-              className={`relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-w-[56px] rounded-lg transition-colors ${
+              aria-label={labels[lang] || labels.en}
+              aria-current={isActive ? 'page' : undefined}
+              className={`relative flex flex-col items-center justify-center gap-0.5 py-1.5 px-3 min-w-[56px] min-h-[48px] rounded-lg transition-colors ${
                 isActive
                   ? 'text-primary'
                   : 'text-muted-foreground hover:text-foreground'

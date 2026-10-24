@@ -15,7 +15,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useLanguage, LANG_NAMES, LANG_DETAILS, SELECTABLE_LANGS, type Lang } from '@/lib/language';
 import { useAuth, logoutUser } from '@/lib/auth';
-import SearchModal from '@/components/SearchModal';
+import dynamic from 'next/dynamic';
+const SearchModal = dynamic(() => import('@/components/SearchModal'), { ssr: false });
 import { trackEvent } from '@/lib/analytics';
 
 const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
@@ -263,7 +264,9 @@ export function Header() {
           >
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/20 p-1 border border-emerald-500/25 shadow-xs flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
               <img
-                src="/logo.jpeg"
+                src="/logo.webp"
+                width={32}
+                height={32}
                 alt="KisaanBuddy Logo"
                 className="w-full h-full object-contain rounded-lg"
               />
@@ -274,7 +277,7 @@ export function Header() {
                 <span className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Buddy</span>
               </span>
               {isPublic && !user && (
-                <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/80">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
                   Smart Farming
                 </span>
               )}
@@ -406,6 +409,7 @@ export function Header() {
               type="button"
               onClick={() => setSearchOpen(true)}
               title={t("ui.search.title")}
+              aria-label={t("ui.search.label") || "Search KisaanBuddy"}
               className="hidden md:flex h-8 items-center gap-2 rounded-lg border border-border/70 bg-card/60 px-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors cursor-pointer"
             >
               <Search className="h-3.5 w-3.5" />
@@ -424,6 +428,7 @@ export function Header() {
                 onClick={() => setLangOpen(v => !v)}
                 className="flex items-center gap-1.5 h-8 rounded-lg border border-border/70 bg-card/60 px-2.5 text-xs font-semibold text-foreground hover:bg-muted/60 transition-colors"
                 aria-expanded={langOpen}
+                aria-label={`Select language (current: ${LANG_NAMES[lang]})`}
               >
                 <Globe className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span className="hidden sm:inline">{LANG_NAMES[lang]}</span>
@@ -530,6 +535,7 @@ export function Header() {
                   type="button"
                   onClick={handleLogout}
                   title={t("header.sign_out")}
+                  aria-label={t("header.sign_out") || "Sign out"}
                   className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="h-3.5 w-3.5" />
