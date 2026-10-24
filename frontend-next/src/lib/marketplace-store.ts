@@ -455,8 +455,9 @@ export function addBuyerRequirement(data: any) {
     quality_specifications: data.quality_specifications || data.quality_requirements,
     status: data.status || "open",
     is_active: true,
-    is_verified: true,
-    source: "KisaanBuddy verified buyer requirement",
+    is_verified: false,
+    verification_status: "self_declared",
+    source: "KisaanBuddy self-declared buyer requirement",
     created_at: new Date().toISOString(),
   };
   buyerRequirementsStore.unshift(item);

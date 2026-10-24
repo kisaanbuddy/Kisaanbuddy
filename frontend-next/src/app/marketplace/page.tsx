@@ -246,7 +246,7 @@ export default function MarketplacePage() {
     if (section === "provenance") setSectionMode("provenance");
     if (section === "equipment" || section === "catalog") {
       setSectionMode("sell_rent");
-      setEquipmentSubTab("catalog");
+      setEquipmentTab("catalog");
     }
     if (action === "sell") {
       setSectionMode("sell_rent");

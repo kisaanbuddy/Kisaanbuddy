@@ -180,7 +180,9 @@ class ProduceListingCreate(BaseModel):
     moisture_pct: Optional[float] = Field(default=None, ge=0.0, le=100.0)
     farmer_name: str = Field(..., min_length=2, max_length=150)
     farmer_phone: Optional[str] = Field(default=None, max_length=30)
-    contact_consent_verified: bool = True
+    # A listing submission is self-declared. Consent/identity verification must
+    # be established through the dedicated verification workflow.
+    contact_consent_verified: bool = False
     state: str = Field(..., min_length=2, max_length=100)
     district: str = Field(..., min_length=2, max_length=100)
     village_or_tehsil: Optional[str] = Field(default=None, max_length=150)
@@ -188,7 +190,7 @@ class ProduceListingCreate(BaseModel):
     delivery_option: str = Field(default="Farm Gate Pickup", max_length=100)
     photo_urls: Optional[str] = None
     source_origin: str = Field(default="kisaanbuddy_farmer", max_length=100)
-    verification_status: str = Field(default="verified", max_length=50)
+    verification_status: str = Field(default="self_declared", max_length=50)
     notes: Optional[str] = None
 
 
@@ -222,12 +224,12 @@ class BuyerRequirementCreate(BaseModel):
     price_unit: str = Field(default="per Quintal", min_length=1, max_length=50)
     quality_requirements: Optional[str] = None
     offer_expiry_date: date
-    verification_status: str = Field(default="verified", max_length=50)
-    source: str = Field(default="KisaanBuddy verified buyer requirement", max_length=150)
+    verification_status: str = Field(default="self_declared", max_length=50)
+    source: str = Field(default="KisaanBuddy self-declared buyer requirement", max_length=150)
     original_offer_url: Optional[str] = None
     contact_person: Optional[str] = Field(default=None, max_length=120)
     contact_phone: Optional[str] = Field(default=None, max_length=30)
-    contact_consent_verified: bool = True
+    contact_consent_verified: bool = False
 
 
 class BuyerRequirementResponse(BuyerRequirementCreate):

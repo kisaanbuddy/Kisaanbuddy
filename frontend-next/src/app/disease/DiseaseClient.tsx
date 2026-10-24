@@ -276,13 +276,15 @@ export default function DiseasePortal() {
             <h1 className="text-2xl md:text-3xl font-display font-bold tracking-tight text-foreground">{t("disease.disease_detection")}</h1>
             <p className="text-muted-foreground text-xs md:text-sm max-w-xl leading-relaxed">
               {language === "hi"
-                ? "Patti ya paude ki photo bhejo — bimari, dose, organic aur chemical treatment sab milega"
-                : "Upload a leaf photo — get disease name, exact dose, organic & chemical treatment in seconds"}
+                ? "पत्ती या पौधे की फोटो भेजें — संभावित समस्या और सुरक्षित अगले कदम देखें"
+                : "Upload a leaf photo to screen for possible issues and review safe next steps"}
             </p>
           </div>
-          <div className="flex items-center gap-4 bg-muted/40 rounded-xl p-4 border border-border/50 shrink-0">
-            <div className="text-2xl md:text-3xl font-display font-black text-red-600 dark:text-red-400">95%</div>
-            <div className="text-[11px] font-semibold text-muted-foreground leading-tight">{t("disease.detection_accuracy")}</div>
+          <div className="flex items-center gap-3 bg-amber-500/10 rounded-xl p-4 border border-amber-500/20 shrink-0 max-w-[15rem]">
+            <AlertTriangle className="h-5 w-5 text-amber-700 dark:text-amber-300 shrink-0" />
+            <div className="text-[11px] font-semibold text-amber-900 dark:text-amber-100 leading-tight">
+              {language === "hi" ? "यह प्रारंभिक स्क्रीनिंग है; उपचार से पहले स्थानीय विशेषज्ञ से पुष्टि करें।" : "This is a visual screening aid; confirm treatment with a local expert."}
+            </div>
           </div>
         </div>
       </motion.div>
@@ -1018,7 +1020,7 @@ export default function DiseasePortal() {
                   </div>
                   <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
                     <h4 className="font-semibold text-foreground">Q10. KisaanBuddy रोग डिटेक्शन की सटीकता कितनी है?</h4>
-                    <p>KisaanBuddy का AI विज़न मॉडल 95% से अधिक सटीकता के साथ भारत की 30 से अधिक मुख्य फसलों के 120+ रोगों की सटीक पहचान कर सकता है।</p>
+                    <p>यह उपकरण तस्वीर में दिख रहे लक्षणों की प्रारंभिक स्क्रीनिंग करता है। परिणाम की पुष्टि के लिए स्थानीय कृषि विशेषज्ञ या KVK से सलाह लें, खासकर यदि फसल को गंभीर नुकसान हो रहा हो।</p>
                   </div>
                 </div>
               </div>
@@ -1122,7 +1124,7 @@ export default function DiseasePortal() {
                   </div>
                   <div className="p-4 rounded-xl border border-border/50 bg-card space-y-1.5 shadow-sm">
                     <h4 className="font-semibold text-foreground">Q10. How accurate is the KisaanBuddy disease model?</h4>
-                    <p>Our deep learning models identify 120+ diseases across 30+ staple Indian crops with a field-tested validation accuracy of over 95%.</p>
+                    <p>This tool screens visible symptoms in a photograph. Confirm results with a local agricultural expert or KVK, especially before applying a treatment or when crop loss is severe.</p>
                   </div>
                 </div>
               </div>

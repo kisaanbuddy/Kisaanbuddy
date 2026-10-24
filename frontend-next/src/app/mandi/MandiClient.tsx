@@ -1820,12 +1820,15 @@ function PostProduceListingModal({ onClose, onSuccess }: { onClose: () => void; 
         moisture_pct: moisture ? parseFloat(moisture) : undefined,
         farmer_name: farmerName,
         farmer_phone: farmerPhone,
-        contact_consent_verified: true,
+        // Publishing a listing is not an identity or stock verification step.
+        // The contact endpoint remains masked until the platform's consent flow
+        // grants access.
+        contact_consent_verified: false,
         state,
         district: district || "Bhopal",
         village_or_tehsil: village || undefined,
         delivery_option: delivery,
-        verification_status: "verified",
+        verification_status: "self_declared",
       } as any)
       onSuccess()
     } catch (error: any) {
@@ -1842,7 +1845,7 @@ function PostProduceListingModal({ onClose, onSuccess }: { onClose: () => void; 
           <X className="h-5 w-5" />
         </button>
         <h3 className="text-lg font-bold text-foreground font-display">List Your Produce for Sale</h3>
-        <p className="text-xs text-muted-foreground mb-4">Reach verified buyers directly. Your contact number remains masked to prevent spam.</p>
+        <p className="text-xs text-muted-foreground mb-4">Your listing is published as self-declared until it can be reviewed. Your contact number stays masked to reduce spam.</p>
 
         {err && <p className="text-xs text-red-500 font-semibold mb-3">{err}</p>}
 
@@ -2001,7 +2004,7 @@ function PostProduceListingModal({ onClose, onSuccess }: { onClose: () => void; 
           </div>
 
           <p className="text-[10px] text-muted-foreground pt-1">
-            By publishing, you confirm ownership of the stock and consent to receiving quotation inquiries from verified buyers.
+            By publishing, you confirm that these details are accurate and consent to quotation inquiries. This does not verify your identity, stock, or price.
           </p>
 
           <div className="flex gap-2 pt-3">
@@ -2068,8 +2071,8 @@ function PostBuyerRequirementModal({ onClose, onSuccess }: { onClose: () => void
         delivery_destination: destination || undefined,
         quality_specifications: specs || undefined,
         offer_expiry_date: expiry.toISOString(),
-        verification_status: "verified",
-        source: "KisaanBuddy verified buyer requirement",
+        verification_status: "self_declared",
+        source: "KisaanBuddy self-declared buyer requirement",
       })
       onSuccess()
     } catch (error: any) {
