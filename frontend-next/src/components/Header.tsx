@@ -99,11 +99,11 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
     ml: "എങ്ങനെ പ്രവർത്തിക്കുന്നു", mr: "कसे कार्य करते", bn: "কীভাবে কাজ করে", pa: "ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ", gu: "કેવી રીતે કાર્ય કરે છે", hi_en: "How It Works",
   },
   marketplace: {
-    en: "Marketplace for Farmer", hi: "किसान मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
+    en: "Marketplace", hi: "मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
     ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
   },
   marketplace_for_farmer: {
-    en: "Marketplace for Farmer", hi: "किसान मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
+    en: "Marketplace", hi: "मार्केटप्लेस", kn: "ರೈತರ ಮಾರುಕಟ್ಟೆ", ta: "விவசாயிகள் சந்தை", te: "రైతు మార్కెట్",
     ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
   },
   worker_connect: {
@@ -163,7 +163,13 @@ const NAV_LINK_DEFS = [
 
 const PUBLIC_ROUTES = [
   '/',
+  '/marketplace',
+  '/mandi',
+  '/disease',
+  '/worker-connect',
+  '/schemes',
   '/features',
+  '/weather',
   '/login',
   '/signup',
   '/onboarding',
@@ -281,11 +287,11 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav (Home, Crop Doctor, Mandi & Sell Crop, Workers Connect, Government Schemes) ── */}
-          <nav className="hidden xl:flex items-center gap-1 text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
+          {/* ── Desktop Nav (Home, Crop Doctor, Mandi Rates, Marketplace, Workers Connect, Govt Schemes) ── */}
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
               href="/"
-              className={`px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 pathname === '/'
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -296,7 +302,7 @@ export function Header() {
 
             <Link
               href="/disease"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/disease')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -308,19 +314,31 @@ export function Header() {
 
             <Link
               href="/mandi"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/mandi')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
               <TrendingUp className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.mandi_sell?.[lang] || "Mandi & Sell Crop"}</span>
+              <span>{PUBLIC_NAV_LABELS.mandi?.[lang] || "Mandi Rates"}</span>
+            </Link>
+
+            <Link
+              href="/marketplace"
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+                isActive('/marketplace')
+                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
+                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+              }`}
+            >
+              <Store className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{PUBLIC_NAV_LABELS.marketplace?.[lang] || "Marketplace"}</span>
             </Link>
 
             <Link
               href="/worker-connect"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/worker-connect')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -332,7 +350,7 @@ export function Header() {
 
             <Link
               href="/schemes"
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
                 isActive('/schemes')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -367,6 +385,10 @@ export function Header() {
                     <Link href="/dashboard" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <LayoutDashboard className="h-4 w-4 text-emerald-600" />
                       <span>Dashboard</span>
+                    </Link>
+                    <Link href="/marketplace" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                      <Store className="h-4 w-4 text-emerald-600" />
+                      <span>{PUBLIC_NAV_LABELS.marketplace?.[lang] || "Marketplace"}</span>
                     </Link>
                     <Link href="/crop-predictor" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <Sprout className="h-4 w-4 text-emerald-600" />
@@ -576,7 +598,7 @@ export function Header() {
               className="fixed top-16 left-3 right-3 z-50 lg:hidden rounded-2xl border border-border bg-card p-4 shadow-xl flex flex-col gap-1.5 max-h-[82vh] overflow-y-auto"
               aria-label={t("header.mobile_navigation")}
             >
-            {showFullNav ? (
+            {ready && user ? (
               <>
                 {/* User Info Row */}
                 <div className="grid grid-cols-2 gap-1.5 mb-1.5">

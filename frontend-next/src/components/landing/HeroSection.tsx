@@ -192,7 +192,7 @@ export function HeroSection() {
 
                 {/* Secondary CTA: Sell Your Crop */}
                 <Link
-                  href="/mandi?tab=sell"
+                  href="/marketplace?action=sell"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-[#174B35] dark:text-stone-100 font-bold text-sm sm:text-base border border-stone-300 dark:border-stone-700 shadow-xs hover:border-[#27834A]/50 transition-all duration-200 active:scale-95 group"
                 >
                   <Store className="w-4 h-4 text-[#27834A] group-hover:scale-110 transition-transform" />
@@ -275,7 +275,7 @@ export function HeroSection() {
                   </Link>
 
                   <Link
-                    href="/mandi?tab=sell"
+                    href="/marketplace?action=sell"
                     className="p-2 rounded-xl bg-[#F7F9F4] dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#27834A] transition-all group"
                   >
                     <Store className="w-4 h-4 mx-auto text-[#27834A] dark:text-[#78B957] group-hover:scale-110 transition-transform mb-1" />
