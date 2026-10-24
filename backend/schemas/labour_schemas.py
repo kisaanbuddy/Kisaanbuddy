@@ -333,6 +333,7 @@ class LabourContactRequestOut(BaseModel):
     status: str  # pending, approved, rejected, expired
     approved_phone_revealed: bool
     unmasked_worker_phone: Optional[str] = None
+    whatsapp_url: Optional[str] = None
     expires_at: datetime
     created_at: datetime
     resolved_at: Optional[datetime] = None

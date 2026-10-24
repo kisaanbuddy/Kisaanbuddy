@@ -13,3 +13,16 @@ class SMSProvider(ABC):
             True if sent successfully, False otherwise.
         """
         pass
+
+    @abstractmethod
+    def send_message(self, phone_number: str, message: str) -> bool:
+        """Sends a transactional text alert/SMS notification to the target phone number.
+        
+        Args:
+            phone_number: 10-digit clean phone number string.
+            message: Formatted SMS message text.
+            
+        Returns:
+            True if sent or dispatched successfully, False otherwise.
+        """
+        pass
