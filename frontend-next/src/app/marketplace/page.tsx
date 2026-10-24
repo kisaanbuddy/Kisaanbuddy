@@ -231,9 +231,7 @@ export default function MarketplacePage() {
   // form and consent controls already used by this page.
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    if (searchParams.get("voice") !== "1") return;
-
-    const section = searchParams.get("section");
+    const section = searchParams.get("section") || searchParams.get("tab");
     const action = searchParams.get("action");
     const crop = searchParams.get("crop")?.trim();
     const state = searchParams.get("state")?.trim();
@@ -244,8 +242,12 @@ export default function MarketplacePage() {
     }
     if (state) setProduceStateFilter(state);
 
-    if (section === "buyers") setSectionMode("legacy_buyers");
+    if (section === "buyers" || section === "legacy_buyers") setSectionMode("legacy_buyers");
     if (section === "provenance") setSectionMode("provenance");
+    if (section === "equipment" || section === "catalog") {
+      setSectionMode("sell_rent");
+      setEquipmentTab("catalog");
+    }
     if (action === "sell") {
       setSectionMode("sell_rent");
       setShowProduceModal(true);

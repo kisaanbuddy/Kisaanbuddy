@@ -256,6 +256,7 @@ export interface LabourContactRequestOut {
   status: "pending" | "approved" | "rejected" | "expired"
   approved_phone_revealed: boolean
   unmasked_worker_phone?: string | null
+  whatsapp_url?: string | null
   expires_at: string
   created_at: string
   resolved_at?: string | null

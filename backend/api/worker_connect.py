@@ -300,6 +300,7 @@ def create_contact_request(
             status=req_obj.status,
             approved_phone_revealed=req_obj.approved_phone_revealed,
             unmasked_worker_phone=None,
+            whatsapp_url=getattr(req_obj, "whatsapp_url", None),
             expires_at=req_obj.expires_at,
             created_at=req_obj.created_at,
             resolved_at=req_obj.resolved_at,
@@ -354,6 +355,10 @@ def resolve_contact_request(
             status=resolved.status,
             approved_phone_revealed=resolved.approved_phone_revealed,
             unmasked_worker_phone=payload.worker_phone if resolved.status == "approved" else None,
+            whatsapp_url=(
+                f"https://wa.me/91{resolved.requester_phone.replace('+', '')[-10:]}?text=Namaste%20{resolved.requester_name}%2C%20I%20have%20accepted%20your%20KisaanBuddy%20inquiry%20(Ref%20%23KB-{resolved.id})."
+                if resolved.status == "approved" else None
+            ),
             expires_at=resolved.expires_at,
             created_at=resolved.created_at,
             resolved_at=resolved.resolved_at,

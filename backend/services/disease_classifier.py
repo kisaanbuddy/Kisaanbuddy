@@ -9,7 +9,12 @@ import csv
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Tuple, Union, Optional, Any
-from PIL import Image
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    Image = None
+    HAS_PIL = False
 
 try:
     import onnxruntime as ort

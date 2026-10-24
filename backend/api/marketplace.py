@@ -433,8 +433,15 @@ def create_produce_listing(
     db: Session = Depends(get_db),
 ) -> Any:
     """Post an actual harvest batch for direct sale (Sell Offer)."""
+    # A public form submission does not establish identity, stock ownership, or
+    # contact consent. Only a separate verified moderation/consent workflow may
+    # promote this state.
+    listing_data = payload.model_dump()
+    listing_data["verification_status"] = "self_declared"
+    listing_data["contact_consent_verified"] = False
+    listing_data["source_origin"] = "kisaanbuddy_farmer"
     item = ProduceListing(
-        **payload.model_dump(),
+        **listing_data,
         availability_status="available",
         last_confirmation_date=date.today(),
     )
@@ -591,8 +598,15 @@ def create_buyer_requirement(
     db: Session = Depends(get_db),
 ) -> Any:
     """Post an actual buyer purchase requirement."""
+    # Treat direct submissions as self-declared until a back-office
+    # verification flow has completed. Never accept a client-provided verified
+    # state as proof of identity or availability.
+    requirement_data = payload.model_dump()
+    requirement_data["verification_status"] = "self_declared"
+    requirement_data["contact_consent_verified"] = False
+    requirement_data["source"] = "KisaanBuddy self-declared buyer requirement"
     item = BuyerRequirement(
-        **payload.model_dump(),
+        **requirement_data,
         status="active",
     )
     db.add(item)

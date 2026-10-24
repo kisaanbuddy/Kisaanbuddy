@@ -82,3 +82,5 @@ frontend.log.err
 output/
 tmp/
 sarvam_chat.py
+
+scratch/

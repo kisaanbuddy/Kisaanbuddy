@@ -15,3 +15,10 @@ class ConsoleProvider(SMSProvider):
         log.info("==========================================")
         print(f"\n[OTP]: {otp} (Sent to +91{phone_number})\n", flush=True)
         return True
+
+    def send_message(self, phone_number: str, message: str) -> bool:
+        log.info("==========================================")
+        log.info(" SMS ALERT FOR PHONE +91%s: %s (via ConsoleProvider)", phone_number, message)
+        log.info("==========================================")
+        print(f"\n[SMS ALERT to +91{phone_number}]: {message}\n", flush=True)
+        return True

@@ -5,6 +5,9 @@ import {
   getFallbackJobs,
   getFallbackBenchmarks,
   REAL_FPO_WORKERS,
+  addContactRequest,
+  getWorkerContactRequests,
+  resolveContactRequest,
 } from "@/lib/worker-connect-store"
 import { OFFICIAL_CATEGORIES } from "@/lib/jobs-api"
 
@@ -106,7 +109,10 @@ export async function GET(
   }
 
   if (slugPath.startsWith("workers/") && slugPath.endsWith("/contact-requests")) {
-    return NextResponse.json([])
+    const workerId = parseInt(slug[1] || "1", 10)
+    const workerPhone = url.searchParams.get("worker_phone") || ""
+    const reqs = getWorkerContactRequests(workerId, workerPhone)
+    return NextResponse.json(reqs)
   }
 
   return NextResponse.json({ detail: "Not Found" }, { status: 404 })
@@ -185,17 +191,16 @@ export async function POST(
   }
 
   if (slugPath.includes("/contact-request")) {
-    return NextResponse.json(
-      {
-        id: Date.now(),
-        worker_id: 1,
-        requester_name: body?.requester_name || "Farmer",
-        requester_phone: body?.requester_phone || "9845012345",
-        status: "approved",
-        created_at: new Date().toISOString(),
-      },
-      { status: 201 }
-    )
+    const workerId = parseInt(slug[1] || body?.worker_id || "1", 10)
+    try {
+      const saved = addContactRequest({
+        ...body,
+        worker_id: workerId,
+      })
+      return NextResponse.json(saved, { status: 201 })
+    } catch (err: any) {
+      return NextResponse.json({ detail: err.message || "Invalid contact request" }, { status: 400 })
+    }
   }
 
   if (slugPath.includes("/availability")) {
@@ -215,5 +220,44 @@ export async function PATCH(
   request: Request,
   { params }: { params: { slug?: string[] } }
 ) {
+  const slug = params.slug || []
+  const slugPath = slug.join("/")
+  const backendUrl = getBackendUrl()
+
+  let body: any = null
+  try {
+    body = await request.json()
+  } catch {
+    body = null
+  }
+
+  // 1. Try remote backend first
+  try {
+    const targetUrl = `${backendUrl}/api/worker-connect/${slugPath}`
+    const remoteRes = await fetch(targetUrl, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+
+    if (remoteRes.ok) {
+      const data = await remoteRes.json()
+      return NextResponse.json(data, { status: remoteRes.status })
+    }
+  } catch (e) {
+    // Backend offline or unreachable, fall back to resilient real store
+  }
+
+  if (slugPath.startsWith("contact-requests/")) {
+    const requestId = parseInt(slug[1] || "0", 10)
+    const resolved = resolveContactRequest(requestId, body?.action, body?.worker_phone)
+    if (resolved) {
+      return NextResponse.json(resolved)
+    }
+    return NextResponse.json({ detail: "Contact request not found" }, { status: 404 })
+  }
+
   return NextResponse.json({ ok: true, message: "Updated successfully." })
 }

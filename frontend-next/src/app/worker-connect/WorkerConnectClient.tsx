@@ -35,6 +35,9 @@ import {
   AlertTriangle,
   Building2,
   ChevronRight,
+  Copy,
+  Check,
+  MessageSquare,
 } from "lucide-react"
 
 import { JobWeatherAdvisory } from "@/components/worker-connect/JobWeatherAdvisory"
@@ -261,6 +264,8 @@ export default function WorkerConnectClient() {
   const [contactMessage, setContactMessage] = useState<string>("")
   const [sendingContact, setSendingContact] = useState<boolean>(false)
   const [contactSuccessMessage, setContactSuccessMessage] = useState<string>("")
+  const [submittedContactRequest, setSubmittedContactRequest] = useState<LabourContactRequestOut | null>(null)
+  const [copiedWaText, setCopiedWaText] = useState<boolean>(false)
 
   // Report modal
   const [reportTarget, setReportTarget] = useState<{ type: "worker" | "job_post"; id: number } | null>(null)
@@ -648,16 +653,12 @@ export default function WorkerConnectClient() {
         work_dates: contactWorkDates.trim() || undefined,
         message: contactMessage.trim() || undefined,
       }
-      await requestWorkerContact(selectedWorkerForContact.id, payload)
+      const reqOut = await requestWorkerContact(selectedWorkerForContact.id, payload)
+      setSubmittedContactRequest(reqOut)
       setContactSuccessMessage(
-        `Contact request submitted! Worker ${selectedWorkerForContact.name} will be notified. Once approved, their direct telephone number and WhatsApp link will be unlocked for your mobile number.`
+        `Your inquiry has been successfully registered (Ref #KB-${reqOut.id})! Worker ${selectedWorkerForContact.name} received an automated notification. You can also message them directly on WhatsApp below.`
       )
       setViewerPhone(requesterPhone.trim())
-      setTimeout(() => {
-        setSelectedWorkerForContact(null)
-        setContactSuccessMessage("")
-        doSearchWorkers()
-      }, 4000)
     } catch (err: any) {
       alert(err.message || "Failed to send contact request.")
     } finally {
@@ -1466,18 +1467,33 @@ export default function WorkerConnectClient() {
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2">
                           {isApproved ? (
-                            <a
-                              href={`tel:${worker.unmasked_phone}`}
-                              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-3 text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-sm"
-                            >
-                              <PhoneCall className="w-3.5 h-3.5" />
-                              <span>Call {worker.unmasked_phone}</span>
-                            </a>
+                            <div className="flex-1 flex items-center gap-2">
+                              <a
+                                href={`tel:${worker.unmasked_phone}`}
+                                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 px-3 text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-sm"
+                              >
+                                <PhoneCall className="w-3.5 h-3.5" />
+                                <span>Call {worker.unmasked_phone}</span>
+                              </a>
+                              <a
+                                href={`https://wa.me/91${worker.unmasked_phone?.replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(
+                                  `Namaste ${worker.name}, I am contacting you regarding agricultural work via KisaanBuddy.`
+                                )}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl py-2 px-3 text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-sm"
+                                title="Chat on WhatsApp"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                <span>WhatsApp</span>
+                              </a>
+                            </div>
                           ) : (
                             <Button
                               onClick={() => {
                                 setSelectedWorkerForContact(worker)
                                 setContactSuccessMessage("")
+                                setSubmittedContactRequest(null)
                               }}
                               className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl py-2 text-xs font-bold shadow-sm flex items-center justify-center gap-1.5"
                             >
@@ -2519,6 +2535,32 @@ export default function WorkerConnectClient() {
                               </Button>
                             </div>
                           )}
+
+                          {req.status === "approved" && (
+                            <div className="flex items-center gap-2 pt-2">
+                              <a
+                                href={`tel:${req.unmasked_requester_phone}`}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs h-7 px-3 font-semibold flex items-center gap-1 shadow-sm"
+                              >
+                                <PhoneCall className="w-3 h-3" />
+                                <span>Call Farmer</span>
+                              </a>
+                              <a
+                                href={
+                                  req.whatsapp_url ||
+                                  `https://wa.me/91${(req.unmasked_requester_phone || "").replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(
+                                    `Namaste ${req.requester_name}, I accepted your KisaanBuddy inquiry (Ref #KB-${req.id}).`
+                                  )}`
+                                }
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs h-7 px-3 font-semibold flex items-center gap-1 shadow-sm"
+                              >
+                                <MessageSquare className="w-3 h-3" />
+                                <span>WhatsApp</span>
+                              </a>
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -2683,9 +2725,71 @@ export default function WorkerConnectClient() {
                 </div>
 
                 {contactSuccessMessage ? (
-                  <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm space-y-2">
-                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-                    <p>{contactSuccessMessage}</p>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm space-y-2">
+                      <div className="flex items-center gap-2 font-bold text-sm text-emerald-900 dark:text-emerald-200">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                        <span>Inquiry Dispatched Successfully!</span>
+                      </div>
+                      <p className="text-xs leading-relaxed">{contactSuccessMessage}</p>
+                      {submittedContactRequest?.id && (
+                        <div className="text-[11px] font-mono bg-emerald-100/70 dark:bg-emerald-900/40 px-2.5 py-1 rounded-lg inline-block font-semibold">
+                          Reference ID: #KB-{submittedContactRequest.id}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Instant WhatsApp Direct Dispatch Button */}
+                    <div className="space-y-2 pt-1">
+                      <p className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+                        Zero-Delay Option: Send this verified inquiry directly to the provider on WhatsApp
+                      </p>
+                      
+                      <a
+                        href={
+                          submittedContactRequest?.whatsapp_url ||
+                          `https://wa.me/91${(selectedWorkerForContact.unmasked_phone || selectedWorkerForContact.masked_phone.replace(/\D/g, "")).slice(-10)}?text=${encodeURIComponent(
+                            `🌾 *KisaanBuddy Inquiry (Ref #KB-${submittedContactRequest?.id || Date.now()})*\nNamaste ${selectedWorkerForContact.name},\nI am requesting your agricultural services:\n• Farmer: ${requesterName}\n• Mobile: +91 ${requesterPhone}\n• Purpose: ${contactPurpose.replace(/_/g, " ")}\n${contactLocation ? `• Location: ${contactLocation}\n` : ""}${contactWorkDates ? `• Dates: ${contactWorkDates}\n` : ""}${contactMessage ? `• Note: "${contactMessage}"\n` : ""}\nPlease reply with your availability.`
+                          )}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl py-3 px-4 font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+                      >
+                        <MessageSquare className="w-4 h-4 fill-current" />
+                        <span>Open WhatsApp to Message Provider Directly</span>
+                      </a>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const waText = `🌾 *KisaanBuddy Inquiry (Ref #KB-${submittedContactRequest?.id || Date.now()})*\nNamaste ${selectedWorkerForContact.name},\nI am requesting your agricultural services:\n• Farmer: ${requesterName}\n• Mobile: +91 ${requesterPhone}\n• Purpose: ${contactPurpose.replace(/_/g, " ")}\n${contactLocation ? `• Location: ${contactLocation}\n` : ""}${contactWorkDates ? `• Dates: ${contactWorkDates}\n` : ""}${contactMessage ? `• Note: "${contactMessage}"\n` : ""}\nPlease reply with your availability.`
+                          navigator.clipboard.writeText(waText)
+                          setCopiedWaText(true)
+                          setTimeout(() => setCopiedWaText(false), 2500)
+                        }}
+                        className="w-full border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-xl py-2 px-3 text-xs text-stone-600 dark:text-stone-300 font-medium flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        {copiedWaText ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span>{copiedWaText ? "Message Copied to Clipboard!" : "Copy Inquiry Details"}</span>
+                      </button>
+                    </div>
+
+                    <div className="pt-2 border-t border-stone-200 dark:border-stone-800">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setSelectedWorkerForContact(null)
+                          setContactSuccessMessage("")
+                          setSubmittedContactRequest(null)
+                          setViewerPhone(requesterPhone.trim())
+                          doSearchWorkers()
+                        }}
+                        className="w-full bg-stone-900 hover:bg-stone-800 text-white rounded-xl py-2.5 text-xs font-semibold"
+                      >
+                        Done & Track Status
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmitContactRequest} className="space-y-4">

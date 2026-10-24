@@ -275,7 +275,8 @@ export const REAL_FPO_WORKERS: WorkerProfile[] = [
   {
     id: 1,
     name: "Dummawad Horticulture Farmers Producer Co. Ltd. (Krushi Yantradhaare CHC)",
-    masked_phone: "+91 98XXX-XX101",
+    masked_phone: "+91 94XXX-XX220",
+    unmasked_phone: "9483011220",
     worker_type: "group",
     group_size: 12,
     state: "Karnataka",
@@ -315,7 +316,8 @@ export const REAL_FPO_WORKERS: WorkerProfile[] = [
   {
     id: 2,
     name: "Jagraon Farmer Vegetable & Crop Producer Co. Ltd. (Harvester Crew)",
-    masked_phone: "+91 98XXX-XX102",
+    masked_phone: "+91 98XXX-XX210",
+    unmasked_phone: "9814055210",
     worker_type: "group",
     group_size: 15,
     state: "Punjab",
@@ -355,7 +357,8 @@ export const REAL_FPO_WORKERS: WorkerProfile[] = [
   {
     id: 3,
     name: "Sahyadri Farmers Producer Co. Ltd. (Canopy & Spraying Unit)",
-    masked_phone: "+91 98XXX-XX103",
+    masked_phone: "+91 98XXX-XX340",
+    unmasked_phone: "9822066340",
     worker_type: "group",
     group_size: 8,
     state: "Maharashtra",
@@ -395,7 +398,8 @@ export const REAL_FPO_WORKERS: WorkerProfile[] = [
   {
     id: 4,
     name: "Pedakakani Fresh Fields Farmer Producer Co. Ltd. (Harvesting Gang)",
-    masked_phone: "+91 98XXX-XX104",
+    masked_phone: "+91 94XXX-XX450",
+    unmasked_phone: "9440177450",
     worker_type: "group",
     group_size: 14,
     state: "Andhra Pradesh",
@@ -435,7 +439,8 @@ export const REAL_FPO_WORKERS: WorkerProfile[] = [
   {
     id: 5,
     name: "Mawana Sugarcane Mechanization Cooperative Society",
-    masked_phone: "+91 98XXX-XX105",
+    masked_phone: "+91 94XXX-XX560",
+    unmasked_phone: "9412088560",
     worker_type: "contractor",
     group_size: 20,
     state: "Uttar Pradesh",
@@ -757,7 +762,7 @@ export function getFallbackWorkers(query: WorkerSearchQuery): WorkerSearchRespon
           r.status === "approved"
       )
       return isApproved
-        ? { ...w, unmasked_phone: w.masked_phone.replace("XXX-XX", "984-50") }
+        ? { ...w, unmasked_phone: w.unmasked_phone || (w as any).phone_number || w.masked_phone.replace("XXX-XX", "830-11") }
         : w
     })
   }
@@ -792,4 +797,122 @@ export function getFallbackBenchmarks(state?: string): WageBenchmark[] {
   }
   const filtered = OFFICIAL_WAGE_BENCHMARKS.filter((b) => b.state.toLowerCase().includes(state.toLowerCase()))
   return filtered.length > 0 ? filtered : OFFICIAL_WAGE_BENCHMARKS
+}
+
+export function addContactRequest(data: {
+  worker_id: number
+  requester_name: string
+  requester_phone: string
+  purpose?: string
+  farm_location?: string
+  work_dates?: string
+  message?: string
+  job_id?: number
+}): LabourContactRequestOut {
+  if (activeWorkers.length === 0) seedRealDemoData()
+
+  const worker = activeWorkers.find((w) => w.id === data.worker_id)
+  if (!worker) {
+    throw new Error(`Worker profile with ID ${data.worker_id} not found`)
+  }
+
+  const cleanPhone = (data.requester_phone || "").trim()
+  if (!cleanPhone || cleanPhone.length < 10) {
+    throw new Error("A valid 10-digit mobile number is required")
+  }
+
+  const now = new Date()
+  // Duplicate check: existing pending request within 5 days from same phone
+  const existing = activeRequests.find(
+    (r) =>
+      r.worker_id === data.worker_id &&
+      r.unmasked_requester_phone === cleanPhone &&
+      r.status === "pending" &&
+      new Date(r.expires_at) > now
+  )
+  if (existing) {
+    return existing
+  }
+
+  const maskedRequester = cleanPhone.length >= 10
+    ? `+91 ${cleanPhone.slice(0, 2)}XXX-XX${cleanPhone.slice(-3)}`
+    : cleanPhone
+
+  const req: LabourContactRequestOut = {
+    id: Date.now(),
+    worker_id: data.worker_id,
+    job_id: data.job_id || null,
+    requester_name: (data.requester_name || "Farmer").trim(),
+    masked_requester_phone: maskedRequester,
+    unmasked_requester_phone: cleanPhone,
+    purpose: data.purpose || "hiring_inquiry",
+    farm_location: data.farm_location?.trim() || null,
+    work_dates: data.work_dates?.trim() || null,
+    message: data.message?.trim() || null,
+    status: "pending",
+    approved_phone_revealed: false,
+    unmasked_worker_phone: null,
+    whatsapp_url: `https://wa.me/91${(worker.unmasked_phone || (worker as any).phone_number || worker.masked_phone.replace("XXX-XX", "830-11")).replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(
+      `🌾 *KisaanBuddy Verified Inquiry (Ref #KB-${now.getTime().toString().slice(-6)})*\n` +
+      `Namaste ${worker.name},\nA verified farmer has requested your agricultural services:\n\n` +
+      `• Farmer: ${(data.requester_name || "Farmer").trim()}\n` +
+      `• Mobile: +91 ${cleanPhone}\n` +
+      `• Service: ${(data.purpose || "hiring_inquiry").replace(/_/g, " ")}\n` +
+      (data.farm_location ? `• Location: ${data.farm_location.trim()}\n` : "") +
+      (data.work_dates ? `• Dates: ${data.work_dates.trim()}\n` : "") +
+      (data.message ? `• Note: "${data.message.trim()}"\n` : "") +
+      `\nPlease reply to confirm your availability.`
+    )}`,
+    expires_at: new Date(Date.now() + 5 * 86400000).toISOString(),
+    created_at: now.toISOString(),
+    resolved_at: null,
+  }
+
+  activeRequests.unshift(req)
+  return req
+}
+
+export function getWorkerContactRequests(workerId: number, workerPhone: string): LabourContactRequestOut[] {
+  if (activeWorkers.length === 0) seedRealDemoData()
+  const cleanPhone = (workerPhone || "").replace(/\D/g, "")
+  const worker = activeWorkers.find((w) => w.id === workerId)
+  if (!worker) return []
+
+  // Check phone matching: matches stored phone or last 4 digits of masked phone
+  const workerStored = (worker.unmasked_phone || (worker as any).phone_number || "").replace(/\D/g, "")
+  const maskedDigits = worker.masked_phone.replace(/\D/g, "")
+  const isMatch = !cleanPhone || workerStored.endsWith(cleanPhone.slice(-6)) || maskedDigits.endsWith(cleanPhone.slice(-4))
+  if (!isMatch) return []
+
+  return activeRequests
+    .filter((r) => r.worker_id === workerId)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+}
+
+export function resolveContactRequest(
+  requestId: number,
+  action: "approve" | "reject",
+  workerPhone?: string
+): LabourContactRequestOut | null {
+  const req = activeRequests.find((r) => r.id === requestId)
+  if (!req) return null
+
+  const worker = activeWorkers.find((w) => w.id === req.worker_id)
+  const now = new Date().toISOString()
+  if (action === "approve") {
+    req.status = "approved"
+    req.approved_phone_revealed = true
+    req.resolved_at = now
+    req.unmasked_worker_phone = worker
+      ? (worker.unmasked_phone || (worker as any).phone_number || worker.masked_phone.replace("XXX-XX", "830-11"))
+      : null
+    req.whatsapp_url = `https://wa.me/91${(req.unmasked_requester_phone || "").replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(
+      `Namaste ${req.requester_name}, I have accepted your KisaanBuddy inquiry (Ref #KB-${req.id}). Feel free to discuss work schedule and terms.`
+    )}`
+  } else {
+    req.status = "rejected"
+    req.approved_phone_revealed = false
+    req.resolved_at = now
+  }
+  return { ...req }
 }
