@@ -115,23 +115,73 @@ def _get_optional_user(request: Request, db: Session) -> Optional[User]:
 @router.post("", response_model=FarmerFeedbackResponse, status_code=status.HTTP_201_CREATED)
 async def submit_farmer_feedback(
     request: Request,
-    feedback_type: str = Form(...),
-    category: str = Form("general"),
-    guided_option: Optional[str] = Form(None),
-    quick_rating: Optional[str] = Form(None),
-    content_text: Optional[str] = Form(None),
-    language: str = Form("en"),
-    source_page: Optional[str] = Form(None),
-    contact_consent: bool = Form(False),
-    contact_info: Optional[str] = Form(None),
-    audio_duration_seconds: Optional[int] = Form(None),
-    audio_file: Optional[UploadFile] = File(None),
-    image_file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
-    """Submit farmer feedback with optional voice recording, guided option, or text."""
+    """Submit farmer feedback with optional voice recording, guided option, text, or JSON payload."""
+    content_type = (request.headers.get("content-type") or "").lower()
+
+    audio_file: Optional[UploadFile] = None
+    image_file: Optional[UploadFile] = None
+
+    if "application/json" in content_type:
+        try:
+            body = await request.json()
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid JSON payload.",
+            )
+        feedback_type = str(body.get("feedback_type") or "").strip().lower()
+        category = str(body.get("category") or "general").strip().lower()
+        guided_option = body.get("guided_option")
+        quick_rating = body.get("quick_rating")
+        content_text = body.get("content_text")
+        language = str(body.get("language") or "en")
+        source_page = body.get("source_page")
+        contact_consent = bool(body.get("contact_consent", False))
+        contact_info = body.get("contact_info")
+        raw_dur = body.get("audio_duration_seconds")
+        try:
+            audio_duration_seconds = int(raw_dur) if raw_dur is not None and str(raw_dur).isdigit() else None
+        except (ValueError, TypeError):
+            audio_duration_seconds = None
+    else:
+        form = await request.form()
+        feedback_type = str(form.get("feedback_type") or "").strip().lower()
+        category = str(form.get("category") or "general").strip().lower()
+        guided_option = form.get("guided_option")
+        quick_rating = form.get("quick_rating")
+        content_text = form.get("content_text")
+        language = str(form.get("language") or "en")
+        source_page = form.get("source_page")
+        contact_consent_raw = form.get("contact_consent")
+        contact_consent = (
+            contact_consent_raw in (True, "true", "True", "1", 1)
+            if contact_consent_raw is not None
+            else False
+        )
+        contact_info = form.get("contact_info")
+        raw_dur = form.get("audio_duration_seconds")
+        try:
+            audio_duration_seconds = int(raw_dur) if raw_dur is not None and str(raw_dur).isdigit() else None
+        except (ValueError, TypeError):
+            audio_duration_seconds = None
+
+        raw_audio = form.get("audio_file")
+        if hasattr(raw_audio, "read") and getattr(raw_audio, "filename", None):
+            audio_file = raw_audio
+
+        raw_image = form.get("image_file")
+        if hasattr(raw_image, "read") and getattr(raw_image, "filename", None):
+            image_file = raw_image
+
     # 1. Validate inputs
-    feedback_type = feedback_type.strip().lower()
+    if not feedback_type:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Feedback type is required.",
+        )
+
     if feedback_type not in VALID_FEEDBACK_TYPES:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
