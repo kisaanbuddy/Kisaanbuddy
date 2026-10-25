@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { GlassCard } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/language';
+import { PublicImprovementsSection } from '@/components/farmer/PublicImprovementsSection';
 
 type Founder = {
   name: string;
@@ -286,6 +287,9 @@ export function AboutClient() {
           </div>
         </div>
       </section>
+
+      {/* You Suggested, We Improved Section */}
+      <PublicImprovementsSection />
     </div>
   );
 }

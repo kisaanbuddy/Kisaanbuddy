@@ -274,6 +274,57 @@ if Column is not None:
         comment = Column(Text, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
+    class FarmerFeedback(Base):  # type: ignore[misc]
+        """Farmer-first reviews, suggestions, ideas, and issue reports.
+
+        Supports voice-first submissions, guided selections, quick reviews,
+        private audio storage, moderation status, and public showcase.
+        """
+        __tablename__ = "farmer_feedback"
+
+        id = Column(String(36), primary_key=True, index=True)
+        feedback_ref = Column(String(20), unique=True, nullable=False, index=True)
+        feedback_type = Column(String(50), nullable=False, index=True)  # positive, improvement, issue, idea, help, quick_review
+        category = Column(String(50), nullable=False, index=True)       # mandi, weather, disease, marketplace, workers, schemes, general
+        quick_rating = Column(String(20), nullable=True, index=True)    # helpful, neutral, unhelpful
+        guided_option = Column(String(120), nullable=True)              # specific pre-selected suggestion tag
+        content_text = Column(Text, nullable=True)                      # farmer text note or audio transcript
+
+        # Audio storage
+        has_audio = Column(Boolean, default=False, nullable=False)
+        audio_data = Column(LargeBinary, nullable=True)                 # private audio recording bytes
+        audio_mimetype = Column(String(50), nullable=True)              # e.g. audio/webm, audio/mp4, audio/wav
+        audio_duration_seconds = Column(Integer, nullable=True)
+
+        # Image attachment (optional photo)
+        has_image = Column(Boolean, default=False, nullable=False)
+        image_data = Column(LargeBinary, nullable=True)
+        image_mimetype = Column(String(50), nullable=True)
+
+        # Context & Language
+        language = Column(String(10), default="en", nullable=False, index=True)
+        source_page = Column(String(255), nullable=True)
+
+        # User & Identity
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        is_anonymous = Column(Boolean, default=True, nullable=False)
+        contact_consent = Column(Boolean, default=False, nullable=False)
+        contact_info = Column(String(100), nullable=True)
+
+        # Review & Administration
+        status = Column(String(30), default="received", nullable=False, index=True)  # received, under_review, planned, completed, declined
+        priority = Column(String(20), default="normal", nullable=False, index=True)  # low, normal, high, urgent
+        internal_notes = Column(Text, nullable=True)
+        assigned_to = Column(String(100), nullable=True)
+        is_spam = Column(Boolean, default=False, nullable=False, index=True)
+
+        # Trust & Public Showcase ("You Suggested, We Improved")
+        is_public_showcase = Column(Boolean, default=False, nullable=False, index=True)
+        public_improvement_summary = Column(Text, nullable=True)
+
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
 
     class UserOTP(Base):  # type: ignore[misc]
         __tablename__ = "user_otps"

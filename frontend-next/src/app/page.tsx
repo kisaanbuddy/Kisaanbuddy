@@ -7,6 +7,7 @@ import { WorkersConnectHomeSection } from '@/components/landing/WorkersConnectHo
 import { CropDoctorHomeSection } from '@/components/landing/CropDoctorHomeSection';
 import { GovernmentSchemesSection } from '@/components/landing/GovernmentSchemesSection';
 import { HowItWorks } from '@/components/landing/HowItWorks';
+import { YourVoiceMattersSection } from '@/components/landing/YourVoiceMattersSection';
 import { MarketplaceTrustSection } from '@/components/landing/MarketplaceTrustSection';
 
 export const metadata: Metadata = {
@@ -51,7 +52,10 @@ export default function LandingPage() {
       {/* SECTION 8: HOW IT WORKS — 3 Simple Farmer Journey Steps */}
       <HowItWorks />
 
-      {/* SECTION 9: TRUST & TRANSPARENCY — Data Sources & Dispute Resolution */}
+      {/* SECTION 9: YOUR VOICE MATTERS — Farmer Reviews & Suggestions */}
+      <YourVoiceMattersSection />
+
+      {/* SECTION 10: TRUST & TRANSPARENCY — Data Sources & Dispute Resolution */}
       <MarketplaceTrustSection />
 
     </div>

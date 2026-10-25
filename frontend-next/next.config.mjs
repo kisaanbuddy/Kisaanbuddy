@@ -47,6 +47,15 @@ const nextConfig = {
         source: '/api/admin/:path*',
         destination: `${backendUrl}/api/admin/:path*`
       },
+      // Farmer Feedback & Reviews
+      {
+        source: '/api/feedback/:path*/',
+        destination: `${backendUrl}/api/feedback/:path*/`
+      },
+      {
+        source: '/api/feedback/:path*',
+        destination: `${backendUrl}/api/feedback/:path*`
+      },
       {
         source: '/api/content/:path*',
         destination: `${backendUrl}/api/content/:path*`

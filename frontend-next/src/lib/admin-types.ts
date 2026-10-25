@@ -1,4 +1,4 @@
-﻿export type OverviewData = {
+export type OverviewData = {
   total_users: number;
   new_users_7d: number;
   active_sessions: number;
@@ -49,6 +49,44 @@ export type AdminReview = {
   stars: number;
   status: "pending" | "approved" | "rejected";
   created_at: string;
+};
+
+export type FarmerFeedbackItem = {
+  id: string;
+  feedback_ref: string;
+  feedback_type: string;
+  category: string;
+  quick_rating?: string | null;
+  guided_option?: string | null;
+  content_text?: string | null;
+  has_audio: boolean;
+  audio_duration_seconds?: number | null;
+  audio_mimetype?: string | null;
+  has_image: boolean;
+  image_mimetype?: string | null;
+  language: string;
+  source_page?: string | null;
+  user_id?: number | null;
+  is_anonymous: boolean;
+  contact_consent: boolean;
+  contact_info?: string | null;
+  status: "received" | "under_review" | "planned" | "completed" | "declined";
+  priority: "low" | "normal" | "high" | "urgent";
+  internal_notes?: string | null;
+  assigned_to?: string | null;
+  is_spam: boolean;
+  is_public_showcase: boolean;
+  public_improvement_summary?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type FarmerFeedbackAdminListResponse = {
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+  items: FarmerFeedbackItem[];
 };
 
 export type AdminAuditLog = {

@@ -6,8 +6,9 @@ import {
   LayoutDashboard, CloudSun, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
   FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
-  Store, BarChart3, Settings
+  Store, BarChart3, Settings, HeartHandshake
 } from 'lucide-react';
+import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { dropdownVariants } from '@/lib/motion';
@@ -190,6 +191,7 @@ export function Header() {
   const pathname                  = usePathname();
   const router                    = useRouter();
   const { user, ready }           = useAuth();
+  const { openFeedback } = useFarmerFeedback();
   const { lang, setLang, t }        = useLanguage();
   const [langOpen, setLangOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -417,6 +419,17 @@ export function Header() {
                     <Link href="/about" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
                       <span>About KisaanBuddy</span>
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setToolsOpen(false);
+                        openFeedback();
+                      }}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors w-full text-left font-semibold"
+                    >
+                      <HeartHandshake className="h-4 w-4 text-emerald-600" />
+                      <span>{lang === 'hi' ? 'सुझाव दें' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Help Us Improve'}</span>
+                    </button>
                   </motion.div>
                 </>
               )}
@@ -441,6 +454,15 @@ export function Header() {
               </kbd>
             </button>
             
+            <button
+              type="button"
+              onClick={() => openFeedback()}
+              title={lang === 'hi' ? 'सुझाव दें (Your Voice Matters)' : 'Help Us Improve'}
+              className="hidden sm:flex h-8 items-center gap-1.5 rounded-xl border border-emerald-600/30 bg-emerald-50/70 dark:bg-emerald-950/40 px-2.5 text-xs text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors cursor-pointer"
+            >
+              <HeartHandshake className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-[11px] font-bold">{lang === 'hi' ? 'सुझाव दें' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Feedback'}</span>
+            </button>
             <div className="hidden sm:flex items-center"><ThemeToggle /></div>
 
             {/* Language Selector */}
@@ -781,6 +803,17 @@ export function Header() {
                   </Link>
                 </div>
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(false);
+                    openFeedback();
+                  }}
+                  className="flex items-center justify-center gap-2 rounded-xl p-2.5 text-xs font-bold bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 transition-colors"
+                >
+                  <HeartHandshake className="h-4 w-4 text-emerald-600" />
+                  <span>{lang === 'hi' ? 'सुझाव दें (Your Voice Matters)' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Help Us Improve'}</span>
+                </button>
                 <div className="border-t border-border/80 pt-2.5 mt-1 flex flex-col gap-2">
                   <Link
                     href="/login"

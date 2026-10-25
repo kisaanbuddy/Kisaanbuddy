@@ -22,6 +22,7 @@ import { UnitProvider, useUnit, pickTemp } from "@/components/weather/unit-conte
 import { WeatherCard } from "@/components/weather/WeatherCard"
 import { LocationSearch } from "@/components/weather/LocationSearch"
 import { HourlyForecast } from "@/components/weather/HourlyForecast"
+import { QuickReviewCard } from "@/components/farmer/QuickReviewCard"
 import { DailyForecast } from "@/components/weather/DailyForecast"
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -577,6 +578,9 @@ function WeatherPageInner() {
           )
         })()}
       </section>
+
+      {/* Contextual Farmer Quick Review */}
+      <QuickReviewCard category="weather" sourcePage="/weather" />
     </div>
   )
 }

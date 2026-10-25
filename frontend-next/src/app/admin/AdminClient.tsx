@@ -54,6 +54,7 @@ import {
 } from "recharts";
 import { useAuth, logoutUser } from "@/lib/auth";
 import { adminApi } from "@/lib/admin-api";
+import { FarmerFeedbackAdminPanel } from "@/components/admin/FarmerFeedbackAdminPanel";
 import type {
   OverviewData,
   AdminUser,
@@ -104,6 +105,7 @@ export default function AdminClient() {
   // 3. Reviews State
   const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [reviewsStatus, setReviewsStatus] = useState("");
+  const [reviewSubTab, setReviewSubTab] = useState<"farmer_feedback" | "testimonials">("farmer_feedback");
   const [reviewsPage, setReviewsPage] = useState(1);
   const [reviewsPages, setReviewsPages] = useState(1);
   const [loadingReviews, setLoadingReviews] = useState(false);
@@ -1055,14 +1057,44 @@ export default function AdminClient() {
 
         {/* TAB 3: REVIEWS */}
         {activeTab === "reviews" && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Reviews Moderation</h1>
-                <p className="text-xs md:text-sm text-muted-foreground">
-                  Moderate farmer feedback, ratings, and site testimonials.
-                </p>
-              </div>
+          <div className="space-y-5">
+            {/* Sub-tab Navigation */}
+            <div className="flex items-center gap-2 border-b border-border pb-3">
+              <button
+                type="button"
+                onClick={() => setReviewSubTab("farmer_feedback")}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  reviewSubTab === "farmer_feedback"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "border border-border hover:bg-muted text-muted-foreground"
+                }`}
+              >
+                Farmer Voice & Suggestions
+              </button>
+              <button
+                type="button"
+                onClick={() => setReviewSubTab("testimonials")}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  reviewSubTab === "testimonials"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "border border-border hover:bg-muted text-muted-foreground"
+                }`}
+              >
+                Site Testimonials (5-Star)
+              </button>
+            </div>
+
+            {reviewSubTab === "farmer_feedback" ? (
+              <FarmerFeedbackAdminPanel />
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border pb-4">
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Testimonials Moderation</h1>
+                    <p className="text-xs md:text-sm text-muted-foreground">
+                      Moderate legacy 5-star testimonials shown on the landing page.
+                    </p>
+                  </div>
 
               <div className="flex gap-2">
                 <button
@@ -1138,7 +1170,7 @@ export default function AdminClient() {
                           {r.status}
                         </span>
                       </div>
-                      <p className="text-xs text-foreground italic mb-4">"{r.text}"</p>
+                      <p className="text-xs text-foreground italic mb-4">&ldquo;{r.text}&rdquo;</p>
                     </div>
 
                     <div className="pt-3 border-t border-border flex items-center justify-between">
@@ -1172,6 +1204,8 @@ export default function AdminClient() {
                 ))
               )}
             </div>
+              </div>
+            )}
           </div>
         )}
 

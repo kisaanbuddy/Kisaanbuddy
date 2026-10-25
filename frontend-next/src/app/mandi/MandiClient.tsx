@@ -2,6 +2,7 @@
 import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
+import { QuickReviewCard } from '@/components/farmer/QuickReviewCard'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
@@ -1560,6 +1561,9 @@ export default function MandiPage() {
           }}
         />
       )}
+
+      {/* Contextual Farmer Quick Review */}
+      <QuickReviewCard category="mandi" sourcePage="/mandi" />
 
       {/* Report Listing Modal */}
       {reportTarget && (

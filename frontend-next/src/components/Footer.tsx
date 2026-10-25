@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { Heart, Leaf, Github, Linkedin, MapPin, Mail, ExternalLink, Store, Users, Wrench, Landmark } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
+import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
 
 export function Footer() {
   const { lang, t } = useLanguage();
+  const { openFeedback } = useFarmerFeedback();
 
   return (
     <footer className="w-full relative border-t border-stone-200/80 dark:border-stone-800/80 bg-gradient-to-b from-white to-[#fbfbf9] dark:from-stone-900 dark:to-stone-950 py-14 mt-auto select-none overflow-hidden">
@@ -154,6 +156,13 @@ export function Footer() {
               <Link href="/about" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 About Us & Founders
               </Link>
+              <button
+                type="button"
+                onClick={() => openFeedback()}
+                className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-left flex items-center gap-1 text-xs"
+              >
+                <span>Help Us Improve (Your Voice Matters)</span>
+              </button>
             </div>
           </div>
 

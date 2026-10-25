@@ -6,6 +6,8 @@ import type {
   AdminAuditLog,
   AdminContent,
   AdminMedia,
+  FarmerFeedbackItem,
+  FarmerFeedbackAdminListResponse,
 } from "./admin-types";
 
 const FALLBACK_OVERVIEW: OverviewData = {
@@ -339,5 +341,51 @@ export const adminApi = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     }),
+
+  // Farmer Feedback & Suggestions
+  getFarmerFeedback: (params?: {
+    status?: string;
+    category?: string;
+    language?: string;
+    priority?: string;
+    feedback_type?: string;
+    has_audio?: boolean;
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const sp = new URLSearchParams();
+    if (params?.status) sp.set("status", params.status);
+    if (params?.category) sp.set("category", params.category);
+    if (params?.language) sp.set("language", params.language);
+    if (params?.priority) sp.set("priority", params.priority);
+    if (params?.feedback_type) sp.set("feedback_type", params.feedback_type);
+    if (params?.has_audio !== undefined) sp.set("has_audio", String(params.has_audio));
+    if (params?.search) sp.set("search", params.search);
+    if (params?.page) sp.set("page", String(params.page));
+    if (params?.limit) sp.set("limit", String(params.limit));
+    const qs = sp.toString();
+    return fetchWithAuth(`/api/feedback/admin/list${qs ? `?${qs}` : ""}`).then(async (r) => {
+      if (!r.ok) {
+        return { total: 0, page: 1, limit: 20, pages: 1, items: [] };
+      }
+      return r.json();
+    });
+  },
+
+  getFarmerFeedbackDetail: (id: string) =>
+    fetchWithAuth(`/api/feedback/admin/${id}`).then((r) => r.json()),
+
+  updateFarmerFeedback: (id: string, payload: Record<string, any>) =>
+    fetchWithAuth(`/api/feedback/admin/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).then((r) => r.json()),
+
+  deleteFarmerFeedback: (id: string) =>
+    fetchWithAuth(`/api/feedback/admin/${id}`, {
+      method: "DELETE",
+    }).then(() => undefined),
 };
 
