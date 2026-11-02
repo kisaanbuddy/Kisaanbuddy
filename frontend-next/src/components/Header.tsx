@@ -270,7 +270,7 @@ export function Header() {
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 shrink-0 group select-none"
           >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/15 to-teal-500/20 p-1 border border-emerald-500/25 shadow-xs flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 p-1 border border-primary/20 shadow-xs flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
               <img
                 src="/logo.webp"
                 width={32}
@@ -282,7 +282,7 @@ export function Header() {
             <div className="flex flex-col leading-none">
               <span className="font-display text-lg md:text-xl tracking-tight">
                 <span className="font-extrabold text-stone-900 dark:text-white">Kisaan</span>
-                <span className="font-bold bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">Buddy</span>
+                <span className="font-bold text-primary dark:text-emerald-400">Buddy</span>
               </span>
               {isPublic && !user && (
                 <span className="text-[9px] font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300">
@@ -296,7 +296,8 @@ export function Header() {
           <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
               href="/"
-              className={`px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              aria-current={pathname === '/' ? 'page' : undefined}
+              className={`px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
                 pathname === '/'
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -307,7 +308,8 @@ export function Header() {
 
             <Link
               href="/disease"
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              aria-current={isActive('/disease') ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
                 isActive('/disease')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -319,7 +321,8 @@ export function Header() {
 
             <Link
               href="/mandi"
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              aria-current={isActive('/mandi') ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
                 isActive('/mandi')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -331,7 +334,8 @@ export function Header() {
 
             <Link
               href="/marketplace"
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              aria-current={isActive('/marketplace') ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
                 isActive('/marketplace')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -343,7 +347,8 @@ export function Header() {
 
             <Link
               href="/worker-connect"
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              aria-current={isActive('/worker-connect') ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
                 isActive('/worker-connect')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -355,7 +360,8 @@ export function Header() {
 
             <Link
               href="/schemes"
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-150 ${
+              aria-current={isActive('/schemes') ? 'page' : undefined}
+              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
                 isActive('/schemes')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
