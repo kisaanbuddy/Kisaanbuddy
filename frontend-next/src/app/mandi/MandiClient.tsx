@@ -340,7 +340,16 @@ export default function MandiPage() {
   const tabT = MANDI_TABS_LANG[plang] || MANDI_TABS_LANG.en
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<ActiveTab>("prices")
+  const tabParam = searchParams.get("tab")
+  const initialTab: ActiveTab = (tabParam === "buy" || tabParam === "sell" || tabParam === "gov") ? tabParam : "prices"
+  const [activeTab, setActiveTab] = useState<ActiveTab>(initialTab)
+
+  useEffect(() => {
+    const currentTab = searchParams.get("tab")
+    if (currentTab === "buy" || currentTab === "sell" || currentTab === "gov" || currentTab === "prices") {
+      setActiveTab(currentTab)
+    }
+  }, [searchParams])
 
   // Tab 1: Prices State
   const [crops, setCrops] = useState<MandiCrop[]>([])
