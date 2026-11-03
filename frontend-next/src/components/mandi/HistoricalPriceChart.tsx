@@ -286,28 +286,28 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
   return (
     <section
       aria-label={dict.title}
-      className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs transition-colors"
+      className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs transition-colors"
     >
       {/* Header Row: Title & Range Selector */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-sm sm:text-base font-bold text-foreground font-display flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
+            <h2 className="text-base sm:text-lg font-bold text-foreground font-display flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
               {dict.title}
             </h2>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
-              <ShieldCheck className="h-3 w-3" /> AGMARKNET
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-primary/10 text-primary border border-primary/20">
+              <ShieldCheck className="h-3.5 w-3.5" /> AGMARKNET
             </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5">{dict.subtitle}</p>
+          <p className="text-xs text-muted-foreground mt-1">{dict.subtitle} ({crop.name})</p>
         </div>
 
         {/* Date Filter Pills */}
         <div
           role="group"
           aria-label="Filter historical time period"
-          className="inline-flex items-center rounded-lg bg-muted/50 p-1 border border-border self-start sm:self-auto"
+          className="inline-flex items-center rounded-xl bg-muted/60 p-1 border border-border self-start sm:self-auto shadow-2xs"
         >
           {(["7D", "30D", "3M", "6M", "1Y"] as TimeRangeOption[]).map((r) => {
             const isActive = selectedRange === r
@@ -317,10 +317,10 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
                 type="button"
                 onClick={() => setSelectedRange(r)}
                 aria-pressed={isActive}
-                className={`min-h-[36px] px-2.5 sm:px-3 text-xs font-bold rounded-md transition-all ${
+                className={`min-h-[38px] px-3 sm:px-4 text-xs font-bold rounded-lg transition-all ${
                   isActive
                     ? "bg-primary text-white shadow-xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/70"
                 }`}
               >
                 {dict.ranges[r]}
@@ -332,46 +332,46 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
 
       {/* Summary KPI Strip (Rendered when valid comparison observations exist) */}
       {hasObservations && summary && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5 mb-4 p-3 rounded-lg bg-muted/20 border border-border">
-          <div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5 p-4 rounded-xl bg-muted/25 border border-border">
+          <div className="p-1">
             <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
               {dict.latestModal}
             </span>
-            <p className="text-sm font-bold text-foreground mt-0.5">
+            <p className="text-base sm:text-lg font-extrabold text-foreground mt-1">
               ₹{summary.latest_modal.toLocaleString()}
             </p>
           </div>
-          <div>
+          <div className="p-1">
             <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
               {dict.highestModal}
             </span>
-            <p className="text-sm font-bold text-foreground mt-0.5">
+            <p className="text-base sm:text-lg font-extrabold text-foreground mt-1">
               ₹{summary.highest_modal.toLocaleString()}
             </p>
           </div>
-          <div>
+          <div className="p-1">
             <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
               {dict.lowestModal}
             </span>
-            <p className="text-sm font-bold text-foreground mt-0.5">
+            <p className="text-base sm:text-lg font-extrabold text-foreground mt-1">
               ₹{summary.lowest_modal.toLocaleString()}
             </p>
           </div>
-          <div>
+          <div className="p-1">
             <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
               {dict.averageModal}
             </span>
-            <p className="text-sm font-bold text-foreground mt-0.5">
+            <p className="text-base sm:text-lg font-extrabold text-foreground mt-1">
               ₹{summary.average_modal.toLocaleString()}
             </p>
           </div>
           {summary.change_percent !== null && (
-            <div className="col-span-2 sm:col-span-4 lg:col-span-1">
+            <div className="p-1 col-span-2 sm:col-span-1">
               <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
                 {dict.periodChange}
               </span>
               <p
-                className={`text-sm font-bold mt-0.5 flex items-center gap-1 ${
+                className={`text-base sm:text-lg font-extrabold mt-1 flex items-center gap-1 ${
                   summary.change_direction === "up"
                     ? "text-emerald-600 dark:text-emerald-400"
                     : summary.change_direction === "down"
@@ -379,9 +379,9 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
                     : "text-muted-foreground"
                 }`}
               >
-                {summary.change_direction === "up" && <TrendingUp className="h-3.5 w-3.5" />}
-                {summary.change_direction === "down" && <TrendingDown className="h-3.5 w-3.5" />}
-                {summary.change_direction === "neutral" && <Minus className="h-3.5 w-3.5" />}
+                {summary.change_direction === "up" && <TrendingUp className="h-4 w-4" />}
+                {summary.change_direction === "down" && <TrendingDown className="h-4 w-4" />}
+                {summary.change_direction === "neutral" && <Minus className="h-4 w-4" />}
                 {summary.change_percent > 0 ? `+${summary.change_percent}%` : `${summary.change_percent}%`}
               </p>
             </div>
@@ -391,18 +391,18 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
 
       {/* Main Content: Loading, Error, Empty State, or Interactive Chart */}
       {loading ? (
-        <div className="h-56 sm:h-64 flex flex-col items-center justify-center gap-2 text-muted-foreground">
-          <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          <span className="text-xs font-medium">Fetching verified AGMARKNET records...</span>
+        <div className="h-[320px] sm:h-[370px] lg:h-[400px] flex flex-col items-center justify-center gap-2 text-muted-foreground">
+          <Loader2 className="h-7 w-7 animate-spin text-primary" />
+          <span className="text-xs font-semibold">Fetching verified AGMARKNET records...</span>
         </div>
       ) : error ? (
-        <div className="h-56 sm:h-64 flex flex-col items-center justify-center gap-3 p-4 text-center rounded-lg bg-amber-500/5 border border-amber-500/20">
-          <AlertCircle className="h-7 w-7 text-amber-500" />
-          <p className="text-xs text-foreground font-medium max-w-sm">{error}</p>
+        <div className="h-[320px] sm:h-[370px] lg:h-[400px] flex flex-col items-center justify-center gap-3 p-4 text-center rounded-xl bg-amber-500/5 border border-amber-500/20">
+          <AlertCircle className="h-8 w-8 text-amber-500" />
+          <p className="text-xs text-foreground font-semibold max-w-sm">{error}</p>
           <button
             type="button"
             onClick={fetchHistoricalData}
-            className="min-h-9 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors"
+            className="min-h-10 px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-bold inline-flex items-center gap-2 transition-colors"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             {dict.retry}
@@ -410,55 +410,55 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
         </div>
       ) : !hasObservations ? (
         /* Strict Data Integrity Empty State: Never display fabricated points */
-        <div className="min-h-48 sm:min-h-56 flex flex-col items-center justify-center p-6 text-center rounded-lg bg-muted/20 border border-border/80">
-          <div className="h-10 w-10 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground mb-3">
-            <Calendar className="h-5 w-5" />
+        <div className="min-h-[280px] sm:min-h-[340px] flex flex-col items-center justify-center p-8 text-center rounded-xl bg-muted/20 border border-border/80">
+          <div className="h-12 w-12 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground mb-3">
+            <Calendar className="h-6 w-6" />
           </div>
-          <h3 className="text-xs sm:text-sm font-bold text-foreground mb-1">{dict.emptyTitle}</h3>
+          <h3 className="text-sm sm:text-base font-bold text-foreground mb-1">{dict.emptyTitle}</h3>
           <p className="text-xs leading-relaxed text-muted-foreground max-w-md">{dict.emptyDesc}</p>
-          <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary">
-            <ShieldCheck className="h-3.5 w-3.5" />
+          <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+            <ShieldCheck className="h-4 w-4" />
             No synthetic or estimated prices are substituted.
           </div>
         </div>
       ) : isMounted ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Accessible Legend Badges */}
-          <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground pt-1">
-            <span className="flex items-center gap-1.5 font-semibold text-foreground">
-              <span className="h-2 w-3 rounded-xs bg-emerald-600 inline-block" />
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground pt-1">
+            <span className="flex items-center gap-2 font-bold text-foreground">
+              <span className="h-2.5 w-4 rounded-xs bg-emerald-600 inline-block" />
               {dict.modalLine}
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-0.5 w-3 border-t-2 border-dashed border-blue-500 inline-block" />
+            <span className="flex items-center gap-2 font-medium">
+              <span className="h-0.5 w-4 border-t-2 border-dashed border-blue-500 inline-block" />
               {dict.minLine}
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="h-0.5 w-3 border-t-2 border-dashed border-amber-500 inline-block" />
+            <span className="flex items-center gap-2 font-medium">
+              <span className="h-0.5 w-4 border-t-2 border-dashed border-amber-500 inline-block" />
               {dict.maxLine}
             </span>
           </div>
 
-          {/* Recharts Area */}
-          <div className="h-56 sm:h-64 w-full">
+          {/* Recharts Area - Height increased to 350-400px on desktop */}
+          <div className="h-[320px] sm:h-[370px] lg:h-[400px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={data?.observations}
-                margin={{ top: 10, right: 12, left: -16, bottom: 0 }}
+                margin={{ top: 12, right: 16, left: -10, bottom: 4 }}
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(150,150,150,0.15)" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(150,150,150,0.18)" />
                 <XAxis
                   dataKey="date"
                   tickFormatter={formatDateLabel}
                   tickLine={false}
-                  axisLine={{ stroke: "rgba(150,150,150,0.2)" }}
-                  tick={{ fontSize: 11, fill: "#78716c" }}
-                  minTickGap={20}
+                  axisLine={{ stroke: "rgba(150,150,150,0.25)" }}
+                  tick={{ fontSize: 11, fill: "#78716c", fontWeight: 500 }}
+                  minTickGap={24}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fontSize: 10, fill: "#78716c" }}
+                  tick={{ fontSize: 11, fill: "#78716c", fontWeight: 500 }}
                   domain={["dataMin - 100", "dataMax + 100"]}
                   tickFormatter={(val) => `₹${val}`}
                 />
@@ -468,27 +468,27 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
                   dataKey="modal_price"
                   name={dict.modalLine}
                   stroke="#16a34a"
-                  strokeWidth={2.5}
-                  dot={{ r: 3.5, fill: "#16a34a" }}
-                  activeDot={{ r: 6, fill: "#15803d" }}
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: "#16a34a" }}
+                  activeDot={{ r: 7, fill: "#15803d" }}
                 />
                 <Line
                   type="monotone"
                   dataKey="min_price"
                   name={dict.minLine}
                   stroke="#3b82f6"
-                  strokeWidth={1.5}
+                  strokeWidth={2}
                   strokeDasharray="4 4"
-                  dot={{ r: 2.5, fill: "#3b82f6" }}
+                  dot={{ r: 3, fill: "#3b82f6" }}
                 />
                 <Line
                   type="monotone"
                   dataKey="max_price"
                   name={dict.maxLine}
                   stroke="#f59e0b"
-                  strokeWidth={1.5}
+                  strokeWidth={2}
                   strokeDasharray="4 4"
-                  dot={{ r: 2.5, fill: "#f59e0b" }}
+                  dot={{ r: 3, fill: "#f59e0b" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -497,15 +497,15 @@ export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChart
       ) : null}
 
       {/* Provenance & Disclaimer Footer */}
-      <div className="mt-4 pt-3 border-t border-border/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-muted-foreground">
+      <div className="mt-5 pt-3.5 border-t border-border/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-muted-foreground">
         <a
           href="https://agmarknet.gov.in"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:text-primary transition-colors inline-flex items-center gap-1 underline underline-offset-2"
+          className="hover:text-primary transition-colors inline-flex items-center gap-1.5 underline underline-offset-2 font-medium"
         >
           {dict.sourceAttribution}
-          <ExternalLink className="h-3 w-3" />
+          <ExternalLink className="h-3.5 w-3.5" />
         </a>
         <span>{dict.disclaimer}</span>
       </div>
