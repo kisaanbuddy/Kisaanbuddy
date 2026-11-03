@@ -221,13 +221,8 @@ export function HeroSection() {
 
           </div>
 
-          {/* Right Column: Authentic Indian Farming Photography (Instant SSR Paint - Preloaded WebP) */
-          <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="lg:col-span-5 relative group"
-          >
+          {/* Right Column: Authentic Indian Farming Photography (Instant SSR Paint - Preloaded WebP) */}
+          <div className="lg:col-span-5 relative group">
             <div className="relative rounded-2xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_12px_40px_rgba(23,75,53,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
               
               {/* Authentic Indian Farmer Photograph */}
