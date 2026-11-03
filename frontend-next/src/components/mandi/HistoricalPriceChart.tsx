@@ -75,7 +75,7 @@ const I18N_STRINGS: Record<
 > = {
   en: {
     title: "Historical Mandi Prices",
-    subtitle: "Authentic APMC observations from AGMARKNET",
+    subtitle: "Daily APMC market observations",
     ranges: {
       "7D": "7 Days",
       "30D": "30 Days",
@@ -93,16 +93,16 @@ const I18N_STRINGS: Record<
     maxLine: "Max Price",
     emptyTitle: "Historical data currently unavailable",
     emptyDesc:
-      "Official AGMARKNET price records are currently not available for this commodity in the selected timeframe. Government APMC reports will appear here as they are published.",
-    sourceAttribution: "Source: AGMARKNET / Directorate of Marketing & Inspection (data.gov.in)",
-    disclaimer: "Reference market benchmarks only. Not a guaranteed selling offer or quote.",
+      "Official price records are currently not available for this commodity in the selected timeframe.",
+    sourceAttribution: "Source: AGMARKNET",
+    disclaimer: "Indicative market rates",
     retry: "Retry",
     perQuintal: "₹/quintal",
     arrivals: "Arrivals",
   },
   hi: {
     title: "ऐतिहासिक मंडी भाव",
-    subtitle: "AGMARKNET से सत्यापित सरकारी APMC मंडी आंकड़े",
+    subtitle: "दैनिक बाजार भाव रुझान",
     ranges: {
       "7D": "7 दिन",
       "30D": "30 दिन",
@@ -120,16 +120,16 @@ const I18N_STRINGS: Record<
     maxLine: "अधिकतम भाव",
     emptyTitle: "ऐतिहासिक डेटा फिलहाल उपलब्ध नहीं है",
     emptyDesc:
-      "चयनित समय अवधि के लिए इस फसल का सरकारी AGMARKNET रिकॉर्ड अभी दर्ज नहीं है। नए आंकड़े उपलब्ध होते ही यहां प्रदर्शित किए जाएंगे।",
-    sourceAttribution: "स्रोत: AGMARKNET / विपणन एवं निरीक्षण निदेशालय (data.gov.in)",
-    disclaimer: "केवल संदर्भ बाजार दरें। यह कोई अनिवार्य खरीद या बिक्री प्रस्ताव नहीं है।",
+      "चयनित समय अवधि के लिए इस फसल का रिकॉर्ड अभी दर्ज नहीं है।",
+    sourceAttribution: "स्रोत: AGMARKNET",
+    disclaimer: "संदर्भ मंडी भाव",
     retry: "पुनः प्रयास करें",
     perQuintal: "₹/क्विंटल",
     arrivals: "आवक",
   },
   kn: {
     title: "ಇತಿಹಾಸ ಮಂಡಿ ಬೆಲೆಗಳು",
-    subtitle: "AGMARKNET ನಿಂದ ದೃಢೀಕರಿಸಲ್ಪಟ್ಟ APMC ಮಾರುಕಟ್ಟೆ ದಾಖಲೆಗಳು",
+    subtitle: "ದೈನಂದಿನ ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು",
     ranges: {
       "7D": "7 ದಿನ",
       "30D": "30 ದಿನ",
@@ -147,9 +147,9 @@ const I18N_STRINGS: Record<
     maxLine: "ಗರಿಷ್ಠ ಬೆಲೆ",
     emptyTitle: "ಐತಿಹಾಸಿಕ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ",
     emptyDesc:
-      "ಆಯ್ದ ಅವಧಿಗೆ ಈ ಬೆಳೆಯ ಅಧಿಕೃತ AGMARKNET ದಾಖಲೆಗಳು ಸದ್ಯಕ್ಕೆ ಲಭ್ಯವಿಲ್ಲ. ಸರ್ಕಾರಿ ದಾಖಲೆಗಳು ಪ್ರಕಟವಾದಂತೆ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುವುದು.",
-    sourceAttribution: "ಮೂಲ: AGMARKNET / ಮಾರುಕಟ್ಟೆ ಮತ್ತು ತಪಾಸಣೆ ನಿರ್ದೇಶನಾಲಯ (data.gov.in)",
-    disclaimer: "ಉಲ್ಲೇಖ ಮಾರುಕಟ್ಟೆ ದರಗಳು ಮಾತ್ರ. ಇದು ನಿಗದಿತ ಮಾರಾಟದ ಕೊಡುಗೆಯಲ್ಲ.",
+      "ಆಯ್ದ ಅವಧಿಗೆ ಈ ಬೆಳೆಯ ದಾಖಲೆಗಳು ಸದ್ಯಕ್ಕೆ ಲಭ್ಯವಿಲ್ಲ.",
+    sourceAttribution: "ಮೂಲ: AGMARKNET",
+    disclaimer: "ಉಲ್ಲೇಖ ಮಾರುಕಟ್ಟೆ ದರಗಳು",
     retry: "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
     perQuintal: "₹/ಕ್ವಿಂಟಾಲ್",
     arrivals: "ಆವಕ",

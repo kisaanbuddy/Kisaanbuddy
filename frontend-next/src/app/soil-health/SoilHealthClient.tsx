@@ -563,15 +563,11 @@ export default function SoilHealthPage() {
         </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">
-              <FlaskConical className="h-3.5 w-3.5" />
-              Mitti Jaanch Center · Soil Diagnostics
-            </div>
             <h1 className="text-2xl md:text-3xl font-bold font-display tracking-tight text-foreground">
               Soil Health <span className="text-emerald-600 dark:text-emerald-400">{t("soil_health.diagnostics")}</span>
             </h1>
             <p className="text-muted-foreground text-xs md:text-sm mt-1.5 max-w-2xl leading-relaxed">
-              Enter your soil health card parameters or test values. Our agronomist AI model computes exact nutrient ratios and generates custom fertilization schedules.
+              Enter your soil test parameters to compute nutrient requirements and custom fertilization schedules.
             </p>
           </div>
           <div className="h-12 w-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">

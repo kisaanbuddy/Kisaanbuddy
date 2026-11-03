@@ -60,7 +60,7 @@ const COPY = {
     editFarm: "Change",
     setupFarm: "Set your village and main crop for customized prices & weather",
     officialFootnote:
-      "Mandi rates and weather reports are updated from official government sources (Agmarknet / IMD). Please confirm with your local market before selling crops.",
+      "Market rates from AGMARKNET • Weather reports from IMD",
     resultsFound: "services found for",
     clearSearch: "Clear",
     noResultsTitle: "No matching service found",
@@ -92,7 +92,7 @@ const COPY = {
     editFarm: "बदलें",
     setupFarm: "सही भाव और मौसम के लिए अपना गांव और मुख्य फसल जोड़ें",
     officialFootnote:
-      "मंडी दरें और मौसम रिपोर्ट आधिकारिक स्रोतों (Agmarknet / IMD) से नियमित अपडेट की जाती हैं। फसल बेचने से पहले अपनी स्थानीय मंडी से दरों की पुष्टि अवश्य करें।",
+      "मंडी भाव: AGMARKNET • मौसम: IMD",
     resultsFound: "सेवाएं मिलीं खोज शब्द:",
     clearSearch: "हटाएं",
     noResultsTitle: "कोई सेवा नहीं मिली",
@@ -124,7 +124,7 @@ const COPY = {
     editFarm: "ಬದಲಾಯಿಸಿ",
     setupFarm: "ನಿಖರ ಬೆಲೆ ಮತ್ತು ಹವಾಮಾನಕ್ಕಾಗಿ ನಿಮ್ಮ ಊರು ಮತ್ತು ಬೆಳೆಯನ್ನು ಸೇರಿಸಿ",
     officialFootnote:
-      "ಮಂಡಿ ದರಗಳು ಮತ್ತು ಹವಾಮಾನ ವರದಿಗಳು ಅಧಿಕೃತ ಮೂಲಗಳಿಂದ (Agmarknet / IMD) ನವೀಕರಿಸಲ್ಪಡುತ್ತವೆ. ಬೆಳೆ ಮಾರಾಟ ಮಾಡುವ ಮುನ್ನ ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ದೃಢೀಕರಿಸಿ.",
+      "ಮಂಡಿ ದರಗಳು: AGMARKNET • ಹವಾಮಾನ: IMD",
     resultsFound: "ಸೇವೆಗಳು ದೊರೆತಿವೆ ಹುಡುಕಾಟ:",
     clearSearch: "ತೆರವುಗೊಳಿಸಿ",
     noResultsTitle: "ಯಾವುದೇ ಸೇವೆ ಕಂಡುಬಂದಿಲ್ಲ",
@@ -525,9 +525,6 @@ export function FarmerHome() {
           <section aria-labelledby="primary-shortcuts-heading">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  {text.quickShortcutsBadge}
-                </p>
                 <h2
                   id="primary-shortcuts-heading"
                   className="text-xl sm:text-2xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100"
@@ -632,9 +629,6 @@ export function FarmerHome() {
           <section id="all-services-section" aria-labelledby="all-services-heading" className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  {text.allServicesBadge}
-                </p>
                 <h2
                   id="all-services-heading"
                   className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100"
@@ -760,9 +754,6 @@ export function FarmerHome() {
           <section aria-label="Voice Ideas" className="rounded-3xl border border-stone-200/90 dark:border-stone-800 bg-[#FAF9F6] dark:bg-stone-900/80 p-5 sm:p-6 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
               <div>
-                <p className="text-xs font-extrabold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  VOICE ROUTING
-                </p>
                 <h3 className="text-lg sm:text-xl font-extrabold text-stone-900 dark:text-stone-100">
                   {text.voicePromptsHeading}
                 </h3>
@@ -806,13 +797,8 @@ export function FarmerHome() {
       {/* ────────────────────────────────────────────────────────────────────── */}
       {/* SECTION D: OFFICIAL DATA TRANSPARENCY FOOTNOTE                        */}
       {/* ────────────────────────────────────────────────────────────────────── */}
-      <footer className="rounded-2xl border border-stone-200/80 dark:border-stone-800/80 bg-white/70 dark:bg-stone-900/60 p-4 sm:p-5 text-xs text-stone-500 dark:text-stone-400 shadow-2xs">
-        <div className="flex items-start gap-3">
-          <ShieldCheck className="h-5 w-5 text-emerald-700 dark:text-emerald-400 shrink-0 mt-0.5" />
-          <p className="leading-relaxed">
-            {text.officialFootnote}
-          </p>
-        </div>
+      <footer className="text-center text-[11px] text-stone-500 dark:text-stone-400 py-1">
+        <p>{text.officialFootnote}</p>
       </footer>
     </div>
   );

@@ -63,7 +63,7 @@ export function Footer() {
                 Sell Your Harvest
               </Link>
               <Link href="/marketplace?tab=buyers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Verified Buyer Requirements
+                Buyer Requirements
               </Link>
               <Link href="/marketplace?tab=equipment" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Equipment & Machinery

@@ -506,10 +506,10 @@ export default function MarketplacePage() {
             </span>
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                KisaanBuddy Agricultural Marketplace
+                Agricultural Marketplace
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Public reference machinery catalogue, verified farmer listings & benchmark mandi prices.
+                Farm equipment, standing crop lots, and buyer requirements.
               </p>
             </div>
           </div>
@@ -654,38 +654,29 @@ export default function MarketplacePage() {
           {/* ── Sub-view 1: Equipment Reference Catalogue ── */}
           {equipmentTab === "catalog" && (
             <div className="space-y-6">
-              {/* Highlighted Provenance / Reference Banner */}
-              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-xl bg-emerald-600 text-white mt-0.5">
-                    <ShieldCheck className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-foreground">
-                      Public Equipment Reference Catalogue & MachinePoint Products
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 max-w-3xl leading-relaxed">
-                      Explore agricultural machinery specifications and commercial products directly from authorized suppliers (including{" "}
-                      <strong className="text-foreground">MachinePoint Agriculture Machinery Collection</strong>) and Ministry of Agriculture test reports (CFMTTI Budni, NRFMTTI Hisar).
-                      <span className="block mt-1 text-[11px] text-amber-700 dark:text-amber-400 font-medium">
-                        * Note: Product prices, availability, and delivery terms are linked directly to supplier product pages and may change on the supplier website.
-                      </span>
-                    </p>
-                  </div>
+              {/* Equipment Header */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2">
+                <div>
+                  <h3 className="text-base font-bold text-foreground">
+                    Equipment & Machinery Catalog
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Explore machinery specifications and commercial products.
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <a
                     href="https://machinepoint.in/collections/agriculture-farming-machinery"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-2 rounded-xl border border-emerald-600/30 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-bold transition flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition flex items-center gap-1.5"
                   >
-                    <span>MachinePoint Source</span>
+                    <span>External Catalog</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                   <button
                     onClick={() => setShowEqModal(true)}
-                    className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
+                    className="px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold shadow-xs transition"
                   >
                     Offer Machine
                   </button>
@@ -1194,25 +1185,19 @@ export default function MarketplacePage() {
       {/* ─── SECTION 2: SOURCE DIRECTLY FROM FARMS ───────────────────────────── */}
       {sectionMode === "source_farms" && (
         <div className="space-y-6">
-          {/* Header Banner */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-amber-600 text-white mt-0.5">
-                <Truck className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground">
-                  Direct Farm Sourcing • No Intermediary Margins
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5 max-w-3xl leading-relaxed">
-                  Connect directly with verified local growers, FPOs, and village cooperatives.
-                  Mandi modal prices are displayed as reference market indicators alongside farm lots.
-                </p>
-              </div>
+          {/* Header Action Bar */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-1">
+            <div>
+              <h2 className="text-lg font-bold text-foreground">
+                Farm Produce Lots
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Direct farm lots from growers and village cooperatives.
+              </p>
             </div>
             <button
               onClick={() => setShowProduceModal(true)}
-              className="shrink-0 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition"
+              className="shrink-0 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold shadow-xs transition"
             >
               + List Harvest Produce
             </button>
@@ -1393,11 +1378,7 @@ export default function MarketplacePage() {
                   </div>
                 </div>
 
-                {/* Important Legal Disclaimer */}
-                <div className="p-2.5 rounded-xl bg-muted/60 text-[10px] text-muted-foreground leading-relaxed border border-border/40">
-                  ⚠️ <strong>Reference Only:</strong> Mandi prices reflect government APMC market arrivals.
-                  Individual farmer asking prices are set independently by growers based on quality and grade.
-                </div>
+
 
                 {loadingPrices ? (
                   <div className="py-8 text-center text-muted-foreground text-xs">
@@ -2108,8 +2089,8 @@ export default function MarketplacePage() {
               <p className="text-muted-foreground">Contact: <strong className="text-foreground">{contactTarget.name}</strong></p>
             </div>
 
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] leading-relaxed">
-              ✓ Verified seller has authorized direct contact for genuine trade inquiries. Zero intermediary deductions apply.
+            <div className="p-2.5 rounded-xl bg-muted/40 text-muted-foreground text-[11px] text-center">
+              Direct seller contact • Zero intermediary fees
             </div>
 
             <div className="p-3 rounded-xl bg-background border border-border text-center space-y-2">

@@ -286,49 +286,6 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
   )
 }
 
-/* ------------------------------------------------------------------ */
-/*  Origin Badge Component                                            */
-/* ------------------------------------------------------------------ */
-function OriginBadge({ origin, className = "" }: { origin: string; className?: string }) {
-  if (origin === "Official market-price data") {
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 ${className}`}>
-        <Building2 className="h-3 w-3" />
-        Official market-price data
-      </span>
-    )
-  }
-  if (origin === "Government procurement information") {
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 ${className}`}>
-        <ShieldCheck className="h-3 w-3" />
-        Government procurement information
-      </span>
-    )
-  }
-  if (origin === "External partner offer") {
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 ${className}`}>
-        <ExternalLink className="h-3 w-3" />
-        External partner offer
-      </span>
-    )
-  }
-  if (origin === "KisaanBuddy verified buyer requirement") {
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 ${className}`}>
-        <CheckCircle2 className="h-3 w-3" />
-        KisaanBuddy verified buyer requirement
-      </span>
-    )
-  }
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 ${className}`}>
-      <BadgeCheck className="h-3 w-3" />
-      KisaanBuddy verified seller listing
-    </span>
-  )
-}
 
 /* ------------------------------------------------------------------ */
 /*  Main Page Component                                                */
@@ -730,11 +687,7 @@ export default function MandiPage() {
             </div>
           </div>
         </div>
-        <div className="mt-5 grid gap-2 border-t border-border pt-4 text-[11px] text-muted-foreground sm:grid-cols-3">
-          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />{tabT.badgeOfficialPrice}</span>
-          <span className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />{tabT.badgeVerifiedBuyer}</span>
-          <span className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />{tabT.badgeGovProcurement}</span>
-        </div>
+
       </motion.div>
 
       {/* ---- 4-TAB NAVIGATION BAR ---- */}
@@ -813,23 +766,6 @@ export default function MandiPage() {
       {/* ============================================================ */}
       {activeTab === "prices" && (
         <div className="flex flex-col gap-6">
-          {/* Disclaimer Banner */}
-          <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3.5 text-xs text-muted-foreground flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <ShieldCheck className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-            <div className="flex-1 leading-5">
-              <span className="font-bold text-foreground">AGMARKNET Reference Intelligence: </span>
-              {tabT.referenceDisclaimer}
-            </div>
-            <button
-              onClick={handleRefreshPrices}
-              disabled={refreshingPrices}
-              className="shrink-0 inline-flex min-h-9 items-center justify-center gap-1.5 px-3 rounded-lg bg-card border border-border text-[11px] font-bold text-foreground hover:border-primary/30 hover:bg-muted transition-colors shadow-xs"
-            >
-              <RefreshCw className={`h-3 w-3 ${refreshingPrices ? "animate-spin text-emerald-500" : ""}`} />
-              <span>{tabT.refreshPrices}</span>
-            </button>
-          </div>
-
           <AnimatePresence mode="wait">
             {!selectedCrop && (
               <motion.div
@@ -847,11 +783,21 @@ export default function MandiPage() {
                       <h2 className="text-sm font-bold text-foreground">Find a market price</h2>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">Search by crop, variety, mandi or state.</p>
                     </div>
-                    {hasPriceFilters && (
-                      <button onClick={clearPriceFilters} className="shrink-0 text-xs font-semibold text-primary hover:underline">
-                        Clear filters
+                    <div className="flex items-center gap-2">
+                      {hasPriceFilters && (
+                        <button onClick={clearPriceFilters} className="shrink-0 text-xs font-semibold text-primary hover:underline">
+                          Clear filters
+                        </button>
+                      )}
+                      <button
+                        onClick={handleRefreshPrices}
+                        disabled={refreshingPrices}
+                        className="shrink-0 inline-flex min-h-8 items-center justify-center gap-1.5 px-2.5 rounded-lg bg-card border border-border text-[11px] font-bold text-foreground hover:border-primary/30 hover:bg-muted transition-colors shadow-2xs"
+                      >
+                        <RefreshCw className={`h-3 w-3 ${refreshingPrices ? "animate-spin text-emerald-500" : ""}`} />
+                        <span>{tabT.refreshPrices}</span>
                       </button>
-                    )}
+                    </div>
                   </div>
                   <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_11rem_11rem]">
                     <label className="relative block">
@@ -1005,8 +951,12 @@ export default function MandiPage() {
                     <CardHeader className="border-b border-border pb-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <OriginBadge origin={selectedCrop.source_origin || "Official market-price data"} />
-                          <CardTitle className="text-2xl font-bold text-foreground mt-3 font-display">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                              Source: AGMARKNET
+                            </span>
+                          </div>
+                          <CardTitle className="text-2xl font-bold text-foreground mt-2 font-display">
                             {translateData(selectedCrop.name, lang)}
                           </CardTitle>
                           <p className="text-muted-foreground text-xs mt-1">
@@ -1053,9 +1003,7 @@ export default function MandiPage() {
                         </div>
                       </div>
                       </section>
-                      <p className="text-[11px] leading-5 text-muted-foreground">
-                        Displayed values are the latest reported market range supplied by the source. They are not a transaction quote or an invented historical trend.
-                      </p>
+
                     </CardContent>
                   </GlassCard>
 
@@ -1125,12 +1073,6 @@ export default function MandiPage() {
             </select>
           </div>
 
-          {/* Disclaimer */}
-          <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-center gap-2">
-            <Clock className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-            <span>Offers expire automatically at expiry date. Submitting quotation initiates direct discussion; it does not constitute an automated debit or transaction.</span>
-          </div>
-
           {/* Buy Requirements Grid */}
           {loadingBuy ? (
             <div className="flex justify-center py-16">
@@ -1142,7 +1084,7 @@ export default function MandiPage() {
                 <div key={b.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-teal-500/30 transition-all">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <OriginBadge origin={b.source || "KisaanBuddy verified buyer requirement"} />
+                      <span className="text-xs font-semibold text-muted-foreground">{b.buyer_name}</span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         (b.status as string) === "open" || (b.status as string) === "active" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
                       }`}>
@@ -1273,12 +1215,6 @@ export default function MandiPage() {
             </select>
           </div>
 
-          {/* Disclaimer */}
-          <div className="p-3 rounded-xl bg-muted/40 border border-border text-[11px] text-muted-foreground flex items-center gap-2">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>Farmers maintain full control. Contacting a seller or expressing interest opens direct negotiation with mutual consent.</span>
-          </div>
-
           {/* Sell Listings Grid */}
           {loadingSell ? (
             <div className="flex justify-center py-16">
@@ -1290,7 +1226,7 @@ export default function MandiPage() {
                 <div key={s.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-emerald-500/30 transition-all">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <OriginBadge origin={s.source_origin || "KisaanBuddy verified seller listing"} />
+                      <span className="text-xs font-semibold text-muted-foreground">{s.farmer_name}</span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                         s.availability_status === "available" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
                       }`}>
@@ -1395,15 +1331,12 @@ export default function MandiPage() {
       {/* ============================================================ */}
       {activeTab === "gov" && (
         <div className="flex flex-col gap-6">
-          {/* Official MSP Notice Banner */}
-          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-4 space-y-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-2xl bg-purple-500/5 border border-purple-500/20">
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <h2 className="text-sm font-bold text-foreground">Official Government Procurement & Fair Average Quality (FAQ) MSP Centres</h2>
+              <h2 className="text-sm sm:text-base font-bold text-foreground">Government MSP Procurement Centres</h2>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {tabT.mspDisclaimer}
-            </p>
+            <span className="text-xs text-muted-foreground font-medium">Source: Official Portals</span>
           </div>
 
           {/* Filters */}
@@ -1441,7 +1374,7 @@ export default function MandiPage() {
                 <div key={g.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-purple-500/30 transition-all">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
-                      <OriginBadge origin={g.source_provenance || "Government procurement information"} />
+                      <span className="text-xs font-bold text-purple-700 dark:text-purple-400">{g.nodal_agency || "MSP Centre"}</span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                         {g.procurement_season}
                       </span>
@@ -1664,7 +1597,6 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <OriginBadge origin={crop.source_origin || "Official market-price data"} className="mb-2" />
                 <CardTitle className="text-base font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate font-display">
                   {translateData(crop.name, lang)}
                 </CardTitle>
@@ -1704,7 +1636,7 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
             size="sm"
             className="w-full text-xs bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-xs"
           >
-            <span>View Price Intelligence</span>
+            <span>{t("mandi.view_details") || "View Details"}</span>
           </Button>
         </div>
       </GlassCard>
