@@ -1,0 +1,514 @@
+"use client"
+
+import React, { useState, useEffect, useMemo, useCallback } from "react"
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts"
+import {
+  Calendar,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  AlertCircle,
+  Loader2,
+  ExternalLink,
+  ShieldCheck,
+  RefreshCw,
+} from "lucide-react"
+import { Lang } from "@/lib/language"
+import { HistoricalPriceResponse, HistoricalObservation } from "@/lib/data/historical-mandi-data"
+
+export type TimeRangeOption = "7D" | "30D" | "3M" | "6M" | "1Y"
+
+interface HistoricalPriceChartProps {
+  crop: {
+    id: number | string
+    name: string
+    variety?: string
+    mandi: string
+    state: string
+    unit?: string
+    modal_price?: number
+    price?: number
+    min_price?: number
+    max_price?: number
+  }
+  lang?: Lang
+}
+
+const RANGE_DAYS_MAP: Record<TimeRangeOption, number> = {
+  "7D": 7,
+  "30D": 30,
+  "3M": 90,
+  "6M": 180,
+  "1Y": 365,
+}
+
+const I18N_STRINGS: Record<
+  string,
+  {
+    title: string
+    subtitle: string
+    ranges: Record<TimeRangeOption, string>
+    latestModal: string
+    highestModal: string
+    lowestModal: string
+    averageModal: string
+    periodChange: string
+    modalLine: string
+    minLine: string
+    maxLine: string
+    emptyTitle: string
+    emptyDesc: string
+    sourceAttribution: string
+    disclaimer: string
+    retry: string
+    perQuintal: string
+    arrivals: string
+  }
+> = {
+  en: {
+    title: "Historical Mandi Prices",
+    subtitle: "Authentic APMC observations from AGMARKNET",
+    ranges: {
+      "7D": "7 Days",
+      "30D": "30 Days",
+      "3M": "3 Months",
+      "6M": "6 Months",
+      "1Y": "1 Year",
+    },
+    latestModal: "Latest Modal",
+    highestModal: "Highest",
+    lowestModal: "Lowest",
+    averageModal: "Average",
+    periodChange: "Period Change",
+    modalLine: "Modal Price",
+    minLine: "Min Price",
+    maxLine: "Max Price",
+    emptyTitle: "Historical data currently unavailable",
+    emptyDesc:
+      "Official AGMARKNET price records are currently not available for this commodity in the selected timeframe. Government APMC reports will appear here as they are published.",
+    sourceAttribution: "Source: AGMARKNET / Directorate of Marketing & Inspection (data.gov.in)",
+    disclaimer: "Reference market benchmarks only. Not a guaranteed selling offer or quote.",
+    retry: "Retry",
+    perQuintal: "₹/quintal",
+    arrivals: "Arrivals",
+  },
+  hi: {
+    title: "ऐतिहासिक मंडी भाव",
+    subtitle: "AGMARKNET से सत्यापित सरकारी APMC मंडी आंकड़े",
+    ranges: {
+      "7D": "7 दिन",
+      "30D": "30 दिन",
+      "3M": "3 माह",
+      "6M": "6 माह",
+      "1Y": "1 वर्ष",
+    },
+    latestModal: "नवीनतम मोडल",
+    highestModal: "अधिकतम",
+    lowestModal: "न्यूनतम",
+    averageModal: "औसत",
+    periodChange: "अवधि बदलाव",
+    modalLine: "मोडल भाव",
+    minLine: "न्यूनतम भाव",
+    maxLine: "अधिकतम भाव",
+    emptyTitle: "ऐतिहासिक डेटा फिलहाल उपलब्ध नहीं है",
+    emptyDesc:
+      "चयनित समय अवधि के लिए इस फसल का सरकारी AGMARKNET रिकॉर्ड अभी दर्ज नहीं है। नए आंकड़े उपलब्ध होते ही यहां प्रदर्शित किए जाएंगे।",
+    sourceAttribution: "स्रोत: AGMARKNET / विपणन एवं निरीक्षण निदेशालय (data.gov.in)",
+    disclaimer: "केवल संदर्भ बाजार दरें। यह कोई अनिवार्य खरीद या बिक्री प्रस्ताव नहीं है।",
+    retry: "पुनः प्रयास करें",
+    perQuintal: "₹/क्विंटल",
+    arrivals: "आवक",
+  },
+  kn: {
+    title: "ಇತಿಹಾಸ ಮಂಡಿ ಬೆಲೆಗಳು",
+    subtitle: "AGMARKNET ನಿಂದ ದೃಢೀಕರಿಸಲ್ಪಟ್ಟ APMC ಮಾರುಕಟ್ಟೆ ದಾಖಲೆಗಳು",
+    ranges: {
+      "7D": "7 ದಿನ",
+      "30D": "30 ದಿನ",
+      "3M": "3 ತಿಂಗಳು",
+      "6M": "6 ತಿಂಗಳು",
+      "1Y": "1 ವರ್ಷ",
+    },
+    latestModal: "ಇತ್ತೀಚಿನ ಮಾದರಿ",
+    highestModal: "ಗರಿಷ್ಠ",
+    lowestModal: "ಕನಿಷ್ಠ",
+    averageModal: "ಸರಾಸರಿ",
+    periodChange: "ಬದಲಾವಣೆ",
+    modalLine: "ಮಾದರಿ ಬೆಲೆ",
+    minLine: "ಕನಿಷ್ಠ ಬೆಲೆ",
+    maxLine: "ಗರಿಷ್ಠ ಬೆಲೆ",
+    emptyTitle: "ಐತಿಹಾಸಿಕ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ",
+    emptyDesc:
+      "ಆಯ್ದ ಅವಧಿಗೆ ಈ ಬೆಳೆಯ ಅಧಿಕೃತ AGMARKNET ದಾಖಲೆಗಳು ಸದ್ಯಕ್ಕೆ ಲಭ್ಯವಿಲ್ಲ. ಸರ್ಕಾರಿ ದಾಖಲೆಗಳು ಪ್ರಕಟವಾದಂತೆ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುವುದು.",
+    sourceAttribution: "ಮೂಲ: AGMARKNET / ಮಾರುಕಟ್ಟೆ ಮತ್ತು ತಪಾಸಣೆ ನಿರ್ದೇಶನಾಲಯ (data.gov.in)",
+    disclaimer: "ಉಲ್ಲೇಖ ಮಾರುಕಟ್ಟೆ ದರಗಳು ಮಾತ್ರ. ಇದು ನಿಗದಿತ ಮಾರಾಟದ ಕೊಡುಗೆಯಲ್ಲ.",
+    retry: "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+    perQuintal: "₹/ಕ್ವಿಂಟಾಲ್",
+    arrivals: "ಆವಕ",
+  },
+}
+
+export function HistoricalPriceChart({ crop, lang = "en" }: HistoricalPriceChartProps) {
+  const [selectedRange, setSelectedRange] = useState<TimeRangeOption>("30D")
+  const [loading, setLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [data, setData] = useState<HistoricalPriceResponse | null>(null)
+  const [isMounted, setIsMounted] = useState<boolean>(false)
+
+  const dict = useMemo(() => {
+    return I18N_STRINGS[lang] || I18N_STRINGS.en
+  }, [lang])
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  // Clean crop name for query (e.g. "Wheat (गेहूं)" -> "Wheat")
+  const queryCommodity = useMemo(() => {
+    if (!crop.name) return ""
+    return crop.name.split("(")[0].trim()
+  }, [crop.name])
+
+  const fetchHistoricalData = useCallback(async () => {
+    if (!queryCommodity) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const days = RANGE_DAYS_MAP[selectedRange]
+      const params = new URLSearchParams({
+        commodity: queryCommodity,
+        market: crop.mandi || "",
+        state: crop.state || "",
+        variety: crop.variety || "",
+        days: days.toString(),
+      })
+
+      const res = await fetch(`/api/mandi/historical-prices?${params.toString()}`)
+      if (!res.ok) {
+        throw new Error(`Failed to load historical prices (${res.status})`)
+      }
+
+      const json: HistoricalPriceResponse = await res.json()
+      setData(json)
+    } catch (err: any) {
+      console.error("[HistoricalPriceChart] Fetch error:", err)
+      setError(err.message || "Failed to load historical data")
+    } finally {
+      setLoading(false)
+    }
+  }, [queryCommodity, crop.mandi, crop.state, crop.variety, selectedRange])
+
+  useEffect(() => {
+    fetchHistoricalData()
+  }, [fetchHistoricalData])
+
+  // Format date string for X-Axis (e.g. "2026-10-19" -> "19 Oct")
+  const formatDateLabel = useCallback((dateStr: string) => {
+    try {
+      const d = new Date(`${dateStr}T00:00:00Z`)
+      return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" })
+    } catch {
+      return dateStr
+    }
+  }, [])
+
+  // Format tooltip content
+  const customTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || !payload.length) return null
+
+    const row: HistoricalObservation = payload[0]?.payload
+    if (!row) return null
+
+    let formattedDate = label
+    try {
+      const d = new Date(`${row.date}T00:00:00Z`)
+      formattedDate = d.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    } catch {
+      // keep raw date
+    }
+
+    return (
+      <div className="rounded-lg border border-border bg-card/95 p-3 shadow-md backdrop-blur-sm text-xs">
+        <p className="font-bold text-foreground mb-1.5 flex items-center gap-1.5">
+          <Calendar className="h-3.5 w-3.5 text-primary" />
+          {formattedDate}
+        </p>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+              {dict.modalLine}:
+            </span>
+            <span className="font-bold text-foreground">₹{row.modal_price?.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1.5 text-blue-500 font-medium">
+              <span className="h-2 w-2 rounded-full bg-blue-500 inline-block" />
+              {dict.minLine}:
+            </span>
+            <span className="font-semibold text-muted-foreground">₹{row.min_price?.toLocaleString()}</span>
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-1.5 text-amber-500 font-medium">
+              <span className="h-2 w-2 rounded-full bg-amber-500 inline-block" />
+              {dict.maxLine}:
+            </span>
+            <span className="font-semibold text-muted-foreground">₹{row.max_price?.toLocaleString()}</span>
+          </div>
+          {row.arrival_tonnes ? (
+            <div className="pt-1 mt-1 border-t border-border flex items-center justify-between gap-4 text-[11px] text-muted-foreground">
+              <span>{dict.arrivals}:</span>
+              <span className="font-medium text-foreground">{row.arrival_tonnes.toLocaleString()} Tonnes</span>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    )
+  }
+
+  const hasObservations = Boolean(data && data.available && data.observations.length >= 2)
+  const summary = data?.summary
+
+  return (
+    <section
+      aria-label={dict.title}
+      className="rounded-xl border border-border bg-card p-4 sm:p-5 shadow-xs transition-colors"
+    >
+      {/* Header Row: Title & Range Selector */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm sm:text-base font-bold text-foreground font-display flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              {dict.title}
+            </h2>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
+              <ShieldCheck className="h-3 w-3" /> AGMARKNET
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{dict.subtitle}</p>
+        </div>
+
+        {/* Date Filter Pills */}
+        <div
+          role="group"
+          aria-label="Filter historical time period"
+          className="inline-flex items-center rounded-lg bg-muted/50 p-1 border border-border self-start sm:self-auto"
+        >
+          {(["7D", "30D", "3M", "6M", "1Y"] as TimeRangeOption[]).map((r) => {
+            const isActive = selectedRange === r
+            return (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setSelectedRange(r)}
+                aria-pressed={isActive}
+                className={`min-h-[36px] px-2.5 sm:px-3 text-xs font-bold rounded-md transition-all ${
+                  isActive
+                    ? "bg-primary text-white shadow-xs"
+                    : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                }`}
+              >
+                {dict.ranges[r]}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Summary KPI Strip (Rendered when valid comparison observations exist) */}
+      {hasObservations && summary && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5 mb-4 p-3 rounded-lg bg-muted/20 border border-border">
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
+              {dict.latestModal}
+            </span>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              ₹{summary.latest_modal.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
+              {dict.highestModal}
+            </span>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              ₹{summary.highest_modal.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
+              {dict.lowestModal}
+            </span>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              ₹{summary.lowest_modal.toLocaleString()}
+            </p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
+              {dict.averageModal}
+            </span>
+            <p className="text-sm font-bold text-foreground mt-0.5">
+              ₹{summary.average_modal.toLocaleString()}
+            </p>
+          </div>
+          {summary.change_percent !== null && (
+            <div className="col-span-2 sm:col-span-4 lg:col-span-1">
+              <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">
+                {dict.periodChange}
+              </span>
+              <p
+                className={`text-sm font-bold mt-0.5 flex items-center gap-1 ${
+                  summary.change_direction === "up"
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : summary.change_direction === "down"
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {summary.change_direction === "up" && <TrendingUp className="h-3.5 w-3.5" />}
+                {summary.change_direction === "down" && <TrendingDown className="h-3.5 w-3.5" />}
+                {summary.change_direction === "neutral" && <Minus className="h-3.5 w-3.5" />}
+                {summary.change_percent > 0 ? `+${summary.change_percent}%` : `${summary.change_percent}%`}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Main Content: Loading, Error, Empty State, or Interactive Chart */}
+      {loading ? (
+        <div className="h-56 sm:h-64 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <span className="text-xs font-medium">Fetching verified AGMARKNET records...</span>
+        </div>
+      ) : error ? (
+        <div className="h-56 sm:h-64 flex flex-col items-center justify-center gap-3 p-4 text-center rounded-lg bg-amber-500/5 border border-amber-500/20">
+          <AlertCircle className="h-7 w-7 text-amber-500" />
+          <p className="text-xs text-foreground font-medium max-w-sm">{error}</p>
+          <button
+            type="button"
+            onClick={fetchHistoricalData}
+            className="min-h-9 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            {dict.retry}
+          </button>
+        </div>
+      ) : !hasObservations ? (
+        /* Strict Data Integrity Empty State: Never display fabricated points */
+        <div className="min-h-48 sm:min-h-56 flex flex-col items-center justify-center p-6 text-center rounded-lg bg-muted/20 border border-border/80">
+          <div className="h-10 w-10 rounded-full bg-muted/60 flex items-center justify-center text-muted-foreground mb-3">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <h3 className="text-xs sm:text-sm font-bold text-foreground mb-1">{dict.emptyTitle}</h3>
+          <p className="text-xs leading-relaxed text-muted-foreground max-w-md">{dict.emptyDesc}</p>
+          <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            No synthetic or estimated prices are substituted.
+          </div>
+        </div>
+      ) : isMounted ? (
+        <div className="space-y-3">
+          {/* Accessible Legend Badges */}
+          <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground pt-1">
+            <span className="flex items-center gap-1.5 font-semibold text-foreground">
+              <span className="h-2 w-3 rounded-xs bg-emerald-600 inline-block" />
+              {dict.modalLine}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-0.5 w-3 border-t-2 border-dashed border-blue-500 inline-block" />
+              {dict.minLine}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-0.5 w-3 border-t-2 border-dashed border-amber-500 inline-block" />
+              {dict.maxLine}
+            </span>
+          </div>
+
+          {/* Recharts Area */}
+          <div className="h-56 sm:h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={data?.observations}
+                margin={{ top: 10, right: 12, left: -16, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(150,150,150,0.15)" />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={formatDateLabel}
+                  tickLine={false}
+                  axisLine={{ stroke: "rgba(150,150,150,0.2)" }}
+                  tick={{ fontSize: 11, fill: "#78716c" }}
+                  minTickGap={20}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 10, fill: "#78716c" }}
+                  domain={["dataMin - 100", "dataMax + 100"]}
+                  tickFormatter={(val) => `₹${val}`}
+                />
+                <Tooltip content={customTooltip} />
+                <Line
+                  type="monotone"
+                  dataKey="modal_price"
+                  name={dict.modalLine}
+                  stroke="#16a34a"
+                  strokeWidth={2.5}
+                  dot={{ r: 3.5, fill: "#16a34a" }}
+                  activeDot={{ r: 6, fill: "#15803d" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="min_price"
+                  name={dict.minLine}
+                  stroke="#3b82f6"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  dot={{ r: 2.5, fill: "#3b82f6" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="max_price"
+                  name={dict.maxLine}
+                  stroke="#f59e0b"
+                  strokeWidth={1.5}
+                  strokeDasharray="4 4"
+                  dot={{ r: 2.5, fill: "#f59e0b" }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Provenance & Disclaimer Footer */}
+      <div className="mt-4 pt-3 border-t border-border/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-muted-foreground">
+        <a
+          href="https://agmarknet.gov.in"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-primary transition-colors inline-flex items-center gap-1 underline underline-offset-2"
+        >
+          {dict.sourceAttribution}
+          <ExternalLink className="h-3 w-3" />
+        </a>
+        <span>{dict.disclaimer}</span>
+      </div>
+    </section>
+  )
+}

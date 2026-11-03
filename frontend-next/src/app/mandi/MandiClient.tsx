@@ -51,6 +51,7 @@ import {
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { HistoricalPriceChart } from "@/components/mandi/HistoricalPriceChart"
 
 import { Lang, LANG_NAMES } from "@/lib/language"
 import {
@@ -1026,6 +1027,9 @@ export default function MandiPage() {
                         <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-rose-500" />} label="Max Price" value={`₹${selectedCrop.max_price.toLocaleString()}`} />
                       </div>
                       </section>
+
+                      {/* Authentic Historical Mandi Price Graph */}
+                      <HistoricalPriceChart crop={selectedCrop} lang={lang} />
 
                       <section className="rounded-lg border border-border bg-muted/25 p-4" aria-label="Market details">
                         <h2 className="mb-3 text-sm font-bold text-foreground">Market details</h2>

@@ -200,6 +200,165 @@ def get_mandi_crops(
     }
 
 
+@router.get("/historical-prices")
+def get_mandi_historical_prices(
+    commodity: str = Query(..., description="Crop / Commodity name"),
+    variety: Optional[str] = Query(default=None),
+    state: Optional[str] = Query(default=None),
+    district: Optional[str] = Query(default=None),
+    market: Optional[str] = Query(default=None),
+    from_date: Optional[date] = Query(default=None, description="Start date (YYYY-MM-DD)"),
+    to_date: Optional[date] = Query(default=None, description="End date (YYYY-MM-DD)"),
+    days: Optional[int] = Query(default=30, ge=1, le=365),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Historical Mandi Price Intelligence endpoint.
+
+    Returns authentic historical APMC observations from AGMARKNET / data.gov.in.
+    Never fabricates, estimates, or mathematically interpolates prices.
+    If official records are unavailable, returns available=False with an informative explanation.
+    """
+    clean_comm = (commodity or "").strip()
+    if not clean_comm:
+        raise HTTPException(status_code=400, detail="Missing required parameter: commodity")
+
+    # Remove regional language names in brackets, e.g. "Wheat (गेहूं)" -> "Wheat"
+    if "(" in clean_comm:
+        clean_comm = clean_comm.split("(")[0].strip()
+
+    # Auto-seed if database is completely empty
+    count = db.query(MarketPriceRecord).count()
+    if count == 0:
+        importer = AgmarknetPriceImporter(db)
+        importer.import_benchmarks(INITIAL_MARKET_PRICES)
+
+    # Determine cutoff date
+    if not from_date and days:
+        latest_rec = (
+            db.query(MarketPriceRecord)
+            .filter(MarketPriceRecord.commodity.ilike(f"%{clean_comm}%"))
+            .order_by(MarketPriceRecord.arrival_date.desc())
+            .first()
+        )
+        ref_date = latest_rec.arrival_date if latest_rec and latest_rec.arrival_date else date.today()
+        from_date = ref_date - timedelta(days=days)
+
+    query = db.query(MarketPriceRecord).filter(
+        MarketPriceRecord.commodity.ilike(f"%{clean_comm}%")
+    )
+
+    if variety and variety.lower() != "all":
+        query = query.filter(MarketPriceRecord.variety.ilike(f"%{variety.strip()}%"))
+    if state and state.lower() != "all":
+        query = query.filter(MarketPriceRecord.state.ilike(f"%{state.strip()}%"))
+    if district and district.lower() != "all":
+        query = query.filter(MarketPriceRecord.district.ilike(f"%{district.strip()}%"))
+    if market and market.lower() != "all":
+        mkt_clean = market.lower().replace("mandi", "").replace("apmc", "").strip()
+        query = query.filter(MarketPriceRecord.market_center.ilike(f"%{mkt_clean}%"))
+    if from_date:
+        query = query.filter(MarketPriceRecord.arrival_date >= from_date)
+    if to_date:
+        query = query.filter(MarketPriceRecord.arrival_date <= to_date)
+
+    records = query.order_by(MarketPriceRecord.arrival_date.asc()).all()
+
+    # If empty and specific market didn't match, attempt commodity match in state
+    if not records and market and market.lower() != "all":
+        fallback_query = db.query(MarketPriceRecord).filter(
+            MarketPriceRecord.commodity.ilike(f"%{clean_comm}%")
+        )
+        if state and state.lower() != "all":
+            fallback_query = fallback_query.filter(MarketPriceRecord.state.ilike(f"%{state.strip()}%"))
+        if from_date:
+            fallback_query = fallback_query.filter(MarketPriceRecord.arrival_date >= from_date)
+        if to_date:
+            fallback_query = fallback_query.filter(MarketPriceRecord.arrival_date <= to_date)
+        records = fallback_query.order_by(MarketPriceRecord.arrival_date.asc()).all()
+
+    if not records:
+        return {
+            "commodity": commodity,
+            "variety": variety,
+            "market": market or "APMC Market",
+            "state": state,
+            "district": district,
+            "source": "AGMARKNET / Directorate of Marketing & Inspection (data.gov.in)",
+            "source_url": "https://agmarknet.gov.in",
+            "available": False,
+            "records_count": 0,
+            "observations": [],
+            "summary": None,
+            "message": f"Historical price records are currently unavailable for {commodity} in official AGMARKNET government archives for the requested date period.",
+            "disclaimer": "Official AGMARKNET reference market benchmarks. Historical APMC observations only, not a guaranteed transaction offer.",
+            "updated_at": datetime.utcnow().isoformat() + "Z",
+        }
+
+    # Deduplicate by arrival_date
+    seen_dates = set()
+    observations = []
+    for r in records:
+        d_str = r.arrival_date.isoformat() if r.arrival_date else None
+        if not d_str or d_str in seen_dates:
+            continue
+        seen_dates.add(d_str)
+        observations.append({
+            "date": d_str,
+            "min_price": int(r.min_price),
+            "max_price": int(r.max_price),
+            "modal_price": int(r.modal_price),
+            "arrival_tonnes": int(r.arrival_quantity or 0),
+        })
+
+    observations.sort(key=lambda x: x["date"])
+
+    modals = [o["modal_price"] for o in observations]
+    highest_modal = max(modals)
+    lowest_modal = min(modals)
+    average_modal = round(sum(modals) / len(modals))
+    latest_modal = observations[-1]["modal_price"]
+    first_modal = observations[0]["modal_price"]
+
+    change_percent = None
+    change_direction = "neutral"
+    if len(observations) >= 2 and first_modal > 0:
+        diff = latest_modal - first_modal
+        change_percent = round((diff / first_modal) * 100, 1)
+        if change_percent > 0.1:
+            change_direction = "up"
+        elif change_percent < -0.1:
+            change_direction = "down"
+
+    primary = records[-1]
+
+    return {
+        "commodity": commodity,
+        "variety": primary.variety or variety or "FAQ",
+        "market": primary.market_center or market or "APMC Mandi",
+        "state": primary.state or state,
+        "district": primary.district or district,
+        "source": primary.source_name or "AGMARKNET / Directorate of Marketing & Inspection (data.gov.in)",
+        "source_url": primary.source_url or "https://agmarknet.gov.in",
+        "available": True,
+        "records_count": len(observations),
+        "observations": observations,
+        "summary": {
+            "highest_modal": highest_modal,
+            "lowest_modal": lowest_modal,
+            "average_modal": average_modal,
+            "latest_modal": latest_modal,
+            "first_modal": first_modal,
+            "change_percent": change_percent,
+            "change_direction": change_direction,
+            "from_date": observations[0]["date"],
+            "to_date": observations[-1]["date"],
+            "data_points": len(observations),
+        },
+        "disclaimer": "Official AGMARKNET reference market benchmarks. Historical APMC observations only, not a guaranteed transaction offer.",
+        "updated_at": datetime.utcnow().isoformat() + "Z",
+    }
+
+
 @router.get("/crops/{crop_id}")
 def get_mandi_crop(crop_id: int, db: Session = Depends(get_db)):
     """Retrieve detailed observation by ID with price spread and trend."""
