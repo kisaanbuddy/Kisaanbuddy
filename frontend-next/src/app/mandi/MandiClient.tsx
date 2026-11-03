@@ -46,20 +46,11 @@ import {
   Clock,
   Flag,
   Send,
+  SlidersHorizontal,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
-// Recharts imports for premium financial view
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
 
 import { Lang, LANG_NAMES } from "@/lib/language"
 import {
@@ -193,10 +184,10 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
   const uniqueCrops = Array.from(new Set(crops.map((c) => c.name))).sort()
 
   return (
-    <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 backdrop-blur-md p-4 relative overflow-hidden">
+    <section className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4" aria-label="Target price alerts">
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-500/20">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20">
             <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />
           </div>
           <div>
@@ -208,7 +199,7 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
           {!permGranted && (
             <button 
               onClick={requestPerm} 
-              className="text-xs rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 py-2 flex items-center gap-1.5 shadow-lg shadow-amber-500/10 transition-all"
+              className="min-h-9 text-xs rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 flex items-center gap-1.5 transition-colors"
             >
               <BellRing className="h-3.5 w-3.5" /> {currentLang.enableNotifications}
             </button>
@@ -217,14 +208,15 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
             <button 
               onClick={checkNow} 
               disabled={checking} 
-              className="text-xs rounded-xl border border-border bg-card hover:bg-accent px-3.5 py-2 text-foreground font-semibold flex items-center gap-1.5 transition-all shadow-xs"
+              className="min-h-9 text-xs rounded-lg border border-border bg-card hover:bg-muted px-3.5 text-foreground font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
             >
               {checking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />} {currentLang.checkStatus}
             </button>
           )}
           <button 
-            onClick={() => setShowForm(!showForm)} 
-            className="text-xs rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-3.5 py-2 text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5 transition-all"
+            onClick={() => setShowForm(!showForm)}
+            aria-expanded={showForm}
+            className="min-h-9 text-xs rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-3.5 text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1.5 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" /> {showForm ? currentLang.cancel : currentLang.addTargetPrice}
           </button>
@@ -252,11 +244,12 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
       )}
 
       {showForm && (
-        <div className="mt-4 p-4 rounded-xl bg-card border border-border flex flex-wrap gap-3 items-center">
+        <div className="mt-4 grid gap-3 rounded-lg bg-card border border-border p-4 sm:grid-cols-2 lg:grid-cols-4">
           <select 
             value={newCrop} 
             onChange={(e) => setNewCrop(e.target.value)} 
-            className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+            aria-label="Commodity for price alert"
+            className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
           >
             <option value="">{currentLang.selectCommodity}</option>
             {uniqueCrops.map((c) => (
@@ -266,7 +259,8 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
           <select 
             value={newDir} 
             onChange={(e) => setNewDir(e.target.value as "above" | "below")} 
-            className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500"
+            aria-label="Price alert direction"
+            className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
           >
             <option value="above">{currentLang.goesAbove}</option>
             <option value="below">{currentLang.goesBelow}</option>
@@ -276,18 +270,18 @@ function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
             value={newThreshold} 
             onChange={(e) => setNewThreshold(e.target.value)} 
             placeholder={currentLang.targetPricePlaceholder} 
-            className="w-full sm:w-32 rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500" 
+            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
           />
           <Button 
             onClick={addAlert} 
             disabled={!newCrop || !newThreshold} 
-            className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold h-9 px-4 disabled:opacity-50 transition-all text-xs"
+            className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold h-10 px-4 disabled:opacity-50 transition-colors text-xs"
           >
             {currentLang.createTrigger}
           </Button>
         </div>
       )}
-    </div>
+    </section>
   )
 }
 
@@ -528,6 +522,13 @@ export default function MandiPage() {
     }
   }
 
+  function clearPriceFilters() {
+    setSearchQuery("")
+    setCategoryFilter("All")
+    setStateFilter("All")
+    setPriceSort("default")
+  }
+
   /* ---- Handle Confirm Stock on a Sell Listing ---- */
   async function handleConfirmStock(listingId: number) {
     try {
@@ -596,6 +597,8 @@ export default function MandiPage() {
       })
   }, [crops, searchQuery, categoryFilter, stateFilter, priceSort])
 
+  const hasPriceFilters = Boolean(searchQuery) || categoryFilter !== "All" || stateFilter !== "All" || priceSort !== "default"
+
   // Filtered buy requirements
   const filteredBuy = useMemo(() => {
     return buyerReqs.filter((b) => {
@@ -655,37 +658,8 @@ export default function MandiPage() {
     })
   }, [govItems, govSearch, govState])
 
-  // Historical data for Recharts
-  const chartData = useMemo(() => {
-    if (!selectedCrop) return []
-    const days = 8
-    const data = []
-    const basePrice = selectedCrop.modal_price || selectedCrop.price
-    const spread = selectedCrop.max_price - selectedCrop.min_price
-    const variance = spread > 0 ? spread : basePrice * 0.12
-
-    for (let i = days - 1; i >= 0; i--) {
-      const date = new Date()
-      date.setDate(date.getDate() - i)
-      const dateString = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-      let price = 0
-      if (i === 0) {
-        price = selectedCrop.price
-      } else {
-        const noise = (Math.sin(i * 1.6) + Math.cos(i * 0.9)) / 2
-        price = Math.round(basePrice + noise * (variance * 0.6))
-        price = Math.max(selectedCrop.min_price, Math.min(selectedCrop.max_price, price))
-      }
-      data.push({ date: dateString, Price: price })
-    }
-    return data
-  }, [selectedCrop])
-
   return (
-    <div className="flex flex-col gap-6 max-w-6xl mx-auto pb-16 relative">
-      {/* Decorative Blob */}
-      <div className="absolute top-[-10%] right-[10%] w-[350px] h-[350px] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none -z-10" />
-      <div className="absolute bottom-[20%] left-[5%] w-[300px] h-[300px] rounded-full bg-orange-500/5 blur-[100px] pointer-events-none -z-10" />
+    <div className="flex flex-col gap-5 max-w-6xl mx-auto pb-16">
 
       {/* Toast alert */}
       <AnimatePresence>
@@ -707,66 +681,59 @@ export default function MandiPage() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-[1.75rem] border border-[#1b6248] bg-[#123f31] p-5 shadow-[0_22px_55px_-30px_rgba(11,57,40,.85)] sm:p-7 md:p-8"
+        className="relative overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-xs sm:p-6"
       >
-        <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
-          <img
-            src="/images/mandi/grain-market-mandi.jpg"
-            alt="Mandi Market"
-            className="w-full h-full object-cover object-center"
-          />
-        </div>
-        <div className="pointer-events-none absolute -right-12 -top-14 h-52 w-52 rounded-full bg-[#e7ae42]/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 left-1/3 h-56 w-56 rounded-full bg-emerald-400/15 blur-3xl" />
-        <div className="relative z-10 grid gap-6 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-bold text-emerald-100 backdrop-blur-sm">
-              <Store className="h-3.5 w-3.5" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-[11px] font-bold text-primary">
+              <Store className="h-3.5 w-3.5" aria-hidden="true" />
               {MANDI_PAGE_LANG[plang].enamConnected}
             </div>
-            <h1 className="mt-4 text-3xl font-bold tracking-[-.045em] text-white sm:text-4xl md:text-5xl font-display">
-              <>{MANDI_PAGE_LANG[plang].heroTitleLead}<span className="text-[#f4c96b]">{MANDI_PAGE_LANG[plang].heroTitleAccent}</span></>
+            <h1 className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-display">
+              <>{MANDI_PAGE_LANG[plang].heroTitleLead}<span className="text-primary">{MANDI_PAGE_LANG[plang].heroTitleAccent}</span></>
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-emerald-50/80 md:text-base">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
               {MANDI_PAGE_LANG[plang].heroSubtitle}
             </p>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-            <div className="min-w-[120px] rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm">
-              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/70">Mandi Crops</div>
-              <div className="mt-1 flex items-center gap-1.5 text-lg font-bold text-white">
-                <Package className="h-4 w-4 text-[#f4c96b]" />
+          <div className="grid grid-cols-3 divide-x divide-border rounded-xl border border-border bg-muted/30">
+            <div className="min-w-[88px] px-3 py-2.5">
+              <div className="text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Crops</div>
+              <div className="mt-0.5 flex items-center gap-1 text-base font-bold text-foreground">
+                <Package className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                 {crops.length}
               </div>
             </div>
-            <div className="min-w-[120px] rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm">
-              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/70">Buyer Demands</div>
-              <div className="mt-1 flex items-center gap-1.5 text-lg font-bold text-white">
-                <ShoppingCart className="h-4 w-4 text-emerald-200" />
+            <div className="min-w-[88px] px-3 py-2.5">
+              <div className="text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Buyers</div>
+              <div className="mt-0.5 flex items-center gap-1 text-base font-bold text-foreground">
+                <ShoppingCart className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                 {buyerReqs.length || 6}
               </div>
             </div>
-            <div className="min-w-[120px] rounded-2xl border border-white/15 bg-white/10 p-3 backdrop-blur-sm col-span-2 sm:col-span-1">
-              <div className="text-[10px] font-bold uppercase tracking-[.1em] text-emerald-100/70">MSP Centres</div>
-              <div className="mt-1 flex items-center gap-1.5 text-lg font-bold text-white">
-                <Building2 className="h-4 w-4 text-purple-200" />
+            <div className="min-w-[88px] px-3 py-2.5">
+              <div className="text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">MSP centres</div>
+              <div className="mt-0.5 flex items-center gap-1 text-base font-bold text-foreground">
+                <Building2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                 {govItems.length || 6}
               </div>
             </div>
           </div>
         </div>
-        <div className="relative z-10 mt-6 grid gap-2 border-t border-white/10 pt-4 text-[11px] text-emerald-50/80 sm:grid-cols-3">
-          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{tabT.badgeOfficialPrice}</span>
-          <span className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-[#f4c96b]" />{tabT.badgeVerifiedBuyer}</span>
-          <span className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-[#f4c96b]" />{tabT.badgeGovProcurement}</span>
+        <div className="mt-5 grid gap-2 border-t border-border pt-4 text-[11px] text-muted-foreground sm:grid-cols-3">
+          <span className="flex items-center gap-2"><BadgeCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />{tabT.badgeOfficialPrice}</span>
+          <span className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />{tabT.badgeVerifiedBuyer}</span>
+          <span className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5 text-primary" aria-hidden="true" />{tabT.badgeGovProcurement}</span>
         </div>
       </motion.div>
 
       {/* ---- 4-TAB NAVIGATION BAR ---- */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 p-1.5 rounded-2xl bg-muted/60 border border-border backdrop-blur-md">
+      <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-muted/50 p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Mandi services">
         <button
           onClick={() => { setActiveTab("prices"); setSelectedCrop(null) }}
-          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+          role="tab"
+          aria-selected={activeTab === "prices"}
+          className={`min-h-10 min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-colors duration-200 ${
             activeTab === "prices"
               ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-md border border-border"
               : "text-muted-foreground hover:text-foreground hover:bg-card/50"
@@ -781,7 +748,9 @@ export default function MandiPage() {
 
         <button
           onClick={() => { setActiveTab("buy"); setSelectedCrop(null) }}
-          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+          role="tab"
+          aria-selected={activeTab === "buy"}
+          className={`min-h-10 min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-colors duration-200 ${
             activeTab === "buy"
               ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-md border border-border"
               : "text-muted-foreground hover:text-foreground hover:bg-card/50"
@@ -796,7 +765,9 @@ export default function MandiPage() {
 
         <button
           onClick={() => { setActiveTab("sell"); setSelectedCrop(null) }}
-          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+          role="tab"
+          aria-selected={activeTab === "sell"}
+          className={`min-h-10 min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-colors duration-200 ${
             activeTab === "sell"
               ? "bg-card text-emerald-600 dark:text-emerald-400 shadow-md border border-border"
               : "text-muted-foreground hover:text-foreground hover:bg-card/50"
@@ -811,7 +782,9 @@ export default function MandiPage() {
 
         <button
           onClick={() => { setActiveTab("gov"); setSelectedCrop(null) }}
-          className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
+          role="tab"
+          aria-selected={activeTab === "gov"}
+          className={`min-h-10 min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-colors duration-200 ${
             activeTab === "gov"
               ? "bg-card text-purple-600 dark:text-purple-400 shadow-md border border-border"
               : "text-muted-foreground hover:text-foreground hover:bg-card/50"
@@ -831,16 +804,16 @@ export default function MandiPage() {
       {activeTab === "prices" && (
         <div className="flex flex-col gap-6">
           {/* Disclaimer Banner */}
-          <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3.5 text-xs text-muted-foreground flex items-start gap-2.5">
+          <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3.5 text-xs text-muted-foreground flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <ShieldCheck className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" />
-            <div className="flex-1">
+            <div className="flex-1 leading-5">
               <span className="font-bold text-foreground">AGMARKNET Reference Intelligence: </span>
               {tabT.referenceDisclaimer}
             </div>
             <button
               onClick={handleRefreshPrices}
               disabled={refreshingPrices}
-              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-card border border-border text-[11px] font-bold text-foreground hover:bg-accent transition-all shadow-xs"
+              className="shrink-0 inline-flex min-h-9 items-center justify-center gap-1.5 px-3 rounded-lg bg-card border border-border text-[11px] font-bold text-foreground hover:border-primary/30 hover:bg-muted transition-colors shadow-xs"
             >
               <RefreshCw className={`h-3 w-3 ${refreshingPrices ? "animate-spin text-emerald-500" : ""}`} />
               <span>{tabT.refreshPrices}</span>
@@ -858,9 +831,21 @@ export default function MandiPage() {
                 className="flex flex-col gap-6"
               >
                 {/* Search & Multi-Filters */}
-                <div className="rounded-2xl border border-border bg-card p-4 shadow-xs space-y-3">
-                  <div className="flex flex-col md:flex-row gap-3">
-                    <div className="relative flex-1">
+                <section className="rounded-xl border border-border bg-card p-4 shadow-xs space-y-4" aria-label="Mandi price filters">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h2 className="text-sm font-bold text-foreground">Find a market price</h2>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">Search by crop, variety, mandi or state.</p>
+                    </div>
+                    {hasPriceFilters && (
+                      <button onClick={clearPriceFilters} className="shrink-0 text-xs font-semibold text-primary hover:underline">
+                        Clear filters
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_11rem_11rem]">
+                    <label className="relative block">
+                      <span className="sr-only">Search mandi crops</span>
                       <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <input
                         id="mandi-search"
@@ -868,7 +853,7 @@ export default function MandiPage() {
                         placeholder={tabT.searchPlaceholder}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-10 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                        className="h-11 w-full rounded-lg border border-input bg-background pl-11 pr-10 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                       />
                       {searchQuery && (
                         <button
@@ -878,40 +863,48 @@ export default function MandiPage() {
                           <X className="h-4 w-4" />
                         </button>
                       )}
-                    </div>
+                    </label>
 
-                    <div className="flex gap-2">
+                    <label className="block">
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Location</span>
                       <select
                         value={stateFilter}
                         onChange={(e) => setStateFilter(e.target.value)}
-                        className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="h-11 w-full rounded-lg border border-input bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                       >
                         <option value="All">All States</option>
                         {priceStates.filter((s) => s !== "All").map((s) => (
                           <option key={s} value={s}>{s}</option>
                         ))}
                       </select>
-
+                    </label>
+                    <label className="block">
+                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">Sort prices</span>
                       <select
                         value={priceSort}
                         onChange={(e) => setPriceSort(e.target.value as any)}
-                        className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="h-11 w-full rounded-lg border border-input bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/10"
                       >
                         <option value="default">Sort: Default</option>
                         <option value="price_desc">Price: High to Low</option>
                         <option value="price_asc">Price: Low to High</option>
                         <option value="date">Reporting Date: Newest</option>
                       </select>
-                    </div>
+                    </label>
                   </div>
 
                   {/* Category Filter Pills */}
-                  <div className="flex gap-1.5 flex-wrap items-center pt-1 border-t border-border/50">
+                  <div className="border-t border-border pt-3">
+                    <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">
+                      <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> Crop category
+                    </div>
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {cropCategories.map((cat) => (
                       <button
                         key={cat}
                         onClick={() => setCategoryFilter(cat)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
+                        aria-pressed={categoryFilter === cat}
+                        className={`min-h-9 shrink-0 px-3 rounded-lg text-xs font-bold border transition-colors ${
                           categoryFilter === cat
                             ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
                             : "border-border bg-card hover:bg-accent text-muted-foreground hover:text-foreground"
@@ -920,12 +913,13 @@ export default function MandiPage() {
                         {CATEGORY_LANG[lang]?.[cat] || cat}
                       </button>
                     ))}
+                    </div>
                   </div>
-                </div>
+                </section>
 
                 {/* Loading State */}
                 {loadingPrices && (
-                  <div className="flex flex-col items-center justify-center py-20 gap-3">
+                  <div className="rounded-xl border border-dashed border-border bg-card/60 flex flex-col items-center justify-center py-20 gap-3" role="status" aria-live="polite">
                     <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
                     <p className="text-muted-foreground text-xs font-semibold">Syncing AGMARKNET Market Registry...</p>
                   </div>
@@ -944,7 +938,13 @@ export default function MandiPage() {
                 {/* Crop Cards Grid */}
                 {!loadingPrices && !errorPrices && (
                   <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="hidden lg:block overflow-x-auto rounded-xl border border-border bg-card shadow-xs">
+                      <MandiPriceTable crops={filteredCrops} lang={plang} onSelect={(crop) => {
+                        trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang })
+                        setSelectedCrop(crop)
+                      }} />
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:hidden">
                       {filteredCrops.map((crop, i) => (
                         <CropCard
                           key={crop.id}
@@ -957,13 +957,15 @@ export default function MandiPage() {
                           lang={plang}
                         />
                       ))}
-                      {filteredCrops.length === 0 && (
-                        <div className="col-span-full text-center py-16 bg-card border border-border rounded-2xl">
-                          <Search className="h-10 w-10 mx-auto mb-2 text-muted-foreground/30" />
-                          <p className="text-muted-foreground text-xs font-semibold">No commodities match the selected filters.</p>
-                        </div>
-                      )}
                     </div>
+                    {filteredCrops.length === 0 && (
+                      <div className="text-center py-16 bg-card border border-dashed border-border rounded-xl">
+                        <Search className="h-9 w-9 mx-auto mb-3 text-muted-foreground/40" />
+                        <h3 className="text-sm font-bold text-foreground">No matching commodities</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">Try a different crop, mandi or state.</p>
+                        <Button variant="outline" size="sm" onClick={clearPriceFilters} className="mt-4">Clear filters</Button>
+                      </div>
+                    )}
                     <PriceAlertPanel crops={crops} />
                   </>
                 )}
@@ -987,17 +989,17 @@ export default function MandiPage() {
                   <ArrowLeft className="h-4 w-4" /> {MANDI_PAGE_LANG[plang].returnMarketplace}
                 </button>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-                  <GlassCard className="lg:col-span-3 overflow-hidden border border-border bg-card">
-                    <div className={`h-2 bg-gradient-to-r ${getCategoryGradient(selectedCrop.category)}`} />
-                    <CardHeader className="pb-3">
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_21rem] gap-5 items-start">
+                  <GlassCard className="overflow-hidden border border-border bg-card rounded-xl">
+                    <div className="h-1 bg-primary" />
+                    <CardHeader className="border-b border-border pb-4">
                       <div className="flex items-start justify-between">
                         <div>
                           <OriginBadge origin={selectedCrop.source_origin || "Official market-price data"} />
-                          <CardTitle className="text-2xl font-black text-foreground mt-2 font-display">
+                          <CardTitle className="text-2xl font-bold text-foreground mt-3 font-display">
                             {translateData(selectedCrop.name, lang)}
                           </CardTitle>
-                          <p className="text-muted-foreground text-xs mt-0.5">
+                          <p className="text-muted-foreground text-xs mt-1">
                             Variety: <span className="font-semibold text-foreground">{translateData(selectedCrop.variety, lang)}</span>
                           </p>
                         </div>
@@ -1005,7 +1007,7 @@ export default function MandiPage() {
                       </div>
                     </CardHeader>
 
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-5 pt-5">
                       {selectedCrop.is_stale && (
                         <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400 flex items-center gap-2 font-medium">
                           <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -1013,61 +1015,46 @@ export default function MandiPage() {
                         </div>
                       )}
 
-                      <div className="grid grid-cols-3 gap-3">
+                      <section aria-label="Price information">
+                        <div className="mb-2 flex items-center justify-between">
+                          <h2 className="text-sm font-bold text-foreground">Reported price range</h2>
+                          <span className="text-[11px] text-muted-foreground">₹ per {translateData(selectedCrop.unit, lang)}</span>
+                        </div>
+                      <div className="grid grid-cols-3 gap-2 sm:gap-3">
                         <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-blue-500" />} label="Min Price" value={`₹${selectedCrop.min_price.toLocaleString()}`} />
                         <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-emerald-500" />} label="Modal Price" value={`₹${selectedCrop.modal_price.toLocaleString()}`} />
                         <InfoTile icon={<IndianRupee className="h-3.5 w-3.5 text-rose-500" />} label="Max Price" value={`₹${selectedCrop.max_price.toLocaleString()}`} />
                       </div>
+                      </section>
 
-                      <div className="grid grid-cols-2 gap-3 text-xs">
-                        <div className="p-3 rounded-xl bg-muted/40 border border-border">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground">Market Center</span>
-                          <p className="font-bold text-foreground mt-0.5">{selectedCrop.mandi}, {selectedCrop.state}</p>
+                      <section className="rounded-lg border border-border bg-muted/25 p-4" aria-label="Market details">
+                        <h2 className="mb-3 text-sm font-bold text-foreground">Market details</h2>
+                        <div className="grid grid-cols-1 gap-3 text-xs sm:grid-cols-2">
+                        <div>
+                          <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">Market centre</span>
+                          <p className="font-bold text-foreground mt-1">{selectedCrop.mandi}, {selectedCrop.state}</p>
                         </div>
-                        <div className="p-3 rounded-xl bg-muted/40 border border-border">
-                          <span className="text-[10px] uppercase font-bold text-muted-foreground">Arrival Volume</span>
-                          <p className="font-bold text-foreground mt-0.5">{selectedCrop.arrival_tonnes.toLocaleString()} {t("mandi.t") || "Tonnes"}</p>
+                        <div>
+                          <span className="text-[10px] uppercase font-bold tracking-[.08em] text-muted-foreground">Arrival volume</span>
+                          <p className="font-bold text-foreground mt-1">{selectedCrop.arrival_tonnes.toLocaleString()} {t("mandi.t") || "Tonnes"}</p>
                         </div>
                       </div>
-
-                      {/* Area Chart */}
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="font-bold text-foreground">7-Day Modal Price Trend</span>
-                          <span className="text-[10px] text-muted-foreground font-mono">₹/Quintal</span>
-                        </div>
-                        <div className="h-44 w-full">
-                          <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                              <defs>
-                                <linearGradient id="priceGlow" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                </linearGradient>
-                              </defs>
-                              <XAxis dataKey="date" stroke="rgba(150,150,150,0.4)" fontSize={9} tickLine={false} axisLine={false} />
-                              <YAxis stroke="rgba(150,150,150,0.4)" fontSize={9} tickLine={false} axisLine={false} domain={['auto', 'auto']} />
-                              <Tooltip
-                                contentStyle={{ backgroundColor: '#090d16', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '11px', color: '#fff' }}
-                              />
-                              <Area type="monotone" dataKey="Price" stroke="#10b981" strokeWidth={2} fill="url(#priceGlow)" />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                      </div>
+                      </section>
+                      <p className="text-[11px] leading-5 text-muted-foreground">
+                        Displayed values are the latest reported market range supplied by the source. They are not a transaction quote or an invented historical trend.
+                      </p>
                     </CardContent>
                   </GlassCard>
 
                   {/* eNAM Direct Assistance Panel */}
-                  <div className="lg:col-span-2">
+                  <div className="lg:sticky lg:top-24">
                     <BuySellPanel
                       crop={selectedCrop}
                       mode={buySellMode}
                       connectionStatus={connectionStatus}
                       onConnect={(m) => {
                         setBuySellMode(m)
-                        setConnectionStatus("connecting")
-                        setTimeout(() => setConnectionStatus("connected"), 1200)
+                        setConnectionStatus("connected")
                       }}
                       onReset={() => { setBuySellMode(null); setConnectionStatus("idle") }}
                       lang={lang}
@@ -1584,6 +1571,66 @@ export default function MandiPage() {
 /*  Sub-components                                                     */
 /* ================================================================== */
 
+function MandiPriceTable({
+  crops,
+  lang,
+  onSelect,
+}: {
+  crops: MandiCrop[]
+  lang: Lang
+  onSelect: (crop: MandiCrop) => void
+}) {
+  return (
+    <table className="w-full min-w-[780px] text-left text-sm">
+      <caption className="sr-only">Current mandi prices by crop and market</caption>
+      <thead className="border-b border-border bg-muted/50 text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">
+        <tr>
+          <th scope="col" className="px-5 py-3">Commodity</th>
+          <th scope="col" className="px-4 py-3">Market</th>
+          <th scope="col" className="px-4 py-3 text-right">Modal price</th>
+          <th scope="col" className="px-4 py-3 text-right">Daily range</th>
+          <th scope="col" className="px-4 py-3 text-right">Movement</th>
+          <th scope="col" className="px-5 py-3 text-right"><span className="sr-only">View details</span></th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-border">
+        {crops.map((crop) => (
+          <tr key={crop.id} className="group transition-colors hover:bg-muted/40">
+            <td className="px-5 py-4">
+              <div className="flex items-center gap-3">
+                <span className="h-8 w-1 rounded-full bg-primary/70" aria-hidden="true" />
+                <div>
+                  <p className="font-bold text-foreground">{translateData(crop.name, lang)}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{translateData(crop.variety, lang)} · {crop.category}</p>
+                </div>
+              </div>
+            </td>
+            <td className="px-4 py-4">
+              <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+                <span>{translateData(crop.mandi, lang)}<br />{translateData(crop.state, lang)}</span>
+              </div>
+            </td>
+            <td className="px-4 py-4 text-right">
+              <p className="font-display text-base font-bold text-primary">₹{crop.modal_price.toLocaleString()}</p>
+              <p className="text-[11px] text-muted-foreground">per {translateData(crop.unit, lang)}</p>
+            </td>
+            <td className="px-4 py-4 text-right text-xs text-muted-foreground">
+              ₹{crop.min_price.toLocaleString()} – ₹{crop.max_price.toLocaleString()}
+            </td>
+            <td className="px-4 py-4 text-right"><TrendBadge trend={crop.trend} change={crop.change_percent} /></td>
+            <td className="px-5 py-4 text-right">
+              <Button size="sm" variant="outline" onClick={() => onSelect(crop)} className="h-8 px-3 text-xs">
+                View price
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )
+}
+
 /* ---- Crop Card ---- */
 function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: number; onClick: () => void; lang: Lang }) {
   const { t } = useLanguage()
@@ -1595,11 +1642,11 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
       whileHover={{ y: -3 }}
     >
       <GlassCard
-        className="cursor-pointer group overflow-hidden relative border border-border backdrop-blur-md shadow-xs hover:shadow-lg hover:border-emerald-500/30 transition-all duration-300 bg-card h-full flex flex-col justify-between"
+        className="cursor-pointer group overflow-hidden relative border border-border shadow-xs hover:shadow-md hover:border-primary/35 transition-all duration-200 bg-card h-full flex flex-col justify-between"
         onClick={onClick}
       >
         <div>
-          <div className={`h-1.5 bg-gradient-to-r ${getCategoryGradient(crop.category)}`} />
+          <div className="h-1 bg-primary/75" />
 
           <CardHeader className="pb-2">
             <div className="flex items-start justify-between gap-2">
@@ -1642,7 +1689,7 @@ function CropCard({ crop, index, onClick, lang }: { crop: MandiCrop; index: numb
         <div className="px-5 pb-5">
           <Button
             size="sm"
-            className="w-full text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-xs"
+            className="w-full text-xs bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-xs"
           >
             <span>View Price Intelligence</span>
           </Button>
@@ -1696,32 +1743,32 @@ function BuySellPanel({
 }) {
   const enam = ENAM_LANG[lang as Lang] || ENAM_LANG.en
   return (
-    <GlassCard className="border border-border bg-card">
-      <CardHeader className="pb-3">
+    <GlassCard className="border border-border bg-card rounded-xl">
+      <CardHeader className="border-b border-border pb-4">
         <CardTitle className="text-base font-bold text-foreground flex items-center gap-2 font-display">
-          <Store className="h-4 w-4 text-emerald-500" />
-          Official e-NAM & Trading Desk
+          <Store className="h-4 w-4 text-primary" />
+          e-NAM support desk
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-5">
         {connectionStatus === "idle" && (
           <div className="space-y-3">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Connect with APMC mandi desks or explore institutional procurement options for {crop.name}.
+            <p className="text-xs leading-5 text-muted-foreground">
+              Review helpdesk details for {crop.name}. KisaanBuddy does not place a trade or make a market booking from this page.
             </p>
             <div className="grid grid-cols-2 gap-2">
               <Button
                 onClick={() => onConnect("buy")}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-10"
+                className="bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-lg h-10"
               >
-                <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Buyer Guidance
+                <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Buying help
               </Button>
               <Button
                 variant="outline"
                 onClick={() => onConnect("sell")}
-                className="border-border text-foreground hover:bg-accent font-bold text-xs rounded-xl h-10"
+                className="border-border text-foreground hover:bg-muted font-bold text-xs rounded-lg h-10"
               >
-                <Wheat className="h-3.5 w-3.5 mr-1" /> Seller Guidance
+                <Wheat className="h-3.5 w-3.5 mr-1" /> Selling help
               </Button>
             </div>
           </div>
@@ -1730,15 +1777,15 @@ function BuySellPanel({
         {connectionStatus === "connecting" && (
           <div className="py-8 text-center space-y-2">
             <Loader2 className="h-6 w-6 animate-spin text-emerald-500 mx-auto" />
-            <p className="text-xs text-muted-foreground font-semibold">Connecting to APMC Directory...</p>
+            <p className="text-xs text-muted-foreground font-semibold">Loading e-NAM support details...</p>
           </div>
         )}
 
         {connectionStatus === "connected" && (
           <div className="space-y-4 pt-1">
-            <div className="rounded-xl p-3 space-y-2 border border-emerald-500/20 bg-emerald-500/5 text-xs">
-              <p className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> {enam.title}
+            <div className="rounded-lg p-3 space-y-2 border border-primary/20 bg-primary/5 text-xs">
+              <p className="font-bold text-primary flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" /> {mode === "buy" ? "Buying support" : "Selling support"}
               </p>
               <div className="grid grid-cols-2 gap-y-1 text-muted-foreground">
                 <span>{enam.state}:</span>
@@ -1746,21 +1793,21 @@ function BuySellPanel({
                 <span>{enam.commodity}:</span>
                 <span className="font-bold text-foreground text-right">{crop.name.split("(")[0].trim()}</span>
                 <span>{enam.price}:</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400 text-right">₹{crop.price.toLocaleString()}</span>
+                <span className="font-bold text-primary text-right">₹{crop.price.toLocaleString()}</span>
               </div>
             </div>
 
             <div className="flex flex-col gap-2">
               <a
                 href="tel:18002700224"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-10 flex items-center justify-center gap-2 text-xs shadow-xs transition-all"
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-lg h-10 flex items-center justify-center gap-2 text-xs shadow-xs transition-colors"
               >
                 <Phone className="h-3.5 w-3.5" />
                 <span>{enam.callHelpdesk}</span>
               </a>
               <a
                 href="mailto:enam.helpdesk@gmail.com"
-                className="w-full border border-border bg-card hover:bg-accent text-foreground font-semibold rounded-xl h-10 flex items-center justify-center gap-2 text-xs transition-all"
+                className="w-full border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-lg h-10 flex items-center justify-center gap-2 text-xs transition-colors"
               >
                 <Mail className="h-3.5 w-3.5 text-emerald-500" />
                 <span>{enam.emailHelpdesk}</span>

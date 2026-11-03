@@ -1,59 +1,56 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Sprout,
   Check,
   ChevronRight,
   ChevronLeft,
   MapPin,
-  Layers,
-  FlaskConical,
-  Languages,
-  User,
-  ShieldCheck,
-  RotateCw,
   Sparkles,
+  RotateCw,
+  Globe,
+  Wheat,
+  Home,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useLanguage, SELECTABLE_LANGS, LANG_NAMES, LANG_DETAILS, Lang } from "@/lib/language";
-import { ONBOARDING_I18N } from "@/lib/onboarding-i18n";
 import {
-  farmerProfileApi,
-  fieldsApi,
-  soilTestsApi,
-} from "@/lib/farmer-api";
+  useLanguage,
+  SELECTABLE_LANGS,
+  LANG_NAMES,
+  LANG_DETAILS,
+  Lang,
+} from "@/lib/language";
+import { farmerProfileApi } from "@/lib/farmer-api";
 
-const STEPS = [
-  { id: 1, title: "Personal Info", desc: "Your identity & contact" },
-  { id: 2, title: "Language", desc: "Preferred regional tongue" },
-  { id: 3, title: "Farm Location", desc: "Village, district & state" },
-  { id: 4, title: "Land Holding", desc: "Acreage & irrigation" },
-  { id: 5, title: "Primary Crops", desc: "Current seasonal crops" },
-  { id: 6, title: "Initial Plot", desc: "First mapped field" },
-  { id: 7, title: "Soil Health", desc: "Soil type & fertility (Optional)" },
-  { id: 8, title: "Review & Launch", desc: "Confirm & start dashboard" },
+const COMMON_CROPS = [
+  { id: "Wheat", hi: "गेहूं", kn: "ಗೋಧಿ", icon: "🌾" },
+  { id: "Rice", hi: "धान (चावल)", kn: "ಭತ್ತ (ಅಕ್ಕಿ)", icon: "🌾" },
+  { id: "Cotton", hi: "कपास", kn: "ಹತ್ತಿ", icon: "🌱" },
+  { id: "Soybean", hi: "सोयाबीन", kn: "ಸೋಯಾಬೀನ್", icon: "🌿" },
+  { id: "Mustard", hi: "सरसों", kn: "ಸಾಸಿವೆ", icon: "🌼" },
+  { id: "Maize", hi: "मक्का", kn: "ಮೆಕ್ಕೆಜೋಳ", icon: "🌽" },
+  { id: "Potato", hi: "आलू", kn: "ಆಲೂಗಡ್ಡೆ", icon: "🥔" },
+  { id: "Tomato", hi: "टमाटर", kn: "ಟೊಮೆಟೊ", icon: "🍅" },
+  { id: "Sugarcane", hi: "गन्ना", kn: "ಕಬ್ಬು", icon: "🎋" },
+  { id: "Onion", hi: "प्याज", kn: "ಈರುಳ್ಳಿ", icon: "🧅" },
 ];
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { lang, setLang } = useLanguage();
-  const dict = ONBOARDING_I18N[(lang as Lang) || "en"] || ONBOARDING_I18N.en;
 
-  const steps = dict.stepLabels.map((s, idx) => ({ id: idx + 1, title: s.title, desc: s.desc }));
-
-  const [currentStep, setCurrentStep] = useState(1);
+  // 4 guided steps
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Form State
-  const [name, setName] = useState(user?.name || "");
-  const [selectedLang, setSelectedLang] = useState<Lang>((lang as Lang) || "hi");
-
+  const [selectedLang, setSelectedLang] = useState<Lang>(
+    (lang as Lang) || "hi"
+  );
   const [village, setVillage] = useState("");
   const [district, setDistrict] = useState("");
   const [stateName, setStateName] = useState("");
@@ -62,27 +59,33 @@ export default function OnboardingPage() {
   const [gpsLon, setGpsLon] = useState<number | null>(null);
   const [gpsLoading, setGpsLoading] = useState(false);
 
-  const [landHolding, setLandHolding] = useState<string>("5.0");
-  const [landOwnership, setLandOwnership] = useState<string>("owned");
-  const [hasIrrigation, setHasIrrigation] = useState<boolean>(true);
-  const [hasTractor, setHasTractor] = useState<boolean>(false);
-  const [equipment, setEquipment] = useState<string>("");
-
   const [primaryCrop, setPrimaryCrop] = useState<string>("Wheat");
-  const [cropVariety, setCropVariety] = useState<string>("");
+  const [customCrop, setCustomCrop] = useState<string>("");
 
-  const [plotName, setPlotName] = useState<string>("Main Field");
-  const [plotAcreage, setPlotAcreage] = useState<string>("2.5");
-  const [plotIrrigation, setPlotIrrigation] = useState<string>("Tube Well Drip");
+  // Load existing profile if available
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("kisaanbuddy_farmer_profile");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.village) setVillage(parsed.village);
+        if (parsed.district) setDistrict(parsed.district);
+        if (parsed.state) setStateName(parsed.state);
+        if (parsed.primaryCrop) setPrimaryCrop(parsed.primaryCrop);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
 
-  const [soilType, setSoilType] = useState<string>("Alluvial / Loamy");
-  const [soilPh, setSoilPh] = useState<string>("6.8");
-  const [hasSoilCard, setHasSoilCard] = useState<boolean>(false);
+  const handleLanguageSelect = (code: Lang) => {
+    setSelectedLang(code);
+    setLang(code);
+  };
 
-  // GPS autofill with permission
   const handleGetGps = () => {
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser");
+      alert("GPS is not supported on this device.");
       return;
     }
     setGpsLoading(true);
@@ -93,188 +96,176 @@ export default function OnboardingPage() {
         setGpsLoading(false);
       },
       (err) => {
-        console.warn("GPS Permission denied or unavailable:", err);
+        console.warn("GPS permission not granted:", err);
         setGpsLoading(false);
       },
-      { timeout: 10000 }
+      { timeout: 8000 }
     );
   };
 
-  const handleNext = () => {
-    setError(null);
-    if (currentStep < 8) {
-      setCurrentStep((prev) => prev + 1);
-    }
-  };
-
-  const handleBack = () => {
-    setError(null);
-    if (currentStep > 1) {
-      setCurrentStep((prev) => prev - 1);
-    }
-  };
-
   const handleComplete = async () => {
+    setSubmitting(true);
+    setError(null);
+
+    const activeCrop = customCrop.trim() || primaryCrop;
+    const profilePayload = {
+      village_name: village.trim() || undefined,
+      district_name: district.trim() || undefined,
+      state_name: stateName.trim() || undefined,
+      pin_code: pinCode.trim() || undefined,
+      gps_lat: gpsLat || undefined,
+      gps_lon: gpsLon || undefined,
+      primary_crop: activeCrop || undefined,
+      preferred_language: selectedLang,
+    };
+
+    // Store in localStorage for guest farmers
     try {
-      setSubmitting(true);
-      setError(null);
-
-      // 1. Update Profile
-      await farmerProfileApi.update({
-        village_name: village.trim() || undefined,
-        district_name: district.trim() || undefined,
-        state_name: stateName.trim() || undefined,
-        pin_code: pinCode.trim() || undefined,
-        gps_lat: gpsLat || undefined,
-        gps_lon: gpsLon || undefined,
-        land_holding_acres: parseFloat(landHolding) || 0,
-        land_ownership: landOwnership,
-        has_irrigation: hasIrrigation,
-        has_tractor: hasTractor,
-        equipment_list: equipment.trim() || undefined,
-        primary_crop: primaryCrop.trim() || undefined,
-        preferred_language: selectedLang,
-      });
-
-      // 2. Create Initial Field if named
-      if (plotName.trim()) {
-        try {
-          await fieldsApi.create({
-            field_name: plotName.trim(),
-            acreage: parseFloat(plotAcreage) || undefined,
-            area_unit: "acre",
-            current_crop: primaryCrop.trim() || undefined,
-            crop_variety: cropVariety.trim() || undefined,
-            soil_type: soilType,
-            irrigation_type: plotIrrigation,
-          });
-        } catch (fieldErr) {
-          console.warn("Field creation deferred:", fieldErr);
-        }
-      }
-
-      // 3. Create baseline soil test if values entered
-      if (soilPh) {
-        try {
-          await soilTestsApi.create({
-            test_date: new Date().toISOString().split("T")[0],
-            soil_type: soilType,
-            soil_ph: parseFloat(soilPh) || 6.8,
-            is_verified: hasSoilCard,
-            notes: hasSoilCard ? "Soil Health Card test record" : "Farmer estimated baseline",
-          });
-        } catch (soilErr) {
-          console.warn("Soil test creation deferred:", soilErr);
-        }
-      }
-
-      // Update global language
-      setLang(selectedLang);
-
-      // Route to new enterprise dashboard
-      router.push("/dashboard");
-    } catch (err: any) {
-      console.error("Onboarding submission error:", err);
-      setError(err.message || "Failed to save profile. You can continue and finish later.");
-    } finally {
-      setSubmitting(false);
+      localStorage.setItem(
+        "kisaanbuddy_farmer_profile",
+        JSON.stringify({
+          village: village.trim(),
+          district: district.trim(),
+          state: stateName.trim(),
+          primaryCrop: activeCrop,
+          lang: selectedLang,
+          lat: gpsLat,
+          lon: gpsLon,
+        })
+      );
+    } catch {
+      // ignore
     }
+
+    // If authenticated, persist to backend profile
+    if (user) {
+      try {
+        await farmerProfileApi.update(profilePayload);
+      } catch (err: any) {
+        console.warn("Backend profile save deferred:", err);
+      }
+    }
+
+    setSubmitting(false);
+    router.push("/");
   };
+
+  const isHindi = selectedLang === "hi" || selectedLang === "hi_en";
+  const isKannada = selectedLang === "kn";
 
   return (
-    <div className="max-w-3xl mx-auto py-6 sm:py-10 px-4">
-      {/* Progress Stepper */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-            {dict.stepHeader(currentStep, steps[currentStep - 1].title)}
-          </span>
+    <div className="mx-auto max-w-2xl py-4 sm:py-8 px-3 sm:px-4">
+      {/* Top Stepper & Skip link */}
+      <div className="mb-6 rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-900/90 p-4 shadow-xs">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-white text-xs font-bold">
+              {step}
+            </span>
+            <span className="text-sm font-bold text-stone-800 dark:text-stone-200">
+              {step === 1 &&
+                (isHindi
+                  ? "कदम 1: अपनी भाषा चुनें"
+                  : isKannada
+                  ? "ಹಂತ 1: ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ"
+                  : "Step 1: Choose your language")}
+              {step === 2 &&
+                (isHindi
+                  ? "कदम 2: अपना गांव और जिला"
+                  : isKannada
+                  ? "ಹಂತ 2: ನಿಮ್ಮ ಊರು ಮತ್ತು ಜಿಲ್ಲೆ"
+                  : "Step 2: Farm Location")}
+              {step === 3 &&
+                (isHindi
+                  ? "कदम 3: आपकी मुख्य फसल"
+                  : isKannada
+                  ? "ಹಂತ 3: ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆ"
+                  : "Step 3: Main Crop")}
+              {step === 4 &&
+                (isHindi
+                  ? "कदम 4: तैयार है!"
+                  : isKannada
+                  ? "ಹಂತ 4: ಸಿದ್ಧವಾಗಿದೆ!"
+                  : "Step 4: All Set!")}
+            </span>
+          </div>
+
           <Link
-            href="/dashboard"
-            className="text-xs font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline"
+            href="/"
+            className="text-xs sm:text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-primary underline px-2 py-1 rounded-lg"
           >
-            {dict.skipToDashboard}
+            {isHindi
+              ? "बाद में भरें (Skip)"
+              : isKannada
+              ? "ನಂತರ ಭರ್ತಿ ಮಾಡಿ"
+              : "Skip for now"}
           </Link>
         </div>
 
-        <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+        {/* Progress bar */}
+        <div className="w-full bg-stone-200 dark:bg-stone-800 h-2 rounded-full overflow-hidden">
           <div
-            className="bg-emerald-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(currentStep / 8) * 100}%` }}
+            className="bg-primary h-2 rounded-full transition-all duration-300"
+            style={{ width: `${(step / 4) * 100}%` }}
           />
         </div>
       </div>
 
-      {/* Main Form Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm">
+      {/* Main Card */}
+      <div className="rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 sm:p-7 shadow-xs">
         {error && (
-          <div className="mb-6 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 text-xs">
+          <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
             {error}
           </div>
         )}
 
-        {/* STEP 1: Personal Details */}
-        {currentStep === 1 && (
+        {/* ======================================================== */}
+        {/* STEP 1: LANGUAGE SELECTION                               */}
+        {/* ======================================================== */}
+        {step === 1 && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step1Heading}
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider mb-1">
+                <Globe className="h-4 w-4" />
+                <span>Language / भाषा / ಭಾಷೆ</span>
+              </div>
+              <h2 className="text-2xl font-extrabold text-stone-900 dark:text-stone-50">
+                अपनी पसंदीदा भाषा चुनें
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step1Desc}
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                {dict.fullNameLabel}
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={dict.fullNamePlaceholder}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2: Preferred Language */}
-        {currentStep === 2 && (
-          <div className="space-y-5">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step2Heading}
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step2Desc}
+              <p className="text-base text-stone-600 dark:text-stone-300 mt-1">
+                Select the language you are most comfortable speaking and
+                reading.
               </p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {SELECTABLE_LANGS.map((code) => {
                 const isSelected = selectedLang === code;
+                const details = LANG_DETAILS[code as Lang];
                 return (
                   <button
                     key={code}
                     type="button"
-                    onClick={() => setSelectedLang(code as Lang)}
-                    className={`p-3.5 rounded-xl border text-left transition flex items-center justify-between ${
+                    onClick={() => handleLanguageSelect(code as Lang)}
+                    className={`min-h-[64px] p-3.5 rounded-2xl border text-left transition-all active:scale-95 flex items-center justify-between ${
                       isSelected
-                        ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200"
-                        : "border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-slate-50/50 dark:bg-slate-800/50"
+                        ? "border-primary bg-primary/10 dark:bg-emerald-950/50 text-primary dark:text-emerald-300 font-bold ring-2 ring-primary/20 shadow-xs"
+                        : "border-stone-200 dark:border-stone-800 bg-[#FAF8F5]/80 dark:bg-stone-800/50 hover:border-stone-300 text-stone-800 dark:text-stone-200 font-medium"
                     }`}
                   >
                     <div>
-                      <div className="text-sm font-bold">
-                        {LANG_DETAILS[code as Lang]?.native || LANG_NAMES[code as Lang]}
+                      <div className="text-base font-bold">
+                        {details?.native || LANG_NAMES[code as Lang]}
                       </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        {LANG_DETAILS[code as Lang]?.en || code}
+                      <div className="text-xs text-stone-500 dark:text-stone-400">
+                        {details?.en || code}
                       </div>
                     </div>
-                    {isSelected && <Check className="w-4 h-4 text-emerald-600 shrink-0" />}
+                    {isSelected && (
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </span>
+                    )}
                   </button>
                 );
               })}
@@ -282,401 +273,297 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* STEP 3: Farm Location */}
-        {currentStep === 3 && (
+        {/* ======================================================== */}
+        {/* STEP 2: LOCATION                                         */}
+        {/* ======================================================== */}
+        {step === 2 && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step3Heading}
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider mb-1">
+                <MapPin className="h-4 w-4" />
+                <span>
+                  {isHindi
+                    ? "स्थान (वैकल्पिक)"
+                    : isKannada
+                    ? "ಸ್ಥಳ (ಐಚ್ಛಿಕ)"
+                    : "Location (Optional)"}
+                </span>
+              </div>
+              <h2 className="text-2xl font-extrabold text-stone-900 dark:text-stone-50">
+                {isHindi
+                  ? "आपका खेत किस गांव या जिले में है?"
+                  : isKannada
+                  ? "ನಿಮ್ಮ ಜಮೀನು ಯಾವ ಊರು ಅಥವಾ ಜಿಲ್ಲೆಯಲ್ಲಿದೆ?"
+                  : "Where is your farm located?"}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step3Desc}
+              <p className="text-base text-stone-600 dark:text-stone-300 mt-1">
+                {isHindi
+                  ? "इससे आपको अपने सबसे नजदीकी मंडी भाव और सही मौसम की जानकारी मिलेगी।"
+                  : isKannada
+                  ? "ಇದು ನಿಮ್ಮ ಹತ್ತಿರದ ಮಂಡಿ ದರ ಮತ್ತು ನಿಖರ ಹವಾಮಾನ ನೀಡಲು ನೆರವಾಗುತ್ತದೆ."
+                  : "Helps show nearby mandi rates and local weather forecast."}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* 1-tap GPS option */}
+            <div className="rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 p-3.5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <MapPin className="h-5 w-5 text-emerald-700 dark:text-emerald-400 shrink-0" />
+                <span className="text-xs sm:text-sm font-semibold text-stone-800 dark:text-stone-200">
+                  {gpsLat && gpsLon
+                    ? isHindi
+                      ? `GPS लोकेशन मिल गई (${gpsLat}, ${gpsLon})`
+                      : `GPS detected (${gpsLat}, ${gpsLon})`
+                    : isHindi
+                    ? "फोन की GPS लोकेशन से खुद भरें"
+                    : "Auto-detect with phone GPS"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleGetGps}
+                disabled={gpsLoading}
+                className="shrink-0 min-h-[44px] px-3.5 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-xs hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-50"
+              >
+                {gpsLoading ? (
+                  <RotateCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  (isHindi ? "लोकेशन लें" : "Use GPS")
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.villageLabel}
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 mb-1.5">
+                  {isHindi ? "गांव का नाम (Village)" : "Village Name"}
                 </label>
                 <input
                   type="text"
                   value={village}
                   onChange={(e) => setVillage(e.target.value)}
-                  placeholder={dict.villagePlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
+                  placeholder={isHindi ? "उदा. रामपुर" : "e.g. Rampur"}
+                  className="w-full min-h-[48px] px-3.5 text-base rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.districtLabel}
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 mb-1.5">
+                  {isHindi ? "जिला (District)" : "District"}
                 </label>
                 <input
                   type="text"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder={dict.districtPlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
+                  placeholder={isHindi ? "उदा. सीहोर / धार" : "e.g. Sehore"}
+                  className="w-full min-h-[48px] px-3.5 text-base rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.stateLabel}
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 mb-1.5">
+                  {isHindi ? "राज्य (State)" : "State"}
                 </label>
                 <input
                   type="text"
                   value={stateName}
                   onChange={(e) => setStateName(e.target.value)}
-                  placeholder={dict.statePlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
+                  placeholder={
+                    isHindi ? "उदा. मध्य प्रदेश, उत्तर प्रदेश" : "e.g. Madhya Pradesh"
+                  }
+                  className="w-full min-h-[48px] px-3.5 text-base rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.pincodeLabel}
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 mb-1.5">
+                  {isHindi ? "पिन कोड (Pin Code)" : "Pin Code (Optional)"}
                 </label>
                 <input
                   type="text"
                   value={pinCode}
                   onChange={(e) => setPinCode(e.target.value)}
-                  placeholder="e.g. 580001"
                   maxLength={6}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
+                  placeholder="e.g. 466001"
+                  className="w-full min-h-[48px] px-3.5 text-base rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
-            </div>
-
-            {/* GPS optional button */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={handleGetGps}
-                disabled={gpsLoading}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-              >
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                <span>
-                  {gpsLat && gpsLon ? dict.gpsCaptured(gpsLat, gpsLon) : dict.autoDetectGps}
-                </span>
-              </button>
             </div>
           </div>
         )}
 
-        {/* STEP 4: Land Holding */}
-        {currentStep === 4 && (
+        {/* ======================================================== */}
+        {/* STEP 3: MAIN CROP                                        */}
+        {/* ======================================================== */}
+        {step === 3 && (
           <div className="space-y-5">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step4Heading}
+              <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider mb-1">
+                <Wheat className="h-4 w-4" />
+                <span>
+                  {isHindi
+                    ? "फसल (वैकल्पिक)"
+                    : isKannada
+                    ? "ಬೆಳೆ (ಐಚ್ಛಿಕ)"
+                    : "Main Crop (Optional)"}
+                </span>
+              </div>
+              <h2 className="text-2xl font-extrabold text-stone-900 dark:text-stone-50">
+                {isHindi
+                  ? "आप मुख्यतः कौन सी फसल उगाते हैं?"
+                  : isKannada
+                  ? "ನೀವು ಮುಖ್ಯವಾಗಿ ಯಾವ ಬೆಳೆ ಬೆಳೆಯುತ್ತೀರಿ?"
+                  : "Which crop do you primarily grow?"}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step4Desc}
+              <p className="text-base text-stone-600 dark:text-stone-300 mt-1">
+                {isHindi
+                  ? "अपनी मुख्य फसल चुनें ताकि हम उस फसल के भाव और बीमारी की सलाह तुरंत दे सकें।"
+                  : isKannada
+                  ? "ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ, ತಕ್ಷಣದ ಬೆಲೆ ಮತ್ತು ಸಲಹೆ ಪಡೆಯಿರಿ."
+                  : "Select your main crop for tailored price alerts and health advice."}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.totalLandLabel}
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0.1"
-                  value={landHolding}
-                  onChange={(e) => setLandHolding(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                />
-              </div>
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+              {COMMON_CROPS.map((crop) => {
+                const isSelected = primaryCrop === crop.id;
+                const label = isHindi
+                  ? crop.hi
+                  : isKannada
+                  ? crop.kn
+                  : crop.id;
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.ownershipLabel}
-                </label>
-                <select
-                  value={landOwnership}
-                  onChange={(e) => setLandOwnership(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                >
-                  <option value="owned">{dict.ownedLandOption}</option>
-                  <option value="leased">{dict.leasedLandOption}</option>
-                  <option value="both">{dict.bothLandOption}</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-2">
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-                <input
-                  type="checkbox"
-                  checked={hasIrrigation}
-                  onChange={(e) => setHasIrrigation(e.target.checked)}
-                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
-                />
-                <span>
-                  {dict.irrigationFacilityCheckbox}
-                </span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200">
-                <input
-                  type="checkbox"
-                  checked={hasTractor}
-                  onChange={(e) => setHasTractor(e.target.checked)}
-                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
-                />
-                <span>
-                  {dict.tractorCheckbox}
-                </span>
-              </label>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 5: Primary Crops */}
-        {currentStep === 5 && (
-          <div className="space-y-5">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step5Heading}
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step5Desc}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { en: "Wheat", hi: "गेहूं", kn: "ಗೋಧಿ" },
-                { en: "Paddy (Rice)", hi: "धान (चावल)", kn: "ಭತ್ತ (ಅಕ್ಕಿ)" },
-                { en: "Cotton", hi: "कपास", kn: "ಹತ್ತಿ" },
-                { en: "Soybean", hi: "सोयाबीन", kn: "ಸೋಯಾಬೀನ್" },
-                { en: "Mustard", hi: "सरसों", kn: "ಸಾಸಿವೆ" },
-                { en: "Maize", hi: "मक्का", kn: "ಮೆಕ್ಕೆಜೋಳ" },
-                { en: "Potato", hi: "आलू", kn: "ಆಲೂಗಡ್ಡೆ" },
-                { en: "Tomato", hi: "टमाटर", kn: "ಟೊಮೆಟೊ" },
-              ].map((cropObj) => {
-                const isSelected = primaryCrop === cropObj.en;
-                const cropLabel = dict.crops[cropObj.en] || cropObj.en;
                 return (
                   <button
-                    key={cropObj.en}
+                    key={crop.id}
                     type="button"
-                    onClick={() => setPrimaryCrop(cropObj.en)}
-                    className={`p-3 rounded-xl border text-center font-bold text-xs transition ${
+                    onClick={() => {
+                      setPrimaryCrop(crop.id);
+                      setCustomCrop("");
+                    }}
+                    className={`min-h-[58px] p-3 rounded-2xl border text-center transition-all active:scale-95 flex flex-col items-center justify-center gap-1 ${
                       isSelected
-                        ? "border-emerald-600 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200"
-                        : "border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300"
+                        ? "border-primary bg-primary/10 text-primary dark:text-emerald-300 font-bold ring-2 ring-primary/20"
+                        : "border-stone-200 dark:border-stone-800 bg-[#FAF8F5]/80 dark:bg-stone-800/50 hover:border-stone-300 text-stone-800 dark:text-stone-200"
                     }`}
                   >
-                    {cropLabel}
+                    <span className="text-xl">{crop.icon}</span>
+                    <span className="text-xs sm:text-sm font-bold leading-tight">
+                      {label}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                {dict.seedVarietyLabel}
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 dark:text-stone-300 mb-1.5">
+                {isHindi ? "या अन्य फसल लिखें" : "Or type other crop"}
               </label>
               <input
                 type="text"
-                value={cropVariety}
-                onChange={(e) => setCropVariety(e.target.value)}
-                placeholder="e.g. HD-2967, Shriram Super 303, PBW 550"
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
+                value={customCrop}
+                onChange={(e) => {
+                  setCustomCrop(e.target.value);
+                  setPrimaryCrop("");
+                }}
+                placeholder={
+                  isHindi ? "उदा. चना, मूंगफली, अरहर" : "e.g. Gram, Groundnut"
+                }
+                className="w-full min-h-[48px] px-3.5 text-base rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
           </div>
         )}
 
-        {/* STEP 6: Initial Plot Information */}
-        {currentStep === 6 && (
-          <div className="space-y-5">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step6Heading}
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step6Desc}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.plotNameLabel}
-                </label>
-                <input
-                  type="text"
-                  value={plotName}
-                  onChange={(e) => setPlotName(e.target.value)}
-                  placeholder={dict.plotNamePlaceholder}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.plotAcreageLabel}
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={plotAcreage}
-                  onChange={(e) => setPlotAcreage(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.irrigationSystemLabel}
-                </label>
-                <select
-                  value={plotIrrigation}
-                  onChange={(e) => setPlotIrrigation(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                >
-                  <option value="Tube Well Drip">{dict.tubeWellDripOption}</option>
-                  <option value="Flood Irrigation">{dict.floodIrrigationOption}</option>
-                  <option value="Sprinkler">{dict.sprinklerOption}</option>
-                  <option value="Canal">{dict.canalOption}</option>
-                  <option value="Rainfed">{dict.rainfedOnlyOption}</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 7: Optional Soil Information */}
-        {currentStep === 7 && (
-          <div className="space-y-5">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step7Heading}
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step7Desc}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.soilTypeLabel}
-                </label>
-                <select
-                  value={soilType}
-                  onChange={(e) => setSoilType(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                >
-                  <option value="Alluvial / Loamy">{dict.soilTypeLoamy}</option>
-                  <option value="Black Cotton (Clay)">{dict.soilTypeClay}</option>
-                  <option value="Sandy Loam">{dict.soilTypeSandy}</option>
-                  <option value="Red Laterite">{dict.soilTypeRed}</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  {dict.soilPhLabel}
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="14"
-                  value={soilPh}
-                  onChange={(e) => setSoilPh(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-slate-900 dark:text-white"
-                />
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-800 dark:text-slate-200 pt-2">
-              <input
-                type="checkbox"
-                checked={hasSoilCard}
-                onChange={(e) => setHasSoilCard(e.target.checked)}
-                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
-              />
-              <span>
-                {dict.soilCardCheckbox}
-              </span>
-            </label>
-          </div>
-        )}
-
-        {/* STEP 8: Review & Launch */}
-        {currentStep === 8 && (
+        {/* ======================================================== */}
+        {/* STEP 4: CONFIRM & ENTER                                  */}
+        {/* ======================================================== */}
+        {step === 4 && (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {dict.step8Heading}
+            <div className="text-center sm:text-left">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-3">
+                <Sparkles className="h-6 w-6 stroke-[2.2]" />
+              </div>
+              <h2 className="text-2xl font-extrabold text-stone-900 dark:text-stone-50">
+                {isHindi
+                  ? "सब कुछ तैयार है!"
+                  : isKannada
+                  ? "ಎಲ್ಲವೂ ಸಿದ್ಧವಾಗಿದೆ!"
+                  : "All Set!"}
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {dict.step8Desc}
+              <p className="text-base text-stone-600 dark:text-stone-300 mt-1">
+                {isHindi
+                  ? "किसानबडी अब आपकी भाषा और क्षेत्र के अनुसार तैयार है।"
+                  : isKannada
+                  ? "ಕಿಸಾನ್‌ಬಡ್ಡಿ ನಿಮ್ಮ ಭಾಷೆ ಮತ್ತು ಪ್ರದೇಶಕ್ಕೆ ಸಿದ್ಧವಾಗಿದೆ."
+                  : "KisaanBuddy is now tailored to your language and region."}
               </p>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-5 border border-slate-200 dark:border-slate-700 space-y-3 text-xs">
-              <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-slate-500">{dict.reviewFarmer}</span>
-                <span className="font-bold text-slate-900 dark:text-white">{name || dict.kisaanSaathiDefault}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-slate-500">{dict.reviewLocation}</span>
-                <span className="font-bold text-slate-900 dark:text-white">
-                  {[village, district, stateName].filter(Boolean).join(", ") || dict.locationNotSet}
+            {/* Summary card */}
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-800/60 p-4 sm:p-5 space-y-3">
+              <div className="flex justify-between items-center py-1.5 border-b border-stone-200/80 dark:border-stone-700/80 text-sm">
+                <span className="text-stone-500 dark:text-stone-400">
+                  {isHindi ? "भाषा (Language)" : "Language"}
+                </span>
+                <span className="font-bold text-stone-900 dark:text-white">
+                  {LANG_DETAILS[selectedLang]?.native || LANG_NAMES[selectedLang]}
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-slate-500">{dict.reviewTotalFarmSize}</span>
-                <span className="font-bold text-slate-900 dark:text-white">{landHolding} {dict.acresSuffix}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-slate-200/60 dark:border-slate-700/60">
-                <span className="text-slate-500">{dict.reviewActiveCrop}</span>
-                <span className="font-bold text-slate-900 dark:text-white">
-                  {primaryCrop} {cropVariety ? `(${cropVariety})` : ""}
+
+              <div className="flex justify-between items-center py-1.5 border-b border-stone-200/80 dark:border-stone-700/80 text-sm">
+                <span className="text-stone-500 dark:text-stone-400">
+                  {isHindi ? "स्थान (Location)" : "Location"}
+                </span>
+                <span className="font-bold text-stone-900 dark:text-white">
+                  {[village, district, stateName].filter(Boolean).join(", ") ||
+                    (isHindi ? "सेट नहीं किया" : "Not set")}
                 </span>
               </div>
-              <div className="flex justify-between py-1">
-                <span className="text-slate-500">{dict.reviewInitialPlot}</span>
-                <span className="font-bold text-slate-900 dark:text-white">
-                  {plotName} ({plotAcreage} {dict.acresSuffix})
+
+              <div className="flex justify-between items-center py-1.5 text-sm">
+                <span className="text-stone-500 dark:text-stone-400">
+                  {isHindi ? "मुख्य फसल (Main Crop)" : "Main Crop"}
+                </span>
+                <span className="font-bold text-stone-900 dark:text-white">
+                  {customCrop || primaryCrop || (isHindi ? "सेट नहीं किया" : "Not set")}
                 </span>
               </div>
             </div>
+
+            <p className="text-xs text-stone-500 dark:text-stone-400 text-center">
+              {isHindi
+                ? "आप जब चाहें अपनी प्रोफाइल या सेटिंग्स में जाकर इसे बदल सकते हैं।"
+                : "You can update these details anytime from Profile or Settings."}
+            </p>
           </div>
         )}
 
-        {/* Navigation Footer Controls */}
-        <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          {currentStep > 1 ? (
+        {/* ======================================================== */}
+        {/* NAVIGATION CONTROLS                                      */}
+        {/* ======================================================== */}
+        <div className="mt-8 pt-5 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between gap-3">
+          {step > 1 ? (
             <button
               type="button"
-              onClick={handleBack}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              onClick={() => setStep((s) => (s - 1) as any)}
+              className="min-h-[48px] px-4 py-2.5 rounded-xl border border-stone-300 dark:border-stone-700 text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-all flex items-center gap-1.5 active:scale-95"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>{dict.backBtn}</span>
+              <span>{isHindi ? "पीछे" : isKannada ? "ಹಿಂದೆ" : "Back"}</span>
             </button>
           ) : (
             <div />
           )}
 
-          {currentStep < 8 ? (
+          {step < 4 ? (
             <button
               type="button"
-              onClick={handleNext}
-              className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition active:scale-95"
+              onClick={() => setStep((s) => (s + 1) as any)}
+              className="min-h-[48px] px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-bold shadow-xs transition-all active:scale-95 flex items-center gap-1.5"
             >
-              <span>{dict.continueBtn}</span>
+              <span>{isHindi ? "आगे बढ़ें" : isKannada ? "ಮುಂದೆ" : "Continue"}</span>
               <ChevronRight className="w-4 h-4" />
             </button>
           ) : (
@@ -684,14 +571,20 @@ export default function OnboardingPage() {
               type="button"
               onClick={handleComplete}
               disabled={submitting}
-              className="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition active:scale-95 disabled:opacity-50"
+              className="min-h-[48px] px-8 py-3 rounded-xl bg-primary hover:bg-primary/90 text-white text-base font-bold shadow-md transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50"
             >
               {submitting ? (
-                <RotateCw className="w-4 h-4 animate-spin" />
+                <RotateCw className="w-5 h-5 animate-spin" />
               ) : (
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-5 h-5" />
               )}
-              <span>{dict.completeDashboardBtn}</span>
+              <span>
+                {isHindi
+                  ? "किसानबडी शुरू करें"
+                  : isKannada
+                  ? "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಪ್ರಾರಂಭಿಸಿ"
+                  : "Enter KisaanBuddy"}
+              </span>
             </button>
           )}
         </div>

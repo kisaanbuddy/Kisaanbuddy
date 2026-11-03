@@ -242,6 +242,7 @@ function ChatbotInner() {
   const assistantSessionRef = useRef<string | null>(null)
   const finalTranscriptRef = useRef("")
   const attachedImageRef = useRef<string | null>(null)
+  const voiceStartedRef = useRef(false)
 
   useEffect(() => { attachedImageRef.current = attachedImage }, [attachedImage])
 
@@ -594,6 +595,18 @@ function ChatbotInner() {
 
     recognition.start()
   }
+
+  // The Home voice shortcut requests access only after the farmer deliberately
+  // opens this page. If a browser declines auto-recording, the microphone and
+  // text controls remain visible and usable.
+  useEffect(() => {
+    if (searchParams.get("listen") !== "1" || voiceStartedRef.current) return
+    voiceStartedRef.current = true
+    const timer = window.setTimeout(() => { void toggleListen() }, 250)
+    return () => window.clearTimeout(timer)
+  // This one-time action is driven solely by the explicit URL parameter.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   // Photo uploads
   const triggerCamera = () => {

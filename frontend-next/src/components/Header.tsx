@@ -165,6 +165,8 @@ const NAV_LINK_DEFS = [
 
 const PUBLIC_ROUTES = [
   '/',
+  '/fasal',
+  '/madad',
   '/marketplace',
   '/mandi',
   '/disease',
@@ -292,7 +294,7 @@ export function Header() {
             </div>
           </Link>
 
-          {/* ── Desktop Nav (Home, Crop Doctor, Mandi Rates, Marketplace, Workers Connect, Govt Schemes) ── */}
+          {/* Four primary farmer tasks. Supporting tools live in the hubs below. */}
           <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
               href="/"
@@ -307,16 +309,16 @@ export function Header() {
             </Link>
 
             <Link
-              href="/disease"
-              aria-current={isActive('/disease') ? 'page' : undefined}
+              href="/fasal"
+              aria-current={isActive('/fasal') ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/disease')
+                isActive('/fasal')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
-              <Bug className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.crop_doctor?.[lang] || "Crop Doctor"}</span>
+              <Sprout className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
+              <span>{lang === 'hi' ? 'फसल' : lang === 'kn' ? 'ಬೆಳೆ' : 'Fasal'}</span>
             </Link>
 
             <Link
@@ -333,42 +335,16 @@ export function Header() {
             </Link>
 
             <Link
-              href="/marketplace"
-              aria-current={isActive('/marketplace') ? 'page' : undefined}
+              href="/madad"
+              aria-current={isActive('/madad') ? 'page' : undefined}
               className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/marketplace')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <Store className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.marketplace?.[lang] || "Marketplace"}</span>
-            </Link>
-
-            <Link
-              href="/worker-connect"
-              aria-current={isActive('/worker-connect') ? 'page' : undefined}
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/worker-connect')
+                isActive('/madad')
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
             >
               <Users className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
-            </Link>
-
-            <Link
-              href="/schemes"
-              aria-current={isActive('/schemes') ? 'page' : undefined}
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/schemes')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <Landmark className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.schemes?.[lang] || "Govt Schemes"}</span>
+              <span>{lang === 'hi' ? 'मदद' : lang === 'kn' ? 'ಸಹಾಯ' : 'Madad'}</span>
             </Link>
 
             {/* More Tools Dropdown */}
