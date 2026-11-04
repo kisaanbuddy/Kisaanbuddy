@@ -194,7 +194,7 @@ export function Header() {
   const router                    = useRouter();
   const { user, ready }           = useAuth();
   const { openFeedback } = useFarmerFeedback();
-  const { lang, setLang, t }        = useLanguage();
+  const { lang, setLang, t, openLanguageModal }  = useLanguage();
   const [langOpen, setLangOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [toolsOpen, setToolsOpen]   = useState(false);
@@ -797,6 +797,23 @@ export function Header() {
                   <span>{lang === 'hi' ? 'सुझाव दें (Your Voice Matters)' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Help Us Improve'}</span>
                 </button>
                 <div className="border-t border-border/80 pt-2.5 mt-1 flex flex-col gap-2">
+                  {/* Language switch button in mobile drawer */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false);
+                      openLanguageModal();
+                    }}
+                    className="flex items-center justify-between rounded-xl border border-border bg-stone-50 dark:bg-stone-800/60 px-4 py-2 text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-100 transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-emerald-600" />
+                      <span>{t("selectLanguage") || "भाषा चुनें / Language"}</span>
+                    </span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-400">
+                      {LANG_NAMES[lang]}
+                    </span>
+                  </button>
                   <Link
                     href="/login"
                     onClick={() => setOpen(false)}

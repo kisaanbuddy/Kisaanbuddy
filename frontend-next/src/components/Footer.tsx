@@ -1,12 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, Leaf, Github, Linkedin, MapPin, Mail, ExternalLink, Store, Users, Wrench, Landmark } from 'lucide-react';
-import { useLanguage } from '@/lib/language';
+import { Heart, Leaf, Github, Linkedin, MapPin, Mail, ExternalLink, Store, Users, Wrench, Landmark, Globe } from 'lucide-react';
+import { useLanguage, LANG_NAMES } from '@/lib/language';
 import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
 
 export function Footer() {
-  const { lang, t } = useLanguage();
+  const { lang, t, openLanguageModal } = useLanguage();
   const { openFeedback } = useFarmerFeedback();
 
   return (
@@ -57,7 +57,10 @@ export function Footer() {
             </p>
             <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
               <Link href="/mandi" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Mandi Bhav & Intelligence
+                Live Mandi Rates
+              </Link>
+              <Link href="/marketplace?tab=produce" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Wholesale Crops
               </Link>
               <Link href="/marketplace?action=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Sell Your Harvest
@@ -66,7 +69,16 @@ export function Footer() {
                 Buyer Requirements
               </Link>
               <Link href="/marketplace?tab=equipment" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Equipment & Machinery
+                Farm Machinery & Tools
+              </Link>
+              <Link href="/marketplace?tab=fertilizers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Seeds & Fertilizers
+              </Link>
+              <Link href="/marketplace?tab=requirements" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Buyer Requirements
+              </Link>
+              <Link href="/marketplace?tab=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                List Your Produce
               </Link>
             </div>
           </div>
@@ -78,20 +90,14 @@ export function Footer() {
               <span>Workers Connect</span>
             </p>
             <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
-              <Link href="/worker-connect?tab=find_workers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Find Farm Workers
+              <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Find Farm Labour
               </Link>
-              <Link href="/worker-connect?tab=find_jobs" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Find Farming Jobs
+              <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Tractor & Harvester Operators
               </Link>
-              <Link href="/worker-connect?tab=worker_portal" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Worker Registration
-              </Link>
-              <Link href="/worker-connect?tab=post_job" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Post Labour Requirement
-              </Link>
-              <Link href="/worker-connect?tab=wage_benchmarks" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Labour Bureau Benchmarks
+              <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Register as Worker / Driver
               </Link>
             </div>
           </div>
@@ -99,32 +105,32 @@ export function Footer() {
           {/* Column 4: Farming Tools */}
           <div className="space-y-3">
             <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
-              <Leaf className="w-3.5 h-3.5 text-emerald-600" />
+              <Wrench className="w-3.5 h-3.5 text-emerald-600" />
               <span>Farming Tools</span>
             </p>
             <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
-              <Link href="/chatbot" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                AI Farming Assistant
+              <Link href="/weather" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                Agricultural Weather
               </Link>
               <Link href="/disease" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Crop Doctor & Plant Health
+                Crop Doctor (AI Detection)
               </Link>
               <Link href="/crop-predictor" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Crop Selection Advisory
+                Crop Recommendation
               </Link>
               <Link href="/soil-health" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Soil Health & NPK Dosage
+                Soil Health Analysis
               </Link>
               <Link href="/khet-diary" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Khet Diary (Expenses)
               </Link>
-              <Link href="/reports" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Farm Reports & Summary
+              <Link href="/chatbot" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                AI Krishi Sahayak (Chat)
               </Link>
             </div>
           </div>
 
-          {/* Column 5: Government Resources & Legal */}
+          {/* Column 5: Official & Legal */}
           <div className="space-y-3">
             <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
               <Landmark className="w-3.5 h-3.5 text-emerald-600" />
@@ -132,10 +138,14 @@ export function Footer() {
             </p>
             <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
               <Link href="/schemes" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Government Schemes
+                Government Schemes (PM-Kisan)
               </Link>
               <a href="https://pmkisan.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
-                <span>PM-KISAN Portal</span>
+                <span>PM-Kisan Portal</span>
+                <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+              <a href="https://agmarknet.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
+                <span>AGMARKNET Official</span>
                 <ExternalLink className="w-2.5 h-2.5" />
               </a>
               <a href="https://enam.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
@@ -170,10 +180,24 @@ export function Footer() {
         {/* Divider */}
         <div className="border-t border-stone-200 dark:border-stone-800" />
 
-        {/* Bottom copyright and social row */}
+        {/* Bottom copyright, language switcher, and social row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-600 dark:text-stone-400 font-medium text-center sm:text-left">
           <p>&copy; {new Date().getFullYear()} KisaanBuddy &middot; Built for Indian Farmers &middot; All Rights Reserved</p>
-          <div className="flex items-center justify-center sm:justify-end gap-4">
+          
+          <div className="flex items-center justify-center sm:justify-end gap-3 sm:gap-4 flex-wrap">
+            {/* Language Selector Button */}
+            <button
+              type="button"
+              onClick={() => openLanguageModal()}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-2.5 py-1 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors shadow-2xs"
+              aria-label={`भाषा बदलें / Change Language (Current: ${LANG_NAMES[lang]})`}
+            >
+              <Globe className="h-3.5 w-3.5 text-emerald-600" />
+              <span>🌐 {LANG_NAMES[lang] || 'Language'}</span>
+            </button>
+
+            <span className="text-stone-300 dark:text-stone-700">|</span>
+
             <a
               href="https://github.com/kisaanbuddy/Kisaanbuddy"
               target="_blank"
