@@ -13,6 +13,8 @@ import {
   Phone,
   ShieldCheck,
   MapPin,
+  Crosshair,
+  Loader2,
   Plus,
   ExternalLink,
   Gauge,
@@ -22,6 +24,7 @@ import {
   Sliders,
   Check,
   ArrowRight,
+  RotateCcw,
 } from "lucide-react";
 import {
   equipmentCatalogApi,
@@ -32,6 +35,83 @@ import {
   ProduceListingItem,
 } from "@/lib/farmer-api";
 import { useLanguage } from "@/lib/language";
+
+// Comprehensive Indian States and Agricultural Districts Mapping
+const INDIAN_LOCATIONS: Record<string, string[]> = {
+  "Bihar": [
+    "Samastipur", "Patna", "Muzaffarpur", "Gaya", "Bhagalpur", "Begusarai", 
+    "Darbhanga", "Purnia", "Rohtas", "Nalanda", "Saran", "Vaishali", 
+    "Madhubani", "Siwan", "East Champaran", "West Champaran", "Saharsa", 
+    "Katihar", "Munger", "Bhojpur (Arrah)", "Buxar", "Sitamarhi"
+  ],
+  "Madhya Pradesh": [
+    "Sehore", "Dewas", "Indore", "Ujjain", "Hoshangabad (Narmadapuram)", 
+    "Vidisha", "Bhopal", "Gwalior", "Jabalpur", "Sagar", "Dhar", "Khargone", 
+    "Ratlam", "Raisen", "Harda", "Shajapur", "Mandsaur", "Neemuch", 
+    "Chhindwara", "Rewa", "Satna", "Morena"
+  ],
+  "Punjab": [
+    "Ludhiana", "Sangrur", "Patiala", "Bathinda", "Amritsar", "Jalandhar", 
+    "Firozpur", "Moga", "Fazilka", "Sri Muktsar Sahib", "Barnala", "Mansa", 
+    "Kapurthala", "Hoshiarpur", "Gurdaspur", "Fatehgarh Sahib", "Faridkot", 
+    "Tarn Taran", "Rupnagar", "Pathankot"
+  ],
+  "Haryana": [
+    "Karnal", "Sirsa", "Ambala", "Kurukshetra", "Kaithal", "Hisar", 
+    "Fatehabad", "Jind", "Rohtak", "Sonipat", "Panipat", "Yamunanagar", 
+    "Bhiwani", "Jhajjar", "Rewari", "Palwal", "Gurugram", "Faridabad"
+  ],
+  "Uttar Pradesh": [
+    "Muzaffarnagar", "Aligarh", "Lakhimpur Kheri", "Meerut", "Bareilly", 
+    "Agra", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Gorakhpur", 
+    "Moradabad", "Saharanpur", "Mathura", "Bijnor", "Bulandshahr", 
+    "Hardoi", "Sitapur", "Budaun", "Barabanki", "Shahjahanpur", "Ayodhya"
+  ],
+  "Maharashtra": [
+    "Nashik", "Kolhapur", "Ahmednagar", "Jalgaon", "Pune", "Solapur", 
+    "Chhatrapati Sambhajinagar", "Sangli", "Satara", "Nagpur", 
+    "Amravati", "Nanded", "Yavatmal", "Latur", "Beed", "Buldhana", "Akola"
+  ],
+  "Rajasthan": [
+    "Kota", "Sri Ganganagar", "Jaipur", "Jodhpur", "Bikaner", "Alwar", 
+    "Hanumangarh", "Udaipur", "Nagaur", "Sikar", "Ajmer", "Bharatpur", 
+    "Chittorgarh", "Baran", "Bundi", "Pali", "Jhalawar"
+  ],
+  "Gujarat": [
+    "Rajkot", "Anand", "Ahmedabad", "Surat", "Vadodara", "Bhavnagar", 
+    "Junagadh", "Jamnagar", "Mehsana", "Banaskantha", "Sabarkantha", 
+    "Kheda", "Amreli", "Patan", "Surendranagar", "Bharuch"
+  ],
+  "Karnataka": [
+    "Belagavi", "Bengaluru", "Mysuru", "Hubballi-Dharwad", "Kalaburagi", 
+    "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", 
+    "Raichur", "Mandya", "Hassan", "Bagalkote", "Koppal"
+  ],
+  "Telangana": [
+    "Warangal", "Hyderabad", "Nizamabad", "Karimnagar", "Khammam", 
+    "Nalgonda", "Mahbubnagar", "Medak", "Rangareddy", "Adilabad", "Suryapet"
+  ],
+  "Andhra Pradesh": [
+    "Guntur", "Krishna", "East Godavari", "West Godavari", "Kurnool", 
+    "Anantapur", "Chittoor", "Visakhapatnam", "Prakasam", "SPSR Nellore", "Kadapa"
+  ],
+  "West Bengal": [
+    "Purba Bardhaman", "Paschim Bardhaman", "Hooghly", "Murshidabad", 
+    "Nadia", "Purba Medinipur", "Paschim Medinipur", "Birbhum", "Malda", "Jalpaiguri"
+  ],
+  "Chhattisgarh": [
+    "Raipur", "Durg", "Bilaspur", "Rajnandgaon", "Janjgir-Champa", "Balod", "Bemetara", "Dhamtari"
+  ],
+  "Jharkhand": [
+    "Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh", "Deoghar", "Giridih"
+  ],
+  "Odisha": [
+    "Cuttack", "Sambalpur", "Bargarh", "Balasore", "Ganjam", "Puri", "Bhadrak", "Mayurbhanj"
+  ],
+  "Tamil Nadu": [
+    "Coimbatore", "Thanjavur", "Madurai", "Salem", "Tiruchirappalli", "Erode", "Tirunelveli", "Vellore"
+  ]
+};
 
 // Category definitions matching user specification
 const CATEGORIES = [
@@ -61,21 +141,7 @@ const POPULAR_SEARCHES = [
   "Lemken Disc Plough",
 ];
 
-// Top tractor & equipment brands for autocomplete
-const TOP_BRANDS = [
-  "Mahindra",
-  "Swaraj",
-  "Sonalika",
-  "John Deere",
-  "TAFE / Massey",
-  "Shaktiman",
-  "Dasmesh",
-  "Fieldking",
-  "ASPEE",
-  "Lemken",
-];
-
-export interface UnifiedProduct {
+interface UnifiedProduct {
   id: string;
   sourceType: "catalog" | "listing";
   catalogId?: number;
@@ -113,6 +179,13 @@ export interface UnifiedProduct {
   description?: string | null;
   provenanceSource?: string | null;
   provenanceLicense?: string | null;
+}
+
+interface UserLocation {
+  state: string;
+  district: string;
+  city?: string;
+  source: "gps" | "manual" | "default";
 }
 
 // Strict genuine machinery photograph resolver
@@ -170,6 +243,99 @@ function ProductCardImage({
   );
 }
 
+// Reverse geocode latitude and longitude to State and District (India)
+async function reverseGeocodeCoords(lat: number, lon: number): Promise<{ state: string; district: string; city: string }> {
+  // 1. Primary: BigDataCloud reverse geocode client API (fast, free, accurate for Indian districts & states)
+  try {
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const state = data.principalSubdivision || "";
+      let district = "";
+      if (Array.isArray(data.localityInfo?.administrative)) {
+        const distObj = data.localityInfo.administrative.find((a: any) =>
+          (a.description && a.description.toLowerCase().includes("district")) ||
+          (a.name && a.name.toLowerCase().includes("district"))
+        );
+        if (distObj) {
+          district = distObj.name.replace(/ district/i, "").trim();
+        }
+      }
+      if (!district) {
+        district = data.city || data.locality || "";
+      }
+      const city = data.city || data.locality || district;
+      if (state || district) {
+        return { state, district, city };
+      }
+    }
+  } catch (e) {
+    console.warn("BigDataCloud geocode failed, attempting fallback:", e);
+  }
+
+  // 2. Secondary fallback: OpenStreetMap Nominatim
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const state = addr.state || "";
+      const district = addr.state_district || addr.county || addr.city || "";
+      const city = addr.city || addr.town || addr.village || district;
+      if (state || district) {
+        return { state, district: district.replace(/ district/i, "").trim(), city };
+      }
+    }
+  } catch (e) {
+    console.warn("Nominatim geocode failed:", e);
+  }
+
+  // 3. Tertiary fallback: Weather endpoint
+  try {
+    const res = await fetch(`/api/weather/current?lat=${lat}&lon=${lon}`);
+    if (res.ok) {
+      const data = await res.json();
+      const name = data.location?.name || "";
+      const state = data.location?.region || "";
+      if (name || state) {
+        return { state, district: name, city: name };
+      }
+    }
+  } catch {}
+
+  return { state: "", district: "", city: "" };
+}
+
+// Calculate location relevance score:
+// Same District = 100, Same State = 50, Pan-India Catalog = 20, Other = 0
+function getLocationScore(
+  product: UnifiedProduct,
+  userLoc: UserLocation
+): number {
+  if (!userLoc.state || userLoc.state === "all") return 0;
+
+  const uState = userLoc.state.toLowerCase().trim();
+  const uDist = (userLoc.district || "").toLowerCase().trim();
+
+  const pState = (product.state || "").toLowerCase().trim();
+  const pDist = (product.district || "").toLowerCase().trim();
+
+  if (uDist && pDist && (pDist.includes(uDist) || uDist.includes(pDist))) {
+    return 100;
+  }
+  if (pState && (pState.includes(uState) || uState.includes(pState))) {
+    return 50;
+  }
+  if (product.sourceType === "catalog") {
+    return 20;
+  }
+  return 0;
+}
+
 export default function MarketplacePage() {
   const { lang } = useLanguage();
   const isHi = lang === "hi";
@@ -184,13 +350,25 @@ export default function MarketplacePage() {
   const [searchFocused, setSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  // Filters
+  // ─── 1. LOCATION STATE & GEOLOCATION ─────────────────────────────────────
+  const [userLocation, setUserLocation] = useState<UserLocation>({
+    state: "all",
+    district: "",
+    city: "",
+    source: "default",
+  });
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [showLocationPopover, setShowLocationPopover] = useState(false);
+  const [locationSearchInput, setLocationSearchInput] = useState("");
+  const [strictLocationOnly, setStrictLocationOnly] = useState(false);
+  const locationPopoverRef = useRef<HTMLDivElement>(null);
+
+  // ─── OTHER FILTER STATES (In specific order: Category, Brand, Deal, Price, Condition) ─
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
   const [dealFilter, setDealFilter] = useState<"all" | "rent" | "sale">("all");
   const [hpRange, setHpRange] = useState<"all" | "under_40" | "40_55" | "55_75" | "above_75">("all");
   const [conditionFilter, setConditionFilter] = useState<"all" | "new" | "used">("all");
-  const [stateFilter, setStateFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
@@ -252,16 +430,144 @@ export default function MarketplacePage() {
     });
   };
 
-  // Click outside to close search suggestions
+  // Close search suggestions & location popover on click outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         setSearchFocused(false);
       }
+      if (locationPopoverRef.current && !locationPopoverRef.current.contains(e.target as Node)) {
+        setShowLocationPopover(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // ─── GEOLOCATION DETECTION FUNCTION ──────────────────────────────────────
+  const detectLocation = useCallback(async () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      alert("Browser geolocation is not available on this device.");
+      return;
+    }
+    setDetectingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const loc = await reverseGeocodeCoords(latitude, longitude);
+          if (loc.state || loc.district) {
+            const detected: UserLocation = {
+              state: loc.state || "all",
+              district: loc.district || "",
+              city: loc.city || "",
+              source: "gps",
+            };
+            setUserLocation(detected);
+            setShowLocationPopover(false);
+            try {
+              localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(detected));
+            } catch {}
+          }
+        } catch (err) {
+          console.error("Failed to reverse geocode:", err);
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (err) => {
+        console.warn("Geolocation permission denied or timed out:", err.message);
+        setDetectingLocation(false);
+      },
+      { timeout: 8000, enableHighAccuracy: false, maximumAge: 10 * 60 * 1000 }
+    );
+  }, []);
+
+  // On page load: check saved location or automatically request geolocation
+  useEffect(() => {
+    try {
+      const savedLoc = localStorage.getItem("kisaanbuddy_marketplace_location");
+      if (savedLoc) {
+        setUserLocation(JSON.parse(savedLoc));
+        return;
+      }
+    } catch {}
+
+    // Auto-request browser geolocation permission on mount
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const loc = await reverseGeocodeCoords(pos.coords.latitude, pos.coords.longitude);
+            if (loc.state || loc.district) {
+              const detected: UserLocation = {
+                state: loc.state || "all",
+                district: loc.district || "",
+                city: loc.city || "",
+                source: "gps",
+              };
+              setUserLocation(detected);
+              try {
+                localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(detected));
+              } catch {}
+            }
+          } catch {}
+        },
+        () => {
+          // Defaults to All India cleanly
+        },
+        { timeout: 6000, enableHighAccuracy: false, maximumAge: 15 * 60 * 1000 }
+      );
+    }
+  }, []);
+
+  // Clear location
+  const clearLocation = () => {
+    const allIndia: UserLocation = { state: "all", district: "", city: "", source: "default" };
+    setUserLocation(allIndia);
+    setStrictLocationOnly(false);
+    setShowLocationPopover(false);
+    try {
+      localStorage.removeItem("kisaanbuddy_marketplace_location");
+    } catch {}
+  };
+
+  // Manual location select
+  const setManualLocation = (state: string, district = "") => {
+    const loc: UserLocation = {
+      state,
+      district,
+      city: district,
+      source: "manual",
+    };
+    setUserLocation(loc);
+    setShowLocationPopover(false);
+    try {
+      localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(loc));
+    } catch {}
+  };
+
+  // Search locations matching query
+  const searchedLocations = useMemo(() => {
+    const q = locationSearchInput.toLowerCase().trim();
+    if (!q) return [];
+
+    const matches: { state: string; district: string }[] = [];
+
+    // Check states and districts
+    for (const [st, dists] of Object.entries(INDIAN_LOCATIONS)) {
+      if (st.toLowerCase().includes(q)) {
+        matches.push({ state: st, district: "" });
+      }
+      for (const d of dists) {
+        if (d.toLowerCase().includes(q)) {
+          matches.push({ state: st, district: d });
+        }
+      }
+    }
+
+    return matches.slice(0, 8);
+  }, [locationSearchInput]);
 
   // Fetch marketplace data from backend APIs
   const loadData = useCallback(async () => {
@@ -398,15 +704,6 @@ export default function MarketplacePage() {
       .map(([brand, count]) => ({ brand, count }));
   }, [unifiedProducts]);
 
-  // Unique states
-  const availableStates = useMemo(() => {
-    const states = new Set<string>();
-    unifiedProducts.forEach((p) => {
-      if (p.state && p.state.trim()) states.add(p.state.trim());
-    });
-    return Array.from(states).sort();
-  }, [unifiedProducts]);
-
   // Autocomplete suggestions based on query
   const autocompleteSuggestions = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -456,7 +753,7 @@ export default function MarketplacePage() {
   // Filter products
   const filteredProducts = useMemo(() => {
     return unifiedProducts.filter((product) => {
-      // Search
+      // 1. Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matches =
@@ -469,21 +766,38 @@ export default function MarketplacePage() {
         if (!matches) return false;
       }
 
-      // Category
+      // 2. Strict Location Filter (if user toggled strict filter)
+      if (strictLocationOnly && userLocation.state !== "all") {
+        const uState = userLocation.state.toLowerCase().trim();
+        const uDist = (userLocation.district || "").toLowerCase().trim();
+        const pState = (product.state || "").toLowerCase().trim();
+        const pDist = (product.district || "").toLowerCase().trim();
+
+        const stateMatch = pState && (pState.includes(uState) || uState.includes(pState));
+        const distMatch = uDist && pDist && (pDist.includes(uDist) || uDist.includes(pDist));
+
+        if (userLocation.district) {
+          if (!distMatch && !stateMatch) return false;
+        } else if (!stateMatch) {
+          return false;
+        }
+      }
+
+      // 3. Category filter
       if (selectedCategory !== "all" && !matchesCategory(product.category, selectedCategory)) {
         return false;
       }
 
-      // Brand
+      // 4. Brand filter
       if (selectedBrand !== "all" && product.brand.toLowerCase() !== selectedBrand.toLowerCase()) {
         return false;
       }
 
-      // Deal type
+      // 5. Deal type filter
       if (dealFilter === "rent" && product.dealType !== "rent") return false;
       if (dealFilter === "sale" && product.dealType !== "sale" && product.dealType !== "catalog") return false;
 
-      // Engine HP
+      // 6. Engine HP filter
       if (hpRange !== "all") {
         const hp = product.hpRating ?? 0;
         if (hpRange === "under_40" && (hp === 0 || hp >= 40)) return false;
@@ -492,20 +806,15 @@ export default function MarketplacePage() {
         if (hpRange === "above_75" && hp < 75) return false;
       }
 
-      // Condition
+      // 7. Condition filter
       if (conditionFilter === "new" && product.condition !== "new") return false;
       if (conditionFilter === "used" && product.condition === "new") return false;
 
-      // Location
-      if (stateFilter !== "all" && product.state && product.state.toLowerCase() !== stateFilter.toLowerCase()) {
-        return false;
-      }
-
-      // Price
+      // 8. Price filter
       if (minPrice && product.price != null && product.price < parseFloat(minPrice)) return false;
       if (maxPrice && product.price != null && product.price > parseFloat(maxPrice)) return false;
 
-      // Only show products with authentic photography ("JISME PHOTO USME PHOTO")
+      // 9. Authentic photography policy ("JISME PHOTO USME PHOTO")
       if (!product.hasVerifiedPhoto || !product.imageUrl) return false;
 
       return true;
@@ -513,17 +822,40 @@ export default function MarketplacePage() {
   }, [
     unifiedProducts,
     searchQuery,
+    strictLocationOnly,
+    userLocation,
     selectedCategory,
     selectedBrand,
     dealFilter,
     hpRange,
     conditionFilter,
-    stateFilter,
     minPrice,
     maxPrice,
   ]);
 
-  // Sort products
+  // Count nearby matches for banner
+  const nearbyCounts = useMemo(() => {
+    if (userLocation.state === "all") return { district: 0, state: 0 };
+    const uState = userLocation.state.toLowerCase().trim();
+    const uDist = (userLocation.district || "").toLowerCase().trim();
+
+    let districtCount = 0;
+    let stateCount = 0;
+
+    for (const p of filteredProducts) {
+      const pState = (p.state || "").toLowerCase().trim();
+      const pDist = (p.district || "").toLowerCase().trim();
+      if (uDist && pDist && (pDist.includes(uDist) || uDist.includes(pDist))) {
+        districtCount++;
+      }
+      if (pState && (pState.includes(uState) || uState.includes(pState))) {
+        stateCount++;
+      }
+    }
+    return { district: districtCount, state: stateCount };
+  }, [filteredProducts, userLocation]);
+
+  // Sort products prioritizing location proximity
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
     switch (sortBy) {
@@ -538,6 +870,13 @@ export default function MarketplacePage() {
       case "relevance":
       default:
         return list.sort((a, b) => {
+          // Priority 1: Geographic proximity (Same District > Same State > Pan-India > Others)
+          const locScoreA = getLocationScore(a, userLocation);
+          const locScoreB = getLocationScore(b, userLocation);
+          if (locScoreA !== locScoreB) {
+            return locScoreB - locScoreA;
+          }
+
           if (a.hasVerifiedPhoto && !b.hasVerifiedPhoto) return -1;
           if (b.hasVerifiedPhoto && !a.hasVerifiedPhoto) return 1;
           if (a.price && !b.price) return -1;
@@ -547,7 +886,7 @@ export default function MarketplacePage() {
           return a.title.localeCompare(b.title);
         });
     }
-  }, [filteredProducts, sortBy]);
+  }, [filteredProducts, sortBy, userLocation]);
 
   // Pagination
   const paginatedProducts = useMemo(() => {
@@ -559,16 +898,16 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, selectedCategory, selectedBrand, dealFilter, hpRange, conditionFilter, stateFilter, minPrice, maxPrice, sortBy]);
+  }, [searchQuery, userLocation, strictLocationOnly, selectedCategory, selectedBrand, dealFilter, hpRange, conditionFilter, minPrice, maxPrice, sortBy]);
 
   const clearAllFilters = () => {
     setSearchQuery("");
+    clearLocation();
     setSelectedCategory("all");
     setSelectedBrand("all");
     setDealFilter("all");
     setHpRange("all");
     setConditionFilter("all");
-    setStateFilter("all");
     setMinPrice("");
     setMaxPrice("");
     setSortBy("relevance");
@@ -576,16 +915,16 @@ export default function MarketplacePage() {
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
+    if (userLocation.state !== "all") count++;
     if (selectedCategory !== "all") count++;
     if (selectedBrand !== "all") count++;
     if (dealFilter !== "all") count++;
     if (hpRange !== "all") count++;
     if (conditionFilter !== "all") count++;
-    if (stateFilter !== "all") count++;
     if (minPrice || maxPrice) count++;
     if (searchQuery) count++;
     return count;
-  }, [selectedCategory, selectedBrand, dealFilter, hpRange, conditionFilter, stateFilter, minPrice, maxPrice, searchQuery]);
+  }, [userLocation, selectedCategory, selectedBrand, dealFilter, hpRange, conditionFilter, minPrice, maxPrice, searchQuery]);
 
   const openContact = (name: string, phone: string | null | undefined, title: string, location: string) => {
     setContactTarget({ name, phone, title, location });
@@ -816,12 +1155,7 @@ export default function MarketplacePage() {
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               {/* Wishlist */}
               <button
-                onClick={() => {
-                  // Toggle filter to wishlisted items or clear
-                  if (wishlist.length > 0) {
-                    // Filter down to wishlisted
-                  }
-                }}
+                onClick={() => {}}
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-rose-600 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-md transition"
                 title={`${wishlist.length} Saved in Wishlist`}
               >
@@ -910,7 +1244,13 @@ export default function MarketplacePage() {
       {/* ─── 3. MAIN CONTENT: SIDEBAR + PRODUCT GRID ────────────────────────── */}
       <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* ─── Left Sidebar: Amazon-inspired Clean Filters ─────────────────── */}
+          {/* ─── Left Sidebar: STRICT NEW FILTER ORDER ──────────────────────── */}
+          {/* 1. Location (TOP)                                                 */}
+          {/* 2. Category                                                       */}
+          {/* 3. Brand                                                          */}
+          {/* 4. Listing Type (Buy / Rent)                                      */}
+          {/* 5. Price Range                                                    */}
+          {/* 6. Condition                                                      */}
           <aside className="hidden lg:block lg:col-span-3 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 space-y-5 sticky top-28">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
               <span className="font-bold text-xs uppercase tracking-wider text-stone-900 dark:text-white">
@@ -926,33 +1266,215 @@ export default function MarketplacePage() {
               )}
             </div>
 
-            {/* Listing Type / Deal Type */}
-            <div className="space-y-2">
+            {/* ─── FILTER 1: LOCATION (ABSOLUTE TOP) ────────────────────────── */}
+            <div className="space-y-3 relative" ref={locationPopoverRef}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-stone-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Location</span>
+                </span>
+                {userLocation.state !== "all" && (
+                  <button
+                    onClick={clearLocation}
+                    className="text-[11px] font-semibold text-emerald-700 hover:underline"
+                  >
+                    All India
+                  </button>
+                )}
+              </div>
+
+              {/* Detected / Selected Location Card */}
+              <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase text-stone-400 block tracking-wider">
+                      Your Location
+                    </span>
+                    <p className="text-xs font-bold text-stone-900 dark:text-white mt-0.5">
+                      {userLocation.district && userLocation.state !== "all"
+                        ? `${userLocation.district}, ${userLocation.state}`
+                        : userLocation.state !== "all"
+                        ? userLocation.state
+                        : "All India"}
+                    </p>
+                    {userLocation.source === "gps" && (
+                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Auto-detected via GPS
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowLocationPopover(!showLocationPopover)}
+                    className="px-2 py-1 text-xs font-semibold rounded-md border border-stone-200 dark:border-stone-700 hover:bg-white text-stone-700 dark:text-stone-300 transition shrink-0"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                {/* Auto-detect GPS button */}
+                <button
+                  type="button"
+                  onClick={detectLocation}
+                  disabled={detectingLocation}
+                  className="w-full py-1.5 px-2 rounded-md bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 hover:border-emerald-600 hover:bg-emerald-50/40 text-emerald-800 dark:text-emerald-300 font-medium text-[11px] flex items-center justify-center gap-1.5 transition disabled:opacity-50"
+                >
+                  {detectingLocation ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin text-emerald-700" />
+                      <span>Detecting GPS Location...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Crosshair className="w-3 h-3 text-emerald-700" />
+                      <span>Use Current GPS Location</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Location Search & Selection Popover */}
+              {showLocationPopover && (
+                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xl p-3 space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-stone-100 dark:border-stone-800">
+                    <span className="text-xs font-bold text-stone-900 dark:text-white">Select Location</span>
+                    <button onClick={() => setShowLocationPopover(false)} className="text-stone-400 hover:text-stone-600">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  {/* Search input for State, District, City or PIN */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={locationSearchInput}
+                      onChange={(e) => setLocationSearchInput(e.target.value)}
+                      placeholder="Search State, District or City..."
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-md border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:bg-white"
+                    />
+                  </div>
+
+                  {/* Autocomplete Search Results */}
+                  {locationSearchInput.trim() && searchedLocations.length > 0 && (
+                    <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                      {searchedLocations.map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setManualLocation(item.state, item.district)}
+                          className="w-full text-left p-1.5 rounded-md hover:bg-emerald-50 hover:text-emerald-800 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between transition"
+                        >
+                          <span className="font-medium truncate">
+                            {item.district ? `${item.district}, ${item.state}` : item.state}
+                          </span>
+                          <span className="text-[10px] text-stone-400 uppercase font-mono">
+                            {item.district ? "District" : "State"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Cascading State & District Selectors */}
+                  <div className="space-y-2 text-xs">
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">State</label>
+                      <select
+                        value={userLocation.state}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setManualLocation(val, "");
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs"
+                      >
+                        <option value="all">All India (Pan-India)</option>
+                        {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
+                          <option key={st} value={st}>
+                            {st}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {userLocation.state !== "all" && INDIAN_LOCATIONS[userLocation.state] && (
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">District</label>
+                        <select
+                          value={userLocation.district}
+                          onChange={(e) => setManualLocation(userLocation.state, e.target.value)}
+                          className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs"
+                        >
+                          <option value="">All Districts in {userLocation.state}</option>
+                          {INDIAN_LOCATIONS[userLocation.state].map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-800">
+                    <button
+                      type="button"
+                      onClick={clearLocation}
+                      className="text-xs font-semibold text-stone-500 hover:text-stone-800"
+                    >
+                      Reset to All India
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowLocationPopover(false)}
+                      className="px-3 py-1 bg-emerald-700 text-white rounded-md text-xs font-semibold"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Strict Local Filter Option */}
+              {userLocation.state !== "all" && (
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-stone-700 dark:text-stone-300 pt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={strictLocationOnly}
+                    onChange={(e) => setStrictLocationOnly(e.target.checked)}
+                    className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700 rounded border-stone-300"
+                  />
+                  <span>Only show listings in {userLocation.district || userLocation.state}</span>
+                </label>
+              )}
+            </div>
+
+            {/* ─── FILTER 2: CATEGORY ──────────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
               <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
-                Listing Type
+                Category
               </span>
-              <div className="space-y-1.5 text-xs">
-                {[
-                  { key: "all", label: "All Equipment" },
-                  { key: "rent", label: "Available for Rent" },
-                  { key: "sale", label: "Buy / For Sale" },
-                ].map((opt) => (
-                  <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                {CATEGORIES.map((cat) => (
+                  <label key={cat.key} className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
                     <input
                       type="radio"
-                      name="dealType"
-                      checked={dealFilter === opt.key}
-                      onChange={() => setDealFilter(opt.key as any)}
-                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700 border-stone-300"
+                      name="sidebarCategory"
+                      checked={selectedCategory === cat.key}
+                      onChange={() => setSelectedCategory(cat.key)}
+                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700"
                     />
-                    <span>{opt.label}</span>
+                    <span className={selectedCategory === cat.key ? "font-bold text-emerald-800 dark:text-emerald-400" : ""}>
+                      {cat.labelEn}
+                    </span>
                   </label>
                 ))}
               </div>
             </div>
 
-            {/* Brand Filter */}
-            <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+            {/* ─── FILTER 3: BRAND ─────────────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
               <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
                 Brand & Manufacturer
               </span>
@@ -985,26 +1507,24 @@ export default function MarketplacePage() {
               </div>
             </div>
 
-            {/* Engine Power (HP) */}
-            <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+            {/* ─── FILTER 4: LISTING TYPE (BUY / RENT) ──────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
               <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
-                Engine Power (HP)
+                Listing Type (Buy / Rent)
               </span>
               <div className="space-y-1.5 text-xs">
                 {[
-                  { key: "all", label: "Any Horsepower" },
-                  { key: "under_40", label: "Under 40 HP" },
-                  { key: "40_55", label: "40 – 55 HP" },
-                  { key: "55_75", label: "55 – 75 HP" },
-                  { key: "above_75", label: "75+ HP" },
+                  { key: "all", label: "All Equipment" },
+                  { key: "rent", label: "Available for Rent" },
+                  { key: "sale", label: "Buy / For Sale" },
                 ].map((opt) => (
                   <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
                     <input
                       type="radio"
-                      name="hpRange"
-                      checked={hpRange === opt.key}
-                      onChange={() => setHpRange(opt.key as any)}
-                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700"
+                      name="dealType"
+                      checked={dealFilter === opt.key}
+                      onChange={() => setDealFilter(opt.key as any)}
+                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700 border-stone-300"
                     />
                     <span>{opt.label}</span>
                   </label>
@@ -1012,10 +1532,10 @@ export default function MarketplacePage() {
               </div>
             </div>
 
-            {/* Price Range */}
-            <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+            {/* ─── FILTER 5: PRICE RANGE ───────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
               <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
-                Price (₹)
+                Price Range (₹)
               </span>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <input
@@ -1035,8 +1555,8 @@ export default function MarketplacePage() {
               </div>
             </div>
 
-            {/* Condition */}
-            <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+            {/* ─── FILTER 6: CONDITION ─────────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
               <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
                 Condition
               </span>
@@ -1059,31 +1579,46 @@ export default function MarketplacePage() {
                 ))}
               </div>
             </div>
-
-            {/* Location / State */}
-            {availableStates.length > 0 && (
-              <div className="space-y-2 pt-2 border-t border-stone-100 dark:border-stone-800">
-                <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
-                  Location
-                </span>
-                <select
-                  value={stateFilter}
-                  onChange={(e) => setStateFilter(e.target.value)}
-                  className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white"
-                >
-                  <option value="all">All States</option>
-                  {availableStates.map((st) => (
-                    <option key={st} value={st}>
-                      {st}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
           </aside>
 
           {/* ─── Right Column: Results & Product Cards ──────────────────────── */}
           <div className="lg:col-span-9 space-y-4">
+            {/* Location Banner (When location is active) */}
+            {userLocation.state !== "all" && (
+              <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+                <div className="flex items-center gap-2 text-stone-800 dark:text-stone-200">
+                  <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span>
+                    Showing equipment prioritizing{" "}
+                    <strong className="text-emerald-900 dark:text-emerald-200 font-bold">
+                      {userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state}
+                    </strong>
+                    {nearbyCounts.district > 0 && ` (${nearbyCounts.district} listings in your district)`}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStrictLocationOnly(!strictLocationOnly)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition border ${
+                      strictLocationOnly
+                        ? "bg-emerald-700 text-white border-emerald-700"
+                        : "bg-white dark:bg-stone-800 text-stone-700 border-stone-200 hover:bg-stone-100"
+                    }`}
+                  >
+                    {strictLocationOnly ? "Showing Local Only" : "Filter Local Only"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearLocation}
+                    className="text-stone-500 hover:text-stone-800 underline text-[11px]"
+                  >
+                    View All India
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Top Toolbar: Results count, sorting, view toggle, mobile filter trigger */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-200 dark:border-stone-800">
               {/* Results headline */}
@@ -1119,7 +1654,7 @@ export default function MarketplacePage() {
                     onChange={(e) => setSortBy(e.target.value as any)}
                     className="px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-medium text-stone-800 dark:text-stone-200"
                   >
-                    <option value="relevance">Featured / Relevance</option>
+                    <option value="relevance">Featured (Nearby First)</option>
                     <option value="price_asc">Price: Low to High</option>
                     <option value="price_desc">Price: High to Low</option>
                     <option value="hp_desc">Horsepower: High to Low</option>
@@ -1149,6 +1684,15 @@ export default function MarketplacePage() {
             {/* Active Filter Pills */}
             {activeFilterCount > 0 && (
               <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                {userLocation.state !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-900 border border-emerald-200">
+                    <MapPin className="w-3 h-3 text-emerald-700" />
+                    Location: {userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state}
+                    <button onClick={clearLocation}>
+                      <X className="w-3 h-3 hover:text-rose-600" />
+                    </button>
+                  </span>
+                )}
                 {selectedCategory !== "all" && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700">
                     Category: {selectedCategory}
@@ -1207,29 +1751,43 @@ export default function MarketplacePage() {
               <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-12 text-center text-stone-500 space-y-3">
                 <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
                 <h3 className="text-base font-bold text-stone-900 dark:text-white">
-                  No matching agricultural products found
+                  No matching agricultural products found in this area
                 </h3>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                  Try adjusting your search query, clearing specific filters, or checking different categories.
+                  Try broadening your location to All India, adjusting your search query, or clearing active filters.
                 </p>
-                <button
-                  onClick={clearAllFilters}
-                  className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
-                >
-                  Reset All Filters
-                </button>
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={clearLocation}
+                    className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
+                  >
+                    Search All India
+                  </button>
+                  <button
+                    onClick={clearAllFilters}
+                    className="px-4 py-2 rounded-lg border border-stone-200 text-stone-700 font-semibold text-xs hover:bg-stone-50 transition"
+                  >
+                    Reset All Filters
+                  </button>
+                </div>
               </div>
             ) : viewMode === "grid" ? (
               /* Amazon-Style Grid Cards */
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                 {paginatedProducts.map((product) => {
                   const isWishlisted = wishlist.includes(product.id);
+                  const isLocal = userLocation.state !== "all" && product.state && 
+                    (product.state.toLowerCase() === userLocation.state.toLowerCase());
 
                   return (
                     <div
                       key={product.id}
                       onClick={() => setSelectedProduct(product)}
-                      className="group bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 hover:border-stone-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
+                      className={`group bg-white dark:bg-stone-900 rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer ${
+                        isLocal
+                          ? "border-emerald-300 dark:border-emerald-800/80 shadow-xs"
+                          : "border-stone-200 dark:border-stone-800 hover:border-stone-300 hover:shadow-md"
+                      }`}
                     >
                       <div>
                         {/* Image Container with 4:3 aspect ratio */}
@@ -1237,7 +1795,7 @@ export default function MarketplacePage() {
                           <ProductCardImage src={product.imageUrl} alt={product.title} />
 
                           {/* Top Left: Deal Badge */}
-                          <div className="absolute top-2.5 left-2.5 z-10">
+                          <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1">
                             {product.dealType === "rent" ? (
                               <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/80">
                                 For Rent
@@ -1319,9 +1877,9 @@ export default function MarketplacePage() {
                             <span className="truncate max-w-[130px] font-medium text-stone-700 dark:text-stone-300">
                               {product.sellerName}
                             </span>
-                            <span className="flex items-center gap-0.5 text-stone-400 shrink-0">
-                              <MapPin className="w-3 h-3 text-stone-400" />
-                              <span className="truncate max-w-[80px]">{product.district || "Pan-India"}</span>
+                            <span className="flex items-center gap-0.5 text-stone-600 dark:text-stone-400 shrink-0 font-medium">
+                              <MapPin className="w-3 h-3 text-emerald-700" />
+                              <span className="truncate max-w-[110px]">{product.district || product.state || "Pan-India"}</span>
                             </span>
                           </div>
                         </div>
@@ -1400,8 +1958,8 @@ export default function MarketplacePage() {
                         <div className="text-xs text-stone-500 flex items-center gap-2 pt-1">
                           <span className="font-medium text-stone-700 dark:text-stone-300">{product.sellerName}</span>
                           <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-stone-400" />
+                          <span className="flex items-center gap-1 font-semibold text-emerald-800 dark:text-emerald-300">
+                            <MapPin className="w-3 h-3 text-emerald-700" />
                             {product.sellerLocation}
                           </span>
                         </div>
@@ -1478,7 +2036,7 @@ export default function MarketplacePage() {
         </div>
       </main>
 
-      {/* ─── 4. MOBILE FILTER DRAWER ────────────────────────────────────────── */}
+      {/* ─── 4. MOBILE FILTER DRAWER (STRICT FILTER ORDER) ──────────────────── */}
       {mobileFilterOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex flex-col justify-end lg:hidden">
           <div className="bg-white dark:bg-stone-900 rounded-t-2xl max-h-[85vh] overflow-y-auto p-4 space-y-4 shadow-xl">
@@ -1490,6 +2048,77 @@ export default function MarketplacePage() {
             </div>
 
             <div className="space-y-4 text-xs">
+              {/* 1. Location */}
+              <div className="p-3 bg-stone-50 dark:bg-stone-800 rounded-lg space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold flex items-center gap-1.5 text-stone-900 dark:text-white">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Location</span>
+                  </span>
+                  {userLocation.state !== "all" && (
+                    <button onClick={clearLocation} className="text-emerald-700 text-[11px] font-semibold">
+                      Clear (All India)
+                    </button>
+                  )}
+                </div>
+                <div className="text-xs font-semibold">
+                  {userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state !== "all" ? userLocation.state : "All India"}
+                </div>
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <select
+                    value={userLocation.state}
+                    onChange={(e) => setManualLocation(e.target.value, "")}
+                    className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900"
+                  >
+                    <option value="all">All India</option>
+                    {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={detectLocation}
+                    disabled={detectingLocation}
+                    className="px-2 py-1.5 rounded-md bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-1"
+                  >
+                    <Crosshair className="w-3 h-3" />
+                    <span>GPS</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Category */}
+              <div>
+                <span className="font-bold block mb-1.5">Category</span>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                >
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.key} value={cat.key}>{cat.labelEn}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 3. Brand */}
+              <div>
+                <span className="font-bold block mb-1.5">Brand</span>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                >
+                  <option value="all">All Brands</option>
+                  {availableBrands.map((b) => (
+                    <option key={b.brand} value={b.brand}>
+                      {b.brand} ({b.count})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 4. Listing Type */}
               <div>
                 <span className="font-bold block mb-1.5">Listing Type</span>
                 <div className="grid grid-cols-3 gap-2">
@@ -1513,34 +2142,38 @@ export default function MarketplacePage() {
                 </div>
               </div>
 
+              {/* 5. Price Range */}
               <div>
-                <span className="font-bold block mb-1.5">Brand</span>
-                <select
-                  value={selectedBrand}
-                  onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
-                >
-                  <option value="all">All Brands</option>
-                  {availableBrands.map((b) => (
-                    <option key={b.brand} value={b.brand}>
-                      {b.brand} ({b.count})
-                    </option>
-                  ))}
-                </select>
+                <span className="font-bold block mb-1.5">Price Range (₹)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min ₹"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max ₹"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                  />
+                </div>
               </div>
 
+              {/* 6. Condition */}
               <div>
-                <span className="font-bold block mb-1.5">Engine Power (HP)</span>
+                <span className="font-bold block mb-1.5">Condition</span>
                 <select
-                  value={hpRange}
-                  onChange={(e) => setHpRange(e.target.value as any)}
+                  value={conditionFilter}
+                  onChange={(e) => setConditionFilter(e.target.value as any)}
                   className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
                 >
-                  <option value="all">Any Horsepower</option>
-                  <option value="under_40">Under 40 HP</option>
-                  <option value="40_55">40 – 55 HP</option>
-                  <option value="55_75">55 – 75 HP</option>
-                  <option value="above_75">75+ HP</option>
+                  <option value="all">All Conditions</option>
+                  <option value="new">Brand New</option>
+                  <option value="used">Used / Certified</option>
                 </select>
               </div>
             </div>
@@ -1626,8 +2259,8 @@ export default function MarketplacePage() {
                 <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs space-y-1">
                   <div className="text-[10px] text-stone-400 uppercase font-bold">Seller / Provider</div>
                   <div className="font-semibold text-stone-900 dark:text-white">{selectedProduct.sellerName}</div>
-                  <div className="text-stone-500 flex items-center gap-1">
-                    <MapPin className="w-3 h-3 text-stone-400" />
+                  <div className="text-stone-500 flex items-center gap-1 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
                     <span>{selectedProduct.sellerLocation}</span>
                   </div>
                 </div>
@@ -1708,7 +2341,7 @@ export default function MarketplacePage() {
             <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800 text-xs space-y-0.5">
               <span className="text-[10px] text-stone-400 uppercase font-bold block">Equipment</span>
               <p className="font-semibold text-stone-900 dark:text-white">{contactTarget.title}</p>
-              <p className="text-stone-500">📍 {contactTarget.location}</p>
+              <p className="text-stone-500 font-medium">📍 {contactTarget.location}</p>
             </div>
 
             <div className="space-y-2 text-xs">
@@ -1878,7 +2511,7 @@ export default function MarketplacePage() {
                   <label className="block font-semibold text-stone-700 mb-1">State *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Madhya Pradesh"
+                    placeholder="e.g. Bihar, Madhya Pradesh"
                     value={newEqState}
                     onChange={(e) => setNewEqState(e.target.value)}
                     required
@@ -1889,7 +2522,7 @@ export default function MarketplacePage() {
                   <label className="block font-semibold text-stone-700 mb-1">District *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Sehore"
+                    placeholder="e.g. Samastipur, Sehore"
                     value={newEqDistrict}
                     onChange={(e) => setNewEqDistrict(e.target.value)}
                     required
