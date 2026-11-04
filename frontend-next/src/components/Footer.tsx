@@ -61,6 +61,7 @@ export function Footer() {
               </Link>
               <Link href="/marketplace?tab=produce" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Wholesale Crops
+              </Link>
               <Link href="/marketplace?action=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Sell Your Harvest
               </Link>
