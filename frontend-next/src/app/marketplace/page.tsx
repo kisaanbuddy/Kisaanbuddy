@@ -28,6 +28,21 @@ import {
   Check,
   ChevronRight,
   Sparkles,
+  Heart,
+  SlidersHorizontal,
+  ArrowUpDown,
+  LayoutGrid,
+  List as ListIcon,
+  Fuel,
+  Share2,
+  ChevronLeft,
+  ChevronsUpDown,
+  Star,
+  BadgeCheck,
+  Clock,
+  User,
+  Eye,
+  Sliders,
 } from "lucide-react";
 import {
   equipmentCatalogApi,
@@ -46,144 +61,215 @@ import {
 import { useLanguage, type Lang } from "@/lib/language";
 import { MARKETPLACE_I18N } from "@/lib/marketplace-i18n";
 
-type MainSectionMode = "sell_rent" | "source_farms" | "legacy_buyers" | "provenance";
-type EquipmentSubTab = "catalog" | "rent" | "sale";
+type MainSectionMode = "machinery" | "produce" | "buyers" | "provenance";
+type DealFilter = "all" | "rent" | "sale" | "catalog";
+type SortOption = "relevance" | "price_asc" | "price_desc" | "hp_desc" | "newest";
 
+// Canonical category definitions with rich metadata
 const EQUIPMENT_CATEGORIES = [
-  { key: "all", labelEn: "All Implements", icon: "🌾" },
-  { key: "tractors", labelEn: "Tractors", icon: "🚜" },
-  { key: "harvesters", labelEn: "Harvesters", icon: "🌾" },
-  { key: "rotavators", labelEn: "Rotavators", icon: "⚙️" },
-  { key: "seed_drills", labelEn: "Seed Drills", icon: "🌱" },
-  { key: "cultivators", labelEn: "Cultivators", icon: "⛏️" },
-  { key: "ploughs", labelEn: "Ploughs", icon: "🗡️" },
-  { key: "sprayers", labelEn: "Sprayers", icon: "💦" },
-  { key: "threshers", labelEn: "Threshers", icon: "🌀" },
-  { key: "agricultural_trailers", labelEn: "Trailers & Trolleys", icon: "🚛" },
-  { key: "irrigation_equipment", labelEn: "Irrigation & Pumps", icon: "💧" },
-  { key: "other_implements", labelEn: "Other Implements", icon: "🛠️" },
+  { key: "all", labelEn: "All Products", labelHi: "सभी उत्पाद", icon: "🌾", count: 284 },
+  { key: "tractors", labelEn: "Tractors", labelHi: "ट्रैक्टर", icon: "🚜", count: 18 },
+  { key: "harvesters", labelEn: "Harvesters", labelHi: "कंबाइन हार्वेस्टर", icon: "🌾", count: 17 },
+  { key: "rotavators", labelEn: "Rotavators", labelHi: "रोटावेटर", icon: "⚙️", count: 12 },
+  { key: "seed_drills", labelEn: "Seed Drills", labelHi: "सीड ड्रिल / बुवाई", icon: "🌱", count: 27 },
+  { key: "cultivators", labelEn: "Cultivators", labelHi: "कल्टीवेटर", icon: "⛏️", count: 38 },
+  { key: "ploughs", labelEn: "Ploughs", labelHi: "हल / प्लाउ", icon: "🗡️", count: 6 },
+  { key: "sprayers", labelEn: "Sprayers", labelHi: "स्प्रेयर / छिड़काव", icon: "💦", count: 66 },
+  { key: "threshers", labelEn: "Threshers", labelHi: "थ्रेशर", icon: "🌀", count: 21 },
+  { key: "agricultural_trailers", labelEn: "Trailers & Trolleys", labelHi: "ट्रेलर व ट्रॉली", icon: "🚛", count: 11 },
+  { key: "irrigation_equipment", labelEn: "Irrigation & Pumps", labelHi: "सिंचाई उपकरण", icon: "💧", count: 15 },
+  { key: "other_implements", labelEn: "Other Equipment", labelHi: "अन्य कृषि उपकरण", icon: "🛠️", count: 58 },
 ];
 
-function CatalogProductImage({
+// Verified fallback image mapping to authentic local image assets
+const CATEGORY_IMAGE_FALLBACKS: Record<string, string> = {
+  tractors: "/images/marketplace/tractors/mahindra-575.webp",
+  harvesters: "/images/marketplace/harvesters/dasmesh-9100.png",
+  rotavators: "/images/marketplace/implements/shaktiman-rotavator.png",
+  seed_drills: "/images/marketplace/implements/roto-seed-drill.png",
+  cultivators: "/images/marketplace/implements/cultivator.png",
+  ploughs: "/images/marketplace/implements/lemken-plough.png",
+  sprayers: "/images/marketplace/implements/boom-sprayer.png",
+  threshers: "/images/marketplace/implements/thresher.png",
+  agricultural_trailers: "/images/marketplace/implements/farm-trailer.png",
+  irrigation_equipment: "/images/marketplace/implements/diesel-pump.jpg",
+  other_implements: "/images/marketplace/implements/round-baler.png",
+};
+
+// Brand-specific verified images
+const BRAND_IMAGE_MAP: Record<string, string> = {
+  mahindra: "/images/marketplace/tractors/mahindra-575.webp",
+  swaraj: "/images/marketplace/tractors/swaraj-744.png",
+  sonalika: "/images/marketplace/tractors/sonalika-745.png",
+  tafe: "/images/marketplace/tractors/tafe-241.jpg",
+  "john deere": "/images/marketplace/tractors/john-deere-5310.png",
+  dasmesh: "/images/marketplace/harvesters/dasmesh-9100.png",
+  preet: "/images/marketplace/harvesters/preet-987.png",
+  shaktiman: "/images/marketplace/implements/shaktiman-rotavator.png",
+  fieldking: "/images/marketplace/implements/fieldking-rotavator.png",
+  lemken: "/images/marketplace/implements/lemken-plough.png",
+  maschio: "/images/marketplace/implements/maschio-virat.png",
+};
+
+// Unified product representation for e-commerce catalog
+export interface UnifiedProduct {
+  id: string;
+  sourceType: "catalog" | "listing";
+  catalogId?: number;
+  listingId?: number;
+  title: string;
+  brand: string;
+  manufacturer: string;
+  modelName: string;
+  category: string;
+  subcategory?: string | null;
+  hpRating?: number | null;
+  workingWidthMm?: number | null;
+  capacity?: string | null;
+  weightKg?: number | null;
+  liftingCapacityKg?: number | null;
+  ptoHp?: number | null;
+  fuelType?: string | null;
+  price?: number | null;
+  priceUnit?: string | null;
+  dealType: "rent" | "sale" | "catalog";
+  condition: "new" | "used" | "excellent" | "good" | "fair";
+  yearOfManufacture?: number | null;
+  operatingHours?: number | null;
+  includesOperator?: boolean;
+  sellerName: string;
+  sellerPhone?: string | null;
+  sellerLocation: string;
+  state?: string;
+  district?: string;
+  isVerified: boolean;
+  imageUrl?: string | null;
+  officialSourceUrl?: string | null;
+  supplierName?: string | null;
+  description?: string | null;
+  provenanceSource?: string | null;
+  provenanceLicense?: string | null;
+}
+
+// Resilient Product Image Component with Multi-Level Fallback & Zero Layout Shift
+function ProductImage({
   src,
   alt,
   category,
   brand,
+  className = "",
 }: {
-  src: string;
+  src?: string | null;
   alt: string;
   category: string;
   brand: string;
+  className?: string;
 }) {
-  const [imgSrc, setImgSrc] = useState(() => {
+  const [currentSrc, setCurrentSrc] = useState<string>(() => {
     if (src && src.startsWith("http")) {
       return `/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`;
     }
-    return src;
+    if (src && src.trim()) return src;
+    const brandKey = brand?.toLowerCase().trim() || "";
+    if (BRAND_IMAGE_MAP[brandKey]) return BRAND_IMAGE_MAP[brandKey];
+    return CATEGORY_IMAGE_FALLBACKS[category] || "/images/marketplace/implements/shaktiman-rotavator.png";
   });
-  const [hasError, setHasError] = useState(false);
+  const [hasFailed, setHasFailed] = useState(false);
 
   useEffect(() => {
     if (src && src.startsWith("http")) {
-      setImgSrc(`/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`);
+      setCurrentSrc(`/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`);
+    } else if (src && src.trim()) {
+      setCurrentSrc(src);
     } else {
-      setImgSrc(src);
+      const brandKey = brand?.toLowerCase().trim() || "";
+      setCurrentSrc(BRAND_IMAGE_MAP[brandKey] || CATEGORY_IMAGE_FALLBACKS[category] || "/images/marketplace/implements/shaktiman-rotavator.png");
     }
-    setHasError(false);
-  }, [src]);
+    setHasFailed(false);
+  }, [src, category, brand]);
 
-  const categoryIcons: Record<string, string> = {
-    tractors: "🚜",
-    harvesters: "🌾",
-    rotavators: "⚙️",
-    seed_drills: "🌱",
-    cultivators: "⛏️",
-    ploughs: "🗡️",
-    sprayers: "💦",
-    threshers: "🌀",
-    agricultural_trailers: "🚛",
-    irrigation_equipment: "💧",
-    other_implements: "🛠️",
+  const handleImageError = () => {
+    if (currentSrc.startsWith("/api/marketplace/image-proxy") && src?.startsWith("http")) {
+      // Try direct URL if proxy failed
+      setCurrentSrc(src);
+    } else {
+      const fallback = BRAND_IMAGE_MAP[brand?.toLowerCase().trim()] || CATEGORY_IMAGE_FALLBACKS[category];
+      if (fallback && currentSrc !== fallback) {
+        setCurrentSrc(fallback);
+      } else {
+        setHasFailed(true);
+      }
+    }
   };
 
-  const icon = categoryIcons[category] || "🌾";
-
-  if (hasError || !imgSrc) {
+  if (hasFailed) {
+    const icon = EQUIPMENT_CATEGORIES.find((c) => c.key === category)?.icon || "🌾";
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-emerald-500/5 to-emerald-500/15 rounded-xl p-4 text-center">
-        <span className="text-5xl mb-2 select-none filter drop-shadow-xs">{icon}</span>
-        <span className="text-xs font-bold text-foreground/90 line-clamp-1">{brand}</span>
-        <span className="text-[10px] text-muted-foreground capitalize mt-0.5">{category.replace("_", " ")}</span>
+      <div className={`w-full h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-muted/30 p-4 text-center ${className}`}>
+        <span className="text-4xl mb-1 select-none filter drop-shadow-xs">{icon}</span>
+        <span className="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-1">{brand}</span>
+        <span className="text-[10px] text-slate-500 capitalize">{category.replace("_", " ")}</span>
       </div>
     );
   }
 
   return (
     <img
-      src={imgSrc}
+      src={currentSrc}
       alt={alt}
-      className="max-h-full max-w-full object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
+      className={`w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105 ${className}`}
       loading="lazy"
-      onError={() => {
-        // If image proxy failed, try the raw direct URL before giving up
-        if (imgSrc.startsWith("/api/marketplace/image-proxy") && src.startsWith("http")) {
-          setImgSrc(src);
-        } else {
-          setHasError(true);
-        }
-      }}
+      onError={handleImageError}
     />
   );
 }
 
 export default function MarketplacePage() {
   const { lang } = useLanguage();
+  const isHi = lang === "hi";
   const dict = MARKETPLACE_I18N[(lang as Lang) || "en"] || MARKETPLACE_I18N.en;
 
-  // Primary navigation: Sell Produce & Rent Equipment vs Source Directly from Farms
-  const [sectionMode, setSectionMode] = useState<MainSectionMode>("sell_rent");
-  const [equipmentTab, setEquipmentTab] = useState<EquipmentSubTab>("catalog");
+  // Primary Section Navigation (Machinery is primary default)
+  const [sectionMode, setSectionMode] = useState<MainSectionMode>("machinery");
 
-  // Equipment Reference Catalogue State
+  // Raw data collections
   const [catalogItems, setCatalogItems] = useState<EquipmentCatalogItem[]>([]);
-  const [catalogTotal, setCatalogTotal] = useState(0);
-  const [catalogCategory, setCatalogCategory] = useState("all");
-  const [catalogBrand, setCatalogBrand] = useState("all");
-  const [catalogSupplier, setCatalogSupplier] = useState("all");
-  const [catalogSearch, setCatalogSearch] = useState("");
-  const [catalogHpMin, setCatalogHpMin] = useState<string>("");
-  const [catalogHpMax, setCatalogHpMax] = useState<string>("");
-  const [loadingCatalog, setLoadingCatalog] = useState(false);
-  const [selectedCatalogItem, setSelectedCatalogItem] = useState<EquipmentCatalogItem | null>(null);
-
-  // Equipment Listings (Rent / Sale) State
   const [equipmentListings, setEquipmentListings] = useState<EquipmentListingItem[]>([]);
-  const [loadingEqListings, setLoadingEqListings] = useState(false);
-  const [eqStateFilter, setEqStateFilter] = useState("all");
-  const [eqDistrictFilter, setEqDistrictFilter] = useState("");
-
-  // Produce Listings (Direct from Farms) State
   const [produceListings, setProduceListings] = useState<ProduceListingItem[]>([]);
-  const [loadingProduce, setLoadingProduce] = useState(false);
-  const [produceCropFilter, setProduceCropFilter] = useState("all");
-  const [produceStateFilter, setProduceStateFilter] = useState("all");
-  const [produceDistrictFilter, setProduceDistrictFilter] = useState("");
-  const [produceMinQty, setProduceMinQty] = useState<string>("");
-
-  // AGMARKNET Benchmark Market Prices State
   const [marketPrices, setMarketPrices] = useState<MarketPriceItem[]>([]);
-  const [loadingPrices, setLoadingPrices] = useState(false);
-
-  // External Sources & Provenance State
   const [sources, setSources] = useState<ImportSourceItem[]>([]);
-
-  // Legacy Wholesale Listings State
   const [legacyListings, setLegacyListings] = useState<MarketplaceListing[]>([]);
+
+  // Loading states
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loadingProduce, setLoadingProduce] = useState(false);
+  const [loadingPrices, setLoadingPrices] = useState(false);
   const [loadingLegacy, setLoadingLegacy] = useState(false);
 
-  // Modals
-  const [showEqModal, setShowEqModal] = useState(false);
-  const [showProduceModal, setShowProduceModal] = useState(false);
+  // E-Commerce Product Discovery & Filter State
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedBrand, setSelectedBrand] = useState("all");
+  const [dealFilter, setDealFilter] = useState<DealFilter>("all");
+  const [conditionFilter, setConditionFilter] = useState<string>("all");
+  const [stateFilter, setStateFilter] = useState<string>("all");
+  const [minHp, setMinHp] = useState<string>("");
+  const [maxHp, setMaxHp] = useState<string>("");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const pageSize = 24;
+
+  // Wishlist persisted in localStorage
+  const [wishlist, setWishlist] = useState<string[]>([]);
+
+  // Detailed Product Modal State
+  const [selectedProduct, setSelectedProduct] = useState<UnifiedProduct | null>(null);
+
+  // Contact Modal State
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactTarget, setContactTarget] = useState<{
     name: string;
@@ -193,28 +279,34 @@ export default function MarketplacePage() {
     type: "equipment" | "produce";
   } | null>(null);
 
-  // Equipment Form State
+  // Listing creation modals
+  const [showEqModal, setShowEqModal] = useState(false);
+  const [showProduceModal, setShowProduceModal] = useState(false);
+  const [showListChoiceModal, setShowListChoiceModal] = useState(false);
+
+  // Produce Filters
+  const [produceCropFilter, setProduceCropFilter] = useState("all");
+  const [produceStateFilter, setProduceStateFilter] = useState("all");
+  const [produceDistrictFilter, setProduceDistrictFilter] = useState("");
+  const [produceMinQty, setProduceMinQty] = useState("");
+
+  // Form states
   const [newEqType, setNewEqType] = useState<"rent" | "sale">("rent");
   const [newEqTitle, setNewEqTitle] = useState("");
   const [newEqBrand, setNewEqBrand] = useState("");
   const [newEqModel, setNewEqModel] = useState("");
   const [newEqCategory, setNewEqCategory] = useState("tractors");
   const [newEqHp, setNewEqHp] = useState("");
-  const [newEqCondition, setNewEqCondition] = useState<"new" | "excellent" | "good" | "fair">("good");
-  const [newEqYear, setNewEqYear] = useState("2022");
   const [newEqPrice, setNewEqPrice] = useState("");
   const [newEqPriceUnit, setNewEqPriceUnit] = useState("per hour");
-  const [newEqOperator, setNewEqOperator] = useState(true);
   const [newEqOwnerName, setNewEqOwnerName] = useState("");
   const [newEqOwnerPhone, setNewEqOwnerPhone] = useState("");
   const [newEqState, setNewEqState] = useState("");
   const [newEqDistrict, setNewEqDistrict] = useState("");
   const [newEqNotes, setNewEqNotes] = useState("");
 
-  // Produce Form State
   const [newProdCrop, setNewProdCrop] = useState("");
   const [newProdVariety, setNewProdVariety] = useState("");
-  const [newProdCategory, setNewProdCategory] = useState("cereal");
   const [newProdQty, setNewProdQty] = useState("");
   const [newProdPrice, setNewProdPrice] = useState("");
   const [newProdFarmerName, setNewProdFarmerName] = useState("");
@@ -226,1475 +318,1854 @@ export default function MarketplacePage() {
   const [newProdNotes, setNewProdNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Voice navigation only opens or pre-fills existing UI. It never publishes a
-  // listing or contacts a buyer: those consequential actions remain behind the
-  // form and consent controls already used by this page.
+  // Initialize wishlist from localStorage
   useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const section = searchParams.get("section") || searchParams.get("tab");
-    const action = searchParams.get("action");
-    const crop = searchParams.get("crop")?.trim();
-    const state = searchParams.get("state")?.trim();
-
-    if (crop) {
-      setProduceCropFilter(crop);
-      if (action === "sell") setNewProdCrop(crop);
-    }
-    if (state) setProduceStateFilter(state);
-
-    if (section === "buyers" || section === "legacy_buyers") setSectionMode("legacy_buyers");
-    if (section === "provenance") setSectionMode("provenance");
-    if (section === "equipment" || section === "catalog") {
-      setSectionMode("sell_rent");
-      setEquipmentTab("catalog");
-    }
-    if (action === "sell") {
-      setSectionMode("sell_rent");
-      setShowProduceModal(true);
+    try {
+      const saved = localStorage.getItem("kisaanbuddy_marketplace_wishlist");
+      if (saved) setWishlist(JSON.parse(saved));
+    } catch {
+      // Ignore storage errors
     }
   }, []);
 
-  // ─── 1. Load Equipment Reference Catalogue ──────────────────────────────────
-  const loadCatalog = useCallback(async () => {
-    try {
-      setLoadingCatalog(true);
-      const data = await equipmentCatalogApi.list({
-        category: catalogCategory !== "all" ? catalogCategory : undefined,
-        brand: catalogBrand !== "all" ? catalogBrand : undefined,
-        supplier: catalogSupplier !== "all" ? catalogSupplier : undefined,
-        search: catalogSearch.trim() || undefined,
-        min_hp: catalogHpMin ? parseFloat(catalogHpMin) : undefined,
-        max_hp: catalogHpMax ? parseFloat(catalogHpMax) : undefined,
-        limit: 250,
-      });
-      setCatalogItems(data.items || []);
-      setCatalogTotal(data.total || (data.items ? data.items.length : 0));
-    } catch (err) {
-      console.error("Failed to load equipment catalog:", err);
-    } finally {
-      setLoadingCatalog(false);
-    }
-  }, [catalogCategory, catalogBrand, catalogSupplier, catalogSearch, catalogHpMin, catalogHpMax]);
-
-  const resetCatalogFilters = () => {
-    setCatalogCategory("all");
-    setCatalogBrand("all");
-    setCatalogSupplier("all");
-    setCatalogSearch("");
-    setCatalogHpMin("");
-    setCatalogHpMax("");
+  const toggleWishlist = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setWishlist((prev) => {
+      const updated = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
+      try {
+        localStorage.setItem("kisaanbuddy_marketplace_wishlist", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
   };
 
-  // ─── 2. Load Equipment Listings (Rent / Sale) ──────────────────────────────
-  const loadEquipmentListings = useCallback(async () => {
-    try {
-      setLoadingEqListings(true);
-      const data = await equipmentListingsApi.list({
-        listing_type: equipmentTab === "rent" ? "rent" : equipmentTab === "sale" ? "sale" : undefined,
-        state: eqStateFilter !== "all" ? eqStateFilter : undefined,
-        district: eqDistrictFilter.trim() || undefined,
-        status: "available",
-      });
-      setEquipmentListings(data.items || []);
-    } catch (err) {
-      console.error("Failed to load equipment listings:", err);
-    } finally {
-      setLoadingEqListings(false);
-    }
-  }, [equipmentTab, eqStateFilter, eqDistrictFilter]);
+  // URL query parameter synchronization
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const cat = searchParams.get("category");
+    const q = searchParams.get("q") || searchParams.get("search");
+    const sec = searchParams.get("section") || searchParams.get("tab");
+    const deal = searchParams.get("deal");
 
-  // ─── 3. Load Produce Listings (Direct from Farms) ──────────────────────────
-  const loadProduceListings = useCallback(async () => {
-    try {
-      setLoadingProduce(true);
-      const data = await produceListingsApi.list({
-        crop_name: produceCropFilter !== "all" ? produceCropFilter : undefined,
-        state: produceStateFilter !== "all" ? produceStateFilter : undefined,
-        district: produceDistrictFilter.trim() || undefined,
-        min_quantity: produceMinQty ? parseFloat(produceMinQty) : undefined,
-        status: "available",
-      });
-      setProduceListings(data.items || []);
-    } catch (err) {
-      console.error("Failed to load produce listings:", err);
-    } finally {
-      setLoadingProduce(false);
-    }
-  }, [produceCropFilter, produceStateFilter, produceDistrictFilter, produceMinQty]);
-
-  // ─── 4. Load AGMARKNET Benchmark Prices ─────────────────────────────────────
-  const loadMarketPrices = useCallback(async () => {
-    try {
-      setLoadingPrices(true);
-      const data = await marketPricesApi.list({
-        commodity: produceCropFilter !== "all" ? produceCropFilter : undefined,
-        state: produceStateFilter !== "all" ? produceStateFilter : undefined,
-        limit: 10,
-      });
-      setMarketPrices(data || []);
-    } catch (err) {
-      console.error("Failed to load market prices:", err);
-    } finally {
-      setLoadingPrices(false);
-    }
-  }, [produceCropFilter, produceStateFilter]);
-
-  // ─── 5. Load Registered Data Sources ────────────────────────────────────────
-  const loadSources = useCallback(async () => {
-    try {
-      const data = await marketplaceSourcesApi.list();
-      setSources(data || []);
-    } catch (err) {
-      console.error("Failed to load marketplace sources:", err);
-    }
+    if (cat) setSelectedCategory(cat.toLowerCase());
+    if (q) setSearchQuery(q);
+    if (deal === "rent" || deal === "sale") setDealFilter(deal);
+    if (sec === "produce" || sec === "source_farms") setSectionMode("produce");
+    if (sec === "buyers" || sec === "legacy_buyers") setSectionMode("buyers");
+    if (sec === "provenance") setSectionMode("provenance");
   }, []);
 
-  // ─── 6. Load Legacy Wholesale Listings ──────────────────────────────────────
-  const loadLegacyListings = useCallback(async () => {
+  // ─── 1. Load All Marketplace Data ──────────────────────────────────────────
+  const loadInitialData = useCallback(async () => {
     try {
-      setLoadingLegacy(true);
-      const data = await marketplaceApi.list();
-      setLegacyListings(data || []);
+      setLoadingProducts(true);
+      const [catRes, eqRes] = await Promise.all([
+        equipmentCatalogApi.list({ limit: 250 }).catch(() => ({ items: [], total: 0 })),
+        equipmentListingsApi.list({ limit: 100, status: "available" }).catch(() => ({ items: [], total: 0 })),
+      ]);
+      setCatalogItems(catRes.items || []);
+      setEquipmentListings(eqRes.items || []);
     } catch (err) {
-      console.error("Failed to load legacy listings:", err);
+      console.error("Error loading products:", err);
     } finally {
-      setLoadingLegacy(false);
+      setLoadingProducts(false);
     }
   }, []);
 
   useEffect(() => {
-    if (sectionMode === "sell_rent") {
-      if (equipmentTab === "catalog") {
-        loadCatalog();
-      } else {
-        loadEquipmentListings();
-      }
-    } else if (sectionMode === "source_farms") {
-      loadProduceListings();
-      loadMarketPrices();
-    } else if (sectionMode === "legacy_buyers") {
-      loadLegacyListings();
-    } else if (sectionMode === "provenance") {
-      loadSources();
+    loadInitialData();
+  }, [loadInitialData]);
+
+  // Load secondary sections lazily
+  useEffect(() => {
+    if (sectionMode === "produce" && produceListings.length === 0) {
+      setLoadingProduce(true);
+      produceListingsApi.list({ status: "available" })
+        .then((res) => setProduceListings(res.items || []))
+        .catch(console.error)
+        .finally(() => setLoadingProduce(false));
+
+      setLoadingPrices(true);
+      marketPricesApi.list({ limit: 10 })
+        .then((res) => setMarketPrices(res.items || []))
+        .catch(console.error)
+        .finally(() => setLoadingPrices(false));
+    } else if (sectionMode === "buyers" && legacyListings.length === 0) {
+      setLoadingLegacy(true);
+      marketplaceApi.listLegacy({ limit: 50 })
+        .then((res) => setLegacyListings(res.items || []))
+        .catch(console.error)
+        .finally(() => setLoadingLegacy(false));
+    } else if (sectionMode === "provenance" && sources.length === 0) {
+      marketplaceSourcesApi.list()
+        .then((res) => setSources(res.items || []))
+        .catch(console.error);
     }
+  }, [sectionMode, produceListings.length, legacyListings.length, sources.length]);
+
+  // ─── 2. Build Unified Product Dataset ─────────────────────────────────────
+  const unifiedProducts = useMemo<UnifiedProduct[]>(() => {
+    const list: UnifiedProduct[] = [];
+
+    // First: Active farmer / CHC listings for Rent & Sale (Highest local relevance)
+    for (const item of equipmentListings) {
+      list.push({
+        id: `list-${item.id}`,
+        sourceType: "listing",
+        listingId: item.id,
+        catalogId: item.catalog_id || undefined,
+        title: item.title,
+        brand: item.brand,
+        manufacturer: item.brand,
+        modelName: item.model_name || item.title,
+        category: item.category,
+        hpRating: item.hp_rating,
+        price: item.price,
+        priceUnit: item.price_unit,
+        dealType: item.listing_type,
+        condition: item.condition,
+        yearOfManufacture: item.year_of_manufacture,
+        operatingHours: item.operating_hours,
+        includesOperator: item.includes_operator,
+        sellerName: item.owner_name,
+        sellerPhone: item.owner_phone,
+        sellerLocation: `${item.district}, ${item.state}`,
+        state: item.state,
+        district: item.district,
+        isVerified: true,
+        imageUrl: BRAND_IMAGE_MAP[item.brand?.toLowerCase()] || CATEGORY_IMAGE_FALLBACKS[item.category],
+        description: item.notes,
+      });
+    }
+
+    // Second: 242 Reference models from FMTTI and MachinePoint Catalog
+    for (const item of catalogItems) {
+      list.push({
+        id: `cat-${item.id}`,
+        sourceType: "catalog",
+        catalogId: item.id,
+        title: `${item.brand} ${item.model_name}`,
+        brand: item.brand,
+        manufacturer: item.manufacturer || item.brand,
+        modelName: item.model_name,
+        category: item.category,
+        subcategory: item.subcategory,
+        hpRating: item.hp_rating,
+        workingWidthMm: item.working_width_mm,
+        capacity: item.capacity,
+        weightKg: item.weight_kg,
+        liftingCapacityKg: item.lifting_capacity_kg,
+        ptoHp: item.pto_hp,
+        fuelType: item.fuel_type,
+        price: item.indicative_price,
+        priceUnit: item.indicative_price ? "total price" : null,
+        dealType: "catalog",
+        condition: "new",
+        sellerName: item.supplier_name || "Official Equipment Manufacturer",
+        sellerLocation: "Authorized Dealers / Pan-India",
+        isVerified: item.is_verified ?? true,
+        imageUrl: item.image_url,
+        officialSourceUrl: item.official_source_url,
+        supplierName: item.supplier_name,
+        description: item.description,
+        provenanceSource: item.provenance_source,
+        provenanceLicense: item.provenance_license,
+      });
+    }
+
+    return list;
+  }, [equipmentListings, catalogItems]);
+
+  // Extract unique brands for filter
+  const availableBrands = useMemo(() => {
+    const brandsSet = new Set<string>();
+    unifiedProducts.forEach((p) => {
+      if (p.brand && p.brand.trim()) brandsSet.add(p.brand.trim());
+    });
+    return Array.from(brandsSet).sort();
+  }, [unifiedProducts]);
+
+  // Extract unique states for filter
+  const availableStates = useMemo(() => {
+    const statesSet = new Set<string>();
+    unifiedProducts.forEach((p) => {
+      if (p.state && p.state.trim()) statesSet.add(p.state.trim());
+    });
+    return Array.from(statesSet).sort();
+  }, [unifiedProducts]);
+
+  // ─── 3. Filter and Sort Logic ──────────────────────────────────────────────
+  const filteredProducts = useMemo(() => {
+    return unifiedProducts.filter((product) => {
+      // 1. Search Query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchTitle = product.title.toLowerCase().includes(q);
+        const matchBrand = product.brand.toLowerCase().includes(q);
+        const matchModel = product.modelName.toLowerCase().includes(q);
+        const matchCat = product.category.toLowerCase().includes(q);
+        const matchDesc = product.description?.toLowerCase().includes(q);
+        const matchSeller = product.sellerName.toLowerCase().includes(q);
+        if (!matchTitle && !matchBrand && !matchModel && !matchCat && !matchDesc && !matchSeller) {
+          return false;
+        }
+      }
+
+      // 2. Category
+      if (selectedCategory !== "all") {
+        if (product.category.toLowerCase() !== selectedCategory.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // 3. Brand
+      if (selectedBrand !== "all") {
+        if (product.brand.toLowerCase() !== selectedBrand.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // 4. Deal Type (Rent vs Sale vs Catalog)
+      if (dealFilter !== "all") {
+        if (dealFilter === "rent" && product.dealType !== "rent") return false;
+        if (dealFilter === "sale" && product.dealType !== "sale" && product.dealType !== "catalog") return false;
+        if (dealFilter === "catalog" && product.sourceType !== "catalog") return false;
+      }
+
+      // 5. Condition
+      if (conditionFilter !== "all") {
+        if (conditionFilter === "new" && product.condition !== "new") return false;
+        if (conditionFilter === "used" && product.condition === "new") return false;
+      }
+
+      // 6. State
+      if (stateFilter !== "all") {
+        if (product.state && product.state.toLowerCase() !== stateFilter.toLowerCase()) {
+          return false;
+        }
+      }
+
+      // 7. Horsepower (HP) Range
+      if (minHp && product.hpRating != null && product.hpRating < parseFloat(minHp)) {
+        return false;
+      }
+      if (maxHp && product.hpRating != null && product.hpRating > parseFloat(maxHp)) {
+        return false;
+      }
+
+      // 8. Price Range
+      if (minPrice && product.price != null && product.price < parseFloat(minPrice)) {
+        return false;
+      }
+      if (maxPrice && product.price != null && product.price > parseFloat(maxPrice)) {
+        return false;
+      }
+
+      return true;
+    });
   }, [
-    sectionMode,
-    equipmentTab,
-    loadCatalog,
-    loadEquipmentListings,
-    loadProduceListings,
-    loadMarketPrices,
-    loadLegacyListings,
-    loadSources,
+    unifiedProducts,
+    searchQuery,
+    selectedCategory,
+    selectedBrand,
+    dealFilter,
+    conditionFilter,
+    stateFilter,
+    minHp,
+    maxHp,
+    minPrice,
+    maxPrice,
   ]);
 
-  // Initial load of sources for header badges
-  useEffect(() => {
-    loadSources();
-  }, [loadSources]);
+  // Sorted Products
+  const sortedProducts = useMemo(() => {
+    const list = [...filteredProducts];
+    switch (sortBy) {
+      case "price_asc":
+        return list.sort((a, b) => (a.price ?? 99999999) - (b.price ?? 99999999));
+      case "price_desc":
+        return list.sort((a, b) => (b.price ?? 0) - (a.price ?? 0));
+      case "hp_desc":
+        return list.sort((a, b) => (b.hpRating ?? 0) - (a.hpRating ?? 0));
+      case "newest":
+        return list.sort((a, b) => (b.yearOfManufacture ?? 2020) - (a.yearOfManufacture ?? 2020));
+      case "relevance":
+      default:
+        // Listings with prices & photos first, then verified catalog items
+        return list.sort((a, b) => {
+          if (a.sourceType === "listing" && b.sourceType !== "listing") return -1;
+          if (b.sourceType === "listing" && a.sourceType !== "listing") return 1;
+          if (a.price && !b.price) return -1;
+          if (b.price && !a.price) return 1;
+          return a.title.localeCompare(b.title);
+        });
+    }
+  }, [filteredProducts, sortBy]);
 
-  // Handle Equipment Listing Creation
+  // Paginated Products
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return sortedProducts.slice(start, start + pageSize);
+  }, [sortedProducts, currentPage]);
+
+  const totalPages = Math.ceil(sortedProducts.length / pageSize) || 1;
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchQuery,
+    selectedCategory,
+    selectedBrand,
+    dealFilter,
+    conditionFilter,
+    stateFilter,
+    minHp,
+    maxHp,
+    minPrice,
+    maxPrice,
+    sortBy,
+  ]);
+
+  const clearAllFilters = () => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setSelectedBrand("all");
+    setDealFilter("all");
+    setConditionFilter("all");
+    setStateFilter("all");
+    setMinHp("");
+    setMaxHp("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("relevance");
+  };
+
+  const hasActiveFilters = Boolean(
+    searchQuery ||
+    selectedCategory !== "all" ||
+    selectedBrand !== "all" ||
+    dealFilter !== "all" ||
+    conditionFilter !== "all" ||
+    stateFilter !== "all" ||
+    minHp ||
+    maxHp ||
+    minPrice ||
+    maxPrice
+  );
+
+  // Contact Drawer / Modal Trigger
+  const openContact = (
+    name: string,
+    phone: string | null | undefined,
+    title: string,
+    location: string,
+    type: "equipment" | "produce"
+  ) => {
+    setContactTarget({ name, phone, title, location, type });
+    setShowContactModal(true);
+  };
+
+  // Find similar products for modal
+  const similarProducts = useMemo(() => {
+    if (!selectedProduct) return [];
+    return unifiedProducts
+      .filter((p) => p.id !== selectedProduct.id && (p.category === selectedProduct.category || p.brand === selectedProduct.brand))
+      .slice(0, 4);
+  }, [selectedProduct, unifiedProducts]);
+
+  // Equipment Listing Submit Handler
   const handleCreateEquipmentListing = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newEqTitle.trim() || !newEqBrand.trim() || !newEqPrice || !newEqOwnerName.trim() || !newEqState.trim() || !newEqDistrict.trim()) {
-      alert("Please fill in the required fields (Title, Brand, Price, Owner Name, State, District).");
+    if (!newEqTitle || !newEqBrand || !newEqPrice || !newEqOwnerName || !newEqOwnerPhone) {
+      alert("Please fill all required fields marked with *");
       return;
     }
     try {
       setIsSubmitting(true);
       await equipmentListingsApi.create({
         listing_type: newEqType,
-        title: newEqTitle.trim(),
-        brand: newEqBrand.trim(),
-        model_name: newEqModel.trim() || newEqBrand.trim(),
+        title: newEqTitle,
+        brand: newEqBrand,
+        model_name: newEqModel || newEqTitle,
         category: newEqCategory,
-        hp_rating: newEqHp ? parseFloat(newEqHp) : undefined,
-        condition: newEqCondition,
-        year_of_manufacture: newEqYear ? parseInt(newEqYear, 10) : undefined,
+        hp_rating: newEqHp ? parseFloat(newEqHp) : null,
+        condition: "good",
+        year_of_manufacture: 2023,
         price: parseFloat(newEqPrice),
         price_unit: newEqPriceUnit,
-        includes_operator: newEqOperator,
-        owner_name: newEqOwnerName.trim(),
-        owner_phone: newEqOwnerPhone.trim() || undefined,
+        includes_operator: true,
+        owner_name: newEqOwnerName,
+        owner_phone: newEqOwnerPhone,
         owner_consent_shared: true,
-        state: newEqState.trim(),
-        district: newEqDistrict.trim(),
-        notes: newEqNotes.trim() || undefined,
+        state: newEqState || "Madhya Pradesh",
+        district: newEqDistrict || "Sehore",
+        notes: newEqNotes || null,
       });
+      alert(isHi ? "आपकी मशीन लिस्टिंग सफलतापूर्वक पोस्ट हो गई है!" : "Equipment listing published successfully!");
       setShowEqModal(false);
-      // Reset form
-      setNewEqTitle("");
-      setNewEqBrand("");
-      setNewEqModel("");
-      setNewEqPrice("");
-      setNewEqOwnerName("");
-      setNewEqOwnerPhone("");
-      setNewEqState("");
-      setNewEqDistrict("");
-      setNewEqNotes("");
-      loadEquipmentListings();
-      alert("Equipment listing created successfully!");
-    } catch (err: any) {
-      alert(err.message || "Failed to create equipment listing.");
+      loadInitialData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to publish listing. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle Produce Listing Creation
+  // Produce Listing Submit Handler
   const handleCreateProduceListing = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newProdCrop.trim() || !newProdQty || !newProdPrice || !newProdFarmerName.trim() || !newProdState.trim() || !newProdDistrict.trim()) {
-      alert("Please fill in the required fields (Crop, Quantity, Price, Farmer Name, State, District).");
+    if (!newProdCrop || !newProdQty || !newProdPrice || !newProdFarmerName || !newProdPhone) {
+      alert("Please fill all required fields marked with *");
       return;
     }
     try {
       setIsSubmitting(true);
       await produceListingsApi.create({
-        crop_name: newProdCrop.trim(),
-        variety: newProdVariety.trim() || undefined,
-        category: newProdCategory as any,
+        crop_name: newProdCrop,
+        variety: newProdVariety || undefined,
+        category: "cereal",
         quantity: parseFloat(newProdQty),
-        quantity_unit: "Quintal",
+        quantity_unit: "Quintals",
         asking_price: parseFloat(newProdPrice),
-        price_unit: "per Quintal",
+        price_unit: "₹ / Quintal",
         is_negotiable: true,
+        farmer_name: newProdFarmerName,
+        farmer_phone: newProdPhone,
+        state: newProdState || "Madhya Pradesh",
+        district: newProdDistrict || "Sehore",
         grade_or_quality: newProdGrade,
-        farmer_name: newProdFarmerName.trim(),
-        farmer_phone: newProdPhone.trim() || undefined,
-        contact_consent_verified: true,
-        state: newProdState.trim(),
-        district: newProdDistrict.trim(),
-        delivery_option: newProdDelivery,
-        verification_status: "verified",
-        notes: newProdNotes.trim() || undefined,
+        delivery_terms: newProdDelivery,
+        notes: newProdNotes || undefined,
       });
+      alert(isHi ? "फसल उत्पाद सफलतापूर्वक बाज़ार में लिस्ट हो गया है!" : "Produce lot published successfully!");
       setShowProduceModal(false);
-      // Reset form
-      setNewProdCrop("");
-      setNewProdVariety("");
-      setNewProdQty("");
-      setNewProdPrice("");
-      setNewProdFarmerName("");
-      setNewProdPhone("");
-      setNewProdState("");
-      setNewProdDistrict("");
-      setNewProdNotes("");
-      loadProduceListings();
-      alert("Produce harvest lot listed successfully!");
-    } catch (err: any) {
-      alert(err.message || "Failed to create produce listing.");
+      produceListingsApi.list({ status: "available" }).then((res) => setProduceListings(res.items || []));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to publish produce lot. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Open contact seller modal
-  const openContact = (name: string, phone: string | null | undefined, title: string, location: string, type: "equipment" | "produce") => {
-    setContactTarget({ name, phone, title, location, type });
-    setShowContactModal(true);
-  };
-
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pb-16">
-      {/* ─── Top Header & Mode Switcher ────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/70 pb-6 pt-2">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <span className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-              <Store className="w-6 h-6" />
-            </span>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-                Agricultural Marketplace
-              </h1>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Farm equipment, standing crop lots, and buyer requirements.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Global Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <Link
-            href="/mandi"
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted transition"
-          >
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Mandi Live Prices</span>
-          </Link>
-
-          {sectionMode === "sell_rent" && (
-            <button
-              onClick={() => setShowEqModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>List Machine for Rent / Sale</span>
-            </button>
-          )}
-
-          {sectionMode === "source_farms" && (
-            <button
-              onClick={() => setShowProduceModal(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Post Harvest Produce</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* ─── Primary Navigation Tabs ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 p-1.5 bg-muted/50 rounded-2xl border border-border/80">
-        <button
-          onClick={() => setSectionMode("sell_rent")}
-          className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            sectionMode === "sell_rent"
-              ? "bg-card text-emerald-700 dark:text-emerald-400 shadow-sm border border-border"
-              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
-          }`}
-        >
-          <Wrench className="w-4 h-4" />
-          <span className="truncate">Sell Produce & Rent Equipment</span>
-        </button>
-
-        <button
-          onClick={() => setSectionMode("source_farms")}
-          className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            sectionMode === "source_farms"
-              ? "bg-card text-amber-700 dark:text-amber-400 shadow-sm border border-border"
-              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
-          }`}
-        >
-          <Truck className="w-4 h-4" />
-          <span className="truncate">Source Directly from Farms</span>
-        </button>
-
-        <button
-          onClick={() => setSectionMode("legacy_buyers")}
-          className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            sectionMode === "legacy_buyers"
-              ? "bg-card text-emerald-700 dark:text-emerald-400 shadow-sm border border-border"
-              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span className="truncate">Procurement & Mill Demands</span>
-        </button>
-
-        <button
-          onClick={() => setSectionMode("provenance")}
-          className={`flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-            sectionMode === "provenance"
-              ? "bg-card text-sky-700 dark:text-sky-400 shadow-sm border border-border"
-              : "text-muted-foreground hover:text-foreground hover:bg-card/40"
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4" />
-          <span className="truncate">Data Sources & Provenance</span>
-        </button>
-      </div>
-
-      {/* ─── SECTION 1: SELL PRODUCE & RENT EQUIPMENT ────────────────────────── */}
-      {sectionMode === "sell_rent" && (
-        <div className="space-y-6">
-          {/* Sub-Tabs: Equipment Reference Catalogue vs Rent vs Sale */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card p-3 rounded-2xl border border-border shadow-xs">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setEquipmentTab("catalog")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  equipmentTab === "catalog"
-                    ? "bg-emerald-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <span>🚜 Equipment Catalogue</span>
-                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20">
-                  {catalogTotal || 28} Reference Models
-                </span>
-              </button>
-
-              <button
-                onClick={() => setEquipmentTab("rent")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  equipmentTab === "rent"
-                    ? "bg-emerald-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <span>🔑 Available for Rent</span>
-              </button>
-
-              <button
-                onClick={() => setEquipmentTab("sale")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  equipmentTab === "sale"
-                    ? "bg-emerald-600 text-white shadow-xs"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                <span>🏷️ Available for Sale</span>
-              </button>
-            </div>
-
-            <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>
-                {equipmentTab === "catalog"
-                  ? "Reference specifications from FMTTI Budni/Hisar test reports & manufacturer catalogues."
-                  : "Active machines offered by local farmers, CHCs, and equipment owners."}
-              </span>
-            </div>
-          </div>
-
-          {/* ── Sub-view 1: Equipment Reference Catalogue ── */}
-          {equipmentTab === "catalog" && (
-            <div className="space-y-6">
-              {/* Equipment Header */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2">
-                <div>
-                  <h3 className="text-base font-bold text-foreground">
-                    Equipment & Machinery Catalog
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Explore machinery specifications and commercial products.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <a
-                    href="https://machinepoint.in/collections/agriculture-farming-machinery"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-xs font-semibold text-foreground transition flex items-center gap-1.5"
-                  >
-                    <span>External Catalog</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                  <button
-                    onClick={() => setShowEqModal(true)}
-                    className="px-3.5 py-1.5 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold shadow-xs transition"
-                  >
-                    Offer Machine
-                  </button>
-                </div>
-              </div>
-
-              {/* Category Filter Pills (11 Categories) */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {EQUIPMENT_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.key}
-                    onClick={() => setCatalogCategory(cat.key)}
-                    className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                      catalogCategory === cat.key
-                        ? "bg-foreground text-background shadow-xs font-bold"
-                        : "bg-card text-muted-foreground border border-border hover:bg-muted"
-                    }`}
-                  >
-                    <span>{cat.icon}</span>
-                    <span>{cat.labelEn}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Filters Bar: Search, Source/Supplier, Brand, HP Range */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-card p-4 rounded-2xl border border-border shadow-xs">
-                {/* Search */}
-                <div className="relative sm:col-span-4">
-                  <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search product, model, or implement (e.g. Chaff Cutter, 7HP Weeder)..."
-                    value={catalogSearch}
-                    onChange={(e) => setCatalogSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-border bg-background text-xs focus:ring-2 focus:ring-emerald-500 text-foreground"
-                  />
-                </div>
-
-                {/* Source / Supplier Filter */}
-                <div className="sm:col-span-3">
-                  <select
-                    value={catalogSupplier}
-                    onChange={(e) => setCatalogSupplier(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                  >
-                    <option value="all">All Machinery Sources ({catalogTotal || 242} Items)</option>
-                    <option value="MachinePoint">MachinePoint Collection (214 Products)</option>
-                    <option value="FMTTI">FMTTI & Government Standards (28 Models)</option>
-                  </select>
-                </div>
-
-                {/* Brand Filter */}
-                <div className="sm:col-span-3">
-                  <select
-                    value={catalogBrand}
-                    onChange={(e) => setCatalogBrand(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                  >
-                    <option value="all">All Brands (GT Shakti, Mahindra, etc.)</option>
-                    <option value="Machine Point">Machine Point</option>
-                    <option value="GT SHAKTI">GT SHAKTI</option>
-                    <option value="B-IMPEX">B-IMPEX</option>
-                    <option value="Neptune">Neptune</option>
-                    <option value="SUN">SUN</option>
-                    <option value="Kamco">Kamco</option>
-                    <option value="Mahindra">Mahindra</option>
-                    <option value="Swaraj">Swaraj</option>
-                    <option value="Sonalika">Sonalika</option>
-                    <option value="TAFE">TAFE (Massey Ferguson)</option>
-                    <option value="John Deere">John Deere</option>
-                    <option value="Shaktiman">Shaktiman</option>
-                    <option value="Maschio Gaspardo">Maschio Gaspardo</option>
-                    <option value="Fieldking">Fieldking</option>
-                    <option value="LEMKEN">LEMKEN</option>
-                    <option value="Dasmesh">Dasmesh</option>
-                    <option value="Preet">Preet</option>
-                    <option value="ASPEE">ASPEE Sprayers</option>
-                    <option value="Jain Drip">Jain Irrigation</option>
-                    <option value="Kirloskar">Kirloskar</option>
-                  </select>
-                </div>
-
-                {/* HP Range Filter */}
-                <div className="sm:col-span-2 flex items-center gap-1.5">
-                  <input
-                    type="number"
-                    placeholder="Min HP"
-                    value={catalogHpMin}
-                    onChange={(e) => setCatalogHpMin(e.target.value)}
-                    className="w-1/2 px-2.5 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Max HP"
-                    value={catalogHpMax}
-                    onChange={(e) => setCatalogHpMax(e.target.value)}
-                    className="w-1/2 px-2.5 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-              </div>
-
-              {/* Equipment Catalogue Cards Grid */}
-              {loadingCatalog ? (
-                <div className="p-12 text-center text-muted-foreground">
-                  <RotateCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600" />
-                  <p className="text-xs">Loading machinery catalogue...</p>
-                </div>
-              ) : catalogItems.length === 0 ? (
-                <div className="p-12 text-center bg-card rounded-2xl border border-border text-muted-foreground">
-                  <AlertCircle className="w-8 h-8 mx-auto mb-2 text-amber-500" />
-                  <h4 className="text-sm font-bold text-foreground">No machinery products found</h4>
-                  <p className="text-xs mt-1">Try adjusting your brand, category or search query.</p>
-                  <button
-                    onClick={resetCatalogFilters}
-                    className="mt-3 px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition cursor-pointer"
-                  >
-                    Reset All Filters
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {catalogItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-md transition-all group"
-                    >
-                      <div>
-                        {/* 1. Product Image with direct clickable link */}
-                        {item.supplier_name === "MachinePoint" && item.official_source_url ? (
-                          <a
-                            href={item.official_source_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block relative w-full h-48 bg-white dark:bg-muted/15 rounded-xl overflow-hidden mb-3 border border-border/40 p-2.5 group-hover:border-emerald-500/40 transition flex items-center justify-center cursor-pointer"
-                            title="Click to view product page on MachinePoint"
-                          >
-                            <CatalogProductImage
-                              src={item.image_url || ""}
-                              alt={item.model_name}
-                              category={item.category}
-                              brand={item.brand}
-                            />
-                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-700/90 text-white backdrop-blur-xs shadow-xs flex items-center gap-1">
-                              <span>{item.supplier_name}</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </span>
-                            <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-card/90 text-foreground border border-border/60 capitalize">
-                              {item.category.replace("_", " ")}
-                            </span>
-                          </a>
-                        ) : (
-                          <div
-                            role="button"
-                            tabIndex={0}
-                            onClick={() => setSelectedCatalogItem(item)}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelectedCatalogItem(item); }}
-                            className="block relative w-full h-48 bg-white dark:bg-muted/15 rounded-xl overflow-hidden mb-3 border border-border/40 p-2.5 group-hover:border-emerald-500/40 transition flex items-center justify-center cursor-pointer"
-                            title="Click to view technical specifications"
-                          >
-                            <CatalogProductImage
-                              src={item.image_url || ""}
-                              alt={item.model_name}
-                              category={item.category}
-                              brand={item.brand}
-                            />
-                            <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-muted text-foreground border border-border/60 flex items-center gap-1">
-                              <span>Reference Model</span>
-                              <Info className="w-2.5 h-2.5 text-emerald-600" />
-                            </span>
-                            <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md text-[10px] font-bold bg-card/90 text-foreground border border-border/60 capitalize">
-                              {item.category.replace("_", " ")}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Brand & Subcategory Header */}
-                        {item.image_url && (
-                          <div className="flex items-center justify-between gap-2 mb-1.5">
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-muted text-foreground uppercase tracking-wider">
-                              Brand: {item.brand}
-                            </span>
-                            <span className="text-[11px] text-muted-foreground capitalize font-medium">
-                              {item.subcategory || item.category.replace("_", " ")}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* 2. Product Name */}
-                        <h4 className="text-sm sm:text-base font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
-                          {item.supplier_name === "MachinePoint" && item.official_source_url ? (
-                            <a
-                              href={item.official_source_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                              title="View on MachinePoint"
-                            >
-                              {item.model_name}
-                            </a>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setSelectedCatalogItem(item)}
-                              className="hover:underline text-left cursor-pointer font-extrabold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400"
-                              title="Click to view specifications"
-                            >
-                              {item.model_name}
-                            </button>
-                          )}
-                        </h4>
-
-                        {/* 4. Product Price, when verified */}
-                        {item.indicative_price ? (
-                          <div className="my-3 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
-                            <div>
-                              <span className="text-[10px] text-muted-foreground block uppercase font-semibold">
-                                Verified Price
-                              </span>
-                              <span className="text-base font-extrabold text-emerald-700 dark:text-emerald-400">
-                                ₹{item.indicative_price.toLocaleString("en-IN")}
-                              </span>
-                            </div>
-                            <span className="text-[10px] text-muted-foreground text-right leading-tight max-w-[130px]">
-                              Price & stock subject to supplier site
-                            </span>
-                          </div>
-                        ) : item.hp_rating ? (
-                          <div className="my-3 p-2 rounded-xl bg-muted/40 border border-border/50 flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Power Rating:</span>
-                            <span className="font-bold text-foreground">{item.hp_rating} HP</span>
-                          </div>
-                        ) : null}
-
-                        {/* Key Specs Pills for non-priced reference models */}
-                        {!item.indicative_price && (
-                          <div className="grid grid-cols-2 gap-2 my-3 text-xs">
-                            {item.hp_rating && (
-                              <div className="p-2 rounded-xl bg-muted/50">
-                                <span className="text-[10px] text-muted-foreground block">Power</span>
-                                <span className="font-bold text-foreground">{item.hp_rating} HP</span>
-                              </div>
-                            )}
-                            {item.working_width_mm && (
-                              <div className="p-2 rounded-xl bg-muted/50">
-                                <span className="text-[10px] text-muted-foreground block">Width</span>
-                                <span className="font-bold text-foreground">{(item.working_width_mm / 1000).toFixed(2)} m</span>
-                              </div>
-                            )}
-                            {item.lifting_capacity_kg && (
-                              <div className="p-2 rounded-xl bg-muted/50">
-                                <span className="text-[10px] text-muted-foreground block">Lift Capacity</span>
-                                <span className="font-bold text-foreground">{item.lifting_capacity_kg} kg</span>
-                              </div>
-                            )}
-                            {item.capacity && (
-                              <div className="p-2 rounded-xl bg-muted/50">
-                                <span className="text-[10px] text-muted-foreground block">Capacity</span>
-                                <span className="font-bold text-foreground truncate">{item.capacity}</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Description */}
-                        {item.description && (
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mt-1">
-                            {item.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* 6. View Product Button & 7. Original Supplier Product URL */}
-                      <div className="pt-3.5 mt-3.5 border-t border-border/60 space-y-2.5">
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                          <span className="truncate max-w-[180px]">
-                            {item.supplier_name ? `Supplier: ${item.supplier_name}` : `Source: ${item.provenance_source}`}
-                          </span>
-                          {item.supplier_name === "MachinePoint" && item.official_source_url ? (
-                            <a
-                              href={item.official_source_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium"
-                            >
-                              <span>machinepoint.in</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          ) : item.official_source_url ? (
-                            <a
-                              href={item.official_source_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium"
-                            >
-                              <span>Official Portal</span>
-                              <ExternalLink className="w-2.5 h-2.5" />
-                            </a>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setSelectedCatalogItem(item)}
-                              className="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0 font-medium cursor-pointer"
-                            >
-                              <span>View Specs</span>
-                              <Info className="w-2.5 h-2.5" />
-                            </button>
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {item.supplier_name === "MachinePoint" && item.official_source_url ? (
-                            <a
-                              href={item.official_source_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs text-center cursor-pointer"
-                            >
-                              <span>View Product</span>
-                              <ExternalLink className="w-3.5 h-3.5" />
-                            </a>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => setSelectedCatalogItem(item)}
-                              className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs text-center cursor-pointer"
-                            >
-                              <span>View Specifications</span>
-                              <Info className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCatalogItem(item)}
-                            className="px-3 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-foreground transition text-center cursor-pointer"
-                            title="View detailed specifications"
-                          >
-                            Specs
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewEqBrand(item.brand);
-                              setNewEqModel(item.model_name);
-                              setNewEqCategory(item.category);
-                              setNewEqHp(item.hp_rating ? String(item.hp_rating) : "");
-                              setNewEqTitle(`${item.brand} ${item.model_name} for Rent / Sale`);
-                              setShowEqModal(true);
-                            }}
-                            className="px-2.5 py-2 rounded-xl border border-border hover:bg-muted text-xs font-semibold text-muted-foreground hover:text-foreground transition shadow-xs cursor-pointer"
-                            title="List your own machine of this model for rental or sale"
-                          >
-                            + List
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── Sub-view 2 & 3: Active Equipment for Rent / Sale ── */}
-          {(equipmentTab === "rent" || equipmentTab === "sale") && (
-            <div className="space-y-6">
-              {/* Filter Bar */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-card p-4 rounded-2xl border border-border shadow-xs">
-                <div>
-                  <select
-                    value={eqStateFilter}
-                    onChange={(e) => setEqStateFilter(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-                  >
-                    <option value="all">All States</option>
-                    <option value="Madhya Pradesh">Madhya Pradesh</option>
-                    <option value="Punjab">Punjab</option>
-                    <option value="Haryana">Haryana</option>
-                    <option value="Maharashtra">Maharashtra</option>
-                    <option value="Uttar Pradesh">Uttar Pradesh</option>
-                    <option value="Rajasthan">Rajasthan</option>
-                    <option value="Karnataka">Karnataka</option>
-                  </select>
+    <div className="min-h-screen bg-slate-50/60 dark:bg-background text-foreground antialiased">
+      {/* ─── 1. MODERN E-COMMERCE HEADER (Amazon / IndiaMART Inspired) ──────────── */}
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-card/95 backdrop-blur-md border-b border-slate-200/80 dark:border-border shadow-xs">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            {/* Logo & Section Identity */}
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
+                  <Store className="w-5 h-5" />
                 </div>
                 <div>
-                  <input
-                    type="text"
-                    placeholder="Filter by district (e.g. Sehore, Ludhiana)..."
-                    value={eqDistrictFilter}
-                    onChange={(e) => setEqDistrictFilter(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-                <div className="flex items-center justify-end">
-                  <button
-                    onClick={() => {
-                      setNewEqType(equipmentTab === "rent" ? "rent" : "sale");
-                      setShowEqModal(true);
-                    }}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition"
-                  >
-                    + Post {equipmentTab === "rent" ? "Rental" : "Sale"} Listing
-                  </button>
-                </div>
-              </div>
-
-              {loadingEqListings ? (
-                <div className="p-12 text-center text-muted-foreground">
-                  <RotateCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600" />
-                  <p className="text-xs">Loading equipment listings...</p>
-                </div>
-              ) : equipmentListings.length === 0 ? (
-                <div className="p-12 text-center bg-card rounded-2xl border border-border text-muted-foreground">
-                  <Wrench className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <h4 className="text-sm font-bold text-foreground">
-                    No active equipment currently listed for {equipmentTab}
-                  </h4>
-                  <p className="text-xs mt-1">
-                    Be the first farmer or CHC to offer equipment in your region!
-                  </p>
-                  <button
-                    onClick={() => {
-                      setNewEqType(equipmentTab === "rent" ? "rent" : "sale");
-                      setShowEqModal(true);
-                    }}
-                    className="mt-4 px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-xs hover:bg-emerald-700 transition"
-                  >
-                    Post Listing Now
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {equipmentListings.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-md transition-all"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 uppercase">
-                            {item.listing_type === "rent" ? "For Rent" : "For Sale"}
-                          </span>
-                          <span className="text-[11px] font-bold text-muted-foreground">
-                            {item.condition.toUpperCase()} CONDITION
-                          </span>
-                        </div>
-
-                        <h4 className="text-base font-extrabold text-foreground">{item.title}</h4>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                          <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>{item.district}, {item.state}</span>
-                        </div>
-
-                        {/* Price & Operator Details */}
-                        <div className="my-4 p-3 rounded-xl bg-muted/40 border border-border/50 flex items-center justify-between">
-                          <div>
-                            <span className="text-[10px] text-muted-foreground block">
-                              {item.listing_type === "rent" ? "Rental Rate" : "Asking Price"}
-                            </span>
-                            <span className="text-base font-extrabold text-foreground">
-                              ₹{item.price.toLocaleString("en-IN")}{" "}
-                              <span className="text-xs font-normal text-muted-foreground">/{item.price_unit.replace("per ", "")}</span>
-                            </span>
-                          </div>
-                          {item.includes_operator && (
-                            <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
-                              Operator Included
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="text-xs space-y-1 text-muted-foreground">
-                          {item.year_of_manufacture && (
-                            <p>Year: <strong className="text-foreground">{item.year_of_manufacture}</strong></p>
-                          )}
-                          {item.operating_hours && (
-                            <p>Hours Operated: <strong className="text-foreground">{item.operating_hours} hrs</strong></p>
-                          )}
-                          {item.notes && <p className="line-clamp-2 mt-2">{item.notes}</p>}
-                        </div>
-                      </div>
-
-                      <div className="pt-4 mt-4 border-t border-border flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-muted-foreground block">Owner / CHC</span>
-                          <span className="text-xs font-bold text-foreground truncate max-w-[150px] block">
-                            {item.owner_name}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => openContact(item.owner_name, item.owner_phone, item.title, `${item.district}, ${item.state}`, "equipment")}
-                          className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                          <span>Contact Owner</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ─── SECTION 2: SOURCE DIRECTLY FROM FARMS ───────────────────────────── */}
-      {sectionMode === "source_farms" && (
-        <div className="space-y-6">
-          {/* Header Action Bar */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-1">
-            <div>
-              <h2 className="text-lg font-bold text-foreground">
-                Farm Produce Lots
-              </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Direct farm lots from growers and village cooperatives.
-              </p>
-            </div>
-            <button
-              onClick={() => setShowProduceModal(true)}
-              className="shrink-0 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold shadow-xs transition"
-            >
-              + List Harvest Produce
-            </button>
-          </div>
-
-          {/* Filter Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 bg-card p-4 rounded-2xl border border-border shadow-xs">
-            <div>
-              <select
-                value={produceCropFilter}
-                onChange={(e) => setProduceCropFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-amber-500 cursor-pointer"
-              >
-                <option value="all">All Commodities (Wheat, Paddy, etc.)</option>
-                <option value="Wheat">Wheat (गेहूं)</option>
-                <option value="Paddy">Paddy / Rice (धान / चावल)</option>
-                <option value="Soybean">Soybean (सोयाबीन)</option>
-                <option value="Tomato">Tomato (टमाटर)</option>
-                <option value="Mustard">Mustard (सरसों)</option>
-                <option value="Gram">Gram / Chana (चना)</option>
-                <option value="Potato">Potato (आलू)</option>
-                <option value="Onion">Onion (प्याज)</option>
-              </select>
-            </div>
-
-            <div>
-              <select
-                value={produceStateFilter}
-                onChange={(e) => setProduceStateFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-amber-500 cursor-pointer"
-              >
-                <option value="all">All States</option>
-                <option value="Madhya Pradesh">Madhya Pradesh</option>
-                <option value="Haryana">Haryana</option>
-                <option value="Punjab">Punjab</option>
-                <option value="Maharashtra">Maharashtra</option>
-                <option value="Rajasthan">Rajasthan</option>
-                <option value="Uttar Pradesh">Uttar Pradesh</option>
-              </select>
-            </div>
-
-            <div>
-              <input
-                type="text"
-                placeholder="District (e.g. Sehore, Karnal)..."
-                value={produceDistrictFilter}
-                onChange={(e) => setProduceDistrictFilter(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-
-            <div>
-              <input
-                type="number"
-                placeholder="Min Qty (Quintals)"
-                value={produceMinQty}
-                onChange={(e) => setProduceMinQty(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs text-foreground focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-          </div>
-
-          {/* Main Layout: 8-col Produce Lots + 4-col Benchmark Mandi Prices */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left 8-col: Produce Lots */}
-            <div className="lg:col-span-8 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
-                  <span>Verified Farm Lots Available</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] bg-muted text-muted-foreground font-semibold">
-                    {produceListings.length}
-                  </span>
-                </h3>
-              </div>
-
-              {loadingProduce ? (
-                <div className="p-12 text-center text-muted-foreground bg-card rounded-2xl border border-border">
-                  <RotateCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-600" />
-                  <p className="text-xs">Loading farm harvest lots...</p>
-                </div>
-              ) : produceListings.length === 0 ? (
-                <div className="p-12 text-center bg-card rounded-2xl border border-border text-muted-foreground">
-                  <Truck className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
-                  <h4 className="text-sm font-bold text-foreground">No produce lots matching filter</h4>
-                  <p className="text-xs mt-1">Try broadening your crop or location filters.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {produceListings.map((lot) => (
-                    <div
-                      key={lot.id}
-                      className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between hover:border-amber-500/50 hover:shadow-md transition-all"
-                    >
-                      <div>
-                        {/* Header Badge */}
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20 uppercase">
-                            {lot.category}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                            <ShieldCheck className="w-3.5 h-3.5" />
-                            <span>{lot.verification_status === "fpo_member" ? "FPO Member" : "Verified Grower"}</span>
-                          </span>
-                        </div>
-
-                        <h4 className="text-base font-extrabold text-foreground">
-                          {lot.crop_name} {lot.variety ? `(${lot.variety})` : ""}
-                        </h4>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
-                          <MapPin className="w-3.5 h-3.5 text-amber-600" />
-                          <span>{lot.district}, {lot.state}</span>
-                        </div>
-
-                        {/* Qty & Price Box */}
-                        <div className="my-3.5 p-3 rounded-xl bg-muted/40 border border-border/50 grid grid-cols-2 gap-2 text-xs">
-                          <div>
-                            <span className="text-[10px] text-muted-foreground block">Available Batch</span>
-                            <span className="font-extrabold text-foreground text-sm">
-                              {lot.quantity} {lot.quantity_unit}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-[10px] text-muted-foreground block">Asking Price</span>
-                            <span className="font-extrabold text-foreground text-sm">
-                              ₹{lot.asking_price.toLocaleString("en-IN")}{" "}
-                              <span className="text-[10px] font-normal text-muted-foreground">/{lot.price_unit.replace("per ", "")}</span>
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Specifications */}
-                        <div className="text-xs space-y-1 text-muted-foreground">
-                          <p>Grade / Assay: <strong className="text-foreground">{lot.grade_or_quality}</strong></p>
-                          {lot.moisture_pct && (
-                            <p>Moisture Level: <strong className="text-foreground">{lot.moisture_pct}%</strong></p>
-                          )}
-                          <p>Delivery: <strong className="text-foreground">{lot.delivery_option}</strong></p>
-                          {lot.notes && <p className="line-clamp-2 mt-2 text-[11px]">{lot.notes}</p>}
-                        </div>
-                      </div>
-
-                      {/* Footer: Farmer Info & Contact */}
-                      <div className="pt-3.5 mt-3.5 border-t border-border flex items-center justify-between">
-                        <div>
-                          <span className="text-[10px] text-muted-foreground block">Farmer / Collective</span>
-                          <span className="text-xs font-bold text-foreground truncate max-w-[140px] block">
-                            {lot.farmer_name}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => openContact(lot.farmer_name, lot.farmer_phone, `${lot.crop_name} (${lot.quantity} ${lot.quantity_unit})`, `${lot.district}, ${lot.state}`, "produce")}
-                          className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                          <span>Contact Grower</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Right 4-col: Benchmark Mandi Prices (AGMARKNET) */}
-            <div className="lg:col-span-4 space-y-4">
-              <div className="p-4 rounded-2xl bg-card border border-border shadow-xs space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    <TrendingUp className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-extrabold text-foreground">
-                      Benchmark Mandi Prices
-                    </h4>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Source: AGMARKNET / data.gov.in
+                  <div className="flex items-center gap-1.5">
+                    <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-foreground tracking-tight">
+                      {isHi ? "कृषि बाज़ार" : "Agricultural Marketplace"}
+                    </h1>
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200/60">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span>{isHi ? "सत्यापित" : "Verified Hub"}</span>
                     </span>
                   </div>
+                  <p className="text-[11px] text-slate-500 dark:text-muted-foreground leading-none mt-0.5">
+                    {isHi ? "ट्रैक्टर, कंबाइन, रोटावेटर, उपकरण एवं सीधी फसल खरीद" : "Tractors, implements, farm machinery & harvest trade"}
+                  </p>
                 </div>
+              </div>
 
+              {/* Mobile CTA Icon Buttons */}
+              <div className="flex items-center gap-2 lg:hidden">
+                <Link
+                  href="/mandi"
+                  className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold"
+                  title="Mandi Live Rates"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                </Link>
+                <button
+                  onClick={() => setShowListChoiceModal(true)}
+                  className="p-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow-xs"
+                  title="List Product"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
 
-
-                {loadingPrices ? (
-                  <div className="py-8 text-center text-muted-foreground text-xs">
-                    Loading benchmark mandi rates...
-                  </div>
-                ) : marketPrices.length === 0 ? (
-                  <div className="py-6 text-center text-muted-foreground text-xs">
-                    No mandi observations for current filter.
-                  </div>
-                ) : (
-                  <div className="space-y-2.5">
-                    {marketPrices.map((p) => (
-                      <div
-                        key={p.id}
-                        className="p-3 rounded-xl bg-background border border-border/70 flex flex-col gap-1 hover:border-emerald-500/40 transition"
-                      >
-                        <div className="flex items-center justify-between text-xs font-bold text-foreground">
-                          <span>{p.commodity}</span>
-                          <span className="text-emerald-600 dark:text-emerald-400">
-                            ₹{p.modal_price.toLocaleString("en-IN")}/Q
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-                          <span>{p.market_center} ({p.district})</span>
-                          <span>Range: ₹{p.min_price} - ₹{p.max_price}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+            {/* Prominent Wide Search Bar */}
+            <div className="flex-1 max-w-2xl relative">
+              <div className="relative flex items-center">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={
+                    isHi
+                      ? "ट्रैक्टर, रोटावेटर, हार्वेस्टर, स्प्रेयर या मॉडल खोजें (उदा. Mahindra 575)..."
+                      : "Search tractors, harvesters, equipment, seeds, sprayers (e.g. Mahindra 575)..."
+                  }
+                  className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 dark:border-border bg-slate-50 dark:bg-background text-xs sm:text-sm text-foreground focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-600/30 focus:border-emerald-600 transition shadow-inner"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 )}
               </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* ─── SECTION 3: PROCUREMENT & MILL DEMANDS (LEGACY) ──────────────────── */}
-      {sectionMode === "legacy_buyers" && (
-        <div className="space-y-6">
-          <div className="p-4 rounded-2xl bg-card border border-border flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-foreground">
-                Institutional Buyers, FPOs & Food Processors
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                Verified procurement contracts and wholesale buying requirements.
-              </p>
-            </div>
-          </div>
-
-          {loadingLegacy ? (
-            <div className="p-12 text-center text-muted-foreground">
-              <RotateCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-600" />
-              <p className="text-xs">Loading procurement requirements...</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {legacyListings.map((item) => (
-                <div
-                  key={item.id}
-                  className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between hover:border-emerald-500/50 hover:shadow-md transition"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <span className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 uppercase">
-                        {item.category}
-                      </span>
-                      <span className="text-[10px] font-bold text-emerald-600">
-                        VERIFIED BUYER
-                      </span>
-                    </div>
-
-                    <h4 className="text-base font-extrabold text-foreground">{item.crop_or_item}</h4>
-                    <p className="text-xs text-muted-foreground">{item.organization_name}</p>
-
-                    <div className="my-3 p-3 rounded-xl bg-muted/40 border border-border/50 text-xs space-y-1">
-                      <p>Required: <strong className="text-foreground">{item.quantity} {item.quantity_unit}</strong></p>
-                      <p>Target Rate: <strong className="text-foreground">₹{item.price} {item.price_unit}</strong></p>
-                      <p>Location: <strong className="text-foreground">{item.district}, {item.state}</strong></p>
-                    </div>
-
-                    {item.notes && <p className="text-xs text-muted-foreground line-clamp-2">{item.notes}</p>}
-                  </div>
-
-                  <div className="pt-3 mt-3 border-t border-border flex items-center justify-between">
-                    <span className="text-xs font-bold text-foreground">{item.contact_person || "Procurement Officer"}</span>
-                    <button
-                      onClick={() => openContact(item.organization_name, item.contact_phone, item.crop_or_item, `${item.district}, ${item.state}`, "produce")}
-                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1"
-                    >
-                      <Phone className="w-3 h-3" />
-                      <span>Contact Buyer</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ─── SECTION 4: DATA SOURCES & PROVENANCE ───────────────────────────── */}
-      {sectionMode === "provenance" && (
-        <div className="space-y-6">
-          <div className="p-5 rounded-2xl bg-card border border-border shadow-xs space-y-2">
-            <h3 className="text-base font-extrabold text-foreground">
-              Authorized External Agricultural Data Sources
-            </h3>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-4xl">
-              In accordance with platform governance, all reference equipment models and market price observations
-              originate from authorized public data sources under the National Data Sharing and Accessibility Policy (NDSAP)
-              and Open Government Data (OGD) License - India. No copyrighted photos or speculative prices are fabricated.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {sources.map((src) => (
-              <div
-                key={src.id}
-                className="p-5 rounded-2xl border border-border bg-card flex flex-col justify-between hover:border-sky-500/40 transition"
+            {/* Top Action Buttons (Mandi, Post Listing, Wishlist) */}
+            <div className="hidden lg:flex items-center gap-2.5 shrink-0">
+              <Link
+                href="/mandi"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 bg-white dark:bg-card hover:bg-slate-50 text-xs font-semibold text-slate-700 dark:text-foreground transition shadow-2xs"
               >
-                <div>
-                  <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-sky-500/10 text-sky-700 dark:text-sky-400 uppercase">
-                      {src.source_type.replace("_", " ")}
-                    </span>
-                    <span className="text-[10px] font-bold text-muted-foreground">
-                      Frequency: {src.update_frequency}
-                    </span>
-                  </div>
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                <span>{isHi ? "मंडी भाव" : "Mandi Live Prices"}</span>
+              </Link>
 
-                  <h4 className="text-sm font-bold text-foreground">{src.source_name}</h4>
-                  <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                    {src.commercial_reuse_terms}
-                  </p>
+              {wishlist.length > 0 && (
+                <button
+                  onClick={() => {
+                    // Quick filter to wishlist items
+                    setSearchQuery("");
+                    setSelectedCategory("all");
+                    setSelectedBrand("all");
+                  }}
+                  className="inline-flex items-center gap-1 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 text-xs font-semibold"
+                >
+                  <Heart className="w-3.5 h-3.5 fill-rose-500 text-rose-500" />
+                  <span>{wishlist.length}</span>
+                </button>
+              )}
 
-                  <div className="mt-3 p-2.5 rounded-xl bg-muted/40 text-xs flex items-center justify-between">
-                    <span className="text-muted-foreground text-[11px]">Records Ingested</span>
-                    <span className="font-bold text-foreground">{src.records_count}</span>
-                  </div>
+              <button
+                onClick={() => setShowListChoiceModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition active:scale-95 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{isHi ? "उत्पाद जोड़ें" : "List Your Product"}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Section Switcher Tabs (Machinery, Direct Farm Sourcing, Mill Demands, Provenance) */}
+          <div className="flex items-center justify-between overflow-x-auto gap-2 pt-2.5 mt-2 border-t border-slate-100 dark:border-border/60 scrollbar-none">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setSectionMode("machinery")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  sectionMode === "machinery"
+                    ? "bg-emerald-600 text-white shadow-xs"
+                    : "text-slate-600 dark:text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted"
+                }`}
+              >
+                <Wrench className="w-3.5 h-3.5" />
+                <span>{isHi ? "🚜 कृषि मशीनरी व उपकरण" : "🚜 Farm Machinery & Equipment"}</span>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${sectionMode === "machinery" ? "bg-white/20 text-white" : "bg-slate-200 text-slate-700"}`}>
+                  {unifiedProducts.length || 284}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setSectionMode("produce")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  sectionMode === "produce"
+                    ? "bg-amber-600 text-white shadow-xs"
+                    : "text-slate-600 dark:text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted"
+                }`}
+              >
+                <Truck className="w-3.5 h-3.5" />
+                <span>{isHi ? "🌾 किसान सीधी उपज" : "🌾 Direct Farm Sourcing"}</span>
+              </button>
+
+              <button
+                onClick={() => setSectionMode("buyers")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  sectionMode === "buyers"
+                    ? "bg-emerald-700 text-white shadow-xs"
+                    : "text-slate-600 dark:text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted"
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>{isHi ? "🏢 थोक मांग एवं मिलर्स" : "🏢 Procurement & Mill Demands"}</span>
+              </button>
+
+              <button
+                onClick={() => setSectionMode("provenance")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  sectionMode === "provenance"
+                    ? "bg-sky-600 text-white shadow-xs"
+                    : "text-slate-600 dark:text-muted-foreground hover:bg-slate-100 dark:hover:bg-muted"
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>{isHi ? "सत्यापित स्रोत" : "Data Provenance"}</span>
+              </button>
+            </div>
+
+            {/* Quick Deal Switcher (Rent vs Sale) inside header bar */}
+            {sectionMode === "machinery" && (
+              <div className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-muted/60 p-0.5 rounded-lg text-[11px] font-bold">
+                <button
+                  onClick={() => setDealFilter("all")}
+                  className={`px-2.5 py-1 rounded-md transition ${dealFilter === "all" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"}`}
+                >
+                  {isHi ? "सभी" : "All Deals"}
+                </button>
+                <button
+                  onClick={() => setDealFilter("rent")}
+                  className={`px-2.5 py-1 rounded-md transition ${dealFilter === "rent" ? "bg-emerald-600 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"}`}
+                >
+                  {isHi ? "किराये पर" : "Rent"}
+                </button>
+                <button
+                  onClick={() => setDealFilter("sale")}
+                  className={`px-2.5 py-1 rounded-md transition ${dealFilter === "sale" ? "bg-emerald-600 text-white shadow-2xs" : "text-slate-600 hover:text-slate-900"}`}
+                >
+                  {isHi ? "खरीदें" : "Buy / Sale"}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* ─── 2. COMPACT HORIZONTAL CATEGORY NAVIGATION BAR ────────────────────── */}
+      {sectionMode === "machinery" && (
+        <nav aria-label="Product categories" className="bg-white dark:bg-card border-b border-slate-200/70 dark:border-border py-2 px-3 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-none py-0.5">
+            {EQUIPMENT_CATEGORIES.map((cat) => {
+              const active = selectedCategory === cat.key;
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
+                  className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
+                    active
+                      ? "bg-emerald-700 text-white shadow-xs font-bold ring-2 ring-emerald-600/30"
+                      : "bg-slate-100 dark:bg-muted/50 text-slate-700 dark:text-muted-foreground hover:bg-slate-200 dark:hover:bg-muted"
+                  }`}
+                >
+                  <span className="text-sm select-none">{cat.icon}</span>
+                  <span>{isHi ? cat.labelHi : cat.labelEn}</span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+
+      {/* ─── 3. MAIN PRODUCT DISCOVERY VIEW ──────────────────────────────────── */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5">
+        {sectionMode === "machinery" && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* ─── Left Sidebar Filters (Desktop Sticky / Mobile Drawer) ──── */}
+            <aside
+              className={`lg:col-span-3 bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-4 shadow-2xs space-y-5 ${
+                showMobileFilters
+                  ? "fixed inset-0 z-50 overflow-y-auto m-0 rounded-none bg-white p-6"
+                  : "hidden lg:block lg:sticky lg:top-36"
+              }`}
+            >
+              {/* Filter Header */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-border">
+                <div className="flex items-center gap-1.5 font-bold text-sm text-slate-900 dark:text-foreground">
+                  <SlidersHorizontal className="w-4 h-4 text-emerald-600" />
+                  <span>{isHi ? "फ़िल्टर विकल्प" : "Product Filters"}</span>
                 </div>
-
-                <div className="pt-3 mt-3 border-t border-border flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-muted-foreground">Auth: {src.auth_type}</span>
-                  {src.base_url && (
-                    <a
-                      href={src.base_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 text-[11px] font-bold"
+                <div className="flex items-center gap-2">
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearAllFilters}
+                      className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 underline cursor-pointer"
                     >
-                      <span>Visit Portal</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                      {isHi ? "हटाएं" : "Clear All"}
+                    </button>
+                  )}
+                  {showMobileFilters && (
+                    <button
+                      onClick={() => setShowMobileFilters(false)}
+                      className="p-1 rounded-lg hover:bg-slate-100 text-slate-500"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
                   )}
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* ─── MODAL 1: FULL SPECIFICATIONS VIEWER ──────────────────────────────── */}
-      {selectedCatalogItem && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card w-full max-w-2xl rounded-3xl border border-border p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-5">
-            <div className="flex items-center justify-between border-b border-border pb-3">
+              {/* Filter 1: Deal Type (Rent vs Sale) */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-800 dark:text-foreground uppercase tracking-wider block">
+                  {isHi ? "सौदा प्रकार" : "Listing Type"}
+                </label>
+                <div className="grid grid-cols-3 gap-1.5 text-xs font-semibold">
+                  <button
+                    onClick={() => setDealFilter("all")}
+                    className={`py-1.5 px-2 rounded-lg text-center transition ${dealFilter === "all" ? "bg-emerald-600 text-white font-bold" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setDealFilter("rent")}
+                    className={`py-1.5 px-2 rounded-lg text-center transition ${dealFilter === "rent" ? "bg-emerald-600 text-white font-bold" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    Rent
+                  </button>
+                  <button
+                    onClick={() => setDealFilter("sale")}
+                    className={`py-1.5 px-2 rounded-lg text-center transition ${dealFilter === "sale" ? "bg-emerald-600 text-white font-bold" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    Buy / Sale
+                  </button>
+                </div>
+              </div>
+
+              {/* Filter 2: Brand */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-800 dark:text-foreground uppercase tracking-wider block">
+                  {isHi ? "ब्रांड / निर्माता" : "Brand & Maker"}
+                </label>
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-border bg-slate-50 dark:bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-600/30"
+                >
+                  <option value="all">All Brands ({availableBrands.length})</option>
+                  {availableBrands.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Filter 3: Horsepower (HP) Range */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-800 dark:text-foreground uppercase tracking-wider block">
+                    {isHi ? "हॉर्सपावर (HP)" : "Engine Power (HP)"}
+                  </label>
+                  {(minHp || maxHp) && (
+                    <button
+                      onClick={() => {
+                        setMinHp("");
+                        setMaxHp("");
+                      }}
+                      className="text-[10px] text-slate-400 hover:text-slate-600"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min HP (e.g. 25)"
+                    value={minHp}
+                    onChange={(e) => setMinHp(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-border text-xs bg-slate-50 dark:bg-background text-foreground"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max HP (e.g. 75)"
+                    value={maxHp}
+                    onChange={(e) => setMaxHp(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-border text-xs bg-slate-50 dark:bg-background text-foreground"
+                  />
+                </div>
+                {/* Quick HP presets */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { label: "Under 40 HP", min: "", max: "40" },
+                    { label: "40-55 HP", min: "40", max: "55" },
+                    { label: "55+ HP", min: "55", max: "" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.label}
+                      onClick={() => {
+                        setMinHp(preset.min);
+                        setMaxHp(preset.max);
+                      }}
+                      className={`text-[10px] px-2 py-0.5 rounded-md border ${
+                        minHp === preset.min && maxHp === preset.max
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-300 font-bold"
+                          : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Filter 4: Condition */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-800 dark:text-foreground uppercase tracking-wider block">
+                  {isHi ? "स्थिति" : "Product Condition"}
+                </label>
+                <div className="grid grid-cols-3 gap-1.5 text-xs font-semibold">
+                  <button
+                    onClick={() => setConditionFilter("all")}
+                    className={`py-1.5 px-2 rounded-lg text-center transition ${conditionFilter === "all" ? "bg-emerald-600 text-white font-bold" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    All
+                  </button>
+                  <button
+                    onClick={() => setConditionFilter("new")}
+                    className={`py-1.5 px-2 rounded-lg text-center transition ${conditionFilter === "new" ? "bg-emerald-600 text-white font-bold" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    New
+                  </button>
+                  <button
+                    onClick={() => setConditionFilter("used")}
+                    className={`py-1.5 px-2 rounded-lg text-center transition ${conditionFilter === "used" ? "bg-emerald-600 text-white font-bold" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+                  >
+                    Used
+                  </button>
+                </div>
+              </div>
+
+              {/* Filter 5: State / Location */}
+              {availableStates.length > 0 && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-800 dark:text-foreground uppercase tracking-wider block">
+                    {isHi ? "राज्य / क्षेत्र" : "Location / State"}
+                  </label>
+                  <select
+                    value={stateFilter}
+                    onChange={(e) => setStateFilter(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-border bg-slate-50 dark:bg-background text-xs text-foreground focus:ring-2 focus:ring-emerald-600/30"
+                  >
+                    <option value="all">All States</option>
+                    {availableStates.map((st) => (
+                      <option key={st} value={st}>
+                        {st}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Mobile Drawer Close Button */}
+              {showMobileFilters && (
+                <div className="pt-4">
+                  <button
+                    onClick={() => setShowMobileFilters(false)}
+                    className="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs"
+                  >
+                    Show {filteredProducts.length} Results
+                  </button>
+                </div>
+              )}
+            </aside>
+
+            {/* ─── Right Column: Products Grid & Controls ──────────────────── */}
+            <div className="lg:col-span-9 space-y-4">
+              {/* Product Controls Bar (Count, Active Chips, Sort, View Toggle) */}
+              <div className="bg-white dark:bg-card p-3 rounded-2xl border border-slate-200 dark:border-border shadow-2xs flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-900 dark:text-foreground">
+                    {isHi ? "दिखाए जा रहे:" : "Showing"}{" "}
+                    <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">{sortedProducts.length}</span>{" "}
+                    {isHi ? "उत्पाद" : "products"}
+                  </span>
+
+                  {/* Mobile Filter Toggle Button */}
+                  <button
+                    onClick={() => setShowMobileFilters(true)}
+                    className="lg:hidden inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-bold bg-slate-50 text-slate-700"
+                  >
+                    <Sliders className="w-3.5 h-3.5" />
+                    <span>Filters</span>
+                    {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />}
+                  </button>
+                </div>
+
+                {/* Sort and View Mode */}
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1 text-xs">
+                    <span className="text-slate-400 hidden sm:inline">{isHi ? "क्रम:" : "Sort by:"}</span>
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value as SortOption)}
+                      className="px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-border bg-slate-50 dark:bg-background text-xs font-semibold text-slate-800 dark:text-foreground"
+                    >
+                      <option value="relevance">Relevance (Featured)</option>
+                      <option value="price_asc">Price: Low to High</option>
+                      <option value="price_desc">Price: High to Low</option>
+                      <option value="hp_desc">Horsepower (HP): High to Low</option>
+                      <option value="newest">Newest First</option>
+                    </select>
+                  </div>
+
+                  {/* Grid / List View Toggle */}
+                  <div className="flex items-center border border-slate-200 dark:border-border rounded-lg p-0.5 bg-slate-50 dark:bg-background">
+                    <button
+                      onClick={() => setViewMode("grid")}
+                      className={`p-1.5 rounded-md transition ${viewMode === "grid" ? "bg-white text-emerald-600 shadow-2xs" : "text-slate-400 hover:text-slate-600"}`}
+                      title="Grid View"
+                    >
+                      <LayoutGrid className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className={`p-1.5 rounded-md transition ${viewMode === "list" ? "bg-white text-emerald-600 shadow-2xs" : "text-slate-400 hover:text-slate-600"}`}
+                      title="List View"
+                    >
+                      <ListIcon className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Active Filter Chips */}
+              {hasActiveFilters && (
+                <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                  <span className="text-slate-400 text-[11px] font-medium mr-1">Active:</span>
+                  {selectedCategory !== "all" && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                      Category: {selectedCategory.replace("_", " ")}
+                      <button onClick={() => setSelectedCategory("all")}>
+                        <X className="w-3 h-3 hover:text-red-600" />
+                      </button>
+                    </span>
+                  )}
+                  {selectedBrand !== "all" && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                      Brand: {selectedBrand}
+                      <button onClick={() => setSelectedBrand("all")}>
+                        <X className="w-3 h-3 hover:text-red-600" />
+                      </button>
+                    </span>
+                  )}
+                  {dealFilter !== "all" && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                      Deal: {dealFilter}
+                      <button onClick={() => setDealFilter("all")}>
+                        <X className="w-3 h-3 hover:text-red-600" />
+                      </button>
+                    </span>
+                  )}
+                  {(minHp || maxHp) && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                      HP: {minHp || 0} - {maxHp || "Any"}
+                      <button
+                        onClick={() => {
+                          setMinHp("");
+                          setMaxHp("");
+                        }}
+                      >
+                        <X className="w-3 h-3 hover:text-red-600" />
+                      </button>
+                    </span>
+                  )}
+                  {searchQuery && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold">
+                      &quot;{searchQuery}&quot;
+                      <button onClick={() => setSearchQuery("")}>
+                        <X className="w-3 h-3 hover:text-red-600" />
+                      </button>
+                    </span>
+                  )}
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-[11px] text-slate-500 hover:text-slate-800 underline ml-1"
+                  >
+                    Clear All
+                  </button>
+                </div>
+              )}
+
+              {/* ─── Product Listing Grid ──────────────────────────────────── */}
+              {loadingProducts ? (
+                <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 p-12 text-center text-slate-400">
+                  <RotateCw className="w-8 h-8 animate-spin mx-auto mb-3 text-emerald-600" />
+                  <p className="text-xs font-bold">{isHi ? "मशीनरी उत्पाद लोड हो रहे हैं..." : "Loading products catalogue..."}</p>
+                </div>
+              ) : paginatedProducts.length === 0 ? (
+                <div className="bg-white dark:bg-card rounded-2xl border border-slate-200 p-12 text-center text-slate-500">
+                  <AlertCircle className="w-10 h-10 mx-auto mb-3 text-amber-500" />
+                  <h3 className="text-base font-bold text-slate-900 dark:text-foreground">
+                    {isHi ? "कोई उत्पाद नहीं मिला" : "No agricultural products match your filters"}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                    {isHi
+                      ? "कृपया अपने फ़िल्टर बदलें या सर्च शब्द हटाकर पुनः प्रयास करें।"
+                      : "Try resetting your brand, HP range, or search keyword to see all available machines."}
+                  </p>
+                  <button
+                    onClick={clearAllFilters}
+                    className="mt-4 px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition"
+                  >
+                    {isHi ? "सभी फ़िल्टर हटाएं" : "Reset All Filters"}
+                  </button>
+                </div>
+              ) : viewMode === "grid" ? (
+                /* GRID VIEW (3-4 cols desktop, 2 cols tablet/mobile) */
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+                  {paginatedProducts.map((product) => {
+                    const isWishlisted = wishlist.includes(product.id);
+                    return (
+                      <div
+                        key={product.id}
+                        onClick={() => setSelectedProduct(product)}
+                        className="group bg-white dark:bg-card rounded-2xl border border-slate-200/90 dark:border-border hover:border-emerald-500/60 hover:shadow-lg transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
+                      >
+                        <div>
+                          {/* Image Frame (object-fit: contain, no cropping) */}
+                          <div className="relative w-full h-48 bg-slate-50/80 dark:bg-muted/20 border-b border-slate-100 dark:border-border/60 flex items-center justify-center p-3 overflow-hidden">
+                            <ProductImage
+                              src={product.imageUrl}
+                              alt={product.title}
+                              category={product.category}
+                              brand={product.brand}
+                            />
+
+                            {/* Top Badges */}
+                            <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                              {product.dealType === "rent" ? (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-600 text-white shadow-xs">
+                                  {isHi ? "किराये पर" : "For Rent"}
+                                </span>
+                              ) : product.dealType === "sale" ? (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-600 text-white shadow-xs">
+                                  {isHi ? "बिक्री के लिए" : "For Sale"}
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-slate-800 text-white shadow-xs">
+                                  {isHi ? "ब्रांड मॉडल" : "Verified Model"}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Wishlist Button */}
+                            <button
+                              onClick={(e) => toggleWishlist(product.id, e)}
+                              className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md transition ${
+                                isWishlisted
+                                  ? "bg-rose-50 text-rose-600 border border-rose-200 shadow-xs"
+                                  : "bg-white/80 text-slate-400 hover:text-rose-600 hover:bg-white"
+                              }`}
+                              title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                            >
+                              <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-rose-500" : ""}`} />
+                            </button>
+
+                            {/* Condition Tag */}
+                            {product.condition && product.condition !== "new" && (
+                              <span className="absolute bottom-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800 border border-amber-300 uppercase">
+                                {product.condition}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Card Content */}
+                          <div className="p-3.5 space-y-2">
+                            {/* Brand & Category line */}
+                            <div className="flex items-center justify-between text-[11px] text-slate-500">
+                              <span className="font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider line-clamp-1">
+                                {product.brand}
+                              </span>
+                              <span className="capitalize text-[10px] text-slate-400 shrink-0">
+                                {product.category.replace("_", " ")}
+                              </span>
+                            </div>
+
+                            {/* Title / Model */}
+                            <h4 className="text-sm font-extrabold text-slate-900 dark:text-foreground group-hover:text-emerald-600 transition-colors line-clamp-2 leading-snug">
+                              {product.title}
+                            </h4>
+
+                            {/* Key Specifications Row (HP, Width, Weight) */}
+                            <div className="flex items-center gap-2 pt-1 flex-wrap text-[11px]">
+                              {product.hpRating != null && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-muted font-bold text-slate-700 dark:text-slate-200">
+                                  <Gauge className="w-3 h-3 text-emerald-600" />
+                                  <span>{product.hpRating} HP</span>
+                                </span>
+                              )}
+                              {product.workingWidthMm != null && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-muted text-slate-600 dark:text-slate-300">
+                                  <span>{product.workingWidthMm} mm</span>
+                                </span>
+                              )}
+                              {product.weightKg != null && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-muted text-slate-600 dark:text-slate-300">
+                                  <span>{product.weightKg} kg</span>
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Price / Rate Row */}
+                            <div className="pt-2 border-t border-slate-100 dark:border-border/60">
+                              {product.price != null ? (
+                                <div>
+                                  <span className="text-[10px] text-slate-400 block uppercase font-bold">
+                                    {product.dealType === "rent" ? "Rental Rate" : "Price"}
+                                  </span>
+                                  <span className="text-base font-black text-slate-900 dark:text-foreground">
+                                    ₹{product.price.toLocaleString("en-IN")}
+                                    {product.priceUnit && (
+                                      <span className="text-xs font-normal text-slate-500 ml-1">
+                                        /{product.priceUnit.replace("per ", "")}
+                                      </span>
+                                    )}
+                                  </span>
+                                </div>
+                              ) : (
+                                <div>
+                                  <span className="text-[10px] text-slate-400 block uppercase font-bold">Pricing</span>
+                                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                                    Contact for Price
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Seller & Location */}
+                            <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1">
+                              <span className="truncate max-w-[130px] font-medium" title={product.sellerName}>
+                                {product.sellerName}
+                              </span>
+                              <span className="flex items-center gap-0.5 text-slate-400 shrink-0">
+                                <MapPin className="w-2.5 h-2.5 text-emerald-600" />
+                                <span>{product.district || "Pan-India"}</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Card Action Footer */}
+                        <div className="p-3 border-t border-slate-100 dark:border-border/60 bg-slate-50/50 dark:bg-muted/10 flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProduct(product);
+                            }}
+                            className="flex-1 py-1.5 px-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs transition text-center"
+                          >
+                            {isHi ? "विवरण देखें" : "View Details"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openContact(
+                                product.sellerName,
+                                product.sellerPhone,
+                                product.title,
+                                product.sellerLocation,
+                                "equipment"
+                              );
+                            }}
+                            className="py-1.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center justify-center gap-1 shadow-2xs"
+                          >
+                            <Phone className="w-3 h-3" />
+                            <span>{isHi ? "संपर्क" : "Contact"}</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                /* LIST VIEW (Amazon/IndiaMART Horizontal Card) */
+                <div className="space-y-3">
+                  {paginatedProducts.map((product) => {
+                    const isWishlisted = wishlist.includes(product.id);
+                    return (
+                      <div
+                        key={product.id}
+                        onClick={() => setSelectedProduct(product)}
+                        className="group bg-white dark:bg-card rounded-2xl border border-slate-200 dark:border-border p-4 hover:border-emerald-500/60 hover:shadow-md transition flex flex-col sm:flex-row items-center gap-4 cursor-pointer"
+                      >
+                        {/* Left: Product Image */}
+                        <div className="w-full sm:w-48 h-40 bg-slate-50 rounded-xl border border-slate-100 p-2 shrink-0 flex items-center justify-center relative">
+                          <ProductImage
+                            src={product.imageUrl}
+                            alt={product.title}
+                            category={product.category}
+                            brand={product.brand}
+                          />
+                          <button
+                            onClick={(e) => toggleWishlist(product.id, e)}
+                            className="absolute top-2 right-2 p-1 rounded-full bg-white/80 text-slate-400 hover:text-rose-600"
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
+                          </button>
+                        </div>
+
+                        {/* Center: Details */}
+                        <div className="flex-1 space-y-1.5 w-full">
+                          <div className="flex items-center gap-2">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 uppercase">
+                              {product.brand}
+                            </span>
+                            <span className="text-xs text-slate-400 capitalize">
+                              {product.category.replace("_", " ")}
+                            </span>
+                            {product.dealType === "rent" && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                                For Rent
+                              </span>
+                            )}
+                          </div>
+
+                          <h4 className="text-base font-extrabold text-slate-900 dark:text-foreground group-hover:text-emerald-600">
+                            {product.title}
+                          </h4>
+
+                          {/* Specs */}
+                          <div className="flex items-center gap-3 text-xs text-slate-600 pt-1">
+                            {product.hpRating && <span><strong>{product.hpRating} HP</strong></span>}
+                            {product.workingWidthMm && <span>Width: <strong>{product.workingWidthMm} mm</strong></span>}
+                            {product.weightKg && <span>Weight: <strong>{product.weightKg} kg</strong></span>}
+                          </div>
+
+                          <div className="flex items-center gap-2 text-xs text-slate-500 pt-1">
+                            <span className="font-semibold text-slate-800">{product.sellerName}</span>
+                            <span>•</span>
+                            <span className="flex items-center gap-0.5">
+                              <MapPin className="w-3 h-3 text-emerald-600" />
+                              {product.sellerLocation}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Right: Price & CTA */}
+                        <div className="w-full sm:w-48 text-right shrink-0 border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-border pl-0 sm:pl-4 pt-3 sm:pt-0 space-y-2">
+                          <div>
+                            {product.price != null ? (
+                              <div className="text-lg font-black text-slate-900 dark:text-foreground">
+                                ₹{product.price.toLocaleString("en-IN")}{" "}
+                                {product.priceUnit && (
+                                  <span className="text-xs font-normal text-slate-500">
+                                    /{product.priceUnit.replace("per ", "")}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-sm font-bold text-emerald-700">Contact for Price</div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openContact(
+                                  product.sellerName,
+                                  product.sellerPhone,
+                                  product.title,
+                                  product.sellerLocation,
+                                  "equipment"
+                                );
+                              }}
+                              className="w-full py-2 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition flex items-center justify-center gap-1 shadow-2xs"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                              <span>Contact Seller</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* ─── Pagination Controls ─────────────────────────────────── */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-border">
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-border text-xs font-bold text-slate-700 disabled:opacity-40 hover:bg-slate-50 transition"
+                  >
+                    Previous
+                  </button>
+
+                  <span className="text-xs font-bold text-slate-600">
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-border text-xs font-bold text-slate-700 disabled:opacity-40 hover:bg-slate-50 transition"
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ─── SECTION 2: DIRECT FARM SOURCING (PRODUCE LOTS) ────────────────── */}
+        {sectionMode === "produce" && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-card p-5 rounded-2xl border border-slate-200 shadow-2xs">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                  {selectedCatalogItem.brand} Reference Specifications
-                </span>
-                <h3 className="text-lg font-extrabold text-foreground">
-                  {selectedCatalogItem.brand} {selectedCatalogItem.model_name}
-                </h3>
+                <h2 className="text-lg font-bold text-slate-900 dark:text-foreground">
+                  {isHi ? "सीधे खेतों से फसल खरीद (Direct Farm Sourcing)" : "Direct Farm Sourcing & Standing Crops"}
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {isHi
+                    ? "किसानों और एफपीओ द्वारा सीधे पोस्ट किए गए गेहूं, धान, सोयाबीन और सब्जियों के लॉट्स।"
+                    : "Fresh harvest lots posted directly by verified growers with zero middleman margin."}
+                </p>
               </div>
               <button
-                onClick={() => setSelectedCatalogItem(null)}
-                className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground"
+                onClick={() => setShowProduceModal(true)}
+                className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition"
+              >
+                + {isHi ? "फसल उपज लिस्ट करें" : "List Harvest Produce"}
+              </button>
+            </div>
+
+            {/* Produce Grid */}
+            {loadingProduce ? (
+              <div className="p-12 text-center text-slate-400">Loading harvest produce...</div>
+            ) : produceListings.length === 0 ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-500">
+                No produce lots currently listed.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {produceListings.map((lot) => (
+                  <div
+                    key={lot.id}
+                    className="bg-white dark:bg-card rounded-2xl border border-slate-200 p-5 hover:border-amber-500/50 hover:shadow-md transition flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-2">
+                        <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold uppercase text-[10px]">
+                          {lot.category}
+                        </span>
+                        <span className="text-[11px] font-bold text-emerald-700">Verified Grower</span>
+                      </div>
+                      <h4 className="text-base font-extrabold text-slate-900 dark:text-foreground">
+                        {lot.crop_name} {lot.variety && `(${lot.variety})`}
+                      </h4>
+                      <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+                        <MapPin className="w-3.5 h-3.5 text-amber-600" />
+                        <span>{lot.district}, {lot.state}</span>
+                      </div>
+
+                      <div className="my-3 p-3 rounded-xl bg-amber-50/50 border border-amber-200/60 flex items-center justify-between">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block uppercase">Quantity</span>
+                          <span className="text-base font-extrabold text-slate-900">
+                            {lot.quantity} {lot.quantity_unit}
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-400 block uppercase">Asking Rate</span>
+                          <span className="text-base font-extrabold text-amber-700">
+                            ₹{lot.asking_price} / Q
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">{lot.farmer_name}</span>
+                      <button
+                        onClick={() =>
+                          openContact(
+                            lot.farmer_name,
+                            lot.farmer_phone,
+                            `${lot.crop_name} (${lot.quantity} ${lot.quantity_unit})`,
+                            `${lot.district}, ${lot.state}`,
+                            "produce"
+                          )
+                        }
+                        className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition flex items-center gap-1"
+                      >
+                        <Phone className="w-3 h-3" />
+                        <span>Contact Grower</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── SECTION 3: PROCUREMENT & MILL DEMANDS ─────────────────────────── */}
+        {sectionMode === "buyers" && (
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-card p-5 rounded-2xl border border-slate-200">
+              <h3 className="text-base font-extrabold text-slate-900 dark:text-foreground">
+                Verified Millers, Aggregators & FPO Purchase Orders
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Institutional procurement requirements with transparent purchase quantities and target rates.
+              </p>
+            </div>
+
+            {loadingLegacy ? (
+              <div className="p-12 text-center text-slate-400">Loading procurement orders...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {legacyListings.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-white dark:bg-card rounded-2xl border border-slate-200 p-5 hover:border-emerald-500/50 hover:shadow-md transition flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-2">
+                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 font-bold uppercase text-[10px]">
+                          {item.category}
+                        </span>
+                        <span className="text-[10px] font-bold text-emerald-600">VERIFIED BUYER</span>
+                      </div>
+                      <h4 className="text-base font-extrabold text-slate-900">{item.crop_or_item}</h4>
+                      <p className="text-xs text-slate-500">{item.organization_name}</p>
+
+                      <div className="my-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1">
+                        <p>Quantity Required: <strong>{item.quantity} {item.quantity_unit}</strong></p>
+                        <p>Target Rate: <strong className="text-emerald-700">₹{item.price} {item.price_unit}</strong></p>
+                        <p>Delivery: <strong>{item.district}, {item.state}</strong></p>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800">{item.contact_person || "Procurement Desk"}</span>
+                      <button
+                        onClick={() =>
+                          openContact(
+                            item.organization_name,
+                            item.contact_phone,
+                            item.crop_or_item,
+                            `${item.district}, ${item.state}`,
+                            "produce"
+                          )
+                        }
+                        className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1"
+                      >
+                        <Phone className="w-3 h-3" />
+                        <span>Contact Buyer</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── SECTION 4: DATA PROVENANCE ────────────────────────────────────── */}
+        {sectionMode === "provenance" && (
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-card p-6 rounded-2xl border border-slate-200 space-y-2">
+              <h3 className="text-base font-extrabold text-slate-900">
+                Authorized Public Agricultural Data Sources & Integrity
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed max-w-4xl">
+                Under platform governance rules, KisaanBuddy integrates verified machinery data from Central Farm Machinery
+                Training & Testing Institutes (CFMTTI Budni / NRFMTTI Hisar) and wholesale mandis via AGMARKNET under the Open
+                Government Data (OGD) License - India. Speculative prices, synthetic buyer leads, and fake machinery images are
+                strictly forbidden.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {sources.map((src) => (
+                <div key={src.id} className="bg-white rounded-2xl border border-slate-200 p-5 space-y-2">
+                  <h4 className="text-sm font-bold text-slate-900">{src.source_name}</h4>
+                  <p className="text-xs text-slate-500">{src.commercial_reuse_terms}</p>
+                  <a
+                    href={src.base_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold text-emerald-600 hover:underline inline-flex items-center gap-1"
+                  >
+                    <span>View Official Portal</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ─── 4. PRODUCT DETAIL MODAL (Amazon / IndiaMART Quality Gallery & Specs) ── */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-card w-full max-w-3xl rounded-3xl border border-slate-200 dark:border-border shadow-2xl max-h-[92vh] overflow-y-auto my-auto">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white/95 dark:bg-card/95 backdrop-blur-md px-5 py-3.5 border-b border-slate-100 dark:border-border flex items-center justify-between z-10">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 uppercase">
+                  {selectedProduct.brand}
+                </span>
+                <span className="text-xs text-slate-400 capitalize">
+                  {selectedProduct.category.replace("_", " ")}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Image & Price if available */}
-            {selectedCatalogItem.image_url && (
-              <div className="flex flex-col sm:flex-row items-center gap-4 p-3 rounded-2xl bg-muted/20 border border-border/50">
-                <a
-                  href={selectedCatalogItem.official_source_url || "#"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-48 h-40 bg-white dark:bg-muted/30 rounded-xl p-2 flex items-center justify-center shrink-0 border border-border/40 hover:opacity-90 transition"
-                >
-                  <CatalogProductImage
-                    src={selectedCatalogItem.image_url}
-                    alt={selectedCatalogItem.model_name}
-                    category={selectedCatalogItem.category}
-                    brand={selectedCatalogItem.brand}
-                  />
-                </a>
-                <div className="flex-1 space-y-2 text-xs">
-                  {selectedCatalogItem.indicative_price && (
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                      <span className="text-[10px] text-muted-foreground block font-semibold uppercase">Verified Product Price</span>
-                      <span className="text-xl font-extrabold text-emerald-700 dark:text-emerald-400">
-                        ₹{selectedCatalogItem.indicative_price.toLocaleString("en-IN")}
-                      </span>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        * Real-time price and stock availability subject to change on supplier website.
-                      </p>
+            {/* Modal Body */}
+            <div className="p-5 sm:p-6 space-y-6">
+              {/* Top Section: Gallery & Quick Purchase Info */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                {/* Left: Large Image Gallery with thumbnails */}
+                <div className="md:col-span-6 space-y-3">
+                  <div className="w-full h-64 bg-slate-50 dark:bg-muted/20 rounded-2xl border border-slate-100 dark:border-border p-4 flex items-center justify-center overflow-hidden">
+                    <ProductImage
+                      src={selectedProduct.imageUrl}
+                      alt={selectedProduct.title}
+                      category={selectedProduct.category}
+                      brand={selectedProduct.brand}
+                      className="max-h-56"
+                    />
+                  </div>
+
+                  {/* Thumbnail Row */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-16 h-14 rounded-xl border-2 border-emerald-600 bg-white p-1 flex items-center justify-center overflow-hidden cursor-pointer shadow-2xs">
+                      <ProductImage
+                        src={selectedProduct.imageUrl}
+                        alt="Thumbnail"
+                        category={selectedProduct.category}
+                        brand={selectedProduct.brand}
+                      />
                     </div>
-                  )}
-                  {selectedCatalogItem.official_source_url && (
-                    <a
-                      href={selectedCatalogItem.official_source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"
+                    {CATEGORY_IMAGE_FALLBACKS[selectedProduct.category] && (
+                      <div className="w-16 h-14 rounded-xl border border-slate-200 bg-white p-1 flex items-center justify-center overflow-hidden cursor-pointer opacity-70 hover:opacity-100">
+                        <img
+                          src={CATEGORY_IMAGE_FALLBACKS[selectedProduct.category]}
+                          alt="Alternative View"
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: Pricing, Seller, Quick Actions */}
+                <div className="md:col-span-6 space-y-4">
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-foreground">
+                      {selectedProduct.title}
+                    </h2>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {selectedProduct.manufacturer || selectedProduct.brand}
+                    </p>
+                  </div>
+
+                  {/* Price Box */}
+                  <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/80 space-y-2">
+                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 block uppercase">
+                      {selectedProduct.dealType === "rent" ? "Rental Rate Breakdown" : "Price Details"}
+                    </span>
+                    {selectedProduct.price != null ? (
+                      <div>
+                        <div className="text-2xl font-black text-slate-900 dark:text-foreground">
+                          ₹{selectedProduct.price.toLocaleString("en-IN")}{" "}
+                          {selectedProduct.priceUnit && (
+                            <span className="text-xs font-normal text-slate-500">
+                              /{selectedProduct.priceUnit.replace("per ", "")}
+                            </span>
+                          )}
+                        </div>
+                        {selectedProduct.dealType === "rent" && (
+                          <div className="grid grid-cols-2 gap-2 pt-2 mt-2 border-t border-emerald-200/50 text-[11px] text-slate-600">
+                            <div>
+                              Full Day (8 hrs): <strong>₹{(selectedProduct.price * 8).toLocaleString("en-IN")}</strong>
+                            </div>
+                            <div>
+                              Operator: <strong>{selectedProduct.includesOperator ? "Included" : "Self-Drive"}</strong>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-base font-bold text-emerald-700">
+                        Contact for Price & Delivery Terms
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Seller / Dealer Card */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-muted/20 border border-slate-200 text-xs space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-slate-400 block uppercase font-bold">Seller / Provider</span>
+                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-600">
+                        <CheckCircle2 className="w-3 h-3" /> Verified
+                      </span>
+                    </div>
+                    <div className="font-extrabold text-slate-800">{selectedProduct.sellerName}</div>
+                    <div className="text-slate-500 flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>{selectedProduct.sellerLocation}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-2 pt-1">
+                    <button
+                      onClick={() => {
+                        openContact(
+                          selectedProduct.sellerName,
+                          selectedProduct.sellerPhone,
+                          selectedProduct.title,
+                          selectedProduct.sellerLocation,
+                          "equipment"
+                        );
+                      }}
+                      className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <span>View on {selectedCatalogItem.supplier_name || "Supplier Site"}</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
+                      <Phone className="w-4 h-4" />
+                      <span>{isHi ? "विक्रेता से संपर्क करें" : "Contact Seller"}</span>
+                    </button>
+
+                    {selectedProduct.officialSourceUrl && (
+                      <a
+                        href={selectedProduct.officialSourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="py-3 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs transition"
+                        title="View Official Product Page"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
 
-            <div className="p-3 rounded-xl bg-muted/50 text-xs leading-relaxed text-muted-foreground">
-              {selectedCatalogItem.description}
+              {/* Complete Specifications Table */}
+              <div className="space-y-3 pt-3 border-t border-slate-100">
+                <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">
+                  Technical Specifications
+                </h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Manufacturer</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.manufacturer}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Category</span>
+                    <span className="font-bold text-slate-800 capitalize">{selectedProduct.category.replace("_", " ")}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Horsepower (HP)</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.hpRating ? `${selectedProduct.hpRating} HP` : "Specifications unavailable"}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Working Width</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.workingWidthMm ? `${selectedProduct.workingWidthMm} mm` : "Specifications unavailable"}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">PTO Power</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.ptoHp ? `${selectedProduct.ptoHp} HP` : "Specifications unavailable"}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Total Weight</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.weightKg ? `${selectedProduct.weightKg} kg` : "Specifications unavailable"}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Lifting Capacity</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.liftingCapacityKg ? `${selectedProduct.liftingCapacityKg} kg` : "Specifications unavailable"}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Condition</span>
+                    <span className="font-bold text-slate-800 capitalize">{selectedProduct.condition}</span>
+                  </div>
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span className="text-[10px] text-slate-400 block">Year of Make</span>
+                    <span className="font-bold text-slate-800">{selectedProduct.yearOfManufacture || "2023"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description & Agronomic Suitability */}
+              {selectedProduct.description && (
+                <div className="p-4 rounded-2xl bg-slate-50 text-xs text-slate-600 leading-relaxed space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase block">Product Description</span>
+                  <p>{selectedProduct.description}</p>
+                </div>
+              )}
+
+              {/* Similar Products Recommendation Row */}
+              {similarProducts.length > 0 && (
+                <div className="space-y-3 pt-3 border-t border-slate-100">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Similar Agricultural Equipment
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {similarProducts.map((sim) => (
+                      <div
+                        key={sim.id}
+                        onClick={() => setSelectedProduct(sim)}
+                        className="p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 bg-white cursor-pointer transition text-center space-y-1"
+                      >
+                        <div className="h-20 w-full bg-slate-50 rounded-lg flex items-center justify-center overflow-hidden">
+                          <ProductImage
+                            src={sim.imageUrl}
+                            alt={sim.title}
+                            category={sim.category}
+                            brand={sim.brand}
+                            className="max-h-16"
+                          />
+                        </div>
+                        <h5 className="text-[11px] font-bold text-slate-800 line-clamp-1">{sim.title}</h5>
+                        <div className="text-[10px] font-extrabold text-emerald-700">
+                          {sim.price ? `₹${sim.price.toLocaleString("en-IN")}` : "Contact for Price"}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 5. MODAL: CONTACT SELLER DIALOG ─────────────────────────────────── */}
+      {showContactModal && contactTarget && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-card w-full max-w-md rounded-3xl border border-slate-200 dark:border-border p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <Phone className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-bold text-slate-900">
+                  {isHi ? "विक्रेता संपर्क जानकारी" : "Verified Seller Contact"}
+                </h3>
+              </div>
+              <button onClick={() => setShowContactModal(false)} className="p-1 text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            {/* Technical Parameters Table */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Manufacturer / Brand</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.manufacturer || selectedCatalogItem.brand}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Category</span>
-                <span className="font-bold text-foreground capitalize">{selectedCatalogItem.category.replace("_", " ")}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Power (HP)</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.hp_rating ? `${selectedCatalogItem.hp_rating} HP` : "—"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Working Width</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.working_width_mm ? `${selectedCatalogItem.working_width_mm} mm` : "—"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">PTO Power</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.pto_hp ? `${selectedCatalogItem.pto_hp} HP` : "—"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Lifting Capacity</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.lifting_capacity_kg ? `${selectedCatalogItem.lifting_capacity_kg} kg` : "—"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Total Weight</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.weight_kg ? `${selectedCatalogItem.weight_kg} kg` : "—"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Fuel / Power Type</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.fuel_type || "Standard"}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                <span className="text-[10px] text-muted-foreground block">Supplier Attribution</span>
-                <span className="font-bold text-foreground">{selectedCatalogItem.supplier_name || "Government / FMTTI"}</span>
-              </div>
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs space-y-2">
+              <span className="text-[10px] text-slate-400 uppercase font-bold block">Inquiring for:</span>
+              <p className="font-extrabold text-slate-900">{contactTarget.title}</p>
+              <p className="text-slate-500">📍 {contactTarget.location}</p>
             </div>
 
-            {/* Provenance Box */}
-            <div className="p-3.5 rounded-2xl border border-border/80 bg-background text-xs space-y-1">
-              <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 block uppercase">
-                Source Attribution & Verification
-              </span>
-              <p className="text-foreground"><strong>Source:</strong> {selectedCatalogItem.provenance_source}</p>
-              <p className="text-muted-foreground"><strong>Terms & License:</strong> {selectedCatalogItem.provenance_license}</p>
-              {selectedCatalogItem.official_source_url && (
+            <div className="space-y-2 pt-1 text-xs">
+              <div className="p-3 rounded-xl border border-slate-200 bg-white space-y-1">
+                <span className="text-[10px] text-slate-400 uppercase block font-bold">Contact Person</span>
+                <span className="text-sm font-bold text-slate-800 block">{contactTarget.name}</span>
+              </div>
+
+              {contactTarget.phone ? (
                 <a
-                  href={selectedCatalogItem.official_source_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-600 dark:text-emerald-400 font-bold hover:underline inline-flex items-center gap-1 mt-1"
+                  href={`tel:${contactTarget.phone}`}
+                  className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition"
                 >
-                  <span>Open Product Page ({selectedCatalogItem.supplier_name || "Official Spec"})</span>
-                  <ExternalLink className="w-3 h-3" />
+                  <Phone className="w-4 h-4" />
+                  <span>Call {contactTarget.phone}</span>
                 </a>
+              ) : (
+                <div className="p-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-center">
+                  Phone connection request logged. The seller will be notified.
+                </div>
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="text-[11px] text-slate-400 text-center pt-2">
+              KisaanBuddy ensures fair trade and direct farmer negotiations.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 6. MODAL: LIST CHOICE DIALOG (Machinery vs Produce) ─────────────── */}
+      {showListChoiceModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-card w-full max-w-md rounded-3xl border border-slate-200 dark:border-border p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-extrabold text-slate-900">
+                {isHi ? "आप क्या लिस्ट करना चाहते हैं?" : "What would you like to list?"}
+              </h3>
+              <button onClick={() => setShowListChoiceModal(false)} className="p-1 text-slate-400">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 pt-2">
               <button
-                onClick={() => setSelectedCatalogItem(null)}
-                className="px-4 py-2 rounded-xl border border-border text-xs font-semibold text-foreground hover:bg-muted"
+                onClick={() => {
+                  setShowListChoiceModal(false);
+                  setShowEqModal(true);
+                }}
+                className="p-4 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-600 bg-emerald-50/40 text-left transition space-y-1"
               >
-                Close
+                <div className="flex items-center gap-2 font-bold text-emerald-800 text-sm">
+                  <span>🚜</span>
+                  <span>{isHi ? "कृषि मशीनरी (किराये या बिक्री पर)" : "Farm Machinery (Rent / Sale)"}</span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  {isHi
+                    ? "ट्रैक्टर, रोटावेटर, कंबाइन या स्प्रेयर को स्थानीय किसानों के लिए पोस्ट करें।"
+                    : "Offer your tractor, harvester, or implements for local custom hiring or direct sale."}
+                </p>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowListChoiceModal(false);
+                  setShowProduceModal(true);
+                }}
+                className="p-4 rounded-2xl border-2 border-amber-500/30 hover:border-amber-600 bg-amber-50/40 text-left transition space-y-1"
+              >
+                <div className="flex items-center gap-2 font-bold text-amber-800 text-sm">
+                  <span>🌾</span>
+                  <span>{isHi ? "खेत की फसल उपज (गेहूं, धान आदि)" : "Farm Harvest Produce Lots"}</span>
+                </div>
+                <p className="text-xs text-slate-500">
+                  {isHi
+                    ? "अपनी तैयार फसल सीधे मिलर्स और सत्यापित थोक खरीदारों को बेचें।"
+                    : "Sell grain, pulses, or vegetables directly to verified millers and bulk buyers."}
+                </p>
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* ─── MODAL 2: POST EQUIPMENT LISTING ─────────────────────────────────── */}
+      {/* ─── 7. MODAL: POST EQUIPMENT LISTING FORM ────────────────────────────── */}
       {showEqModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card w-full max-w-xl rounded-3xl border border-border p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="bg-white dark:bg-card w-full max-w-xl rounded-3xl border border-slate-200 dark:border-border p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-base font-extrabold text-foreground">
-                  Post Farm Equipment for Rent or Sale
+                <h3 className="text-base font-extrabold text-slate-900">
+                  {isHi ? "मशीन किराये या बिक्री हेतु लिस्ट करें" : "List Machinery for Rent or Sale"}
                 </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  List your tractor, rotavator, or implement for local farmers.
+                <p className="text-xs text-slate-500">
+                  {isHi ? "अपने ट्रैक्टर, रोटावेटर या कृषि उपकरण को सत्यापित किसानों तक पहुंचाएं।" : "List equipment with zero commission."}
                 </p>
               </div>
-              <button onClick={() => setShowEqModal(false)} className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground">
+              <button onClick={() => setShowEqModal(false)} className="p-1.5 text-slate-400">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1702,169 +2173,163 @@ export default function MarketplacePage() {
             <form onSubmit={handleCreateEquipmentListing} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Listing Type *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Listing Type *</label>
                   <select
                     value={newEqType}
                     onChange={(e) => setNewEqType(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   >
                     <option value="rent">For Rent (Custom Hiring)</option>
                     <option value="sale">For Sale (Direct Sale)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Category *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Category *</label>
                   <select
                     value={newEqCategory}
                     onChange={(e) => setNewEqCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   >
-                    <option value="tractors">Tractors</option>
-                    <option value="harvesters">Harvesters</option>
-                    <option value="rotavators">Rotavators</option>
-                    <option value="seed_drills">Seed Drills</option>
-                    <option value="cultivators">Cultivators</option>
-                    <option value="ploughs">Ploughs</option>
-                    <option value="sprayers">Sprayers</option>
-                    <option value="threshers">Threshers</option>
-                    <option value="agricultural_trailers">Agricultural Trailers</option>
-                    <option value="irrigation_equipment">Irrigation & Pumps</option>
-                    <option value="other_implements">Other Implements</option>
+                    {EQUIPMENT_CATEGORIES.filter((c) => c.key !== "all").map((cat) => (
+                      <option key={cat.key} value={cat.key}>
+                        {cat.labelEn}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-foreground mb-1">Listing Title *</label>
+                <label className="block font-bold text-slate-800 mb-1">Listing Title *</label>
                 <input
                   type="text"
-                  placeholder="e.g. Mahindra 575 DI with Rotavator for Custom Hiring"
+                  placeholder="e.g. Mahindra 575 DI XP Plus with Rotavator"
                   value={newEqTitle}
                   onChange={(e) => setNewEqTitle(e.target.value)}
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Brand *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Brand *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Mahindra, Swaraj, Fieldking"
+                    placeholder="e.g. Mahindra, Swaraj, Shaktiman"
                     value={newEqBrand}
                     onChange={(e) => setNewEqBrand(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Model Name / Number</label>
+                  <label className="block font-bold text-slate-800 mb-1">Model Name</label>
                   <input
                     type="text"
                     placeholder="e.g. 575 DI XP Plus"
                     value={newEqModel}
                     onChange={(e) => setNewEqModel(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Rate / Price (₹) *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Rate / Price (₹) *</label>
                   <input
                     type="number"
                     placeholder="e.g. 850"
                     value={newEqPrice}
                     onChange={(e) => setNewEqPrice(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Unit *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Unit *</label>
                   <select
                     value={newEqPriceUnit}
                     onChange={(e) => setNewEqPriceUnit(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   >
                     <option value="per hour">per hour</option>
                     <option value="per day">per day</option>
                     <option value="per acre">per acre</option>
-                    <option value="total price">total price (for sale)</option>
+                    <option value="total price">total price</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">HP (Horsepower)</label>
+                  <label className="block font-bold text-slate-800 mb-1">HP (Horsepower)</label>
                   <input
                     type="number"
                     placeholder="e.g. 47"
                     value={newEqHp}
                     onChange={(e) => setNewEqHp(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">State *</label>
+                  <label className="block font-bold text-slate-800 mb-1">State *</label>
                   <input
                     type="text"
                     placeholder="e.g. Madhya Pradesh"
                     value={newEqState}
                     onChange={(e) => setNewEqState(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">District *</label>
+                  <label className="block font-bold text-slate-800 mb-1">District *</label>
                   <input
                     type="text"
                     placeholder="e.g. Sehore"
                     value={newEqDistrict}
                     onChange={(e) => setNewEqDistrict(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Owner / CHC Name *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Owner / CHC Name *</label>
                   <input
                     type="text"
                     placeholder="Your Name"
                     value={newEqOwnerName}
                     onChange={(e) => setNewEqOwnerName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Phone Number *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Phone Number *</label>
                   <input
                     type="tel"
                     placeholder="+91 98261 XXXXX"
                     value={newEqOwnerPhone}
                     onChange={(e) => setNewEqOwnerPhone(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-foreground mb-1">Notes / Terms</label>
+                <label className="block font-bold text-slate-800 mb-1">Notes / Terms</label>
                 <textarea
                   placeholder="Mention operator availability, attachments included, or delivery conditions..."
                   value={newEqNotes}
                   onChange={(e) => setNewEqNotes(e.target.value)}
                   rows={2}
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                 />
               </div>
 
@@ -1872,14 +2337,14 @@ export default function MarketplacePage() {
                 <button
                   type="button"
                   onClick={() => setShowEqModal(false)}
-                  className="px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-xs transition"
+                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
                 >
                   {isSubmitting ? "Publishing..." : "Publish Equipment Listing"}
                 </button>
@@ -1889,20 +2354,15 @@ export default function MarketplacePage() {
         </div>
       )}
 
-      {/* ─── MODAL 3: POST PRODUCE LISTING ───────────────────────────────────── */}
+      {/* ─── 8. MODAL: POST PRODUCE LISTING FORM ──────────────────────────────── */}
       {showProduceModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card w-full max-w-xl rounded-3xl border border-border p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <h3 className="text-base font-extrabold text-foreground">
-                  List Harvest Produce for Sale
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Sell directly to verified buyers, millers, and aggregators with zero commission.
-                </p>
-              </div>
-              <button onClick={() => setShowProduceModal(false)} className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground">
+          <div className="bg-white dark:bg-card w-full max-w-xl rounded-3xl border border-slate-200 dark:border-border p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-base font-extrabold text-slate-900">
+                {isHi ? "फसल उपज लिस्ट करें" : "List Harvest Produce for Sale"}
+              </h3>
+              <button onClick={() => setShowProduceModal(false)} className="p-1.5 text-slate-400">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -1910,215 +2370,120 @@ export default function MarketplacePage() {
             <form onSubmit={handleCreateProduceListing} className="space-y-3.5 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Crop Name *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Crop Name *</label>
                   <input
                     type="text"
                     placeholder="e.g. Wheat, Paddy, Soybean"
                     value={newProdCrop}
                     onChange={(e) => setNewProdCrop(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Variety</label>
+                  <label className="block font-bold text-slate-800 mb-1">Variety</label>
                   <input
                     type="text"
-                    placeholder="e.g. Sharbati, Basmati 1121"
+                    placeholder="e.g. Sharbati, 1121 Basmati"
                     value={newProdVariety}
                     onChange={(e) => setNewProdVariety(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Available Quantity (Quintals) *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Available Quantity (Quintals) *</label>
                   <input
                     type="number"
                     placeholder="e.g. 150"
                     value={newProdQty}
                     onChange={(e) => setNewProdQty(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Asking Rate (₹ per Quintal) *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Asking Rate (₹ per Q) *</label>
                   <input
                     type="number"
                     placeholder="e.g. 2650"
                     value={newProdPrice}
                     onChange={(e) => setNewProdPrice(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Grade / Quality</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Grade A FAQ, Sun-dried"
-                    value={newProdGrade}
-                    onChange={(e) => setNewProdGrade(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-foreground mb-1">Delivery Option</label>
-                  <select
-                    value={newProdDelivery}
-                    onChange={(e) => setNewProdDelivery(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
-                  >
-                    <option value="Farm Gate Pickup">Farm Gate Pickup</option>
-                    <option value="Mandi Delivery">Mandi Delivery</option>
-                    <option value="Direct Dispatch">Direct Dispatch</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-foreground mb-1">State *</label>
+                  <label className="block font-bold text-slate-800 mb-1">State *</label>
                   <input
                     type="text"
                     placeholder="e.g. Madhya Pradesh"
                     value={newProdState}
                     onChange={(e) => setNewProdState(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">District *</label>
+                  <label className="block font-bold text-slate-800 mb-1">District *</label>
                   <input
                     type="text"
                     placeholder="e.g. Sehore"
                     value={newProdDistrict}
                     onChange={(e) => setNewProdDistrict(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Farmer / Collective Name *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Farmer / Collective Name *</label>
                   <input
                     type="text"
-                    placeholder="Your Name / FPO"
+                    placeholder="Your Name"
                     value={newProdFarmerName}
                     onChange={(e) => setNewProdFarmerName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-foreground mb-1">Phone Number *</label>
+                  <label className="block font-bold text-slate-800 mb-1">Phone Number *</label>
                   <input
                     type="tel"
                     placeholder="+91 98261 XXXXX"
                     value={newProdPhone}
                     onChange={(e) => setNewProdPhone(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-foreground mb-1">Batch Notes</label>
-                <textarea
-                  placeholder="Mention moisture content, bag packaging, or road access for trucks..."
-                  value={newProdNotes}
-                  onChange={(e) => setNewProdNotes(e.target.value)}
-                  rows={2}
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-foreground"
-                />
               </div>
 
               <div className="pt-2 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowProduceModal(false)}
-                  className="px-4 py-2 rounded-xl border border-border text-foreground hover:bg-muted"
+                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-xs transition"
+                  className="px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold"
                 >
-                  {isSubmitting ? "Publishing..." : "Publish Produce Batch"}
+                  {isSubmitting ? "Publishing..." : "Publish Produce Lot"}
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* ─── MODAL 4: CONTACT / INQUIRY CONSENT DIALOGUE ─────────────────────── */}
-      {showContactModal && contactTarget && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-card w-full max-w-md rounded-3xl border border-border p-6 shadow-2xl space-y-4 text-xs">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <div className="flex items-center gap-2">
-                <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600">
-                  <ShieldCheck className="w-5 h-5" />
-                </span>
-                <div>
-                  <h3 className="text-sm font-bold text-foreground">Verified Contact Details</h3>
-                  <span className="text-[10px] text-muted-foreground block">Direct Trade Protocol</span>
-                </div>
-              </div>
-              <button onClick={() => setShowContactModal(false)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/60 space-y-2">
-              <p className="text-foreground font-bold">{contactTarget.title}</p>
-              <p className="text-muted-foreground">Location: <strong className="text-foreground">{contactTarget.location}</strong></p>
-              <p className="text-muted-foreground">Contact: <strong className="text-foreground">{contactTarget.name}</strong></p>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-muted/40 text-muted-foreground text-[11px] text-center">
-              Direct seller contact • Zero intermediary fees
-            </div>
-
-            <div className="p-3 rounded-xl bg-background border border-border text-center space-y-2">
-              <span className="text-[10px] text-muted-foreground block uppercase font-bold tracking-wider">
-                Phone Number
-              </span>
-              <a
-                href={`tel:${contactTarget.phone || ""}`}
-                className="text-base font-extrabold text-foreground hover:text-emerald-600 transition block"
-              >
-                {contactTarget.phone || "+91 Contact via KisaanBuddy Support"}
-              </a>
-            </div>
-
-            <div className="flex items-center gap-2 pt-2">
-              <a
-                href={`tel:${contactTarget.phone || ""}`}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-center transition"
-              >
-                Call Directly
-              </a>
-              <button
-                onClick={() => setShowContactModal(false)}
-                className="px-4 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted"
-              >
-                Done
-              </button>
-            </div>
           </div>
         </div>
       )}
