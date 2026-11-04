@@ -67,7 +67,7 @@ const FOUNDERS: Founder[] = [
     focusArea: 'Full-Stack Architecture & AI Systems Integration',
     email: 'info@kisaanbuddy.com',
     linkedin: 'https://www.linkedin.com/in/aditya-ishwar',
-    image: '/aditya.png',
+    image: '/images/founders/aditya-ishwar.webp',
     initials: 'AI',
     shortBio:
       'Drives the technical vision and engineering roadmap of KisaanBuddy. Leads full-stack architecture, conversational AI integrations, and production deployment with the conviction that advanced agricultural software must be practical and accessible to every Indian farmer.',
@@ -91,7 +91,7 @@ const FOUNDERS: Founder[] = [
     focusArea: 'Machine Learning Pipelines & Agricultural Data Systems',
     email: 'info@kisaanbuddy.com',
     linkedin: 'https://www.linkedin.com/in/utkarsh-sinha',
-    image: '/utkarsh.png',
+    image: '/images/founders/utkarsh-sinha.webp',
     initials: 'US',
     shortBio:
       'Directs the machine learning and agricultural intelligence pipelines at KisaanBuddy. Focuses on crop advisory algorithms, disease diagnosis accuracy, and AGMARKNET market price pipelines to turn raw agricultural data into actionable guidance.',
@@ -115,7 +115,7 @@ const FOUNDERS: Founder[] = [
     focusArea: 'Farmer Outreach, Rural Adoption & Community Engagement',
     email: 'info@kisaanbuddy.com',
     linkedin: 'https://www.linkedin.com/in/yash-singh-33553b2a5',
-    image: '/yash.png',
+    image: '/images/founders/yash-singh.webp',
     initials: 'YS',
     shortBio:
       'Leads grassroots outreach, farmer feedback loops, and user adoption for KisaanBuddy. Works directly with farming communities to understand real field obstacles and ensure the platform solves authentic everyday agricultural problems.',
@@ -1076,13 +1076,13 @@ export function AboutClient() {
               >
                 <div>
                   {/* Photo area */}
-                  <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-muted mb-5 border border-border/40">
+                  <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-muted mb-5 border border-border/40">
                     <Image
                       src={f.image}
                       alt={`Portrait of ${f.name}`}
                       fill
                       sizes="(max-width: 768px) 100vw, 30vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
 
@@ -1095,7 +1095,7 @@ export function AboutClient() {
                   <p className="text-xs text-muted-foreground font-medium mt-1">
                     {f.focusArea}
                   </p>
-                  <p className="text-xs text-foreground/80 mt-3 leading-relaxed line-clamp-3">
+                  <p className="text-xs text-foreground/80 mt-3 leading-relaxed ">
                     {f.shortBio}
                   </p>
                 </div>

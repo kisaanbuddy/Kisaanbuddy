@@ -38,11 +38,53 @@ import { useLanguage } from "@/lib/language";
 
 // Comprehensive Indian States and Agricultural Districts Mapping
 const INDIAN_LOCATIONS: Record<string, string[]> = {
+  "Andhra Pradesh": [
+    "Guntur", "Krishna", "East Godavari", "West Godavari", "Kurnool", 
+    "Anantapur", "Chittoor", "Visakhapatnam", "Prakasam", "SPSR Nellore", "Kadapa"
+  ],
+  "Assam": [
+    "Kamrup (Guwahati)", "Nagaon", "Sonitpur", "Dibrugarh", "Cachar", 
+    "Barpeta", "Dhubri", "Jorhat", "Golaghat", "Tinsukia", "Sivasagar"
+  ],
   "Bihar": [
     "Samastipur", "Patna", "Muzaffarpur", "Gaya", "Bhagalpur", "Begusarai", 
     "Darbhanga", "Purnia", "Rohtas", "Nalanda", "Saran", "Vaishali", 
     "Madhubani", "Siwan", "East Champaran", "West Champaran", "Saharsa", 
     "Katihar", "Munger", "Bhojpur (Arrah)", "Buxar", "Sitamarhi"
+  ],
+  "Chhattisgarh": [
+    "Raipur", "Durg", "Bilaspur", "Rajnandgaon", "Janjgir-Champa", "Balod", "Bemetara", "Dhamtari"
+  ],
+  "Delhi": [
+    "New Delhi", "North Delhi", "South Delhi", "West Delhi", "East Delhi", "Central Delhi", "South West Delhi", "North West Delhi"
+  ],
+  "Gujarat": [
+    "Rajkot", "Anand", "Ahmedabad", "Surat", "Vadodara", "Bhavnagar", 
+    "Junagadh", "Jamnagar", "Mehsana", "Banaskantha", "Sabarkantha", 
+    "Kheda", "Amreli", "Patan", "Surendranagar", "Bharuch"
+  ],
+  "Haryana": [
+    "Karnal", "Sirsa", "Ambala", "Kurukshetra", "Kaithal", "Hisar", 
+    "Fatehabad", "Jind", "Rohtak", "Sonipat", "Panipat", "Yamunanagar", 
+    "Bhiwani", "Jhajjar", "Rewari", "Palwal", "Gurugram", "Faridabad"
+  ],
+  "Himachal Pradesh": [
+    "Kangra", "Mandi", "Shimla", "Solan", "Sirmaur", "Una", "Kullu", "Hamirpur", "Bilaspur", "Chamba"
+  ],
+  "Jammu and Kashmir": [
+    "Jammu", "Srinagar", "Anantnag", "Baramulla", "Kathua", "Udhampur", "Pulwama"
+  ],
+  "Jharkhand": [
+    "Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh", "Deoghar", "Giridih"
+  ],
+  "Karnataka": [
+    "Bengaluru", "Belagavi", "Mysuru", "Hubballi-Dharwad", "Kalaburagi", 
+    "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", 
+    "Raichur", "Mandya", "Hassan", "Bagalkote", "Koppal", "Udupi", "Dakshina Kannada"
+  ],
+  "Kerala": [
+    "Kochi (Ernakulam)", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Palakkad", 
+    "Kollam", "Kannur", "Alappuzha", "Kottayam", "Malappuram", "Wayanad"
   ],
   "Madhya Pradesh": [
     "Sehore", "Dewas", "Indore", "Ujjain", "Hoshangabad (Narmadapuram)", 
@@ -50,16 +92,31 @@ const INDIAN_LOCATIONS: Record<string, string[]> = {
     "Ratlam", "Raisen", "Harda", "Shajapur", "Mandsaur", "Neemuch", 
     "Chhindwara", "Rewa", "Satna", "Morena"
   ],
+  "Maharashtra": [
+    "Nashik", "Kolhapur", "Ahmednagar", "Jalgaon", "Pune", "Solapur", 
+    "Chhatrapati Sambhajinagar", "Sangli", "Satara", "Nagpur", 
+    "Amravati", "Nanded", "Yavatmal", "Latur", "Beed", "Buldhana", "Akola"
+  ],
+  "Odisha": [
+    "Cuttack", "Sambalpur", "Bargarh", "Balasore", "Ganjam", "Puri", "Bhadrak", "Mayurbhanj"
+  ],
   "Punjab": [
     "Ludhiana", "Sangrur", "Patiala", "Bathinda", "Amritsar", "Jalandhar", 
     "Firozpur", "Moga", "Fazilka", "Sri Muktsar Sahib", "Barnala", "Mansa", 
-    "Kapurthala", "Hoshiarpur", "Gurdaspur", "Fatehgarh Sahib", "Faridkot", 
+    "Kapurthala", "Hoshiarpur", "Gurdaspur", "Fategarh Sahib", "Faridkot", 
     "Tarn Taran", "Rupnagar", "Pathankot"
   ],
-  "Haryana": [
-    "Karnal", "Sirsa", "Ambala", "Kurukshetra", "Kaithal", "Hisar", 
-    "Fatehabad", "Jind", "Rohtak", "Sonipat", "Panipat", "Yamunanagar", 
-    "Bhiwani", "Jhajjar", "Rewari", "Palwal", "Gurugram", "Faridabad"
+  "Rajasthan": [
+    "Kota", "Sri Ganganagar", "Jaipur", "Jodhpur", "Bikaner", "Alwar", 
+    "Hanumangarh", "Udaipur", "Nagaur", "Sikar", "Ajmer", "Bharatpur", 
+    "Chittorgarh", "Baran", "Bundi", "Pali", "Jhalawar"
+  ],
+  "Tamil Nadu": [
+    "Coimbatore", "Thanjavur", "Madurai", "Salem", "Tiruchirappalli", "Erode", "Tirunelveli", "Vellore", "Chennai"
+  ],
+  "Telangana": [
+    "Warangal", "Hyderabad", "Nizamabad", "Karimnagar", "Khammam", 
+    "Nalgonda", "Mahbubnagar", "Medak", "Rangareddy", "Adilabad", "Suryapet"
   ],
   "Uttar Pradesh": [
     "Muzaffarnagar", "Aligarh", "Lakhimpur Kheri", "Meerut", "Bareilly", 
@@ -67,49 +124,12 @@ const INDIAN_LOCATIONS: Record<string, string[]> = {
     "Moradabad", "Saharanpur", "Mathura", "Bijnor", "Bulandshahr", 
     "Hardoi", "Sitapur", "Budaun", "Barabanki", "Shahjahanpur", "Ayodhya"
   ],
-  "Maharashtra": [
-    "Nashik", "Kolhapur", "Ahmednagar", "Jalgaon", "Pune", "Solapur", 
-    "Chhatrapati Sambhajinagar", "Sangli", "Satara", "Nagpur", 
-    "Amravati", "Nanded", "Yavatmal", "Latur", "Beed", "Buldhana", "Akola"
-  ],
-  "Rajasthan": [
-    "Kota", "Sri Ganganagar", "Jaipur", "Jodhpur", "Bikaner", "Alwar", 
-    "Hanumangarh", "Udaipur", "Nagaur", "Sikar", "Ajmer", "Bharatpur", 
-    "Chittorgarh", "Baran", "Bundi", "Pali", "Jhalawar"
-  ],
-  "Gujarat": [
-    "Rajkot", "Anand", "Ahmedabad", "Surat", "Vadodara", "Bhavnagar", 
-    "Junagadh", "Jamnagar", "Mehsana", "Banaskantha", "Sabarkantha", 
-    "Kheda", "Amreli", "Patan", "Surendranagar", "Bharuch"
-  ],
-  "Karnataka": [
-    "Belagavi", "Bengaluru", "Mysuru", "Hubballi-Dharwad", "Kalaburagi", 
-    "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", 
-    "Raichur", "Mandya", "Hassan", "Bagalkote", "Koppal"
-  ],
-  "Telangana": [
-    "Warangal", "Hyderabad", "Nizamabad", "Karimnagar", "Khammam", 
-    "Nalgonda", "Mahbubnagar", "Medak", "Rangareddy", "Adilabad", "Suryapet"
-  ],
-  "Andhra Pradesh": [
-    "Guntur", "Krishna", "East Godavari", "West Godavari", "Kurnool", 
-    "Anantapur", "Chittoor", "Visakhapatnam", "Prakasam", "SPSR Nellore", "Kadapa"
+  "Uttarakhand": [
+    "Dehradun", "Haridwar", "Udham Singh Nagar", "Nainital", "Pauri Garhwal", "Almora"
   ],
   "West Bengal": [
     "Purba Bardhaman", "Paschim Bardhaman", "Hooghly", "Murshidabad", 
-    "Nadia", "Purba Medinipur", "Paschim Medinipur", "Birbhum", "Malda", "Jalpaiguri"
-  ],
-  "Chhattisgarh": [
-    "Raipur", "Durg", "Bilaspur", "Rajnandgaon", "Janjgir-Champa", "Balod", "Bemetara", "Dhamtari"
-  ],
-  "Jharkhand": [
-    "Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh", "Deoghar", "Giridih"
-  ],
-  "Odisha": [
-    "Cuttack", "Sambalpur", "Bargarh", "Balasore", "Ganjam", "Puri", "Bhadrak", "Mayurbhanj"
-  ],
-  "Tamil Nadu": [
-    "Coimbatore", "Thanjavur", "Madurai", "Salem", "Tiruchirappalli", "Erode", "Tirunelveli", "Vellore"
+    "Nadia", "Purba Medinipur", "Paschim Medinipur", "Birbhum", "Malda", "Jalpaiguri", "Kolkata"
   ]
 };
 
@@ -186,6 +206,7 @@ interface UserLocation {
   district: string;
   city?: string;
   source: "gps" | "manual" | "default";
+  detectedAt?: number;
 }
 
 // Strict genuine machinery photograph resolver
@@ -243,75 +264,83 @@ function ProductCardImage({
   );
 }
 
-// Reverse geocode latitude and longitude to State and District (India)
+// Reverse geocode latitude and longitude to State, District and City (India)
 async function reverseGeocodeCoords(lat: number, lon: number): Promise<{ state: string; district: string; city: string }> {
-  // 1. Primary: BigDataCloud reverse geocode client API (fast, free, accurate for Indian districts & states)
+  // 1. Primary: Server-side Next.js route (no CORS, no CSP limits, multi-provider fallback)
+  try {
+    const res = await fetch(`/api/marketplace/reverse-geocode?lat=${lat}&lon=${lon}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.state) {
+        return {
+          state: data.state,
+          district: data.district || data.city || "",
+          city: data.city || data.district || "",
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("Internal reverse-geocode endpoint failed, attempting direct client fallback:", e);
+  }
+
+  // 2. Secondary client fallback: BigDataCloud
   try {
     const res = await fetch(
       `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
     );
     if (res.ok) {
       const data = await res.json();
-      const state = data.principalSubdivision || "";
+      const rawState = data.principalSubdivision || "";
       let district = "";
       if (Array.isArray(data.localityInfo?.administrative)) {
         const distObj = data.localityInfo.administrative.find((a: any) =>
           (a.description && a.description.toLowerCase().includes("district")) ||
           (a.name && a.name.toLowerCase().includes("district"))
         );
-        if (distObj) {
-          district = distObj.name.replace(/ district/i, "").trim();
+        if (distObj?.name) {
+          district = distObj.name.replace(/\bdistrict\b/gi, "").trim();
         }
       }
       if (!district) {
         district = data.city || data.locality || "";
       }
       const city = data.city || data.locality || district;
-      if (state || district) {
-        return { state, district, city };
+      if (rawState || district) {
+        return {
+          state: rawState || district,
+          district: district || city,
+          city: city || district,
+        };
       }
     }
   } catch (e) {
-    console.warn("BigDataCloud geocode failed, attempting fallback:", e);
+    console.warn("Client BigDataCloud geocode failed:", e);
   }
 
-  // 2. Secondary fallback: OpenStreetMap Nominatim
+  // 3. Tertiary client fallback: Nominatim
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10`
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`
     );
     if (res.ok) {
       const data = await res.json();
       const addr = data.address || {};
-      const state = addr.state || "";
-      const district = addr.state_district || addr.county || addr.city || "";
+      const state = addr.state || addr.state_district || "";
+      const district = (addr.state_district || addr.county || addr.city || "").replace(/\bdistrict\b/gi, "").trim();
       const city = addr.city || addr.town || addr.village || district;
       if (state || district) {
-        return { state, district: district.replace(/ district/i, "").trim(), city };
+        return { state: state || district, district: district || city, city };
       }
     }
   } catch (e) {
-    console.warn("Nominatim geocode failed:", e);
+    console.warn("Client Nominatim geocode failed:", e);
   }
-
-  // 3. Tertiary fallback: Weather endpoint
-  try {
-    const res = await fetch(`/api/weather/current?lat=${lat}&lon=${lon}`);
-    if (res.ok) {
-      const data = await res.json();
-      const name = data.location?.name || "";
-      const state = data.location?.region || "";
-      if (name || state) {
-        return { state, district: name, city: name };
-      }
-    }
-  } catch {}
 
   return { state: "", district: "", city: "" };
 }
 
 // Calculate location relevance score:
-// Same District = 100, Same State = 50, Pan-India Catalog = 20, Other = 0
+// Same City = 120, Same District = 100, Same State = 60, Pan-India Catalog = 20, Other = 0
 function getLocationScore(
   product: UnifiedProduct,
   userLoc: UserLocation
@@ -320,19 +349,32 @@ function getLocationScore(
 
   const uState = userLoc.state.toLowerCase().trim();
   const uDist = (userLoc.district || "").toLowerCase().trim();
+  const uCity = (userLoc.city || "").toLowerCase().trim();
 
   const pState = (product.state || "").toLowerCase().trim();
   const pDist = (product.district || "").toLowerCase().trim();
+  const pLoc = (product.sellerLocation || "").toLowerCase().trim();
 
-  if (uDist && pDist && (pDist.includes(uDist) || uDist.includes(pDist))) {
+  // Tier 1: Exact City / Taluk Match
+  if (uCity && ((pDist && (pDist === uCity || pDist.includes(uCity) || uCity.includes(pDist))) || (pLoc && pLoc.includes(uCity)))) {
+    return 120;
+  }
+
+  // Tier 2: Same District Match
+  if (uDist && ((pDist && (pDist === uDist || pDist.includes(uDist) || uDist.includes(pDist))) || (pLoc && pLoc.includes(uDist)))) {
     return 100;
   }
-  if (pState && (pState.includes(uState) || uState.includes(pState))) {
-    return 50;
+
+  // Tier 3: Same State Match
+  if (uState && ((pState && (pState === uState || pState.includes(uState) || uState.includes(pState))) || (pLoc && pLoc.includes(uState)))) {
+    return 60;
   }
+
+  // Tier 4: Pan-India Catalog Equipment
   if (product.sourceType === "catalog") {
     return 20;
   }
+
   return 0;
 }
 
@@ -358,8 +400,13 @@ export default function MarketplacePage() {
     source: "default",
   });
   const [detectingLocation, setDetectingLocation] = useState(false);
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState<"granted" | "prompt" | "denied" | "unsupported">("prompt");
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [showLocationPopover, setShowLocationPopover] = useState(false);
   const [locationSearchInput, setLocationSearchInput] = useState("");
+  const [selectedManualState, setSelectedManualState] = useState("");
+  const [selectedManualDistrict, setSelectedManualDistrict] = useState("");
+  const [selectedManualCity, setSelectedManualCity] = useState("");
   const [strictLocationOnly, setStrictLocationOnly] = useState(false);
   const locationPopoverRef = useRef<HTMLDivElement>(null);
 
@@ -446,127 +493,177 @@ export default function MarketplacePage() {
 
   // ─── GEOLOCATION DETECTION FUNCTION ──────────────────────────────────────
   const detectLocation = useCallback(async () => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      alert("Browser geolocation is not available on this device.");
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setLocationError("Browser geolocation is not available on this device.");
       return;
     }
+
     setDetectingLocation(true);
+    setLocationError(null);
+
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         try {
           const { latitude, longitude } = pos.coords;
           const loc = await reverseGeocodeCoords(latitude, longitude);
-          if (loc.state || loc.district) {
+
+          if (loc.state && loc.state.toLowerCase() !== "all") {
             const detected: UserLocation = {
-              state: loc.state || "all",
-              district: loc.district || "",
-              city: loc.city || "",
+              state: loc.state,
+              district: loc.district || loc.city || "",
+              city: loc.city || loc.district || "",
               source: "gps",
+              detectedAt: Date.now(),
             };
             setUserLocation(detected);
+            setSelectedManualState(loc.state);
+            setSelectedManualDistrict(loc.district || "");
+            setSelectedManualCity(loc.city || "");
+            setLocationPermissionStatus("granted");
+            setLocationError(null);
             setShowLocationPopover(false);
+
+            // Avoid storing precise coordinates unnecessarily (store city, district, state only)
             try {
               localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(detected));
             } catch {}
+          } else {
+            setLocationError("Could not resolve location address from coordinates. Please select manually.");
           }
-        } catch (err) {
-          console.error("Failed to reverse geocode:", err);
+        } catch (err: any) {
+          console.error("Failed to reverse geocode GPS coordinates:", err);
+          setLocationError("Could not determine address from GPS. Please select your location manually.");
         } finally {
           setDetectingLocation(false);
         }
       },
       (err) => {
-        console.warn("Geolocation permission denied or timed out:", err.message);
         setDetectingLocation(false);
+        if (err.code === 1) {
+          // PERMISSION_DENIED
+          setLocationPermissionStatus("denied");
+          setLocationError("Location permission denied. Please allow location access in browser settings or choose manually below.");
+        } else if (err.code === 2) {
+          // POSITION_UNAVAILABLE
+          setLocationError("GPS signal unavailable on your device. Please select your location manually.");
+        } else if (err.code === 3) {
+          // TIMEOUT
+          setLocationError("GPS detection timed out. Please try again or select your location manually.");
+        } else {
+          setLocationError(err.message || "Failed to detect GPS location.");
+        }
       },
-      { timeout: 8000, enableHighAccuracy: false, maximumAge: 10 * 60 * 1000 }
+      { timeout: 10000, enableHighAccuracy: true, maximumAge: 5 * 60 * 1000 }
     );
   }, []);
 
-  // On page load: check saved location or automatically request geolocation
+  // On page load: check saved location or automatically request geolocation if permission already granted
   useEffect(() => {
+    let hasValidSaved = false;
     try {
       const savedLoc = localStorage.getItem("kisaanbuddy_marketplace_location");
       if (savedLoc) {
-        setUserLocation(JSON.parse(savedLoc));
-        return;
+        const parsed: UserLocation = JSON.parse(savedLoc);
+        // Strictly prevent contradictory state (state="all" with source="gps")
+        if (parsed.state && parsed.state !== "all") {
+          setUserLocation(parsed);
+          setSelectedManualState(parsed.state);
+          setSelectedManualDistrict(parsed.district || "");
+          setSelectedManualCity(parsed.city || "");
+          hasValidSaved = true;
+        } else {
+          localStorage.removeItem("kisaanbuddy_marketplace_location");
+        }
       }
     } catch {}
 
-    // Auto-request browser geolocation permission on mount
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          try {
-            const loc = await reverseGeocodeCoords(pos.coords.latitude, pos.coords.longitude);
-            if (loc.state || loc.district) {
-              const detected: UserLocation = {
-                state: loc.state || "all",
-                district: loc.district || "",
-                city: loc.city || "",
-                source: "gps",
-              };
-              setUserLocation(detected);
-              try {
-                localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(detected));
-              } catch {}
-            }
-          } catch {}
-        },
-        () => {
-          // Defaults to All India cleanly
-        },
-        { timeout: 6000, enableHighAccuracy: false, maximumAge: 15 * 60 * 1000 }
-      );
-    }
-  }, []);
+    // Check if permission is already granted in the browser
+    if (typeof navigator !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((permissionStatus) => {
+          setLocationPermissionStatus(permissionStatus.state as any);
 
-  // Clear location
+          // If already granted, automatically retrieve real coordinates
+          if (permissionStatus.state === "granted") {
+            detectLocation();
+          }
+
+          // React when user grants or revokes permission in browser settings
+          permissionStatus.onchange = () => {
+            setLocationPermissionStatus(permissionStatus.state as any);
+            if (permissionStatus.state === "granted") {
+              detectLocation();
+            }
+          };
+        })
+        .catch(() => {
+          if (!hasValidSaved) {
+            setLocationPermissionStatus("prompt");
+          }
+        });
+    }
+  }, [detectLocation]);
+
+  // Clear location (Reset to All India)
   const clearLocation = () => {
     const allIndia: UserLocation = { state: "all", district: "", city: "", source: "default" };
     setUserLocation(allIndia);
+    setSelectedManualState("");
+    setSelectedManualDistrict("");
+    setSelectedManualCity("");
     setStrictLocationOnly(false);
     setShowLocationPopover(false);
+    setLocationError(null);
     try {
       localStorage.removeItem("kisaanbuddy_marketplace_location");
     } catch {}
   };
 
   // Manual location select
-  const setManualLocation = (state: string, district = "") => {
+  const setManualLocation = (state: string, district = "", city = "") => {
+    if (!state || state === "all") {
+      clearLocation();
+      return;
+    }
     const loc: UserLocation = {
       state,
       district,
-      city: district,
+      city: city || district,
       source: "manual",
+      detectedAt: Date.now(),
     };
     setUserLocation(loc);
+    setSelectedManualState(state);
+    setSelectedManualDistrict(district);
+    setSelectedManualCity(city || district);
     setShowLocationPopover(false);
+    setLocationError(null);
     try {
       localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(loc));
     } catch {}
   };
 
-  // Search locations matching query
+  // Search locations matching query (states, districts, and major cities)
   const searchedLocations = useMemo(() => {
     const q = locationSearchInput.toLowerCase().trim();
     if (!q) return [];
 
-    const matches: { state: string; district: string }[] = [];
+    const matches: { state: string; district: string; city: string }[] = [];
 
     // Check states and districts
     for (const [st, dists] of Object.entries(INDIAN_LOCATIONS)) {
       if (st.toLowerCase().includes(q)) {
-        matches.push({ state: st, district: "" });
+        matches.push({ state: st, district: "", city: "" });
       }
       for (const d of dists) {
         if (d.toLowerCase().includes(q)) {
-          matches.push({ state: st, district: d });
+          matches.push({ state: st, district: d, city: d });
         }
       }
     }
 
-    return matches.slice(0, 8);
+    return matches.slice(0, 10);
   }, [locationSearchInput]);
 
   // Fetch marketplace data from backend APIs
@@ -1284,63 +1381,112 @@ export default function MarketplacePage() {
               </div>
 
               {/* Detected / Selected Location Card */}
-              <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-stone-400 block tracking-wider">
-                      Your Location
-                    </span>
-                    <p className="text-xs font-bold text-stone-900 dark:text-white mt-0.5">
-                      {userLocation.district && userLocation.state !== "all"
-                        ? `${userLocation.district}, ${userLocation.state}`
-                        : userLocation.state !== "all"
-                        ? userLocation.state
-                        : "All India"}
-                    </p>
-                    {userLocation.source === "gps" && (
-                      <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Auto-detected via GPS
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowLocationPopover(!showLocationPopover)}
-                    className="px-2 py-1 text-xs font-semibold rounded-md border border-stone-200 dark:border-stone-700 hover:bg-white text-stone-700 dark:text-stone-300 transition shrink-0"
-                  >
-                    Change
-                  </button>
+              <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/90 border border-stone-200 dark:border-stone-700 space-y-3">
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-stone-500 dark:text-stone-400 flex items-center gap-1 tracking-wider">
+                    <span>📍 YOUR LOCATION</span>
+                  </span>
+                  <p className="text-sm font-bold text-stone-900 dark:text-white mt-1">
+                    {userLocation.state !== "all"
+                      ? (userLocation.city && userLocation.city !== userLocation.state
+                          ? `${userLocation.city}, ${userLocation.state}`
+                          : userLocation.district && userLocation.district !== userLocation.state
+                          ? `${userLocation.district}, ${userLocation.state}`
+                          : userLocation.state)
+                      : "All India"}
+                  </p>
+
+                  {/* GPS Verified Status or Manual Indicator */}
+                  {userLocation.source === "gps" && userLocation.state !== "all" ? (
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 mt-1.5 rounded-md bg-emerald-100/90 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[11px] font-bold">
+                      <Check className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 stroke-[2.5]" />
+                      <span>GPS Verified ✓</span>
+                    </div>
+                  ) : userLocation.source === "manual" && userLocation.state !== "all" ? (
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 mt-1.5 rounded-md bg-stone-200/80 dark:bg-stone-700/70 text-stone-700 dark:text-stone-300 text-[11px] font-medium">
+                      <span>Manual Selection</span>
+                    </div>
+                  ) : null}
                 </div>
 
-                {/* Auto-detect GPS button */}
-                <button
-                  type="button"
-                  onClick={detectLocation}
-                  disabled={detectingLocation}
-                  className="w-full py-1.5 px-2 rounded-md bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 hover:border-emerald-600 hover:bg-emerald-50/40 text-emerald-800 dark:text-emerald-300 font-medium text-[11px] flex items-center justify-center gap-1.5 transition disabled:opacity-50"
-                >
-                  {detectingLocation ? (
-                    <>
-                      <Loader2 className="w-3 h-3 animate-spin text-emerald-700" />
-                      <span>Detecting GPS Location...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Crosshair className="w-3 h-3 text-emerald-700" />
-                      <span>Use Current GPS Location</span>
-                    </>
+                {/* Useful Error Message */}
+                {locationError && (
+                  <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-[11px] text-rose-800 dark:text-rose-200 flex items-start gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                    <span className="leading-tight">{locationError}</span>
+                  </div>
+                )}
+
+                {/* Primary Action Buttons */}
+                <div className="space-y-2 pt-0.5">
+                  {/* Enable Location (GPS) button */}
+                  {userLocation.source !== "gps" && (
+                    <button
+                      type="button"
+                      onClick={detectLocation}
+                      disabled={detectingLocation}
+                      className="w-full py-2 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition shadow-xs disabled:opacity-50"
+                    >
+                      {detectingLocation ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Detecting GPS Location...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Crosshair className="w-3.5 h-3.5" />
+                          <span>Enable Location</span>
+                        </>
+                      )}
+                    </button>
                   )}
-                </button>
+
+                  {/* If already GPS verified, allow updating with spinner */}
+                  {userLocation.source === "gps" && detectingLocation && (
+                    <div className="py-1 flex items-center justify-center gap-1.5 text-xs text-emerald-700 font-medium">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Updating GPS location...</span>
+                    </div>
+                  )}
+
+                  {/* Change Location Button */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedManualState(userLocation.state !== "all" ? userLocation.state : "");
+                        setSelectedManualDistrict(userLocation.district || "");
+                        setSelectedManualCity(userLocation.city || "");
+                        setShowLocationPopover(!showLocationPopover);
+                      }}
+                      className="flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition text-center shadow-2xs"
+                    >
+                      Change Location
+                    </button>
+                    {userLocation.state !== "all" && (
+                      <button
+                        type="button"
+                        onClick={clearLocation}
+                        className="px-2 py-1.5 text-xs font-medium text-stone-500 hover:text-emerald-700 dark:text-stone-400 transition"
+                        title="Reset to All India"
+                      >
+                        All India
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Location Search & Selection Popover */}
               {showLocationPopover && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 shadow-xl p-3 space-y-3">
-                  <div className="flex items-center justify-between pb-1 border-b border-stone-100 dark:border-stone-800">
-                    <span className="text-xs font-bold text-stone-900 dark:text-white">Select Location</span>
-                    <button onClick={() => setShowLocationPopover(false)} className="text-stone-400 hover:text-stone-600">
-                      <X className="w-3.5 h-3.5" />
+                <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 shadow-2xl p-3.5 space-y-3.5">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-stone-100 dark:border-stone-800">
+                    <span className="text-xs font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Select Location (Manual)</span>
+                    </span>
+                    <button onClick={() => setShowLocationPopover(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
 
@@ -1352,19 +1498,22 @@ export default function MarketplacePage() {
                       value={locationSearchInput}
                       onChange={(e) => setLocationSearchInput(e.target.value)}
                       placeholder="Search State, District or City..."
-                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-md border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:bg-white"
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-md border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
                     />
                   </div>
 
                   {/* Autocomplete Search Results */}
                   {locationSearchInput.trim() && searchedLocations.length > 0 && (
-                    <div className="space-y-1 max-h-36 overflow-y-auto pr-1">
+                    <div className="space-y-1 max-h-40 overflow-y-auto pr-1 border rounded-md border-stone-100 dark:border-stone-800 p-1">
                       {searchedLocations.map((item, idx) => (
                         <button
                           key={idx}
                           type="button"
-                          onClick={() => setManualLocation(item.state, item.district)}
-                          className="w-full text-left p-1.5 rounded-md hover:bg-emerald-50 hover:text-emerald-800 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between transition"
+                          onClick={() => {
+                            setManualLocation(item.state, item.district, item.city);
+                            setLocationSearchInput("");
+                          }}
+                          className="w-full text-left p-1.5 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-800 dark:hover:text-emerald-300 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between transition"
                         >
                           <span className="font-medium truncate">
                             {item.district ? `${item.district}, ${item.state}` : item.state}
@@ -1377,19 +1526,21 @@ export default function MarketplacePage() {
                     </div>
                   )}
 
-                  {/* Cascading State & District Selectors */}
-                  <div className="space-y-2 text-xs">
+                  {/* Cascading State, District & City Selectors */}
+                  <div className="space-y-2.5 text-xs">
                     <div>
-                      <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">State</label>
+                      <label className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 block mb-1">State</label>
                       <select
-                        value={userLocation.state}
+                        value={selectedManualState}
                         onChange={(e) => {
-                          const val = e.target.value;
-                          setManualLocation(val, "");
+                          const st = e.target.value;
+                          setSelectedManualState(st);
+                          setSelectedManualDistrict("");
+                          setSelectedManualCity("");
                         }}
-                        className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs"
+                        className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
                       >
-                        <option value="all">All India (Pan-India)</option>
+                        <option value="">-- Choose State --</option>
                         {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
                           <option key={st} value={st}>
                             {st}
@@ -1398,16 +1549,22 @@ export default function MarketplacePage() {
                       </select>
                     </div>
 
-                    {userLocation.state !== "all" && INDIAN_LOCATIONS[userLocation.state] && (
+                    {selectedManualState && INDIAN_LOCATIONS[selectedManualState] && (
                       <div>
-                        <label className="text-[10px] uppercase font-bold text-stone-400 block mb-1">District</label>
+                        <label className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 block mb-1">District</label>
                         <select
-                          value={userLocation.district}
-                          onChange={(e) => setManualLocation(userLocation.state, e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs"
+                          value={selectedManualDistrict}
+                          onChange={(e) => {
+                            const dist = e.target.value;
+                            setSelectedManualDistrict(dist);
+                            if (!selectedManualCity) {
+                              setSelectedManualCity(dist);
+                            }
+                          }}
+                          className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
                         >
-                          <option value="">All Districts in {userLocation.state}</option>
-                          {INDIAN_LOCATIONS[userLocation.state].map((d) => (
+                          <option value="">All Districts in {selectedManualState}</option>
+                          {INDIAN_LOCATIONS[selectedManualState].map((d) => (
                             <option key={d} value={d}>
                               {d}
                             </option>
@@ -1415,22 +1572,42 @@ export default function MarketplacePage() {
                         </select>
                       </div>
                     )}
+
+                    {selectedManualState && (
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 block mb-1">City / Town</label>
+                        <input
+                          type="text"
+                          value={selectedManualCity}
+                          onChange={(e) => setSelectedManualCity(e.target.value)}
+                          placeholder={selectedManualDistrict || "Enter city or town"}
+                          className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                        />
+                      </div>
+                    )}
                   </div>
 
+                  {/* Popover Footer */}
                   <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-800">
                     <button
                       type="button"
                       onClick={clearLocation}
-                      className="text-xs font-semibold text-stone-500 hover:text-stone-800"
+                      className="text-xs font-semibold text-stone-500 hover:text-stone-800 dark:hover:text-white transition"
                     >
                       Reset to All India
                     </button>
                     <button
                       type="button"
-                      onClick={() => setShowLocationPopover(false)}
-                      className="px-3 py-1 bg-emerald-700 text-white rounded-md text-xs font-semibold"
+                      onClick={() => {
+                        if (selectedManualState) {
+                          setManualLocation(selectedManualState, selectedManualDistrict, selectedManualCity);
+                        } else {
+                          clearLocation();
+                        }
+                      }}
+                      className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md text-xs font-semibold transition"
                     >
-                      Apply
+                      Apply Location
                     </button>
                   </div>
                 </div>
@@ -1445,7 +1622,7 @@ export default function MarketplacePage() {
                     onChange={(e) => setStrictLocationOnly(e.target.checked)}
                     className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700 rounded border-stone-300"
                   />
-                  <span>Only show listings in {userLocation.district || userLocation.state}</span>
+                  <span>Only show listings in {userLocation.city || userLocation.district || userLocation.state}</span>
                 </label>
               )}
             </div>
@@ -1591,7 +1768,11 @@ export default function MarketplacePage() {
                   <span>
                     Showing equipment prioritizing{" "}
                     <strong className="text-emerald-900 dark:text-emerald-200 font-bold">
-                      {userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state}
+                      {userLocation.city && userLocation.city !== userLocation.state
+                        ? `${userLocation.city}, ${userLocation.state}`
+                        : userLocation.district
+                        ? `${userLocation.district}, ${userLocation.state}`
+                        : userLocation.state}
                     </strong>
                     {nearbyCounts.district > 0 && ` (${nearbyCounts.district} listings in your district)`}
                   </span>
@@ -1687,7 +1868,7 @@ export default function MarketplacePage() {
                 {userLocation.state !== "all" && (
                   <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-900 border border-emerald-200">
                     <MapPin className="w-3 h-3 text-emerald-700" />
-                    Location: {userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state}
+                    Location: {userLocation.city && userLocation.city !== userLocation.state ? `${userLocation.city}, ${userLocation.state}` : userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state}
                     <button onClick={clearLocation}>
                       <X className="w-3 h-3 hover:text-rose-600" />
                     </button>
@@ -2049,11 +2230,11 @@ export default function MarketplacePage() {
 
             <div className="space-y-4 text-xs">
               {/* 1. Location */}
-              <div className="p-3 bg-stone-50 dark:bg-stone-800 rounded-lg space-y-2">
+              <div className="p-3 bg-stone-50 dark:bg-stone-800 rounded-lg space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="font-bold flex items-center gap-1.5 text-stone-900 dark:text-white">
                     <MapPin className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Location</span>
+                    <span>📍 YOUR LOCATION</span>
                   </span>
                   {userLocation.state !== "all" && (
                     <button onClick={clearLocation} className="text-emerald-700 text-[11px] font-semibold">
@@ -2061,29 +2242,98 @@ export default function MarketplacePage() {
                     </button>
                   )}
                 </div>
-                <div className="text-xs font-semibold">
-                  {userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state !== "all" ? userLocation.state : "All India"}
+                <div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-white">
+                    {userLocation.state !== "all"
+                      ? (userLocation.city && userLocation.city !== userLocation.state
+                          ? `${userLocation.city}, ${userLocation.state}`
+                          : userLocation.district && userLocation.district !== userLocation.state
+                          ? `${userLocation.district}, ${userLocation.state}`
+                          : userLocation.state)
+                      : "All India"}
+                  </p>
+                  {userLocation.source === "gps" && userLocation.state !== "all" ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-1">
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>GPS Verified ✓</span>
+                    </span>
+                  ) : userLocation.source === "manual" && userLocation.state !== "all" ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-stone-500 font-medium mt-1">
+                      <span>Manual Selection</span>
+                    </span>
+                  ) : null}
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <select
-                    value={userLocation.state}
-                    onChange={(e) => setManualLocation(e.target.value, "")}
-                    className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900"
-                  >
-                    <option value="all">All India</option>
-                    {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
-                      <option key={st} value={st}>{st}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={detectLocation}
-                    disabled={detectingLocation}
-                    className="px-2 py-1.5 rounded-md bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-1"
-                  >
-                    <Crosshair className="w-3 h-3" />
-                    <span>GPS</span>
-                  </button>
+
+                {locationError && (
+                  <div className="p-2 rounded bg-rose-50 text-rose-800 text-[11px] flex items-start gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                    <span>{locationError}</span>
+                  </div>
+                )}
+
+                <div className="space-y-2 pt-1">
+                  {userLocation.source !== "gps" && (
+                    <button
+                      type="button"
+                      onClick={detectLocation}
+                      disabled={detectingLocation}
+                      className="w-full py-1.5 px-3 rounded-md bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-1 disabled:opacity-50"
+                    >
+                      {detectingLocation ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Detecting GPS Location...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Crosshair className="w-3 h-3" />
+                          <span>Enable Location (GPS)</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-semibold text-stone-500 uppercase">Manual State & District</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <select
+                        value={userLocation.state}
+                        onChange={(e) => {
+                          const st = e.target.value;
+                          if (st === "all") clearLocation();
+                          else setManualLocation(st, "");
+                        }}
+                        className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900"
+                      >
+                        <option value="all">All India</option>
+                        {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+
+                      {userLocation.state !== "all" && INDIAN_LOCATIONS[userLocation.state] ? (
+                        <select
+                          value={userLocation.district}
+                          onChange={(e) => setManualLocation(userLocation.state, e.target.value)}
+                          className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900"
+                        >
+                          <option value="">All Districts</option>
+                          {INDIAN_LOCATIONS[userLocation.state].map((d) => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="City/Town"
+                          value={userLocation.city || ""}
+                          disabled={userLocation.state === "all"}
+                          onChange={(e) => setManualLocation(userLocation.state, userLocation.district, e.target.value)}
+                          className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900 disabled:opacity-50"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
