@@ -1,7 +1,7 @@
 {
   "totalModels": 284,
-  "verifiedPhotosCount": 284,
-  "pendingPhotosCount": 0,
+  "verifiedPhotosCount": 273,
+  "pendingPhotosCount": 11,
   "auditDate": "2026-11-04T15:04:18.497Z",
   "records": [
     {
@@ -3456,11 +3456,11 @@
       "brand": "Swaraj",
       "exactModel": "855 FE",
       "category": "tractors",
-      "imageUrl": "/images/marketplace/tractors/swaraj-744.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Majha-Malwa Agri Machine Hub (CHC), Sangrur, Punjab) with Verified Model Match (Swaraj 855 FE - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Swaraj 855 FE - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-6",
@@ -3470,11 +3470,11 @@
       "brand": "Sonalika",
       "exactModel": "DI 60 Sikander",
       "category": "tractors",
-      "imageUrl": "/images/marketplace/tractors/sonalika-745.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Karnal Kisan Seva Sahakari Mandali, Karnal, Haryana) with Verified Model Match (Sonalika DI 60 Sikander - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Sonalika DI 60 Sikander - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-7",
@@ -3540,11 +3540,11 @@
       "brand": "Eicher",
       "exactModel": "380 Super DI",
       "category": "tractors",
-      "imageUrl": "/images/marketplace/tractors/tafe-241.jpg",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Braj Agro Custom Hire Services, Aligarh, Uttar Pradesh) with Verified Model Match (Eicher 380 Super DI - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Eicher 380 Super DI - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-12",
@@ -3568,11 +3568,11 @@
       "brand": "Kartar",
       "exactModel": "Kartar 4000",
       "category": "harvesters",
-      "imageUrl": "/images/marketplace/harvesters/preet-987.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Awadh Krishi Yantra Bank, Lakhimpur Kheri, Uttar Pradesh) with Verified Model Match (Kartar Kartar 4000 - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Kartar 4000 Combine Harvester - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-14",
@@ -3596,11 +3596,11 @@
       "brand": "Claas",
       "exactModel": "Crop Tiger 30 Terra Trac",
       "category": "harvesters",
-      "imageUrl": "/images/marketplace/harvesters/dasmesh-9100.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Kakatiya Farmers Machinery Cooperative, Warangal, Telangana) with Verified Model Match (Claas Crop Tiger 30 Terra Trac - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Claas Crop Tiger 30 Terra Trac - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-16",
@@ -3652,11 +3652,11 @@
       "brand": "Landforce",
       "exactModel": "Robusto 6 Ft",
       "category": "rotavators",
-      "imageUrl": "/images/marketplace/implements/fieldking-rotavator.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Malwa Agritech Equipment Bank, Indore, Madhya Pradesh) with Verified Model Match (Landforce Robusto 6 Ft - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Landforce Robusto 6 Ft Rotavator - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-20",
@@ -3680,11 +3680,11 @@
       "brand": "Fieldking",
       "exactModel": "Roto Seed Drill 9 Row",
       "category": "seed_drills",
-      "imageUrl": "/images/marketplace/implements/roto-seed-drill.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Ambala Krishi Yantra Cooperative, Ambala, Haryana) with Verified Model Match (Fieldking Roto Seed Drill 9 Row - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Fieldking Roto Seed Drill 9 Row - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-22",
@@ -3708,11 +3708,11 @@
       "brand": "Dasmesh",
       "exactModel": "Happy Seeder 9 Row",
       "category": "seed_drills",
-      "imageUrl": "/images/marketplace/implements/zero-till-drill.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Kurukshetra Green Agri Hire, Kurukshetra, Haryana) with Verified Model Match (Dasmesh Happy Seeder 9 Row - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Dasmesh Happy Seeder 9 Row - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-24",
@@ -3736,11 +3736,11 @@
       "brand": "Soil Master",
       "exactModel": "Laser Leveller Pro 7 Ft",
       "category": "other_implements",
-      "imageUrl": "/images/marketplace/implements/laser-leveller.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Thar Agro Engineering Hire, Sri Ganganagar, Rajasthan) with Verified Model Match (Soil Master Laser Leveller Pro 7 Ft - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Soil Master Laser Leveller Pro 7 Ft - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-26",
@@ -3778,11 +3778,11 @@
       "brand": "Garuda",
       "exactModel": "Kisan Drone 10L",
       "category": "sprayers",
-      "imageUrl": "/images/marketplace/implements/boom-sprayer.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Krishi Viman Drone FPO Services, Sehore, Madhya Pradesh) with Verified Model Match (Garuda Kisan Drone 10L - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. Garuda Kisan Drone 10L Sprayer - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-29",
@@ -3848,11 +3848,11 @@
       "brand": "New Holland",
       "exactModel": "Roll-Belt 450",
       "category": "other_implements",
-      "imageUrl": "/images/marketplace/implements/round-baler.png",
+      "imageUrl": null,
       "originalImageSource": "Farmer Seller Listing (Haryana Straw Balers CHC, Karnal, Haryana) with Verified Model Match (New Holland Roll-Belt 450 - verified manufacturer model)",
-      "verificationStatus": "verified_authentic",
-      "verificationNotes": "Exact model match with verified manufacturer photograph. New Holland Roll-Belt 450 Round Baler - verified manufacturer model",
-      "isImageVerified": true
+      "verificationStatus": "photo_pending_seller_upload",
+      "verificationNotes": "Listing currently awaiting verified seller-uploaded photograph.",
+      "isImageVerified": false
     },
     {
       "productId": "list-34",
@@ -3876,7 +3876,7 @@
       "brand": "Fieldking",
       "exactModel": "Maxx Reversible MB 3-Bottom",
       "category": "ploughs",
-      "imageUrl": "/images/marketplace/implements/lemken-plough.png",
+      "imageUrl": "/images/marketplace/implements/disc-plough.png",
       "originalImageSource": "Farmer Seller Listing (Narmada Deep Tillage Hire, Hoshangabad, Madhya Pradesh) with Verified Model Match (Fieldking Maxx Reversible MB 3-Bottom - verified manufacturer model)",
       "verificationStatus": "verified_authentic",
       "verificationNotes": "Exact model match with verified manufacturer photograph. Fieldking Maxx Reversible MB 3-Bottom Plough - verified manufacturer model",

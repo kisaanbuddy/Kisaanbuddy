@@ -194,6 +194,7 @@ interface UnifiedProduct {
   isVerified: boolean;
   hasVerifiedPhoto: boolean;
   imageUrl?: string | null;
+  images?: string[];
   officialSourceUrl?: string | null;
   supplierName?: string | null;
   description?: string | null;
@@ -229,20 +230,31 @@ function getVerifiedMachineryPhoto(
   return null;
 }
 
-// Clean Product Image with strict aspect ratio, contain fit and honest missing photo state
+// Clean Product Image with strict aspect ratio, contain fit, proxy fallback, and honest missing photo state
 function ProductCardImage({
   src,
   alt,
+  className,
 }: {
   src?: string | null;
   alt: string;
+  className?: string;
 }) {
   const [imageError, setImageError] = useState(false);
+  const [useProxy, setUseProxy] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(src));
+
+  // Reset state when src updates across sort/filter/pagination
+  useEffect(() => {
+    setImageError(false);
+    setUseProxy(false);
+    setIsLoading(Boolean(src));
+  }, [src]);
 
   if (!src || imageError) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-stone-50 dark:bg-stone-900 rounded-lg border border-dashed border-stone-200 dark:border-stone-800">
-        <AlertCircle className="w-6 h-6 text-amber-500 mb-1" />
+      <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-stone-50 dark:bg-stone-900 rounded-lg border border-dashed border-stone-200 dark:border-stone-800 select-none">
+        <AlertCircle className="w-5 h-5 text-amber-500 mb-1 shrink-0" />
         <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300">
           Photo Pending
         </span>
@@ -253,14 +265,35 @@ function ProductCardImage({
     );
   }
 
+  // Automatic proxy fallback for remote cross-origin images (e.g. cdn.shopify.com)
+  const effectiveSrc = useProxy && src.startsWith("http")
+    ? `/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`
+    : src;
+
   return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      className="w-full h-full object-contain p-2 transition-transform duration-200 group-hover:scale-105"
-      onError={() => setImageError(true)}
-    />
+    <div className="relative w-full h-full flex items-center justify-center">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-50/60 dark:bg-stone-900/60 z-0">
+          <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      <img
+        src={effectiveSrc}
+        alt={alt}
+        className={`w-full h-full object-contain p-2 transition-all duration-200 group-hover:scale-105 ${
+          isLoading ? "opacity-0" : "opacity-100"
+        } ${className || ""}`}
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          if (!useProxy && src.startsWith("http")) {
+            setUseProxy(true);
+          } else {
+            setImageError(true);
+            setIsLoading(false);
+          }
+        }}
+      />
+    </div>
   );
 }
 
@@ -413,6 +446,8 @@ export default function MarketplacePage() {
   // ─── OTHER FILTER STATES (In specific order: Category, Brand, Deal, Price, Condition) ─
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
+  const [verifiedPhotoOnly, setVerifiedPhotoOnly] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [dealFilter, setDealFilter] = useState<"all" | "rent" | "sale">("all");
   const [hpRange, setHpRange] = useState<"all" | "under_40" | "40_55" | "55_75" | "above_75">("all");
   const [conditionFilter, setConditionFilter] = useState<"all" | "new" | "used">("all");
@@ -741,6 +776,7 @@ export default function MarketplacePage() {
         isVerified: true,
         hasVerifiedPhoto: Boolean(verifiedImg),
         imageUrl: verifiedImg,
+        images: (item as any).images && (item as any).images.length > 0 ? (item as any).images : (verifiedImg ? [verifiedImg] : []),
         description: item.notes,
       });
     }
@@ -778,6 +814,7 @@ export default function MarketplacePage() {
         isVerified: item.is_verified ?? true,
         hasVerifiedPhoto: Boolean(resolvedImg),
         imageUrl: resolvedImg,
+        images: resolvedImg ? [resolvedImg] : [],
         officialSourceUrl: item.official_source_url,
         supplierName: item.supplier_name,
         description: item.description,
@@ -911,8 +948,8 @@ export default function MarketplacePage() {
       if (minPrice && product.price != null && product.price < parseFloat(minPrice)) return false;
       if (maxPrice && product.price != null && product.price > parseFloat(maxPrice)) return false;
 
-      // 9. Authentic photography policy ("JISME PHOTO USME PHOTO")
-      if (!product.hasVerifiedPhoto || !product.imageUrl) return false;
+      // 9. Photo availability filter (prioritized via sorting, verified badge shown)
+      if (verifiedPhotoOnly && (!product.hasVerifiedPhoto || !product.imageUrl)) return false;
 
       return true;
     });
@@ -928,6 +965,7 @@ export default function MarketplacePage() {
     conditionFilter,
     minPrice,
     maxPrice,
+    verifiedPhotoOnly,
   ]);
 
   // Count nearby matches for banner
@@ -1963,7 +2001,7 @@ export default function MarketplacePage() {
                   return (
                     <div
                       key={product.id}
-                      onClick={() => setSelectedProduct(product)}
+                      onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }}
                       className={`group bg-white dark:bg-stone-900 rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer ${
                         isLocal
                           ? "border-emerald-300 dark:border-emerald-800/80 shadow-xs"
@@ -1973,7 +2011,7 @@ export default function MarketplacePage() {
                       <div>
                         {/* Image Container with 4:3 aspect ratio */}
                         <div className="relative w-full aspect-[4/3] bg-white dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 flex items-center justify-center p-3 select-none overflow-hidden">
-                          <ProductCardImage src={product.imageUrl} alt={product.title} />
+                          <ProductCardImage key={product.imageUrl || product.id} src={product.imageUrl} alt={product.title} />
 
                           {/* Top Left: Deal Badge */}
                           <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1">
@@ -2103,11 +2141,11 @@ export default function MarketplacePage() {
                   return (
                     <div
                       key={product.id}
-                      onClick={() => setSelectedProduct(product)}
+                      onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }}
                       className="group bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3.5 hover:border-stone-300 hover:shadow-sm transition flex flex-col sm:flex-row items-center gap-4 cursor-pointer"
                     >
                       <div className="w-full sm:w-48 aspect-[4/3] bg-white dark:bg-stone-900 rounded-lg border border-stone-100 dark:border-stone-800 shrink-0 overflow-hidden relative flex items-center justify-center p-2">
-                        <ProductCardImage src={product.imageUrl} alt={product.title} />
+                        <ProductCardImage key={product.imageUrl || product.id} src={product.imageUrl} alt={product.title} />
                       </div>
 
                       <div className="flex-1 min-w-0 space-y-1.5 w-full">
@@ -2470,9 +2508,37 @@ export default function MarketplacePage() {
 
             {/* Modal Body */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
-              {/* Image */}
-              <div className="w-full aspect-[4/3] bg-stone-50 dark:bg-stone-800/40 rounded-xl border border-stone-100 dark:border-stone-800 flex items-center justify-center p-4">
-                <ProductCardImage src={selectedProduct.imageUrl} alt={selectedProduct.title} />
+              {/* Image & Gallery */}
+              <div className="space-y-2">
+                <div className="w-full aspect-[4/3] bg-stone-50 dark:bg-stone-800/40 rounded-xl border border-stone-100 dark:border-stone-800 flex items-center justify-center p-4 overflow-hidden">
+                  <ProductCardImage
+                    src={
+                      selectedProduct.images && selectedProduct.images.length > selectedImageIndex
+                        ? selectedProduct.images[selectedImageIndex]
+                        : selectedProduct.imageUrl
+                    }
+                    alt={selectedProduct.title}
+                  />
+                </div>
+                {/* Thumbnails if multiple images exist */}
+                {selectedProduct.images && selectedProduct.images.length > 1 && (
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {selectedProduct.images.map((imgUrl, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`w-14 h-14 rounded-lg border overflow-hidden p-1 bg-white dark:bg-stone-800 shrink-0 transition ${
+                          selectedImageIndex === idx
+                            ? "border-emerald-600 ring-2 ring-emerald-500/20"
+                            : "border-stone-200 dark:border-stone-700 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={imgUrl} alt={`${selectedProduct.title} ${idx + 1}`} className="w-full h-full object-contain" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Info & Price */}

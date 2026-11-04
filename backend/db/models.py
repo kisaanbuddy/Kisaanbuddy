@@ -533,6 +533,8 @@ if Column is not None:
         village = Column(String(150), nullable=True)
         pincode = Column(String(10), nullable=True)
         availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, booked, under_maintenance, sold, inactive
+        image_url = Column(String(500), nullable=True)
+        images_json = Column(Text, nullable=True)
         notes = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

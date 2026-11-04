@@ -803,6 +803,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Mahindra 575 DI XP Plus with Rotavator for Custom Hiring",
+        "image_url": "/images/marketplace/tractors/mahindra-575.webp",
         "brand": "Mahindra",
         "model_name": "575 DI XP Plus",
         "category": "tractors",
@@ -828,6 +829,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Swaraj 855 FE 52 HP Tractor with Heavy Disc Harrow & Cultivator",
+        "image_url": None,
         "brand": "Swaraj",
         "model_name": "855 FE",
         "category": "tractors",
@@ -853,6 +855,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Sonalika DI 60 Sikander Heavy Tractor for Deep Tillage & Puddling",
+        "image_url": None,
         "brand": "Sonalika",
         "model_name": "DI 60 Sikander",
         "category": "tractors",
@@ -878,6 +881,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "John Deere 5310 4WD 55 HP Tractor with Reversible Plough",
+        "image_url": "/images/marketplace/tractors/john-deere-5310.png",
         "brand": "John Deere",
         "model_name": "5310 GearPro 4WD",
         "category": "tractors",
@@ -903,6 +907,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "New Holland 3630 TX Super 55 HP for Sugarcane Haulage & Sowing",
+        "image_url": "/images/marketplace/tractors/new-holland-3630.png",
         "brand": "New Holland",
         "model_name": "3630 TX Super",
         "category": "tractors",
@@ -928,6 +933,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "TAFE MF 241 DI Dynatrack 42 HP with 9-Tyne Cultivator",
+        "image_url": "/images/marketplace/tractors/tafe-241.jpg",
         "brand": "TAFE",
         "model_name": "MF 241 DI Dynatrack",
         "category": "tractors",
@@ -953,6 +959,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Kubota MU4501 4WD with Paddy Puddling Cage Wheels",
+        "image_url": "/images/marketplace/tractors/kubota-mu4501.png",
         "brand": "Kubota",
         "model_name": "MU4501 4WD",
         "category": "tractors",
@@ -978,6 +985,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Eicher 380 Super DI 40 HP with Seed Drill Attachment",
+        "image_url": None,
         "brand": "Eicher",
         "model_name": "380 Super DI",
         "category": "tractors",
@@ -1005,6 +1013,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Dasmesh 9100 Combine Harvester for Wheat & Paddy Harvest",
+        "image_url": "/images/marketplace/harvesters/dasmesh-9100.png",
         "brand": "Dasmesh",
         "model_name": "9100 Maize & Paddy",
         "category": "harvesters",
@@ -1030,6 +1039,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Preet 987 Self-Propelled Combine Harvester for Paddy & Mustard",
+        "image_url": "/images/marketplace/harvesters/preet-987.png",
         "brand": "Preet",
         "model_name": "987 Multi-Crop",
         "category": "harvesters",
@@ -1055,6 +1065,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Kartar 4000 Self-Propelled Combine Harvester with Unloading Auger",
+        "image_url": None,
         "brand": "Kartar",
         "model_name": "Kartar 4000",
         "category": "harvesters",
@@ -1080,6 +1091,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Shaktiman 3737 Tejas Sugarcane Harvester with Crawler Tracks",
+        "image_url": "/images/marketplace/harvesters/shaktiman-sugarcane.png",
         "brand": "Shaktiman",
         "model_name": "3737-Tejas",
         "category": "harvesters",
@@ -1105,6 +1117,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Claas Crop Tiger 30 Rubber Track Combine Harvester for Wet Fields",
+        "image_url": None,
         "brand": "Claas",
         "model_name": "Crop Tiger 30 Terra Trac",
         "category": "harvesters",
@@ -1132,6 +1145,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Shaktiman 6 Feet Multi-Speed Rotavator (Champion 165)",
+        "image_url": "/images/marketplace/implements/shaktiman-rotavator.png",
         "brand": "Shaktiman",
         "model_name": "Champion 165",
         "category": "rotavators",
@@ -1157,6 +1171,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Maschio Gaspardo Virat 185 (6 Feet) Heavy Duty Rotary Tiller",
+        "image_url": "/images/marketplace/implements/maschio-virat.png",
         "brand": "Maschio Gaspardo",
         "model_name": "Virat 185",
         "category": "rotavators",
@@ -1182,6 +1197,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Fieldking Multi-Speed 7 Feet Rotavator for Large Fields",
+        "image_url": "/images/marketplace/implements/fieldking-rotavator.png",
         "brand": "Fieldking",
         "model_name": "Multi Speed 7 Ft",
         "category": "rotavators",
@@ -1207,6 +1223,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Landforce Robusto 6 Feet Rotavator for Soya & Wheat Prep",
+        "image_url": None,
         "brand": "Landforce",
         "model_name": "Robusto 6 Ft",
         "category": "rotavators",
@@ -1234,6 +1251,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "National Super Seeder 7-Row (Direct Sowing in Paddy Stubble)",
+        "image_url": "/images/marketplace/implements/roto-seed-drill.png",
         "brand": "National",
         "model_name": "Super Seeder 7 Row",
         "category": "seed_drills",
@@ -1259,6 +1277,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Fieldking Roto Seed Drill 9-Row (Combined Tillage & Sowing)",
+        "image_url": None,
         "brand": "Fieldking",
         "model_name": "Roto Seed Drill 9 Row",
         "category": "seed_drills",
@@ -1284,6 +1303,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Shaktiman Pneumatic Precision Planter for Cotton, Maize & Soy",
+        "image_url": "/images/marketplace/implements/zero-till-drill.png",
         "brand": "Shaktiman",
         "model_name": "Pneumatic Planter 4-Row",
         "category": "seed_drills",
@@ -1309,6 +1329,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Dasmesh Happy Seeder 9-Row for Zero Tillage Wheat Sowing",
+        "image_url": None,
         "brand": "Dasmesh",
         "model_name": "Happy Seeder 9 Row",
         "category": "seed_drills",
@@ -1336,6 +1357,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Fieldking Dual Mast Laser Land Leveller with Rotary Transmitter",
+        "image_url": "/images/marketplace/implements/laser-leveller.png",
         "brand": "Fieldking",
         "model_name": "Dual Mast Laser Leveller 7 Ft",
         "category": "other_implements",
@@ -1361,6 +1383,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Soil Master Automatic Laser Land Leveller with Microprocessor",
+        "image_url": None,
         "brand": "Soil Master",
         "model_name": "Laser Leveller Pro 7 Ft",
         "category": "other_implements",
@@ -1388,6 +1411,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Mitra Bullet 600L Tractor Mounted Boom Sprayer for Orchards",
+        "image_url": "/images/marketplace/implements/orchard-sprayer.png",
         "brand": "Mitra",
         "model_name": "Bullet 600L",
         "category": "sprayers",
@@ -1413,6 +1437,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "ASPEE High Pressure Mist Blower Sprayer for Cotton & Veggies",
+        "image_url": "/images/marketplace/implements/boom-sprayer.png",
         "brand": "ASPEE",
         "model_name": "Tractor HTP Mist Blower",
         "category": "sprayers",
@@ -1438,6 +1463,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Garuda Agri-Drone Spraying Service (DGCA Certified Pilot)",
+        "image_url": None,
         "brand": "Garuda",
         "model_name": "Kisan Drone 10L",
         "category": "sprayers",
@@ -1465,6 +1491,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Dasmesh 923 Multi-Crop Thresher for Gram, Soybean & Wheat",
+        "image_url": "/images/marketplace/implements/paddy-thresher.png",
         "brand": "Dasmesh",
         "model_name": "923 Multi Crop",
         "category": "threshers",
@@ -1490,6 +1517,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Kartar Straw Reaper 54 Inch for Animal Fodder (Bhusa) Making",
+        "image_url": "/images/marketplace/implements/straw-reaper.png",
         "brand": "Kartar",
         "model_name": "Straw Reaper 54",
         "category": "other_implements",
@@ -1515,6 +1543,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Amar High Speed Multi-Crop Thresher with Double Blower",
+        "image_url": "/images/marketplace/implements/thresher.png",
         "brand": "Amar",
         "model_name": "Super Multi-Crop",
         "category": "threshers",
@@ -1542,6 +1571,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Shaktiman SRB-60 Round Straw Baler (Crop Residue Management)",
+        "image_url": "/images/marketplace/implements/round-baler.png",
         "brand": "Shaktiman",
         "model_name": "SRB 60",
         "category": "other_implements",
@@ -1567,6 +1597,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "New Holland Roll-Belt 450 Round Baler with Automatic Twine",
+        "image_url": None,
         "brand": "New Holland",
         "model_name": "Roll-Belt 450",
         "category": "other_implements",
@@ -1594,6 +1625,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Lemken Opal 090 2-Bottom Hydraulic Reversible Mould Board Plough",
+        "image_url": "/images/marketplace/implements/lemken-plough.png",
         "brand": "LEMKEN",
         "model_name": "Opal 090 Reversible MB",
         "category": "ploughs",
@@ -1619,6 +1651,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Fieldking 3-Bottom Hydraulic Reversible MB Plough",
+        "image_url": "/images/marketplace/implements/disc-plough.png",
         "brand": "Fieldking",
         "model_name": "Maxx Reversible MB 3-Bottom",
         "category": "ploughs",
@@ -1646,6 +1679,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Jagatjit 8-Ton Hydraulic Heavy Duty Tipping Trailer",
+        "image_url": "/images/marketplace/implements/tipping-trailer.png",
         "brand": "Jagatjit",
         "model_name": "8-Ton Tipping Trailer",
         "category": "agricultural_trailers",
@@ -1671,6 +1705,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "National 5-Ton Farm Trolley with Extended Side Mesh for Produce",
+        "image_url": "/images/marketplace/implements/farm-trailer.png",
         "brand": "National",
         "model_name": "5-Ton Utility Trolley",
         "category": "agricultural_trailers",
@@ -1698,6 +1733,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Kirloskar 5 HP Portable Diesel Monoblock Water Pump Set",
+        "image_url": "/images/marketplace/implements/diesel-pump.jpg",
         "brand": "Kirloskar",
         "model_name": "KDI-525 5 HP",
         "category": "irrigation_equipment",
@@ -1723,6 +1759,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "rent",
         "title": "Field Portable 4-Rain-Gun High Pressure Sprinkler Set",
+        "image_url": "/images/marketplace/implements/drip-irrigation.jpg",
         "brand": "Jain Drip",
         "model_name": "Rain-Gun Mobile Kit 4-Gun",
         "category": "irrigation_equipment",
@@ -1750,6 +1787,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "sale",
         "title": "Swaraj 744 FE (2021 Model) Single Owner with Clean Papers",
+        "image_url": "/images/marketplace/tractors/swaraj-744.png",
         "brand": "Swaraj",
         "model_name": "744 FE",
         "category": "tractors",
@@ -1775,6 +1813,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "sale",
         "title": "Mahindra 475 DI Sarpanch 42 HP with Clean NOC & Valid Insurance",
+        "image_url": "/images/marketplace/tractors/mahindra-575.webp",
         "brand": "Mahindra",
         "model_name": "475 DI Sarpanch",
         "category": "tractors",
@@ -1800,6 +1839,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "sale",
         "title": "John Deere 5050 D 50 HP Dual Clutch Tractor (2022 Model)",
+        "image_url": "/images/marketplace/tractors/john-deere-5310.png",
         "brand": "John Deere",
         "model_name": "5050 D",
         "category": "tractors",
@@ -1825,6 +1865,7 @@ INITIAL_EQUIPMENT_LISTINGS: List[Dict[str, Any]] = [
     {
         "listing_type": "sale",
         "title": "Shaktiman Regular Light 180 Rotavator (6 Feet, 2023 Model)",
+        "image_url": "/images/marketplace/implements/shaktiman-rotavator.png",
         "brand": "Shaktiman",
         "model_name": "Regular Light 180",
         "category": "rotavators",

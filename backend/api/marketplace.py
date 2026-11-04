@@ -303,8 +303,15 @@ def create_equipment_listing(
     db: Session = Depends(get_db),
 ) -> Any:
     """Post an actual piece of equipment for rent or sale."""
+    data = payload.model_dump()
+    images_list = data.pop("images", None)
+    if images_list and not data.get("image_url"):
+        data["image_url"] = images_list[0]
+    if images_list:
+        import json as _json
+        data["images_json"] = _json.dumps(images_list)
     item = EquipmentListing(
-        **payload.model_dump(),
+        **data,
         availability_status="available",
     )
     db.add(item)

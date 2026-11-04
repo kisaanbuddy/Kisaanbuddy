@@ -151,6 +151,8 @@ class EquipmentListingCreate(BaseModel):
     tehsil_or_block: Optional[str] = Field(default=None, max_length=100)
     village: Optional[str] = Field(default=None, max_length=150)
     pincode: Optional[str] = Field(default=None, max_length=10)
+    image_url: Optional[str] = Field(default=None, max_length=500)
+    images: Optional[List[str]] = None
     notes: Optional[str] = None
 
 

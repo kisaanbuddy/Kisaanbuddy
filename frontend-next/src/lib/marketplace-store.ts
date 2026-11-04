@@ -59,6 +59,7 @@ export interface EquipmentListingItem {
   pincode?: string | null;
   availability_status: "available" | "under_rent" | "sold" | "inactive";
   image_url?: string | null;
+  images?: string[] | null;
   notes?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
@@ -292,6 +293,8 @@ export function addEquipmentListing(data: any): EquipmentListingItem {
     village: data.village || null,
     pincode: data.pincode || null,
     availability_status: "available",
+    image_url: data.image_url || (Array.isArray(data.images) && data.images.length > 0 ? data.images[0] : null),
+    images: Array.isArray(data.images) ? data.images : (data.image_url ? [data.image_url] : []),
     notes: data.notes || null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
