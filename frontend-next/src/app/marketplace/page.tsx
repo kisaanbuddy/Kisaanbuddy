@@ -387,18 +387,18 @@ export default function MarketplacePage() {
 
       setLoadingPrices(true);
       marketPricesApi.list({ limit: 10 })
-        .then((res) => setMarketPrices(res.items || []))
+        .then((res) => setMarketPrices(res || []))
         .catch(console.error)
         .finally(() => setLoadingPrices(false));
     } else if (sectionMode === "buyers" && legacyListings.length === 0) {
       setLoadingLegacy(true);
-      marketplaceApi.listLegacy({ limit: 50 })
-        .then((res) => setLegacyListings(res.items || []))
+      marketplaceApi.list({ listing_type: "buy" })
+        .then((res) => setLegacyListings(res || []))
         .catch(console.error)
         .finally(() => setLoadingLegacy(false));
     } else if (sectionMode === "provenance" && sources.length === 0) {
       marketplaceSourcesApi.list()
-        .then((res) => setSources(res.items || []))
+        .then((res) => setSources(res || []))
         .catch(console.error);
     }
   }, [sectionMode, produceListings.length, legacyListings.length, sources.length]);
@@ -736,7 +736,9 @@ export default function MarketplacePage() {
         state: newProdState || "Madhya Pradesh",
         district: newProdDistrict || "Sehore",
         grade_or_quality: newProdGrade,
-        delivery_terms: newProdDelivery,
+        delivery_option: newProdDelivery,
+        contact_consent_verified: true,
+        verification_status: "verified",
         notes: newProdNotes || undefined,
       });
       alert(isHi ? "फसल उत्पाद सफलतापूर्वक बाज़ार में लिस्ट हो गया है!" : "Produce lot published successfully!");
@@ -1790,7 +1792,7 @@ export default function MarketplacePage() {
                   <h4 className="text-sm font-bold text-slate-900">{src.source_name}</h4>
                   <p className="text-xs text-slate-500">{src.commercial_reuse_terms}</p>
                   <a
-                    href={src.base_url}
+                    href={src.base_url || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs font-bold text-emerald-600 hover:underline inline-flex items-center gap-1"
