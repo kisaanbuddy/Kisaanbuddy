@@ -411,3 +411,10 @@
     scroll-margin-bottom: 6rem;
   }
 }
+
+
+/* Language Selection Flow & Anti-Flicker Protection */
+html.kb-fresh-session .app-shell-container,
+.kb-session-pending {
+  display: none !important;
+}

@@ -137,6 +137,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             })
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  localStorage.removeItem('kisaanbuddy_lang');
+                  localStorage.removeItem('KisaanBuddy_lang');
+                  localStorage.removeItem('krishi_lang');
+                  document.cookie = 'kisaanbuddy_lang=; Path=/; Max-Age=0; SameSite=Lax';
+
+                  var sessionLang = sessionStorage.getItem('kisaanbuddy_session_lang');
+                  if (!sessionLang) {
+                    document.documentElement.classList.add('kb-fresh-session');
+                  } else {
+                    document.documentElement.lang = sessionLang;
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+        <noscript>
+          <style>{`html.kb-fresh-session .app-shell-container, .kb-session-pending { display: block !important; }`}</style>
+        </noscript>
       </head>
       <body className="font-sans min-h-screen antialiased">
         <Providers>
