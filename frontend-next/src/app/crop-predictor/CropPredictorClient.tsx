@@ -175,7 +175,7 @@ export default function CropPredictor() {
 
 
   return (
-    <div className="flex flex-col gap-6 max-w-5xl mx-auto">
+    <div className="flex flex-col gap-6 w-full">
       {/* Page Header */}
       <div className="rounded-2xl border border-border bg-card p-6 md:p-8 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="space-y-1">

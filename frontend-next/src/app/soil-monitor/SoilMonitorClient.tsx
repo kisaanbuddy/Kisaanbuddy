@@ -749,7 +749,7 @@ void loop() {
 
   return (
     <div className="min-h-screen bg-[#f8faf9] text-slate-800 antialiased">
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+      <main className="w-full py-6 space-y-6">
         {/* ================================================================= */}
         {/* 1. HERO SECTION                                                   */}
         {/* ================================================================= */}

@@ -215,7 +215,7 @@ export default function ImpactClient() {
   }, [activeTab])
 
   return (
-    <div className="flex flex-col gap-8 max-w-5xl mx-auto px-1 select-none">
+    <div className="flex flex-col gap-8 w-full pb-16 select-none">
       
       {/* Back navigation button */}
       <div className="flex items-center justify-between">

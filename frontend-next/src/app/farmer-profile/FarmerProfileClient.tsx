@@ -213,7 +213,7 @@ export function FarmerProfileClient() {
   const farmerDisplayId = `KB-FARMER-${String(profile?.id || user?.id || 1001).padStart(5, "0")}`;
 
   return (
-    <div className="max-w-6xl mx-auto py-6 px-3 sm:px-6 space-y-6">
+    <div className="w-full py-6 space-y-6">
       {/* Back and Title Row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

@@ -314,7 +314,7 @@ export default function SchemesClient() {
   }, [savedSchemeIds])
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto pb-16 px-4 md:px-0">
+    <div className="flex flex-col gap-8 w-full pb-16">
       
       {/* Header Banner */}
       <motion.div 
@@ -607,7 +607,7 @@ export default function SchemesClient() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                   {evaluatedResults.potentialMatches.map((m) => (
                     <SchemeMatchCard
                       key={m.scheme.id}
@@ -640,7 +640,7 @@ export default function SchemesClient() {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
                     {evaluatedResults.moreInfoNeeded.map((m) => (
                       <SchemeMatchCard
                         key={m.scheme.id}

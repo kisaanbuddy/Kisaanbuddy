@@ -265,7 +265,7 @@ export function Header() {
             : 'bg-white/70 dark:bg-stone-950/70 backdrop-blur-sm border-border/50'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
           {/* ── Logo ── */}
           <Link
             href={user ? '/dashboard' : '/'}

@@ -282,7 +282,7 @@ export default function DiseaseClient() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 pb-8">
+    <div className="w-full space-y-8 pb-12">
       {/* ── HEADER ── */}
       <header className="rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-900/90 p-5 md:p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -340,7 +340,7 @@ export default function DiseaseClient() {
         </div>
 
         {/* Quick Crop Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-2.5">
           {COMMON_CROPS.map((c) => {
             const isSelected = crop.toLowerCase() === c.id.toLowerCase();
             return (

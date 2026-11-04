@@ -207,7 +207,7 @@ function KhetDiaryContent() {
   const dict = KHET_DIARY_I18N[(lang as Lang) || 'en'] || KHET_DIARY_I18N.en
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">
+    <div className="space-y-8 w-full pb-12 relative">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}

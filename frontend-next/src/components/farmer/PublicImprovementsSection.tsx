@@ -49,7 +49,7 @@ export function PublicImprovementsSection() {
 
   return (
     <section className="w-full py-12 px-4 sm:px-6 lg:px-8 bg-stone-50/50 dark:bg-stone-900/40 border-t border-stone-200 dark:border-stone-800">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="w-full max-w-[1920px] mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-xs font-semibold">

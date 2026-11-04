@@ -82,7 +82,7 @@ export function ContactClient() {
 
       {/* Hero Header */}
       <section className="relative overflow-hidden px-6 md:px-12 py-16 md:py-24 border-b border-border/20 bg-card/25 backdrop-blur-md">
-        <div className="mx-auto max-w-5xl text-center md:text-left">
+        <div className="w-full text-center md:text-left">
           <div className="flex justify-center md:justify-start items-center gap-3 mb-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/10">
               <MessageSquare className="h-5 w-5" />
@@ -106,7 +106,7 @@ export function ContactClient() {
 
       {/* Main Grid */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-5xl grid gap-12 lg:grid-cols-5 items-start">
+        <div className="w-full grid gap-12 lg:grid-cols-5 items-start">
           
           {/* Left: Contact Info (2 cols) */}
           <div className="lg:col-span-2 space-y-6">

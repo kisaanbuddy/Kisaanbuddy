@@ -806,7 +806,7 @@ export default function MarketplacePage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased selection:bg-emerald-100 selection:text-emerald-900">
       {/* ─── 1. CLEAN, PREMIUM SINGLE-ROW HEADER ─────────────────────────────── */}
       <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
           <div className="flex items-center justify-between gap-4 h-16">
             {/* Left: Brand Identity */}
             <div className="flex items-center gap-3 shrink-0">
@@ -993,7 +993,7 @@ export default function MarketplacePage() {
       {/* ─── 2. COMPACT HORIZONTAL CATEGORY NAVIGATION BAR ────────────────────── */}
       {sectionMode === "machinery" && (
         <nav aria-label="Machinery Categories" className="bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 py-2">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
               {EQUIPMENT_CATEGORIES.map((cat) => {
                 const isSelected = selectedCategory === cat.key;
@@ -1017,7 +1017,7 @@ export default function MarketplacePage() {
       )}
 
       {/* ─── 3. MAIN PRODUCT DISCOVERY SECTION ───────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-6">
         {sectionMode === "machinery" && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* ─── Left Column: Compact Sticky Accordion Filter Sidebar ────── */}

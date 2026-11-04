@@ -542,7 +542,7 @@ export default function SoilHealthPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">
+    <div className="space-y-8 w-full pb-12 relative">
       {/* Decorative Blob */}
       <div className="absolute top-[-10%] left-[20%] w-[350px] h-[350px] rounded-full bg-teal-500/10 blur-[120px] pointer-events-none -z-10" />
       <div className="absolute top-[30%] right-[10%] w-[250px] h-[250px] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none -z-10" />

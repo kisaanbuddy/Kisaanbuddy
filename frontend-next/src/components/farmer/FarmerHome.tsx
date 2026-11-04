@@ -277,7 +277,7 @@ export function FarmerHome() {
   ];
 
   return (
-    <div className="mx-auto max-w-5xl space-y-7 pb-12">
+    <div className="w-full space-y-8 pb-12">
       {/* ────────────────────────────────────────────────────────────────────── */}
       {/* SECTION A: HERO / FARMER WELCOME                                       */}
       {/* ────────────────────────────────────────────────────────────────────── */}
@@ -474,7 +474,7 @@ export function FarmerHome() {
           </div>
 
           {filteredServices.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
               {filteredServices.map((service) => (
                 <FarmerFeatureCard
                   key={service.id}
@@ -545,7 +545,7 @@ export function FarmerHome() {
             </div>
 
             {/* Desktop 2-column grid / Mobile 1 or 2 columns */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4">
               {primaryShortcuts.map((service) => (
                 <FarmerFeatureCard
                   key={service.id}
@@ -716,7 +716,7 @@ export function FarmerHome() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
                         {servicesInCat.map((service) => (
                           <FarmerFeatureCard
                             key={service.id}
@@ -735,7 +735,7 @@ export function FarmerHome() {
               </div>
             ) : (
               // When a specific category tab is selected
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-4">
                 {filteredServices.map((service) => (
                   <FarmerFeatureCard
                     key={service.id}
@@ -775,7 +775,7 @@ export function FarmerHome() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3">
               {VOICE_SAMPLE_QUERIES.map((q, idx) => {
                 const QIcon = q.icon;
                 return (
