@@ -256,6 +256,95 @@ export function Header() {
         .slice(0, 2)
     : 'U';
 
+  /* Homepage Redesign: Farmer-First, Compact Header */
+  if (pathname === '/') {
+    return (
+      <header className="sticky top-0 z-40 w-full border-b bg-white dark:bg-stone-900 border-stone-200/90 dark:border-stone-800 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+          {/* Left: KisaanBuddy Logo + Brand Name */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 shrink-0 group select-none"
+          >
+            <div className="w-8 h-8 rounded-lg bg-[#174F34]/10 p-1 border border-[#174F34]/20 shadow-xs flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <img
+                src="/logo.webp"
+                width={32}
+                height={32}
+                alt="KisaanBuddy Logo"
+                className="w-full h-full object-contain rounded-lg"
+              />
+            </div>
+            <div className="flex flex-col leading-none">
+              <span className="font-display text-lg md:text-xl tracking-tight">
+                <span className="font-extrabold text-stone-900 dark:text-white">Kisaan</span>
+                <span className="font-bold text-[#174F34] dark:text-emerald-400">Buddy</span>
+              </span>
+            </div>
+          </Link>
+
+          {/* Right: Clearly visible language selector */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setLangOpen((v) => !v)}
+              className="flex items-center gap-2 h-9 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-3 text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-700 hover:border-emerald-600 transition-colors shadow-2xs cursor-pointer"
+              aria-expanded={langOpen}
+              aria-label={`Select language (current: ${LANG_NAMES[lang]})`}
+            >
+              <Globe className="h-4 w-4 text-[#174F34] dark:text-emerald-400 shrink-0" />
+              <span>{LANG_NAMES[lang]}</span>
+              <ChevronDown className={`h-3.5 w-3.5 text-stone-500 transition-transform duration-150 ${langOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            <AnimatePresence>
+              {langOpen && (
+                <>
+                  <button
+                    type="button"
+                    className="fixed inset-0 z-40 cursor-default"
+                    onClick={() => setLangOpen(false)}
+                    aria-label={t("header.close") || "Close language menu"}
+                  />
+                  <motion.div
+                    variants={dropdownVariants}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
+                    className="absolute right-0 top-11 z-50 w-52 max-h-80 overflow-y-auto rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-xl p-1.5 space-y-0.5"
+                  >
+                    {SELECTABLE_LANGS.map((l) => (
+                      <button
+                        key={l}
+                        type="button"
+                        onClick={() => {
+                          trackEvent({ type: 'language_switch', from: lang, to: l });
+                          setLang(l);
+                          setLangOpen(false);
+                        }}
+                        className={`w-full flex items-center justify-between px-3.5 py-2 text-xs rounded-xl transition-colors cursor-pointer ${
+                          lang === l
+                            ? "bg-[#174F34]/10 text-[#174F34] dark:text-emerald-400 font-bold"
+                            : "text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 font-medium"
+                        }`}
+                      >
+                        <div className="flex flex-col text-left">
+                          <span className="font-bold text-xs">{LANG_NAMES[l]}</span>
+                          <span className="text-[10px] text-stone-500 dark:text-stone-400">{LANG_DETAILS[l]?.en}</span>
+                        </div>
+                        {lang === l && <span className="h-2 w-2 rounded-full bg-[#174F34] dark:bg-emerald-400" />}
+                      </button>
+                    ))}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <>
       <header
