@@ -154,6 +154,9 @@ export const SELECTABLE_LANGS: Lang[] = [
   "hi_en",
 ]
 
+export const SELECTION_CONFIRMED_KEY = "kisaanbuddy_farmer_lang_confirmed"
+export const SELECTION_CONFIRMED_COOKIE = "kisaanbuddy_farmer_lang_confirmed"
+
 // In-memory cache of loaded locales (English bundled statically as instant fallback)
 export const T: Record<string, any> = { en }
 
@@ -300,21 +303,36 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // Synchronous/Layout check to detect if returning visitor has a valid language
   useLayoutEffect(() => {
     let saved: Lang | null = null
+    let hasExplicitSelection = false
+
     try {
-      // 1. Check primary localStorage key
+      // 1. Check explicit selection confirmation flag (localStorage)
+      hasExplicitSelection = localStorage.getItem(SELECTION_CONFIRMED_KEY) === "true"
+
+      // 2. Check explicit selection confirmation flag (cookies)
+      if (!hasExplicitSelection && typeof document !== "undefined") {
+        hasExplicitSelection = /(?:^|; )kisaanbuddy_farmer_lang_confirmed=true/.test(document.cookie)
+      }
+
+      // 3. Check primary localStorage key
       saved = localStorage.getItem("kisaanbuddy_lang") as Lang | null
       if (!saved) {
-        // 2. Migration from legacy keys
-        saved = (localStorage.getItem("KisaanBuddy_lang") || localStorage.getItem("krishi_lang")) as Lang | null
+        // Migration from legacy keys
+        saved = (
+          localStorage.getItem("KisaanBuddy_lang") ||
+          localStorage.getItem("krishi_lang") ||
+          localStorage.getItem("krishiai_lang")
+        ) as Lang | null
         if (saved && SELECTABLE_LANGS.includes(saved)) {
           localStorage.setItem("kisaanbuddy_lang", saved)
           localStorage.removeItem("KisaanBuddy_lang")
           localStorage.removeItem("krishi_lang")
+          localStorage.removeItem("krishiai_lang")
         }
       }
 
-      // 3. Check cookies if localStorage was empty
-      if (!saved) {
+      // 4. Check cookies if localStorage was empty
+      if (!saved && typeof document !== "undefined") {
         const cookieMatch = document.cookie.match(/(?:^|; )kisaanbuddy_lang=([^;]+)/)
         if (cookieMatch && SELECTABLE_LANGS.includes(cookieMatch[1] as Lang)) {
           saved = cookieMatch[1] as Lang
@@ -325,10 +343,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       // Storage might be restricted in some browser privacy modes
     }
 
-    if (saved && SELECTABLE_LANGS.includes(saved)) {
+    // Determine if this is a genuine returning user:
+    // A. They have the explicit selection confirmation flag, OR
+    // B. They have a saved language that is NOT English (e.g. "hi", "kn", "te") - which proves they actively customized it previously!
+    // If they only have silent default "en" without the confirmation flag, they are treated as first-time visitors so they see the welcome screen.
+    const isValidLanguage = Boolean(saved && SELECTABLE_LANGS.includes(saved))
+    const isReturningUser = isValidLanguage && (hasExplicitSelection || saved !== "en")
+
+    if (isReturningUser && saved) {
       setLangState(saved)
       setIsLanguageSelected(true)
+
+      // Ensure explicit flag is persisted for returning non-English users
       try {
+        localStorage.setItem(SELECTION_CONFIRMED_KEY, "true")
+        document.cookie = `${SELECTION_CONFIRMED_COOKIE}=true; Path=/; Max-Age=31536000; SameSite=Lax`
         document.documentElement.lang = saved
       } catch {}
 
@@ -340,7 +369,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         })
       }
     } else {
-      // First-time visitor: No preference selected yet
+      // First-time visitor or user with only stale silent default "en":
+      // Clean up stale silent defaults so they don't cause false positives
+      try {
+        localStorage.removeItem(SELECTION_CONFIRMED_KEY)
+        localStorage.removeItem("kisaanbuddy_lang")
+        localStorage.removeItem("KisaanBuddy_lang")
+        localStorage.removeItem("krishi_lang")
+        localStorage.removeItem("krishiai_lang")
+        document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
+        document.cookie = `${SELECTION_CONFIRMED_COOKIE}=; Path=/; Max-Age=0`
+      } catch {}
+
       setIsLanguageSelected(false)
     }
 
@@ -377,9 +417,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     try {
       localStorage.setItem("kisaanbuddy_lang", l)
+      localStorage.setItem(SELECTION_CONFIRMED_KEY, "true")
       localStorage.removeItem("KisaanBuddy_lang")
       localStorage.removeItem("krishi_lang")
+      localStorage.removeItem("krishiai_lang")
       document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
+      document.cookie = `${SELECTION_CONFIRMED_COOKIE}=true; Path=/; Max-Age=31536000; SameSite=Lax`
       document.documentElement.lang = l
     } catch {
       // Graceful fallback if storage restricted
@@ -410,9 +453,12 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const resetLanguagePreference = () => {
     try {
       localStorage.removeItem("kisaanbuddy_lang")
+      localStorage.removeItem(SELECTION_CONFIRMED_KEY)
       localStorage.removeItem("KisaanBuddy_lang")
       localStorage.removeItem("krishi_lang")
+      localStorage.removeItem("krishiai_lang")
       document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
+      document.cookie = `${SELECTION_CONFIRMED_COOKIE}=; Path=/; Max-Age=0`
     } catch {}
     setIsLanguageSelected(false)
   }
