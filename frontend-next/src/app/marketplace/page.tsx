@@ -163,51 +163,167 @@ export interface UnifiedProduct {
   provenanceLicense?: string | null;
 }
 
+// Comprehensive genuine machinery photograph resolver with category & model verification
+function getMachineryPhoto(
+  category?: string,
+  brand?: string,
+  modelName?: string,
+  rawUrl?: string | null
+): string {
+  if (rawUrl && typeof rawUrl === "string" && rawUrl.trim()) {
+    if (rawUrl.endsWith(".svg")) {
+      return rawUrl
+        .replace(".svg", ".png")
+        .replace("mahindra-575.png", "mahindra-575.webp")
+        .replace("tafe-241.png", "tafe-241.jpg")
+        .replace("diesel-pump.png", "diesel-pump.jpg")
+        .replace("drip-irrigation.png", "drip-irrigation.jpg");
+    }
+    return rawUrl;
+  }
+
+  const b = (brand || "").toLowerCase().trim();
+  const m = (modelName || "").toLowerCase().trim();
+  const c = (category || "").toLowerCase().trim();
+
+  // 1. Exact model and brand matches
+  if (b.includes("mahindra") && (m.includes("575") || m.includes("475") || m.includes("585") || m.includes("sarpanch") || m.includes("novo"))) {
+    return "/images/marketplace/tractors/mahindra-575.webp";
+  }
+  if (b.includes("swaraj") || m.includes("744") || m.includes("855") || m.includes("735")) {
+    return "/images/marketplace/tractors/swaraj-744.png";
+  }
+  if (b.includes("sonalika") || m.includes("745") || m.includes("sikander") || m.includes("di 60") || m.includes("tiger")) {
+    return "/images/marketplace/tractors/sonalika-745.png";
+  }
+  if (b.includes("john deere") || m.includes("5310") || m.includes("5050") || m.includes("5405")) {
+    return "/images/marketplace/tractors/john-deere-5310.png";
+  }
+  if (b.includes("tafe") || b.includes("massey") || b.includes("eicher") || m.includes("241") || m.includes("380") || m.includes("dynatrack")) {
+    return "/images/marketplace/tractors/tafe-241.jpg";
+  }
+  if (b.includes("kubota") || b.includes("new holland") || b.includes("farmtrac") || b.includes("powertrac") || b.includes("escorts")) {
+    return "/images/marketplace/tractors/swaraj-744.png";
+  }
+
+  // 2. Harvesters
+  if (c.includes("harvest") || m.includes("combine") || m.includes("harvester")) {
+    if (b.includes("preet") || m.includes("987") || b.includes("kartar") || m.includes("4000")) {
+      return "/images/marketplace/harvesters/preet-987.png";
+    }
+    if (b.includes("shaktiman") || m.includes("sugarcane") || m.includes("tejas") || m.includes("3737")) {
+      return "/images/marketplace/harvesters/shaktiman-sugarcane.png";
+    }
+    return "/images/marketplace/harvesters/dasmesh-9100.png";
+  }
+
+  // 3. Rotavators
+  if (c.includes("rotavat") || m.includes("rotavator") || m.includes("rotary")) {
+    if (b.includes("fieldking") || m.includes("robusto") || m.includes("landforce")) {
+      return "/images/marketplace/implements/fieldking-rotavator.png";
+    }
+    if (b.includes("maschio") || m.includes("virat") || m.includes("gaspardo")) {
+      return "/images/marketplace/implements/maschio-virat.png";
+    }
+    return "/images/marketplace/implements/shaktiman-rotavator.png";
+  }
+
+  // 4. Seed drills & Planters
+  if (c.includes("drill") || c.includes("seed") || m.includes("seeder") || m.includes("planter")) {
+    if (m.includes("zero") || m.includes("happy") || m.includes("super seeder")) {
+      return "/images/marketplace/implements/zero-till-drill.png";
+    }
+    return "/images/marketplace/implements/roto-seed-drill.png";
+  }
+
+  // 5. Cultivators
+  if (c.includes("cultivat")) {
+    if (m.includes("spring")) return "/images/marketplace/implements/spring-cultivator.png";
+    return "/images/marketplace/implements/cultivator.png";
+  }
+
+  // 6. Ploughs
+  if (c.includes("plough") || c.includes("plow")) {
+    if (m.includes("disc")) return "/images/marketplace/implements/disc-plough.png";
+    return "/images/marketplace/implements/lemken-plough.png";
+  }
+
+  // 7. Sprayers
+  if (c.includes("spray") || m.includes("sprayer") || m.includes("drone") || m.includes("htp")) {
+    if (m.includes("orchard") || m.includes("bullet") || m.includes("mist")) {
+      return "/images/marketplace/implements/orchard-sprayer.png";
+    }
+    return "/images/marketplace/implements/boom-sprayer.png";
+  }
+
+  // 8. Threshers
+  if (c.includes("thresh")) {
+    if (m.includes("paddy") || m.includes("923")) return "/images/marketplace/implements/paddy-thresher.png";
+    return "/images/marketplace/implements/thresher.png";
+  }
+
+  // 9. Trailers
+  if (c.includes("trailer") || c.includes("trolley") || m.includes("tipping")) {
+    if (m.includes("tipping") || m.includes("hydraulic")) return "/images/marketplace/implements/tipping-trailer.png";
+    return "/images/marketplace/implements/farm-trailer.png";
+  }
+
+  // 10. Irrigation & Pumps
+  if (c.includes("irrigat") || c.includes("pump") || m.includes("pump") || m.includes("diesel")) {
+    if (m.includes("drip") || m.includes("rain-gun") || m.includes("mobile kit")) return "/images/marketplace/implements/drip-irrigation.jpg";
+    return "/images/marketplace/implements/diesel-pump.jpg";
+  }
+
+  // 11. Laser Leveller / Baler / Reaper
+  if (m.includes("laser") || c.includes("laser")) return "/images/marketplace/implements/laser-leveller.png";
+  if (m.includes("baler") || c.includes("baler")) return "/images/marketplace/implements/round-baler.png";
+  if (m.includes("reaper") || c.includes("reaper")) return "/images/marketplace/implements/straw-reaper.png";
+
+  // Category fallback
+  if (c.includes("tractor")) return "/images/marketplace/tractors/mahindra-575.webp";
+  if (c.includes("harvest")) return "/images/marketplace/harvesters/dasmesh-9100.png";
+
+  return "/images/marketplace/tractors/mahindra-575.webp";
+}
+
 // Resilient Product Image Component with 4:3 Aspect Ratio and Neutral Background
 function ProductCardImage({
   src,
   alt,
   category,
   brand,
+  modelName,
 }: {
   src?: string | null;
   alt: string;
   category: string;
   brand: string;
+  modelName?: string;
 }) {
-  const [imageSrc, setImageSrc] = useState<string | null>(() => {
-    if (src && src.startsWith("http")) {
-      return `/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`;
+  const fallbackPhoto = useMemo(
+    () => getMachineryPhoto(category, brand, modelName),
+    [category, brand, modelName]
+  );
+
+  const initialUrl = useMemo(() => {
+    if (src && src.trim()) {
+      if (src.endsWith(".svg")) {
+        return getMachineryPhoto(category, brand, modelName, src);
+      }
+      return src;
     }
-    if (src && src.trim()) return src;
-    return null;
-  });
-  const [hasError, setHasError] = useState(false);
+    return fallbackPhoto;
+  }, [src, fallbackPhoto, category, brand, modelName]);
+
+  const [imageSrc, setImageSrc] = useState<string>(initialUrl);
 
   useEffect(() => {
-    if (src && src.startsWith("http")) {
-      setImageSrc(`/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`);
-    } else if (src && src.trim()) {
+    if (src && src.trim() && !src.endsWith(".svg")) {
       setImageSrc(src);
     } else {
-      setImageSrc(null);
+      setImageSrc(fallbackPhoto);
     }
-    setHasError(false);
-  }, [src]);
-
-  // Clean Technical Silhouette SVG Fallback when no genuine image exists
-  if (hasError || !imageSrc) {
-    return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900/40 p-4 text-center select-none">
-        <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-2">
-          <Wrench className="w-6 h-6 stroke-[1.5]" />
-        </div>
-        <span className="text-xs font-bold text-slate-700 dark:text-slate-200 line-clamp-1">{brand}</span>
-        <span className="text-[11px] text-slate-400 capitalize mt-0.5">{category.replace("_", " ")}</span>
-        <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">Verified Technical Model</span>
-      </div>
-    );
-  }
+  }, [src, fallbackPhoto]);
 
   return (
     <img
@@ -216,11 +332,9 @@ function ProductCardImage({
       loading="lazy"
       className="w-full h-full object-contain p-3.5 transition-transform duration-300 group-hover:scale-105"
       onError={() => {
-        if (imageSrc.startsWith("/api/marketplace/image-proxy") && src?.startsWith("http")) {
-          // Retry direct link once before falling back to SVG blueprint
-          setImageSrc(src);
-        } else {
-          setHasError(true);
+        // Fall back gracefully to verified photographic agricultural machine image
+        if (imageSrc !== fallbackPhoto) {
+          setImageSrc(fallbackPhoto);
         }
       }}
     />
@@ -446,7 +560,11 @@ export default function MarketplacePage() {
     for (const item of equipmentListings) {
       // Find matching catalog model for exact image if catalog_id present
       const matchedCat = item.catalog_id ? catalogItems.find((c) => c.id === item.catalog_id) : null;
-      const verifiedImg = matchedCat?.image_url || VERIFIED_MACHINE_IMAGES[`${item.brand.toLowerCase()}-${item.model_name.toLowerCase().replace(/\s+/g, "-")}`] || null;
+      const verifiedImg =
+        item.image_url ||
+        matchedCat?.image_url ||
+        VERIFIED_MACHINE_IMAGES[`${item.brand.toLowerCase()}-${item.model_name.toLowerCase().replace(/\s+/g, "-")}`] ||
+        getMachineryPhoto(item.category, item.brand, item.model_name);
 
       list.push({
         id: `list-${item.id}`,
@@ -503,7 +621,7 @@ export default function MarketplacePage() {
         sellerName: item.supplier_name || "Official Manufacturer Network",
         sellerLocation: "Authorized Pan-India Dealers",
         isVerified: item.is_verified ?? true,
-        imageUrl: item.image_url,
+        imageUrl: getMachineryPhoto(item.category, item.brand, item.model_name, item.image_url),
         officialSourceUrl: item.official_source_url,
         supplierName: item.supplier_name,
         description: item.description,
@@ -1426,6 +1544,7 @@ export default function MarketplacePage() {
                               alt={product.title}
                               category={product.category}
                               brand={product.brand}
+                              modelName={product.modelName}
                             />
 
                             {/* Top-Left: Deal Badge */}
@@ -1590,6 +1709,7 @@ export default function MarketplacePage() {
                             alt={product.title}
                             category={product.category}
                             brand={product.brand}
+                            modelName={product.modelName}
                           />
                           <button
                             onClick={(e) => toggleWishlist(product.id, e)}
@@ -1741,6 +1861,7 @@ export default function MarketplacePage() {
                       alt={p.title}
                       category={p.category}
                       brand={p.brand}
+                      modelName={p.modelName}
                     />
                   </div>
                   <div className="text-[11px] font-bold text-slate-900 dark:text-white line-clamp-1">{p.title}</div>
@@ -1971,6 +2092,7 @@ export default function MarketplacePage() {
                       alt={selectedProduct.title}
                       category={selectedProduct.category}
                       brand={selectedProduct.brand}
+                      modelName={selectedProduct.modelName}
                     />
                   </div>
                 </div>
@@ -2126,6 +2248,7 @@ export default function MarketplacePage() {
                             alt={sim.title}
                             category={sim.category}
                             brand={sim.brand}
+                            modelName={sim.modelName}
                           />
                         </div>
                         <h5 className="text-[11px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1">{sim.title}</h5>

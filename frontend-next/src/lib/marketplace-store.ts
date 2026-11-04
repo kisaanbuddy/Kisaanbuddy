@@ -58,6 +58,7 @@ export interface EquipmentListingItem {
   village?: string | null;
   pincode?: string | null;
   availability_status: "available" | "under_rent" | "sold" | "inactive";
+  image_url?: string | null;
   notes?: string | null;
   created_at?: string | null;
   updated_at?: string | null;

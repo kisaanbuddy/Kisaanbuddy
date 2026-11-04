@@ -242,6 +242,7 @@ export type EquipmentListingItem = {
   village?: string | null;
   pincode?: string | null;
   availability_status: "available" | "booked" | "under_maintenance" | "sold" | "inactive";
+  image_url?: string | null;
   notes?: string | null;
   created_at?: string | null;
 };
