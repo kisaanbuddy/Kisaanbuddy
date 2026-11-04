@@ -475,7 +475,7 @@ export function FarmerProfileSection() {
       {/* Background Subtle Accent */}
       <div className="absolute right-0 top-1/4 w-[450px] h-[450px] bg-emerald-500/[0.03] rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         
         {/* Section Eyebrow & Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">

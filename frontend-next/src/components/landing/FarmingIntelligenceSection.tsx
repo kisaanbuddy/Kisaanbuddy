@@ -484,7 +484,7 @@ export function FarmingIntelligenceSection() {
       {/* Anchor for backward compatibility with #farming-intelligence */}
       <span id="farming-intelligence" className="block -mt-16 pt-16 invisible" aria-hidden="true" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="w-full space-y-8">
         
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">

@@ -344,7 +344,7 @@ export function Features() {
       {/* Background glow */}
       <div className="absolute inset-x-0 top-1/4 h-[400px] bg-emerald-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-18">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-4 py-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 shadow-xs mb-4">

@@ -91,7 +91,7 @@ export function ExpertDashboardClient() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+    <div className="w-full py-8 space-y-6">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card p-6 md:p-8 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

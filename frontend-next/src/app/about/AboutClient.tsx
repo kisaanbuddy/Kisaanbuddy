@@ -408,7 +408,7 @@ export function AboutClient() {
           className="absolute inset-0 bg-[radial-gradient(#27834a_0.75px,transparent_0.75px)] [background-size:24px_24px] opacity-15 dark:opacity-10 pointer-events-none"
         />
 
-        <div className="relative mx-auto w-full max-w-[1920px]">
+        <div className="relative mx-auto w-full">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             {/* Left Column: Mission Narrative & CTAs */}
             <div className="lg:col-span-7 flex flex-col gap-6">
@@ -538,7 +538,7 @@ export function AboutClient() {
       {/* 2. THE CORE STORY — WHY KISAANBUDDY EXISTS                          */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-card/30">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3">
               THE CORE STORY
@@ -610,7 +610,7 @@ export function AboutClient() {
       {/* 3. THE PROBLEM WE WANT TO SOLVE (4 CONNECTED VISUAL STAGES)        */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="max-w-3xl mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               FOUR CORE CHALLENGES
@@ -683,7 +683,7 @@ export function AboutClient() {
       {/* 4. OUR APPROACH — HOW KISAANBUDDY IS BEING BUILT                    */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-card/30">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="max-w-3xl mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               PRODUCT ARCHITECTURE
@@ -914,7 +914,7 @@ export function AboutClient() {
       {/* 5. OUR VISION — A FARMER-CENTRIC AGRICULTURAL PLATFORM               */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="max-w-3xl mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               LONG-TERM VISION
@@ -1002,7 +1002,7 @@ export function AboutClient() {
       {/* 6. WHAT MAKES OUR APPROACH DIFFERENT?                               */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-card/30">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="max-w-3xl mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               OUR GUIDING PRINCIPLES
@@ -1048,7 +1048,7 @@ export function AboutClient() {
       {/* 7. MEET OUR FOUNDING TEAM — THREE MINDS. ONE AGRICULTURAL VISION.   */}
       {/* =================================================================== */}
       <section id="founding-team" className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40 scroll-mt-12">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-3">
               <Sparkle className="h-3.5 w-3.5" />
@@ -1206,7 +1206,7 @@ export function AboutClient() {
       {/* 8. OUR TECHNOLOGY PHILOSOPHY                                        */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-card/30">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="max-w-3xl mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               TECHNICAL PHILOSOPHY
@@ -1278,7 +1278,7 @@ export function AboutClient() {
       {/* 9. OUR JOURNEY — BUILDING KISAANBUDDY ITERATIVELY                   */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="max-w-3xl mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               DEVELOPMENT JOURNEY
@@ -1320,7 +1320,7 @@ export function AboutClient() {
       {/* 10. WHAT WE BELIEVE & CLOSING                                       */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40 bg-gradient-to-b from-card/30 to-background">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-3 block">
               CORE PRINCIPLES
@@ -1376,7 +1376,7 @@ export function AboutClient() {
       {/* 11. FREQUENTLY ASKED QUESTIONS (AUTHENTIC FAQ)                      */}
       {/* =================================================================== */}
       <section className="py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-border/40">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-2 block">
               TRANSPARENCY & CLARITY
@@ -1425,7 +1425,7 @@ export function AboutClient() {
       {/* 12. PUBLIC IMPROVEMENTS SECTION (TRANSPARENCY FEEDBACK)             */}
       {/* =================================================================== */}
       <div className="py-12 px-4 sm:px-6 lg:px-8 bg-card/20">
-        <div className="mx-auto w-full max-w-[1920px]">
+        <div className="mx-auto w-full">
           <PublicImprovementsSection />
         </div>
       </div>

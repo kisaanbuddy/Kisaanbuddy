@@ -324,7 +324,7 @@ export function FeatureShowcaseSection() {
       id="features"
       className="relative w-full py-16 sm:py-24 bg-[#F7F9F4] dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 scroll-mt-12"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">

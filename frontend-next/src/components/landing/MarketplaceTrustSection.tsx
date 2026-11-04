@@ -38,7 +38,7 @@ export function MarketplaceTrustSection() {
 
   return (
     <section id="trust-transparency" className="w-full py-12 sm:py-16 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="w-full space-y-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-3">

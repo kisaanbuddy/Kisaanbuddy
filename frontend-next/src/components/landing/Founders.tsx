@@ -119,7 +119,7 @@ export function Founders() {
         <div className="absolute inset-x-0 bottom-1/4 h-[40%] bg-emerald-500/[0.03] rounded-full blur-[140px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+      <div className="w-full px-4 md:px-8 relative z-10">
         
         {/* Section Title */}
         <div className="text-center mb-16 space-y-4">
@@ -143,7 +143,7 @@ export function Founders() {
         </div>
 
         {/* Founders Cards Grid */}
-        <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-3 max-w-5xl mx-auto">
+        <div className="grid gap-8 sm:grid-cols-1 md:grid-cols-3 w-full">
           {founders.map((f, i) => (
             <motion.div
               key={f.email + f.name}

@@ -271,7 +271,7 @@ export function QuickActionsSection() {
       id="quick-actions"
       className="relative w-full py-16 sm:py-20 bg-[#F7F9F4] dark:bg-stone-950 border-b border-stone-200/80 dark:border-stone-800 scroll-mt-12"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">

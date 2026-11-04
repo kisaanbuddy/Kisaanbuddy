@@ -65,7 +65,7 @@ export default function FoundersPage() {
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden px-6 md:px-12 py-16 md:py-20 border-b border-border/50 bg-muted/20 backdrop-blur-md">
-        <div className="mx-auto max-w-5xl">
+        <div className="w-full">
           <Link
             href="/"
             className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors group"
@@ -98,7 +98,7 @@ export default function FoundersPage() {
 
       {/* FOUNDERS GRID */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-7xl">
+        <div className="w-full">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {founders.map((f, i) => (
               <motion.div 
@@ -116,14 +116,14 @@ export default function FoundersPage() {
 
       {/* TESTIMONIALS & TRUST */}
       <section className="px-6 md:px-12 py-16 border-t border-border/50 bg-muted/10">
-        <div className="mx-auto max-w-5xl">
+        <div className="w-full">
           <TrustTestimonials />
         </div>
       </section>
 
       {/* CONTACT BANNER */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-6xl rounded-3xl border border-border/70 bg-card/80 dark:bg-card/50 p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <div className="w-full rounded-3xl border border-border/70 bg-card/80 dark:bg-card/50 p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[250px] h-[250px] rounded-full bg-emerald-500/10 blur-[90px] pointer-events-none -z-10" />
           
           <div className="max-w-4xl text-center mx-auto space-y-4">

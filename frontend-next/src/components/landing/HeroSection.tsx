@@ -145,7 +145,7 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-[#F7F9F4] dark:bg-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-20 border-b border-stone-200/80 dark:border-stone-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Column: Benefit-Oriented Headline & Actions (Instant SSR Paint - No Opacity Delay) */}

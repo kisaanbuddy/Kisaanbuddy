@@ -174,7 +174,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Header />
             <main
               id="main-content"
-              className="app-main flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 pt-6 md:pt-8 pb-24 md:pb-12"
+              className="app-main flex-1 w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 pt-6 md:pt-8 pb-24 md:pb-12"
             >
               <Breadcrumbs />
               {children}

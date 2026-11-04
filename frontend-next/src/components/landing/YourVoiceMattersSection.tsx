@@ -13,7 +13,7 @@ export function YourVoiceMattersSection() {
 
   return (
     <section className="w-full py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="w-full">
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-teal-950 text-white p-6 sm:p-10 shadow-xl border border-emerald-700/40">
           {/* Subtle background ambient lights */}
           <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
