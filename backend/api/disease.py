@@ -68,7 +68,30 @@ async def predict_crop_disease(
             )
         crop_derived = normalize_crop_name(crop_hint or "General Crop")
         knowledge_matches = query_knowledge_base(crop_derived, symptom_notes)
-        best_guide = knowledge_matches[0] if knowledge_matches else AGRICULTURAL_KNOWLEDGE_BASE[0]
+        if not knowledge_matches:
+            return {
+                "predicted_class": "unclassified_symptom_inconclusive",
+                "crop": crop_derived,
+                "disease_name": "Inconclusive / Unclassified Symptoms",
+                "confidence": 0.0,
+                "status": "inconclusive",
+                "note": "Reported symptoms do not match known ICAR/CIBRC disease profiles with sufficient certainty. Please upload a clear photo of the infected crop foliage or visit your nearest Krishi Vigyan Kendra (KVK).",
+                "model": "ICAR-CIBRC Agronomic Expert Engine (Symptom Match)",
+                "top_predictions": [],
+                "recommend_expert_review": True,
+                "immediate_action": "Do not apply chemical pesticides or fungicides without positive identification. Isolate or observe affected plants closely.",
+                "cultural_control": "Ensure proper irrigation drainage, weed eradication, and crop hygiene.",
+                "biological_control": "Organic biopesticides (e.g. neem formulations) may be used for general pest repellence if insects are sighted.",
+                "chemical_control": "No chemical application recommended without expert diagnosis.",
+                "cibrc_approved": False,
+                "dosage_guidelines": "Consult local agricultural extension officer before purchasing inputs.",
+                "phi_days": None,
+                "safety_instructions": "Always consult local KVK experts before handling agricultural chemicals.",
+                "source_institution": "ICAR-KVK Expert Network",
+                "source_url": "https://icar.gov.in",
+                "last_verified_date": datetime.date.today().isoformat(),
+            }
+        best_guide = knowledge_matches[0]
         predicted_class = f"{best_guide['crop'].lower()}_{best_guide['disease_or_pest'].split()[0].lower()}"
         return {
             "predicted_class": predicted_class,

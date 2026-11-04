@@ -24,8 +24,9 @@ class DemoWeatherProvider(WeatherProvider):
 
     @property
     def is_configured(self) -> bool:
-        # Always configured so it is registered when there's no other choice.
-        return True
+        from core.config import settings
+        # Strictly disabled in production; only permissible if settings.DEBUG is True and settings.ENABLE_DEMO_WEATHER is explicitly enabled
+        return bool(settings.DEBUG and getattr(settings, "ENABLE_DEMO_WEATHER", False))
 
     async def fetch_current(self, lat: float, lon: float) -> UnifiedWeather:
         # Return a nice, plausible weather bundle based on coords

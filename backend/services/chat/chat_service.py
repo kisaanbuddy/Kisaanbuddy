@@ -319,9 +319,15 @@ class ChatOrchestrator:
                     client, messages, with_tools=True, stream=False
                 )
                 if resp is None:
-                    log.exception("LLM call failed permanently: %s", last_err)
-                    yield self._evt("error", {"message": f"LLM error: {last_err}"})
-                    return
+                    log.warning("LLM call failed permanently (%s); generating smart agricultural fallback", last_err)
+                    from api.chatbot import _fallback_reply
+                    fallback = _fallback_reply(req.message)
+                    full_text = fallback
+                    for piece in _chunk_for_ui(fallback):
+                        yield self._evt("token", {"text": piece})
+                        await asyncio.sleep(STREAM_CHUNK_YIELD_MS / 1000)
+                    finish_reason = "stop"
+                    break
 
                 choice = resp.choices[0]
                 msg = choice.message
@@ -362,9 +368,15 @@ class ChatOrchestrator:
                 client, messages, with_tools=False, stream=False
             )
             if resp2 is None:
-                log.exception("LLM final call failed: %s", err2)
-                yield self._evt("error", {"message": f"LLM error: {err2}"})
-                return
+                log.warning("LLM final call failed (%s); generating smart agricultural fallback", err2)
+                from api.chatbot import _fallback_reply
+                fallback = _fallback_reply(req.message)
+                full_text = fallback
+                for piece in _chunk_for_ui(fallback):
+                    yield self._evt("token", {"text": piece})
+                    await asyncio.sleep(STREAM_CHUNK_YIELD_MS / 1000)
+                finish_reason = "stop"
+                break
             content = (resp2.choices[0].message.content or "").strip()
             full_text = content
             for piece in _chunk_for_ui(content):

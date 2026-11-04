@@ -765,10 +765,12 @@ export default function MandiPage() {
 
           {/* Error State */}
           {errorPrices && crops.length === 0 && (
-            <GlassCard className="border border-red-500/20 bg-red-500/5 p-8 text-center rounded-2xl">
-              <p className="text-red-500 font-bold text-sm">{errorPrices}</p>
-              <Button variant="outline" className="mt-4 text-xs font-bold" onClick={() => fetchCrops()}>
-                Retry
+            <GlassCard className="border border-amber-500/20 bg-amber-500/5 p-8 text-center rounded-2xl">
+              <p className="text-amber-700 dark:text-amber-400 font-bold text-base">
+                {lang === "hi" ? "आज मंडी का भाव उपलब्ध नहीं है। कृपया बाद में देखें।" : errorPrices}
+              </p>
+              <Button variant="outline" className="mt-4 text-xs font-bold rounded-xl" onClick={() => fetchCrops()}>
+                {lang === "hi" ? "दोबारा कोशिश करें" : "Retry"}
               </Button>
             </GlassCard>
           )}

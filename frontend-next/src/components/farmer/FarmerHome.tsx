@@ -29,6 +29,7 @@ import {
 } from "@/lib/weather-api";
 import { translateCondition } from "@/lib/weather-translations";
 import { FarmerFeatureCard } from "./FarmerFeatureCard";
+import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import {
   ALL_SERVICES,
   SERVICE_CATEGORIES,
@@ -365,9 +366,10 @@ export function FarmerHome() {
 
         {/* ── Prominent Voice-Assistant Button (Primary Action) ── */}
         <div className="mt-6">
-          <Link
-            href="/chatbot?listen=1"
-            className="group relative flex min-h-[96px] sm:min-h-[105px] items-center gap-4 sm:gap-6 rounded-2xl bg-emerald-700 dark:bg-emerald-800 hover:bg-emerald-600 px-5 sm:px-7 py-4 sm:py-5 text-white shadow-md hover:shadow-lg active:scale-[0.99] transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-600/30"
+          <button
+            type="button"
+            onClick={() => openVoiceAssistant()}
+            className="group relative flex w-full text-left min-h-[96px] sm:min-h-[105px] items-center gap-4 sm:gap-6 rounded-2xl bg-emerald-700 dark:bg-emerald-800 hover:bg-emerald-600 px-5 sm:px-7 py-4 sm:py-5 text-white shadow-md hover:shadow-lg active:scale-[0.99] transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-600/30 cursor-pointer"
           >
             {/* Pulsing Mic Container */}
             <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xs shadow-inner">
@@ -395,7 +397,7 @@ export function FarmerHome() {
               <span>{text.voiceButtonText}</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
-          </Link>
+          </button>
         </div>
 
         {/* ── Feature Discovery Search Bar (Secondary Action) ── */}
@@ -506,13 +508,14 @@ export function FarmerHome() {
                 >
                   {text.clearSearch}
                 </button>
-                <Link
-                  href="/chatbot?listen=1"
-                  className="rounded-xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors flex items-center gap-1.5 shadow-xs"
+                <button
+                  type="button"
+                  onClick={() => openVoiceAssistant()}
+                  className="rounded-xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
                 >
                   <Mic className="h-4 w-4" />
                   <span>{text.askVoiceInstead}</span>
-                </Link>
+                </button>
               </div>
             </div>
           )}
@@ -762,23 +765,25 @@ export function FarmerHome() {
                 </p>
               </div>
 
-              <Link
-                href="/chatbot?listen=1"
-                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-colors shrink-0"
+              <button
+                type="button"
+                onClick={() => openVoiceAssistant()}
+                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-700 hover:bg-emerald-600 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-xs transition-colors shrink-0 cursor-pointer"
               >
                 <Mic className="h-4 w-4" />
                 <span>{text.voiceTitle}</span>
-              </Link>
+              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
               {VOICE_SAMPLE_QUERIES.map((q, idx) => {
                 const QIcon = q.icon;
                 return (
-                  <Link
+                  <button
                     key={idx}
-                    href={q.route}
-                    className="group flex items-center gap-3 rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-3.5 shadow-2xs hover:border-emerald-500/50 hover:shadow-xs transition-all"
+                    type="button"
+                    onClick={() => openVoiceAssistant(q.text[currentLang])}
+                    className="group flex items-center text-left gap-3 rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-3.5 shadow-2xs hover:border-emerald-500/50 hover:shadow-xs transition-all cursor-pointer"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
                       <QIcon className="h-4.5 w-4.5" />
@@ -786,7 +791,7 @@ export function FarmerHome() {
                     <span className="text-xs sm:text-sm font-semibold text-stone-800 dark:text-stone-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors line-clamp-2">
                       &ldquo;{q.text[currentLang]}&rdquo;
                     </span>
-                  </Link>
+                  </button>
                 );
               })}
             </div>

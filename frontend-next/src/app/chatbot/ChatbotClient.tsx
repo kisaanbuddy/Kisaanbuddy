@@ -273,7 +273,11 @@ function ChatbotInner() {
   }, [activeLang])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    // Only scroll if user or assistant has sent messages beyond the initial welcome message,
+    // preventing the page from jumping down past the suggestions and FAQ on load.
+    if (messages.length > 1) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
   }
   
   useEffect(() => {
@@ -883,6 +887,8 @@ function ChatbotInner() {
               </motion.div>
             )}
 
+            <div ref={messagesEndRef} />
+
             {/* Empty state onboarding helper dashboard & FAQs */}
             {messages.length <= 1 && (
               <div className="space-y-8 animate-fade-in text-left">
@@ -962,8 +968,6 @@ function ChatbotInner() {
                 </div>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Footer warning */}
