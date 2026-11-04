@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
+import machineryAuditData from "@/lib/data/machinery-image-mapping.json";
 import {
   Search,
   X,
@@ -17,7 +18,6 @@ import {
   Gauge,
   ChevronDown,
   AlertCircle,
-  TrendingUp,
   User,
   Sliders,
   Check,
@@ -284,14 +284,33 @@ export default function MarketplacePage() {
     loadData();
   }, [loadData]);
 
+  // Image audit mapping lookup
+  const auditImageMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of (machineryAuditData as any).records || []) {
+      if (r.imageUrl) {
+        if (r.productId) map.set(r.productId, r.imageUrl);
+        if (r.numericId && r.sourceType) map.set(`${r.sourceType}-${r.numericId}`, r.imageUrl);
+        if (r.exactModel) {
+          const key = `${(r.brand || "").toLowerCase()} ${(r.exactModel || "").toLowerCase()}`.trim();
+          map.set(key, r.imageUrl);
+        }
+      }
+    }
+    return map;
+  }, []);
+
   // Combine reference models and active farmer listings into unified products
   const unifiedProducts = useMemo<UnifiedProduct[]>(() => {
     const list: UnifiedProduct[] = [];
 
     // Real Farmer Listings (Rent / Sale)
     for (const item of equipmentListings) {
+      const modelKey = `${(item.brand || "").toLowerCase()} ${(item.model_name || item.title || "").toLowerCase()}`.trim();
+      const auditImg = auditImageMap.get(`list-${item.id}`) || auditImageMap.get(modelKey);
       const matchedCat = item.catalog_id ? catalogItems.find((c) => c.id === item.catalog_id) : null;
-      const verifiedImg = item.image_url || matchedCat?.image_url || null;
+      const rawImg = auditImg || item.image_url || matchedCat?.image_url || null;
+      const verifiedImg = getVerifiedMachineryPhoto(item.brand, item.model_name, rawImg);
 
       list.push({
         id: `list-${item.id}`,
@@ -325,7 +344,10 @@ export default function MarketplacePage() {
 
     // Official Catalog Models
     for (const item of catalogItems) {
-      const resolvedImg = getVerifiedMachineryPhoto(item.brand, item.model_name, item.image_url);
+      const modelKey = `${(item.brand || "").toLowerCase()} ${(item.model_name || "").toLowerCase()}`.trim();
+      const auditImg = auditImageMap.get(`cat-${item.id}`) || auditImageMap.get(modelKey);
+      const rawImg = auditImg || item.image_url;
+      const resolvedImg = getVerifiedMachineryPhoto(item.brand, item.model_name, rawImg);
 
       list.push({
         id: `cat-${item.id}`,
@@ -362,7 +384,7 @@ export default function MarketplacePage() {
     }
 
     return list;
-  }, [equipmentListings, catalogItems]);
+  }, [equipmentListings, catalogItems, auditImageMap]);
 
   // Unique brands with counts
   const availableBrands = useMemo(() => {
@@ -483,6 +505,9 @@ export default function MarketplacePage() {
       if (minPrice && product.price != null && product.price < parseFloat(minPrice)) return false;
       if (maxPrice && product.price != null && product.price > parseFloat(maxPrice)) return false;
 
+      // Only show products with authentic photography ("JISME PHOTO USME PHOTO")
+      if (!product.hasVerifiedPhoto || !product.imageUrl) return false;
+
       return true;
     });
   }, [
@@ -513,10 +538,12 @@ export default function MarketplacePage() {
       case "relevance":
       default:
         return list.sort((a, b) => {
-          if (a.sourceType === "listing" && b.sourceType !== "listing") return -1;
-          if (b.sourceType === "listing" && a.sourceType !== "listing") return 1;
+          if (a.hasVerifiedPhoto && !b.hasVerifiedPhoto) return -1;
+          if (b.hasVerifiedPhoto && !a.hasVerifiedPhoto) return 1;
           if (a.price && !b.price) return -1;
           if (b.price && !a.price) return 1;
+          if (a.sourceType === "listing" && b.sourceType !== "listing") return -1;
+          if (b.sourceType === "listing" && a.sourceType !== "listing") return 1;
           return a.title.localeCompare(b.title);
         });
     }
@@ -787,15 +814,6 @@ export default function MarketplacePage() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              {/* Mandi Live */}
-              <Link
-                href="/mandi"
-                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-md transition"
-              >
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Mandi Live</span>
-              </Link>
-
               {/* Wishlist */}
               <button
                 onClick={() => {
