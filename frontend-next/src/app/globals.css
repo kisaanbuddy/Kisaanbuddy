@@ -301,7 +301,7 @@
 }
 
 @layer components {
-  .surface-card { @apply rounded-2xl border border-border bg-card p-5 text-card-foreground shadow-xs transition-all duration-200; }
+  .surface-card { @apply rounded-xl border border-border bg-card p-5 text-card-foreground shadow-xs transition-all duration-200; }
   .surface-card:hover { border-color: hsl(var(--card-border-hover)); box-shadow: 0 8px 20px -16px rgba(24, 57, 42, .35); }
   .eyebrow { @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.12em] text-primary; }
   .section-heading { @apply text-2xl font-bold tracking-tight sm:text-3xl; }
@@ -317,10 +317,97 @@
     @apply relative inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-700 hover:from-emerald-800 hover:via-emerald-700 hover:to-teal-800 text-white font-bold shadow-md shadow-emerald-700/20 hover:shadow-lg hover:shadow-emerald-700/30 active:scale-95 transition-all duration-200 cursor-pointer;
   }
   .glass-card-elevated {
-    @apply rounded-3xl bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border border-stone-200/90 dark:border-stone-800/90 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300;
+    @apply rounded-2xl bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border border-stone-200/90 dark:border-stone-800/90 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300;
   }
   .badge-glow {
     @apply inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50/80 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider border border-emerald-500/25 shadow-xs backdrop-blur-xs;
   }
 
+}
+
+/* --------------------------------------------------------------------------
+   Product shell: shared guardrails for every route.
+   The product has data-dense tools as well as editorial pages, so these rules
+   improve hierarchy and responsive containment without changing API-driven UI.
+   -------------------------------------------------------------------------- */
+@layer base {
+  :root {
+    --background: 90 18% 98%;
+    --foreground: 150 15% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 15% 13%;
+    --primary: 154 47% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 145 39% 34%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 90 13% 94%;
+    --muted-foreground: 148 8% 39%;
+    --accent: 95 36% 45%;
+    --accent-foreground: 0 0% 100%;
+    --border: 100 10% 88%;
+    --input: 100 10% 84%;
+    --ring: 154 47% 24%;
+    --radius: .75rem;
+  }
+
+  body {
+    background-color: hsl(var(--background));
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / .16);
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .app-main {
+    min-width: 0;
+  }
+
+  .app-main > * {
+    min-width: 0;
+  }
+
+  /* A compact, reusable page-heading pattern for existing and future routes. */
+  .page-kicker {
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.12em] text-primary;
+  }
+
+  .page-title {
+    @apply mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl;
+  }
+
+  .page-description {
+    @apply mt-2 max-w-2xl text-sm leading-6 text-muted-foreground;
+  }
+
+  .data-panel {
+    @apply rounded-xl border border-border bg-card shadow-xs;
+  }
+
+  .data-panel-header {
+    @apply flex flex-col gap-1 border-b border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .input-field {
+    @apply h-10 rounded-lg px-3 text-sm;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    @apply min-h-10;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-main {
+    padding-top: 1rem;
+  }
+
+  /* Keeps fixed assistant and bottom navigation from masking last actions. */
+  .app-main > :last-child {
+    scroll-margin-bottom: 6rem;
+  }
 }

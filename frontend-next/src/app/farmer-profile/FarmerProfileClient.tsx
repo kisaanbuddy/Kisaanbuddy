@@ -277,10 +277,6 @@ export function FarmerProfileClient() {
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-lg font-bold text-foreground">{user?.name || "Farmer"}</h2>
-                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                  <CheckCircle2 className="h-3 w-3" />
-                  {dict.verifiedFarmer}
-                </span>
               </div>
               <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-primary" />

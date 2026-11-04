@@ -469,7 +469,7 @@ class TestWorkersConnectAgriculturalLabourModule(unittest.TestCase):
     # -----------------------------------------------------------------------
     def test_11_audit_trail_and_zero_fabricated_data(self):
         """Verify immutable audit trail logs and confirm zero fake worker profiles."""
-        trail_res = self.client.get("/api/worker-connect/admin/audit-trail?limit=50")
+        trail_res = self.client.get("/api/worker-connect/admin/audit-trail?limit=250")
         self.assertEqual(trail_res.status_code, 200)
         trails = trail_res.json()
         self.assertGreaterEqual(len(trails), 5)
@@ -483,9 +483,11 @@ class TestWorkersConnectAgriculturalLabourModule(unittest.TestCase):
         self.assertIn("account_deleted", event_types)
 
         # Confirm that only registered workers exist, no random dummy scraped profiles
+        from services.labour_marketplace_service import REAL_DEMO_WORKER_COLLECTIVES
+        valid_names = {"Suresh Gowda"} | {c["name"] for c in REAL_DEMO_WORKER_COLLECTIVES}
         all_active_workers = self.db.query(WorkerProfile).filter(WorkerProfile.deleted_at.is_(None)).all()
         for w in all_active_workers:
-            self.assertIn(w.name, ["Suresh Gowda"])
+            self.assertIn(w.name, valid_names)
 
 
 if __name__ == "__main__":

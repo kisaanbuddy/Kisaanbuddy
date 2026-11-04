@@ -299,7 +299,7 @@ export function QuickActionsSection() {
 
             return (
               <StaggerItem key={item.id}>
-                <div className="flex flex-col justify-between h-full rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_20px_rgba(23,75,53,0.04)] hover:shadow-[0_12px_32px_rgba(23,75,53,0.09)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+                <div className="flex flex-col justify-between h-full rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_20px_rgba(23,75,53,0.04)] hover:shadow-[0_12px_32px_rgba(23,75,53,0.09)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
                   
                   {/* Photo Header with Badge */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">

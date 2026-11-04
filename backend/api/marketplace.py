@@ -129,7 +129,7 @@ def get_optional_user(request: Request, db: Session = Depends(get_db)) -> Option
     if not token:
         return None
     try:
-        from core.security import decode_access_token
+        from services.auth_service import decode_access_token
         payload = decode_access_token(token)
         if not payload or "sub" not in payload:
             return None
@@ -475,12 +475,18 @@ def confirm_produce_listing_stock(item_id: int, db: Session = Depends(get_db)) -
 def update_produce_listing_status(
     item_id: int,
     status_value: str = Query(..., pattern="^(available|under_negotiation|sold_out|inactive|flagged)$"),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db),
 ) -> Any:
-    """Update availability status of a produce listing."""
+    """Update availability status of a produce listing with ownership authorization enforcement."""
     item = db.query(ProduceListing).filter(ProduceListing.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Produce listing not found")
+    if item.user_id is not None:
+        if not current_user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required to modify listing status.")
+        if current_user.id != item.user_id and not getattr(current_user, "is_admin", False):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to modify this produce listing.")
     item.availability_status = status_value
     item.updated_at = datetime.utcnow()
     db.commit()
@@ -621,12 +627,18 @@ def create_buyer_requirement(
 def update_buyer_requirement_status(
     item_id: int,
     status_value: str = Query(..., pattern="^(active|fulfilled|cancelled|expired)$"),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db),
 ) -> Any:
-    """Update status of a buyer requirement."""
+    """Update status of a buyer requirement with ownership authorization enforcement."""
     item = db.query(BuyerRequirement).filter(BuyerRequirement.id == item_id).first()
     if not item:
         raise HTTPException(status_code=404, detail="Buyer requirement not found")
+    if getattr(item, "user_id", None) is not None:
+        if not current_user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required to modify requirement status.")
+        if current_user.id != item.user_id and not getattr(current_user, "is_admin", False):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to modify this buyer requirement.")
     item.status = status_value
     item.updated_at = datetime.utcnow()
     db.commit()

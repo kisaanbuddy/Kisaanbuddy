@@ -131,8 +131,7 @@ def create_category(
     slug = data.slug or re.sub(r"[^a-z0-9_]+", "_", data.name.strip().lower()).strip("_")
     existing = db.query(WorkerCategory).filter(WorkerCategory.slug == slug).first()
     if existing:
-        dispatch = dispatch_provider_inquiry_alert(db, worker, existing)
-        existing.whatsapp_url = dispatch["whatsapp_url"]
+
         return existing
 
     cat = WorkerCategory(

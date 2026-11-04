@@ -1032,16 +1032,12 @@ export default function WorkerConnectClient() {
             ) : workers.length === 0 ? (
               <Card className="py-10 px-6 text-left rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-8">
                 {/* Header: Authentic Marketplace Policy & Data Verification */}
-                <div className="text-center max-w-2xl mx-auto space-y-3">
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                    <span>Official Data Integration — Zero Fabricated Profiles</span>
-                  </div>
-                  <h3 className="font-bold text-2xl text-stone-900 dark:text-stone-100">
-                    No Registered Workers In This Filter Yet
+                <div className="text-center max-w-2xl mx-auto space-y-2">
+                  <h3 className="font-bold text-xl text-stone-900 dark:text-stone-100">
+                    No Workers Found in This Area
                   </h3>
-                  <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                    KisaanBuddy strictly operates on verified identity and authentic public data. We never scrape or fabricate fake worker profiles. Below is real, live agricultural market intelligence sourced from the <strong>Labour Bureau (Ministry of Labour & Employment)</strong>, <strong>MGNREGA</strong>, and <strong>SFAC-registered Farmer Producer Organizations (FPOs)</strong>.
+                  <p className="text-sm text-stone-600 dark:text-stone-400">
+                    Try changing your location filter, or explore wage benchmarks and hiring centres below.
                   </p>
                 </div>
 
@@ -1190,10 +1186,10 @@ export default function WorkerConnectClient() {
                         <span>SFAC & NABARD Registered Farm Producer Organizations (FPOs)</span>
                       </div>
                       <h4 className="font-bold text-base text-stone-900 dark:text-stone-100">
-                        Explore Live Verified Agricultural Collectives
+                        Agricultural Collectives & Custom Hiring Centres
                       </h4>
-                      <p className="text-xs text-stone-600 dark:text-stone-400 max-w-2xl leading-relaxed">
-                        To test search filters, distance calculations, availability confirmations, and consent-based phone unmasking, you can initialize verified profiles from genuine Farmer Producer Companies (SFAC/NABARD registered custom hiring centres in Karnataka, Punjab, Maharashtra, Andhra Pradesh, and UP) with authentic Labour Bureau wage rates.
+                      <p className="text-xs text-stone-600 dark:text-stone-400 max-w-2xl">
+                        Registered Farmer Producer Companies and machinery hiring centres across India.
                       </p>
                     </div>
 
@@ -1205,12 +1201,12 @@ export default function WorkerConnectClient() {
                       {seedingDemo ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                          Initializing Verified FPOs...
+                          Loading FPOs...
                         </>
                       ) : (
                         <>
                           <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                          Initialize Authentic FPO Collectives (Real Data)
+                          Load FPO Hiring Centres
                         </>
                       )}
                     </Button>
@@ -2577,20 +2573,19 @@ export default function WorkerConnectClient() {
         {activeTab === "wage_benchmarks" && (
           <div className="space-y-6">
             <Card className="p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 font-bold text-xl text-stone-900 dark:text-white">
-                  <TrendingUp className="w-5 h-5 text-emerald-600" />
-                  <span>Official Agricultural Wage Benchmarks (Labour Bureau & MGNREGA)</span>
-                </div>
-                <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
-                  Legitimate public wage statistics compiled from the <strong>Labour Bureau, Ministry of Labour & Employment</strong> (Wage Rates in Rural India / CPI-AL) and statutory notified wage rates from the <strong>Ministry of Rural Development</strong> (MGNREGA Section 6(1)).
-                </p>
-                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-start gap-2">
-                  <Info className="w-4 h-4 flex-shrink-0 text-amber-600 mt-0.5" />
-                  <span>
-                    <strong>Important Legal Disclaimer:</strong> These reported values represent official state-level statistical survey benchmarks and statutory public floor rates. They are provided for transparency and market context; they do <strong>NOT</strong> constitute guaranteed quotes or binding wages offered by individual agricultural workers.
+              <div className="space-y-1">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-bold text-xl text-stone-900 dark:text-white">
+                    <TrendingUp className="w-5 h-5 text-emerald-600" />
+                    <span>Agricultural Wage Benchmarks</span>
+                  </div>
+                  <span className="text-xs text-stone-500 dark:text-stone-400 font-medium">
+                    Source: Labour Bureau & MGNREGA (Reference rates)
                   </span>
                 </div>
+                <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300">
+                  State-level daily wage benchmarks and notified floor rates for farm labour.
+                </p>
               </div>
 
               {/* Benchmark Filters */}

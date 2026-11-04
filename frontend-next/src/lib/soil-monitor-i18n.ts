@@ -40,6 +40,20 @@ export interface SoilMonitorDict {
   historicalDesc: string
   pipelineTag: string
   pipelineTitle: string
+  connectDeviceBtn?: string
+  setupGuideTitle?: string
+  setupGuideDesc?: string
+  analyticsTitle?: string
+  analyticsDesc?: string
+  time1h?: string
+  time24h?: string
+  time7d?: string
+  time30d?: string
+  measuredBadge?: string
+  aiBadge?: string
+  awaitingProbe?: string
+  noTelemetryWindow?: string
+  noTelemetryDesc?: string
   pipelineSteps: {
     device: string
     soil: string
@@ -114,6 +128,20 @@ export const SOIL_MONITOR_I18N: Record<Lang, SoilMonitorDict> = {
     historicalDesc: "Previous sensor readings collected across telemetry intervals.",
     pipelineTag: "How the signal reaches you",
     pipelineTitle: "Physical field → KisaanBuddy",
+    connectDeviceBtn: "Connect IoT Device",
+    setupGuideTitle: "IoT Sensor Setup and Configuration Guide",
+    setupGuideDesc: "Connect an ESP32 hardware node with capacitive soil moisture or RS485 NPK probes to your field.",
+    analyticsTitle: "Live Sensor Analytics and Trends",
+    analyticsDesc: "Continuous telemetry trends recorded across field sensor sampling intervals.",
+    time1h: "1 Hour",
+    time24h: "24 Hours",
+    time7d: "7 Days",
+    time30d: "30 Days",
+    measuredBadge: "Hardware Measured",
+    aiBadge: "AI Agronomy Recommendation",
+    awaitingProbe: "Awaiting probe input",
+    noTelemetryWindow: "No telemetry in selected window",
+    noTelemetryDesc: "Continuous readings from your field IoT node will appear here in real-time as sensor packets arrive.",
     pipelineSteps: {
       device: "Sensor device",
       soil: "Soil / field",

@@ -325,7 +325,7 @@ export function MarketplaceHero() {
               {activeTab === 'buyers' && (
                 <div className="p-4 space-y-2.5">
                   <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
-                    <span>Verified Buyer Requirements</span>
+                    <span>Buyer Requirements</span>
                     <span>Target Price</span>
                   </div>
 
@@ -388,7 +388,7 @@ export function MarketplaceHero() {
                     href="/marketplace?tab=buyers"
                     className="w-full mt-1 py-2.5 px-3 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-900 dark:text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                   >
-                    <span>Connect with 450+ Verified Institutional Buyers</span>
+                    <span>Connect with Institutional Buyers</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -462,7 +462,7 @@ export function MarketplaceHero() {
                     className="w-full mt-1 py-2.5 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Users className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Explore Worker Connect (50+ Verified Groups & Jobs)</span>
+                    <span>Explore Worker Connect</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
@@ -521,19 +521,12 @@ export function MarketplaceHero() {
 
               {/* Bottom Card Footer */}
               <div className="px-5 py-3 bg-stone-100/60 dark:bg-stone-950/60 border-t border-stone-200/60 dark:border-stone-800 flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Govt DMI & e-NAM Verified</span>
+                <span className="flex items-center gap-1 font-medium">
+                  Source: AGMARKNET / e-NAM
                 </span>
                 <span className="font-medium">Direct mandi benchmarks</span>
               </div>
 
-            </div>
-
-            {/* Bottom Floating Pill */}
-            <div className="hidden sm:inline-flex items-center gap-2 absolute -bottom-3.5 left-6 z-20 px-3 py-1 rounded-full bg-white dark:bg-stone-800 text-[11px] font-bold text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shadow-md">
-              <Zap className="w-3.5 h-3.5 text-amber-500" />
-              <span>Real-time trades across 28 states</span>
             </div>
 
           </div>

@@ -51,7 +51,7 @@ export const VOICE_FEATURE_REGISTRY: Record<VoiceFeature, {
 
 const CROP_WORDS: Array<[RegExp, string]> = [
   [/\b(dhan|paddy|rice|chawal|चावल|धान)\b/i, "Rice"],
-  [/\b(gehu|wheat|गेहूं|गेहूँ)\b/i, "Wheat"],
+  [/\b(gehu|gehun|gehoon|wheat|गेहूं|गेहूँ)\b/i, "Wheat"],
   [/\b(tamatar|tomato|टमाटर)\b/i, "Tomato"],
   [/\b(aloo|potato|आलू)\b/i, "Potato"],
   [/\b(pyaz|onion|प्याज)\b/i, "Onion"],
@@ -74,12 +74,15 @@ function daysFrom(text: string) {
   return "1"
 }
 function cityFrom(text: string) {
-  const afterPreposition = text.match(/(?:in|for|ka|ki|के|का|की)\s+([a-zA-Z\u0900-\u097F ]{3,32}?)(?:\s+(?:weather|forecast|mausam|मौसम|kal|tomorrow|aaj|today)|$)/i)?.[1]
+  const afterPreposition = text.match(/(?:in|for|mein|में)\s+([a-zA-Z\u0900-\u097F ]{3,32}?)(?:\s+(?:weather|forecast|mausam|मौसम|kal|tomorrow|aaj|today)|$)/i)?.[1]
   // Natural Hindi/Hinglish phrasing commonly puts the location first:
   // "Samastipur mein gehu ka bhav" or "Samastipur mein mausam".
   const beforeMe = text.match(/(?:^|\b(?:aaj|today|kal|tomorrow)\s+)([a-zA-Z\u0900-\u097F ]{3,32}?)\s+(?:mein|में|\bme\b)\s+/i)?.[1]
   const candidate = (afterPreposition || beforeMe)?.trim().replace(/^(?:aaj|today|kal|tomorrow)\s+/i, "")
-  return candidate && !/^(mere|my|gaon|village|field|khet|मेरे|गाँव|गांव|खेत)$/i.test(candidate) ? candidate : undefined
+  if (!candidate) return undefined
+  if (/^(?:mere|my|gaon|village|field|khet|मेरे|गाँव|गांव|खेत|mandi|मंडी|bhav|भाव|rate|price|fasal|फसल|weather|मौसम|dhan|gehu|gehun|tamatar|aloo|pyaz)$/i.test(candidate)) return undefined
+  if (/\b(?:mandi|bhav|bhav batao|rate|price|weather)\b/i.test(candidate)) return undefined
+  return candidate
 }
 
 /** Language-switch intent is handled locally, so the next turn is transcribed and
@@ -135,7 +138,7 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
     if (location) params.district = location
     return { feature: "mandi", path: "/mandi", label: "Mandi prices", params }
   }
-  if (/disease|bimari|बीमारी|रोग|leaf|patti|पत्ती|photo|फोटो/i.test(text))
+  if (/disease|bimari|बीमारी|रोग|leaf|patti|patte|patta|पत्ती|पत्ते|daag|दाग|धब्बा|spot|blight|photo|फोटो/i.test(text))
     return { feature: "disease", path: "/disease", label: "Disease detection", params }
   if (/scheme|yojana|योजना|subsidy|सरकारी/i.test(text))
     return { feature: "schemes", path: "/schemes", label: "Government schemes", params }
@@ -152,7 +155,7 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
     }
     return { feature: "khet-diary", path: "/khet-diary", label: "Khet Diary", params }
   }
-  if (/worker|mazdoor|मजदूर|labour|labor|कामगार/i.test(text))
+  if (/worker|mazdoor|मजदूर|labour|labor|कामगार|katai|कटाई|बुवाई|buwai|chhiptai|harvesting|sowing/i.test(text))
     return { feature: "worker-connect", path: "/worker-connect", label: "Worker Connect", params: { ...params, mode: "find" } }
   if (/farm profile|farm map|map kholo|farm details|my profile|mera profile|मेरा प्रोफाइल|मेरी खेत प्रोफ़ाइल|ನನ್ನ ಫಾರ್ಮ್/i.test(text))
     return { feature: "profile", path: "/profile", label: "Farm profile", params }

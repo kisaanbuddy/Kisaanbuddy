@@ -38,7 +38,7 @@ router = APIRouter()
 INGEST_TOKEN = os.getenv("SENSOR_INGEST_TOKEN", "").strip()
 
 # How many recent readings to keep per device.
-HISTORY_LEN = 50
+HISTORY_LEN = 200
 
 # A device is considered "online" if seen within this many seconds.
 ONLINE_WINDOW_S = 120
@@ -61,6 +61,16 @@ class SensorReading(BaseModel):
         None, ge=0, le=100, description="Soil moisture %% (capacitive)")
     raw_moisture: Optional[int] = Field(
         None, description="Raw ADC value (for calibration/debug)")
+    soil_ph: Optional[float] = Field(
+        None, ge=0, le=14, description="Soil pH (glass electrode / RS485)")
+    nitrogen: Optional[float] = Field(
+        None, ge=0, description="Available Nitrogen mg/kg (RS485 NPK)")
+    phosphorus: Optional[float] = Field(
+        None, ge=0, description="Available Phosphorus mg/kg (RS485 NPK)")
+    potassium: Optional[float] = Field(
+        None, ge=0, description="Available Potassium mg/kg (RS485 NPK)")
+    electrical_conductivity: Optional[float] = Field(
+        None, ge=0, description="Electrical conductivity µS/cm or dS/m")
 
 
 class StoredReading(SensorReading):

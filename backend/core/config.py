@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
     # --- Weather providers (primary + fallbacks) ---
+    ENABLE_DEMO_WEATHER: bool = False
     OPENWEATHERMAP_API_KEY: Optional[str] = None
     WEATHERAPI_API_KEY: Optional[str] = None
     TOMORROWIO_API_KEY: Optional[str] = None

@@ -465,7 +465,7 @@ def query_knowledge_base(crop_name: str, disease_name: Optional[str] = None) -> 
             if any(w in rec["disease_or_pest"].lower() or w in rec["symptoms"].lower() for w in tokens):
                 results.append(rec)
 
-    return results if results else AGRICULTURAL_KNOWLEDGE_BASE[:2]
+    return results
 
 
 def dispatch_advisory_notifications(case_id: str, expert: Dict[str, Any], farmer_phone: str) -> List[Dict[str, Any]]:

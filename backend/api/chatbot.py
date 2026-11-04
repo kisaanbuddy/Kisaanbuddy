@@ -219,7 +219,8 @@ def _fallback_reply(msg: str) -> str:
     m = (msg or "").lower().strip()
 
     # --- Greetings ---
-    if any(x in m for x in ("hello", "hi", "namaste", "namaskar", "नमस्ते", "नमस्कार", "हेलो")):
+    words = m.split()
+    if any(x in words for x in ("hello", "hi", "hey")) or any(x in m for x in ("namaste", "namaskar", "नमस्ते", "नमस्कार", "हेलो", "प्रणाम")):
         return (
             "नमस्ते किसान भाई! 🙏 मैं KrishiAI हूं — आपका कृषि सहायक।\n\n"
             "आप मुझसे पूछ सकते हैं:\n"

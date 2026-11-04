@@ -242,6 +242,7 @@ function ChatbotInner() {
   const assistantSessionRef = useRef<string | null>(null)
   const finalTranscriptRef = useRef("")
   const attachedImageRef = useRef<string | null>(null)
+  const voiceStartedRef = useRef(false)
 
   useEffect(() => { attachedImageRef.current = attachedImage }, [attachedImage])
 
@@ -272,7 +273,11 @@ function ChatbotInner() {
   }, [activeLang])
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    // Only scroll if user or assistant has sent messages beyond the initial welcome message,
+    // preventing the page from jumping down past the suggestions and FAQ on load.
+    if (messages.length > 1) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
   }
   
   useEffect(() => {
@@ -595,6 +600,18 @@ function ChatbotInner() {
     recognition.start()
   }
 
+  // The Home voice shortcut requests access only after the farmer deliberately
+  // opens this page. If a browser declines auto-recording, the microphone and
+  // text controls remain visible and usable.
+  useEffect(() => {
+    if (searchParams.get("listen") !== "1" || voiceStartedRef.current) return
+    voiceStartedRef.current = true
+    const timer = window.setTimeout(() => { void toggleListen() }, 250)
+    return () => window.clearTimeout(timer)
+  // This one-time action is driven solely by the explicit URL parameter.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
+
   // Photo uploads
   const triggerCamera = () => {
     fileInputRef.current?.click()
@@ -870,6 +887,8 @@ function ChatbotInner() {
               </motion.div>
             )}
 
+            <div ref={messagesEndRef} />
+
             {/* Empty state onboarding helper dashboard & FAQs */}
             {messages.length <= 1 && (
               <div className="space-y-8 animate-fade-in text-left">
@@ -949,8 +968,6 @@ function ChatbotInner() {
                 </div>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Footer warning */}

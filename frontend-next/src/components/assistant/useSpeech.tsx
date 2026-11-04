@@ -265,11 +265,11 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
     setSpeaking(false)
     useServerSTTRef.current = false
-    // Server STT is the primary path: it supports Sarvam language detection
-    // and code-mixed Hinglish/Kanglish. Web Speech is only a compatibility
-    // fallback for browsers that cannot record audio.
-    if (await startServerSTT()) return true
-    return startWebSpeech()
+    // Web Speech API provides zero-latency live interim transcription and automatic
+    // speech endpoint detection in modern Chromium/Safari browsers.
+    // If Web Speech is available, use it; otherwise fall back to MediaRecorder + Sarvam STT.
+    if (startWebSpeech()) return true
+    return startServerSTT()
   }, [listening, startWebSpeech, startServerSTT])
 
   const stopListening = useCallback(() => {
@@ -342,14 +342,19 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
           ? LANG_TO_BCP47["en"]
           : LANG_TO_BCP47[spokenLang] ?? "en-IN"
 
-      // Long, single browser utterances sound robotic and make barge-in feel
-      // sluggish. Speak compact semantic sentences sequentially so `cancel()`
-      // takes effect at a natural boundary as well as immediately.
-      const chunks = text
+      // Strip markdown symbols and clean emojis/bullets for natural audio playback
+      const cleaned = text
+        .replace(/[*#_~`>]/g, "")
+        .replace(/•\s*/g, ", ")
+        .replace(/https?:\/\/\S+/g, "")
+        .replace(/\n+/g, ". ")
+        .trim()
+
+      const chunks = cleaned
         .replace(/\s+/g, " ")
         .match(/[^.!?।]+[.!?।]?/g)
         ?.map((chunk) => chunk.trim())
-        .filter(Boolean) ?? [text]
+        .filter(Boolean) ?? [cleaned]
       const voice = pickVoice(bcp47)
       let remaining = chunks.length
       setSpeaking(true)
@@ -406,22 +411,10 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
             return
           }
 
-          // Never silently pronounce Hindi/Kannada text with an English
-          // browser voice. It is better to keep the visible answer available
-          // and report that neural speech is temporarily unavailable.
-          if (spokenLang === "hi" || spokenLang === "kn" || spokenLang === "hi_en") {
-            setSpeaking(false)
-            onErrorRef.current?.("Natural voice is temporarily unavailable for this language.")
-            return
-          }
+          // Fallback to browser TTS if Sarvam audio is unavailable
           speakWithBrowser(text, spokenLang)
         } catch (err: any) {
           if (generation !== speakGenerationRef.current) return
-          if (spokenLang === "hi" || spokenLang === "kn" || spokenLang === "hi_en") {
-            setSpeaking(false)
-            onErrorRef.current?.("Natural voice is temporarily unavailable for this language.")
-            return
-          }
           speakWithBrowser(text, spokenLang)
         }
       })()

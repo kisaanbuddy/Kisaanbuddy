@@ -592,11 +592,6 @@ export default function SchemesClient() {
           {/* EVALUATION RESULTS */}
           {evaluatedResults.evaluated && (
             <div className="space-y-8">
-              {/* Disclaimer alert */}
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-3">
-                <Info className="h-4 w-4 shrink-0 mt-0.5" />
-                <p>{dict.results.disclaimer}</p>
-              </div>
 
               {/* Bucket 1: Potential Match */}
               <div className="space-y-4">
@@ -1148,11 +1143,6 @@ export default function SchemesClient() {
                 </button>
               </div>
 
-              {/* Privacy Notice Banner */}
-              <div className="p-3.5 rounded-2xl bg-muted/60 border border-border/50 text-[11px] text-muted-foreground flex items-start gap-2.5">
-                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                <p>{dict.checklist.privacyNotice}</p>
-              </div>
 
               {/* Document Items List */}
               <div className="space-y-3">

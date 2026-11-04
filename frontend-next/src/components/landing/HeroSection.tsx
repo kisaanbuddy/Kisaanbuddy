@@ -145,10 +145,6 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full overflow-hidden bg-[#F7F9F4] dark:bg-stone-950 pt-8 sm:pt-12 md:pt-16 pb-12 sm:pb-20 border-b border-stone-200/80 dark:border-stone-800">
-      {/* Subtle agrarian background mesh */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#78B957]/10 dark:bg-[#27834A]/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-[#174B35]/5 dark:bg-[#174B35]/15 rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
@@ -227,7 +223,7 @@ export function HeroSection() {
 
           {/* Right Column: Authentic Indian Farming Photography (Instant SSR Paint - Preloaded WebP) */}
           <div className="lg:col-span-5 relative group">
-            <div className="relative rounded-3xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_12px_40px_rgba(23,75,53,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            <div className="relative rounded-2xl overflow-hidden bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_12px_40px_rgba(23,75,53,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
               
               {/* Authentic Indian Farmer Photograph */}
               <div className="relative h-72 sm:h-80 md:h-96 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">

@@ -2,93 +2,76 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, LayoutDashboard, Mic, TrendingUp, UserRound, Store, Settings, Sprout } from 'lucide-react';
+import { HandHelping, Home, Sprout, TrendingUp } from 'lucide-react';
 import { useLanguage } from '@/lib/language';
 
-const NAV_ITEMS: { href: string; icon: any; labels: Record<string, string> }[] = [
+const NAV_ITEMS = [
   {
-    href: '/dashboard',
-    icon: LayoutDashboard,
+    href: '/',
+    icon: Home,
     labels: {
-      en: 'Command',
-      hi: 'खेत',
-      kn: 'ಮುಖ್ಯಪುಟ',
+      en: 'Home',
+      hi: 'होम',
+      kn: 'ಮುಖಪುಟ',
       ta: 'முகப்பு',
-      te: 'కమాండ్',
-      ml: 'കമാൻഡ്',
-      mr: 'कमांड',
-      bn: 'কমান্ড',
-      pa: 'ਕਮਾਂਡ',
-      gu: 'કમાન્ડ',
-      hi_en: 'Command',
+      te: 'హోమ్',
+      ml: 'ഹോം',
+      mr: 'मुख्यपृष्ठ',
+      bn: 'হোম',
+      pa: 'ਮੁੱਖ ਪੰਨਾ',
+      gu: 'હોમ',
+      hi_en: 'Home',
     },
   },
   {
-    href: '/profile',
+    href: '/fasal',
     icon: Sprout,
     labels: {
-      en: 'Plots',
-      hi: 'फसलें',
-      kn: 'ಜಮೀನು',
-      ta: 'நிலங்கள்',
-      te: 'పొలాలు',
-      ml: 'പ്ലോട്ടുകൾ',
-      mr: 'शेतजमीन',
-      bn: 'জমি',
-      pa: 'ਖੇਤ',
-      gu: 'જમીન',
-      hi_en: 'Khet',
+      en: 'Fasal',
+      hi: 'फसल',
+      kn: 'ಬೆಳೆ',
+      ta: 'பயிர்',
+      te: 'పంట',
+      ml: 'വിള',
+      mr: 'पीक',
+      bn: 'ফসল',
+      pa: 'ਫਸਲ',
+      gu: 'પાક',
+      hi_en: 'Fasal',
     },
   },
   {
-    href: '/chatbot',
-    icon: Mic,
+    href: '/mandi',
+    icon: TrendingUp,
     labels: {
-      en: 'AI Advisor',
-      hi: 'AI सलाह',
-      kn: 'AI ಸಲಹೆಗಾರ',
-      ta: 'AI ஆலோசகர்',
-      te: 'AI సలహాదారు',
-      ml: 'AI ഉപദേശകൻ',
-      mr: 'AI सल्लागार',
-      bn: 'AI উপদেষ্টা',
-      pa: 'AI ਸਲਾਹਕਾਰ',
-      gu: 'AI સલાહકાર',
-      hi_en: 'AI Salah',
-    },
-  },
-  {
-    href: '/marketplace',
-    icon: Store,
-    labels: {
-      en: 'Market',
-      hi: 'बाज़ार',
-      kn: 'ಮಾರುಕಟ್ಟೆ',
-      ta: 'சந்தை',
-      te: 'మార్కెట్',
-      ml: 'വിപണി',
-      mr: 'बाजारपेठ',
-      bn: 'বাজার',
+      en: 'Mandi',
+      hi: 'मंडी',
+      kn: 'ಮಂಡಿ',
+      ta: 'மண்டி',
+      te: 'ಮಂಡಿ',
+      ml: 'മണ്ടി',
+      mr: 'मंडी',
+      bn: 'মান্ডি',
       pa: 'ਮੰਡੀ',
-      gu: 'બજાર',
-      hi_en: 'Market',
+      gu: 'મંડી',
+      hi_en: 'Mandi',
     },
   },
   {
-    href: '/settings',
-    icon: Settings,
+    href: '/madad',
+    icon: HandHelping,
     labels: {
-      en: 'Settings',
-      hi: 'सेटिंग्स',
-      kn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು',
-      ta: 'அமைப்புகள்',
-      te: 'సెట్టింగ్‌లు',
-      ml: 'ക്രമീകരണങ്ങൾ',
-      mr: 'सेटिंग्ज',
-      bn: 'সেটিংস',
-      pa: 'ਸੈਟਿੰਗਾਂ',
-      gu: 'સેટિંગ્સ',
-      hi_en: 'Settings',
+      en: 'Madad',
+      hi: 'मदद',
+      kn: 'ಸಹಾಯ',
+      ta: 'உதவி',
+      te: 'సహాయం',
+      ml: 'സಹಾಯം',
+      mr: 'मदत',
+      bn: 'সাহায্য',
+      pa: 'ਮਦਦ',
+      gu: 'ಮਦદ',
+      hi_en: 'Madad',
     },
   },
 ];
@@ -98,31 +81,54 @@ export function MobileBottomNav() {
   const { lang } = useLanguage();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_-18px_rgba(24,57,42,.28)] backdrop-blur md:hidden">
-      <div className="flex items-center justify-around px-1 py-1.5">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-200/90 dark:border-stone-800 bg-[#FAF8F5]/95 dark:bg-stone-900/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(20,40,30,0.08)] backdrop-blur-md md:hidden"
+      aria-label="Primary bottom navigation"
+    >
+      <div className="flex items-center justify-around px-2 py-1.5">
         {NAV_ITEMS.map(({ href, icon: Icon, labels }) => {
-          const isActive = href === '/' ? pathname === '/' : pathname?.startsWith(href);
+          const isActive =
+            href === '/' ? pathname === '/' : pathname?.startsWith(href);
+          const labelText = labels[lang as keyof typeof labels] || labels.en;
+
           return (
             <Link
               key={href}
               href={href}
-              aria-label={labels[lang] || labels.en}
+              aria-label={labelText}
               aria-current={isActive ? 'page' : undefined}
-              className={`relative flex flex-col items-center justify-center gap-0.5 py-1.5 px-3 min-w-[56px] min-h-[48px] rounded-lg transition-colors ${
+              className={`relative flex min-h-[52px] min-w-[70px] flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 transition-all active:scale-95 ${
                 isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'text-primary dark:text-emerald-400 font-bold'
+                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium'
               }`}
             >
-              <Icon
-                className={`h-5 w-5 transition-all ${isActive ? 'scale-110' : ''} ${href === '/chatbot' ? 'stroke-[2.2]' : ''}`}
-                strokeWidth={isActive ? 2.5 : 1.8}
-              />
-              <span className={`text-[10px] leading-none mt-0.5 ${isActive ? 'font-bold' : 'font-medium'}`}>
-                {labels[lang] || labels.en}
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                  isActive
+                    ? 'bg-primary/10 dark:bg-emerald-950/60'
+                    : 'bg-transparent'
+                }`}
+              >
+                <Icon
+                  className={`h-5 w-5 transition-transform ${
+                    isActive ? 'scale-110 stroke-[2.5]' : 'stroke-[1.9]'
+                  }`}
+                  aria-hidden="true"
+                />
+              </span>
+              <span
+                className={`text-[12px] leading-tight tracking-tight ${
+                  isActive ? 'font-bold text-primary dark:text-emerald-300' : 'font-medium'
+                }`}
+              >
+                {labelText}
               </span>
               {isActive && (
-                <span className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-primary" />
+                <span
+                  className="absolute bottom-0.5 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full bg-primary dark:bg-emerald-400"
+                  aria-hidden="true"
+                />
               )}
             </Link>
           );

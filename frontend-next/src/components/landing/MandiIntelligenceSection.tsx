@@ -353,13 +353,13 @@ export function MandiIntelligenceSection() {
           </StaggerList>
         )}
 
-        {/* Legal Mandi Data Transparency Strip */}
-        <div className="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-stone-600 dark:text-stone-400">
+        {/* Mandi Data Provenance */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pt-3 border-t border-stone-200/80 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 shrink-0" />
-            <span className="font-semibold text-stone-800 dark:text-stone-200">{t.sourceLabel}</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
+            <span className="font-semibold text-stone-700 dark:text-stone-300">{t.sourceLabel}</span>
           </div>
-          <p className="text-[11px] leading-relaxed max-w-xl">
+          <p>
             {t.disclaimer}
           </p>
         </div>

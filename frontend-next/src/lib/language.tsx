@@ -410,6 +410,20 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
     } catch {}
     setIsLanguageSelected(false)
+    localStorage.setItem("kisaanbuddy_lang", l)
+    document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
+    localStorage.removeItem("KisaanBuddy_lang") // Clean up old reference
+
+    // Sync preference with user profile in database if authenticated
+    try {
+      void fetch("/api/auth/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ language: l }),
+      }).catch(() => {})
+    } catch {
+      // Guest users without session continue safely
+    }
   }
 
   const t = (key: string) => {

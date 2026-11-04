@@ -132,6 +132,48 @@ class TestMandiMarketplaceAggregation(unittest.TestCase):
         self.assertEqual(r_health.status_code, 200)
         self.assertEqual(r_health.json()["status"], "ok")
 
+    def test_mandi_historical_prices_authentic_observations(self):
+        """GET /api/mandi/historical-prices returns authentic chronological observations and summary statistics."""
+        # Query Wheat with 1-year history
+        r = self.client.get("/api/mandi/historical-prices?commodity=Wheat&days=365")
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        self.assertTrue(data["available"])
+        self.assertGreaterEqual(data["records_count"], 2)
+        self.assertIn("AGMARKNET", data["source"])
+        self.assertIn("disclaimer", data)
+
+        # Observations must be chronologically sorted
+        obs = data["observations"]
+        dates = [o["date"] for o in obs]
+        self.assertEqual(dates, sorted(dates))
+
+        # Check required fields on observations
+        first_obs = obs[0]
+        self.assertIn("min_price", first_obs)
+        self.assertIn("max_price", first_obs)
+        self.assertIn("modal_price", first_obs)
+        self.assertIn("arrival_tonnes", first_obs)
+
+        # Summary verification
+        summary = data["summary"]
+        self.assertIsNotNone(summary)
+        self.assertGreaterEqual(summary["highest_modal"], summary["lowest_modal"])
+        self.assertIn("average_modal", summary)
+        self.assertIn("change_percent", summary)
+        self.assertIn(summary["change_direction"], ["up", "down", "neutral"])
+
+    def test_mandi_historical_prices_unavailable_empty_state(self):
+        """GET /api/mandi/historical-prices for an unrecorded crop returns available=False with clean explanation."""
+        r = self.client.get("/api/mandi/historical-prices?commodity=DragonfruitExoticCrop")
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        self.assertFalse(data["available"])
+        self.assertEqual(data["records_count"], 0)
+        self.assertEqual(data["observations"], [])
+        self.assertIsNone(data["summary"])
+        self.assertIn("unavailable", data["message"].lower())
+
     # ─── PHASE 3: Dedicated Buyer Requirements ───────────────────────────────
 
     def test_buyer_requirements_list_and_filters(self):

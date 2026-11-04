@@ -127,6 +127,12 @@ class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str = Field(..., min_length=8, max_length=128)
 
+class UpdateMeRequest(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    language: Optional[str] = Field(None, pattern="^(en|hi|kn|ta|te|ml|mr|bn|pa|gu|hi_en)$")
+    lat: Optional[float] = Field(None, ge=-90.0, le=90.0)
+    lon: Optional[float] = Field(None, ge=-180.0, le=180.0)
+
 class UserResponse(BaseModel):
     id: int
     name: Optional[str] = None
@@ -134,6 +140,7 @@ class UserResponse(BaseModel):
     phone_number: str
     role: str
     provider: str
+    language: Optional[str] = "en"
     profile_image: Optional[str] = None
     created_at: datetime
 
@@ -312,6 +319,10 @@ async def get_current_user(
 ) -> User:
     """Dependency that authenticates the user using JWT exclusively in cookies."""
     token = request.cookies.get(COOKIE_NAME)
+    if not token:
+        auth_hdr = request.headers.get("authorization", "")
+        if auth_hdr.lower().startswith("bearer "):
+            token = auth_hdr[7:].strip()
 
     if not token:
         raise HTTPException(
@@ -1092,6 +1103,29 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserResponse)
 def get_me(user: User = Depends(get_current_user)):
     """Returns the currently logged-in user profile information."""
+    return user
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(
+    payload: UpdateMeRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Persist farmer language preference and core profile updates."""
+    if payload.name is not None:
+        user.name = payload.name.strip()
+    if payload.language is not None:
+        user.language = payload.language
+        profile = db.query(FarmerProfile).filter(FarmerProfile.user_id == user.id).first()
+        if profile:
+            profile.preferred_language = payload.language
+    if payload.lat is not None:
+        user.lat = payload.lat
+    if payload.lon is not None:
+        user.lon = payload.lon
+    
+    db.commit()
+    db.refresh(user)
     return user
 
 @router.post("/forgot-password")
