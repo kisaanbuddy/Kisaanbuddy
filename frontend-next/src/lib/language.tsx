@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
+import { farmerProfileApi } from "./farmer-api"
 
 // Dynamic loaders for non-default languages to eliminate ~900 KB of unused JSON from initial bundle
 const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
@@ -22,7 +23,7 @@ export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" 
 
 export const LANG_NAMES: Record<Lang, string> = {
   en: "English",
-  hi: "हिंदी",
+  hi: "हिन्दी",
   kn: "ಕನ್ನಡ",
   ta: "தமிழ்",
   te: "తెలుగు",
@@ -36,7 +37,7 @@ export const LANG_NAMES: Record<Lang, string> = {
 
 export const LANG_DETAILS: Record<Lang, { native: string; en: string }> = {
   en: { native: "English", en: "English" },
-  hi: { native: "हिंदी", en: "Hindi" },
+  hi: { native: "हिन्दी", en: "Hindi" },
   kn: { native: "ಕನ್ನಡ", en: "Kannada" },
   ta: { native: "தமிழ்", en: "Tamil" },
   te: { native: "తెలుగు", en: "Telugu" },
@@ -61,6 +62,82 @@ export const LANG_FLAGS: Record<Lang, string> = {
   gu: "🇮🇳",
   hi_en: "🇮🇳",
 }
+
+export interface LanguageMeta {
+  code: Lang
+  native: string
+  en: string
+  scriptChar: string
+  region: string
+  greeting: string
+}
+
+export const PRIMARY_FARMER_LANGS: LanguageMeta[] = [
+  {
+    code: "hi",
+    native: "हिन्दी",
+    en: "Hindi",
+    scriptChar: "अ",
+    region: "उत्तर व मध्य भारत",
+    greeting: "नमस्ते किसान जी!",
+  },
+  {
+    code: "kn",
+    native: "ಕನ್ನಡ",
+    en: "Kannada",
+    scriptChar: "ಅ",
+    region: "ಕರ್ನಾಟಕ",
+    greeting: "ನಮಸ್ಕಾರ ರೈತ ಬಾಂಧವರೇ!",
+  },
+  {
+    code: "te",
+    native: "తెలుగు",
+    en: "Telugu",
+    scriptChar: "అ",
+    region: "ఆంధ్రప్రదేశ్ & తెలంగాణ",
+    greeting: "నమస్కారం రైతు సోదరులారా!",
+  },
+  {
+    code: "ta",
+    native: "தமிழ்",
+    en: "Tamil",
+    scriptChar: "அ",
+    region: "தமிழ்நாடு",
+    greeting: "வணக்கம் விவசாய பெருமக்களே!",
+  },
+  {
+    code: "mr",
+    native: "मराठी",
+    en: "Marathi",
+    scriptChar: "अ",
+    region: "महाराष्ट्र",
+    greeting: "नमस्कार शेतकरी बांधवांनो!",
+  },
+  {
+    code: "bn",
+    native: "বাংলা",
+    en: "Bengali",
+    scriptChar: "অ",
+    region: "পশ্চিমবঙ্গ ও ত্রিপুরা",
+    greeting: "নমস্কার কৃষক বন্ধু!",
+  },
+  {
+    code: "gu",
+    native: "ગુજરાતી",
+    en: "Gujarati",
+    scriptChar: "અ",
+    region: "ગુજરાત",
+    greeting: "નમસ્તે ખેડૂત મિત્રો!",
+  },
+  {
+    code: "en",
+    native: "English",
+    en: "English",
+    scriptChar: "En",
+    region: "All India",
+    greeting: "Welcome Farmer!",
+  },
+]
 
 // All 11 supported Indian languages
 export const SELECTABLE_LANGS: Lang[] = [
@@ -179,8 +256,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     hi: "स्मार्ट हब",
     kn: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
     ta: "ஸ்மார்ட் ஹப்",
-    te: "స్మార్ట్ హబ్",
-    ml: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
+    te: "స్మార్ట్ ಹಬ್",
+    ml: "സ്മാർട്ട് ഹബ്",
     mr: "स्मार्ट हब",
     bn: "স্মার্ট হাব",
     pa: "ਸਮਾਰਟ ਹੱਬ",
@@ -189,49 +266,72 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
   }
 }
 
-interface LanguageContextType {
+export interface LanguageContextType {
   lang: Lang
   setLang: (l: Lang) => void
   t: (key: string) => any
+  isReady: boolean
+  isLanguageSelected: boolean
+  isLanguageModalOpen: boolean
+  openLanguageModal: () => void
+  closeLanguageModal: () => void
+  resetLanguagePreference: () => void
 }
 
 const LanguageContext = createContext<LanguageContextType>({
-  lang: "en",
+  lang: "hi",
   setLang: () => {},
-  t: (key) => {
-    const parts = key.split(".")
-    let current: any = T.en
-    for (const part of parts) {
-      if (current && typeof current === "object" && part in current) {
-        current = current[part]
-      } else {
-        return key
-      }
-    }
-    if (current && typeof current === "object" && key in NAMESPACE_TITLES) {
-      return NAMESPACE_TITLES[key]["en"]
-    }
-    return current
-  },
+  t: (key) => key,
+  isReady: false,
+  isLanguageSelected: false,
+  isLanguageModalOpen: false,
+  openLanguageModal: () => {},
+  closeLanguageModal: () => {},
+  resetLanguagePreference: () => {},
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("en")
+  const [lang, setLangState] = useState<Lang>("hi")
   const [translations, setTranslations] = useState<any>(en)
+  const [isReady, setIsReady] = useState<boolean>(false)
+  const [isLanguageSelected, setIsLanguageSelected] = useState<boolean>(false)
+  const [isLanguageModalOpen, setIsLanguageModalOpen] = useState<boolean>(false)
 
+  // Synchronous/Layout check to detect if returning visitor has a valid language
   useLayoutEffect(() => {
-    // Local storage key migration layer
-    let saved = localStorage.getItem("kisaanbuddy_lang") as Lang | null
-    if (!saved) {
-      saved = localStorage.getItem("KisaanBuddy_lang") as Lang | null
-      if (saved) {
-        localStorage.setItem("kisaanbuddy_lang", saved)
-        localStorage.removeItem("KisaanBuddy_lang")
+    let saved: Lang | null = null
+    try {
+      // 1. Check primary localStorage key
+      saved = localStorage.getItem("kisaanbuddy_lang") as Lang | null
+      if (!saved) {
+        // 2. Migration from legacy keys
+        saved = (localStorage.getItem("KisaanBuddy_lang") || localStorage.getItem("krishi_lang")) as Lang | null
+        if (saved && SELECTABLE_LANGS.includes(saved)) {
+          localStorage.setItem("kisaanbuddy_lang", saved)
+          localStorage.removeItem("KisaanBuddy_lang")
+          localStorage.removeItem("krishi_lang")
+        }
       }
+
+      // 3. Check cookies if localStorage was empty
+      if (!saved) {
+        const cookieMatch = document.cookie.match(/(?:^|; )kisaanbuddy_lang=([^;]+)/)
+        if (cookieMatch && SELECTABLE_LANGS.includes(cookieMatch[1] as Lang)) {
+          saved = cookieMatch[1] as Lang
+          localStorage.setItem("kisaanbuddy_lang", saved)
+        }
+      }
+    } catch {
+      // Storage might be restricted in some browser privacy modes
     }
 
     if (saved && SELECTABLE_LANGS.includes(saved)) {
       setLangState(saved)
+      setIsLanguageSelected(true)
+      try {
+        document.documentElement.lang = saved
+      } catch {}
+
       if (saved === "en") {
         setTranslations(en)
       } else {
@@ -240,10 +340,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         })
       }
     } else {
-      setLangState("en")
+      // First-time visitor: No preference selected yet
+      setIsLanguageSelected(false)
     }
+
+    setIsReady(true)
   }, [])
 
+  // Content override loader (non-blocking fallback to bundled JSON)
   useEffect(() => {
     let cancelled = false
     const load = async () => {
@@ -261,12 +365,26 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }, [lang])
 
   useEffect(() => {
-    document.documentElement.lang = lang
+    if (typeof document !== "undefined") {
+      document.documentElement.lang = lang
+    }
   }, [lang])
 
   const setLang = (l: Lang) => {
     if (!SELECTABLE_LANGS.includes(l)) return
     setLangState(l)
+    setIsLanguageSelected(true)
+
+    try {
+      localStorage.setItem("kisaanbuddy_lang", l)
+      localStorage.removeItem("KisaanBuddy_lang")
+      localStorage.removeItem("krishi_lang")
+      document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
+      document.documentElement.lang = l
+    } catch {
+      // Graceful fallback if storage restricted
+    }
+
     if (l === "en") {
       setTranslations(en)
     } else {
@@ -274,9 +392,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setTranslations(data)
       })
     }
-    localStorage.setItem("kisaanbuddy_lang", l)
-    document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
-    localStorage.removeItem("KisaanBuddy_lang") // Clean up old reference
+
+    // Sync with farmer account if logged in (fire-and-forget, non-blocking)
+    try {
+      farmerProfileApi.update({ preferred_language: l }).catch(() => {})
+    } catch {}
+  }
+
+  const openLanguageModal = () => setIsLanguageModalOpen(true)
+  const closeLanguageModal = () => setIsLanguageModalOpen(false)
+
+  const resetLanguagePreference = () => {
+    try {
+      localStorage.removeItem("kisaanbuddy_lang")
+      localStorage.removeItem("KisaanBuddy_lang")
+      localStorage.removeItem("krishi_lang")
+      document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
+    } catch {}
+    setIsLanguageSelected(false)
   }
 
   const t = (key: string) => {
@@ -316,7 +449,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider
+      value={{
+        lang,
+        setLang,
+        t,
+        isReady,
+        isLanguageSelected,
+        isLanguageModalOpen,
+        openLanguageModal,
+        closeLanguageModal,
+        resetLanguagePreference,
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   )
