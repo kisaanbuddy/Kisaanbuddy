@@ -15,12 +15,12 @@ const labels: Record<string, string> = {
   disclaimer: "disclaimerLabel", "cookie-policy": "cookiePolicy", impact: "impact",
 };
 
-const hiddenRoutes = new Set(["/", "/login", "/signup", "/forgot-password", "/reset-password"]);
+const hiddenRoutes = new Set(["/", "/login", "/signup", "/forgot-password", "/reset-password", "/marketplace"]);
 
 export default function Breadcrumbs() {
   const pathname = usePathname();
   const { t } = useLanguage();
-  if (hiddenRoutes.has(pathname)) return null;
+  if (hiddenRoutes.has(pathname) || pathname?.startsWith("/marketplace")) return null;
 
   const segments = pathname.split("/").filter(Boolean);
   const format = (segment: string) => {

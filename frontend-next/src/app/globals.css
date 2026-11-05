@@ -370,6 +370,48 @@
     min-width: 0;
   }
 
+  /* Full-viewport Marketplace Layout Override */
+  .app-main:has(.marketplace-root),
+  .app-main:has([data-marketplace="true"]) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Responsive Marketplace Product Grid */
+  .marketplace-product-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1680px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+
   /* A compact, reusable page-heading pattern for existing and future routes. */
   .page-kicker {
     @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.12em] text-primary;

@@ -1106,11 +1106,11 @@ export default function MarketplacePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased">
+    <div className="marketplace-root min-h-screen w-full max-w-none bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased" data-marketplace="true">
       {/* ─── 1. HEADER: CLEAN SINGLE-ROW AMAZON-INSPIRED HEADER ─────────────── */}
-      <header className="sticky top-0 z-40 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10">
-          <div className="flex items-center justify-between gap-4 h-16">
+      <header className="sticky top-0 z-40 w-full max-w-none bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between gap-3 sm:gap-4 h-16">
             {/* Left: Brand Identity */}
             <div className="flex items-center gap-3 shrink-0">
               <Link href="/marketplace" className="flex items-center gap-2.5 group">
@@ -1129,7 +1129,7 @@ export default function MarketplacePage() {
             </div>
 
             {/* Center: Large, Prominent Search Bar */}
-            <div ref={searchContainerRef} className="flex-1 max-w-2xl relative hidden sm:block">
+            <div ref={searchContainerRef} className="flex-1 max-w-4xl mx-2 md:mx-4 lg:mx-6 relative hidden sm:block">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -1352,10 +1352,10 @@ export default function MarketplacePage() {
       {/* ─── 2. CATEGORY NAVIGATION: COMPACT SINGLE-ROW HORIZONTAL BAR ──────── */}
       <nav
         aria-label="Machinery Categories"
-        className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 overflow-x-auto scrollbar-none"
+        className="w-full max-w-none bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 overflow-x-auto scrollbar-none"
       >
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10">
-          <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap py-1">
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap py-1.5">
             {CATEGORIES.map((cat) => {
               const isSelected = selectedCategory === cat.key;
               return (
@@ -1377,8 +1377,8 @@ export default function MarketplacePage() {
       </nav>
 
       {/* ─── 3. MAIN CONTENT: SIDEBAR + PRODUCT GRID ────────────────────────── */}
-      <main className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-5 lg:py-6">
+        <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start w-full max-w-none">
           {/* ─── Left Sidebar: STRICT NEW FILTER ORDER ──────────────────────── */}
           {/* 1. Location (TOP)                                                 */}
           {/* 2. Category                                                       */}
@@ -1386,7 +1386,7 @@ export default function MarketplacePage() {
           {/* 4. Listing Type (Buy / Rent)                                      */}
           {/* 5. Price Range                                                    */}
           {/* 6. Condition                                                      */}
-          <aside className="hidden lg:block lg:col-span-3 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 space-y-5 sticky top-28">
+          <aside className="hidden lg:block w-[290px] xl:w-[310px] 2xl:w-[320px] shrink-0 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 space-y-5 sticky top-20">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
               <span className="font-bold text-xs uppercase tracking-wider text-stone-900 dark:text-white">
                 Filters
@@ -1797,7 +1797,7 @@ export default function MarketplacePage() {
           </aside>
 
           {/* ─── Right Column: Results & Product Cards ──────────────────────── */}
-          <div className="lg:col-span-9 space-y-4">
+          <div className="flex-1 min-w-0 w-full space-y-4">
             {/* Location Banner (When location is active) */}
             {userLocation.state !== "all" && (
               <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex flex-wrap items-center justify-between gap-2.5 text-xs">
@@ -1955,7 +1955,7 @@ export default function MarketplacePage() {
 
             {/* ─── Product Feed ──────────────────────────────────────────────── */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+              <div className="marketplace-product-grid">
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 space-y-3 animate-pulse">
                     <div className="w-full aspect-[4/3] bg-stone-100 dark:bg-stone-800 rounded-lg" />
@@ -1992,7 +1992,7 @@ export default function MarketplacePage() {
               </div>
             ) : viewMode === "grid" ? (
               /* Amazon-Style Grid Cards */
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-5">
+              <div className="marketplace-product-grid">
                 {paginatedProducts.map((product) => {
                   const isWishlisted = wishlist.includes(product.id);
                   const isLocal = userLocation.state !== "all" && product.state && 
@@ -2253,7 +2253,7 @@ export default function MarketplacePage() {
             )}
           </div>
         </div>
-      </main>
+      </div>
 
       {/* ─── 4. MOBILE FILTER DRAWER (STRICT FILTER ORDER) ──────────────────── */}
       {mobileFilterOpen && (
