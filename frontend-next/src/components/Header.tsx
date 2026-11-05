@@ -232,9 +232,9 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  /* Hide the global navbar on Marketplace routes */
-  const isMarketplace = pathname === '/marketplace' || pathname?.startsWith('/marketplace/');
-  if (isMarketplace) {
+  /* The full global navbar belongs exclusively to the Home page ('/') */
+  const isHome = pathname === '/' || pathname === '';
+  if (!isHome) {
     return null;
   }
 
@@ -506,7 +506,7 @@ export function Header() {
             </div>
 
             {/* Logged-out Login + Start Free CTAs */}
-            {ready && !user && isPublic && pathname !== '/login' && (
+            {ready && !user && isPublic && (pathname as string) !== '/login' && (
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
@@ -576,7 +576,7 @@ export function Header() {
             )}
 
             {/* Mobile hamburger */}
-            {(showFullNav || (!user && isPublic && pathname !== '/login')) && (
+            {(showFullNav || (!user && isPublic && (pathname as string) !== '/login')) && (
               <button
                 type="button"
                 aria-label={open ? t("ui.navigation.close_menu") : t("ui.navigation.open_menu")}

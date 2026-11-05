@@ -37,9 +37,9 @@ export function MobileAppHeader({ currentLocationName }: Props) {
         .slice(0, 2)
     : "U"
 
-  /* Hide the global mobile navbar on Marketplace routes */
-  const isMarketplace = pathname === '/marketplace' || pathname?.startsWith('/marketplace/');
-  if (isMarketplace) {
+  /* The mobile global navbar belongs exclusively to the Home page ('/') */
+  const isHome = pathname === '/' || pathname === '';
+  if (!isHome) {
     return null;
   }
 

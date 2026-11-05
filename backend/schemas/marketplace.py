@@ -9,7 +9,7 @@ E. MarketplaceListing: Legacy buyer/seller requirements (backward-compatible).
 """
 from datetime import date, datetime
 from typing import Any, Dict, List, Literal, Optional
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 # Existing legacy types
 ListingType = Literal["buy", "sell"]
@@ -277,16 +277,55 @@ class GovernmentProcurementResponse(GovernmentProcurementCreate):
 # ─── Trade Inquiries & Quotations (Transaction Flow) Schemas ─────────────────
 
 class TradeInquiryCreate(BaseModel):
-    listing_type: Literal["produce_listing", "buyer_requirement"]
-    listing_id: int = Field(..., ge=1)
-    sender_name: str = Field(..., min_length=2, max_length=120)
-    sender_phone: str = Field(..., min_length=8, max_length=30)
+    listing_type: Optional[str] = None
+    target_type: Optional[str] = None
+    listing_id: Optional[int] = None
+    target_id: Optional[int] = None
+    sender_name: Optional[str] = None
+    inquirer_name: Optional[str] = None
+    sender_phone: Optional[str] = None
+    inquirer_phone: Optional[str] = None
     sender_type: str = Field(default="farmer", max_length=50)
+    inquirer_type: Optional[str] = None
+    inquiry_type: Optional[str] = Field(default="quotation", description="quotation, callback, general_inquiry")
+    preferred_callback_time: Optional[str] = Field(default=None, max_length=100)
     proposed_quantity: Optional[float] = Field(default=None, ge=0.0)
+    offered_quantity: Optional[float] = None
     quantity_unit: Optional[str] = Field(default="Quintal", max_length=50)
     proposed_price: Optional[float] = Field(default=None, ge=0.0)
+    offered_price: Optional[float] = None
     price_unit: Optional[str] = Field(default="per Quintal", max_length=50)
     message: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_aliases(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            if not data.get("listing_type") and data.get("target_type"):
+                data["listing_type"] = data["target_type"]
+            if not data.get("listing_id") and data.get("target_id"):
+                data["listing_id"] = data["target_id"]
+            if not data.get("sender_name") and data.get("inquirer_name"):
+                data["sender_name"] = data["inquirer_name"]
+            if not data.get("sender_phone") and data.get("inquirer_phone"):
+                data["sender_phone"] = data["inquirer_phone"]
+            if data.get("proposed_price") is None and data.get("offered_price") is not None:
+                data["proposed_price"] = data["offered_price"]
+            if data.get("proposed_quantity") is None and data.get("offered_quantity") is not None:
+                data["proposed_quantity"] = data["offered_quantity"]
+        return data
+
+    @model_validator(mode="after")
+    def validate_required_fields(self) -> "TradeInquiryCreate":
+        if not self.listing_type:
+            raise ValueError("listing_type or target_type is required")
+        if not self.listing_id or self.listing_id < 1:
+            raise ValueError("listing_id or target_id must be >= 1")
+        if not self.sender_name or len(self.sender_name.strip()) < 2:
+            raise ValueError("sender_name or inquirer_name must have at least 2 characters")
+        if not self.sender_phone or len(self.sender_phone.strip()) < 8:
+            raise ValueError("sender_phone or inquirer_phone must have at least 8 characters")
+        return self
 
 
 class TradeInquiryResponse(TradeInquiryCreate):
@@ -296,6 +335,58 @@ class TradeInquiryResponse(TradeInquiryCreate):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
+
+
+class PriceComparisonItem(BaseModel):
+    id: str
+    source_type: str  # "listing" or "catalog"
+    title: str
+    brand: str
+    model_name: str
+    category: str
+    hp_rating: Optional[float] = None
+    condition: str
+    price: float
+    price_unit: str
+    seller_name: str
+    seller_location: str
+    state: Optional[str] = None
+    district: Optional[str] = None
+    includes_operator: bool = False
+    is_verified: bool = True
+    match_type: str  # "exact_model" or "spec_alternative"
+    warranty_info: str
+    delivery_info: str
+    notes: Optional[str] = None
+
+
+class PriceComparisonResponse(BaseModel):
+    target_id: Optional[str] = None
+    target_title: Optional[str] = None
+    target_price: Optional[float] = None
+    target_price_unit: Optional[str] = None
+    is_sufficient: bool
+    summary_message: str
+    lowest_offer: Optional[PriceComparisonItem] = None
+    best_value_offer: Optional[PriceComparisonItem] = None
+    best_value_reason: Optional[str] = None
+    comparable_offers: List[PriceComparisonItem] = []
+
+
+class DealerDiscoveryItem(BaseModel):
+    id: str
+    seller_name: str
+    seller_type: str
+    phone: Optional[str] = None
+    whatsapp: Optional[str] = None
+    state: str
+    district: str
+    village_or_tehsil: Optional[str] = None
+    listings_count: int
+    categories: List[str]
+    sample_equipment: List[str]
+    is_verified: bool
+    contact_available: bool
 
 
 # ─── Listing Reports & Admin Review Schemas ───────────────────────────────────

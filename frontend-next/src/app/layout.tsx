@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/Providers';
-import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
@@ -9,7 +8,7 @@ import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
-import { MobileAppHeader } from '@/components/mobile/MobileAppHeader';
+import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
 
 /* ---------- System font stacks ----------
  * Replaced next/font/google to avoid build-time downloads from
@@ -172,12 +171,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             सामग्री पर जाएं / Skip to Content
           </a>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-            <div className="global-header-desktop hidden md:block">
-              <Header />
-            </div>
-            <div className="global-header-mobile block md:hidden">
-              <MobileAppHeader />
-            </div>
+            <AppNavigationShell />
             <main
               id="main-content"
               className="app-main flex-1 w-full page-gutter pt-4 md:pt-6 pb-20 md:pb-12"
@@ -194,12 +188,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Analytics />
           <MobileBottomNav />
           <DeferredAdSense />
-
-
-
-
-
-
         </Providers>
       </body>
     </html>

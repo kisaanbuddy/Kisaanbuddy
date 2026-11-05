@@ -668,6 +668,8 @@ if Column is not None:
         proposed_price = Column(Float, nullable=True)
         price_unit = Column(String(50), default="per Quintal", nullable=True)
         message = Column(Text, nullable=True)
+        inquiry_type = Column(String(50), default="quotation", nullable=True)  # quotation, callback, general_inquiry
+        preferred_callback_time = Column(String(100), nullable=True)
         status = Column(String(30), default="submitted", nullable=False, index=True)  # submitted, in_discussion, accepted, rejected, closed
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
