@@ -97,7 +97,7 @@ export function Founders() {
         <div className="absolute inset-x-0 bottom-1/4 h-[40%] bg-emerald-500/[0.03] rounded-full blur-[140px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16 space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-4 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 shadow-xs select-none">

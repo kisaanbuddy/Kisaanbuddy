@@ -79,7 +79,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <PageTransition className="w-full max-w-6xl mx-auto space-y-8 pb-16">
+    <PageTransition className="w-full space-y-8 pb-16">
       {/* Header */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2">

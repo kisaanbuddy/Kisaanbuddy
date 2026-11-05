@@ -180,7 +180,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
             <main
               id="main-content"
-              className="app-main flex-1 w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 pt-6 md:pt-8 pb-24 md:pb-12"
+              className="app-main flex-1 w-full page-gutter pt-4 md:pt-6 pb-20 md:pb-12"
             >
               <Breadcrumbs />
               {children}

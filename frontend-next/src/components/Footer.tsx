@@ -12,7 +12,7 @@ export function Footer() {
   return (
     <footer className="w-full relative border-t border-stone-200/80 dark:border-stone-800/80 bg-white dark:bg-stone-950 py-14 mt-auto select-none overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-px bg-primary/20" />
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 space-y-10">
+      <div className="w-full page-gutter space-y-10">
         
         {/* Main 5-Column Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">

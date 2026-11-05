@@ -346,7 +346,7 @@ export default function CropPredictorClient() {
       <div className="block md:hidden">
         <MobileCropPredictor />
       </div>
-      <div className="hidden md:block w-full max-w-7xl mx-auto space-y-6 pb-16 px-3 sm:px-6">
+      <div className="hidden md:block w-full space-y-6 pb-16">
       {/* 1. COMPACT PROFESSIONAL HEADER */}
       <div className="rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5 max-w-3xl">

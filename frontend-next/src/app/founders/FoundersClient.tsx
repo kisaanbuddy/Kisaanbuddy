@@ -32,7 +32,7 @@ export default function FoundersPage() {
 
       {/* HERO SECTION */}
       <section className="relative overflow-hidden px-4 sm:px-6 md:px-12 py-12 md:py-20 border-b border-border/50 bg-muted/20 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="w-full">
           <Link
             href="/"
             className="mb-6 inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors group"
@@ -85,7 +85,7 @@ export default function FoundersPage() {
 
       {/* FOUNDERS GRID SECTION */}
       <section className="px-4 sm:px-6 md:px-12 py-12 md:py-16">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="w-full">
           {/* Section Subheading */}
           <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14 space-y-2">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 px-3 py-1 rounded-full">
@@ -121,7 +121,7 @@ export default function FoundersPage() {
 
       {/* INSTITUTIONAL PARTNERSHIP & ETHOS STRIP */}
       <section className="px-4 sm:px-6 md:px-12 py-10 bg-emerald-500/5 border-y border-emerald-500/20">
-        <div className="max-w-7xl mx-auto grid gap-6 sm:grid-cols-3 text-center sm:text-left">
+        <div className="w-full grid gap-6 sm:grid-cols-3 text-center sm:text-left">
           <div className="flex items-start gap-3.5 p-4 rounded-2xl bg-white dark:bg-stone-900/60 border border-emerald-200/50 dark:border-emerald-800/50 shadow-2xs">
             <ShieldCheck className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
             <div>
@@ -156,14 +156,14 @@ export default function FoundersPage() {
 
       {/* TESTIMONIALS & TRUST */}
       <section className="px-4 sm:px-6 md:px-12 py-16 border-t border-border/50 bg-muted/10">
-        <div className="max-w-7xl mx-auto w-full">
+        <div className="w-full">
           <TrustTestimonials />
         </div>
       </section>
 
       {/* CONTACT BANNER */}
       <section className="px-4 sm:px-6 md:px-12 py-16">
-        <div className="max-w-7xl mx-auto w-full rounded-3xl border border-border/70 bg-card/80 dark:bg-card/50 p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
+        <div className="w-full rounded-3xl border border-border/70 bg-card/80 dark:bg-card/50 p-8 md:p-12 backdrop-blur-xl shadow-2xl relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[250px] h-[250px] rounded-full bg-emerald-500/10 blur-[90px] pointer-events-none -z-10" />
 
           <div className="max-w-4xl text-center mx-auto space-y-4">

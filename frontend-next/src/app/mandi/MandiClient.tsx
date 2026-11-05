@@ -626,7 +626,7 @@ export default function MandiPage() {
   }, [govItems, govSearch, govState])
 
   return (
-    <div className="flex flex-col gap-6 w-full mx-auto pb-16">
+    <div className="flex flex-col gap-6 w-full pb-16">
 
       {/* Toast alert */}
       <AnimatePresence>

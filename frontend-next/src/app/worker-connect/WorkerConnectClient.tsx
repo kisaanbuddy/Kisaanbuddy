@@ -830,7 +830,7 @@ export default function WorkerConnectClient() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-stone-100 dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-inner max-w-5xl mx-auto">
+        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 bg-stone-100 dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 shadow-inner w-full">
           {(["find_workers", "find_jobs", "post_job", "worker_portal", "wage_benchmarks"] as TabMode[]).map((mode) => {
             const isSelected = activeTab === mode
             return (

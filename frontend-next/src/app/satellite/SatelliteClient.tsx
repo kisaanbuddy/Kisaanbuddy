@@ -35,7 +35,7 @@ export default function SatelliteClient() {
   const [areaInfo, setAreaInfo] = useState<PolygonAreaResult | null>(null)
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-12">
+    <div className="w-full space-y-6 pb-12">
       {/* Mobile Dedicated Experience */}
       <div className="block md:hidden">
         <MobileSatelliteView initialLat={lat} initialLon={lon} initialCoords={coords} />
