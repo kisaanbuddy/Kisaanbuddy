@@ -37,6 +37,9 @@ class CropInput(BaseModel):
     humidity: float
     ph: float
     rainfall: float
+    satellite_ndvi: Optional[float] = None
+    satellite_ndwi: Optional[float] = None
+    satellite_evi: Optional[float] = None
 
 
 class CropSuitabilityItem(BaseModel):
@@ -585,6 +588,8 @@ class CropCheckRequest(BaseModel):
     rainfall: float = Field(..., description="Rainfall in mm")
     query: str = Field(..., min_length=1, max_length=500,
                        description="Natural-language question, any language")
+    satellite_ndvi: Optional[float] = Field(None, description="Current Sentinel-2 NDVI")
+    satellite_ndwi: Optional[float] = Field(None, description="Current Sentinel-2 NDWI")
 
 
 class CropCheckResponse(BaseModel):
@@ -719,6 +724,12 @@ async def crop_check(req: CropCheckRequest) -> CropCheckResponse:
     """Crop suitability AI — NLP query + farm params → structured verdict."""
     extracted = extract_crop_from_query(req.query)
 
+    sat_info = ""
+    if req.satellite_ndvi is not None:
+        sat_info += f"  Copernicus Sentinel-2 NDVI: {req.satellite_ndvi}\n"
+    if req.satellite_ndwi is not None:
+        sat_info += f"  Sentinel-2 NDWI (Canopy Water): {req.satellite_ndwi}\n"
+
     user_payload = (
         f"FARMER'S QUERY: \"{req.query}\"\n"
         f"DETECTED CROP: {extracted or '(none — recommend best crops)'}\n\n"
@@ -730,6 +741,7 @@ async def crop_check(req: CropCheckRequest) -> CropCheckResponse:
         f"  Humidity: {req.humidity} %\n"
         f"  Soil pH: {req.ph}\n"
         f"  Rainfall: {req.rainfall} mm\n"
+        f"{sat_info}"
     )
 
     try:

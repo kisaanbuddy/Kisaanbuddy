@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button"
 
 import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice, getWeatherSpeech } from "@/lib/weather-translations"
 import { WEATHER_GUIDE_I18N } from "@/lib/weather-guide-i18n"
+import { MobileWeatherView } from "@/components/mobile/MobileWeatherView"
 
 interface ActiveLocation {
   lat: number
@@ -336,7 +337,11 @@ function WeatherPageInner() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
+      <div className="block md:hidden">
+        <MobileWeatherView />
+      </div>
+      <div className="hidden md:flex flex-col gap-6">
       <motion.header
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -581,6 +586,7 @@ function WeatherPageInner() {
 
       {/* Contextual Farmer Quick Review */}
       <QuickReviewCard category="weather" sourcePage="/weather" />
-    </div>
+      </div>
+    </>
   )
 }

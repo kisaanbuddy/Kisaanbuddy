@@ -28,6 +28,7 @@ import {
   type ForecastBundle,
 } from "@/lib/weather-api";
 import { translateCondition } from "@/lib/weather-translations";
+import { MobileHomeScreen } from "@/components/mobile/MobileHomeScreen";
 import { FarmerFeatureCard } from "./FarmerFeatureCard";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import {
@@ -277,7 +278,11 @@ export function FarmerHome() {
   ];
 
   return (
-    <div className="w-full space-y-8 pb-12">
+    <>
+      <div className="block md:hidden">
+        <MobileHomeScreen />
+      </div>
+      <div className="hidden md:block w-full space-y-8 pb-12">
       {/* ────────────────────────────────────────────────────────────────────── */}
       {/* SECTION A: HERO / FARMER WELCOME                                       */}
       {/* ────────────────────────────────────────────────────────────────────── */}
@@ -805,7 +810,8 @@ export function FarmerHome() {
       <footer className="text-center text-[11px] text-stone-500 dark:text-stone-400 py-1">
         <p>{text.officialFootnote}</p>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }
 

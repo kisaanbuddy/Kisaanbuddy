@@ -1129,3 +1129,31 @@ if Column is not None:
         last_verified_date = Column(Date, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+
+
+    class SatelliteObservationRecord(Base):  # type: ignore[misc]
+        """Authentic satellite observation record linking farm boundaries with Copernicus/Landsat telemetry."""
+        __tablename__ = "satellite_observation_records"
+        id = Column(Integer, primary_key=True, index=True)
+        farm_id = Column(Integer, ForeignKey("farms.id"), nullable=True, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        polygon_geojson = Column(Text, nullable=True)
+        satellite_source = Column(String(50), nullable=False, default="Sentinel-2 L2A")
+        scene_id = Column(String(150), nullable=False, index=True)
+        observation_date = Column(DateTime, nullable=False, index=True)
+        cloud_cover_pct = Column(Float, nullable=True)
+        mean_ndvi = Column(Float, nullable=True)
+        min_ndvi = Column(Float, nullable=True)
+        max_ndvi = Column(Float, nullable=True)
+        mean_ndwi = Column(Float, nullable=True)
+        mean_evi = Column(Float, nullable=True)
+        valid_pixel_pct = Column(Float, nullable=True)
+        spatial_variation_pct = Column(Float, nullable=True)
+        health_status = Column(String(100), nullable=True)
+        stress_risk = Column(String(50), nullable=True)
+        processing_version = Column(String(20), default="v2.0", nullable=False)
+        processing_status = Column(String(30), default="completed", nullable=False)
+        asset_reference = Column(Text, nullable=True)
+        raw_metrics_json = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

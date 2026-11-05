@@ -9,6 +9,7 @@ import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { MobileAppHeader } from '@/components/mobile/MobileAppHeader';
 
 /* ---------- System font stacks ----------
  * Replaced next/font/google to avoid build-time downloads from
@@ -171,7 +172,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             सामग्री पर जाएं / Skip to Content
           </a>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-            <Header />
+            <div className="hidden md:block">
+              <Header />
+            </div>
+            <div className="block md:hidden">
+              <MobileAppHeader />
+            </div>
             <main
               id="main-content"
               className="app-main flex-1 w-full px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 pt-6 md:pt-8 pb-24 md:pb-12"
@@ -179,7 +185,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Breadcrumbs />
               {children}
             </main>
-            <Footer />
+            <div className="hidden md:block">
+              <Footer />
+            </div>
           </div>
           <AssistantGate />
           <SwRegister />

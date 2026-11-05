@@ -33,6 +33,8 @@ interface Props {
     ph: number
     rainfall: number
   }
+  satelliteNdvi?: number
+  satelliteNdwi?: number
   farmLocation?: string
   topCrop?: string | null
   lang?: string
@@ -40,13 +42,15 @@ interface Props {
 
 const QUICK_PROMPTS = [
   { en: "Which crop is most suitable for my soil?", hi: "मेरी मिट्टी के लिए सबसे सही फसल कौन सी है?", kn: "ನನ್ನ ಮಣ್ಣಿಗೆ ಯಾವ ಬೆಳೆ ಹೆಚ್ಚು ಸೂಕ್ತ?" },
+  { en: "What does my satellite NDVI say about crop health?", hi: "उपग्रह NDVI से फसल के स्वास्थ्य का क्या पता चलता है?", kn: "ಉಪಗ್ರಹ NDVI ಬೆಳೆಯ ಆರೋಗ್ಯದ ಬಗ್ಗೆ ಏನು ಹೇಳುತ್ತದೆ?" },
   { en: "Is wheat suitable for my farm conditions?", hi: "क्या मेरे खेत में गेहूं उगाना सही रहेगा?", kn: "ನನ್ನ ಹೊಲದಲ್ಲಿ ಗೋಧಿ ಬೆಳೆಯಲು ಸಾಧ್ಯವೇ?" },
   { en: "How can I improve my soil fertility?", hi: "मैं अपने खेत की मिट्टी कैसे सुधारूं?", kn: "ನನ್ನ ಮಣ್ಣಿನ ಫಲವತ್ತತೆಯನ್ನು ಹೇಗೆ ಹೆಚ್ಚಿಸುವುದು?" },
-  { en: "Which nutrients are currently deficient?", hi: "मेरी मिट्टी में कौन से पोषक तत्वों की कमी है?", kn: "ನನ್ನ ಮಣ್ಣಿನಲ್ಲಿ ಯಾವ ಪೋಷಕಾಂಶಗಳ ಕೊರತೆಯಿದೆ?" },
 ]
 
 export function AskFarmAIInline({
   farmParams,
+  satelliteNdvi,
+  satelliteNdwi,
   farmLocation,
   topCrop,
   lang = "en",
@@ -78,6 +82,8 @@ export function AskFarmAIInline({
           ph: farmParams.ph,
           rainfall: farmParams.rainfall,
           query: q,
+          satellite_ndvi: satelliteNdvi,
+          satellite_ndwi: satelliteNdwi,
         }),
       })
 

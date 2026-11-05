@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
+import dynamic from "next/dynamic"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -20,6 +21,8 @@ import {
   ChevronRight,
   Bookmark,
   Share2,
+  Satellite,
+  Compass,
 } from "lucide-react"
 
 import { useLanguage } from "@/lib/language"
@@ -28,7 +31,7 @@ import { trackEvent } from "@/lib/analytics"
 import { useAuth } from "@/lib/auth"
 import { recommendationsApi } from "@/lib/farmer-api"
 
-// Redesigned modular sections
+// Modular Sections
 import { FarmProfileSection, type FarmProfileData } from "@/components/crop-predictor/FarmProfileSection"
 import { WeatherIntelligenceSection, type WeatherData } from "@/components/crop-predictor/WeatherIntelligenceSection"
 import { FieldSensorPanel } from "@/components/crop-predictor/FieldSensorPanel"
@@ -38,7 +41,30 @@ import {
   type PredictionResultData,
 } from "@/components/crop-predictor/CropResultsDashboard"
 import { PreviousAnalysesSection } from "@/components/crop-predictor/PreviousAnalysesSection"
+import { MobileCropPredictor } from "@/components/mobile/MobileCropPredictor"
 import { AskFarmAIInline } from "@/components/crop-predictor/AskFarmAIInline"
+import { SatelliteCropHealthPanel } from "@/components/crop-predictor/SatelliteCropHealthPanel"
+import {
+  fetchFieldSatelliteIntelligence,
+  type SatelliteObservation,
+  type RadarObservation,
+  type HistoricalTimelineItem,
+  type PolygonAreaResult,
+} from "@/lib/satellite-api"
+
+// Dynamically import Leaflet Map (client-only)
+const SatelliteFarmMap = dynamic(
+  () => import("@/components/crop-predictor/SatelliteFarmMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[420px] rounded-xl border border-border bg-muted/20 flex flex-col items-center justify-center gap-3">
+        <div className="h-7 w-7 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
+        <span className="text-xs text-muted-foreground font-medium">Loading Copernicus Satellite Engine...</span>
+      </div>
+    ),
+  }
+)
 
 export default function CropPredictorClient() {
   const searchParams = useSearchParams()
@@ -67,7 +93,17 @@ export default function CropPredictorClient() {
   const [weatherLoading, setWeatherLoading] = useState(false)
   const [weatherError, setWeatherError] = useState<string | null>(null)
 
-  // 3. Soil Parameters
+  // 3. Satellite Intelligence State
+  const [polygonCoords, setPolygonCoords] = useState<[number, number][]>([])
+  const [satelliteObservation, setSatelliteObservation] = useState<SatelliteObservation | null>(null)
+  const [radarObservation, setRadarObservation] = useState<RadarObservation | null>(null)
+  const [historicalTimeline, setHistoricalTimeline] = useState<HistoricalTimelineItem[]>([])
+  const [agronomicInterpretation, setAgronomicInterpretation] = useState<string[]>([])
+  const [calculatedArea, setCalculatedArea] = useState<PolygonAreaResult | null>(null)
+  const [satelliteLoading, setSatelliteLoading] = useState(false)
+  const [satelliteError, setSatelliteError] = useState<string | null>(null)
+
+  // 4. Soil Parameters
   const [soilParams, setSoilParams] = useState<SoilParameters>({
     N: 85,
     P: 42,
@@ -79,25 +115,56 @@ export default function CropPredictorClient() {
     soilTemperature: 24,
   })
 
-  // 4. Climate values for the ML model (driven by weather / sensor / defaults)
+  // 5. Climate values for the ML model (driven by weather / sensor / defaults)
   const [climateParams, setClimateParams] = useState({
     temperature: 26,
     humidity: 72,
     rainfall: 140,
   })
 
-  // 5. Prediction Engine states
+  // 6. Prediction Engine states
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<PredictionResultData | null>(null)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
 
-  // 6. Persistence & History states
+  // 7. Persistence & History states
   const [savingAnalysis, setSavingAnalysis] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
   const [historyRefreshKey, setHistoryRefreshKey] = useState(0)
 
   // Ref for auto-scrolling to results after analysis
   const resultsRef = useRef<HTMLDivElement>(null)
+
+  // Load authentic satellite observation for coordinates & boundary
+  const loadSatelliteData = async (lat: number, lon: number, polygon?: [number, number][]) => {
+    setSatelliteLoading(true)
+    setSatelliteError(null)
+    try {
+      const data = await fetchFieldSatelliteIntelligence({
+        lat,
+        lon,
+        polygonCoordinates: polygon && polygon.length >= 3 ? polygon : undefined,
+        soilType: farmProfile.landType || "loamy",
+        cropName: farmProfile.currentCrop || undefined,
+      })
+      setSatelliteObservation(data.current_observation)
+      setRadarObservation(data.radar_observation)
+      setHistoricalTimeline(data.historical_timeline)
+      setAgronomicInterpretation(data.agronomic_interpretation)
+    } catch (err) {
+      console.error("Satellite fetch error:", err)
+      setSatelliteError(err instanceof Error ? err.message : "Failed to load satellite data")
+    } finally {
+      setSatelliteLoading(false)
+    }
+  }
+
+  // Load satellite intelligence when location is set or updated
+  useEffect(() => {
+    const lat = farmProfile.lat || 30.9010 // Default Indian agricultural benchmark if unselected
+    const lon = farmProfile.lon || 75.8573
+    void loadSatelliteData(lat, lon, polygonCoords)
+  }, [farmProfile.lat, farmProfile.lon, farmProfile.landType, farmProfile.currentCrop])
 
   // Sync weather resolved from Location section
   const handleWeatherResolved = (wx: WeatherData) => {
@@ -107,6 +174,22 @@ export default function CropPredictorClient() {
       temperature: wx.temperature,
       humidity: wx.humidity,
       rainfall: wx.rainfall,
+    }))
+  }
+
+  // Sync polygon change from interactive map
+  const handlePolygonChange = (newCoords: [number, number][]) => {
+    setPolygonCoords(newCoords)
+    const lat = farmProfile.lat || 30.9010
+    const lon = farmProfile.lon || 75.8573
+    void loadSatelliteData(lat, lon, newCoords)
+  }
+
+  // Sync calculated area into farmProfile
+  const handleSyncCalculatedArea = (acres: number) => {
+    setFarmProfile((prev) => ({
+      ...prev,
+      farmSizeAcres: acres,
     }))
   }
 
@@ -135,7 +218,7 @@ export default function CropPredictorClient() {
     setAnalysisError(null)
     setSaveSuccess(false)
 
-    // Build payload combining soil & climate inputs
+    // Build payload combining soil, climate, and satellite inputs
     const payload = {
       N: soilParams.N,
       P: soilParams.P,
@@ -144,6 +227,9 @@ export default function CropPredictorClient() {
       humidity: climateParams.humidity,
       ph: soilParams.ph,
       rainfall: climateParams.rainfall,
+      satellite_ndvi: satelliteObservation?.field_stats?.mean_ndvi,
+      satellite_ndwi: satelliteObservation?.field_stats?.mean_ndwi,
+      satellite_evi: satelliteObservation?.field_stats?.mean_evi,
     }
 
     try {
@@ -198,6 +284,13 @@ export default function CropPredictorClient() {
         data_used: JSON.stringify({
           params: { ...soilParams, ...climateParams },
           farmProfile,
+          satellite: satelliteObservation
+            ? {
+                date: satelliteObservation.acquisition_date,
+                ndvi: satelliteObservation.field_stats.mean_ndvi,
+                ndwi: satelliteObservation.field_stats.mean_ndwi,
+              }
+            : null,
           resultSummary: {
             crop: topCropItem?.display_name || result.recommended_crop,
             score: topCropItem?.suitability_score || Math.round(result.confidence * 100),
@@ -205,7 +298,7 @@ export default function CropPredictorClient() {
         }),
         recommended_action: result.next_steps?.[0] || "Select certified seed variety and adjust basal fertilizer.",
         confidence: `${topCropItem?.suitability_score || Math.round(result.confidence * 100)}%`,
-        source: "ICAR & SAU Agronomic Norms",
+        source: "Copernicus Sentinel & ICAR Agronomic Norms",
         category: "next_season",
         status: "pending",
       })
@@ -213,7 +306,7 @@ export default function CropPredictorClient() {
       setSaveSuccess(true)
       setHistoryRefreshKey((k) => k + 1)
     } catch {
-      // ignore or feedback
+      // ignore
     } finally {
       setSavingAnalysis(false)
     }
@@ -249,7 +342,11 @@ export default function CropPredictorClient() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 pb-16 px-3 sm:px-6">
+    <>
+      <div className="block md:hidden">
+        <MobileCropPredictor />
+      </div>
+      <div className="hidden md:block w-full max-w-7xl mx-auto space-y-6 pb-16 px-3 sm:px-6">
       {/* 1. COMPACT PROFESSIONAL HEADER */}
       <div className="rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1.5 max-w-3xl">
@@ -258,15 +355,15 @@ export default function CropPredictorClient() {
             <span>{dict.tag || "Agricultural Decision Support"}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
-            {dict.title || "AI Crop Predictor"}
+            {dict.title || "AI Crop Predictor & Satellite Farm Intelligence"}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
             {dict.subtitle ||
-              "Find suitable crops for your farm using soil conditions, weather information and agricultural intelligence."}
+              "Find suitable crops for your farm using soil conditions, weather intelligence, Copernicus satellite observations and remote sensing."}
           </p>
         </div>
 
-        {/* 3 Compact Capability Badges */}
+        {/* 4 Compact Capability Badges */}
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs font-semibold text-foreground">
             <TestTube className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
@@ -275,6 +372,10 @@ export default function CropPredictorClient() {
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs font-semibold text-foreground">
             <CloudSun className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
             <span>{dict.badgeWeather || "Weather Intelligence"}</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs font-semibold text-foreground">
+            <Satellite className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
+            <span>Sentinel-2 Satellite</span>
           </div>
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sky-300/60 bg-sky-50 dark:bg-sky-950/40 text-xs font-semibold text-sky-800 dark:text-sky-300">
             <Cpu className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" />
@@ -306,29 +407,83 @@ export default function CropPredictorClient() {
         </div>
       </div>
 
-      {/* 3. FIELD SENSOR (ESP32 IoT) PANEL */}
+      {/* 3. SATELLITE FARM INTELLIGENCE (Copernicus Sentinel-2 & Sentinel-1 SAR) */}
+      <div className="space-y-4">
+        <div className="rounded-xl border border-border bg-card p-5 sm:p-6 shadow-2xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Satellite className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                <h2 className="text-lg font-bold text-foreground">
+                  Satellite Farm Intelligence &amp; Crop Health
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Authentic 10-meter multispectral observations from Copernicus Sentinel-2 and Sentinel-1 C-band SAR radar.
+              </p>
+            </div>
+            {satelliteObservation && (
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Pass: {satelliteObservation.acquisition_date}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Interactive Satellite Map */}
+          <SatelliteFarmMap
+            lat={farmProfile.lat || 30.9010}
+            lon={farmProfile.lon || 75.8573}
+            polygonCoordinates={polygonCoords}
+            onPolygonChange={handlePolygonChange}
+            onAreaCalculated={(area) => setCalculatedArea(area)}
+            observation={satelliteObservation}
+            radarObservation={radarObservation}
+            loading={satelliteLoading}
+          />
+
+          {/* Satellite Crop Health & Index Analytics Panel */}
+          <SatelliteCropHealthPanel
+            observation={satelliteObservation}
+            radarObservation={radarObservation}
+            historicalTimeline={historicalTimeline}
+            agronomicInterpretation={agronomicInterpretation}
+            calculatedArea={calculatedArea}
+            hasCustomBoundary={polygonCoords.length >= 3}
+            onApplyCalculatedArea={handleSyncCalculatedArea}
+            onRefreshSatellite={() =>
+              loadSatelliteData(farmProfile.lat || 30.9010, farmProfile.lon || 75.8573, polygonCoords)
+            }
+            loading={satelliteLoading}
+          />
+        </div>
+      </div>
+
+      {/* 4. FIELD SENSOR (ESP32 IoT) PANEL */}
       <FieldSensorPanel onApplySensorValues={handleSensorValues} dict={dict} />
 
-      {/* 4. SMART SOIL ANALYSIS */}
+      {/* 5. SMART SOIL ANALYSIS */}
       <SmartSoilAnalysis
         params={soilParams}
         onChange={(upd) => setSoilParams((p) => ({ ...p, ...upd }))}
         dict={dict}
       />
 
-      {/* 5. PRIMARY ACTION BAR */}
+      {/* 6. PRIMARY ACTION BAR */}
       <div className="sticky top-4 z-20 rounded-xl border border-emerald-400/80 dark:border-emerald-700 bg-card/95 backdrop-blur-md p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-emerald-700 text-white flex items-center justify-center shrink-0 shadow-2xs">
-            <Sprout className="h-5 w-5" />
+          <div className="h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 flex items-center justify-center shrink-0">
+            <Sprout className="h-5 w-5 text-emerald-800 dark:text-emerald-400" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-foreground">
-              {dict.readyForAnalysis || "Ready to Evaluate Your Farmland"}
-            </h3>
-            <p className="text-[11px] text-muted-foreground">
-              All parameters will be verified against verified agronomic norms for 12+ major Indian crops.
-            </p>
+            <div className="text-sm font-bold text-foreground">
+              {dict.readyForAnalysis || "Ready for Farm & Crop Suitability Analysis"}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Synthesizing soil nutrients, real weather, IoT field telemetry, and Copernicus satellite vigor.
+            </div>
           </div>
         </div>
 
@@ -336,34 +491,31 @@ export default function CropPredictorClient() {
           type="button"
           onClick={handleAnalyzeFarm}
           disabled={analyzing}
-          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-extrabold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-all disabled:opacity-60 cursor-pointer"
+          className="w-full sm:w-auto px-6 py-3 rounded-lg bg-emerald-800 hover:bg-emerald-900 active:bg-emerald-950 text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           {analyzing ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>{dict.analyzingProgress || "Analyzing Farm..."}</span>
+              <Loader2 className="h-4 w-4 animate-spin text-white" />
+              <span>{dict.analyzingProgress || "Evaluating Suitability..."}</span>
             </>
           ) : (
             <>
-              <Sparkles className="h-4 w-4 text-emerald-200" />
+              <Sparkles className="h-4 w-4 text-emerald-300" />
               <span>{dict.analyzeFarmBtn || "Analyze My Farm"}</span>
-              <ChevronRight className="h-4 w-4" />
             </>
           )}
         </button>
       </div>
 
       {analysisError && (
-        <div className="p-4 rounded-xl border border-rose-300 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/20 text-xs text-rose-800 dark:text-rose-300 flex items-center gap-2.5">
+        <div className="p-4 rounded-xl border border-destructive/40 bg-destructive/10 text-destructive text-sm flex items-center gap-2">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          <div>
-            <strong>Evaluation failed:</strong> {analysisError}
-          </div>
+          <span>{analysisError}</span>
         </div>
       )}
 
-      {/* 6. RESULTS DASHBOARD */}
-      <div ref={resultsRef} className="space-y-6 pt-2">
+      {/* 7. REDESIGNED RESULTS & OPTIMIZATION DASHBOARD */}
+      <div ref={resultsRef}>
         <CropResultsDashboard
           result={result}
           loading={analyzing}
@@ -375,7 +527,7 @@ export default function CropPredictorClient() {
         />
       </div>
 
-      {/* 7. ASK YOUR FARM AI (CONTEXTUAL ASSISTANT) */}
+      {/* 8. ASK YOUR FARM AI (CONTEXTUAL ASSISTANT) */}
       <AskFarmAIInline
         farmParams={{
           N: soilParams.N,
@@ -386,12 +538,14 @@ export default function CropPredictorClient() {
           ph: soilParams.ph,
           rainfall: climateParams.rainfall,
         }}
+        satelliteNdvi={satelliteObservation?.field_stats?.mean_ndvi}
+        satelliteNdwi={satelliteObservation?.field_stats?.mean_ndwi}
         farmLocation={farmProfile.locationLabel || farmProfile.district || undefined}
         topCrop={result?.ranked_recommendations?.[0]?.display_name || result?.recommended_crop}
         lang={lang}
       />
 
-      {/* 8. RESULTS HISTORY (MY PREVIOUS ANALYSES) */}
+      {/* 9. RESULTS HISTORY (MY PREVIOUS ANALYSES) */}
       <PreviousAnalysesSection
         user={user}
         authReady={authReady}
@@ -399,6 +553,7 @@ export default function CropPredictorClient() {
         refreshTrigger={historyRefreshKey}
         dict={dict}
       />
-    </div>
+      </div>
+    </>
   )
 }
