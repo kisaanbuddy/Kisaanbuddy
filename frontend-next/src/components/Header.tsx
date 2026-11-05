@@ -233,6 +233,7 @@ export function Header() {
   }, []);
 
   const isPublic    = PUBLIC_ROUTES.includes(pathname || '');
+  const isHomePage  = pathname === '/';
   const showFullNav = !isPublic;
 
   function isActive(href: string) {
@@ -295,7 +296,9 @@ export function Header() {
           </Link>
 
           {/* Four primary farmer tasks. Supporting tools live in the hubs below. */}
-          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
+          {/* On homepage, header is kept compact without Home/Fasal/Mandi/Madad navigation links; preserved on subpages */}
+          {!isHomePage && (
+            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
               href="/"
               aria-current={pathname === '/' ? 'page' : undefined}
@@ -418,6 +421,7 @@ export function Header() {
               </AnimatePresence>
             </div>
           </nav>
+          )}
 
           {/* ── Right side controls ── */}
           <div className="flex items-center gap-1.5 md:gap-2">
@@ -445,7 +449,7 @@ export function Header() {
               <HeartHandshake className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               <span className="text-[11px] font-bold">{lang === 'hi' ? 'सुझाव दें' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Feedback'}</span>
             </button>
-            <div className="hidden sm:flex items-center"><ThemeToggle /></div>
+            <div className="flex items-center"><ThemeToggle /></div>
 
             {/* Language Selector */}
             <div className="relative">

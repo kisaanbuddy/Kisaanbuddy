@@ -35,6 +35,7 @@ import type { Language } from "@/lib/assistant-api"
 import { useLanguage, type Lang, LANG_NAMES, SELECTABLE_LANGS } from "@/lib/language"
 import { useAssistant } from "./useAssistant"
 import { useSpeech } from "./useSpeech"
+import { VoiceWaveform } from "./VoiceWaveform"
 
 // Global trigger function to open the Voice Assistant from any component or page
 export function openVoiceAssistant(initialQuery?: string) {
@@ -79,7 +80,7 @@ const VOICE_I18N: Record<
     ready: "तैयार हैं — बोलने के लिए माइक दबाएं",
     listening: "सुन रहे हैं... कृपया बोलिए",
     listeningHint: "जैसे: 'गेहूं का मंडी भाव बताओ' या 'पत्ती पर पीले धब्बे हैं'",
-    processing: "आपका सवाल समझ रहे हैं...",
+    processing: "आपकी बात समझ रहे हैं...",
     responding: "किसानबड्डी जवाब दे रहे हैं...",
     youSaid: "आपका सवाल",
     assistantSaid: "किसानबड्डी सलाह",
@@ -101,7 +102,7 @@ const VOICE_I18N: Record<
     ready: "Ready to speak — Tap the mic to begin",
     listening: "Listening... Please speak now",
     listeningHint: "e.g. 'Wheat mandi price today' or 'Yellow spots on tomato leaves'",
-    processing: "Processing your question...",
+    processing: "आपकी बात समझ रहे हैं / Understanding your question...",
     responding: "KisaanBuddy is responding...",
     youSaid: "Your Question",
     assistantSaid: "KisaanBuddy Advisory",
@@ -123,7 +124,7 @@ const VOICE_I18N: Record<
     ready: "ಸಿದ್ಧವಾಗಿದೆ — ಮಾತನಾಡಲು ಮೈಕ್ ಒತ್ತಿ",
     listening: "ಕೇಳಿಸಿಕೊಳ್ಳುತ್ತಿದ್ದೇವೆ... ಮಾತನಾಡಿ",
     listeningHint: "ಉದಾ: 'ಗೋಧಿ ಮಂಡಿ ದರ ಎಷ್ಟು?' ಅಥವಾ 'ಎಲೆಯ ಮೇಲೆ ಹಳದಿ ಚುಕ್ಕೆಗಳು'",
-    processing: "ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುತ್ತಿದ್ದೇವೆ...",
+    processing: "ನಿಮ್ಮ ಮಾತನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುತ್ತಿದ್ದೇವೆ...",
     responding: "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಉತ್ತರಿಸುತ್ತಿದೆ...",
     youSaid: "ನಿಮ್ಮ ಪ್ರಶ್ನೆ",
     assistantSaid: "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಸಲಹೆ",
@@ -145,7 +146,7 @@ const VOICE_I18N: Record<
     ready: "Taiyaar hain — Bolne ke liye mic dabayein",
     listening: "Sun rahe hain... Kripya boliye",
     listeningHint: "Jaise: 'Gehun ka mandi bhav' ya 'Tamatar ke patte par daag'",
-    processing: "Aapka sawaal samajh rahe hain...",
+    processing: "आपकी बात समझ रहे हैं...",
     responding: "KisaanBuddy bol rahe hain...",
     youSaid: "Aapka Sawaal",
     assistantSaid: "KisaanBuddy Advice",
@@ -507,52 +508,58 @@ export function VoiceAssistantModal() {
               </div>
 
               {/* Large Animated Microphone Section */}
-              <div className="relative my-2 flex items-center justify-center">
-                {/* Concentric Pulsing Ripples when listening */}
-                {speech.listening && (
-                  <>
-                    <span className="absolute h-36 w-36 sm:h-44 sm:w-44 rounded-full bg-emerald-500/20 animate-ping opacity-60" />
-                    <span className="absolute h-48 w-48 sm:h-56 sm:w-56 rounded-full bg-emerald-400/15 animate-pulse opacity-50" />
-                  </>
-                )}
-
-                {/* Primary Mic Touch Target */}
-                <button
-                  type="button"
-                  onClick={handleMicToggle}
-                  aria-label={speech.listening ? t.tapToStop : t.tapToSpeak}
-                  className={`group relative z-10 flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-full transition-all duration-300 shadow-xl focus:outline-none focus:ring-4 ${
-                    speech.listening
-                      ? "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/30 ring-rose-400 scale-105"
-                      : speech.speaking
-                      ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 ring-emerald-400 animate-pulse"
-                      : isSending
-                      ? "bg-amber-600 text-white shadow-amber-600/30 ring-amber-400 cursor-wait"
-                      : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-700/30 ring-emerald-400 hover:scale-105 active:scale-95"
-                  }`}
-                >
-                  {isSending ? (
-                    <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-white" />
-                  ) : speech.listening ? (
-                    <MicOff className="h-10 w-10 sm:h-12 sm:w-12 text-white animate-pulse" />
-                  ) : speech.speaking ? (
-                    <Volume2 className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
-                  ) : (
-                    <Mic className="h-10 w-10 sm:h-12 sm:w-12 text-white stroke-[2.3]" />
+              <div className="relative my-2 flex flex-col items-center justify-center">
+                <div className="relative flex items-center justify-center">
+                  {/* Concentric subtle ripples ONLY when actually recording */}
+                  {speech.listening && (
+                    <>
+                      <span className="absolute h-36 w-36 sm:h-44 sm:w-44 rounded-full bg-emerald-500/20 animate-ping opacity-60 motion-reduce:animate-none" />
+                      <span className="absolute h-48 w-48 sm:h-56 sm:w-56 rounded-full bg-emerald-400/15 animate-pulse opacity-50 motion-reduce:animate-none" />
+                    </>
                   )}
-                </button>
+
+                  {/* Primary Mic Touch Target with Idle Breathing Pulse */}
+                  <button
+                    type="button"
+                    onClick={handleMicToggle}
+                    aria-label={speech.listening ? t.tapToStop : t.tapToSpeak}
+                    className={`group relative z-10 flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-full transition-all duration-300 shadow-xl focus:outline-none focus:ring-4 cursor-pointer ${
+                      speech.listening
+                        ? "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/30 ring-rose-400 scale-105"
+                        : speech.speaking
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 ring-emerald-400 animate-pulse"
+                        : isSending
+                        ? "bg-amber-600 text-white shadow-amber-600/30 ring-amber-400 cursor-wait"
+                        : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-700/30 ring-emerald-400 animate-voice-idle hover:scale-105 active:scale-95"
+                    }`}
+                  >
+                    {isSending ? (
+                      <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 animate-spin text-white" />
+                    ) : speech.listening ? (
+                      <MicOff className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                    ) : speech.speaking ? (
+                      <Volume2 className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                    ) : (
+                      <Mic className="h-10 w-10 sm:h-12 sm:w-12 text-white stroke-[2.3]" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Sound-wave animation active ONLY when recording; stops immediately when recording stops */}
+                <div className="h-10 mt-3 flex items-center justify-center">
+                  {speech.listening ? (
+                    <div className="flex flex-col items-center gap-1">
+                      <VoiceWaveform active={true} />
+                      <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400">{t.tapToStop}</span>
+                    </div>
+                  ) : (
+                    <p className="text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
+                      {speech.speaking ? t.stopAudio : t.tapToSpeak}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Sub-label under Microphone */}
-              <p className="mt-3 text-xs sm:text-sm font-semibold text-stone-500 dark:text-stone-400">
-                {speech.listening
-                  ? t.tapToStop
-                  : speech.speaking
-                  ? t.stopAudio
-                  : t.tapToSpeak}
-              </p>
-
-              {/* Live Transcription / Question Container */}
               {(interimText || userTranscript) && (
                 <div className="mt-5 w-full rounded-2xl bg-stone-50 dark:bg-stone-800/70 border border-stone-200/90 dark:border-stone-700/80 p-3.5 sm:p-4 text-left shadow-2xs">
                   <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 mb-1">
