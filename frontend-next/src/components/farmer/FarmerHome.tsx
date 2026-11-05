@@ -27,6 +27,7 @@ import {
 } from "@/lib/weather-api";
 import { FarmerFeatureCard } from "./FarmerFeatureCard";
 import { CropDoctorVisualDemo } from "./CropDoctorVisualDemo";
+import { ServicesShowcaseSection } from "./ServicesShowcaseSection";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import {
   ALL_SERVICES,
@@ -664,90 +665,20 @@ export function FarmerHome() {
       ) : (
         <>
           {/* ────────────────────────────────────────────────────────────────── */}
-          {/* SECTION B: ESSENTIAL TASKS (PRIMARY SHORTCUTS)                     */}
           {/* ────────────────────────────────────────────────────────────────── */}
-          <motion.section variants={itemVariants} aria-labelledby="primary-shortcuts-heading">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h2
-                  id="primary-shortcuts-heading"
-                  className="text-xl sm:text-2xl font-extrabold tracking-tight text-stone-900 dark:text-stone-100"
-                >
-                  {text.quickShortcutsTitle}
-                </h2>
-              </div>
-              <a
-                href="#all-services-section"
-                className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
-              >
-                <span>{text.allCategoryFilter}</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </a>
-            </div>
-
-            {/* Desktop 2-column grid / Mobile 1 or 2 columns */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-              {primaryShortcuts.map((service) => (
-                <FarmerFeatureCard
-                  key={service.id}
-                  title={service.title[currentLang]}
-                  description={service.description[currentLang]}
-                  icon={service.icon}
-                  href={service.href}
-                  iconColor={service.iconColor}
-                  badge={service.badge?.[currentLang]}
-                />
-              ))}
-            </div>
-          </motion.section>
+          {/* SECTION B: ANIMATED AGRICULTURAL SERVICES SHOWCASE                 */}
+          {/* ────────────────────────────────────────────────────────────────── */}
+          <motion.div variants={itemVariants}>
+            <ServicesShowcaseSection />
+          </motion.div>
 
           {/* ────────────────────────────────────────────────────────────────── */}
-          {/* SECTION C: CROP DOCTOR VISUAL DEMONSTRATION (PART 7)               */}
+          {/* SECTION C: CROP DOCTOR VISUAL DEMONSTRATION (EDUCATIONAL)          */}
           {/* ────────────────────────────────────────────────────────────────── */}
           <motion.div variants={itemVariants}>
             <CropDoctorVisualDemo />
           </motion.div>
 
-          {/* ────────────────────────────────────────────────────────────────── */}
-          {/* SECTION D: AUTHENTIC PHOTOGRAPHY FEATURE CARD (PART 8)             */}
-          {/* ────────────────────────────────────────────────────────────────── */}
-          <motion.section
-            variants={itemVariants}
-            aria-label="Field Companion"
-            className="group relative rounded-3xl overflow-hidden border border-stone-200/90 dark:border-stone-800 bg-stone-900 text-white shadow-xs"
-          >
-            <div className="relative aspect-21/9 min-h-[140px] sm:min-h-[180px] w-full overflow-hidden">
-              <Image
-                src="/images/farmers/farmer-field-tending.webp"
-                alt={text.fieldPhotoAlt}
-                fill
-                priority={false}
-                sizes="(max-width: 768px) 100vw, 1024px"
-                className="object-cover opacity-75 group-hover:scale-[1.02] transition-transform duration-500 ease-out"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
-              <div className="absolute bottom-4 left-5 right-5 sm:bottom-6 sm:left-7 sm:right-7 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
-                <div className="max-w-xl">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/30 border border-white/20 px-3 py-0.5 text-[11px] font-bold uppercase tracking-wider text-emerald-200 backdrop-blur-xs">
-                    <Sparkles className="h-3 w-3" />
-                    KisaanBuddy Field Companion
-                  </span>
-                  <p className="mt-1.5 text-xs sm:text-sm font-semibold text-stone-200">
-                    {text.fieldBannerCaption}
-                  </p>
-                </div>
-                <Link
-                  href="/chatbot"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-white/20 hover:bg-white/30 backdrop-blur-xs border border-white/30 px-3.5 py-1.5 text-xs font-bold text-white transition-colors shrink-0"
-                >
-                  <span>AI Advisor</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            </div>
-          </motion.section>
-
-          {/* ────────────────────────────────────────────────────────────────── */}
           {/* SECTION E: ALL FARMING SERVICES (COMPLETE DIRECTORY)               */}
           {/* ────────────────────────────────────────────────────────────────── */}
           <motion.section
