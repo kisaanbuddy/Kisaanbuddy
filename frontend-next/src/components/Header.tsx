@@ -232,6 +232,12 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* Hide the global navbar on Marketplace routes */
+  const isMarketplace = pathname === '/marketplace' || pathname?.startsWith('/marketplace/');
+  if (isMarketplace) {
+    return null;
+  }
+
   const isPublic    = PUBLIC_ROUTES.includes(pathname || '');
   const showFullNav = !isPublic;
 

@@ -37,6 +37,12 @@ export function MobileAppHeader({ currentLocationName }: Props) {
         .slice(0, 2)
     : "U"
 
+  /* Hide the global mobile navbar on Marketplace routes */
+  const isMarketplace = pathname === '/marketplace' || pathname?.startsWith('/marketplace/');
+  if (isMarketplace) {
+    return null;
+  }
+
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-emerald-900/10 dark:border-stone-800 shadow-[0_2px_12px_rgba(23,75,53,0.04)] pt-[env(safe-area-inset-top)] md:hidden">

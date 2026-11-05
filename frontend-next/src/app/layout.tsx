@@ -172,10 +172,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             सामग्री पर जाएं / Skip to Content
           </a>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-            <div className="hidden md:block">
+            <div className="global-header-desktop hidden md:block">
               <Header />
             </div>
-            <div className="block md:hidden">
+            <div className="global-header-mobile block md:hidden">
               <MobileAppHeader />
             </div>
             <main

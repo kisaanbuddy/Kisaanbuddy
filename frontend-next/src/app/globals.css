@@ -485,6 +485,14 @@
     margin-inline: auto;
   }
 
+  /* Suppress global headers completely on marketplace routes */
+  body:has(.marketplace-root) .global-header-desktop,
+  body:has(.marketplace-root) .global-header-mobile,
+  body:has([data-marketplace="true"]) .global-header-desktop,
+  body:has([data-marketplace="true"]) .global-header-mobile {
+    display: none !important;
+  }
+
   /* Edge-to-edge layout overrides (Marketplace and full-bleed views) */
   .app-main:has(.edge-to-edge),
   .app-main:has(.marketplace-root),
