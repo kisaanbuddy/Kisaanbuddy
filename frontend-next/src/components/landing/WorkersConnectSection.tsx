@@ -48,11 +48,11 @@ const WORKERS_SECTION_I18N: Record<string, SectionTranslation> = {
       'Irrigation & field canal work',
       'Other farming activities & tractor driving'
     ],
-    farmerBtn: 'Find Farm Workers',
+    farmerBtn: 'Find AgriLabour',
     workerTag: 'FOR AGRICULTURAL LABOURERS',
     workerTitle: 'FIND FARMING JOBS',
     workerDesc: 'Discover genuine, verified agricultural work opportunities in nearby fields with transparent wage rates and direct farmer contact.',
-    workerBenefitsLabel: 'Why work through Workers Connect:',
+    workerBenefitsLabel: 'Why work through AgriLabour:',
     workerBenefits: [
       'Direct connection with farm owners — zero middleman commission',
       'Fair daily & weekly wages aligned with Labour Bureau & MGNREGA benchmarks',
@@ -114,11 +114,11 @@ const WORKERS_SECTION_I18N: Record<string, SectionTranslation> = {
       'Irrigation & sinchai',
       'Other farming activities & tractor driving'
     ],
-    farmerBtn: 'Find Farm Workers',
+    farmerBtn: 'Find AgriLabour',
     workerTag: 'FOR FARM LABOURERS & WORKERS',
     workerTitle: 'FIND FARMING JOBS',
     workerDesc: 'Aas-paas ke kheto me genuine farm jobs discover karein, fair daily wage paayein aur direct kisaan se baat karein.',
-    workerBenefitsLabel: 'Workers Connect use karne ke fayde:',
+    workerBenefitsLabel: 'AgriLabour use karne ke fayde:',
     workerBenefits: [
       'Kisan se direct connection — koi bicholiya commission nahi',
       'Labour Bureau & MGNREGA benchmarks ke mutabiq transparent wages',

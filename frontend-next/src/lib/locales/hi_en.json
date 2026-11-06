@@ -8,7 +8,7 @@
     "weather_alerts": "mausam alart",
     "disease_detect": "rog pahachaan",
     "ai_chatbot": "AI chaitabaॉt",
-    "workers": "majadoor",
+    "workers": "AgriLabour",
     "schemes": "sarakaaree yojanaaen",
     "soil_health": "mittee svaasthy",
     "khet_diary": "khet daayaree",
@@ -63,7 +63,7 @@
     "trading_value": "vyaapaar mooly",
     "national_agriculture_market": "raashtreey kisaan baajaar"
   },
-  "workers": "majadoor",
+  "workers": "AgriLabour",
   "aiChatbot": "Kisaan AI Chatbot",
   "founders": {
     "founder_ceo_chief_architect": "snsthaapak, mukhy kaaryakaaree adhikaaree (CEO) aur mukhy vaastukaar (Kisaan Buddy pramukh)",
@@ -439,7 +439,7 @@
   "save": "Save karen",
   "cancel": "radd karen",
   "noEntries": "abhee koee entry naheen",
-  "workerTitle": "Worker Connect",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "aapake paas skilled farm workers khojen",
   "callBtn": "kaॉl",
   "whatsappBtn": "WhatsApp",

@@ -8,7 +8,7 @@
     "weather_alerts": "हवामान चेतावण्या",
     "disease_detect": "रोगनिदान",
     "ai_chatbot": "कृत्रिम बुद्धिमत्ता संवादक",
-    "workers": "कामगार",
+    "workers": "AgriLabour",
     "schemes": "योजना",
     "soil_health": "मातीची आरोग्य",
     "khet_diary": "शेतची दिनदर्शी",
@@ -63,7 +63,7 @@
     "trading_value": "व्यापारिक मूल्य",
     "national_agriculture_market": "राष्ट्रीय कृषी बाजार"
   },
-  "workers": "मजूर",
+  "workers": "AgriLabour",
   "aiChatbot": "AI चॅटबॉट",
   "founders": {
     "heading": "भारतीय शेतकऱ्यांसाठी RVCE अभियंत्यांद्वारे निर्मित 🇮🇳",
@@ -439,7 +439,7 @@
   "save": "जतन करा",
   "cancel": "रद्द करा",
   "noEntries": "अद्याप नोंदी नाहीत",
-  "workerTitle": "कामगार कनेक्ट",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "तुमच्या जवळील कुशल शेत कामगार शोधा",
   "callBtn": "कॉल करा",
   "whatsappBtn": "व्हॉट्सॲप",

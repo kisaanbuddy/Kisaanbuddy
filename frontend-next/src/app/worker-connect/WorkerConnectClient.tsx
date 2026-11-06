@@ -507,11 +507,11 @@ export default function WorkerConnectClient() {
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0f3822] dark:text-white tracking-tight leading-tight">
-              Find Agricultural Workers Near You
+              Find AgriLabour Near You
             </h1>
 
             <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-              Hire farm workers, harvesting teams and tractor operators.
+              Hire verified AgriLabour, harvesting teams and tractor operators.
             </p>
           </div>
 
@@ -546,7 +546,7 @@ export default function WorkerConnectClient() {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Find Workers</span>
+            <span>Find AgriLabour</span>
           </button>
 
           <button
@@ -585,7 +585,7 @@ export default function WorkerConnectClient() {
             }`}
           >
             <Calendar className="w-4 h-4" />
-            <span>Worker Portal & Availability</span>
+            <span>AgriLabour Portal & Availability</span>
           </button>
 
           <button
@@ -616,7 +616,7 @@ export default function WorkerConnectClient() {
               <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div className="flex items-center gap-2 text-stone-900 dark:text-white font-bold text-sm sm:text-base">
                   <Filter className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
-                  <span>Filter Workers</span>
+                  <span>Filter AgriLabour</span>
                 </div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
                   <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
@@ -668,7 +668,7 @@ export default function WorkerConnectClient() {
                 <div className="space-y-1.5">
                   <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
                     <User className="w-3.5 h-3.5 text-stone-400" />
-                    <span>Worker Type</span>
+                    <span>AgriLabour Type</span>
                   </Label>
                   <div className="relative">
                     <select
@@ -677,8 +677,8 @@ export default function WorkerConnectClient() {
                       className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium appearance-none pr-8 outline-none focus:ring-1 focus:ring-emerald-700"
                     >
                       <option value="all">All Types (Individual & Gangs)</option>
-                      <option value="individual">Individual Workers</option>
-                      <option value="group">Worker Gangs / Teams</option>
+                      <option value="individual">Individual AgriLabour</option>
+                      <option value="group">AgriLabour Gangs / Teams</option>
                       <option value="contractor">Custom Hiring Centres</option>
                     </select>
                     <ChevronDown className="w-4 h-4 text-stone-400 absolute right-2.5 top-3 pointer-events-none" />
@@ -727,7 +727,7 @@ export default function WorkerConnectClient() {
                       onChange={(e) => setOnlyConfirmedAvailable(e.target.checked)}
                       className="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700"
                     />
-                    <span>Show only confirmed available workers</span>
+                    <span>Show only confirmed available AgriLabour</span>
                     <Info className="w-3.5 h-3.5 text-stone-400" />
                   </label>
                 </div>
@@ -790,12 +790,12 @@ export default function WorkerConnectClient() {
             {loadingWorkers ? (
               <div className="p-12 text-center space-y-3">
                 <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-800" />
-                <p className="text-sm text-stone-500 font-medium">Loading verified worker profiles...</p>
+                <p className="text-sm text-stone-500 font-medium">Loading verified AgriLabour profiles...</p>
               </div>
             ) : filteredWorkers.length === 0 ? (
               <Card className="p-12 text-center space-y-3 border-dashed border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-900 rounded-2xl">
                 <Users className="w-10 h-10 text-stone-400 mx-auto" />
-                <h3 className="text-base font-bold text-stone-900 dark:text-white">No Workers Match Current Filters</h3>
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">No AgriLabour Matches Current Filters</h3>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">Try resetting the district or wage filter to view all available profiles.</p>
                 <Button onClick={handleResetFilters} variant="outline" className="text-xs rounded-xl">Reset All Filters</Button>
               </Card>
@@ -908,7 +908,7 @@ export default function WorkerConnectClient() {
                             }}
                             className="flex-1 py-2 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-xs font-bold transition-colors cursor-pointer text-center"
                           >
-                            Contact Worker
+                            Contact AgriLabour
                           </button>
                         )}
                       </div>
@@ -1088,7 +1088,7 @@ export default function WorkerConnectClient() {
             <Card className="p-6 sm:p-8 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl shadow-xs space-y-6">
               <div className="border-b border-stone-100 dark:border-stone-800 pb-4">
                 <h2 className="text-xl font-black text-stone-900 dark:text-white">Post a Farm Job</h2>
-                <p className="text-xs text-stone-500 mt-1">Publish agricultural vacancy for verified workers.</p>
+                <p className="text-xs text-stone-500 mt-1">Publish agricultural vacancy for verified AgriLabour.</p>
               </div>
 
               <form onSubmit={handlePublishJob} className="space-y-5">
@@ -1117,7 +1117,7 @@ export default function WorkerConnectClient() {
                     </select>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold">Workers Needed *</Label>
+                    <Label className="text-xs font-semibold">AgriLabour Needed *</Label>
                     <Input
                       type="number"
                       min="1"
@@ -1218,10 +1218,10 @@ export default function WorkerConnectClient() {
             <Card className="p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl shadow-xs space-y-4">
               <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
                 <Calendar className="w-5 h-5 text-emerald-800" />
-                <h2 className="text-base font-bold text-stone-900 dark:text-white">Worker Availability Portal</h2>
+                <h2 className="text-base font-bold text-stone-900 dark:text-white">AgriLabour Availability Portal</h2>
               </div>
               <p className="text-xs text-stone-500">
-                Registered agricultural workers and collectives can manage daily availability and review hiring requests here.
+                Registered AgriLabour and collectives can manage daily availability and review hiring requests here.
               </p>
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900 flex items-center justify-between">
                 <span>Current Status: Available Today (Confirmed)</span>
@@ -1284,7 +1284,7 @@ export default function WorkerConnectClient() {
               </button>
 
               <div>
-                <h3 className="text-base font-bold text-stone-900 dark:text-white">Contact Agricultural Worker</h3>
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">Contact AgriLabour</h3>
                 <p className="text-xs text-stone-500">{contactModalWorker.name}</p>
               </div>
 

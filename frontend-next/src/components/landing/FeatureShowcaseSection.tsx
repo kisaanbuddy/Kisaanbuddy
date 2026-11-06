@@ -121,13 +121,13 @@ const SECTION_TRANSLATIONS: Record<string, SectionI18n> = {
     },
     workers: {
       badge: 'FARM LABOUR NETWORK',
-      title: 'Worker Connect',
+      title: 'AgriLabour',
       desc: 'Connect directly with agricultural labour crews for seasonal sowing, weeding, and harvesting.',
       bullet1: 'Find agricultural labour crews for field transplantation and harvest operations',
       bullet2: 'Discover available farming jobs in nearby villages and districts',
       bullet3: 'View location, work dates, daily wages, and direct telephone contact',
       bullet4: 'Zero intermediary commission—direct farmer-to-worker agreements',
-      cta: 'Find Farm Workers',
+      cta: 'Find AgriLabour',
     },
     schemes: {
       badge: 'FARMER WELFARE & SUBSIDIES',

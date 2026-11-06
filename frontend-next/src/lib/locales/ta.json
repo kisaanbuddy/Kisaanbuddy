@@ -8,7 +8,7 @@
     "weather_alerts": "வானிலை எச்சரிக்கைகள்",
     "disease_detect": "நோயறிதல்",
     "ai_chatbot": "செயற்கை நுண்ணறிவு உரையாடல் மென்பொருள்",
-    "workers": "தொழிலாளர்கள்",
+    "workers": "AgriLabour",
     "schemes": "திட்டங்கள்",
     "soil_health": "மண்வளம்",
     "khet_diary": "தோட்டம் பற்றிய நாட்குறிப்பு",
@@ -63,7 +63,7 @@
     "trading_value": "வர்த்தக மதிப்பு",
     "national_agriculture_market": "தேசிய வேளாண் சந்தை"
   },
-  "workers": "தொழிலாளர்கள்",
+  "workers": "AgriLabour",
   "aiChatbot": "AI அரட்டை",
   "founders": {
     "heading": "இந்திய விவசாயிகளுக்காக RVCE பொறியாளர்களால் உருவாக்கப்பட்டது 🇮🇳",
@@ -439,7 +439,7 @@
   "save": "Save",
   "cancel": "Cancel",
   "noEntries": "No entries yet",
-  "workerTitle": "Worker Connect",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "Find skilled farm workers near you",
   "callBtn": "Call",
   "whatsappBtn": "WhatsApp",

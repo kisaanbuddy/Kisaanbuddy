@@ -184,12 +184,12 @@ const HUBS_DATA: Record<
       {
         href: "/worker-connect",
         title: {
-          en: "Hire Farm Labour",
+          en: "Hire AgriLabour",
           hi: "कृषि मजदूर खोजें",
           kn: "ಕೃಷಿ ಕೂಲಿ ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ",
         },
         description: {
-          en: "Find available workers for harvesting, sowing, spraying, and weeding with published wages.",
+          en: "Find available AgriLabour for harvesting, sowing, spraying, and weeding with published wages.",
           hi: "कटाई, बुवाई, निराई और कीटनाशक छिड़काव के लिए आस-पास उपलब्ध मजदूर और दरें देखें।",
           kn: "ಕೊಯ್ಲು, ಬಿತ್ತನೆ ಮತ್ತು ಕಳೆ ಕೀಳಲು ಸ್ಥಳೀಯ ಕೂಲಿ ಕಾರ್ಮಿಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
         },

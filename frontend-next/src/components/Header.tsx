@@ -66,8 +66,8 @@ const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
     ml: 'പദ്ധതികൾ', mr: 'योजना', bn: 'প্রকল্প', pa: 'ਯੋਜਨਾਵਾਂ', gu: 'યોજનાઓ', hi_en: 'Schemes',
   },
   '/worker-connect': {
-    en: 'Labour Hiring', hi: 'कृषि मजदूर सेवा', kn: 'ಕೃಷಿ ಕಾರ್ಮಿಕರು', ta: 'விவசாய தொழிலாளர்கள்', te: 'వ్యవసాయ కూలీలు',
-    ml: 'കാർഷിക തൊഴിലാളികൾ', mr: 'कृषी मजूर सेवा', bn: 'কৃষি শ্রমিক নিয়োগ', pa: 'ਖੇਤੀ ਮਜ਼ਦੂਰ ਸੇਵਾ', gu: 'ખેતી મજૂર સેવા', hi_en: 'Labour Hiring',
+    en: 'AgriLabour', hi: 'AgriLabour', kn: 'AgriLabour', ta: 'AgriLabour', te: 'AgriLabour',
+    ml: 'AgriLabour', mr: 'AgriLabour', bn: 'AgriLabour', pa: 'AgriLabour', gu: 'AgriLabour', hi_en: 'AgriLabour',
   },
   '/settings': {
     en: 'Settings', hi: 'सेटिंग्स', kn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', ta: 'அமைப்புகள்', te: 'సెట్టింగ్‌లు',
@@ -109,8 +109,8 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
     ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
   },
   worker_connect: {
-    en: "Labour Hiring", hi: "वर्कर कनेक्ट", kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್", ta: "பணியாளர் இணைப்பு", te: "వర్కర్ కనెక్ట్",
-    ml: "വർക്കർ കണക്ട്", mr: "कामगार कनेक्ट", bn: "শ্রমিক সংযোগ", pa: "ਵਰਕਰ ਕਨੈਕਟ", gu: "વર્કર કનેક્ટ", hi_en: "Labour Hiring",
+    en: "AgriLabour", hi: "AgriLabour", kn: "AgriLabour", ta: "AgriLabour", te: "AgriLabour",
+    ml: "AgriLabour", mr: "AgriLabour", bn: "AgriLabour", pa: "AgriLabour", gu: "AgriLabour", hi_en: "AgriLabour",
   },
   mandi_sell: {
     en: "Mandi & Sell Crop", hi: "मंडी व फसल बिक्री", kn: "ಮಂಡಿ & ಬೆಳೆ ಮಾರಾಟ",
@@ -737,7 +737,7 @@ export function Header() {
                   className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
                   <Users className="h-4 w-4 text-emerald-600" />
-                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Labour Hiring"}</span>
+                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "AgriLabour"}</span>
                 </Link>
 
                 <Link

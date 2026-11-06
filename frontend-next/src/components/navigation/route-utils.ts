@@ -130,7 +130,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     badge: "Farmer Support",
     icon: HeartHandshake,
     controls: (lang) => [
-      { label: lang === "hi" ? "मजदूर खोजें" : "Labour Hiring", href: "/worker-connect", icon: Users },
+      { label: lang === "hi" ? "मजदूर खोजें" : "AgriLabour", href: "/worker-connect", icon: Users },
       { label: lang === "hi" ? "सरकारी योजनाएं" : "Govt Schemes", href: "/schemes", icon: Landmark },
       { label: lang === "hi" ? "AI सलाहकार" : "AI Advisor", href: "/chatbot", icon: Mic },
       { label: lang === "hi" ? "मंडी सहायता" : "Mandi Help", href: "/mandi", icon: Store },
@@ -265,8 +265,8 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
   "worker-connect": {
     key: "worker-connect",
     title: {
-      en: "Agricultural Labour Hiring",
-      hi: "मजदूर सेवा",
+      en: "AgriLabour",
+      hi: "AgriLabour",
       kn: "ಕಾರ್ಮಿಕ ಸಂಪರ್ಕ",
       ta: "பணியாளர் இணைப்பு",
       te: "వర్కర్ కనెక్ట్",
@@ -277,14 +277,14 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       hi: "सत्यापित कृषि मजदूर, कटाई गैंग व ट्रैक्टर चालक",
       kn: "ಕೃಷಿ ಕಾರ್ಮಿಕ ಮಾರುಕಟ್ಟೆ",
     },
-    badge: "Verified Labour",
+    badge: "AgriLabour",
     icon: Users,
     primaryAction: {
       label: { en: "Post Job", hi: "मजदूर चाहिए" },
       href: "/worker-connect?tab=post_job",
     },
     controls: (lang) => [
-      { label: lang === "hi" ? "मजदूर खोजें" : "Find Workers", href: "/worker-connect?tab=find_workers", queryTab: "find_workers", icon: Users },
+      { label: lang === "hi" ? "मजदूर खोजें" : "Find AgriLabour", href: "/worker-connect?tab=find_workers", queryTab: "find_workers", icon: Users },
       { label: lang === "hi" ? "काम खोजें" : "Find Jobs", href: "/worker-connect?tab=find_jobs", queryTab: "find_jobs", icon: FileText },
       { label: lang === "hi" ? "काम पोस्ट करें" : "Post Job", href: "/worker-connect?tab=post_job", queryTab: "post_job", icon: Users },
       { label: lang === "hi" ? "मजदूरी दरें" : "Wage Benchmarks", href: "/worker-connect?tab=wage_benchmarks", queryTab: "wage_benchmarks", icon: Landmark },

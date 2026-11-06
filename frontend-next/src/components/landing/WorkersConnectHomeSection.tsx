@@ -304,7 +304,7 @@ export function WorkersConnectHomeSection() {
                     : "text-stone-600 dark:text-stone-300 hover:text-stone-900"
                 }`}
               >
-                Hire Workers
+                Hire AgriLabour
               </button>
               <button
                 onClick={() => setViewMode("find_jobs")}
@@ -467,7 +467,7 @@ export function WorkersConnectHomeSection() {
                   <span>
                     {selectedState === "All States"
                       ? t.cardWorkersCta
-                      : `Hire Farm Workers in ${selectedState}`
+                      : `Hire AgriLabour in ${selectedState}`
                     }
                   </span>
                   <ArrowRight className="w-4 h-4 ml-1" />
@@ -490,7 +490,7 @@ export function WorkersConnectHomeSection() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3">
                   <span className="px-3 py-1 rounded-full bg-amber-600 text-white text-xs font-bold shadow-2xs">
-                    For Farm Workers
+                    For AgriLabour
                   </span>
                   <span className="text-xs text-stone-500 font-medium">Agricultural Employment & Fair Wages</span>
                 </div>

@@ -116,7 +116,7 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
     },
     description: {
       hi: "खेत मजदूर, ट्रैक्टर व कृषि उपकरण किराया और सरकारी योजनाएं",
-      en: "Farm workers, tractor & machinery rentals, and government schemes",
+      en: "AgriLabour, tractor & machinery rentals, and government schemes",
       kn: "ಕೂಲಿ ಕಾರ್ಮಿಕರು, ಟ್ರ್ಯಾಕ್ಟರ್ ಮತ್ತು ಯಂತ್ರೋಪಕರಣ ಬಾಡಿಗೆ, ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು",
     },
     icon: Users,
@@ -733,7 +733,7 @@ export const ALL_SERVICES: ServiceItem[] = [
     iconColor: "sky",
     title: {
       hi: "खेती में मदद व मजदूर",
-      en: "Farming Help & Labour",
+      en: "AgriLabour",
       kn: "ಕೃಷಿ ಸಹಾಯ & ಕೂಲಿ ಕಾರ್ಮಿಕರು",
     },
     description: {
@@ -743,8 +743,9 @@ export const ALL_SERVICES: ServiceItem[] = [
     },
     isQuickShortcut: true,
     keywords: [
-      "labour",
+      "agrilabour",
       "worker",
+      "labour",
       "help",
       "harvesting",
       "sowing",
@@ -1004,7 +1005,7 @@ export const VOICE_SAMPLE_QUERIES = [
   {
     text: {
       hi: "धान की कटाई के लिए 4 मजदूर चाहिए",
-      en: "Need 4 workers for paddy harvest",
+      en: "Need 4 AgriLabour for paddy harvest",
       kn: "ಭತ್ತ ಕಟಾವಿಗೆ 4 ಕೂಲಿ ಕಾರ್ಮಿಕರು ಬೇಕು",
     },
     route: "/worker-connect",

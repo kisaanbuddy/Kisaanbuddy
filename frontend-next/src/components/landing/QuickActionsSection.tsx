@@ -150,10 +150,10 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
       {
         id: 'worker-connect',
         category: 'FARM LABOUR NETWORK',
-        title: 'Find Farm Workers',
+        title: 'Find AgriLabour',
         desc: 'Connect with agricultural labour crews for seasonal sowing, paddy transplantation, weeding, and harvesting.',
         benefit: 'Transparent daily wages with direct telephone contacts',
-        cta: 'Find Farm Workers',
+        cta: 'Find AgriLabour',
         link: '/worker-connect',
         image: '/images/farmers/farmer-field-tending.webp',
         icon: Users,

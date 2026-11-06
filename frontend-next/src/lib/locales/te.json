@@ -8,7 +8,7 @@
     "weather_alerts": "వాతావరణ హెచ్చరికలు",
     "disease_detect": "రోగనిర్ధారణ",
     "ai_chatbot": "కృత్రిమ మేధ చాట్‌బాట్",
-    "workers": "కార్మికులు",
+    "workers": "AgriLabour",
     "schemes": "పథకాలు",
     "soil_health": "నేల ఆరోగ్యం",
     "khet_diary": "క్షేత్ర వృత్తాంతం",
@@ -63,7 +63,7 @@
     "trading_value": "వాణిజ్య విలువ",
     "national_agriculture_market": "జాతీయ వ్యవసాయ మార్కెట్"
   },
-  "workers": "కార్మికులు",
+  "workers": "AgriLabour",
   "aiChatbot": "AI చాట్‌బాట్",
   "founders": {
     "heading": "భారతీయ రైతుల కోసం RVCE ఇంజనీర్ల చేత నిర్మించబడింది 🇮🇳",
@@ -439,7 +439,7 @@
   "save": "Save",
   "cancel": "Cancel",
   "noEntries": "No entries yet",
-  "workerTitle": "Worker Connect",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "Find skilled farm workers near you",
   "callBtn": "Call",
   "whatsappBtn": "WhatsApp",

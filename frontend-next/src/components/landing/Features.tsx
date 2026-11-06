@@ -200,7 +200,7 @@ const TOOLS_CONFIG = [
       gu: 'વર્કર્સ કનેક્ટ', bn: 'ওয়ার্কার্স কানেক্ট', pa: 'ਵਰਕਰ ਕਨੈਕਟ', ml: 'വർക്കേഴ്സ് കണക്ട്', hi_en: 'Workers Connect',
     },
     desc: {
-      en: 'Find farm workers or discover farming jobs near you for sowing, harvesting, weeding, and tractor work.',
+      en: 'Find AgriLabour or discover farming jobs near you for sowing, harvesting, weeding, and tractor work.',
       hi: 'धान रोपाई, बुवाई, निराई और फसल कटाई के लिए सीधे खेतिहर मजदूर रखें या अपने पास काम ढूंढें।',
       kn: 'ನಾಟಿ, ಬಿತ್ತನೆ, ಕಳೆ ಕೀಳುವುದು ಮತ್ತು ಕಟಾವಿಗಾಗಿ ಸ್ಥಳೀಯ ನುರಿತ ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ ಕೆಲಸ ಹುಡುಕಿ.',
       mr: 'भात लावणी, पेरणी, निंदणी आणि कापणीसाठी थेट शेतमजूर मिळवा किंवा जवळच्या शेतांमध्ये काम शोधा.',

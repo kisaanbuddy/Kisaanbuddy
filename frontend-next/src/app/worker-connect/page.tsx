@@ -3,13 +3,13 @@ import { Suspense } from 'react';
 import WorkerConnectClient from './WorkerConnectClient';
 
 export const metadata: Metadata = {
-  title: 'Agricultural Labour Hiring - Hire Farm Workers & Labourers | कृषि मजदूर सेवा',
+  title: 'AgriLabour - Hire Agricultural Labourers & Farm Workers | कृषि मजदूर',
   description: 'Find and hire genuine agricultural workers, harvesting gangs, and tractor operators near you, or post farm job openings on KisaanBuddy.',
   alternates: {
     canonical: '/worker-connect',
   },
   openGraph: {
-    title: 'Agricultural Labour Hiring - Hire Farm Workers & Labourers | कृषि मजदूर सेवा',
+    title: 'AgriLabour - Hire Agricultural Labourers & Farm Workers | कृषि मजदूर',
     description: 'Find and hire genuine agricultural workers, harvesting gangs, and tractor operators near you, or post farm job openings on KisaanBuddy.',
     url: '/worker-connect',
     type: 'website',
@@ -20,7 +20,7 @@ export default function WorkerConnectPage() {
   const webAppSchema = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "KisaanBuddy Agricultural Labour Hiring",
+    "name": "KisaanBuddy AgriLabour",
     "url": "https://kisaanbuddy.com/worker-connect",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",

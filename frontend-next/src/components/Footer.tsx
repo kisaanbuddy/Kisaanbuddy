@@ -83,11 +83,11 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Column 3: Workers Connect */}
+          {/* Column 3: AgriLabour */}
           <div className="space-y-3">
             <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
               <Users className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Workers Connect</span>
+              <span>AgriLabour</span>
             </p>
             <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
               <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
@@ -97,7 +97,7 @@ export function Footer() {
                 Tractor & Harvester Operators
               </Link>
               <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Register as Worker / Driver
+                Register as AgriLabour / Driver
               </Link>
             </div>
           </div>

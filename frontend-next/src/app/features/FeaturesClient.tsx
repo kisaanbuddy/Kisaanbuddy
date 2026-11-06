@@ -52,7 +52,7 @@ export function FeaturesClient() {
     },
     {
       icon: Users,
-      title: lang === 'hi' ? 'श्रमिक कनेक्ट व हार्वेस्टर दल' : lang === 'kn' ? 'ಕೃಷಿ ಕಾರ್ಮಿಕರ ಸಂಪರ್ಕ' : 'Worker Connect & Labour Crews',
+      title: lang === 'hi' ? 'AgriLabour (कृषि मजदूर)' : lang === 'kn' ? 'AgriLabour' : 'AgriLabour - Farm Labour & Crews',
       category: lang === 'hi' ? 'कार्यबल' : lang === 'kn' ? 'ಕಾರ್ಮಿಕರು' : 'Labour & Crews',
       image: "/images/farmers/farmer-field-tending.jpg",
       imageAlt: "Indian farm workers tending crops in agricultural field",

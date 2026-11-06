@@ -8,7 +8,7 @@
     "weather_alerts": "Weather Alerts",
     "disease_detect": "Disease Detect",
     "ai_chatbot": "AI Chatbot",
-    "workers": "Workers",
+    "workers": "AgriLabour",
     "schemes": "Schemes",
     "soil_health": "Soil Health",
     "khet_diary": "Khet Diary",
@@ -63,7 +63,7 @@
     "trading_value": "Trading Value",
     "national_agriculture_market": "National Agriculture Market"
   },
-  "workers": "Workers",
+  "workers": "AgriLabour",
   "aiChatbot": "AI Chatbot",
   "founders": {
     "founder_ceo_chief_architect": "Founder, CEO & Chief Architect (Head of Kisaan Buddy)",
@@ -440,7 +440,7 @@
   "save": "Save",
   "cancel": "Cancel",
   "noEntries": "No entries yet",
-  "workerTitle": "Worker Connect",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "Find skilled farm workers near you",
   "callBtn": "Call",
   "whatsappBtn": "WhatsApp",

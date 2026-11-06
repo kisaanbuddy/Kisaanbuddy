@@ -1,4 +1,4 @@
-"""KrishiAI Worker Connect — Agricultural Labour Marketplace REST API.
+"""KrishiAI AgriLabour — Agricultural Labour Marketplace REST API.
 
 Mounted at /api/worker-connect (see backend/main.py).
 
