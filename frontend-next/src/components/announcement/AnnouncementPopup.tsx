@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { X, Sparkles, ArrowRight, Sprout, TrendingUp, ShieldCheck, Tractor, Stethoscope } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 import { useLanguage, type Lang } from "@/lib/language";
 import {
   ANNOUNCEMENT_TRANSLATIONS,
@@ -35,7 +35,7 @@ export function AnnouncementPopup() {
 
     if (!isReady) return;
 
-    // Wait until language selection modal is done so modals never overlap
+    // Do not show while language selection modal is active
     if (isLanguageModalOpen) {
       setIsOpen(false);
       return;
@@ -47,11 +47,11 @@ export function AnnouncementPopup() {
         // Smooth entrance delay right after initial hydration & page ready
         const timer = setTimeout(() => {
           setIsOpen(true);
-        }, 450);
+        }, 400);
         return () => clearTimeout(timer);
       }
     } catch {
-      // In private browsing mode where sessionStorage might throw
+      // Storage might be blocked in strict sandboxes
     }
   }, [isReady, isLanguageSelected, isLanguageModalOpen]);
 
@@ -85,7 +85,6 @@ export function AnnouncementPopup() {
   useEffect(() => {
     if (!isOpen) return;
 
-    // Focus the primary CTA on open for immediate keyboard interaction
     const focusTimer = setTimeout(() => {
       ctaButtonRef.current?.focus();
     }, 150);
@@ -129,7 +128,7 @@ export function AnnouncementPopup() {
   const content: AnnouncementContent =
     ANNOUNCEMENT_TRANSLATIONS[currentLang] || ANNOUNCEMENT_TRANSLATIONS.en;
 
-  // Animation variants adapting to user reduced motion preference
+  // Animation variants
   const overlayVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: prefersReducedMotion ? 0.1 : 0.35, ease: "easeOut" } },
@@ -148,7 +147,7 @@ export function AnnouncementPopup() {
       y: 0,
       transition: {
         duration: prefersReducedMotion ? 0.1 : 0.45,
-        ease: [0.16, 1, 0.3, 1], // snappy easeOutCubic
+        ease: [0.16, 1, 0.3, 1],
       },
     },
     exit: {
@@ -169,7 +168,7 @@ export function AnnouncementPopup() {
           aria-describedby="welcome-modal-description"
           className="fixed inset-0 z-[95] flex items-center justify-center p-3 sm:p-5 md:p-6 overflow-y-auto"
         >
-          {/* ─── BACKDROP OVERLAY WITH BLUR & AMBIENT DARK GREEN TINT ─── */}
+          {/* ─── BACKDROP OVERLAY ─── */}
           <motion.div
             variants={overlayVariants}
             initial="hidden"
@@ -177,191 +176,310 @@ export function AnnouncementPopup() {
             exit="exit"
             onClick={handleDismiss}
             aria-hidden="true"
-            className="fixed inset-0 bg-[#02140d]/80 backdrop-blur-md transition-all"
+            className="fixed inset-0 bg-[#02130c]/85 backdrop-blur-md transition-all"
           />
 
-          {/* ─── MODAL CONTAINER ─── */}
+          {/* ─── MODAL CONTAINER (Max 1050px width x 760px height) ─── */}
           <motion.div
             ref={modalRef}
             variants={modalVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="relative w-full max-w-2xl sm:max-w-3xl my-auto rounded-3xl overflow-hidden border border-emerald-500/25 bg-gradient-to-br from-[#042017] via-[#062c1e] to-[#021811] text-white shadow-2xl shadow-emerald-950/60 z-10"
+            className="relative w-full max-w-[1050px] max-h-[92vh] md:max-h-[760px] my-auto flex flex-col rounded-3xl overflow-hidden border border-emerald-500/25 bg-gradient-to-br from-[#021810] via-[#05291b] to-[#01140c] text-white shadow-2xl shadow-black/80 z-10"
           >
-            {/* ─── AMBIENT BACKGROUND GLOWS & AGRICULTURAL PATTERNS ─── */}
-            <div className="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/15 rounded-full filter blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-emerald-400/10 rounded-full filter blur-3xl pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/10 rounded-full filter blur-3xl pointer-events-none" />
+            {/* ─── AMBIENT ATMOSPHERIC LIGHTING & TOPOGRAPHIC PATTERNS ─── */}
+            <div className="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/15 rounded-full filter blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-400/10 rounded-full filter blur-3xl pointer-events-none" />
+            <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-emerald-600/10 rounded-full filter blur-3xl pointer-events-none" />
 
-            {/* Subtle SVG Agricultural Topography & Contour Lines Background */}
+            {/* Subtle Agricultural Topography Contour Lines */}
             <svg
-              className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none stroke-emerald-300"
+              className="absolute inset-0 w-full h-full opacity-[0.05] pointer-events-none stroke-emerald-300"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               preserveAspectRatio="none"
             >
-              <path d="M0,60 Q200,20 400,80 T800,40 T1200,100" strokeWidth="1.5" />
-              <path d="M0,120 Q300,70 600,140 T1200,90" strokeWidth="1.5" />
-              <path d="M0,190 Q250,150 500,210 T1000,170 T1200,230" strokeWidth="1.5" />
-              <path d="M0,280 Q350,220 700,300 T1200,260" strokeWidth="1.5" />
-              <path d="M0,370 Q200,320 500,410 T1000,360 T1200,420" strokeWidth="1.5" />
-              <path d="M0,460 Q300,400 600,490 T1200,440" strokeWidth="1.5" />
+              <path d="M0,80 Q250,30 500,100 T1000,60 T1400,120" strokeWidth="1.5" />
+              <path d="M0,160 Q350,90 700,180 T1400,110" strokeWidth="1.5" />
+              <path d="M0,250 Q300,190 600,270 T1200,210 T1400,290" strokeWidth="1.5" />
+              <path d="M0,360 Q450,280 900,380 T1400,330" strokeWidth="1.5" />
+              <path d="M0,480 Q280,410 650,520 T1300,450 T1400,530" strokeWidth="1.5" />
+              <path d="M0,600 Q400,510 800,630 T1400,570" strokeWidth="1.5" />
             </svg>
 
-            {/* Floating Subtle Leaf Accents */}
-            {!prefersReducedMotion && (
-              <>
-                <motion.div
-                  animate={{ y: [0, -8, 0], rotate: [-2, 4, -2] }}
-                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute top-6 right-16 hidden sm:block opacity-20 pointer-events-none"
-                >
-                  <Sprout className="w-9 h-9 text-emerald-300" />
-                </motion.div>
-                <motion.div
-                  animate={{ y: [0, 6, 0], rotate: [3, -3, 3] }}
-                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  className="absolute bottom-16 left-8 hidden sm:block opacity-15 pointer-events-none"
-                >
-                  <Sprout className="w-7 h-7 text-emerald-400" />
-                </motion.div>
-              </>
-            )}
-
-            {/* ─── MODAL CLOSE BUTTON ─── */}
+            {/* ─── CLOSE BUTTON WITH ROTATION MICRO-INTERACTION ─── */}
             <button
               type="button"
               onClick={handleDismiss}
               aria-label={content.closeAria}
-              className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:bg-white/25 text-stone-200 hover:text-white backdrop-blur-md border border-white/10 transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#062c1e]"
+              className="absolute top-4 right-4 sm:top-5 sm:right-6 z-30 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:bg-white/25 text-stone-200 hover:text-white backdrop-blur-md border border-white/10 transition-all duration-200 cursor-pointer group focus:outline-hidden focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#05291b]"
             >
-              <X className="h-4 w-4 sm:h-5 sm:w-5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-200 group-hover:rotate-90" />
             </button>
 
-            {/* ─── MODAL CONTENT ─── */}
-            <div className="relative px-5 py-6 sm:px-8 sm:py-8 md:px-10 md:py-9 space-y-6 sm:space-y-7">
-              {/* 1. BRAND HEADER */}
-              <motion.div
-                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.4 }}
-                className="text-center space-y-2 sm:space-y-2.5 max-w-xl mx-auto"
-              >
-                {/* Brand Tag Pill */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/25 backdrop-blur-md">
-                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[10px] sm:text-xs font-bold tracking-widest text-emerald-300 uppercase">
-                    KISAANBUDDY • {content.brandTag}
-                  </span>
-                </div>
-
-                {/* Main Heading */}
-                <h2
-                  id="welcome-modal-heading"
-                  className="text-2xl sm:text-3xl md:text-3.5xl font-extrabold tracking-tight text-white leading-tight"
+            {/* ─── SCROLLABLE INNER BODY ─── */}
+            <div className="overflow-y-auto px-5 py-6 sm:px-8 sm:py-8 md:px-12 md:py-10 space-y-6 sm:space-y-8 scrollbar-thin scrollbar-thumb-emerald-800/40">
+              
+              {/* ─── 1. TWO-COLUMN HERO COMPOSITION (DESKTOP) ─── */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center pt-2">
+                
+                {/* LEFT COLUMN: BRAND MESSAGE & HEADLINE */}
+                <motion.div
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.4 }}
+                  className="lg:col-span-7 space-y-3 sm:space-y-4 text-center lg:text-left"
                 >
-                  {content.mainHeading}
-                </h2>
+                  {/* Upper Badge */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/25 backdrop-blur-md">
+                    <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[10px] sm:text-xs font-bold tracking-widest text-emerald-300 uppercase">
+                      {content.badge}
+                    </span>
+                  </div>
 
-                {/* Supporting Text */}
-                <p className="text-xs sm:text-sm md:text-[15px] text-emerald-100/80 leading-relaxed font-normal">
-                  {content.subheading}
-                </p>
-              </motion.div>
+                  {/* Main Heading with Gradient Accent on "Smarter Future" */}
+                  <h2
+                    id="welcome-modal-heading"
+                    className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight"
+                  >
+                    <span>{content.headingPrefix}</span>
+                    <span className="bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400 bg-clip-text text-transparent">
+                      {content.headingHighlight}
+                    </span>
+                    <span>{content.headingSuffix}</span>
+                  </h2>
 
-              {/* 2. CENTRAL ANNOUNCEMENT CARD */}
-              <motion.div
-                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.22, duration: 0.45 }}
-                className="relative rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 p-5 sm:p-6 md:p-7 shadow-xl shadow-black/20 border border-emerald-500/20 backdrop-blur-xl"
-              >
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left">
-                  {/* Agricultural Motif SVG Icon */}
-                  <div className="shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-emerald-950/70 dark:to-emerald-900/50 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
+                  {/* Supporting Message */}
+                  <p
+                    id="welcome-modal-description"
+                    className="text-xs sm:text-sm md:text-[15px] text-emerald-100/85 leading-relaxed font-normal max-w-xl mx-auto lg:mx-0"
+                  >
+                    {content.subheading}
+                  </p>
+                </motion.div>
+
+                {/* RIGHT COLUMN: AGRICULTURAL VISUAL ILLUSTRATION */}
+                <motion.div
+                  initial={{ opacity: 0, scale: prefersReducedMotion ? 1 : 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2, duration: 0.45 }}
+                  className="lg:col-span-5 flex justify-center items-center"
+                >
+                  <div className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-none aspect-[16/11] rounded-2xl bg-gradient-to-br from-emerald-950/60 to-[#021e14]/80 border border-emerald-500/20 shadow-lg p-3 sm:p-4 overflow-hidden flex items-center justify-center">
+                    
+                    {/* Background Radial Sunlight */}
+                    <div className="absolute top-2 right-4 w-28 h-28 bg-emerald-400/20 rounded-full filter blur-2xl pointer-events-none" />
+
+                    {/* Integrated Agricultural Landscape SVG */}
                     <svg
-                      className="w-8 h-8 sm:w-9 sm:h-9 text-emerald-700 dark:text-emerald-400"
-                      viewBox="0 0 24 24"
+                      className="w-full h-full max-h-[170px]"
+                      viewBox="0 0 360 220"
                       fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      {/* Modern Sprout & Rising Sunbeam Graphic */}
-                      <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12" strokeOpacity="0.25" />
-                      <path d="M7 21v-4a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v4" />
-                      <path d="M12 3v10" />
-                      <path d="M12 8c2.5-2.5 4.5-2 6 0-1.5 2.5-3.5 2-6 0Z" fill="currentColor" fillOpacity="0.15" />
-                      <path d="M12 11c-2.5-2.5-4.5-2-6 0 1.5 2.5 3.5 2 6 0Z" fill="currentColor" fillOpacity="0.15" />
+                      <defs>
+                        <linearGradient id="sunGlow" x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor="#34d399" stopOpacity="0.8" />
+                          <stop offset="100%" stopColor="#059669" stopOpacity="0.2" />
+                        </linearGradient>
+                        <linearGradient id="fieldHill1" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#065f46" stopOpacity="0.8" />
+                          <stop offset="100%" stopColor="#064e3b" stopOpacity="0.9" />
+                        </linearGradient>
+                        <linearGradient id="fieldHill2" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#047857" stopOpacity="0.9" />
+                          <stop offset="100%" stopColor="#022c22" stopOpacity="0.95" />
+                        </linearGradient>
+                      </defs>
+
+                      {/* Rising Sun */}
+                      <circle cx="270" cy="65" r="28" fill="url(#sunGlow)" />
+                      <circle cx="270" cy="65" r="42" stroke="#34d399" strokeOpacity="0.25" strokeWidth="1" strokeDasharray="4 4" />
+
+                      {/* Background Mountain Contours */}
+                      <path d="M0,140 Q100,105 200,135 T360,120 L360,220 L0,220 Z" fill="url(#fieldHill1)" />
+                      
+                      {/* Foreground Field Furrows */}
+                      <path d="M0,165 Q120,135 240,165 T360,150 L360,220 L0,220 Z" fill="url(#fieldHill2)" />
+                      <path d="M30,175 Q130,152 230,175 T360,165" stroke="#6ee7b7" strokeOpacity="0.3" strokeWidth="1.2" fill="none" />
+                      <path d="M10,195 Q140,172 260,195 T360,185" stroke="#6ee7b7" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
+
+                      {/* Stylized Grain Stalk / Sprout */}
+                      <g transform="translate(110, 55)">
+                        <path d="M20,120 Q18,60 20,20" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+                        {/* Leaf Ears */}
+                        <path d="M20,95 Q35,80 32,65 Q20,75 20,95 Z" fill="#6ee7b7" fillOpacity="0.75" />
+                        <path d="M20,80 Q5,65 8,50 Q20,60 20,80 Z" fill="#34d399" fillOpacity="0.75" />
+                        <path d="M20,60 Q35,45 32,30 Q20,40 20,60 Z" fill="#6ee7b7" fillOpacity="0.85" />
+                        <path d="M20,45 Q5,30 8,15 Q20,25 20,45 Z" fill="#34d399" fillOpacity="0.85" />
+                        {/* Top Grain Head */}
+                        <path d="M20,20 Q20,2 20,-2 Q20,2 20,20 Z" fill="#a7f3d0" />
+                        <circle cx="20" cy="15" r="4" fill="#a7f3d0" />
+                      </g>
                     </svg>
-                  </div>
 
-                  {/* Card Text Content */}
-                  <div className="space-y-1.5 flex-1">
-                    <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>KisaanBuddy Innovation</span>
+                    {/* Integrated Floating Smart Telemetry Badges */}
+                    <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#021b12]/90 border border-emerald-500/30 backdrop-blur-md text-[10px] font-bold text-emerald-300">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span>Live Intelligence</span>
                     </div>
-                    <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white tracking-tight">
-                      {content.cardHeading}
-                    </h3>
-                    <p
-                      id="welcome-modal-description"
-                      className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed"
-                    >
-                      {content.cardDescription}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Sub-features Pillar Indicators */}
-                <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-stone-800 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-left">
-                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
-                    <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
-                      Mandi Rates
-                    </span>
+                    <div className="absolute bottom-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#021b12]/90 border border-teal-500/30 backdrop-blur-md text-[10px] font-bold text-teal-300">
+                      <span>✓ 100% Authentic</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
-                    <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
-                      Crop Doctor
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
-                    <Tractor className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
-                      Equipment
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
-                      Verified Data
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
 
-              {/* 3. CALL TO ACTION BUTTON */}
+              {/* ─── 2. REFINED FEATURE SHOWCASE: 4 ELEGANT TILES ─── */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                
+                {/* TILE 01: MANDI INTELLIGENCE */}
+                <motion.div
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.25, duration: 0.4 }}
+                  className="flex flex-col justify-between p-4 sm:p-4.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 hover:border-emerald-400/40 backdrop-blur-md shadow-sm transition-all duration-300 group hover:-translate-y-1"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      {/* Icon */}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 group-hover:scale-105 transition-transform">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                          <polyline points="16 7 22 7 22 13" />
+                        </svg>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-400/60">{content.f1Number}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-emerald-200 transition-colors">
+                        {content.f1Title}
+                      </h3>
+                      <p className="text-xs text-stone-300/90 leading-relaxed font-normal mt-1">
+                        {content.f1Desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* TILE 02: CROP DOCTOR */}
+                <motion.div
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.4 }}
+                  className="flex flex-col justify-between p-4 sm:p-4.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 hover:border-emerald-400/40 backdrop-blur-md shadow-sm transition-all duration-300 group hover:-translate-y-1"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      {/* Icon */}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 group-hover:scale-105 transition-transform">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M11 2a9 9 0 0 1 9 9c0 4.97-4.03 9-9 9a9 9 0 0 1-9-9 9 9 0 0 1 9-9Z" />
+                          <path d="m21 21-4.35-4.35" />
+                          <path d="M11 8v6" />
+                          <path d="M8 11h6" />
+                        </svg>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-400/60">{content.f2Number}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-emerald-200 transition-colors">
+                        {content.f2Title}
+                      </h3>
+                      <p className="text-xs text-stone-300/90 leading-relaxed font-normal mt-1">
+                        {content.f2Desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* TILE 03: FARM MARKETPLACE */}
+                <motion.div
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35, duration: 0.4 }}
+                  className="flex flex-col justify-between p-4 sm:p-4.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 hover:border-emerald-400/40 backdrop-blur-md shadow-sm transition-all duration-300 group hover:-translate-y-1"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      {/* Icon */}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 group-hover:scale-105 transition-transform">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M3 7h18" />
+                          <path d="M6 7V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v3" />
+                          <rect x="3" y="7" width="18" height="14" rx="2" />
+                          <circle cx="8" cy="14" r="2" />
+                          <circle cx="16" cy="14" r="2" />
+                        </svg>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-400/60">{content.f3Number}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-emerald-200 transition-colors">
+                        {content.f3Title}
+                      </h3>
+                      <p className="text-xs text-stone-300/90 leading-relaxed font-normal mt-1">
+                        {content.f3Desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* TILE 04: TRUSTED INFORMATION */}
+                <motion.div
+                  initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4, duration: 0.4 }}
+                  className="flex flex-col justify-between p-4 sm:p-4.5 rounded-2xl bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 hover:border-emerald-400/40 backdrop-blur-md shadow-sm transition-all duration-300 group hover:-translate-y-1"
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      {/* Icon */}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-400/25 text-emerald-300 group-hover:scale-105 transition-transform">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                          <path d="m9 12 2 2 4-4" />
+                        </svg>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-emerald-400/60">{content.f4Number}</span>
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-white tracking-tight group-hover:text-emerald-200 transition-colors">
+                        {content.f4Title}
+                      </h3>
+                      <p className="text-xs text-stone-300/90 leading-relaxed font-normal mt-1">
+                        {content.f4Desc}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+
+              </div>
+
+              {/* ─── 3. REFINED CALL TO ACTION & SUPPORTING LINE ─── */}
               <motion.div
-                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.4 }}
-                className="flex items-center justify-center pt-1"
+                transition={{ delay: 0.45, duration: 0.4 }}
+                className="flex flex-col items-center justify-center pt-2 pb-1 space-y-2"
               >
                 <button
                   ref={ctaButtonRef}
                   type="button"
                   onClick={handleDismiss}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:from-emerald-700 active:to-emerald-600 text-white font-bold text-sm sm:text-base px-8 sm:px-10 py-3.5 sm:py-4 shadow-lg shadow-emerald-950/40 border border-emerald-400/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#062c1e]"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm sm:text-base px-8 sm:px-11 py-3.5 sm:py-4 shadow-lg shadow-emerald-950/50 border border-emerald-400/30 transition-all duration-200 transform hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer group focus:outline-hidden focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#05291b]"
                 >
                   <span>{content.ctaButton}</span>
-                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-200 group-hover:translate-x-1" />
                 </button>
+                <p className="text-[11px] sm:text-xs text-emerald-300/70 font-medium tracking-wide">
+                  {content.ctaSubtext}
+                </p>
               </motion.div>
+
             </div>
           </motion.div>
         </div>
