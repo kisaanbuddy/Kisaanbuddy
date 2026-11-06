@@ -966,8 +966,8 @@ export interface AgriPriceComparisonResult {
 }
 
 export const agriProductsApi = {
-  listCategories: () =>
-    request<AgriProductCategoryItem[]>("/api/marketplace/product-categories"),
+  listCategories: (): Promise<AgriProductCategoryItem[]> =>
+    apiGet<AgriProductCategoryItem[]>("/api/marketplace/product-categories"),
 
   list: (params?: {
     category?: string;
@@ -984,7 +984,13 @@ export const agriProductsApi = {
     sort_by?: string;
     page?: number;
     limit?: number;
-  }) => {
+  }): Promise<{
+    items: AgriProductItem[];
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+  }> => {
     const q = new URLSearchParams();
     if (params?.category) q.set("category", params.category);
     if (params?.crop) q.set("crop", params.crop);
@@ -1001,7 +1007,7 @@ export const agriProductsApi = {
     if (params?.page) q.set("page", String(params.page));
     if (params?.limit) q.set("limit", String(params.limit));
     const qs = q.toString();
-    return request<{
+    return apiGet<{
       items: AgriProductItem[];
       total: number;
       page: number;
@@ -1010,8 +1016,8 @@ export const agriProductsApi = {
     }>(`/api/marketplace/products${qs ? `?${qs}` : ""}`);
   },
 
-  getDetail: (id: string) =>
-    request<AgriProductItem>(`/api/marketplace/products/${encodeURIComponent(id)}`),
+  getDetail: (id: string): Promise<AgriProductItem> =>
+    apiGet<AgriProductItem>(`/api/marketplace/products/${encodeURIComponent(id)}`),
 
   comparePrices: (params: {
     product_id?: string;
@@ -1019,14 +1025,14 @@ export const agriProductsApi = {
     crop?: string;
     disease?: string;
     active_ingredient?: string;
-  }) => {
+  }): Promise<AgriPriceComparisonResult> => {
     const q = new URLSearchParams();
     if (params.product_id) q.set("product_id", params.product_id);
     if (params.category) q.set("category", params.category);
     if (params.crop) q.set("crop", params.crop);
     if (params.disease) q.set("disease", params.disease);
     if (params.active_ingredient) q.set("active_ingredient", params.active_ingredient);
-    return request<AgriPriceComparisonResult>(
+    return apiGet<AgriPriceComparisonResult>(
       `/api/marketplace/product-compare-prices?${q.toString()}`
     );
   },

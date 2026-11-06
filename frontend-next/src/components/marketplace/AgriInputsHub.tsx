@@ -493,8 +493,8 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
   useEffect(() => {
     agriProductsApi
       .listCategories()
-      .then((cats) => setCategories(cats))
-      .catch((err) => console.warn("Failed to load categories:", err));
+      .then((cats: AgriProductCategoryItem[]) => setCategories(cats))
+      .catch((err: unknown) => console.warn("Failed to load categories:", err));
   }, []);
 
   // Fetch products when filters update
@@ -514,11 +514,11 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
         sort_by: sortBy,
         limit: 50,
       })
-      .then((res) => {
+      .then((res: { items: AgriProductItem[]; total: number }) => {
         setProducts(res.items);
         setTotalCount(res.total);
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.warn("Failed to load agri products:", err);
       })
       .finally(() => {

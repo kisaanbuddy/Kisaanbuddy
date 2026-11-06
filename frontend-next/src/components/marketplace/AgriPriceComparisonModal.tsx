@@ -376,11 +376,12 @@ export function AgriPriceComparisonModal({
         active_ingredient: product.active_ingredient,
         crop: product.target_crops[0],
       })
-      .then((res) => {
+      .then((res: AgriPriceComparisonResult) => {
         setData(res);
       })
-      .catch((err) => {
-        setError(err?.message || "Failed to fetch price comparison");
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : "Failed to fetch price comparison";
+        setError(msg);
       })
       .finally(() => {
         setLoading(false);
