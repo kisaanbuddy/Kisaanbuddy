@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import {
+  Menu,
   Globe,
   ChevronDown,
   Search,
@@ -26,6 +27,7 @@ import {
   type Lang,
 } from "@/lib/language";
 import { useAuth } from "@/lib/auth";
+import { useMobileMenu } from "./MobileMenuContext";
 import { trackEvent } from "@/lib/analytics";
 import { getModuleConfig } from "./route-utils";
 
@@ -39,6 +41,7 @@ export function CompactInternalHeader() {
   const router = useRouter();
   const { lang, setLang } = useLanguage();
   const { user, ready } = useAuth();
+  const { openMenu } = useMobileMenu();
 
   const [langOpen, setLangOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -111,6 +114,16 @@ export function CompactInternalHeader() {
           <div className="flex items-center justify-between gap-2 sm:gap-4 h-14 sm:h-16">
             {/* ── 1. LEFT: BRAND & CONTEXTUAL MODULE IDENTITY ── */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
+              {/* Mobile Hamburger Menu Button (visible on mobile < 768px) */}
+              <button
+                type="button"
+                onClick={openMenu}
+                className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-95 transition shrink-0"
+                aria-label="Open navigation menu / मेनू खोलें"
+              >
+                <Menu className="h-4.5 w-4.5" />
+              </button>
+
               {/* Home Logo & Brand */}
               <Link
                 href="/"

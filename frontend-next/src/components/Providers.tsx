@@ -7,6 +7,7 @@ import { AuthGate } from '@/components/AuthGate';
 import { LanguageGate } from '@/components/language/LanguageGate';
 import { FarmerFeedbackProvider } from '@/components/farmer/FarmerFeedbackContext';
 import { FarmerFeedbackModal } from '@/components/farmer/FarmerFeedbackModal';
+import { MobileMenuProvider } from '@/components/navigation/MobileMenuContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -26,8 +27,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
               before any authentication redirect fires. */}
           <LanguageGate>
             <FarmerFeedbackProvider>
-              <AuthGate>{children}</AuthGate>
-              <FarmerFeedbackModal />
+              <MobileMenuProvider>
+                <AuthGate>{children}</AuthGate>
+                <FarmerFeedbackModal />
+              </MobileMenuProvider>
             </FarmerFeedbackProvider>
           </LanguageGate>
         </ThemeProvider>

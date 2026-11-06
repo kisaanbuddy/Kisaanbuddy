@@ -8,6 +8,7 @@ import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { MobileMenuDrawer } from '@/components/navigation/MobileMenuDrawer';
 import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
 
 /* ---------- System font stacks ----------
@@ -174,7 +175,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AppNavigationShell />
             <main
               id="main-content"
-              className="app-main flex-1 w-full page-gutter pt-4 md:pt-6 pb-20 md:pb-12"
+              className="app-main flex-1 w-full page-gutter pt-4 md:pt-6 pb-24 md:pb-12"
             >
               <Breadcrumbs />
               {children}
@@ -186,6 +187,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AssistantGate />
           <SwRegister />
           <Analytics />
+          <MobileMenuDrawer />
           <MobileBottomNav />
           <DeferredAdSense />
         </Providers>

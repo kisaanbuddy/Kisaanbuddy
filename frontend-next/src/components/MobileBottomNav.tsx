@@ -1,145 +1,111 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Home, Sparkles, Sprout, BarChart3, User } from 'lucide-react';
-import { useLanguage } from '@/lib/language';
-
-const NAV_ITEMS = [
-  {
-    href: '/',
-    icon: Home,
-    labels: {
-      en: 'Home',
-      hi: 'होम',
-      kn: 'ಮುಖಪುಟ',
-      ta: 'முகப்பு',
-      te: 'హోమ్',
-      ml: 'ഹോം',
-      mr: 'मुख्यपृष्ठ',
-      bn: 'হোম',
-      pa: 'ਮੁੱਖ ਪੰਨਾ',
-      gu: 'હોમ',
-      hi_en: 'Home',
-    },
-  },
-  {
-    href: '/chatbot',
-    icon: Sparkles,
-    labels: {
-      en: 'Ask AI',
-      hi: 'पूछें AI',
-      kn: 'AI ಕೇಳಿ',
-      ta: 'AI கேளுங்கள்',
-      te: 'AI అడగండి',
-      ml: 'AI ചോദിക്കൂ',
-      mr: 'AI विचारा',
-      bn: 'AI জিজ্ঞাসা',
-      pa: 'AI ਪੁੱਛੋ',
-      gu: 'AI પૂછો',
-      hi_en: 'Ask AI',
-    },
-  },
-  {
-    href: '/crop-predictor',
-    icon: Sprout,
-    labels: {
-      en: 'My Farm',
-      hi: 'मेरा खेत',
-      kn: 'ನನ್ನ ಜಮೀನು',
-      ta: 'என் பண்ணை',
-      te: 'నా పొలం',
-      ml: 'എന്റെ കൃഷി',
-      mr: 'माझे शेत',
-      bn: 'আমার খামার',
-      pa: 'ਮੇਰਾ ਖੇਤ',
-      gu: 'મારું ખેતર',
-      hi_en: 'Mera Khet',
-    },
-  },
-  {
-    href: '/dashboard',
-    icon: BarChart3,
-    labels: {
-      en: 'Insights',
-      hi: 'अनुमान',
-      kn: 'ಒಳನೋಟಗಳು',
-      ta: 'பார்வைகள்',
-      te: 'అంచనాలు',
-      ml: 'വിവരങ്ങൾ',
-      mr: 'अंदाज',
-      bn: 'অন্তর্দৃষ্টি',
-      pa: 'ਅੰਦਾਜ਼ਾ',
-      gu: 'અંદાજ',
-      hi_en: 'Insights',
-    },
-  },
-  {
-    href: '/profile',
-    icon: User,
-    labels: {
-      en: 'Profile',
-      hi: 'प्रोफाइल',
-      kn: 'ಪ್ರೊಫೈಲ್',
-      ta: 'சுயவிவரம்',
-      te: 'ప్రొಫైల్',
-      ml: 'പ്രൊഫൈൽ',
-      mr: 'प्रोफाइल',
-      bn: 'প্রোফাইল',
-      pa: 'ਪ੍ਰੋਫਾਈਲ',
-      gu: 'પ્રોફાઇલ',
-      hi_en: 'Profile',
-    },
-  },
-];
+import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, TrendingUp, Store, Users, Wrench } from "lucide-react";
+import { useLanguage, type Lang } from "@/lib/language";
+import { BOTTOM_NAV_I18N } from "@/lib/mobile-nav-i18n";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { lang } = useLanguage();
 
+  const labels = BOTTOM_NAV_I18N[lang as Lang] || BOTTOM_NAV_I18N.en;
+
+  const NAV_ITEMS = [
+    {
+      href: "/",
+      icon: Home,
+      label: labels.home,
+      isActive: pathname === "/" || pathname === "",
+    },
+    {
+      href: "/mandi",
+      icon: TrendingUp,
+      label: labels.mandi,
+      isActive: Boolean(pathname === "/mandi" || pathname?.startsWith("/mandi/")),
+    },
+    {
+      href: "/marketplace",
+      icon: Store,
+      label: labels.marketplace,
+      isActive: Boolean(
+        pathname === "/marketplace" || pathname?.startsWith("/marketplace/")
+      ),
+    },
+    {
+      href: "/worker-connect",
+      icon: Users,
+      label: labels.workers,
+      isActive: Boolean(
+        pathname === "/worker-connect" || pathname?.startsWith("/worker-connect/")
+      ),
+    },
+    {
+      href: "/features",
+      icon: Wrench,
+      label: labels.tools,
+      isActive: Boolean(
+        pathname === "/features" ||
+          pathname?.startsWith("/features/") ||
+          pathname === "/disease" ||
+          pathname?.startsWith("/disease/") ||
+          pathname === "/crop-predictor" ||
+          pathname?.startsWith("/crop-predictor/") ||
+          pathname === "/soil-health" ||
+          pathname?.startsWith("/soil-health/") ||
+          pathname === "/weather" ||
+          pathname?.startsWith("/weather/") ||
+          pathname === "/satellite" ||
+          pathname?.startsWith("/satellite/") ||
+          pathname === "/khet-diary" ||
+          pathname?.startsWith("/khet-diary/")
+      ),
+    },
+  ];
+
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-emerald-900/10 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_24px_rgba(23,75,53,0.08)] backdrop-blur-md md:hidden select-none"
+      className="fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-900/10 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(23,75,53,0.08)] backdrop-blur-md md:hidden select-none"
       aria-label="Primary mobile navigation"
     >
-      <div className="flex items-center justify-around px-1 py-1">
-        {NAV_ITEMS.map(({ href, icon: Icon, labels }) => {
-          const isActive =
-            href === '/' ? pathname === '/' : pathname?.startsWith(href);
-          const labelText = labels[lang as keyof typeof labels] || labels.en;
-
+      <div className="grid grid-cols-5 w-full max-w-lg mx-auto px-1 py-1">
+        {NAV_ITEMS.map(({ href, icon: Icon, label, isActive }) => {
           return (
             <Link
               key={href}
               href={href}
-              aria-label={labelText}
-              aria-current={isActive ? 'page' : undefined}
-              className={`relative flex min-h-[50px] min-w-[60px] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl py-1 transition-all active:scale-95 touch-manipulation ${
+              aria-label={label}
+              aria-current={isActive ? "page" : undefined}
+              className={`relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-xl py-1 px-0.5 transition-all active:scale-95 touch-manipulation ${
                 isActive
-                  ? 'text-emerald-800 dark:text-emerald-400 font-bold'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium'
+                  ? "text-emerald-800 dark:text-emerald-400 font-bold"
+                  : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 font-medium"
               }`}
             >
               <span
-                className={`flex h-8 w-11 items-center justify-center rounded-full transition-colors ${
+                className={`flex h-7 w-10 sm:w-11 items-center justify-center rounded-full transition-colors ${
                   isActive
-                    ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300'
-                    : 'bg-transparent text-stone-600 dark:text-stone-400'
+                    ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300"
+                    : "bg-transparent text-stone-600 dark:text-stone-400"
                 }`}
               >
                 <Icon
-                  className={`h-5 w-5 transition-transform ${
-                    isActive ? 'scale-105 stroke-[2.4]' : 'stroke-[1.8]'
+                  className={`h-4.5 w-4.5 sm:h-5 sm:w-5 transition-transform ${
+                    isActive ? "scale-105 stroke-[2.4]" : "stroke-[1.8]"
                   }`}
                   aria-hidden="true"
                 />
               </span>
               <span
-                className={`text-[11px] leading-tight tracking-tight ${
-                  isActive ? 'font-extrabold text-emerald-800 dark:text-emerald-300' : 'font-semibold'
+                className={`text-[10px] sm:text-[11px] leading-tight tracking-tight text-center truncate max-w-full px-0.5 ${
+                  isActive
+                    ? "font-extrabold text-emerald-800 dark:text-emerald-300"
+                    : "font-semibold"
                 }`}
               >
-                {labelText}
+                {label}
               </span>
               {isActive && (
                 <span

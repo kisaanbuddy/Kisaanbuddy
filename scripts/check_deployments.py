@@ -1,7 +1,7 @@
 import urllib.request
 import json
 
-for sha in ['0f96579', '487f823']:
+for sha in ['12836f6', '0f96579']:
     # Check commit status
     url = f'https://api.github.com/repos/kisaanbuddy/Kisaanbuddy/commits/{sha}/status'
     try:

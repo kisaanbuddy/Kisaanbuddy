@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import Link from "next/link";
 import machineryAuditData from "@/lib/data/machinery-image-mapping.json";
 import {
+  Menu,
   Search,
   X,
   SlidersHorizontal,
@@ -53,6 +54,7 @@ import {
   formatCategory,
   formatCondition,
 } from "@/lib/marketplace-i18n";
+import { useMobileMenu } from "@/components/navigation/MobileMenuContext";
 
 // Clean telephone number for tel: protocol
 function cleanPhoneForTel(phone?: string | null): string {
@@ -460,6 +462,7 @@ function getLocationScore(
 export default function MarketplacePage() {
   const { lang } = useLanguage();
   const isHi = lang === "hi";
+  const { openMenu } = useMobileMenu();
   const cmpDict = useMemo(() => getPriceComparisonI18n(lang), [lang]);
 
   // Data states
@@ -1337,7 +1340,15 @@ export default function MarketplacePage() {
         <div className="w-full max-w-none px-3 sm:px-4 lg:px-6">
           <div className="flex items-center justify-between gap-3 sm:gap-4 h-16">
             {/* Left: Brand Identity */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={openMenu}
+                className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-95 transition shrink-0"
+                aria-label="Open navigation menu / मेनू खोलें"
+              >
+                <Menu className="h-4.5 w-4.5" />
+              </button>
               <Link href="/marketplace" className="flex items-center gap-2.5 group">
                 <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-base shadow-xs group-hover:bg-emerald-800 transition">
                   🌾

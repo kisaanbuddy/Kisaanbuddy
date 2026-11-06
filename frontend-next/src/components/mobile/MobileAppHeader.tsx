@@ -4,6 +4,7 @@ import React, { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+  Menu,
   Globe,
   Bell,
   User as UserIcon,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react"
 import { useLanguage, LANG_NAMES, LANG_DETAILS, SELECTABLE_LANGS, type Lang } from "@/lib/language"
 import { useAuth } from "@/lib/auth"
+import { useMobileMenu } from "@/components/navigation/MobileMenuContext"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface Props {
@@ -25,6 +27,7 @@ export function MobileAppHeader({ currentLocationName }: Props) {
   const pathname = usePathname()
   const { lang, setLang } = useLanguage()
   const { user, ready } = useAuth()
+  const { openMenu } = useMobileMenu()
   const [langModalOpen, setLangModalOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
 
@@ -46,9 +49,18 @@ export function MobileAppHeader({ currentLocationName }: Props) {
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-emerald-900/10 dark:border-stone-800 shadow-[0_2px_12px_rgba(23,75,53,0.04)] pt-[env(safe-area-inset-top)] md:hidden">
-        <div className="flex h-14 items-center justify-between px-3.5">
-          {/* Left: Krishi AI Logo & Brand */}
-          <Link href="/" className="flex items-center gap-2 group active:scale-95 transition-transform">
+        <div className="flex h-14 items-center justify-between px-3">
+          {/* Left: Hamburger Menu & Krishi AI Logo */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={openMenu}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-95 transition shrink-0"
+              aria-label="Open navigation menu / मेनू खोलें"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            <Link href="/" className="flex items-center gap-2 group active:scale-95 transition-transform">
             <div className="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-black shadow-xs text-sm">
               🌾
             </div>
@@ -73,6 +85,7 @@ export function MobileAppHeader({ currentLocationName }: Props) {
               )}
             </div>
           </Link>
+          </div>
 
           {/* Right: Language Pill + Notification + Profile */}
           <div className="flex items-center gap-1.5">
