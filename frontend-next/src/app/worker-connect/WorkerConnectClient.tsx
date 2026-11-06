@@ -41,6 +41,18 @@ import {
   Bed,
   Truck,
   Eye,
+  Bell,
+  LayoutGrid,
+  Tractor,
+  CircleDot,
+  Scissors,
+  Droplets,
+  Package,
+  Shield,
+  Wheat,
+  Apple,
+  Cog,
+  ChevronDown,
 } from "lucide-react"
 
 import { useLanguage, type Lang } from "@/lib/language"
@@ -50,21 +62,21 @@ import {
   type WorkerCategory,
   type LabourJobPostOut,
   type LabourJobPostIn,
-  type LabourContactRequestOut,
+  type WageBenchmark,
   type WorkerSearchQuery,
   OFFICIAL_CATEGORIES,
   searchWorkerProfiles,
   fetchLabourJobs,
   postLabourJob,
   requestWorkerContact,
+  fetchWageBenchmarks,
 } from "@/lib/jobs-api"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AgriculturalHeroBanner } from "@/components/worker-connect/AgriculturalHeroBanner"
 
-type TabMode = "find_workers" | "find_jobs" | "post_job"
+type TabMode = "find_workers" | "find_jobs" | "post_job" | "worker_portal" | "wage_intelligence"
 
 const INDIAN_STATES = [
   "All States",
@@ -87,188 +99,161 @@ const INDIAN_STATES = [
   "Assam",
 ]
 
-// Common District Mappings for dynamic district dropdown
-const STATE_DISTRICTS: Record<string, string[]> = {
-  "Punjab": ["All Districts", "Ludhiana", "Amritsar", "Jalandhar", "Bathinda", "Patiala", "Sangrur", "Firozpur"],
-  "Haryana": ["All Districts", "Karnal", "Hisar", "Ambala", "Kurukshetra", "Sirsa", "Rohtak", "Sonipat"],
-  "Uttar Pradesh": ["All Districts", "Meerut", "Muzaffarnagar", "Barabanki", "Varanasi", "Lucknow", "Agra", "Bareilly"],
-  "Karnataka": ["All Districts", "Dharwad", "Belagavi", "Mandya", "Mysuru", "Shivamogga", "Tumakuru", "Vijayapura"],
-  "Maharashtra": ["All Districts", "Nashik", "Pune", "Ahmednagar", "Solapur", "Kolhapur", "Nagpur", "Aurangabad"],
-  "Andhra Pradesh": ["All Districts", "Guntur", "Krishna", "East Godavari", "Kurnool", "Anantapur", "Prakasam"],
-  "Gujarat": ["All Districts", "Rajkot", "Surat", "Mehsana", "Junagadh", "Amreli", "Bhavnagar", "Vadodara"],
-  "Rajasthan": ["All Districts", "Kota", "Jaipur", "Sri Ganganagar", "Hanumangarh", "Alwar", "Baran", "Jodhpur"],
-  "Bihar": ["All Districts", "Muzaffarpur", "Samastipur", "Patna", "Gaya", "Begusarai", "Bhagalpur"],
-}
+// 12 Exact Categories from Reference Image
+const REFERENCE_CATEGORIES = [
+  { slug: "all", label: "All Categories", icon: LayoutGrid },
+  { slug: "ploughing_land_prep", label: "Ploughing & Land Preparation", icon: Tractor },
+  { slug: "sowing", label: "Sowing", icon: Sprout },
+  { slug: "seed_planting", label: "Seed Planting", icon: CircleDot },
+  { slug: "transplanting", label: "Transplanting", icon: Sparkles },
+  { slug: "weeding", label: "Weeding", icon: Scissors },
+  { slug: "irrigation", label: "Irrigation", icon: Droplets },
+  { slug: "fertilizer_application", label: "Fertilizer Application", icon: Package },
+  { slug: "spraying_crop_protection", label: "Spraying & Crop Protection", icon: Shield },
+  { slug: "harvesting", label: "Harvesting", icon: Wheat },
+  { slug: "picking_cotton_fruit", label: "Picking (Cotton/Fruits/Veg)", icon: Apple },
+  { slug: "threshing_winnowing", label: "Threshing", icon: Cog },
+]
 
 export default function WorkerConnectClient() {
   const searchParams = useSearchParams()
   const { lang } = useLanguage()
 
-  // Primary active tab: only 3 clean sections
+  // 5 Tabs matching screenshot
   const [activeTab, setActiveTab] = useState<TabMode>("find_workers")
 
   // Check URL params for initial tab
   useEffect(() => {
     const tab = searchParams?.get("tab")
-    if (tab === "find_jobs" || tab === "post_job" || tab === "find_workers") {
-      setActiveTab(tab)
+    if (
+      tab === "find_jobs" ||
+      tab === "post_job" ||
+      tab === "find_workers" ||
+      tab === "worker_portal" ||
+      tab === "wage_intelligence"
+    ) {
+      setActiveTab(tab as TabMode)
     }
   }, [searchParams])
 
   // =========================================================================
-  // SECTION 1: FIND WORKERS STATE
+  // SECTION 1: FIND WORKERS FILTERS & STATE (Matching Screenshot)
   // =========================================================================
   const [workers, setWorkers] = useState<WorkerProfile[]>([])
   const [loadingWorkers, setLoadingWorkers] = useState<boolean>(true)
-  const [workerSearchQuery, setWorkerSearchQuery] = useState("")
-  const [selectedState, setSelectedState] = useState("All States")
-  const [selectedDistrict, setSelectedDistrict] = useState("All Districts")
-  const [tehsilFilter, setTehsilFilter] = useState("")
-  const [selectedWorkerType, setSelectedWorkerType] = useState<"all" | "individual" | "group" | "contractor">("all")
-  const [maxWageFilter, setMaxWageFilter] = useState<number>(1000)
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [availabilityFilter, setAvailabilityFilter] = useState<"all" | "today" | "3days">("all")
-  const [maxDistanceKm, setMaxDistanceKm] = useState<number>(100)
-  const [workerSortBy, setWorkerSortBy] = useState<"relevance" | "distance" | "wage_asc" | "wage_desc">("relevance")
+  
+  // Row 1 Filters
+  const [filterState, setFilterState] = useState("All States")
+  const [filterDistrictTehsil, setFilterDistrictTehsil] = useState("")
+  const [filterWorkerType, setFilterWorkerType] = useState<"all" | "individual" | "group" | "contractor">("all")
+  const [farmerPhone, setFarmerPhone] = useState("")
 
-  // Modal / Contact states
+  // Row 2 Filters
+  const [filterMaxWage, setFilterMaxWage] = useState<string>("600")
+  const [onlyConfirmedAvailable, setOnlyConfirmedAvailable] = useState<boolean>(true)
+
+  // Work Category Chip Filter
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState("all")
+
+  // Modals & Unlock Contact State
   const [selectedWorkerForDetail, setSelectedWorkerForDetail] = useState<WorkerProfile | null>(null)
   const [contactModalWorker, setContactModalWorker] = useState<WorkerProfile | null>(null)
   const [requesterName, setRequesterName] = useState("")
-  const [requesterPhone, setRequesterPhone] = useState("")
-  const [requesterFarmLoc, setRequesterFarmLoc] = useState("")
   const [contactSuccessMsg, setContactSuccessMsg] = useState("")
-  const [unlockedWorkerContacts, setUnlockedWorkerContacts] = useState<Record<number, string>>({})
+  const [unlockedContacts, setUnlockedContacts] = useState<Record<number, string>>({})
 
-  // Pre-fill user phone & name if logged in
+  // Auto pre-fill phone from logged-in session
   useEffect(() => {
     const user = getStoredUser()
     if (user) {
-      if (user.phone_number) setRequesterPhone(user.phone_number)
+      if (user.phone_number) setFarmerPhone(user.phone_number)
       if (user.name) setRequesterName(user.name)
     }
   }, [])
 
-  // Fetch Workers
+  // Load Workers
   const loadWorkers = useCallback(async () => {
     setLoadingWorkers(true)
     try {
       const query: WorkerSearchQuery = {
-        state: selectedState !== "All States" ? selectedState : undefined,
-        district: selectedDistrict !== "All Districts" ? selectedDistrict : undefined,
-        category_slug: selectedCategory !== "all" ? selectedCategory : undefined,
-        worker_type: selectedWorkerType,
-        max_wage: maxWageFilter,
-        radius_km: maxDistanceKm,
+        state: filterState !== "All States" ? filterState : undefined,
+        district: filterDistrictTehsil.trim() || undefined,
+        category_slug: selectedCategorySlug !== "all" ? selectedCategorySlug : undefined,
+        worker_type: filterWorkerType,
+        max_wage: filterMaxWage ? parseFloat(filterMaxWage) : undefined,
+        only_confirmed_available: onlyConfirmedAvailable,
       }
       const res = await searchWorkerProfiles(query)
-      let list = res.workers || []
-
-      // Apply client-side sorting
-      if (workerSortBy === "wage_asc") {
-        list.sort((a, b) => a.wage_expectation - b.wage_expectation)
-      } else if (workerSortBy === "wage_desc") {
-        list.sort((a, b) => b.wage_expectation - a.wage_expectation)
-      } else if (workerSortBy === "distance") {
-        list.sort((a, b) => (a.distance_km || 999) - (b.distance_km || 999))
-      }
-
-      setWorkers(list)
+      setWorkers(res.workers || [])
     } catch (e) {
       console.error("Failed to load worker profiles:", e)
     } finally {
       setLoadingWorkers(false)
     }
-  }, [selectedState, selectedDistrict, selectedCategory, selectedWorkerType, maxWageFilter, maxDistanceKm, workerSortBy])
+  }, [filterState, filterDistrictTehsil, selectedCategorySlug, filterWorkerType, filterMaxWage, onlyConfirmedAvailable])
 
   useEffect(() => {
     loadWorkers()
   }, [loadWorkers])
 
-  // Reset Filters
-  const handleResetWorkerFilters = () => {
-    setSelectedState("All States")
-    setSelectedDistrict("All Districts")
-    setTehsilFilter("")
-    setSelectedWorkerType("all")
-    setMaxWageFilter(1000)
-    setSelectedCategory("all")
-    setAvailabilityFilter("all")
-    setMaxDistanceKm(100)
-    setWorkerSortBy("relevance")
-    setWorkerSearchQuery("")
+  // Reset All Filters
+  const handleResetFilters = () => {
+    setFilterState("All States")
+    setFilterDistrictTehsil("")
+    setFilterWorkerType("all")
+    setFilterMaxWage("600")
+    setOnlyConfirmedAvailable(true)
+    setSelectedCategorySlug("all")
   }
 
-  // Filtered workers list
+  // Client-side refined filtering
   const filteredWorkers = useMemo(() => {
     return workers.filter((w) => {
-      if (workerSearchQuery.trim()) {
-        const q = workerSearchQuery.toLowerCase()
-        const matchName = w.name.toLowerCase().includes(q)
-        const matchLoc = (w.village || "").toLowerCase().includes(q) || w.district.toLowerCase().includes(q)
-        const matchSkills = w.skills.some((s) => s.skill_name.toLowerCase().includes(q) || s.category_slug.toLowerCase().includes(q))
-        if (!matchName && !matchLoc && !matchSkills) return false
+      if (filterDistrictTehsil.trim()) {
+        const q = filterDistrictTehsil.toLowerCase()
+        const matchLoc =
+          (w.village || "").toLowerCase().includes(q) ||
+          w.district.toLowerCase().includes(q) ||
+          w.name.toLowerCase().includes(q)
+        if (!matchLoc) return false
       }
-      if (tehsilFilter.trim()) {
-        const t = tehsilFilter.toLowerCase()
-        const matchTehsil = (w.village || "").toLowerCase().includes(t) || w.district.toLowerCase().includes(t)
-        if (!matchTehsil) return false
+      if (onlyConfirmedAvailable && !w.is_available) {
+        return false
+      }
+      if (filterMaxWage && w.wage_expectation > parseFloat(filterMaxWage)) {
+        return false
       }
       return true
     })
-  }, [workers, workerSearchQuery, tehsilFilter])
+  }, [workers, filterDistrictTehsil, onlyConfirmedAvailable, filterMaxWage])
 
-  // Helper for natural worker type description
-  const getNaturalWorkerType = (worker: WorkerProfile): string => {
-    if (worker.worker_type === "individual") {
-      return lang === "hi" ? "व्यक्तिगत मजदूर" : "Individual Worker"
-    }
-    if (worker.worker_type === "group") {
-      const count = worker.group_size || 1
-      return lang === "hi" ? `मजदूर दल (${count} सदस्य)` : `Worker Team (${count} members)`
-    }
-    return lang === "hi" ? "कृषि सेवा प्रदाता" : "Agricultural Service Provider"
-  }
-
-  // Handle Request Contact submit
-  const handleSendContactRequest = async () => {
-    if (!contactModalWorker || !requesterPhone) return
+  // Mutual contact unlock
+  const handleUnlockContact = async () => {
+    if (!contactModalWorker || !farmerPhone) return
     try {
       await requestWorkerContact(contactModalWorker.id, {
         worker_id: contactModalWorker.id,
         requester_name: requesterName || "Verified Farmer",
-        requester_phone: requesterPhone,
+        requester_phone: farmerPhone,
         purpose: "hiring_inquiry",
-        farm_location: requesterFarmLoc || `${selectedState}, ${selectedDistrict}`,
+        farm_location: `${filterState}`,
       })
 
-      // Reveal unmasked phone if available
       if (contactModalWorker.unmasked_phone) {
-        setUnlockedWorkerContacts((prev) => ({
+        setUnlockedContacts((prev) => ({
           ...prev,
           [contactModalWorker.id]: contactModalWorker.unmasked_phone!,
         }))
       }
-
-      setContactSuccessMsg(
-        lang === "hi"
-          ? "संपर्क अनुरोध सफलतापूर्वक भेजा गया! कार्यकर्ता से बातचीत के लिए नीचे दिए गए बटन का उपयोग करें।"
-          : "Contact request sent! Worker phone number is now accessible below."
-      )
+      setContactSuccessMsg("Contact unlocked! You can now call or WhatsApp directly.")
     } catch (e) {
-      console.error("Failed to request contact:", e)
-      // Fallback reveal
       if (contactModalWorker.unmasked_phone) {
-        setUnlockedWorkerContacts((prev) => ({
+        setUnlockedContacts((prev) => ({
           ...prev,
           [contactModalWorker.id]: contactModalWorker.unmasked_phone!,
         }))
       }
-      setContactSuccessMsg(
-        lang === "hi"
-          ? "संपर्क विवरण अनलॉक किया गया। आप सीधे कॉल या व्हाट्सएप कर सकते हैं।"
-          : "Contact details unlocked. You can now call or WhatsApp directly."
-      )
+      setContactSuccessMsg("Contact unlocked! You can now call or WhatsApp directly.")
     }
   }
 
@@ -276,35 +261,32 @@ export default function WorkerConnectClient() {
   // SECTION 2: FIND FARMING JOBS STATE
   // =========================================================================
   const [jobs, setJobs] = useState<LabourJobPostOut[]>([])
-  const [loadingJobs, setLoadingJobs] = useState<boolean>(true)
+  const [loadingJobs, setLoadingJobs] = useState<boolean>(false)
   const [jobSearchQuery, setJobSearchQuery] = useState("")
   const [jobStateFilter, setJobStateFilter] = useState("All States")
-  const [jobCategoryFilter, setJobCategoryFilter] = useState("all")
   const [jobSourceFilter, setJobSourceFilter] = useState<"all" | "internal" | "external">("all")
   const [selectedJobForDetail, setSelectedJobForDetail] = useState<LabourJobPostOut | null>(null)
-  const [justPostedJobCode, setJustPostedJobCode] = useState<string | null>(null)
 
-  // Load Jobs
   const loadJobs = useCallback(async () => {
     setLoadingJobs(true)
     try {
       const res = await fetchLabourJobs({
         state: jobStateFilter !== "All States" ? jobStateFilter : undefined,
-        category_slug: jobCategoryFilter !== "all" ? jobCategoryFilter : undefined,
       })
       setJobs(res || [])
     } catch (e) {
-      console.error("Failed to load farm jobs:", e)
+      console.error("Failed to load jobs:", e)
     } finally {
       setLoadingJobs(false)
     }
-  }, [jobStateFilter, jobCategoryFilter])
+  }, [jobStateFilter])
 
   useEffect(() => {
-    loadJobs()
-  }, [loadJobs])
+    if (activeTab === "find_jobs") {
+      loadJobs()
+    }
+  }, [activeTab, loadJobs])
 
-  // Filtered jobs list
   const filteredJobs = useMemo(() => {
     return jobs.filter((j) => {
       if (jobSourceFilter !== "all") {
@@ -316,9 +298,8 @@ export default function WorkerConnectClient() {
         const q = jobSearchQuery.toLowerCase()
         const matchTitle = j.job_title.toLowerCase().includes(q)
         const matchDesc = (j.work_type_detail || "").toLowerCase().includes(q)
-        const matchEmployer = (j.employer_name || j.contact_name).toLowerCase().includes(q)
-        const matchLoc = j.state.toLowerCase().includes(q) || j.district.toLowerCase().includes(q)
-        if (!matchTitle && !matchDesc && !matchEmployer && !matchLoc) return false
+        const matchEmp = (j.employer_name || j.contact_name).toLowerCase().includes(q)
+        if (!matchTitle && !matchDesc && !matchEmp) return false
       }
       return true
     })
@@ -348,45 +329,10 @@ export default function WorkerConnectClient() {
   const [postingLoading, setPostingLoading] = useState(false)
   const [postSuccessMessage, setPostSuccessMessage] = useState("")
 
-  // Load draft from localStorage if available
-  useEffect(() => {
-    try {
-      const savedDraft = localStorage.getItem("kisaanbuddy_labour_job_draft")
-      if (savedDraft) {
-        const parsed = JSON.parse(savedDraft)
-        if (parsed.title) setPostTitle(parsed.title)
-        if (parsed.employer) setPostEmployerName(parsed.employer)
-        if (parsed.mobile) setPostMobile(parsed.mobile)
-        if (parsed.state) setPostState(parsed.state)
-        if (parsed.district) setPostDistrict(parsed.district)
-        if (parsed.desc) setPostDescription(parsed.desc)
-      }
-    } catch (e) {
-      // ignore
-    }
-  }, [])
-
-  const handleSaveDraft = () => {
-    try {
-      const draft = {
-        title: postTitle,
-        employer: postEmployerName,
-        mobile: postMobile,
-        state: postState,
-        district: postDistrict,
-        desc: postDescription,
-      }
-      localStorage.setItem("kisaanbuddy_labour_job_draft", JSON.stringify(draft))
-      alert(lang === "hi" ? "ड्राफ्ट सुरक्षित कर लिया गया है।" : "Draft saved successfully.")
-    } catch (e) {
-      // ignore
-    }
-  }
-
   const handlePublishJob = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!postTitle.trim() || !postEmployerName.trim() || !postMobile.trim() || !postWage) {
-      alert(lang === "hi" ? "कृपया सभी आवश्यक फ़ील्ड भरें।" : "Please fill in all required fields.")
+      alert("Please fill in all required fields.")
       return
     }
 
@@ -413,19 +359,7 @@ export default function WorkerConnectClient() {
       }
 
       const res = await postLabourJob(payload)
-      const newJobCode = res.job_code || `KB-JOB-${Date.now().toString().slice(-4)}`
-      setJustPostedJobCode(newJobCode)
-
-      // Clear draft
-      localStorage.removeItem("kisaanbuddy_labour_job_draft")
-
-      setPostSuccessMessage(
-        lang === "hi"
-          ? `खेत का काम सफलतापूर्वक प्रकाशित हुआ! (जॉब कोड: ${newJobCode})`
-          : `Farm Job published successfully! (Job Code: ${newJobCode})`
-      )
-
-      // Refresh jobs list and switch to find_jobs tab
+      setPostSuccessMessage(`Farm Job published successfully! (Job Code: ${res.job_code || "KB-JOB"})`)
       await loadJobs()
       setTimeout(() => {
         setActiveTab("find_jobs")
@@ -439,351 +373,535 @@ export default function WorkerConnectClient() {
     }
   }
 
-  // Localized Category Helper
-  const getCategoryName = (slug: string): string => {
-    const found = OFFICIAL_CATEGORIES.find((c) => c.slug === slug)
-    if (found?.name) {
-      return found.name[lang] || found.name.en || slug.replace(/_/g, " ")
+  // =========================================================================
+  // SECTION 4 & 5: WORKER PORTAL & WAGE BENCHMARKS
+  // =========================================================================
+  const [benchmarks, setBenchmarks] = useState<WageBenchmark[]>([])
+  const [loadingBenchmarks, setLoadingBenchmarks] = useState(false)
+
+  useEffect(() => {
+    if (activeTab === "wage_intelligence") {
+      setLoadingBenchmarks(true)
+      fetchWageBenchmarks()
+        .then((data) => setBenchmarks(data || []))
+        .catch((err) => console.error("Failed to load benchmarks:", err))
+        .finally(() => setLoadingBenchmarks(false))
     }
-    return slug.replace(/_/g, " ")
-  }
+  }, [activeTab])
 
   return (
-    <div className="min-h-screen bg-[#fcfdfa] dark:bg-stone-950 text-stone-900 dark:text-stone-100 py-6 sm:py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
-        {/* ========================================================================= */}
-        {/* AGRICULTURAL HERO BANNER (Indian Landscape, Farmers & Tractor Artwork)    */}
-        {/* ========================================================================= */}
-        <AgriculturalHeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
+    <div className="min-h-screen bg-[#fafcf9] text-stone-900 dark:bg-stone-950 dark:text-stone-100 font-sans pb-16">
+      
+      {/* ========================================================================= */}
+      {/* 1. TOP SUB-NAVIGATION BAR (AgriLabour Brand + Quick Links)                 */}
+      {/* ========================================================================= */}
+      <div className="bg-white dark:bg-stone-900 border-b border-stone-200/80 dark:border-stone-800 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
+          
+          {/* Left: AgriLabour Brand Logo */}
+          <div className="flex items-center gap-6">
+            <Link href="/worker-connect" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
+                <Sprout className="w-5 h-5" />
+              </div>
+              <span className="text-lg font-black tracking-tight text-emerald-950 dark:text-white">
+                Agri<span className="text-emerald-600">Labour</span>
+              </span>
+            </Link>
+
+            {/* Nav Links / Pills */}
+            <nav className="hidden md:flex items-center gap-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setActiveTab("find_workers")}
+                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
+                  activeTab === "find_workers"
+                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                }`}
+              >
+                Find Workers
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("find_jobs")}
+                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
+                  activeTab === "find_jobs"
+                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                }`}
+              >
+                Find Farming Jobs
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("post_job")}
+                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
+                  activeTab === "post_job"
+                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                }`}
+              >
+                Post a Farm Job
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("worker_portal")}
+                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
+                  activeTab === "worker_portal"
+                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                }`}
+              >
+                Worker Portal
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("wage_intelligence")}
+                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
+                  activeTab === "wage_intelligence"
+                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
+                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
+                }`}
+              >
+                Wage Intelligence
+              </button>
+            </nav>
+          </div>
+
+          {/* Right: Notifications & Profile */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="relative p-2 rounded-full text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              title="Notifications"
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-600" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-800 dark:text-emerald-200">
+              <User className="w-4 h-4" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
 
         {/* ========================================================================= */}
-        {/* TAB 1: FIND WORKERS (Search & Filter Interface for Farmers)               */}
+        {/* 2. HERO SECTION BANNER (Matches Reference Image Layout & Visuals)         */}
+        {/* ========================================================================= */}
+        <div className="bg-gradient-to-r from-[#eef7ee] via-[#e5f4e5] to-[#dbefdc] dark:from-emerald-950/40 dark:via-emerald-900/30 dark:to-green-950/40 border border-emerald-200/70 dark:border-emerald-800/60 rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xs">
+          
+          {/* Left Text Column */}
+          <div className="space-y-1.5 z-10 max-w-xl">
+            <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium">
+              <Link href="/" className="hover:text-emerald-800 dark:hover:text-emerald-400 transition-colors">
+                Home
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+              <span className="text-stone-700 dark:text-stone-200 font-semibold">
+                Agricultural Labour Hiring
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0f3822] dark:text-white tracking-tight leading-tight">
+              Find Agricultural Workers Near You
+            </h1>
+
+            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300">
+              Hire farm workers, harvesting teams and tractor operators.
+            </p>
+          </div>
+
+          {/* Right Column: Exact Farmer & Tractor Artwork + Post a Farm Job Button */}
+          <div className="flex items-center justify-between md:justify-end gap-5 z-10">
+            {/* Cropped Farmers & Tractor Artwork from user's reference image */}
+            <div className="relative shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/agrilabour-hero-farmers.png"
+                alt="Indian Farmers with Tractor"
+                className="h-16 sm:h-20 w-auto object-contain select-none drop-shadow-sm"
+              />
+            </div>
+
+            {/* Dark Forest Green "+ Post a Farm Job" Button */}
+            <button
+              type="button"
+              onClick={() => setActiveTab("post_job")}
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-2xl bg-[#0f5132] hover:bg-[#0c4128] text-white font-extrabold text-xs sm:text-sm shadow-sm hover:shadow transition-all duration-150 cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4 stroke-[3]" />
+              <span>+ Post a Farm Job</span>
+            </button>
+          </div>
+
+          {/* Background Ambient Glow */}
+          <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-emerald-100/40 to-transparent pointer-events-none" />
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 3. MAIN NAVIGATION TABS (5 Tabs Container matching Screenshot)            */}
+        {/* ========================================================================= */}
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-1.5 shadow-2xs flex items-center gap-1.5 overflow-x-auto">
+          
+          <button
+            type="button"
+            onClick={() => setActiveTab("find_workers")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 cursor-pointer ${
+              activeTab === "find_workers"
+                ? "bg-[#0f5132] text-white shadow-xs"
+                : "text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Find Workers</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("find_jobs")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 cursor-pointer ${
+              activeTab === "find_jobs"
+                ? "bg-[#0f5132] text-white shadow-xs"
+                : "text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <Briefcase className="w-4 h-4" />
+            <span>Find Farming Jobs</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("post_job")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 cursor-pointer ${
+              activeTab === "post_job"
+                ? "bg-[#0f5132] text-white shadow-xs"
+                : "text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            <span>+ Post a Farm Job</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("worker_portal")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 cursor-pointer ${
+              activeTab === "worker_portal"
+                ? "bg-[#0f5132] text-white shadow-xs"
+                : "text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>Worker Portal & Availability</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("wage_intelligence")}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all shrink-0 cursor-pointer ${
+              activeTab === "wage_intelligence"
+                ? "bg-[#0f5132] text-white shadow-xs"
+                : "text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            <span>Official Wage Intelligence</span>
+          </button>
+
+        </div>
+
+        {/* ========================================================================= */}
+        {/* TAB 1: FIND WORKERS (Matching Screenshot Filter + Chips + 3-Col Cards)     */}
         {/* ========================================================================= */}
         {activeTab === "find_workers" && (
           <div className="space-y-6">
-            
-            {/* Search and Filters Card */}
-            <Card className="p-5 sm:p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs space-y-5">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-4">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                  <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white">
-                    {lang === "hi" ? "मजदूर खोज और फ़िल्टर" : "Find Agricultural Workers"}
-                  </h2>
+
+            {/* A. Filter Workers Card */}
+            <Card className="p-5 sm:p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs space-y-4">
+              
+              {/* Header: Filter Workers + Found 5 verified profiles */}
+              <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
+                <div className="flex items-center gap-2 text-stone-900 dark:text-white font-bold text-sm sm:text-base">
+                  <Filter className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
+                  <span>Filter Workers</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
+                  <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                  <span>Found {filteredWorkers.length} verified profiles</span>
+                </div>
+              </div>
+
+              {/* Row 1: 4 Inputs (State, District / Tehsil, Worker Type, Your Phone) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                {/* 1. State */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-stone-400" />
+                    <span>State</span>
+                  </Label>
+                  <div className="relative">
+                    <select
+                      value={filterState}
+                      onChange={(e) => setFilterState(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium appearance-none pr-8 outline-none focus:ring-1 focus:ring-emerald-700"
+                    >
+                      {INDIAN_STATES.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-stone-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* 2. District / Tehsil */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-stone-400" />
+                    <span>District / Tehsil</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      placeholder="e.g. Tumkur, Karnal, Ludhiana"
+                      value={filterDistrictTehsil}
+                      onChange={(e) => setFilterDistrictTehsil(e.target.value)}
+                      className="h-10 text-xs rounded-xl"
+                    />
+                    <ChevronDown className="w-4 h-4 text-stone-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* 3. Worker Type */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-stone-400" />
+                    <span>Worker Type</span>
+                  </Label>
+                  <div className="relative">
+                    <select
+                      value={filterWorkerType}
+                      onChange={(e) => setFilterWorkerType(e.target.value as any)}
+                      className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium appearance-none pr-8 outline-none focus:ring-1 focus:ring-emerald-700"
+                    >
+                      <option value="all">All Types (Individual & Gangs)</option>
+                      <option value="individual">Individual Workers</option>
+                      <option value="group">Worker Gangs / Teams</option>
+                      <option value="contractor">Custom Hiring Centres</option>
+                    </select>
+                    <ChevronDown className="w-4 h-4 text-stone-400 absolute right-2.5 top-3 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* 4. Your Phone (Farmer View) */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-stone-400" />
+                    <span>Your Phone (Farmer View)</span>
+                  </Label>
+                  <Input
+                    type="tel"
+                    placeholder="Enter 10 digits to unlock contacts"
+                    value={farmerPhone}
+                    onChange={(e) => setFarmerPhone(e.target.value)}
+                    className="h-10 text-xs rounded-xl"
+                  />
+                </div>
+
+              </div>
+
+              {/* Row 2: Max Wage, Checkbox, Reset All, Apply Filters */}
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <div className="flex flex-wrap items-center gap-5">
+                  {/* Max Wage */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-stone-700 dark:text-stone-300 flex items-center gap-1">
+                      <IndianRupee className="w-3.5 h-3.5 text-stone-400" />
+                      <span>Max Wage (₹/day)</span>
+                    </span>
+                    <Input
+                      placeholder="e.g. 600"
+                      value={filterMaxWage}
+                      onChange={(e) => setFilterMaxWage(e.target.value)}
+                      className="w-24 h-9 text-xs rounded-xl"
+                    />
+                  </div>
+
+                  {/* Confirmed Available Checkbox */}
+                  <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-semibold text-stone-700 dark:text-stone-300">
+                    <input
+                      type="checkbox"
+                      checked={onlyConfirmedAvailable}
+                      onChange={(e) => setOnlyConfirmedAvailable(e.target.checked)}
+                      className="w-4 h-4 rounded text-emerald-800 focus:ring-emerald-700"
+                    />
+                    <span>Show only confirmed available workers</span>
+                    <Info className="w-3.5 h-3.5 text-stone-400" />
+                  </label>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-3">
                   <button
                     type="button"
-                    onClick={handleResetWorkerFilters}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+                    onClick={handleResetFilters}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white px-3 py-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                   >
                     <RotateCcw className="w-3.5 h-3.5" />
-                    <span>{lang === "hi" ? "फ़िल्टर रीसेट" : "Reset Filters"}</span>
+                    <span>Reset All</span>
                   </button>
+
                   <button
                     type="button"
                     onClick={loadWorkers}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer"
                   >
                     <Search className="w-3.5 h-3.5" />
-                    <span>{lang === "hi" ? "खोजें" : "Find Workers"}</span>
+                    <span>Apply Filters</span>
                   </button>
                 </div>
               </div>
 
-              {/* 8 Intuitive Filter Inputs */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 1. State Filter */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "राज्य (State)" : "State"}
-                  </Label>
-                  <select
-                    value={selectedState}
-                    onChange={(e) => {
-                      setSelectedState(e.target.value)
-                      setSelectedDistrict("All Districts")
-                    }}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
-                  >
-                    {INDIAN_STATES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 2. District Filter */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "जिला (District)" : "District"}
-                  </Label>
-                  {STATE_DISTRICTS[selectedState] ? (
-                    <select
-                      value={selectedDistrict}
-                      onChange={(e) => setSelectedDistrict(e.target.value)}
-                      className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
-                    >
-                      {STATE_DISTRICTS[selectedState].map((d) => (
-                        <option key={d} value={d}>{d}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <Input
-                      placeholder={lang === "hi" ? "जिला दर्ज करें..." : "Enter district..."}
-                      value={selectedDistrict === "All Districts" ? "" : selectedDistrict}
-                      onChange={(e) => setSelectedDistrict(e.target.value || "All Districts")}
-                      className="h-10 text-xs sm:text-sm rounded-xl"
-                    />
-                  )}
-                </div>
-
-                {/* 3. Tehsil / Block Filter */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "तहसील / ब्लॉक" : "Tehsil / Block"}
-                  </Label>
-                  <Input
-                    placeholder={lang === "hi" ? "तहसील या गाँव का नाम..." : "Tehsil or village..."}
-                    value={tehsilFilter}
-                    onChange={(e) => setTehsilFilter(e.target.value)}
-                    className="h-10 text-xs sm:text-sm rounded-xl"
-                  />
-                </div>
-
-                {/* 4. Worker Type Filter */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "मजदूर प्रकार" : "Worker Type"}
-                  </Label>
-                  <select
-                    value={selectedWorkerType}
-                    onChange={(e) => setSelectedWorkerType(e.target.value as any)}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
-                  >
-                    <option value="all">{lang === "hi" ? "सभी प्रकार" : "All Worker Types"}</option>
-                    <option value="individual">{lang === "hi" ? "व्यक्तिगत मजदूर (Individual)" : "Individual Worker"}</option>
-                    <option value="group">{lang === "hi" ? "मजदूर दल (Worker Team)" : "Worker Team"}</option>
-                    <option value="contractor">{lang === "hi" ? "कृषि सेवा प्रदाता" : "Agricultural Service Provider"}</option>
-                  </select>
-                </div>
-
-                {/* 5. Work Category Filter (14 Categories) */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "कार्य श्रेणी (Category)" : "Work Category"}
-                  </Label>
-                  <select
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
-                  >
-                    <option value="all">{lang === "hi" ? "सभी श्रेणियां (All Categories)" : "All Work Categories"}</option>
-                    {OFFICIAL_CATEGORIES.map((c) => (
-                      <option key={c.slug} value={c.slug}>
-                        {c.name[lang] || c.name.en}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* 6. Maximum Wage Filter */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between items-center text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    <span>{lang === "hi" ? "अधिकतम दिहाड़ी" : "Max Daily Wage"}</span>
-                    <span className="text-emerald-700 dark:text-emerald-400 font-bold">₹{maxWageFilter} / {lang === "hi" ? "दिन" : "day"}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="300"
-                    max="1000"
-                    step="50"
-                    value={maxWageFilter}
-                    onChange={(e) => setMaxWageFilter(Number(e.target.value))}
-                    className="w-full h-2 bg-stone-200 dark:bg-stone-800 rounded-lg accent-emerald-700 cursor-pointer"
-                  />
-                </div>
-
-                {/* 7. Availability Filter */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "उपलब्धता" : "Availability"}
-                  </Label>
-                  <select
-                    value={availabilityFilter}
-                    onChange={(e) => setAvailabilityFilter(e.target.value as any)}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
-                  >
-                    <option value="all">{lang === "hi" ? "कोई भी उपलब्धता" : "Any Availability"}</option>
-                    <option value="today">{lang === "hi" ? "आज उपलब्ध (Available Today)" : "Available Today"}</option>
-                    <option value="3days">{lang === "hi" ? "3 दिन के भीतर उपलब्ध" : "Available in 3 Days"}</option>
-                  </select>
-                </div>
-
-                {/* 8. Distance Filter */}
-                <div className="space-y-1.5">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "दूरी का दायरा" : "Distance Radius"}
-                  </Label>
-                  <select
-                    value={maxDistanceKm}
-                    onChange={(e) => setMaxDistanceKm(Number(e.target.value))}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium focus:ring-2 focus:ring-emerald-600 outline-none"
-                  >
-                    <option value={25}>{lang === "hi" ? "25 किमी के भीतर" : "Within 25 km"}</option>
-                    <option value={50}>{lang === "hi" ? "50 किमी के भीतर" : "Within 50 km"}</option>
-                    <option value={100}>{lang === "hi" ? "100 किमी के भीतर" : "Within 100 km"}</option>
-                    <option value={300}>{lang === "hi" ? "पूरे राज्य में" : "Any Distance"}</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Sorting Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-stone-100 dark:border-stone-800/60 text-xs text-stone-600 dark:text-stone-400">
-                <span className="font-medium">
-                  {lang === "hi" ? "परिणाम:" : "Found:"}{" "}
-                  <strong className="text-stone-900 dark:text-white font-bold">{filteredWorkers.length}</strong>{" "}
-                  {lang === "hi" ? "सत्यापित कृषि मजदूर" : "verified agricultural profiles"}
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">{lang === "hi" ? "क्रमबद्ध करें:" : "Sort by:"}</span>
-                  <select
-                    value={workerSortBy}
-                    onChange={(e) => setWorkerSortBy(e.target.value as any)}
-                    className="h-8 px-2.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-xs font-medium outline-none"
-                  >
-                    <option value="relevance">{lang === "hi" ? "प्रासंगिकता" : "Relevance"}</option>
-                    <option value="distance">{lang === "hi" ? "दूरी (निकटतम पहले)" : "Distance (Nearest)"}</option>
-                    <option value="wage_asc">{lang === "hi" ? "दिहाड़ी (कम से ज्यादा)" : "Wage (Low to High)"}</option>
-                    <option value="wage_desc">{lang === "hi" ? "दिहाड़ी (ज्यादा से कम)" : "Wage (High to Low)"}</option>
-                  </select>
-                </div>
-              </div>
             </Card>
 
-            {/* Workers Grid */}
+            {/* B. Select Work Category Horizontal Chips (12 Exact Items) */}
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2 text-stone-900 dark:text-white font-bold text-xs sm:text-sm">
+                <SlidersHorizontal className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
+                <span>Select Work Category</span>
+              </div>
+
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none select-none">
+                {REFERENCE_CATEGORIES.map((cat) => {
+                  const isSelected = selectedCategorySlug === cat.slug
+                  const Icon = cat.icon
+                  return (
+                    <button
+                      key={cat.slug}
+                      type="button"
+                      onClick={() => setSelectedCategorySlug(cat.slug)}
+                      className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                        isSelected
+                          ? "bg-emerald-50 dark:bg-emerald-950/60 border-2 border-emerald-700 text-emerald-900 dark:text-emerald-200 shadow-2xs"
+                          : "bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
+                      }`}
+                    >
+                      <Icon className={`w-3.5 h-3.5 ${isSelected ? "text-emerald-800 dark:text-emerald-300" : "text-stone-500"}`} />
+                      <span>{cat.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* C. Worker Cards Grid (3 Columns Matching Screenshot) */}
             {loadingWorkers ? (
               <div className="p-12 text-center space-y-3">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-700" />
-                <p className="text-sm text-stone-500 font-medium">
-                  {lang === "hi" ? "सत्यापित कृषि मजदूरों की सूची लोड हो रही है..." : "Loading verified worker profiles..."}
-                </p>
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-800" />
+                <p className="text-sm text-stone-500 font-medium">Loading verified worker profiles...</p>
               </div>
             ) : filteredWorkers.length === 0 ? (
-              <Card className="p-12 text-center space-y-4 border-dashed border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-900 rounded-2xl">
-                <Users className="w-12 h-12 text-stone-400 mx-auto" />
-                <h3 className="text-lg font-bold text-stone-900 dark:text-white">
-                  {lang === "hi" ? "कोई मजदूर नहीं मिला" : "No Workers Match Your Filters"}
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-500 max-w-md mx-auto">
-                  {lang === "hi"
-                    ? "कृपया राज्य, जिला या कार्य श्रेणी बदलकर पुनः प्रयास करें।"
-                    : "Try adjusting the state, work category, or maximum wage filter to discover more workers."}
-                </p>
-                <Button onClick={handleResetWorkerFilters} variant="outline" className="text-xs font-bold rounded-xl">
-                  {lang === "hi" ? "सभी फ़िल्टर साफ़ करें" : "Clear All Filters"}
-                </Button>
+              <Card className="p-12 text-center space-y-3 border-dashed border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-900 rounded-2xl">
+                <Users className="w-10 h-10 text-stone-400 mx-auto" />
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">No Workers Match Current Filters</h3>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto">Try resetting the district or wage filter to view all available profiles.</p>
+                <Button onClick={handleResetFilters} variant="outline" className="text-xs rounded-xl">Reset All Filters</Button>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {filteredWorkers.map((worker) => {
-                  const unlockedPhone = unlockedWorkerContacts[worker.id] || worker.unmasked_phone
-                  const initials = worker.name
-                    .split(" ")
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map((n) => n[0].toUpperCase())
-                    .join("")
+                  const unlockedPhone = unlockedContacts[worker.id] || worker.unmasked_phone
+                  const gangCount = worker.group_size || 1
 
                   return (
                     <Card
                       key={worker.id}
-                      className="p-5 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                      className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
                     >
                       <div className="space-y-3">
-                        {/* Header: Avatar, Name & Type */}
-                        <div className="flex items-start gap-3">
-                          <div className="w-11 h-11 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 font-extrabold flex items-center justify-center shrink-0 border border-emerald-300/60 dark:border-emerald-800 text-sm">
-                            {initials || "AG"}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h3 className="text-sm font-bold text-stone-900 dark:text-white leading-tight truncate">
+                        
+                        {/* Top: Green Leaf Badge + Title + Phone Verified & GANG badges */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-emerald-800 dark:text-emerald-300 shrink-0 mt-0.5">
+                              <Sprout className="w-4 h-4" />
+                            </div>
+                            <h3 className="text-sm font-bold text-stone-900 dark:text-white leading-snug line-clamp-2">
                               {worker.name}
                             </h3>
-                            <div className="flex items-center gap-1.5 mt-1">
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-semibold">
-                                {getNaturalWorkerType(worker)}
+                          </div>
+
+                          <div className="flex flex-col items-end gap-1 shrink-0">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                              <span>Phone Verified</span>
+                            </span>
+
+                            {worker.worker_type === "group" ? (
+                              <span className="px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-[10px] font-extrabold uppercase">
+                                GANG ({gangCount})
                               </span>
-                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
-                                <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                                {lang === "hi" ? "सत्यापित" : "Verified"}
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[10px] font-bold uppercase">
+                                INDIVIDUAL
                               </span>
-                            </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* Location & Wage Row */}
-                        <div className="grid grid-cols-2 gap-2 text-xs pt-1">
-                          <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-400 truncate">
+                        {/* Middle: Location & Distance */}
+                        <div className="flex items-center justify-between text-xs text-stone-600 dark:text-stone-400 pt-1">
+                          <div className="flex items-center gap-1.5 truncate">
                             <MapPin className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-                            <span className="truncate">{worker.village ? `${worker.village}, ` : ""}{worker.district}, {worker.state}</span>
-                          </div>
-                          <div className="flex items-center justify-end gap-1 font-extrabold text-emerald-700 dark:text-emerald-400 text-sm">
-                            <span>₹{worker.wage_expectation}</span>
-                            <span className="text-[11px] font-medium text-stone-500">/{lang === "hi" ? "दिन" : "day"}</span>
-                          </div>
-                        </div>
-
-                        {/* Skills Chips */}
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {worker.skills.slice(0, 3).map((s, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px] font-medium"
-                            >
-                              {s.skill_name}
+                            <span className="truncate">
+                              {worker.village ? `${worker.village}, ` : ""}{worker.district}, {worker.state}
                             </span>
-                          ))}
-                          {worker.skills.length > 3 && (
-                            <span className="px-1.5 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-500 text-[10px]">
-                              +{worker.skills.length - 3}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Experience & Languages */}
-                        <div className="text-[11px] text-stone-500 dark:text-stone-400 flex items-center justify-between border-t border-stone-100 dark:border-stone-800/60 pt-2.5">
-                          <span>
-                            {worker.skills[0]?.experience_years
-                              ? `${worker.skills[0].experience_years} ${lang === "hi" ? "वर्ष अनुभव" : "yrs experience"}`
-                              : lang === "hi" ? "अनुभवी मजदूर" : "Experienced"}
+                          </div>
+                          <span className="font-semibold text-stone-500 shrink-0">
+                            ≤{worker.max_travel_km || 45} km
                           </span>
-                          <span>{worker.languages_spoken?.slice(0, 2).join(", ")}</span>
                         </div>
+
+                        {/* Wage info */}
+                        <div className="flex items-center justify-between text-xs pt-1">
+                          <span className="text-stone-500">Expected Wage:</span>
+                          <span className="font-extrabold text-emerald-800 dark:text-emerald-400 text-sm">
+                            ₹{worker.wage_expectation} / day
+                          </span>
+                        </div>
+
+                        {/* Bottom: Available Today (Confirmed) Banner */}
+                        <div className="bg-[#eaf5eb] dark:bg-emerald-950/40 border border-[#d2ecd4] dark:border-emerald-900/60 text-[#136338] dark:text-emerald-300 text-xs font-semibold px-3 py-1.5 rounded-xl flex items-center gap-2">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Available Today (Confirmed)</span>
+                        </div>
+
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="pt-2 border-t border-stone-100 dark:border-stone-800/60 flex items-center gap-2">
+                      <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center gap-2">
                         <button
                           type="button"
                           onClick={() => setSelectedWorkerForDetail(worker)}
                           className="flex-1 py-2 rounded-xl border border-stone-200 dark:border-stone-800 text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors cursor-pointer text-center"
                         >
-                          {lang === "hi" ? "विवरण देखें" : "View Profile"}
+                          View Profile
                         </button>
 
                         {unlockedPhone ? (
                           <div className="flex items-center gap-1.5">
                             <a
                               href={`tel:${unlockedPhone}`}
-                              className="p-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white transition-colors cursor-pointer"
+                              className="p-2 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white transition-colors cursor-pointer"
                               title="Direct Call"
                             >
                               <PhoneCall className="w-4 h-4" />
                             </a>
                             <a
-                              href={`https://wa.me/91${unlockedPhone.replace(/\D/g, "")}?text=Namaste%20${encodeURIComponent(worker.name)},%20I%20am%20contacting%20you%20via%20KisaanBuddy%20for%20farm%20work.`}
+                              href={`https://wa.me/91${unlockedPhone.replace(/\D/g, "")}?text=Namaste%20${encodeURIComponent(worker.name)},%20contacting%20you%20via%20KisaanBuddy%20AgriLabour.`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="p-2 rounded-xl bg-green-600 hover:bg-green-700 text-white transition-colors cursor-pointer"
@@ -799,249 +917,143 @@ export default function WorkerConnectClient() {
                               setContactModalWorker(worker)
                               setContactSuccessMsg("")
                             }}
-                            className="flex-1 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-colors cursor-pointer text-center"
+                            className="flex-1 py-2 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-xs font-bold transition-colors cursor-pointer text-center"
                           >
-                            {lang === "hi" ? "संपर्क करें" : "Contact Worker"}
+                            Contact Worker
                           </button>
                         )}
                       </div>
+
                     </Card>
                   )
                 })}
               </div>
             )}
+
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 2: FIND FARMING JOBS (Real Agricultural Job Listings & KisaanBuddy)  */}
+        {/* TAB 2: FIND FARMING JOBS (Job Vacancies Feed)                             */}
         {/* ========================================================================= */}
         {activeTab === "find_jobs" && (
           <div className="space-y-6">
-            
-            {/* Success notification if just posted */}
-            {justPostedJobCode && (
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 flex items-center justify-between gap-3 shadow-xs">
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <span className="text-xs sm:text-sm font-semibold">
-                    {lang === "hi"
-                      ? `आपका कार्य प्रकाशित हो गया है! (जॉब कोड: ${justPostedJobCode})`
-                      : `Your farm job was published! (Job Code: ${justPostedJobCode})`}
-                  </span>
-                </div>
-                <button
-                  onClick={() => setJustPostedJobCode(null)}
-                  className="text-xs font-bold text-emerald-700 hover:underline"
-                >
-                  {lang === "hi" ? "बंद करें" : "Dismiss"}
-                </button>
-              </div>
-            )}
-
-            {/* Job Filters Card */}
-            <Card className="p-5 sm:p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-3">
+            <Card className="p-5 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 dark:border-stone-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
-                  <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white">
-                    {lang === "hi" ? "वास्तविक कृषि रोजगार के अवसर" : "Real Agricultural Job Vacancies"}
-                  </h2>
+                  <Briefcase className="w-5 h-5 text-emerald-800 dark:text-emerald-400" />
+                  <h2 className="text-base font-bold text-stone-900 dark:text-white">Active Farm Job Vacancies Across India</h2>
                 </div>
                 <button
                   type="button"
                   onClick={() => setActiveTab("post_job")}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                  className="px-4 py-1.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{lang === "hi" ? "+ नया काम पोस्ट करें" : "+ Post a Job"}</span>
+                  + Post a Farm Job
                 </button>
               </div>
 
-              {/* Search + Dropdowns */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {/* Keyword Search */}
-                <div className="space-y-1">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "खोज (कीवर्ड/फसल)" : "Search (Keyword / Crop)"}
-                  </Label>
-                  <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
-                    <Input
-                      placeholder={lang === "hi" ? "जैसे: ट्रैक्टर चालक, गेहूं कटाई..." : "e.g. Tractor Driver, Paddy..."}
-                      value={jobSearchQuery}
-                      onChange={(e) => setJobSearchQuery(e.target.value)}
-                      className="pl-9 h-10 text-xs sm:text-sm rounded-xl"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400" />
+                  <Input
+                    placeholder="Search by crop, tractor, keyword..."
+                    value={jobSearchQuery}
+                    onChange={(e) => setJobSearchQuery(e.target.value)}
+                    className="pl-9 h-10 text-xs rounded-xl"
+                  />
                 </div>
-
-                {/* State */}
-                <div className="space-y-1">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "राज्य" : "State"}
-                  </Label>
+                <div>
                   <select
                     value={jobStateFilter}
                     onChange={(e) => setJobStateFilter(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none"
+                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium outline-none"
                   >
                     {INDIAN_STATES.map((s) => (
                       <option key={s} value={s}>{s}</option>
                     ))}
                   </select>
                 </div>
-
-                {/* Category */}
-                <div className="space-y-1">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "कार्य श्रेणी" : "Work Category"}
-                  </Label>
-                  <select
-                    value={jobCategoryFilter}
-                    onChange={(e) => setJobCategoryFilter(e.target.value)}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none"
-                  >
-                    <option value="all">{lang === "hi" ? "सभी श्रेणियां" : "All Categories"}</option>
-                    {OFFICIAL_CATEGORIES.map((c) => (
-                      <option key={c.slug} value={c.slug}>{c.name[lang] || c.name.en}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Source Filter */}
-                <div className="space-y-1">
-                  <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "लिस्टिंग स्रोत" : "Listing Source"}
-                  </Label>
+                <div>
                   <select
                     value={jobSourceFilter}
                     onChange={(e) => setJobSourceFilter(e.target.value as any)}
-                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none"
+                    className="w-full h-10 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium outline-none"
                   >
-                    <option value="all">{lang === "hi" ? "सभी स्रोत (All Sources)" : "All Sources"}</option>
-                    <option value="internal">{lang === "hi" ? "किसानबड्डी पोस्ट (KisaanBuddy Jobs)" : "KisaanBuddy Farmer Jobs"}</option>
-                    <option value="external">{lang === "hi" ? "बाहरी पोर्टल (NCS, Indeed, Apna)" : "External Public Listings"}</option>
+                    <option value="all">All Job Sources</option>
+                    <option value="internal">KisaanBuddy Jobs</option>
+                    <option value="external">External Public Listings (NCS, Indeed, Apna)</option>
                   </select>
                 </div>
               </div>
             </Card>
 
-            {/* Jobs List */}
             {loadingJobs ? (
               <div className="p-12 text-center space-y-3">
-                <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-700" />
-                <p className="text-sm text-stone-500 font-medium">
-                  {lang === "hi" ? "कृषि नौकरियों की सूची लोड हो रही है..." : "Loading agricultural job vacancies..."}
-                </p>
+                <Loader2 className="w-8 h-8 animate-spin mx-auto text-emerald-800" />
+                <p className="text-sm text-stone-500 font-medium">Loading vacancies...</p>
               </div>
             ) : filteredJobs.length === 0 ? (
-              <Card className="p-12 text-center space-y-4 border-dashed border-stone-300 dark:border-stone-800 bg-white dark:bg-stone-900 rounded-2xl">
-                <Briefcase className="w-12 h-12 text-stone-400 mx-auto" />
-                <h3 className="text-lg font-bold text-stone-900 dark:text-white">
-                  {lang === "hi" ? "कोई नौकरी नहीं मिली" : "No Job Vacancies Found"}
-                </h3>
-                <p className="text-xs sm:text-sm text-stone-500 max-w-md mx-auto">
-                  {lang === "hi"
-                    ? "फ़िल्टर बदलकर पुनः खोजें या अपना पहला कार्य पोस्ट करें।"
-                    : "Try resetting filters or post a new agricultural job opportunity."}
-                </p>
-                <Button onClick={() => { setJobStateFilter("All States"); setJobCategoryFilter("all"); setJobSearchQuery(""); setJobSourceFilter("all") }} variant="outline" className="text-xs font-bold rounded-xl">
-                  {lang === "hi" ? "फ़िल्टर रीसेट करें" : "Reset Filters"}
-                </Button>
+              <Card className="p-12 text-center space-y-3 bg-white dark:bg-stone-900 border-dashed border-stone-300 rounded-2xl">
+                <Briefcase className="w-10 h-10 text-stone-400 mx-auto" />
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">No Vacancies Found</h3>
+                <p className="text-xs text-stone-500">Try adjusting your search criteria.</p>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {filteredJobs.map((job) => {
                   const isExternal = job.source_type === "external"
-                  const sourceName = job.source_platform || (isExternal ? "External Listing" : "KisaanBuddy Job")
-
                   return (
                     <Card
                       key={job.id}
-                      className="p-5 sm:p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                      className="p-5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
                     >
-                      <div className="space-y-3">
-                        {/* Top: Source Badge & Date */}
+                      <div className="space-y-2.5">
                         <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
-                              isExternal
-                                ? "bg-sky-50 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-800"
-                                : "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-                            }`}
-                          >
-                            {isExternal ? (
-                              <Building2 className="w-3.5 h-3.5" />
-                            ) : (
-                              <Sprout className="w-3.5 h-3.5" />
-                            )}
-                            <span>{sourceName}</span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            isExternal
+                              ? "bg-sky-50 text-sky-800 border border-sky-200"
+                              : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                          }`}>
+                            {job.source_platform || "KisaanBuddy Job"}
                           </span>
-
-                          <span className="text-[11px] text-stone-500 dark:text-stone-400">
-                            {lang === "hi" ? "सक्रिय रिक्ति" : "Active Opening"}
-                          </span>
+                          <span className="text-[11px] text-stone-500">Active Opening</span>
                         </div>
 
-                        {/* Job Title & Employer */}
                         <div>
-                          <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white leading-snug">
+                          <h3 className="text-base font-bold text-stone-900 dark:text-white leading-snug">
                             {job.job_title}
                           </h3>
-                          <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5 font-medium">
+                          <p className="text-xs text-stone-600 dark:text-stone-400 font-medium">
                             {job.employer_name || job.contact_name}
                           </p>
                         </div>
 
-                        {/* Location & Wage */}
-                        <div className="grid grid-cols-2 gap-2 text-xs py-1">
-                          <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-400 truncate">
-                            <MapPin className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-                            <span className="truncate">{job.village ? `${job.village}, ` : ""}{job.district}, {job.state}</span>
-                          </div>
-                          <div className="flex items-center justify-end gap-1 font-black text-emerald-700 dark:text-emerald-400 text-sm">
-                            <span>₹{job.wage_amount}</span>
-                            <span className="text-[11px] font-medium text-stone-500">/{lang === "hi" ? "दिन" : "day"}</span>
-                          </div>
+                        <div className="flex items-center justify-between text-xs py-0.5">
+                          <span className="text-stone-600 flex items-center gap-1">
+                            <MapPin className="w-3.5 h-3.5 text-stone-400" />
+                            {job.district}, {job.state}
+                          </span>
+                          <span className="font-extrabold text-emerald-800 text-sm">
+                            ₹{job.wage_amount} / day
+                          </span>
                         </div>
 
-                        {/* Description */}
                         {job.work_type_detail && (
-                          <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2">
                             {job.work_type_detail}
                           </p>
                         )}
-
-                        {/* Perks Chips */}
-                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 text-[11px]">
-                            <Users className="w-3 h-3 text-stone-500" />
-                            <span>{job.workers_needed} {lang === "hi" ? "मजदूर आवश्यक" : "workers needed"}</span>
-                          </span>
-                          {job.accommodation_info && !job.accommodation_info.toLowerCase().includes("none") && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-[11px]">
-                              <Bed className="w-3 h-3" />
-                              <span>{lang === "hi" ? "रहने की व्यवस्था" : "Stay Available"}</span>
-                            </span>
-                          )}
-                          {job.payment_terms && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-[11px]">
-                              <span>{job.payment_terms}</span>
-                            </span>
-                          )}
-                        </div>
                       </div>
 
-                      {/* Action Button */}
                       <div className="pt-3 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between gap-3">
                         <button
                           type="button"
                           onClick={() => setSelectedJobForDetail(job)}
-                          className="text-xs font-semibold text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white flex items-center gap-1 cursor-pointer"
+                          className="text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1 cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
-                          <span>{lang === "hi" ? "पूर्ण विवरण" : "View Details"}</span>
+                          <span>View Details</span>
                         </button>
 
                         {isExternal && job.source_url ? (
@@ -1049,18 +1061,18 @@ export default function WorkerConnectClient() {
                             href={job.source_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold shadow-xs cursor-pointer"
                           >
-                            <span>{lang === "hi" ? "मूल नौकरी देखें" : "View Original Job"}</span>
+                            <span>View Original Job</span>
                             <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         ) : (
                           <a
                             href={`tel:${job.unmasked_contact_phone || job.masked_contact_phone}`}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white text-xs font-bold shadow-xs cursor-pointer"
                           >
                             <Phone className="w-3.5 h-3.5" />
-                            <span>{lang === "hi" ? "सीधे संपर्क करें" : "Contact Employer"}</span>
+                            <span>Contact Employer</span>
                           </a>
                         )}
                       </div>
@@ -1073,328 +1085,135 @@ export default function WorkerConnectClient() {
         )}
 
         {/* ========================================================================= */}
-        {/* TAB 3: POST A FARM JOB (Clean & Functional Job Publishing System)         */}
+        {/* TAB 3: POST A FARM JOB                                                    */}
         {/* ========================================================================= */}
         {activeTab === "post_job" && (
           <div className="max-w-3xl mx-auto space-y-6">
-            
             {postSuccessMessage && (
-              <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 flex items-center gap-3 shadow-xs">
-                <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />
-                <span className="text-sm font-semibold">{postSuccessMessage}</span>
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-semibold flex items-center gap-2">
+                <Check className="w-5 h-5 text-emerald-700" />
+                <span>{postSuccessMessage}</span>
               </div>
             )}
 
-            <Card className="p-6 sm:p-8 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl shadow-sm space-y-6">
-              <div className="border-b border-stone-200 dark:border-stone-800 pb-4">
-                <h2 className="text-xl sm:text-2xl font-black text-stone-900 dark:text-white">
-                  {lang === "hi" ? "खेत का काम पोस्ट करें" : "Post a Farm Job"}
-                </h2>
-                <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
-                  {lang === "hi"
-                    ? "कटाई, बुवाई, या ट्रैक्टर संचालन के लिए विश्वसनीय कृषि मजदूरों को सीधे काम पर रखें।"
-                    : "Publish agricultural requirements to connect with verified farm workers and machinery operators."}
-                </p>
+            <Card className="p-6 sm:p-8 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl shadow-xs space-y-6">
+              <div className="border-b border-stone-100 dark:border-stone-800 pb-4">
+                <h2 className="text-xl font-black text-stone-900 dark:text-white">Post a Farm Job</h2>
+                <p className="text-xs text-stone-500 mt-1">Publish agricultural vacancy for verified workers.</p>
               </div>
 
-              <form onSubmit={handlePublishJob} className="space-y-6">
-                
-                {/* 1. Job Basics */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    1. {lang === "hi" ? "कार्य की मूल जानकारी" : "Job Information"}
-                  </h3>
+              <form onSubmit={handlePublishJob} className="space-y-5">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Job Title *</Label>
+                  <Input
+                    placeholder="e.g. Wheat Harvesting Crew for 15 Acres"
+                    value={postTitle}
+                    onChange={(e) => setPostTitle(e.target.value)}
+                    required
+                    className="h-11 rounded-xl"
+                  />
+                </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "नौकरी का शीर्षक *" : "Job Title *"}
-                    </Label>
+                    <Label className="text-xs font-semibold">Work Category *</Label>
+                    <select
+                      value={postCategory}
+                      onChange={(e) => setPostCategory(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium outline-none"
+                    >
+                      {OFFICIAL_CATEGORIES.map((c) => (
+                        <option key={c.slug} value={c.slug}>{c.name[lang] || c.name.en}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Workers Needed *</Label>
                     <Input
-                      placeholder={lang === "hi" ? "जैसे: 15 एकड़ गेहूं कटाई व कंबाइन सहायता" : "e.g. Wheat Harvesting Crew Needed for 15 Acres"}
-                      value={postTitle}
-                      onChange={(e) => setPostTitle(e.target.value)}
+                      type="number"
+                      min="1"
+                      value={postWorkersNeeded}
+                      onChange={(e) => setPostWorkersNeeded(e.target.value)}
                       required
                       className="h-11 rounded-xl"
                     />
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "कार्य श्रेणी *" : "Work Category *"}
-                      </Label>
-                      <select
-                        value={postCategory}
-                        onChange={(e) => setPostCategory(e.target.value)}
-                        className="w-full h-11 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none"
-                      >
-                        {OFFICIAL_CATEGORIES.map((c) => (
-                          <option key={c.slug} value={c.slug}>
-                            {c.name[lang] || c.name.en}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "मजदूरों की संख्या *" : "Workers Required *"}
-                      </Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={postWorkersNeeded}
-                        onChange={(e) => setPostWorkersNeeded(e.target.value)}
-                        required
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-                  </div>
                 </div>
 
-                {/* 2. Location */}
-                <div className="space-y-4 pt-2 border-t border-stone-100 dark:border-stone-800">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    2. {lang === "hi" ? "खेत का स्थान" : "Farm Location"}
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "राज्य *" : "State *"}
-                      </Label>
-                      <select
-                        value={postState}
-                        onChange={(e) => {
-                          setPostState(e.target.value)
-                          const dList = STATE_DISTRICTS[e.target.value]
-                          if (dList && dList[1]) setPostDistrict(dList[1])
-                        }}
-                        className="w-full h-11 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none"
-                      >
-                        {INDIAN_STATES.filter((s) => s !== "All States").map((s) => (
-                          <option key={s} value={s}>{s}</option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "जिला *" : "District *"}
-                      </Label>
-                      {STATE_DISTRICTS[postState] ? (
-                        <select
-                          value={postDistrict}
-                          onChange={(e) => setPostDistrict(e.target.value)}
-                          className="w-full h-11 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none"
-                        >
-                          {STATE_DISTRICTS[postState].filter((d) => d !== "All Districts").map((d) => (
-                            <option key={d} value={d}>{d}</option>
-                          ))}
-                        </select>
-                      ) : (
-                        <Input
-                          value={postDistrict}
-                          onChange={(e) => setPostDistrict(e.target.value)}
-                          required
-                          className="h-11 rounded-xl"
-                        />
-                      )}
-                    </div>
-                  </div>
-
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "गाँव / खेत का पता" : "Village / Farm Address"}
-                    </Label>
+                    <Label className="text-xs font-semibold">State *</Label>
+                    <select
+                      value={postState}
+                      onChange={(e) => setPostState(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium outline-none"
+                    >
+                      {INDIAN_STATES.filter((s) => s !== "All States").map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">District *</Label>
                     <Input
-                      placeholder={lang === "hi" ? "जैसे: नहर के पास, खेत नंबर 4" : "e.g. Near Canal Gate, Plot 4"}
-                      value={postVillage}
-                      onChange={(e) => setPostVillage(e.target.value)}
+                      value={postDistrict}
+                      onChange={(e) => setPostDistrict(e.target.value)}
+                      required
+                      className="h-11 rounded-xl"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Daily Wage (₹/day) *</Label>
+                    <Input
+                      type="number"
+                      value={postWage}
+                      onChange={(e) => setPostWage(e.target.value)}
+                      required
                       className="h-11 rounded-xl"
                     />
                   </div>
                 </div>
 
-                {/* 3. Wage and Timing */}
-                <div className="space-y-4 pt-2 border-t border-stone-100 dark:border-stone-800">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    3. {lang === "hi" ? "दिहाड़ी व कार्य अवधि" : "Wage & Schedule"}
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "दैनिक मजदूरी (₹/दिन) *" : "Daily Wage (₹/day) *"}
-                      </Label>
-                      <Input
-                        type="number"
-                        min="200"
-                        max="5000"
-                        value={postWage}
-                        onChange={(e) => setPostWage(e.target.value)}
-                        required
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "आरंभ तिथि *" : "Start Date *"}
-                      </Label>
-                      <Input
-                        type="date"
-                        value={postStartDate}
-                        onChange={(e) => setPostStartDate(e.target.value)}
-                        required
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "अवधि (दिन) *" : "Duration (Days) *"}
-                      </Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="180"
-                        value={postDurationDays}
-                        onChange={(e) => setPostDurationDays(e.target.value)}
-                        required
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "कार्य समय" : "Working Hours"}
-                    </Label>
+                    <Label className="text-xs font-semibold">Farmer / Employer Name *</Label>
                     <Input
-                      placeholder="e.g. 8:00 AM - 5:00 PM (1 hr lunch)"
-                      value={postWorkingHours}
-                      onChange={(e) => setPostWorkingHours(e.target.value)}
+                      value={postEmployerName}
+                      onChange={(e) => setPostEmployerName(e.target.value)}
+                      required
                       className="h-11 rounded-xl"
                     />
                   </div>
-
-                  {/* Perks toggles */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                    <label className="flex items-center gap-2 p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={postFoodProvided}
-                        onChange={(e) => setPostFoodProvided(e.target.checked)}
-                        className="w-4 h-4 rounded text-emerald-700 focus:ring-emerald-600"
-                      />
-                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                        {lang === "hi" ? "खाना उपलब्ध" : "Food Provided"}
-                      </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={postAccommodation}
-                        onChange={(e) => setPostAccommodation(e.target.checked)}
-                        className="w-4 h-4 rounded text-emerald-700 focus:ring-emerald-600"
-                      />
-                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                        {lang === "hi" ? "रहने की सुविधा" : "Stay Available"}
-                      </span>
-                    </label>
-
-                    <label className="flex items-center gap-2 p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={postTransportProvided}
-                        onChange={(e) => setPostTransportProvided(e.target.checked)}
-                        className="w-4 h-4 rounded text-emerald-700 focus:ring-emerald-600"
-                      />
-                      <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
-                        {lang === "hi" ? "वाहन सुविधा" : "Transport Provided"}
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* 4. Employer Contact & Description */}
-                <div className="space-y-4 pt-2 border-t border-stone-100 dark:border-stone-800">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                    4. {lang === "hi" ? "नियोक्ता संपर्क विवरण" : "Farmer / Employer Contact"}
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "किसान / नियोक्ता का नाम *" : "Farmer / Employer Name *"}
-                      </Label>
-                      <Input
-                        placeholder={lang === "hi" ? "आपका नाम..." : "Your name..."}
-                        value={postEmployerName}
-                        onChange={(e) => setPostEmployerName(e.target.value)}
-                        required
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                        {lang === "hi" ? "मोबाइल नंबर *" : "Mobile Number *"}
-                      </Label>
-                      <Input
-                        type="tel"
-                        placeholder="10 digit mobile number"
-                        value={postMobile}
-                        onChange={(e) => setPostMobile(e.target.value)}
-                        required
-                        className="h-11 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "कार्य का विवरण" : "Job Description & Instructions"}
-                    </Label>
-                    <textarea
-                      rows={3}
-                      placeholder={lang === "hi" ? "काम से संबंधित आवश्यक जानकारी यहाँ लिखें..." : "Describe required field tasks, equipment provided, and payment details..."}
-                      value={postDescription}
-                      onChange={(e) => setPostDescription(e.target.value)}
-                      className="w-full p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950 text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-emerald-600"
+                    <Label className="text-xs font-semibold">Mobile Number *</Label>
+                    <Input
+                      type="tel"
+                      value={postMobile}
+                      onChange={(e) => setPostMobile(e.target.value)}
+                      required
+                      className="h-11 rounded-xl"
                     />
                   </div>
                 </div>
 
-                {/* Form Buttons */}
-                <div className="pt-4 border-t border-stone-200 dark:border-stone-800 flex items-center justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSaveDraft}
-                    className="px-5 py-2.5 rounded-xl border border-stone-200 dark:border-stone-800 text-xs sm:text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-                  >
-                    {lang === "hi" ? "ड्राफ्ट सेव करें" : "Save Draft"}
-                  </button>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Work Description</Label>
+                  <textarea
+                    rows={3}
+                    value={postDescription}
+                    onChange={(e) => setPostDescription(e.target.value)}
+                    className="w-full p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-xs font-medium outline-none"
+                    placeholder="Describe field tasks..."
+                  />
+                </div>
 
+                <div className="pt-3 flex justify-end">
                   <button
                     type="submit"
                     disabled={postingLoading}
-                    className="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-98 text-white text-xs sm:text-sm font-extrabold shadow-sm transition-all cursor-pointer flex items-center gap-2"
+                    className="px-6 py-2.5 rounded-xl bg-[#0f5132] hover:bg-[#0c4128] text-white font-bold text-xs sm:text-sm shadow-xs cursor-pointer"
                   >
-                    {postingLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{lang === "hi" ? "प्रकाशित हो रहा है..." : "Publishing..."}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Check className="w-4 h-4 stroke-[3]" />
-                        <span>{lang === "hi" ? "काम प्रकाशित करें" : "Publish Job"}</span>
-                      </>
-                    )}
+                    {postingLoading ? "Publishing..." : "Publish Job"}
                   </button>
                 </div>
               </form>
@@ -1403,138 +1222,107 @@ export default function WorkerConnectClient() {
         )}
 
         {/* ========================================================================= */}
-        {/* WORKER DETAIL MODAL                                                       */}
+        {/* TAB 4: WORKER PORTAL & AVAILABILITY                                       */}
         {/* ========================================================================= */}
-        {selectedWorkerForDetail && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
-              <button
-                type="button"
-                onClick={() => setSelectedWorkerForDetail(null)}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 font-black text-lg flex items-center justify-center shrink-0">
-                  {selectedWorkerForDetail.name.slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white">
-                    {selectedWorkerForDetail.name}
-                  </h3>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">
-                    {getNaturalWorkerType(selectedWorkerForDetail)}
-                  </p>
-                </div>
+        {activeTab === "worker_portal" && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            <Card className="p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-3xl shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
+                <Calendar className="w-5 h-5 text-emerald-800" />
+                <h2 className="text-base font-bold text-stone-900 dark:text-white">Worker Availability Portal</h2>
               </div>
-
-              <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-stone-50 dark:bg-stone-950 text-xs">
-                <div>
-                  <span className="text-stone-500 block">{lang === "hi" ? "स्थान" : "Location"}</span>
-                  <strong className="text-stone-900 dark:text-white font-semibold">
-                    {selectedWorkerForDetail.district}, {selectedWorkerForDetail.state}
-                  </strong>
-                </div>
-                <div>
-                  <span className="text-stone-500 block">{lang === "hi" ? "अपेक्षित दिहाड़ी" : "Expected Wage"}</span>
-                  <strong className="text-emerald-700 dark:text-emerald-400 font-extrabold text-sm">
-                    ₹{selectedWorkerForDetail.wage_expectation} / {lang === "hi" ? "दिन" : "day"}
-                  </strong>
-                </div>
+              <p className="text-xs text-stone-500">
+                Registered agricultural workers and collectives can manage daily availability and review hiring requests here.
+              </p>
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-semibold text-emerald-900 flex items-center justify-between">
+                <span>Current Status: Available Today (Confirmed)</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse" />
               </div>
-
-              {selectedWorkerForDetail.bio_or_experience && (
-                <div className="space-y-1">
-                  <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "कार्य अनुभव व परिचय" : "Experience & Profile"}
-                  </span>
-                  <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-                    {selectedWorkerForDetail.bio_or_experience}
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                  {lang === "hi" ? "कुशलताएं (Skills)" : "Skills & Specialities"}
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {selectedWorkerForDetail.skills.map((s, idx) => (
-                    <span key={idx} className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-medium">
-                      {s.skill_name} ({s.experience_years} yrs)
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100 dark:border-stone-800">
-                <Button
-                  onClick={() => {
-                    setContactModalWorker(selectedWorkerForDetail)
-                    setSelectedWorkerForDetail(null)
-                  }}
-                  className="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs py-2.5"
-                >
-                  {lang === "hi" ? "कार्यकर्ता से संपर्क करें" : "Contact Worker"}
-                </Button>
-              </div>
-            </div>
+            </Card>
           </div>
         )}
 
         {/* ========================================================================= */}
-        {/* WORKER CONTACT UNLOCK MODAL                                               */}
+        {/* TAB 5: OFFICIAL WAGE INTELLIGENCE                                         */}
+        {/* ========================================================================= */}
+        {activeTab === "wage_intelligence" && (
+          <div className="space-y-6">
+            <Card className="p-6 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-800 rounded-2xl shadow-xs space-y-4">
+              <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
+                <TrendingUp className="w-5 h-5 text-emerald-800" />
+                <h2 className="text-base font-bold text-stone-900 dark:text-white">Labour Bureau Rural Wage Benchmarks (WRRI)</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-stone-500">
+                      <th className="py-2">State</th>
+                      <th className="py-2">Activity</th>
+                      <th className="py-2">Male Wage</th>
+                      <th className="py-2">Female Wage</th>
+                      <th className="py-2">Survey Period</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {benchmarks.slice(0, 10).map((b) => (
+                      <tr key={b.id} className="text-stone-800 dark:text-stone-200">
+                        <td className="py-2 font-bold">{b.state}</td>
+                        <td className="py-2">{b.activity_label}</td>
+                        <td className="py-2 font-extrabold text-emerald-800">₹{b.reported_wage_male}</td>
+                        <td className="py-2">₹{b.reported_wage_female}</td>
+                        <td className="py-2 text-stone-500">{b.survey_month} {b.survey_year}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* MODAL: WORKER DETAILS & CONTACT UNLOCK                                    */}
         {/* ========================================================================= */}
         {contactModalWorker && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl relative">
               <button
                 type="button"
                 onClick={() => setContactModalWorker(null)}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 cursor-pointer"
+                className="absolute top-4 right-4 p-2 text-stone-500 hover:bg-stone-100 rounded-full"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="space-y-1">
-                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white">
-                  {lang === "hi" ? "कार्यकर्ता से सीधा संपर्क" : "Contact Agricultural Worker"}
-                </h3>
-                <p className="text-xs text-stone-500">
-                  {contactModalWorker.name} ({getNaturalWorkerType(contactModalWorker)})
-                </p>
+              <div>
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">Contact Agricultural Worker</h3>
+                <p className="text-xs text-stone-500">{contactModalWorker.name}</p>
               </div>
 
               {contactSuccessMsg ? (
                 <div className="space-y-4 py-2">
-                  <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100 text-xs font-semibold leading-relaxed">
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold">
                     {contactSuccessMsg}
                   </div>
-
                   {contactModalWorker.unmasked_phone && (
-                    <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-950 text-center space-y-2">
-                      <span className="text-xs text-stone-500">{lang === "hi" ? "मोबाइल नंबर:" : "Mobile Number:"}</span>
-                      <p className="text-lg font-black text-emerald-700 dark:text-emerald-400">
-                        +91 {contactModalWorker.unmasked_phone}
-                      </p>
+                    <div className="p-3 rounded-xl bg-stone-50 text-center space-y-1">
+                      <span className="text-xs text-stone-500">Direct Number:</span>
+                      <p className="text-lg font-black text-emerald-800">+91 {contactModalWorker.unmasked_phone}</p>
                     </div>
                   )}
-
                   <div className="grid grid-cols-2 gap-2">
                     <a
                       href={`tel:${contactModalWorker.unmasked_phone || "9483011220"}`}
-                      className="py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                      className="py-2.5 rounded-xl bg-[#0f5132] text-white font-bold text-xs flex items-center justify-center gap-1.5"
                     >
                       <PhoneCall className="w-4 h-4" />
-                      <span>{lang === "hi" ? "सीधा कॉल" : "Direct Call"}</span>
+                      <span>Direct Call</span>
                     </a>
                     <a
-                      href={`https://wa.me/91${(contactModalWorker.unmasked_phone || "9483011220").replace(/\D/g, "")}?text=Namaste%20${encodeURIComponent(contactModalWorker.name)},%20I%20am%20contacting%20you%20via%20KisaanBuddy%20for%20farm%20work.`}
+                      href={`https://wa.me/91${(contactModalWorker.unmasked_phone || "9483011220").replace(/\D/g, "")}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                      className="py-2.5 rounded-xl bg-green-600 text-white font-bold text-xs flex items-center justify-center gap-1.5"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>WhatsApp</span>
@@ -1542,11 +1330,9 @@ export default function WorkerConnectClient() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-3.5">
+                <div className="space-y-3">
                   <div className="space-y-1">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "आपका नाम *" : "Your Name *"}
-                    </Label>
+                    <Label className="text-xs font-semibold">Farmer Name *</Label>
                     <Input
                       value={requesterName}
                       onChange={(e) => setRequesterName(e.target.value)}
@@ -1554,118 +1340,25 @@ export default function WorkerConnectClient() {
                       className="h-10 text-xs rounded-xl"
                     />
                   </div>
-
                   <div className="space-y-1">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "आपका मोबाइल नंबर *" : "Your Phone Number *"}
-                    </Label>
+                    <Label className="text-xs font-semibold">Your Mobile Number *</Label>
                     <Input
                       type="tel"
-                      value={requesterPhone}
-                      onChange={(e) => setRequesterPhone(e.target.value)}
+                      value={farmerPhone}
+                      onChange={(e) => setFarmerPhone(e.target.value)}
                       placeholder="10 digit number"
                       className="h-10 text-xs rounded-xl"
                     />
                   </div>
-
-                  <div className="space-y-1">
-                    <Label className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                      {lang === "hi" ? "खेत का स्थान" : "Farm Location"}
-                    </Label>
-                    <Input
-                      value={requesterFarmLoc}
-                      onChange={(e) => setRequesterFarmLoc(e.target.value)}
-                      placeholder="e.g. Navalgund, Dharwad"
-                      className="h-10 text-xs rounded-xl"
-                    />
-                  </div>
-
                   <button
                     type="button"
-                    onClick={handleSendContactRequest}
-                    className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer mt-2"
+                    onClick={handleUnlockContact}
+                    className="w-full py-2.5 rounded-xl bg-[#0f5132] text-white font-bold text-xs shadow-xs cursor-pointer mt-2"
                   >
-                    {lang === "hi" ? "संपर्क नंबर अनलॉक करें" : "Unlock Contact & Connect"}
+                    Unlock Contact
                   </button>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================================= */}
-        {/* JOB DETAIL MODAL                                                          */}
-        {/* ========================================================================= */}
-        {selectedJobForDetail && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
-              <button
-                type="button"
-                onClick={() => setSelectedJobForDetail(null)}
-                className="absolute top-4 right-4 p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-
-              <div className="space-y-1">
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200">
-                  {selectedJobForDetail.source_platform || "KisaanBuddy Job"}
-                </span>
-                <h3 className="text-lg font-black text-stone-900 dark:text-white pt-1">
-                  {selectedJobForDetail.job_title}
-                </h3>
-                <p className="text-xs text-stone-500">
-                  {selectedJobForDetail.employer_name || selectedJobForDetail.contact_name}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-stone-50 dark:bg-stone-950 text-xs">
-                <div>
-                  <span className="text-stone-500 block">{lang === "hi" ? "स्थान" : "Location"}</span>
-                  <strong className="text-stone-900 dark:text-white font-semibold">
-                    {selectedJobForDetail.district}, {selectedJobForDetail.state}
-                  </strong>
-                </div>
-                <div>
-                  <span className="text-stone-500 block">{lang === "hi" ? "दिहाड़ी" : "Daily Wage"}</span>
-                  <strong className="text-emerald-700 dark:text-emerald-400 font-black text-sm">
-                    ₹{selectedJobForDetail.wage_amount} / {lang === "hi" ? "दिन" : "day"}
-                  </strong>
-                </div>
-              </div>
-
-              {selectedJobForDetail.work_type_detail && (
-                <div className="space-y-1">
-                  <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">
-                    {lang === "hi" ? "कार्य का विवरण" : "Work Details"}
-                  </span>
-                  <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-                    {selectedJobForDetail.work_type_detail}
-                  </p>
-                </div>
-              )}
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100 dark:border-stone-800">
-                {selectedJobForDetail.source_type === "external" && selectedJobForDetail.source_url ? (
-                  <a
-                    href={selectedJobForDetail.source_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 rounded-xl bg-sky-700 hover:bg-sky-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
-                  >
-                    <span>{lang === "hi" ? "मूल पोर्टल पर देखें" : "View on Original Portal"}</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                ) : (
-                  <a
-                    href={`tel:${selectedJobForDetail.unmasked_contact_phone || selectedJobForDetail.masked_contact_phone}`}
-                    className="w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer text-center"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span>{lang === "hi" ? "नियोक्ता को कॉल करें" : "Call Employer"}</span>
-                  </a>
-                )}
-              </div>
             </div>
           </div>
         )}
