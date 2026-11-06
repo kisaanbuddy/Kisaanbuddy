@@ -1,0 +1,2 @@
+run_id,architecture,init_mode,seed,epochs,train_samples,val_samples,val_macro_f1,val_top1_acc,temperature_T,internal_test_macro_f1,field_holdout_macro_f1,ood_rejection_rate_pct,checkpoint_size_mb,status
+EXP-001,mobilenet_v3_small,weights=None (Kaiming Normal),42,10,4190,826,0.7464,73.37%,0.9472,0.7595,0.2710,80.00%,18.6,production_candidate

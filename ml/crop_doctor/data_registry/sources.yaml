@@ -1,0 +1,20 @@
+sources:
+  plantdoc:
+    name: "PlantDoc: A Dataset for Visual Plant Disease Detection in the Wild"
+    url: "https://github.com/pratikkayal/PlantDoc-Dataset"
+    license: "CC BY 4.0"
+    authors: "Pratik Kayal, Brijraj Singh, et al."
+    year: 2020
+    environment: "in-the-wild field"
+    description: "Real-world agricultural photographs taken in outdoor field conditions with varied background clutter, hands, shadows, and natural disease progression."
+    role: "field_holdout_and_training"
+
+  plantvillage:
+    name: "PlantVillage Dataset"
+    url: "https://github.com/spMohanty/PlantVillage-Dataset"
+    license: "CC0 1.0 Universal (Public Domain Dedication)"
+    authors: "David P. Hughes, Marcel Salathé"
+    year: 2015
+    environment: "controlled laboratory"
+    description: "Standard leaf disease benchmark photographs under controlled illumination and uniform background."
+    role: "training_support"

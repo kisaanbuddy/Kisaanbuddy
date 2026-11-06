@@ -1,0 +1,11 @@
+{
+  "total_acquired_clean": 5989,
+  "train_count": 4190,
+  "val_count": 826,
+  "internal_test_count": 549,
+  "field_holdout_count": 124,
+  "ood_test_count": 300,
+  "quarantined_count": 11,
+  "canonical_classes_count": 17,
+  "split_seed": 42
+}

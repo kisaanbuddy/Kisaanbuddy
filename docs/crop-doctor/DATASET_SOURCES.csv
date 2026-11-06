@@ -1,0 +1,4 @@
+source_id,dataset_name,curator_or_author,license,access_method,num_images_extracted,crops_covered,role_in_pipeline
+DS-01,PlantDoc: A Dataset for Visual Plant Disease Detection in the Wild,Singh et al. (IIT Delhi),CC BY 4.0,GitHub Sparse Tree Checkout,2581,"Tomato, Potato, Corn, Bell Pepper, Squash",Field holdout & in-the-wild generalization evaluation
+DS-02,PlantVillage Dataset,Hughes & Salathe (Penn State),CC0 1.0 Universal,GitHub Sparse Checkout,3408,"Tomato, Potato, Corn, Bell Pepper, Squash",Curated leaf training & validation baseline
+DS-03,PlantVillage OOD Distractors,Hughes & Salathe (Penn State),CC0 1.0 Universal,GitHub Sparse Checkout,300,"Apple, Blueberry, Cherry, Peach, Grape, Raspberry, Soybean, Strawberry",Out-of-distribution rejection benchmark
