@@ -184,6 +184,10 @@ export interface LabourJobPostOut {
   status: string
   created_at: string
   updated_at: string
+  source_platform?: string
+  source_type?: "internal" | "external"
+  source_url?: string
+  employer_name?: string
 }
 
 export interface LabourJobApplicationIn {
