@@ -281,6 +281,17 @@ export function AgriProductDetailModal({
                     License: {product.seller_license_no}
                   </p>
                 )}
+                {product.official_source_url && (
+                  <a
+                    href={product.official_source_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:underline mt-1"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    <span>{isHi ? "कंपनी / पोर्टल लिंक खोलें" : "Official Portal Link"}</span>
+                  </a>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -295,17 +306,32 @@ export function AgriProductDetailModal({
 
         {/* Footer Actions */}
         <div className="p-4 sm:p-5 border-t border-stone-100 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900 flex flex-wrap items-center justify-between gap-2.5">
-          <button
-            type="button"
-            onClick={() => {
-              onClose();
-              onComparePrices(product);
-            }}
-            className="h-11 px-4 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 font-bold text-xs sm:text-sm flex items-center gap-2 transition"
-          >
-            <Scale className="h-4 w-4 text-emerald-600" />
-            <span>{isHi ? "कीमत तुलना करें" : "Compare Prices"}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                onClose();
+                onComparePrices(product);
+              }}
+              className="h-11 px-4 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 font-bold text-xs sm:text-sm flex items-center gap-2 transition"
+            >
+              <Scale className="h-4 w-4 text-emerald-600" />
+              <span>{isHi ? "कीमत तुलना करें" : "Compare Prices"}</span>
+            </button>
+
+            {product.official_source_url && (
+              <a
+                href={product.official_source_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-11 px-3.5 rounded-xl border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition"
+                title="Official manufacturer or portal link"
+              >
+                <ExternalLink className="h-4 w-4 text-emerald-600" />
+                <span>{isHi ? "ऑफिशियल लिंक" : "Official Link"}</span>
+              </a>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             {cleanPhone && (
