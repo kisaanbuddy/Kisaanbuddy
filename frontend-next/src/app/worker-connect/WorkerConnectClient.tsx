@@ -515,19 +515,8 @@ export default function WorkerConnectClient() {
             </p>
           </div>
 
-          {/* Right Column: Exact Indian Farmers & Tractor Visual + Post a Farm Job Button */}
-          <div className="flex items-center justify-between md:justify-end gap-5 z-10">
-            {/* Seamless Indian Farmers with Tractor from reference mockup */}
-            <div className="relative shrink-0 flex items-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/tractor_farmers_seamless.png"
-                alt="Indian Farmers with Tractor"
-                className="h-20 sm:h-24 md:h-28 w-auto object-contain select-none"
-              />
-            </div>
-
-            {/* Dark Forest Green "+ Post a Farm Job" Button */}
+          {/* Right Column: Clean Button */}
+          <div className="flex items-center justify-start md:justify-end z-10 shrink-0">
             <button
               type="button"
               onClick={() => setActiveTab("post_job")}
