@@ -9,7 +9,7 @@ import { useLanguage } from "@/lib/language";
 const labels: Record<string, string> = {
   dashboard: "dashboard", weather: "weather", "crop-predictor": "aiPredictor",
   disease: "diseaseDetect", "soil-health": "soilHealth", schemes: "schemes",
-  mandi: "mandi", "worker-connect": "workers", chatbot: "aiChatbot",
+  mandi: "mandi", "worker-connect": "agrilabour", chatbot: "aiChatbot",
   "khet-diary": "khetDiary", about: "aboutUs", founders: "founders",
   contact: "contactUs", privacy: "privacyPolicy", terms: "termsConditions",
   disclaimer: "disclaimerLabel", "cookie-policy": "cookiePolicy", impact: "impact",

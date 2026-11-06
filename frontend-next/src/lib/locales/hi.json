@@ -265,7 +265,7 @@
     },
     {
       "p": "मजदूर ढूंढने में घंटे जाते हैं",
-      "s": "Worker Connect से तुरंत मजदूर लो"
+      "s": "AgriLabour से तुरंत मजदूर लो"
     }
   ],
   "featuresBadge": "सब एक जगह",
@@ -305,7 +305,7 @@
       "body": "अपनी मिट्टी, मौसम, location के basis पर AI बताएगा कौन सी फसल best रहेगी अगले season में"
     },
     {
-      "title": "Worker Connect",
+      "title": "AgriLabour",
       "body": "मजदूर, tractor, harvester — सब nearby workers एक जगह। Call या WhatsApp पे सीधा contact"
     }
   ],

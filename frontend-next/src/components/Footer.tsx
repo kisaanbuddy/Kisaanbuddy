@@ -1,227 +1,195 @@
 'use client';
 
 import Link from 'next/link';
-import { Heart, Leaf, Github, Linkedin, MapPin, Mail, ExternalLink, Store, Users, Wrench, Landmark, Globe } from 'lucide-react';
+import {
+  Heart,
+  Store,
+  Users,
+  Wrench,
+  ShieldCheck,
+  Mail,
+  MapPin,
+  Globe,
+  MessageSquareHeart,
+  ChevronDown,
+} from 'lucide-react';
 import { useLanguage, LANG_NAMES } from '@/lib/language';
 import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
+import { useState } from 'react';
 
 export function Footer() {
-  const { lang, t, openLanguageModal } = useLanguage();
+  const { lang, openLanguageModal } = useLanguage();
   const { openFeedback } = useFarmerFeedback();
+  const [showLegalMenu, setShowLegalMenu] = useState(false);
 
   return (
-    <footer className="w-full relative border-t border-stone-200/80 dark:border-stone-800/80 bg-white dark:bg-stone-950 py-14 mt-auto select-none overflow-hidden">
-      <div className="absolute top-0 left-0 right-0 h-px bg-primary/20" />
-      <div className="w-full page-gutter space-y-10">
+    <footer className="w-full relative border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 mt-auto select-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-8">
         
-        {/* Main 5-Column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-10">
+        {/* Main Horizontal Row: Left (Brand & Tagline) | Center (4 Nav Links) | Right (Tools & Language) */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
           
-          {/* Column 1: Brand & Contact */}
-          <div className="sm:col-span-2 lg:col-span-1 space-y-3.5">
-            <Link href="/" className="flex items-center gap-2">
-              <img src="/logo.webp" alt="KisaanBuddy Logo" width={28} height={28} className="w-7 h-7 object-contain" />
+          {/* LEFT: Logo & Short Tagline */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-1.5 shrink-0">
+            <Link href="/" className="inline-flex items-center gap-2 group">
+              <img
+                src="/logo.webp"
+                alt="KisaanBuddy Logo"
+                width={28}
+                height={28}
+                className="w-7 h-7 object-contain transition-transform group-hover:scale-105"
+              />
               <span className="font-display text-lg tracking-tight">
-                <span className="font-extrabold text-stone-900 dark:text-white">Kisaan</span>
-                <span className="font-bold text-emerald-600 dark:text-emerald-400">Buddy</span>
+                <span className="font-black text-stone-900 dark:text-white">Kisaan</span>
+                <span className="font-extrabold text-[#0f5132] dark:text-emerald-400">Buddy</span>
               </span>
             </Link>
-            <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-              India's dedicated agricultural marketplace and intelligence platform. Connecting farmers with real wholesale markets, verified buyers, and skilled farm labour.
+            <p className="text-xs text-stone-600 dark:text-stone-400 max-w-sm leading-relaxed">
+              India&apos;s agricultural marketplace connecting farmers, buyers and farm services.
             </p>
-            <div className="text-[11px] text-stone-600 dark:text-stone-400 space-y-1.5 font-medium pt-1">
-              <p className="flex items-start gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                <span>Noida: H-12, Sector 63, UP - 201301</span>
-              </p>
-              <p className="flex items-start gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                <span>Patna: Patliputra Industrial Area, BH - 800013</span>
-              </p>
-              <p className="flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-                <a href="mailto:info@kisaanbuddy.com" className="hover:text-emerald-600 transition-colors">info@kisaanbuddy.com</a>
-              </p>
-            </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-stone-600 dark:text-stone-400 font-medium pt-1">
-              <span>Made with dedication in India</span>
-              <Heart className="h-3 w-3 text-red-500 fill-current" />
-            </div>
           </div>
 
-          {/* Column 2: Marketplace */}
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
-              <Store className="w-3.5 h-3.5 text-emerald-600" />
+          {/* CENTER: Four Primary Navigation Links with Forest-Green Icons */}
+          <nav className="flex flex-wrap items-center justify-center gap-2 sm:gap-3" aria-label="Footer navigation">
+            <Link
+              href="/marketplace"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-[#0f5132] dark:hover:text-emerald-300 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 border border-stone-200/70 dark:border-stone-800 transition-all shadow-2xs group"
+            >
+              <Store className="w-4 h-4 text-[#0f5132] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
               <span>Marketplace</span>
-            </p>
-            <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
-              <Link href="/mandi" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Live Mandi Rates
-              </Link>
-              <Link href="/marketplace?tab=produce" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Wholesale Crops
-              </Link>
-              <Link href="/marketplace?action=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Sell Your Harvest
-              </Link>
-              <Link href="/marketplace?tab=buyers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Buyer Requirements
-              </Link>
-              <Link href="/marketplace?tab=equipment" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Farm Machinery & Tools
-              </Link>
-              <Link href="/marketplace?tab=fertilizers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Seeds & Fertilizers
-              </Link>
-              <Link href="/marketplace?tab=requirements" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Buyer Requirements
-              </Link>
-              <Link href="/marketplace?tab=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                List Your Produce
-              </Link>
-            </div>
-          </div>
+            </Link>
 
-          {/* Column 3: AgriLabour */}
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-emerald-600" />
+            <Link
+              href="/worker-connect"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-[#0f5132] dark:hover:text-emerald-300 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 border border-stone-200/70 dark:border-stone-800 transition-all shadow-2xs group"
+            >
+              <Users className="w-4 h-4 text-[#0f5132] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
               <span>AgriLabour</span>
-            </p>
-            <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
-              <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Find Farm Labour
-              </Link>
-              <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Tractor & Harvester Operators
-              </Link>
-              <Link href="/worker-connect" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Register as AgriLabour / Driver
-              </Link>
-            </div>
-          </div>
+            </Link>
 
-          {/* Column 4: Farming Tools */}
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
-              <Wrench className="w-3.5 h-3.5 text-emerald-600" />
+            <Link
+              href="/features"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-[#0f5132] dark:hover:text-emerald-300 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 border border-stone-200/70 dark:border-stone-800 transition-all shadow-2xs group"
+            >
+              <Wrench className="w-4 h-4 text-[#0f5132] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
               <span>Farming Tools</span>
-            </p>
-            <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
-              <Link href="/weather" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Agricultural Weather
-              </Link>
-              <Link href="/disease" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Crop Doctor (AI Detection)
-              </Link>
-              <Link href="/crop-predictor" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Crop Recommendation
-              </Link>
-              <Link href="/soil-health" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Soil Health Analysis
-              </Link>
-              <Link href="/khet-diary" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Khet Diary (Expenses)
-              </Link>
-              <Link href="/chatbot" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                AI Krishi Sahayak (Chat)
-              </Link>
-            </div>
-          </div>
+            </Link>
 
-          {/* Column 5: Official & Legal */}
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-emerald-950 dark:text-white flex items-center gap-1.5">
-              <Landmark className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Official & Legal</span>
-            </p>
-            <div className="flex flex-col gap-2 text-xs text-stone-600 dark:text-stone-400 font-medium">
-              <Link href="/schemes" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Government Schemes (PM-Kisan)
-              </Link>
-              <a href="https://pmkisan.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
-                <span>PM-Kisan Portal</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-              <a href="https://agmarknet.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
-                <span>AGMARKNET Official</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-              <a href="https://enam.gov.in" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1">
-                <span>National e-NAM Portal</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </a>
-              <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
-              <Link href="/privacy" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Terms & Conditions
-              </Link>
-              <Link href="/disclaimer" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                Legal Disclaimer
-              </Link>
-              <Link href="/about" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
-                About Us & Founders
-              </Link>
+            {/* Official & Legal with Quick Popover/Menu */}
+            <div className="relative">
               <button
                 type="button"
-                onClick={() => openFeedback()}
-                className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors text-left flex items-center gap-1 text-xs"
+                onClick={() => setShowLegalMenu(!showLegalMenu)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-stone-700 dark:text-stone-200 hover:text-[#0f5132] dark:hover:text-emerald-300 hover:bg-emerald-50/70 dark:hover:bg-emerald-950/40 border border-stone-200/70 dark:border-stone-800 transition-all shadow-2xs group cursor-pointer"
+                aria-expanded={showLegalMenu}
               >
-                <span>Help Us Improve (Your Voice Matters)</span>
+                <ShieldCheck className="w-4 h-4 text-[#0f5132] dark:text-emerald-400 group-hover:scale-110 transition-transform" />
+                <span>Official &amp; Legal</span>
+                <ChevronDown className={`w-3.5 h-3.5 text-stone-400 transition-transform ${showLegalMenu ? 'rotate-180' : ''}`} />
               </button>
+
+              {showLegalMenu && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setShowLegalMenu(false)}
+                  />
+                  <div className="absolute right-0 bottom-full mb-2 w-48 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-xl py-2 z-50 text-xs font-semibold space-y-0.5">
+                    <Link
+                      href="/privacy"
+                      onClick={() => setShowLegalMenu(false)}
+                      className="block px-3.5 py-1.5 text-stone-700 dark:text-stone-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:text-[#0f5132] dark:hover:text-emerald-300 transition-colors"
+                    >
+                      Privacy Policy
+                    </Link>
+                    <Link
+                      href="/terms"
+                      onClick={() => setShowLegalMenu(false)}
+                      className="block px-3.5 py-1.5 text-stone-700 dark:text-stone-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:text-[#0f5132] dark:hover:text-emerald-300 transition-colors"
+                    >
+                      Terms &amp; Conditions
+                    </Link>
+                    <Link
+                      href="/disclaimer"
+                      onClick={() => setShowLegalMenu(false)}
+                      className="block px-3.5 py-1.5 text-stone-700 dark:text-stone-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:text-[#0f5132] dark:hover:text-emerald-300 transition-colors"
+                    >
+                      Legal Disclaimer
+                    </Link>
+                    <Link
+                      href="/about"
+                      onClick={() => setShowLegalMenu(false)}
+                      className="block px-3.5 py-1.5 text-stone-700 dark:text-stone-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:text-[#0f5132] dark:hover:text-emerald-300 transition-colors"
+                    >
+                      About Us &amp; Mission
+                    </Link>
+                  </div>
+                </>
+              )}
             </div>
+          </nav>
+
+          {/* RIGHT: Language Switcher & Feedback */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => openLanguageModal()}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:border-emerald-500 hover:text-[#0f5132] dark:hover:text-emerald-400 transition-colors shadow-2xs cursor-pointer"
+              aria-label={`भाषा बदलें / Change Language (Current: ${LANG_NAMES[lang]})`}
+            >
+              <Globe className="h-3.5 w-3.5 text-[#0f5132] dark:text-emerald-400" />
+              <span>🌐 {LANG_NAMES[lang] || 'Language'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => openFeedback()}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:border-emerald-500 hover:text-[#0f5132] dark:hover:text-emerald-400 transition-colors shadow-2xs cursor-pointer"
+              title="Help Us Improve"
+            >
+              <MessageSquareHeart className="h-3.5 w-3.5 text-[#0f5132] dark:text-emerald-400" />
+              <span>Feedback</span>
+            </button>
           </div>
 
         </div>
 
-        {/* Divider */}
-        <div className="border-t border-stone-200 dark:border-stone-800" />
+        {/* Thin Subtle Divider */}
+        <div className="border-t border-stone-200/80 dark:border-stone-800/80 my-5" />
 
-        {/* Bottom copyright, language switcher, and social row */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-600 dark:text-stone-400 font-medium text-center sm:text-left">
-          <p>&copy; {new Date().getFullYear()} KisaanBuddy &middot; Built for Indian Farmers &middot; All Rights Reserved</p>
+        {/* BOTTOM: Contact Email, One Genuine Address, Made in India & Copyright */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-stone-500 dark:text-stone-400 font-medium text-center md:text-left">
           
-          <div className="flex items-center justify-center sm:justify-end gap-3 sm:gap-4 flex-wrap">
-            {/* Language Selector Button */}
-            <button
-              type="button"
-              onClick={() => openLanguageModal()}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-2.5 py-1 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors shadow-2xs"
-              aria-label={`भाषा बदलें / Change Language (Current: ${LANG_NAMES[lang]})`}
-            >
-              <Globe className="h-3.5 w-3.5 text-emerald-600" />
-              <span>🌐 {LANG_NAMES[lang] || 'Language'}</span>
-            </button>
-
-            <span className="text-stone-300 dark:text-stone-700">|</span>
-
+          {/* Contact Email & Business Address */}
+          <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-1.5">
             <a
-              href="https://github.com/kisaanbuddy/Kisaanbuddy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
-              title="GitHub"
-              aria-label="GitHub Repository"
+              href="mailto:info@kisaanbuddy.com"
+              className="inline-flex items-center gap-1.5 hover:text-[#0f5132] dark:hover:text-emerald-400 transition-colors"
             >
-              <Github className="h-3.5 w-3.5" />
-              <span>GitHub</span>
+              <Mail className="h-3.5 w-3.5 text-[#0f5132] dark:text-emerald-400 shrink-0" />
+              <span>info@kisaanbuddy.com</span>
             </a>
-            <span className="text-stone-300 dark:text-stone-700">|</span>
-            <a
-              href="https://www.linkedin.com/in/aditya-ishwar"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors flex items-center gap-1.5"
-              title="LinkedIn"
-              aria-label="LinkedIn Profile"
-            >
-              <Linkedin className="h-3.5 w-3.5" />
-              <span>LinkedIn</span>
-            </a>
+
+            <span className="hidden sm:inline text-stone-300 dark:text-stone-700">•</span>
+
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 text-[#0f5132] dark:text-emerald-400 shrink-0" />
+              <span>Patliputra Industrial Area, Patna, Bihar - 800013</span>
+            </span>
           </div>
+
+          {/* Dedication & Copyright */}
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-3 gap-y-1">
+            <span className="inline-flex items-center gap-1">
+              <span>Made with dedication in India</span>
+              <Heart className="h-3 w-3 text-red-500 fill-current" />
+            </span>
+
+            <span className="text-stone-300 dark:text-stone-700">•</span>
+
+            <span>Copyright © 2026 KisaanBuddy. All Rights Reserved.</span>
+          </div>
+
         </div>
 
       </div>

@@ -1,5 +1,5 @@
 /**
- * Resilient Store & Fallback for Worker Connect — Agricultural Labour Marketplace.
+ * Resilient Store & Fallback for AgriLabour — Agricultural Labour Marketplace.
  *
  * Sourced entirely from official Government public data:
  * - Labour Bureau, Ministry of Labour & Employment (Wage Rates in Rural India - WRRI)

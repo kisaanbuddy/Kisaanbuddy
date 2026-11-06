@@ -195,9 +195,9 @@ const TOOLS_CONFIG = [
       gu: 'શ્રમિક નેટવર્ક', bn: 'শ্রমিক নেটওয়ার্ক', pa: 'ਮਜ਼ਦੂਰ ਨੈੱਟਵਰਕ', ml: 'തൊഴിലാളി ശൃംഖല', hi_en: 'Labour Network',
     },
     title: {
-      en: 'Workers Connect', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್',
+      en: 'AgriLabour', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್',
       mr: 'वर्कर्स कनेक्ट', te: 'వర్కర్స్ కనెక్ట్', ta: 'வர்க்கர்ஸ் கனெக்ட்',
-      gu: 'વર્કર્સ કનેક્ટ', bn: 'ওয়ার্কার্স কানেক্ট', pa: 'ਵਰਕਰ ਕਨੈਕਟ', ml: 'വർക്കേഴ്സ് കണക്ട്', hi_en: 'Workers Connect',
+      gu: 'વર્કર્સ કનેક્ટ', bn: 'ওয়ার্কার্স কানেক্ট', pa: 'ਵਰਕਰ ਕਨੈਕਟ', ml: 'വർക്കേഴ്സ് കണക്ട്', hi_en: 'AgriLabour',
     },
     desc: {
       en: 'Find AgriLabour or discover farming jobs near you for sowing, harvesting, weeding, and tractor work.',

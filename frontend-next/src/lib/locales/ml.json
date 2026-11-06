@@ -265,7 +265,7 @@
     },
     {
       "p": "Hours wasted finding farm workers",
-      "s": "Get workers instantly via Worker Connect"
+      "s": "Get workers instantly via AgriLabour"
     }
   ],
   "featuresBadge": "All In One Place",
@@ -305,7 +305,7 @@
       "body": "Based on your soil, weather, location — AI tells which crop will be best next season"
     },
     {
-      "title": "Worker Connect",
+      "title": "AgriLabour",
       "body": "Workers, tractor, harvester — all nearby workers in one place. Call or WhatsApp directly"
     }
   ],
@@ -578,7 +578,7 @@
     "we_process_your_information": "We process your information for purposes based on legitimate business interests, the fulfillment of our contract with you, and compliance with our legal obligations. This includes:",
     "providing_and_delivering_agricultural": "Providing and delivering agricultural insights (such as soil assessments, crop predictions, and weather warnings).",
     "analyzing_uploaded_plant_leaf": "Analyzing uploaded plant leaf images to determine crop diseases and recommend organic or chemical remedies.",
-    "facilitating_connections_between_local": "Facilitating connections between local farmers and farm workers via Worker Connect.",
+    "facilitating_connections_between_local": "Facilitating connections between local farmers and farm workers via AgriLabour.",
     "displaying_relevant_government_schemes": "Displaying relevant government schemes eligibility.",
     "5_gdpr_ccpa_compliance": "5. GDPR & CCPA Compliance",
     "if_you_are_accessing": "If you are accessing Kisaan Buddy from the European Union (EU) or California (USA), you have specific data protection rights under the General Data Protection Regulation (GDPR) and California Consumer Privacy Act (CCPA).",
@@ -609,7 +609,7 @@
     "critical_advisory": "CRITICAL ADVISORY:",
     "all_suggestions_recommendations_and": "All suggestions, recommendations, and diagnostic opinions produced by Kisaan Buddy are powered by artificial intelligence models. They represent mathematical probabilities, NOT certified agricultural expert, agronomist, or chemical engineer guarantees. Farmers must verify all pesticide dosages, fertilizer ratios, and crop schedules with local agricultural extension officers or certified specialists before taking on-field action.",
     "3_user_accounts_registration": "3. User Accounts & Registration",
-    "to_unlock_certain_features": "To unlock certain features (like saving entries to the Khet Diary or posting jobs to Worker Connect), you must create a user profile. You agree to provide accurate details and maintain password confidentiality.",
+    "to_unlock_certain_features": "To unlock certain features (like saving entries to the Khet Diary or posting jobs to AgriLabour), you must create a user profile. You agree to provide accurate details and maintain password confidentiality.",
     "4_limitation_of_liability": "4. Limitation of Liability",
     "in_no_event_shall": "In no event shall Kisaan Buddy, its co-founders, or partners be liable for any damages, including without limitation, loss of crop yield, financial loss from mandi trading, or incorrect chemical applications.",
     "5_intellectual_property": "5. Intellectual Property",

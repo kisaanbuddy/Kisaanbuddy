@@ -85,7 +85,7 @@ const HOW_I18N: Record<string, HowItWorksI18n> = {
       points: [
         'Crop Doctor for disease screening',
         'Mandi prices across 1,000+ APMCs',
-        'Workers Connect or Crop Selling',
+        'AgriLabour or Crop Selling',
       ],
     },
     step2: {

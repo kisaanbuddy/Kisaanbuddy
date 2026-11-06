@@ -97,7 +97,7 @@ const ALL_FEATURES: FeatureCard[] = [
     key: 'worker_connect',
     icon: Users,
     title: {
-      en: 'Worker Connect & Labour Crews',
+      en: 'AgriLabour - Farm Labour & Crews',
       hi: 'श्रमिक कनेक्ट व हार्वेस्टर दल',
       kn: 'ಕೃಷಿ ಕಾರ್ಮಿಕರ ಸಂಪರ್ಕ',
     },

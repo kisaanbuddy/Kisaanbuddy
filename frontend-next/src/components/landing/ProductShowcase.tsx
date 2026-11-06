@@ -62,11 +62,11 @@ const SHOWCASE_I18N: Record<string, ShowcaseContent> = {
         ]
       },
       workers: {
-        label: 'Workers Connect',
+        label: 'AgriLabour',
         badge: 'Rural Labour Network',
         headline: 'Find Farm Workers or Discover Farming Jobs Near You.',
         description: 'Connecting farmers who need agricultural labour for transplantation, harvesting, weeding, and machinery operations with verified rural farm workers.',
-        buttonText: 'Explore Workers Connect',
+        buttonText: 'Explore AgriLabour',
         points: [
           'Hire labour for paddy transplantation (Ropai), sowing, weeding & harvesting',
           'Direct contact between farmers & workers with zero middleman commissions',
@@ -622,11 +622,11 @@ mandi: {
         ]
       },
       workers: {
-        label: 'Workers Connect',
+        label: 'AgriLabour',
         badge: 'Rural Labour Network',
         headline: 'Farm ke liye mazdoor hire karein ya aas-paas kaam dhundein.',
         description: 'Ropai, katai, nirai aur tractor kaam ke liye verified farm workers aur labour gang se directly connect karein.',
-        buttonText: 'Workers Connect Explore Karein',
+        buttonText: 'AgriLabour Explore Karein',
         points: [
           'Paddy transplantation (Ropai), sowing, weeding aur harvesting ke liye direct labour',
           'Bina kisi middleman commission ke direct wage agreement',

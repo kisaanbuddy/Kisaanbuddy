@@ -497,10 +497,10 @@ export function FeatureShowcaseSection() {
 
           </div>
 
-          {/* ROW 2: 3-Pillar Distinctive Grid (Worker Connect, Schemes, Weather) */}
+          {/* ROW 2: 3-Pillar Distinctive Grid (AgriLabour, Schemes, Weather) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             
-            {/* 3. Worker Connect */}
+            {/* 3. AgriLabour */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}

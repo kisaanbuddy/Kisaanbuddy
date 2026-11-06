@@ -1,5 +1,5 @@
 /**
- * Typed client for KisaanBuddy Worker Connect — Agricultural Labour Marketplace.
+ * Typed client for KisaanBuddy AgriLabour — Agricultural Labour Marketplace.
  *
  * All calls go through the Next.js rewrite (/api/worker-connect/* -> :8000).
  * Implements all 10 project phases with complete backward compatibility.
