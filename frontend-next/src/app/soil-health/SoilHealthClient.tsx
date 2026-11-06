@@ -530,6 +530,74 @@ export default function SoilHealthPage() {
     }
   }
 
+  // Module 7: Soil Health -> Fertilizer Marketplace Integration
+  const handleFindFertilizers = useCallback(() => {
+    const deficiencies: string[] = []
+
+    // 1. Deficiencies from manual / interactive input form
+    if (form.nitrogen === "low") deficiencies.push("nitrogen")
+    if (form.phosphorus === "low") deficiencies.push("phosphorus")
+    if (form.potassium === "low") deficiencies.push("potassium")
+    if (form.organicCarbon === "low") deficiencies.push("organic_carbon")
+    if (form.ph === "acidic") deficiencies.push("acidic")
+
+    // 2. Deficiencies from verified soil test card scan if available
+    if (extractedCard) {
+      if (
+        extractedCard.nitrogen_kg_ha != null &&
+        extractedCard.nitrogen_kg_ha < 280 &&
+        !deficiencies.includes("nitrogen")
+      ) {
+        deficiencies.push("nitrogen")
+      }
+      if (
+        extractedCard.phosphorus_kg_ha != null &&
+        extractedCard.phosphorus_kg_ha < 10 &&
+        !deficiencies.includes("phosphorus")
+      ) {
+        deficiencies.push("phosphorus")
+      }
+      if (
+        extractedCard.potassium_kg_ha != null &&
+        extractedCard.potassium_kg_ha < 110 &&
+        !deficiencies.includes("potassium")
+      ) {
+        deficiencies.push("potassium")
+      }
+      if (
+        extractedCard.soil_ph != null &&
+        extractedCard.soil_ph < 6.5 &&
+        !deficiencies.includes("acidic")
+      ) {
+        deficiencies.push("acidic")
+      }
+      if (
+        extractedCard.organic_carbon_pct != null &&
+        extractedCard.organic_carbon_pct < 0.5 &&
+        !deficiencies.includes("organic_carbon")
+      ) {
+        deficiencies.push("organic_carbon")
+      }
+    }
+
+    const q = new URLSearchParams()
+    q.set("tab", "inputs")
+    q.set("category", "chemical_fertilizers")
+
+    // Crop extraction and cleaning
+    if (form.crop && form.crop !== "Other") {
+      const cleanCrop = form.crop.split(" ")[0].replace(/[^a-zA-Z]/g, "").trim()
+      if (cleanCrop) q.set("crop", cleanCrop)
+    }
+
+    // Apply deficiency filters if identified
+    if (deficiencies.length > 0) {
+      q.set("deficiency", deficiencies.join(","))
+    }
+
+    router.push(`/marketplace?${q.toString()}`)
+  }, [form, extractedCard, router])
+
   const reset = () => {
     abortRef.current?.abort()
     if (audioRef.current) {
