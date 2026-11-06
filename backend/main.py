@@ -47,6 +47,7 @@ from api import disease as disease_api
 from api import soil_tests as soil_tests_api, recommendations as recommendations_api
 from api import tasks as tasks_api, marketplace as marketplace_api
 from api import sarvam as sarvam_api
+from api import whatsapp as whatsapp_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -178,10 +179,15 @@ app.include_router(recommendations_api.router, prefix="/api/farmer", tags=["Reco
 app.include_router(tasks_api.router, prefix="/api/farmer", tags=["Farm Tasks"])
 app.include_router(marketplace_api.router, prefix="/api/marketplace", tags=["Marketplace"])
 app.include_router(sarvam_api.router, prefix="/api/sarvam", tags=["Sarvam AI"])
+app.include_router(whatsapp_api.router, prefix="/api/whatsapp", tags=["WhatsApp Business"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 frontend_path = os.path.join(BASE_DIR, "frontend")
+
+uploads_dir = os.path.join(BASE_DIR, "backend", "data", "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/static/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")

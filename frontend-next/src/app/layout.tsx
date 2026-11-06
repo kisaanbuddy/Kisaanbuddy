@@ -9,6 +9,7 @@ import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { WhatsAppFloatingButton } from '@/components/WhatsAppFloatingButton';
 
 /* ---------- System font stacks ----------
  * Replaced next/font/google to avoid build-time downloads from
@@ -161,6 +162,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SwRegister />
           <Analytics />
           <MobileBottomNav />
+          <WhatsAppFloatingButton />
           <DeferredAdSense />
 
 

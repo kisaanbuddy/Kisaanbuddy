@@ -95,6 +95,19 @@ class Settings(BaseSettings):
     # Google ID token validation. Required only when Google sign-in is enabled.
     GOOGLE_CLIENT_ID: Optional[str] = None
 
+    # --- WhatsApp Business Platform Cloud API ---
+    WHATSAPP_ACCESS_TOKEN: Optional[str] = None
+    WHATSAPP_PHONE_NUMBER_ID: Optional[str] = None
+    WHATSAPP_BUSINESS_ACCOUNT_ID: Optional[str] = None
+    WHATSAPP_APP_ID: Optional[str] = None
+    WHATSAPP_APP_SECRET: Optional[str] = None
+    WHATSAPP_VERIFY_TOKEN: Optional[str] = None
+    WHATSAPP_API_VERSION: str = "v21.0"
+    WHATSAPP_TEST_RECIPIENT: Optional[str] = None
+    WHATSAPP_SIGNATURE_VERIFICATION: bool = True
+    WHATSAPP_MONTHLY_BUDGET_INR: float = 5000.0
+    FRONTEND_BASE_URL: str = "http://localhost:3000"
+
     # Comma-separated owner emails. This is server configuration only and is
     # never sent to the browser. Matching accounts are promoted to Admin when
     # they authenticate, so an initial owner can be designated without a UI.
@@ -115,6 +128,15 @@ def is_configured_admin(email: Optional[str]) -> bool:
         return False
     configured = {value.strip().casefold() for value in settings.ADMIN_EMAILS.split(",") if value.strip()}
     return email.casefold() in configured
+
+
+def is_whatsapp_configured() -> bool:
+    """Check if WhatsApp Cloud API has minimal necessary credentials configured."""
+    token = (settings.WHATSAPP_ACCESS_TOKEN or "").strip()
+    phone_id = (settings.WHATSAPP_PHONE_NUMBER_ID or "").strip()
+    placeholder_tokens = {"", "YOUR_WHATSAPP_ACCESS_TOKEN", "placeholder", "test"}
+    placeholder_ids = {"", "YOUR_PHONE_NUMBER_ID", "placeholder", "test"}
+    return bool(token and token not in placeholder_tokens and phone_id and phone_id not in placeholder_ids)
 
 
 def validate_production_settings() -> None:

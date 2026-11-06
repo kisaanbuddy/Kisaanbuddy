@@ -1127,3 +1127,63 @@ if Column is not None:
         last_verified_date = Column(Date, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+
+    class WhatsAppUser(Base):  # type: ignore[misc]
+        """WhatsApp conversation subscriber and identity mapping."""
+        __tablename__ = "whatsapp_users"
+        id = Column(Integer, primary_key=True, index=True)
+        phone_number = Column(String(50), unique=True, nullable=False, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        name = Column(String(100), nullable=True)
+        language = Column(String(10), default="en", nullable=False)
+        current_state = Column(String(50), default="NEW_USER", nullable=False)
+        last_active_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        opted_in = Column(Boolean, default=True, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    class WhatsAppMessage(Base):  # type: ignore[misc]
+        """Audit record for incoming and outgoing WhatsApp messages, cost, and delivery."""
+        __tablename__ = "whatsapp_messages"
+        id = Column(Integer, primary_key=True, index=True)
+        message_id = Column(String(100), unique=True, index=True, nullable=True)
+        phone_number = Column(String(50), index=True, nullable=False)
+        direction = Column(String(20), nullable=False)  # inbound, outbound
+        message_type = Column(String(50), nullable=False)  # text, interactive, image, etc.
+        body = Column(Text, nullable=True)
+        media_id = Column(String(100), nullable=True)
+        media_url = Column(Text, nullable=True)
+        category = Column(String(50), default="service", nullable=False)  # service, utility, authentication, marketing
+        status = Column(String(50), default="sent", nullable=False)  # received, sent, delivered, read, failed
+        is_chargeable = Column(Boolean, default=False, nullable=False)
+        estimated_cost_inr = Column(Float, default=0.0, nullable=False)
+        error_message = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    class WhatsAppSupportTicket(Base):  # type: ignore[misc]
+        """Farmer escalation ticket originating from WhatsApp conversation."""
+        __tablename__ = "whatsapp_support_tickets"
+        id = Column(Integer, primary_key=True, index=True)
+        ticket_id = Column(String(50), unique=True, index=True, nullable=False)
+        phone_number = Column(String(50), index=True, nullable=False)
+        farmer_name = Column(String(100), nullable=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        query_summary = Column(Text, nullable=False)
+        status = Column(String(50), default="OPEN", nullable=False)  # OPEN, ASSIGNED, IN_PROGRESS, RESOLVED
+        assigned_to = Column(String(100), nullable=True)
+        resolution_notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        resolved_at = Column(DateTime, nullable=True)
+
+    class WhatsAppLinkToken(Base):  # type: ignore[misc]
+        """Secure expiring tokens for WhatsApp -> Web direct links."""
+        __tablename__ = "whatsapp_link_tokens"
+        id = Column(Integer, primary_key=True, index=True)
+        token = Column(String(100), unique=True, index=True, nullable=False)
+        phone_number = Column(String(50), index=True, nullable=False)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        action = Column(String(50), nullable=False)  # view_diagnosis, account_link, dashboard
+        target_id = Column(String(100), nullable=True)
+        expires_at = Column(DateTime, nullable=False)
+        used = Column(Boolean, default=False, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

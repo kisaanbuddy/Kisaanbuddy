@@ -398,7 +398,9 @@ async def check_health() -> Dict[str, Any]:
             "chat": False,
             "translation": False,
             "tts": False,
+            "tts_model": "bulbul:v3",
             "stt": False,
+            "stt_model": "saaras:v4",
             "doc_ai": False,
         }
 
