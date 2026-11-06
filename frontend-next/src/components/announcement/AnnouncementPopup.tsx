@@ -1,87 +1,126 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, ArrowRight, ShieldCheck, Heart } from "lucide-react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { X, Sparkles, ArrowRight, Sprout, TrendingUp, ShieldCheck, Tractor, Stethoscope } from "lucide-react";
 import { useLanguage, type Lang } from "@/lib/language";
 import {
   ANNOUNCEMENT_TRANSLATIONS,
   type AnnouncementContent,
 } from "./announcement-translations";
 
-// Change this version key whenever a new announcement needs to be broadcast
-export const ANNOUNCEMENT_STORAGE_KEY = "kisaanbuddy_announcement_v1_dismissed";
-
-interface FounderItem {
-  name: string;
-  role: string;
-  image: string;
-}
-
-const FOUNDERS: FounderItem[] = [
-  {
-    name: "Aditya Ishwar",
-    role: "Founder & CEO",
-    image: "/images/founders/aditya-ishwar.webp",
-  },
-  {
-    name: "Utkarsh Sinha",
-    role: "Co-Founder & MD",
-    image: "/images/founders/utkarsh-sinha.webp",
-  },
-  {
-    name: "Yash Singh",
-    role: "Co-Founder & CMO",
-    image: "/images/founders/yash-singh.webp",
-  },
-];
+// Session-based storage key so it appears once per browsing session
+export const WELCOME_SESSION_KEY = "kisaanbuddy_welcome_session_v2";
 
 export function AnnouncementPopup() {
-  const { lang, isReady, isLanguageSelected } = useLanguage();
+  const { lang, isReady, isLanguageSelected, isLanguageModalOpen } = useLanguage();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const prefersReducedMotion = useReducedMotion();
+  const modalRef = useRef<HTMLDivElement>(null);
+  const ctaButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Check dismissal state in localStorage after client mounts and language is verified
+  // Check session storage on mount & verify language readiness
   useEffect(() => {
     setIsMounted(true);
-    if (!isReady || !isLanguageSelected) {
+
+    // Clean up old persistent localStorage key from legacy announcement
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.removeItem("kisaanbuddy_announcement_v1_dismissed");
+      }
+    } catch {
+      // Ignore storage access errors in strict sandboxes
+    }
+
+    if (!isReady) return;
+
+    // Wait until language selection modal is done so modals never overlap
+    if (isLanguageModalOpen) {
+      setIsOpen(false);
       return;
     }
 
     try {
-      const isDismissed = localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY);
-      if (!isDismissed) {
-        // Small delay ensures smooth entrance right after website load
+      const sessionSeen = window.sessionStorage.getItem(WELCOME_SESSION_KEY);
+      if (!sessionSeen) {
+        // Smooth entrance delay right after initial hydration & page ready
         const timer = setTimeout(() => {
           setIsOpen(true);
-        }, 350);
+        }, 450);
         return () => clearTimeout(timer);
       }
     } catch {
-      // Storage might be blocked in strict private browsing; do not crash
+      // In private browsing mode where sessionStorage might throw
     }
-  }, [isReady, isLanguageSelected]);
+  }, [isReady, isLanguageSelected, isLanguageModalOpen]);
 
+  // Handle dismiss: store in sessionStorage and restore body scroll
   const handleDismiss = useCallback(() => {
     setIsOpen(false);
     try {
-      localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, "true");
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(WELCOME_SESSION_KEY, "true");
+        document.body.style.overflow = "";
+      }
     } catch {
       // Storage access blocked fallback
     }
   }, []);
 
-  // Keyboard accessibility: Escape key closes modal
+  // Lock background scrolling while modal is open, unlock on dismiss/unmount
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [isOpen]);
+
+  // Keyboard accessibility: Escape key closes modal & focus management
   useEffect(() => {
     if (!isOpen) return;
+
+    // Focus the primary CTA on open for immediate keyboard interaction
+    const focusTimer = setTimeout(() => {
+      ctaButtonRef.current?.focus();
+    }, 150);
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        e.preventDefault();
         handleDismiss();
+        return;
+      }
+
+      // Simple focus trapping inside modal
+      if (e.key === "Tab" && modalRef.current) {
+        const focusables = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(focusTimer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen, handleDismiss]);
 
   if (!isMounted) return null;
@@ -90,261 +129,239 @@ export function AnnouncementPopup() {
   const content: AnnouncementContent =
     ANNOUNCEMENT_TRANSLATIONS[currentLang] || ANNOUNCEMENT_TRANSLATIONS.en;
 
+  // Animation variants adapting to user reduced motion preference
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: prefersReducedMotion ? 0.1 : 0.35, ease: "easeOut" } },
+    exit: { opacity: 0, transition: { duration: 0.2, ease: "easeIn" } },
+  };
+
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      scale: prefersReducedMotion ? 1 : 0.96,
+      y: prefersReducedMotion ? 0 : 16,
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: prefersReducedMotion ? 0.1 : 0.45,
+        ease: [0.16, 1, 0.3, 1], // snappy easeOutCubic
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: prefersReducedMotion ? 1 : 0.97,
+      y: prefersReducedMotion ? 0 : 12,
+      transition: { duration: 0.22, ease: "easeIn" },
+    },
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-labelledby="announcement-modal-heading"
-          className="fixed inset-0 z-[90] flex items-center justify-center p-3.5 sm:p-5 md:p-8"
+          aria-labelledby="welcome-modal-heading"
+          aria-describedby="welcome-modal-description"
+          className="fixed inset-0 z-[95] flex items-center justify-center p-3 sm:p-5 md:p-6 overflow-y-auto"
         >
-          {/* ────────────────────────────────────────────────────────────── */}
-          {/* BACKDROP OVERLAY                                               */}
-          {/* ────────────────────────────────────────────────────────────── */}
+          {/* ─── BACKDROP OVERLAY WITH BLUR & AMBIENT DARK GREEN TINT ─── */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
             onClick={handleDismiss}
             aria-hidden="true"
-            className="fixed inset-0 bg-stone-950/75 backdrop-blur-md transition-all"
+            className="fixed inset-0 bg-[#02140d]/80 backdrop-blur-md transition-all"
           />
 
-          {/* ────────────────────────────────────────────────────────────── */}
-          {/* MODAL CONTAINER (75-80% desktop width, max-w-5xl)              */}
-          {/* ────────────────────────────────────────────────────────────── */}
+          {/* ─── MODAL CONTAINER ─── */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 24 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.94, y: 16 }}
-            transition={{
-              type: "spring",
-              damping: 26,
-              stiffness: 280,
-              mass: 0.9,
-            }}
-            className="relative z-10 w-[94%] sm:w-[90%] md:w-[84%] lg:w-[78%] max-w-5xl max-h-[92vh] overflow-hidden rounded-[26px] sm:rounded-[32px] border border-emerald-500/30 bg-[#FAF9F6] dark:bg-stone-900 shadow-[0_25px_70px_rgba(15,61,41,0.35)] flex flex-col"
+            ref={modalRef}
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="relative w-full max-w-2xl sm:max-w-3xl my-auto rounded-3xl overflow-hidden border border-emerald-500/25 bg-gradient-to-br from-[#042017] via-[#062c1e] to-[#021811] text-white shadow-2xl shadow-emerald-950/60 z-10"
           >
-            {/* Top Close Button (Desktop & Mobile accessible) */}
+            {/* ─── AMBIENT BACKGROUND GLOWS & AGRICULTURAL PATTERNS ─── */}
+            <div className="absolute -top-24 -left-24 w-72 h-72 bg-emerald-500/15 rounded-full filter blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-emerald-400/10 rounded-full filter blur-3xl pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/10 rounded-full filter blur-3xl pointer-events-none" />
+
+            {/* Subtle SVG Agricultural Topography & Contour Lines Background */}
+            <svg
+              className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none stroke-emerald-300"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              preserveAspectRatio="none"
+            >
+              <path d="M0,60 Q200,20 400,80 T800,40 T1200,100" strokeWidth="1.5" />
+              <path d="M0,120 Q300,70 600,140 T1200,90" strokeWidth="1.5" />
+              <path d="M0,190 Q250,150 500,210 T1000,170 T1200,230" strokeWidth="1.5" />
+              <path d="M0,280 Q350,220 700,300 T1200,260" strokeWidth="1.5" />
+              <path d="M0,370 Q200,320 500,410 T1000,360 T1200,420" strokeWidth="1.5" />
+              <path d="M0,460 Q300,400 600,490 T1200,440" strokeWidth="1.5" />
+            </svg>
+
+            {/* Floating Subtle Leaf Accents */}
+            {!prefersReducedMotion && (
+              <>
+                <motion.div
+                  animate={{ y: [0, -8, 0], rotate: [-2, 4, -2] }}
+                  transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute top-6 right-16 hidden sm:block opacity-20 pointer-events-none"
+                >
+                  <Sprout className="w-9 h-9 text-emerald-300" />
+                </motion.div>
+                <motion.div
+                  animate={{ y: [0, 6, 0], rotate: [3, -3, 3] }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute bottom-16 left-8 hidden sm:block opacity-15 pointer-events-none"
+                >
+                  <Sprout className="w-7 h-7 text-emerald-400" />
+                </motion.div>
+              </>
+            )}
+
+            {/* ─── MODAL CLOSE BUTTON ─── */}
             <button
               type="button"
               onClick={handleDismiss}
               aria-label={content.closeAria}
-              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-20 flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-black/25 sm:bg-black/30 text-white backdrop-blur-md border border-white/20 transition-all hover:bg-black/50 hover:scale-105 active:scale-95 focus:outline-hidden focus:ring-2 focus:ring-emerald-400"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:bg-white/25 text-stone-200 hover:text-white backdrop-blur-md border border-white/10 transition-all cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-[#062c1e]"
             >
-              <X className="h-5 w-5 sm:h-5.5 sm:w-5.5" />
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
 
-            {/* Scrollable Modal Content */}
-            <div className="overflow-y-auto overscroll-contain">
-              {/* ────────────────────────────────────────────────────────── */}
-              {/* AGRICULTURAL THEMED HEADER BANNER                          */}
-              {/* ────────────────────────────────────────────────────────── */}
-              <div className="relative overflow-hidden bg-gradient-to-br from-[#0c3120] via-[#144a32] to-[#0f3d29] px-6 py-8 sm:px-10 sm:py-12 md:py-14 text-white">
-                {/* Ambient Radial Glows */}
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl"
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-amber-400/15 blur-3xl"
-                />
+            {/* ─── MODAL CONTENT ─── */}
+            <div className="relative px-5 py-6 sm:px-8 sm:py-8 md:px-10 md:py-9 space-y-6 sm:space-y-7">
+              {/* 1. BRAND HEADER */}
+              <motion.div
+                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="text-center space-y-2 sm:space-y-2.5 max-w-xl mx-auto"
+              >
+                {/* Brand Tag Pill */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/25 backdrop-blur-md">
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] sm:text-xs font-bold tracking-widest text-emerald-300 uppercase">
+                    KISAANBUDDY • {content.brandTag}
+                  </span>
+                </div>
 
-                {/* Subtle Agricultural Background SVG Elements (Wheat & Field Waves) */}
-                <svg
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 h-full w-full opacity-10"
-                  xmlns="http://www.w3.org/2000/svg"
+                {/* Main Heading */}
+                <h2
+                  id="welcome-modal-heading"
+                  className="text-2xl sm:text-3xl md:text-3.5xl font-extrabold tracking-tight text-white leading-tight"
                 >
-                  <defs>
-                    <pattern
-                      id="farm-pattern"
-                      width="60"
-                      height="60"
-                      patternUnits="userSpaceOnUse"
+                  {content.mainHeading}
+                </h2>
+
+                {/* Supporting Text */}
+                <p className="text-xs sm:text-sm md:text-[15px] text-emerald-100/80 leading-relaxed font-normal">
+                  {content.subheading}
+                </p>
+              </motion.div>
+
+              {/* 2. CENTRAL ANNOUNCEMENT CARD */}
+              <motion.div
+                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.22, duration: 0.45 }}
+                className="relative rounded-2xl sm:rounded-3xl bg-white/95 dark:bg-stone-900/95 text-stone-900 dark:text-stone-100 p-5 sm:p-6 md:p-7 shadow-xl shadow-black/20 border border-emerald-500/20 backdrop-blur-xl"
+              >
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 text-center sm:text-left">
+                  {/* Agricultural Motif SVG Icon */}
+                  <div className="shrink-0 flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-50 dark:from-emerald-950/70 dark:to-emerald-900/50 border border-emerald-200 dark:border-emerald-800/60 shadow-xs">
+                    <svg
+                      className="w-8 h-8 sm:w-9 sm:h-9 text-emerald-700 dark:text-emerald-400"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
-                      <path
-                        d="M 60 0 L 0 60 M 30 -30 L -30 30 M 90 30 L 30 90"
-                        stroke="#ffffff"
-                        strokeWidth="1.2"
-                        strokeDasharray="3, 4"
-                      />
-                    </pattern>
-                  </defs>
-                  <rect width="100%" height="100%" fill="url(#farm-pattern)" />
-                </svg>
+                      {/* Modern Sprout & Rising Sunbeam Graphic */}
+                      <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12" strokeOpacity="0.25" />
+                      <path d="M7 21v-4a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v4" />
+                      <path d="M12 3v10" />
+                      <path d="M12 8c2.5-2.5 4.5-2 6 0-1.5 2.5-3.5 2-6 0Z" fill="currentColor" fillOpacity="0.15" />
+                      <path d="M12 11c-2.5-2.5-4.5-2-6 0 1.5 2.5 3.5 2 6 0Z" fill="currentColor" fillOpacity="0.15" />
+                    </svg>
+                  </div>
 
-                {/* Floating Ambient Particles (Subtle Pollen / Sparkles) */}
-                <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-                  {[...Array(6)].map((_, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{
-                        opacity: 0.2,
-                        y: 0,
-                        x: i * 80 + 20,
-                      }}
-                      animate={{
-                        opacity: [0.2, 0.7, 0.2],
-                        y: [-10, -35, -10],
-                        x: [i * 80 + 20, i * 80 + (i % 2 === 0 ? 35 : 5), i * 80 + 20],
-                      }}
-                      transition={{
-                        duration: 4 + (i % 3) * 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: i * 0.4,
-                      }}
-                      className="absolute block h-1.5 w-1.5 rounded-full bg-amber-300 shadow-[0_0_8px_rgba(252,211,77,0.8)]"
-                      style={{
-                        top: `${30 + (i * 12) % 50}%`,
-                        left: `${(i * 18 + 5) % 95}%`,
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {/* Header Content */}
-                <div className="relative z-10 flex flex-col items-center text-center">
-                  {/* Official Announcement Pill Badge */}
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-950/60 backdrop-blur-md px-3.5 py-1.5 sm:px-4 sm:py-1.5 text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-200 shadow-xs mb-4 sm:mb-5"
-                  >
-                    <Sparkles className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
-                    <span>{content.badge}</span>
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  </motion.div>
-
-                  {/* Main Announcement Heading */}
-                  <motion.h2
-                    id="announcement-modal-heading"
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.15, duration: 0.45 }}
-                    className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-[42px] font-black tracking-tight text-white leading-tight max-w-3xl"
-                  >
-                    {content.heading}
-                  </motion.h2>
-
-                  {/* Subtle Decorative Wheat Icon Flanks */}
-                  <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.25, duration: 0.5 }}
-                    className="mt-3 flex items-center gap-2 text-emerald-300/80 text-xs sm:text-sm font-medium"
-                  >
-                    <span className="h-px w-8 sm:w-14 bg-gradient-to-r from-transparent via-emerald-400/40 to-emerald-400" />
-                    <span className="text-base sm:text-lg">🌾</span>
-                    <span className="tracking-wide text-emerald-200/90 font-semibold">KisaanBuddy</span>
-                    <span className="text-base sm:text-lg">🌾</span>
-                    <span className="h-px w-8 sm:w-14 bg-gradient-to-l from-transparent via-emerald-400/40 to-emerald-400" />
-                  </motion.div>
-                </div>
-              </div>
-
-              {/* ────────────────────────────────────────────────────────── */}
-              {/* BODY SECTION (SUPPORTING MESSAGE & FOUNDER SIGNATURE)      */}
-              {/* ────────────────────────────────────────────────────────── */}
-              <div className="px-6 py-6 sm:px-10 sm:py-8 md:py-10 space-y-6 sm:space-y-8 bg-gradient-to-b from-[#FAF9F6] via-white to-[#F4F7F2] dark:from-stone-900 dark:via-stone-900 dark:to-stone-950">
-                {/* Supporting Message Card */}
-                <motion.div
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25, duration: 0.45 }}
-                  className="rounded-2xl sm:rounded-3xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-800/60 p-5 sm:p-7 md:p-8 shadow-xs text-center relative overflow-hidden backdrop-blur-xs"
-                >
-                  <p className="text-base sm:text-lg md:text-xl font-medium text-stone-800 dark:text-stone-200 leading-relaxed sm:leading-loose">
-                    &ldquo;{content.messageP1}&rdquo;
-                  </p>
-                  <p className="mt-3 sm:mt-4 text-base sm:text-lg md:text-xl font-bold text-emerald-800 dark:text-emerald-400 leading-relaxed">
-                    {content.messageP2}
-                  </p>
-                </motion.div>
-
-                {/* ────────────────────────────────────────────────────────── */}
-                {/* FOUNDER SIGNATURE SECTION                                  */}
-                {/* ────────────────────────────────────────────────────────── */}
-                <motion.div
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35, duration: 0.45 }}
-                  className="rounded-2xl sm:rounded-3xl border border-emerald-600/15 dark:border-emerald-700/30 bg-gradient-to-br from-emerald-50/50 via-white to-amber-50/40 dark:from-stone-800/80 dark:via-stone-800/40 dark:to-stone-900/90 p-5 sm:p-7 shadow-xs"
-                >
-                  {/* Founder Signature Heading with Heart */}
-                  <div className="text-center space-y-1 mb-5 sm:mb-6">
-                    <p className="font-serif italic text-base sm:text-lg text-stone-600 dark:text-stone-300">
-                      {content.withLove}
-                    </p>
-                    <div className="inline-flex items-center justify-center gap-1.5 text-base sm:text-lg md:text-xl font-extrabold text-emerald-900 dark:text-emerald-200">
-                      <span>{content.theFounders}</span>
+                  {/* Card Text Content */}
+                  <div className="space-y-1.5 flex-1">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>KisaanBuddy Innovation</span>
                     </div>
-                  </div>
-
-                  {/* Founder Portraits & Names */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-1 pb-3">
-                    {FOUNDERS.map((founder, idx) => (
-                      <div
-                        key={idx}
-                        className="flex flex-col items-center text-center p-3 sm:p-3.5 rounded-2xl bg-white/90 dark:bg-stone-900/80 border border-stone-200/70 dark:border-stone-800 shadow-2xs transition-all hover:border-emerald-500/40 hover:shadow-xs group"
-                      >
-                        <div className="relative mb-2.5">
-                          <div className="relative h-16 w-16 sm:h-18 sm:w-18 overflow-hidden rounded-full ring-3 ring-emerald-600/30 dark:ring-emerald-500/40 shadow-xs">
-                            <Image
-                              src={founder.image}
-                              alt={founder.name}
-                              width={72}
-                              height={72}
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              priority
-                            />
-                          </div>
-                          <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-white ring-2 ring-white dark:ring-stone-900">
-                            <ShieldCheck className="h-3 w-3" />
-                          </span>
-                        </div>
-                        <h4 className="text-xs sm:text-sm font-black tracking-tight text-stone-900 dark:text-stone-100 uppercase">
-                          {founder.name}
-                        </h4>
-                        <span className="text-[11px] font-medium text-emerald-700 dark:text-emerald-400">
-                          {founder.role}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Founders Uppercase Divider Bar */}
-                  <div className="mt-3 sm:mt-4 pt-3 border-t border-emerald-900/10 dark:border-stone-700/60 text-center">
-                    <p className="text-[11px] sm:text-xs font-black tracking-widest text-stone-700 dark:text-stone-300 uppercase">
-                      {content.foundersNames}
+                    <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white tracking-tight">
+                      {content.cardHeading}
+                    </h3>
+                    <p
+                      id="welcome-modal-description"
+                      className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed"
+                    >
+                      {content.cardDescription}
                     </p>
                   </div>
-                </motion.div>
+                </div>
 
-                {/* ────────────────────────────────────────────────────────── */}
-                {/* CALL TO ACTION BUTTON                                      */}
-                {/* ────────────────────────────────────────────────────────── */}
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.45, duration: 0.45 }}
-                  className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-1 pb-2"
+                {/* Sub-features Pillar Indicators */}
+                <div className="mt-5 pt-4 border-t border-stone-200/80 dark:border-stone-800 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-left">
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
+                    <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
+                      Mandi Rates
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
+                    <Stethoscope className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
+                      Crop Doctor
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
+                    <Tractor className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
+                      Equipment
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/50 dark:border-stone-700/50">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="text-[11px] sm:text-xs font-semibold text-stone-700 dark:text-stone-300 truncate">
+                      Verified Data
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* 3. CALL TO ACTION BUTTON */}
+              <motion.div
+                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.4 }}
+                className="flex items-center justify-center pt-1"
+              >
+                <button
+                  ref={ctaButtonRef}
+                  type="button"
+                  onClick={handleDismiss}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 active:from-emerald-700 active:to-emerald-600 text-white font-bold text-sm sm:text-base px-8 sm:px-10 py-3.5 sm:py-4 shadow-lg shadow-emerald-950/40 border border-emerald-400/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-emerald-300 focus:ring-offset-2 focus:ring-offset-[#062c1e]"
                 >
-                  <button
-                    type="button"
-                    onClick={handleDismiss}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-600 active:bg-emerald-800 text-white px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold shadow-md shadow-emerald-900/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                  >
-                    <span>{content.ctaButton}</span>
-                    <ArrowRight className="h-4.5 w-4.5 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </motion.div>
-              </div>
+                  <span>{content.ctaButton}</span>
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
+                </button>
+              </motion.div>
             </div>
           </motion.div>
         </div>
@@ -352,4 +369,5 @@ export function AnnouncementPopup() {
     </AnimatePresence>
   );
 }
+
 export default AnnouncementPopup;

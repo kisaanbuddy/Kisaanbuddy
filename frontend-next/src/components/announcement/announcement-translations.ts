@@ -1,160 +1,135 @@
 import type { Lang } from "@/lib/language";
 
 export interface AnnouncementContent {
-  badge: string;
-  heading: string;
-  messageP1: string;
-  messageP2: string;
-  withLove: string;
-  theFounders: string;
-  foundersNames: string;
+  brandTag: string;
+  mainHeading: string;
+  subheading: string;
+  cardHeading: string;
+  cardDescription: string;
   ctaButton: string;
   closeAria: string;
-  verifiedBadge: string;
 }
 
 export const ANNOUNCEMENT_TRANSLATIONS: Record<Lang, AnnouncementContent> = {
   en: {
-    badge: "OFFICIAL ANNOUNCEMENT",
-    heading: "A NEW UPDATE IS COMING SOON! ✨",
-    messageP1:
-      "We are working hard to make KisaanBuddy smarter, simpler and more helpful for every Indian farmer.",
-    messageP2: "Something exciting is on its way. Stay connected!",
-    withLove: "With Love,",
-    theFounders: "The Founders of KisaanBuddy ❤️",
-    foundersNames: "ADITYA ISHWAR | UTKARSH SINHA | YASH SINGH",
-    ctaButton: "Continue to KisaanBuddy",
-    closeAria: "Close announcement",
-    verifiedBadge: "Verified Founding Team",
+    brandTag: "A BETTER FARMING EXPERIENCE",
+    mainHeading: "Farming is getting smarter. 🌱",
+    subheading:
+      "We are constantly improving KisaanBuddy to make farming decisions simpler, smarter and more helpful for every Indian farmer.",
+    cardHeading: "Something better is growing.",
+    cardDescription:
+      "Our mission is to bring useful agricultural information, smarter farming assistance and trusted solutions closer to every farmer.",
+    ctaButton: "Explore KisaanBuddy →",
+    closeAria: "Close welcome dialog",
   },
   hi: {
-    badge: "आधिकारिक घोषणा",
-    heading: "जल्द आ रहा है एक नया अपडेट! ✨",
-    messageP1:
-      "हम किसानबडी (KisaanBuddy) को देश के हर किसान भाई के लिए और अधिक सरल, सटीक और मददगार बनाने पर दिन-रात काम कर रहे हैं।",
-    messageP2: "कुछ बेहद खास और नया आपके लिए तैयार हो रहा है। जुड़े रहें!",
-    withLove: "सप्रेम एवं आदर सहित,",
-    theFounders: "किसानबडी के संस्थापक ❤️",
-    foundersNames: "आदित्य ईश्वर | उत्कर्ष सिन्हा | यश सिंह",
-    ctaButton: "किसानबडी पर आगे बढ़ें",
-    closeAria: "घोषणा बंद करें",
-    verifiedBadge: "संस्थापक दल",
+    brandTag: "बेहतर खेती का नया अनुभव",
+    mainHeading: "खेती अब और भी समझदार बन रही है। 🌱",
+    subheading:
+      "हम किसानभाई (KisaanBuddy) को लगातार बेहतर बना रहे हैं ताकि हर भारतीय किसान के निर्णय सरल, सटीक और अधिक मददगार बन सकें।",
+    cardHeading: "कुछ बेहतर आकार ले रहा है।",
+    cardDescription:
+      "हमारा संकल्प है हर किसान तक उपयोगी कृषि जानकारी, स्मार्ट मार्गदर्शन और विश्वसनीय समाधान पहुंचाना।",
+    ctaButton: "किसानभाई देखें →",
+    closeAria: "स्वागत संदेश बंद करें",
   },
   hi_en: {
-    badge: "OFFICIAL ANNOUNCEMENT",
-    heading: "EK NAYA UPDATE JALD AA RAHA HAI! ✨",
-    messageP1:
-      "Hum KisaanBuddy ko har Bharatiya kisan ke liye aur zyada smarter, simple aur helpful banane me lage hue hain.",
-    messageP2: "Kuch exciting aur khaas aapke liye aa raha hai. Saath bane rahein!",
-    withLove: "With Love & Respect,",
-    theFounders: "KisaanBuddy ke Founders ❤️",
-    foundersNames: "ADITYA ISHWAR | UTKARSH SINHA | YASH SINGH",
-    ctaButton: "KisaanBuddy par aage badhein",
-    closeAria: "Announcement band karein",
-    verifiedBadge: "Verified Founding Team",
+    brandTag: "A BETTER FARMING EXPERIENCE",
+    mainHeading: "Farming ab aur bhi smart ban rahi hai. 🌱",
+    subheading:
+      "Hum KisaanBuddy ko har Bharatiya kisan ke liye lagatar aur simple, smart aur helpful bana rahe hain.",
+    cardHeading: "Kuch behtar grow ho raha hai.",
+    cardDescription:
+      "Hamara mission hai har kisan tak sahi kheti jaankari, smart farming assistance aur trusted solutions pahunchana.",
+    ctaButton: "Explore KisaanBuddy →",
+    closeAria: "Welcome message close karein",
   },
   kn: {
-    badge: "ಅಧಿಕೃತ ಪ್ರಕಟಣೆ",
-    heading: "ಶೀಘ್ರದಲ್ಲೇ ಬರಲಿದೆ ಹೊಸ ಅಪ್‌ಡೇಟ್! ✨",
-    messageP1:
-      "ಪ್ರತಿಯೊಬ್ಬ ಭಾರತೀಯ ರೈತ ಬಾಂಧವರಿಗೂ ಕಿಸಾನ್‌ಬಡ್ಡಿಯನ್ನು ಇನ್ನಷ್ಟು ಸರಳ, ಬುದ್ಧಿವಂತ ಮತ್ತು ಉಪಯುಕ್ತವಾಗಿಸಲು ನಾವು ನಿರಂತರ ಶ್ರಮಿಸುತ್ತಿದ್ದೇವೆ.",
-    messageP2: "ಒಂದು ಅತ್ಯುತ್ಸಾಹಕರ ಮತ್ತು ಹೊಸ ಸೌಲಭ್ಯ ನಿಮ್ಮ ದಾರಿಯಲ್ಲಿದೆ. ನಮ್ಮೊಂದಿಗೆ ಸಂಪರ್ಕದಲ್ಲಿರಿ!",
-    withLove: "ಪ್ರೀತಿ ಮತ್ತು ಗೌರವಗಳೊಂದಿಗೆ,",
-    theFounders: "ಕಿಸಾನ್‌ಬಡ್ಡಿಯ ಸಂಸ್ಥಾಪಕರು ❤️",
-    foundersNames: "ಆದಿತ್ಯ ಈಶ್ವರ್ | ಉತ್ಕರ್ಷ್ ಸಿನ್ಹಾ | ಯಶ್ ಸಿಂಗ್",
-    ctaButton: "ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ ಮುಂದುವರಿಯಿರಿ",
-    closeAria: "ಪ್ರಕಟಣೆಯನ್ನು ಮುಚ್ಚಿ",
-    verifiedBadge: "ದೃಢೀಕೃತ ಸಂಸ್ಥಾಪಕ ತಂಡ",
+    brandTag: "ಉತ್ತಮ ಕೃಷಿ ಅನುಭವ",
+    mainHeading: "ಕೃಷಿ ಈಗ ಇನ್ನಷ್ಟು ಸ್ಮಾರ್ಟ್ ಆಗುತ್ತಿದೆ. 🌱",
+    subheading:
+      "ಪ್ರತಿಯೊಬ್ಬ ಭಾರತೀಯ ರೈತನಿಗಾಗಿ ಕೃಷಿ ನಿರ್ಧಾರಗಳನ್ನು ಸರಳ, ಸ್ಮಾರ್ಟ್ ಮತ್ತು ಹೆಚ್ಚು ಉಪಯುಕ್ತವಾಗಿಸಲು ನಾವು ಕಿಸಾನ್‌ಬಡ್ಡಿಯನ್ನು ನಿರಂತರವಾಗಿ ಸುಧಾರಿಸುತ್ತಿದ್ದೇವೆ.",
+    cardHeading: "ಇನ್ನಷ್ಟು ಉತ್ತಮವಾದುದು ಬೆಳೆಯುತ್ತಿದೆ.",
+    cardDescription:
+      "ಉಪಯುಕ್ತ ಕೃಷಿ ಮಾಹಿತಿ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ನೆರವು ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ಪರಿಹಾರಗಳನ್ನು ಪ್ರತಿಯೊಬ್ಬ ರೈತನ ಬಳಿಗೆ ತರುವುದೇ ನಮ್ಮ ಧ್ಯೇಯ.",
+    ctaButton: "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಅನ್ವೇಷಿಸಿ →",
+    closeAria: "ಸ್ವಾಗತ ಸಂದೇಶ ಮುಚ್ಚಿ",
   },
   te: {
-    badge: "అధికారిక ప్రకటన",
-    heading: "త్వరలోనే సరికొత్త అప్‌డేట్ రాబోతోంది! ✨",
-    messageP1:
-      "భారతదేశంలోని ప్రతి రైతు సోదరుడి కోసం కిసాన్‌బడ్డీని మరింత సులభంగా, వేగంగా మరియు ప్రయోజనకరంగా మార్చడానికి మేము నిరంతరం కృషి చేస్తున్నాము.",
-    messageP2: "రైతుల కోసం ఎంతో ఆసక్తికరమైన కొత్త విశేషం త్వరలోనే రానుంది. మాతోనే ఉండండి!",
-    withLove: "ప్రేమ మరియు ఆప్యాయతలతో,",
-    theFounders: "కిసాన్‌బడ్డీ వ్యవస్థాపకులు ❤️",
-    foundersNames: "ఆదిత్య ఈశ్వర్ | ఉత్కర్ష్ సిన్హా | యశ్ సింగ్",
-    ctaButton: "కిసాన్‌బడ్డీకి కొనసాగండి",
-    closeAria: "ప్రకటనను మూసివేయండి",
-    verifiedBadge: "వ్యవస్థాపక బృందం",
+    brandTag: "మరింత మెరుగైన వ్యవసాయ అనుభవం",
+    mainHeading: "వ్యవసాయం మరింత స్మార్ట్‌గా మారుతోంది. 🌱",
+    subheading:
+      "ప్రతి భారతీయ రైతు వ్యవసాయ నిర్ణయాలను సులభతరం, స్మార్ట్ మరియు మరింత ఉపయోగకరంగా మార్చడానికి మేము కిసాన్‌బడ్డీని నిరంతరం మెరుగుపరుస్తున్నాము.",
+    cardHeading: "మరింత మెరుగైనది ఎదుగుతోంది.",
+    cardDescription:
+      "ఉపయోగకరమైన వ్యవసాయ సమాచారం, స్మార్ట్ వ్యవసాయ సహాయం మరియు విశ్వసనీయ పరిష్కారాలను ప్రతి రైతుకు అందించడమే మా లక్ష్యం.",
+    ctaButton: "కిసాన్‌బడ్డీని చూడండి →",
+    closeAria: "స్వాగత సందేశం మూసివేయి",
   },
   ta: {
-    badge: "அதிகாரப்பூர்வ அறிவிப்பு",
-    heading: "விரைவில் ஒரு புதிய அப்டேட் வரவுள்ளது! ✨",
-    messageP1:
-      "இந்தியாவின் ஒவ்வொரு விவசாய பெருமக்களுக்கும் கிசான்படியை மேலும் எளிமையாகவும், பயனுள்ளதாகவும் மாற்ற நாங்கள் அர்ப்பணிப்புடன் உழைத்து வருகிறோம்.",
-    messageP2: "மிகவும் உற்சாகமூட்டும் புதிய அம்சங்கள் விரைவில் உங்களை வந்தடையவுள்ளன. இணைந்திருங்கள்!",
-    withLove: "அன்புடன் மற்றும் மரியாதையுடன்,",
-    theFounders: "கிசான்படி நிறுவனர்கள் ❤️",
-    foundersNames: "ஆதித்யா ஈஸ்வர் | உத்கர்ஷ் சின்ஹா | யாஷ் சிங்",
-    ctaButton: "கிசான்படிக்கு தொடரவும்",
-    closeAria: "அறிவிப்பை மூடவும்",
-    verifiedBadge: "நிறுவனர் குழு",
+    brandTag: "சிறந்த விவசாய அனுபவம்",
+    mainHeading: "விவசாயம் இப்போது மேலும் சிறந்ததாகிறது. 🌱",
+    subheading:
+      "ஒவ்வொரு இந்திய விவசாயிக்கும் விவசாய முடிவுகளை எளிமையாகவும் பயனுள்ளதாகவும் மாற்ற கிசான்படியை நாங்கள் தொடர்ந்து மேம்படுத்துகிறோம்.",
+    cardHeading: "இன்னும் சிறந்தது உருவாகிறது.",
+    cardDescription:
+      "பயனுள்ள விவசாயத் தகவல், ஸ்மார்ட் விவசாய உதவி மற்றும் நம்பகமான தீர்வுகளை ஒவ்வொரு விவசாயிக்கும் கொண்டு சேர்ப்பதே எங்கள் நோக்கம்.",
+    ctaButton: "கிசான்படியை ஆராயுங்கள் →",
+    closeAria: "வரவேற்பு செய்தியை மூடு",
   },
   mr: {
-    badge: "अधिकृत घोषणा",
-    heading: "लवकरच येत आहे एक नवीन अपडेट! ✨",
-    messageP1:
-      "प्रत्येक भारतीय शेतकरी बांधवासाठी किसानबडी अधिक सोपे, स्मार्ट आणि उपयुक्त बनवण्यासाठी आम्ही मनापासून कार्य करत आहोत.",
-    messageP2: "काहीतरी नवीन आणि रोमांचक आपल्यासाठी लवकरच येत आहे. जोडलेले राहा!",
-    withLove: "सस्नेह आणि आदरपूर्वक,",
-    theFounders: "किसानबडीचे संस्थापक ❤️",
-    foundersNames: "आदित्य ईश्वर | उत्कर्ष सिन्हा | यश सिंह",
-    ctaButton: "किसानबडीवर पुढे जा",
-    closeAria: "घोषणा बंद करा",
-    verifiedBadge: "संस्थापक संघ",
+    brandTag: "अधिक उत्तम शेती अनुभव",
+    mainHeading: "शेती आता अधिक स्मार्ट होत आहे. 🌱",
+    subheading:
+      "प्रत्येक भारतीय शेतकऱ्यासाठी शेतीचे निर्णय सोपे, स्मार्ट आणि अधिक उपयुक्त बनवण्यासाठी आम्ही किसानबडीमध्ये सतत सुधारणा करत आहोत.",
+    cardHeading: "काहीतरी अधिक उत्तम घडत आहे.",
+    cardDescription:
+      "उपयुक्त शेती माहिती, स्मार्ट शेती मार्गदर्शन आणि विश्वासार्ह उपाय प्रत्येक शेतकऱ्यापर्यंत पोहोचवणे हे आमचे ध्येय आहे.",
+    ctaButton: "किसानबडी पहा →",
+    closeAria: "स्वागत संदेश बंद करा",
   },
   bn: {
-    badge: "অফিসিয়াল ঘোষণা",
-    heading: "শীঘ্রই আসছে একটি নতুন আপডেট! ✨",
-    messageP1:
-      "ভারতের প্রতিটি কৃষক বন্ধুর জন্য কিষাণবাডিকে আরও সহজ, নির্ভরযোগ্য ও কার্যকর করে তুলতে আমরা আন্তরিকভাবে কাজ করছি।",
-    messageP2: "এক রোমাঞ্চকর নতুন অভিজ্ঞতা শীঘ্রই আপনাদের কাছে আসছে। সাথে থাকুন!",
-    withLove: "ভালোবাসা ও শ্রদ্ধার সাথে,",
-    theFounders: "কিষাণবাডির প্রতিষ্ঠাতা দল ❤️",
-    foundersNames: "আদিত্য ঈশ্বর | উৎকর্ষ সিনহা | যশ সিং",
-    ctaButton: "কিষাণবাডিতে এগিয়ে যান",
-    closeAria: "ঘোষণা বন্ধ করুন",
-    verifiedBadge: "প্রতিষ্ঠাতা দল",
+    brandTag: "উন্নত চাষের নতুন অভিজ্ঞতা",
+    mainHeading: "কৃষি এখন আরও স্মার্ট হয়ে উঠছে। 🌱",
+    subheading:
+      "প্রত্যেক ভারতীয় কৃষকের জন্য চাষের সিদ্ধান্ত সহজ, নির্ভুল এবং অধিক ফলপ্রসূ করতে আমরা কিষাণবাডিকে প্রতিনিয়ত উন্নত করছি।",
+    cardHeading: "আরও ভালো কিছু গড়ে উঠছে।",
+    cardDescription:
+      "দরকারী কৃষি তথ্য, স্মার্ট চাষের সহায়তা এবং বিশ্বস্ত সমাধান প্রতিটি কৃষকের কাছে পৌঁছে দেওয়াই আমাদের লক্ষ্য।",
+    ctaButton: "কিষাণবাডি দেখুন →",
+    closeAria: "স্বাগত বার্তা বন্ধ করুন",
   },
   pa: {
-    badge: "ਅਧਿਕਾਰਤ ਐਲਾਨ",
-    heading: "ਬਹੁਤ ਜਲਦ ਆ ਰਿਹਾ ਹੈ ਨਵਾਂ ਅਪਡੇਟ! ✨",
-    messageP1:
-      "ਅਸੀਂ ਹਰ ਭਾਰਤੀ ਕਿਸਾਨ ਭਰਾ ਲਈ ਕਿਸਾਨਬੱਡੀ ਨੂੰ ਹੋਰ ਆਸਾਨ, ਸਮਾਰਟ ਅਤੇ ਲਾਹੇਵੰਦ ਬਣਾਉਣ ਲਈ ਪੂਰੀ ਮਿਹਨਤ ਕਰ ਰਹੇ ਹਾਂ।",
-    messageP2: "ਕੁਝ ਬਹੁਤ ਹੀ ਖਾਸ ਅਤੇ ਸ਼ਾਨਦਾਰ ਤੁਹਾਡੇ ਲਈ ਜਲਦ ਆ ਰਿਹਾ ਹੈ। ਸਾਡੇ ਨਾਲ ਜੁੜੇ ਰਹੋ!",
-    withLove: "ਪਿਆਰ ਅਤੇ ਸਤਿਕਾਰ ਸਹਿਤ,",
-    theFounders: "ਕਿਸਾਨਬੱਡੀ ਦੇ ਸੰਸਥਾਪਕ ❤️",
-    foundersNames: "ਆਦਿੱਤਿਆ ਈਸ਼ਵਰ | ਉਤਕਰਸ਼ ਸਿਨਹਾ | ਯਸ਼ ਸਿੰਘ",
-    ctaButton: "ਕਿਸਾਨਬੱਡੀ ਵੱਲ ਅੱਗੇ ਵਧੋ",
-    closeAria: "ਐਲਾਨ ਬੰਦ ਕਰੋ",
-    verifiedBadge: "ਸੰਸਥਾਪਕ ਟੀਮ",
+    brandTag: "ਬਿਹਤਰ ਖੇਤੀ ਦਾ ਨਵਾਂ ਤਜਰਬਾ",
+    mainHeading: "ਖੇਤੀ ਹੁਣ ਹੋਰ ਵੀ ਸਮਾਰਟ ਹੋ ਰਹੀ ਹੈ। 🌱",
+    subheading:
+      "ਅਸੀਂ ਹਰ ਭਾਰਤੀ ਕਿਸਾਨ ਲਈ ਖੇਤੀ ਫੈਸਲਿਆਂ ਨੂੰ ਆਸਾਨ, ਸਮਾਰਟ ਅਤੇ ਵਧੇਰੇ ਮਦਦਗਾਰ ਬਣਾਉਣ ਲਈ ਕਿਸਾਨਬੱਡੀ ਨੂੰ ਲਗਾਤਾਰ ਬਿਹਤਰ ਬਣਾ ਰਹੇ ਹਾਂ।",
+    cardHeading: "ਕੁਝ ਹੋਰ ਬਿਹਤਰ ਬਣ ਰਿਹਾ ਹੈ।",
+    cardDescription:
+      "ਸਾਡਾ ਮਕਸਦ ਹਰ ਕਿਸਾਨ ਤੱਕ ਲਾਹੇਵੰਦ ਖੇਤੀ ਜਾਣਕਾਰੀ, ਸਮਾਰਟ ਸਹਾਇਤਾ ਅਤੇ ਭਰੋਸੇਯੋਗ ਹੱਲ ਪਹੁੰਚਾਉਣਾ ਹੈ।" ,
+    ctaButton: "ਕਿਸਾਨਬੱਡੀ ਵੇਖੋ →",
+    closeAria: "ਸਵਾਗਤ ਸੁਨੇਹਾ ਬੰਦ ਕਰੋ",
   },
   gu: {
-    badge: "સત્તાવાર જાહેરાત",
-    heading: "ટૂંક સમયમાં આવી રહ્યું છે નવું અપડેટ! ✨",
-    messageP1:
-      "ભારતના દરેક ખેડૂત મિત્ર માટે કિસાનબડીને વધુ સરળ, સ્માર્ટ અને ઉપયોગી બનાવવા માટે અમે રાત-દિવસ કાર્ય કરી રહ્યા છીએ.",
-    messageP2: "કંઈક ખૂબ જ ખાસ અને રોમાંચક ટૂંક સમયમાં આવી રહ્યું છે. જોડાયેલા રહો!",
-    withLove: "સ્નેહ અને આદર સાથે,",
-    theFounders: "કિસાનબડીના સ્થાપકો ❤️",
-    foundersNames: "આદિત્ય ઈશ્વર | ઉત્કર્ષ સિન્હા | યશ સિંહ",
-    ctaButton: "કિસાનબડી પર આગળ વધો",
-    closeAria: "જાહેરાત બંધ કરો",
-    verifiedBadge: "સ્થાપક ટીમ",
+    brandTag: "વધુ ઉત્તમ ખેતીનો અનુભવ",
+    mainHeading: "ખેતી હવે વધુ સ્માર્ટ બની રહી છે. 🌱",
+    subheading:
+      "દરેક ભારતીય ખેડૂત માટે ખેતીના નિર્ણયો સરળ, સ્માર્ટ અને વધુ મદદરૂપ બને તે માટે અમે કિસાનબડીને સતત સુધારી રહ્યા છીએ.",
+    cardHeading: "કંઈક વધુ સારું આકાર લઈ રહ્યું છે.",
+    cardDescription:
+      "ઉપયોગી કૃષિ માહિતી, સ્માર્ટ ખેતી સહાય અને વિશ્વાસપાત્ર ઉકેલો દરેક ખેડૂત સુધી પહોંચાડવાનો અમારો સંકલ્પ છે.",
+    ctaButton: "કિસાનબડી જુઓ →",
+    closeAria: "સ્વાગત સંદેશ બંધ કરો",
   },
   ml: {
-    badge: "ഔദ്യോഗിക അറിയിപ്പ്",
-    heading: "പുതിയ അപ്‌ഡേറ്റ് ഉടൻ വരുന്നു! ✨",
-    messageP1:
-      "ഓരോ ഭാരതീയ കർഷകനും കിസാൻബഡ്ഡിയെ കൂടുതൽ ലളിതവും കാര്യക്ഷമവുമാക്കാൻ ഞങ്ങൾ അർപ്പണബോധത്തോടെ പ്രവർത്തിക്കുന്നു.",
-    messageP2: "ആവേശകരമായ പുതിയ സേവനങ്ങൾ ഉടൻ തന്നെ നിങ്ങളിലേക്ക് എത്തുന്നു. കാത്തിരിക്കുക!",
-    withLove: "സ്നേഹത്തോടും ആദരവോടും കൂടി,",
-    theFounders: "കിസാൻബഡ്ഡി സ്ഥാപകർ ❤️",
-    foundersNames: "ആദിത്യ ഈശ്വർ | ഉത്കർഷ് സിൻഹ | യഷ് സിംഗ്",
-    ctaButton: "കിസാൻബഡ്ഡിയിലേക്ക് തുടരുക",
-    closeAria: "അറിയിപ്പ് അടയ്ക്കുക",
-    verifiedBadge: "സ്ഥാപക സംഘം",
+    brandTag: "കൂടുതൽ മെച്ചപ്പെട്ട കൃഷി അനുഭവം",
+    mainHeading: "കൃഷി കൂടുതൽ സ്മാർട്ടായി മാറുന്നു. 🌱",
+    subheading:
+      "ഓരോ ഇന്ത്യൻ കർഷകനും കാർഷിക തീരുമാനങ്ങൾ ലളിതവും കൂടുതൽ പ്രയോജനപ്രദവുമാക്കാൻ ഞങ്ങൾ കിസാൻബഡ്ഡിയെ നിരന്തരം മെച്ചപ്പെടുത്തുന്നു.",
+    cardHeading: "കൂടുതൽ മികച്ച ഒന്ന് വളരുന്നു.",
+    cardDescription:
+      "ഉപയോഗപ്രദമായ കാർഷിക വിവരങ്ങളും സ്മാർട്ട് സഹాయവും വിശ്വസനീയമായ പരിಹാരങ്ങളും ഓരോ കർഷകനിലേക്കും എത്തിക്കുക എന്നതാണ് ഞങ്ങളുടെ ദൗത്യം.",
+    ctaButton: "കിസാൻബഡ്ഡി കാണുക →",
+    closeAria: "സന്ദേശം അടയ്ക്കുക",
   },
 };

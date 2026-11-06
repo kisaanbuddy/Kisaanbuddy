@@ -29,7 +29,6 @@ import {
 } from "@/lib/weather-api";
 import { translateCondition } from "@/lib/weather-translations";
 import { MobileHomeScreen } from "@/components/mobile/MobileHomeScreen";
-import { AnnouncementPopup } from "@/components/announcement/AnnouncementPopup";
 import { FarmerFeatureCard } from "./FarmerFeatureCard";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import {
@@ -280,7 +279,6 @@ export function FarmerHome() {
 
   return (
     <>
-      <AnnouncementPopup />
       <div className="block md:hidden">
         <MobileHomeScreen />
       </div>
