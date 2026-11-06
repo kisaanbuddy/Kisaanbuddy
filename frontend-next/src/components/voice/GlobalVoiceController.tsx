@@ -50,6 +50,7 @@ export function GlobalVoiceController() {
     setIsHudOpen,
     confirmPendingAction,
     cancelPendingAction,
+    sendVoiceCommand,
   } = useVoice();
 
   const { lang, setLang } = useLanguage();
@@ -401,7 +402,7 @@ export function GlobalVoiceController() {
                         key={idx}
                         type="button"
                         onClick={() => {
-                          void startListening();
+                          void sendVoiceCommand(tip);
                         }}
                         className="px-2.5 py-1 rounded-lg bg-stone-800/80 hover:bg-stone-700 text-stone-300 text-xs font-medium border border-stone-700/50 transition-colors"
                       >

@@ -99,6 +99,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const hasSpokenInSessionRef = useRef(false);
   const continuousModeRef = useRef(continuousMode);
   continuousModeRef.current = continuousMode;
+  const latestTranscriptRef = useRef<string>("");
 
   // Interruption killer: stops ongoing AI speech instantly
   const killOngoingSpeech = useCallback(() => {
@@ -377,10 +378,22 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     killOngoingSpeech();
     setIsHudOpen(true);
     setTranscriptLive("");
+    latestTranscriptRef.current = "";
     hasSpokenInSessionRef.current = false;
 
     // Start mic volume analysis
-    await startAudioAnalysis();
+    const micOk = await startAudioAnalysis();
+    if (!micOk) {
+      setIsListening(false);
+      setLastReply(
+        voiceLanguage === "kn"
+          ? "ಮೈಕ್ರೊಫೋನ್ ಅನುಮತಿ ದೊರೆತಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಮೈಕ್ ಆನ್ ಮಾಡಿ."
+          : voiceLanguage === "en"
+          ? "Microphone access denied. Please enable microphone permissions in your browser."
+          : "माइक्रोफ़ोन की अनुमति नहीं मिली। कृपया ब्राउज़र सेटिंग्स में माइक की अनुमति दें।"
+      );
+      return false;
+    }
 
     if (typeof window === "undefined") return false;
 
@@ -388,8 +401,15 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
 
     if (!SpeechRec) {
       console.warn("Web Speech API not supported on this browser.");
-      setIsListening(true);
-      return true;
+      setIsListening(false);
+      setLastReply(
+        voiceLanguage === "kn"
+          ? "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು Chrome ಅಥವಾ Edge ಬಳಸಿ."
+          : voiceLanguage === "en"
+          ? "Voice speech recognition is not supported in this browser. Please use Chrome or Edge."
+          : "इस ब्राउज़र में वॉइस स्पीच रिकग्निशन समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।"
+      );
+      return false;
     }
 
     try {
@@ -434,13 +454,18 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
           }
         }
         const currentDisplay = (finalSoFar + " " + interim).trim();
+        latestTranscriptRef.current = currentDisplay;
         setTranscriptLive(currentDisplay);
 
         // Natural pause detection: reset timer when user pauses speaking for > 1.4s
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         if (currentDisplay.length > 2) {
           silenceTimerRef.current = setTimeout(() => {
-            rec.stop();
+            try {
+              rec.stop();
+            } catch {
+              /* ignore */
+            }
           }, 1400);
         }
       };
@@ -455,7 +480,8 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
         isRecognitionActiveRef.current = false;
         setIsListening(false);
         stopAudioAnalysis();
-        const textToCommit = finalSoFar.trim() || transcriptLive.trim();
+        const textToCommit = (finalSoFar.trim() || latestTranscriptRef.current || "").trim();
+        latestTranscriptRef.current = "";
         if (textToCommit) {
           void sendVoiceCommand(textToCommit);
         }
@@ -470,7 +496,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       stopAudioAnalysis();
       return false;
     }
-  }, [killOngoingSpeech, startAudioAnalysis, voiceLanguage, stopAudioAnalysis, transcriptLive, sendVoiceCommand]);
+  }, [killOngoingSpeech, startAudioAnalysis, voiceLanguage, stopAudioAnalysis, sendVoiceCommand]);
 
   const stopListening = useCallback(() => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
@@ -535,6 +561,25 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       void playSarvamAudio(null, lastReply);
     }
   }, [killOngoingSpeech, lastReply, playSarvamAudio]);
+
+  // Global event bridge: listen for 'kisaanbuddy:open-voice' from any button or chip on the website
+  useEffect(() => {
+    const handleOpenVoice = (e: Event) => {
+      const customEvent = e as CustomEvent<{ initialQuery?: string; autoStart?: boolean }>;
+      setIsHudOpen(true);
+      if (customEvent.detail?.initialQuery) {
+        const q = customEvent.detail.initialQuery.trim();
+        latestTranscriptRef.current = q;
+        setTranscriptLive(q);
+        void sendVoiceCommand(q);
+      } else {
+        void triggerStartListening();
+      }
+    };
+
+    window.addEventListener("kisaanbuddy:open-voice", handleOpenVoice);
+    return () => window.removeEventListener("kisaanbuddy:open-voice", handleOpenVoice);
+  }, [sendVoiceCommand, triggerStartListening]);
 
   // Clean up on unmount
   useEffect(() => {

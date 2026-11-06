@@ -91,7 +91,7 @@ async def process_voice_audio(
         if not audio_bytes:
             raise HTTPException(status_code=400, detail="Empty audio recording.")
 
-        # 1. Speech-to-Text via Sarvam saaras:v4 with resilient fallback
+        # 1. Speech-to-Text via Sarvam saaras:v4
         try:
             stt_res = await sarvam_service.speech_to_text(
                 audio_bytes=audio_bytes,
@@ -100,18 +100,8 @@ async def process_voice_audio(
                 language_code=language,
             )
         except Exception as e:
-            log.warning("Primary Sarvam STT failed (%s), falling back to multi-provider STT", e)
-            stt_obj = await stt_service.transcribe(
-                audio_bytes=audio_bytes,
-                filename=audio.filename or "recording.wav",
-                content_type=audio.content_type or "audio/wav",
-                language=language,
-            )
-            stt_res = {
-                "transcript": stt_obj.transcript,
-                "language_code": stt_obj.language,
-                "provider": stt_obj.provider,
-            }
+            log.warning("Sarvam STT failed: %s", e)
+            stt_res = {"transcript": "", "language_code": language or "hi"}
         transcript = stt_res.get("transcript", "").strip()
         detected_lang = stt_res.get("language_code") or language or "hi"
 
