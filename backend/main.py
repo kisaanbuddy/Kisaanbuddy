@@ -48,6 +48,7 @@ from api import soil_tests as soil_tests_api, recommendations as recommendations
 from api import tasks as tasks_api, marketplace as marketplace_api
 from api import sarvam as sarvam_api
 from api import satellite as satellite_api
+from api import voice as voice_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -180,6 +181,7 @@ app.include_router(tasks_api.router, prefix="/api/farmer", tags=["Farm Tasks"])
 app.include_router(marketplace_api.router, prefix="/api/marketplace", tags=["Marketplace"])
 app.include_router(sarvam_api.router, prefix="/api/sarvam", tags=["Sarvam AI"])
 app.include_router(satellite_api.router, prefix="/api/satellite", tags=["Satellite Intelligence"])
+app.include_router(voice_api.router, prefix="/api/voice", tags=["Voice OS"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

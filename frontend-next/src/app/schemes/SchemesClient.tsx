@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SchemeVideo } from "@/components/SchemeVideo"
 import ALL_SCHEMES_DATA from "@/lib/schemes-data.json"
+import { useVoice } from '@/lib/voice/VoiceContext'
 
 type TabMode = "find" | "dashboard" | "all" | "saved"
 type MatchStatus = "Potential Match" | "More Information Required" | "Appears Not to Match Published Criteria"
@@ -101,6 +102,34 @@ export default function SchemesClient() {
   const [checklist, setChecklist] = useState<Record<string, ChecklistItem[]>>({})
   const [savedSchemeIds, setSavedSchemeIds] = useState<string[]>([])
   const [reminderNotice, setReminderNotice] = useState<string | null>(null)
+  const { registerVisibleItems } = useVoice();
+
+  // Register top government schemes with Voice OS
+  useEffect(() => {
+    if (ALL_SCHEMES_DATA && (ALL_SCHEMES_DATA as any).length > 0) {
+      registerVisibleItems(
+        (ALL_SCHEMES_DATA as any).slice(0, 8).map((s: any, idx: number) => ({
+          id: s.id,
+          name: s.name,
+          category: "Government Schemes",
+          index: idx + 1,
+        }))
+      );
+    }
+  }, [registerVisibleItems]);
+
+  // Voice search listener
+  useEffect(() => {
+    const onVoiceSearch = (e: any) => {
+      if (e.detail?.query) {
+        setCatalogSearch(e.detail.query);
+        setActiveTab("all");
+      }
+    };
+    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+    return () => window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+  }, []);
+
 
   // Quick filter for the 'All Schemes' catalog
   const [catalogSearch, setCatalogSearch] = useState("")

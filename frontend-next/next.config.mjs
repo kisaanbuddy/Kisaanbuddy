@@ -135,6 +135,15 @@ const nextConfig = {
       {
         source: '/api/sarvam/:path*',
         destination: `${backendUrl}/api/sarvam/:path*`
+      },
+      // Voice Operating System
+      {
+        source: '/api/voice/:path*/',
+        destination: `${backendUrl}/api/voice/:path*/`
+      },
+      {
+        source: '/api/voice/:path*',
+        destination: `${backendUrl}/api/voice/:path*`
       }
     ]
   }

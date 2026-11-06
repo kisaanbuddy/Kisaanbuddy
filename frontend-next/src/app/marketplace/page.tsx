@@ -55,6 +55,8 @@ import {
   formatCondition,
 } from "@/lib/marketplace-i18n";
 import { useMobileMenu } from "@/components/navigation/MobileMenuContext";
+import { useVoice } from "@/lib/voice/VoiceContext";
+import { useSearchParams } from "next/navigation";
 
 // Clean telephone number for tel: protocol
 function cleanPhoneForTel(phone?: string | null): string {
@@ -515,6 +517,17 @@ export default function MarketplacePage() {
 
   // Wishlist persisted in localStorage
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const { registerVisibleItems, registerSelectedItem } = useVoice();
+  const searchParams = useSearchParams();
+
+  // Voice Search parameter detection from URL
+  useEffect(() => {
+    const urlQ = searchParams?.get("q");
+    if (urlQ && urlQ !== searchQuery) {
+      setSearchQuery(urlQ);
+    }
+  }, [searchParams]);
+
 
   // Modals
   const [selectedProduct, setSelectedProduct] = useState<UnifiedProduct | null>(null);
@@ -1132,6 +1145,74 @@ export default function MarketplacePage() {
     setMaxPrice("");
     setSortBy("relevance");
   };
+
+  // Sync visible items with Voice Operating System
+  useEffect(() => {
+    if (paginatedProducts && paginatedProducts.length > 0) {
+      const items = paginatedProducts.slice(0, 10).map((p, idx) => ({
+        id: p.id,
+        name: p.title,
+        price: p.price || 0,
+        category: p.category,
+        brand: p.brand,
+        index: idx + 1,
+      }));
+      registerVisibleItems(items);
+    }
+  }, [paginatedProducts, registerVisibleItems]);
+
+  // Sync selected modal product with Voice Operating System
+  useEffect(() => {
+    if (selectedProduct) {
+      registerSelectedItem({
+        id: selectedProduct.id,
+        name: selectedProduct.title,
+        price: selectedProduct.price || 0,
+        category: selectedProduct.category,
+        brand: selectedProduct.brand,
+      });
+    } else {
+      registerSelectedItem(null);
+    }
+  }, [selectedProduct, registerSelectedItem]);
+
+  // Listen for voice-triggered component actions
+  useEffect(() => {
+    const onFilterPrice = (e: any) => {
+      if (e.detail?.maxPrice) {
+        setMaxPrice(String(e.detail.maxPrice));
+      }
+    };
+    const onSortProducts = (e: any) => {
+      if (e.detail?.sortBy) {
+        setSortBy(e.detail.sortBy);
+      }
+    };
+    const onSelectItem = (e: any) => {
+      const idx = e.detail?.index;
+      if (idx && paginatedProducts[idx - 1]) {
+        setSelectedProduct(paginatedProducts[idx - 1]);
+      }
+    };
+    const onVoiceSearch = (e: any) => {
+      if (e.detail?.query) {
+        setSearchQuery(e.detail.query);
+      }
+    };
+
+    window.addEventListener("kisaanbuddy:filter-price", onFilterPrice);
+    window.addEventListener("kisaanbuddy:sort-products", onSortProducts);
+    window.addEventListener("kisaanbuddy:select-item", onSelectItem);
+    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+
+    return () => {
+      window.removeEventListener("kisaanbuddy:filter-price", onFilterPrice);
+      window.removeEventListener("kisaanbuddy:sort-products", onSortProducts);
+      window.removeEventListener("kisaanbuddy:select-item", onSelectItem);
+      window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+    };
+  }, [paginatedProducts]);
+
 
   const activeFilterCount = useMemo(() => {
     let count = 0;

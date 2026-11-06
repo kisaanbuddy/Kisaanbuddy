@@ -26,6 +26,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { useLanguage } from "@/lib/language";
+import { useVoice } from "@/lib/voice/VoiceContext";
 import { trackEvent } from "@/lib/analytics";
 import { IDMTreatmentTabs } from "@/components/disease/IDMTreatmentTabs";
 import { RequestExpertModal } from "@/components/disease/RequestExpertModal";

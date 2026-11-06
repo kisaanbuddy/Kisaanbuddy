@@ -661,6 +661,58 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "diagnose_crop_disease",
+            "description": (
+                "Query authentic ICAR/CIBRC disease advisory database for a crop and symptoms. "
+                "Returns biological/organic treatments, dosage guidelines, PPE safety instructions, and source institute."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string", "description": "Crop name, e.g. 'Wheat', 'Rice/Paddy', 'Tomato', 'Cotton'."},
+                    "symptoms": {"type": "string", "description": "Observed symptoms, e.g. 'yellow leaves', 'brown spots', 'wilting'."},
+                },
+                "required": ["crop_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_marketplace",
+            "description": (
+                "Search authentic farm equipment for rent/sale or harvest produce lots listed by verified farmers/owners in KisaanBuddy Marketplace."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search keyword, e.g. 'tractor', 'sprayer', 'harvester', 'tomato'."},
+                    "category": {"type": "string", "description": "e.g. 'Tractors', 'Sprayers', 'Harvesters', 'Vegetables'."},
+                    "listing_type": {"type": "string", "enum": ["rent", "sale"], "description": "'rent' or 'sale' for machinery."},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_fertilizer_recommendation",
+            "description": (
+                "Get ICAR-recommended NPK and organic fertilization dose per acre for a crop."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string", "description": "Crop name, e.g. 'Wheat', 'Paddy', 'Tomato', 'Cotton'."},
+                    "growth_stage": {"type": "string", "description": "e.g. 'sowing', 'tillering', 'flowering'."},
+                },
+                "required": ["crop_name"],
+            },
+        },
+    }
 ]
 
 

@@ -3,6 +3,7 @@ import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
 import { QuickReviewCard } from '@/components/farmer/QuickReviewCard'
+import { useVoice } from '@/lib/voice/VoiceContext'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
@@ -250,6 +251,41 @@ export default function MandiPage() {
   const [priceSort, setPriceSort] = useState<"default" | "price_desc" | "price_asc" | "date">("default")
   const [refreshingPrices, setRefreshingPrices] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { registerVisibleItems } = useVoice();
+
+  // Voice search query detection from URL
+  useEffect(() => {
+    const urlQ = searchParams.get("q");
+    if (urlQ && urlQ !== searchQuery) {
+      setSearchQuery(urlQ);
+    }
+  }, [searchParams]);
+
+  // Sync visible mandi commodities with Voice OS
+  useEffect(() => {
+    if (crops && crops.length > 0) {
+      const items = crops.slice(0, 10).map((c: any, idx: number) => ({
+        id: c.id || `crop-${idx}`,
+        name: `${c.commodity || "Crop"} (${c.market || "Mandi"})`,
+        price: c.modalPrice || 0,
+        category: c.category || "Commodity",
+        index: idx + 1,
+      }));
+      registerVisibleItems(items);
+    }
+  }, [crops, registerVisibleItems]);
+
+  // Listen for voice-triggered search
+  useEffect(() => {
+    const onVoiceSearch = (e: any) => {
+      if (e.detail?.query) {
+        setSearchQuery(e.detail.query);
+      }
+    };
+    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+    return () => window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+  }, []);
+
 
   // Tab 2: Buy Requirements State
   const [buyerReqs, setBuyerReqs] = useState<BuyerRequirementItem[]>(

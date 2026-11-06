@@ -56,6 +56,7 @@ import {
 } from "lucide-react"
 
 import { useLanguage, type Lang } from "@/lib/language"
+import { useVoice } from "@/lib/voice/VoiceContext"
 import { getStoredUser } from "@/lib/auth"
 import {
   type WorkerProfile,
@@ -160,6 +161,23 @@ export default function WorkerConnectClient() {
   const [contactModalWorker, setContactModalWorker] = useState<WorkerProfile | null>(null)
   const [requesterName, setRequesterName] = useState("")
   const [contactSuccessMsg, setContactSuccessMsg] = useState("")
+  const { registerVisibleItems } = useVoice();
+
+  // Register farm labourers with Voice OS
+  useEffect(() => {
+    if (workers && workers.length > 0) {
+      registerVisibleItems(
+        workers.slice(0, 10).map((w, idx) => ({
+          id: String(w.id),
+          name: `${w.name} (${w.worker_type || "Labour"})`,
+          price: w.wage_expectation || 500,
+          category: "Agricultural Labour",
+          index: idx + 1,
+        }))
+      );
+    }
+  }, [workers, registerVisibleItems]);
+
   const [unlockedContacts, setUnlockedContacts] = useState<Record<number, string>>({})
 
   // Auto pre-fill phone from logged-in session

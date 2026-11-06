@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { CloudSun, Info, MapPin, Volume2, VolumeX, Share2 } from "lucide-react"
 import { useLanguage } from '@/lib/language'
+import { useVoice } from '@/lib/voice/VoiceContext'
 
 import {
   getCurrentByCoords,
@@ -58,6 +59,23 @@ function WeatherPageInner() {
   const [resolving, setResolving] = useState(true)
 
   const [current, setCurrent] = useState<UnifiedWeather | null>(null)
+  const { registerVisibleItems } = useVoice();
+
+  // Register live weather conditions with Voice OS
+  useEffect(() => {
+    if (current?.current) {
+      registerVisibleItems([
+        {
+          id: "weather-current",
+          name: `${loc?.label || "Current Location"}: ${current.current.temp_c}°C, ${current.current.condition}`,
+          price: current.current.temp_c,
+          category: "Weather",
+          index: 1,
+        },
+      ]);
+    }
+  }, [current, loc, registerVisibleItems]);
+
   const [forecast, setForecast] = useState<ForecastBundle | null>(null)
 
   const [loadingCurrent, setLoadingCurrent] = useState(false)

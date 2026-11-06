@@ -2,8 +2,8 @@
 
 Provides dedicated endpoints for:
   - Dynamic translation (single & batch) with TTL caching
-  - Text-to-Speech (TTS) via bulbul:v3
-  - Speech-to-Text (STT) via saaras:v4
+  - Text-to-Speech (TTS) via bulbul:v3 with resilient neural fallback
+  - Speech-to-Text (STT) via saaras:v4 with resilient Google SR fallback
   - Soil Health Card Document Intelligence (NPK & chemical extraction)
   - Health & availability check
 """
@@ -16,6 +16,7 @@ from fastapi import APIRouter, File, Form, HTTPException, Request, Response, Upl
 from pydantic import BaseModel, Field
 
 from services import sarvam_service
+from services.chat import stt_service, tts_service
 
 log = logging.getLogger(__name__)
 router = APIRouter()
@@ -119,7 +120,7 @@ async def translate_batch_endpoint(body: TranslateBatchRequest):
 
 @router.post("/tts")
 async def tts_endpoint(body: SarvamTTSRequest):
-    """Synthesize Indian-language speech with Sarvam bulbul:v3."""
+    """Synthesize Indian-language speech with Sarvam bulbul:v3 with resilient fallback."""
     try:
         audio_bytes = await sarvam_service.text_to_speech(
             text=body.text,
@@ -134,12 +135,23 @@ async def tts_endpoint(body: SarvamTTSRequest):
                 "X-TTS-Speaker": body.speaker or "priya",
             },
         )
-    except sarvam_service.SarvamServiceError as e:
-        log.warning("Sarvam TTS error: %s", e)
-        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
-        log.exception("TTS synthesis failed: %s", e)
-        raise HTTPException(status_code=500, detail="Audio synthesis failed.") from e
+        log.warning("Primary Sarvam TTS call failed (%s); trying resilient neural engine", e)
+        try:
+            lang_code = (body.language or "hi").split("-")[0]
+            res = await tts_service.synthesize(body.text, lang_code)
+            if hasattr(res, "audio"):
+                return Response(
+                    content=res.audio,
+                    media_type=res.mime,
+                    headers={
+                        "X-TTS-Provider": res.provider,
+                        "X-TTS-Speaker": body.speaker or "neural",
+                    },
+                )
+        except Exception as inner_e:
+            log.warning("Resilient neural TTS failed: %s", inner_e)
+        raise HTTPException(status_code=503, detail=str(e)) from e
 
 
 @router.post("/stt")
@@ -147,7 +159,7 @@ async def stt_endpoint(
     audio: UploadFile = File(...),
     language: Optional[str] = Form(None),
 ):
-    """Transcribe spoken audio with Sarvam saaras:v4."""
+    """Transcribe spoken audio with Sarvam saaras:v4 with resilient fallback."""
     try:
         audio_bytes = await audio.read()
         res = await sarvam_service.speech_to_text(
@@ -157,12 +169,23 @@ async def stt_endpoint(
             language_code=language,
         )
         return res
-    except sarvam_service.SarvamServiceError as e:
-        log.warning("Sarvam STT error: %s", e)
-        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
-        log.exception("Speech transcription failed: %s", e)
-        raise HTTPException(status_code=500, detail="Transcription failed.") from e
+        log.warning("Primary Sarvam STT failed (%s); trying secondary STT engine", e)
+        try:
+            res_stt = await stt_service.transcribe(
+                audio_bytes=audio_bytes,
+                filename=audio.filename or "audio.wav",
+                content_type=audio.content_type or "audio/wav",
+                language=language,
+            )
+            return {
+                "transcript": res_stt.transcript,
+                "language_code": res_stt.language,
+                "provider": res_stt.provider,
+            }
+        except Exception as inner_e:
+            log.warning("Fallback STT failed: %s", inner_e)
+        raise HTTPException(status_code=503, detail=str(e)) from e
 
 
 @router.post("/extract-soil-report", response_model=SoilReportExtractionResponse)
