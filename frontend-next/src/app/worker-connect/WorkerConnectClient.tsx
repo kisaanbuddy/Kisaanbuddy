@@ -515,15 +515,15 @@ export default function WorkerConnectClient() {
             </p>
           </div>
 
-          {/* Right Column: Exact Farmer & Tractor Artwork + Post a Farm Job Button */}
+          {/* Right Column: Exact Indian Farmers & Tractor Visual + Post a Farm Job Button */}
           <div className="flex items-center justify-between md:justify-end gap-5 z-10">
-            {/* Cropped Farmers & Tractor Artwork from user's reference image */}
-            <div className="relative h-18 sm:h-20 w-44 sm:w-64 rounded-2xl overflow-hidden shadow-xs border border-emerald-300/80 dark:border-emerald-700/60 shrink-0 bg-emerald-100">
+            {/* Seamless Indian Farmers with Tractor from reference mockup */}
+            <div className="relative shrink-0 flex items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/hero-real-farmer-field.webp"
-                alt="Real Indian Farmer in Agricultural Field"
-                className="w-full h-full object-cover object-center select-none"
+                src="/images/tractor_farmers_seamless.png"
+                alt="Indian Farmers with Tractor"
+                className="h-20 sm:h-24 md:h-28 w-auto object-contain select-none"
               />
             </div>
 
