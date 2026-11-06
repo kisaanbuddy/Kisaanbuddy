@@ -36,8 +36,10 @@ import { useLanguage, type Lang } from "@/lib/language";
 import { AgriProductDetailModal } from "./AgriProductDetailModal";
 import { AgriPriceComparisonModal } from "./AgriPriceComparisonModal";
 
-interface AgriInputsHubProps {
+export interface AgriInputsHubProps {
   onContactProduct?: (product: AgriProductItem) => void;
+  selectedCategory?: string;
+  onSelectCategory?: (category: string) => void;
 }
 
 const COMMON_CROPS = [
@@ -422,7 +424,11 @@ const HUB_I18N: Record<
   },
 };
 
-export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
+export function AgriInputsHub({
+  onContactProduct,
+  selectedCategory: propCategory,
+  onSelectCategory,
+}: AgriInputsHubProps) {
   const searchParams = useSearchParams();
   const { lang } = useLanguage();
   const t = HUB_I18N[lang] || HUB_I18N.en;
@@ -434,7 +440,18 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
   const [loading, setLoading] = useState(true);
 
   // Active Filter States
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState(propCategory || "all");
+
+  useEffect(() => {
+    if (propCategory !== undefined && propCategory !== selectedCategory) {
+      setSelectedCategory(propCategory);
+    }
+  }, [propCategory]);
+
+  const handleCategoryChange = (cat: string) => {
+    setSelectedCategory(cat);
+    onSelectCategory?.(cat);
+  };
   const [selectedCrop, setSelectedCrop] = useState("All");
   const [selectedDisease, setSelectedDisease] = useState("All");
   const [selectedBrand, setSelectedBrand] = useState("All");
@@ -471,7 +488,7 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
 
     if (qCrop) setSelectedCrop(qCrop);
     if (qDisease) setSelectedDisease(qDisease);
-    if (qCategory) setSelectedCategory(qCategory);
+    if (qCategory) handleCategoryChange(qCategory);
 
     if (qDisease || qConfidence) {
       setFromCropDoctor({
@@ -542,7 +559,7 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
   }, [fetchProducts]);
 
   const clearAllFilters = () => {
-    setSelectedCategory("all");
+    handleCategoryChange("all");
     setSelectedCrop("All");
     setSelectedDisease("All");
     setSelectedBrand("All");
@@ -675,7 +692,7 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none select-none">
             <button
               type="button"
-              onClick={() => setSelectedCategory("all")}
+              onClick={() => handleCategoryChange("all")}
               className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
                 selectedCategory === "all"
                   ? "bg-emerald-800 text-white shadow-xs"
@@ -699,7 +716,7 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => setSelectedCategory(cat.slug)}
+                  onClick={() => handleCategoryChange(cat.slug)}
                   className={`h-9 px-3.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
                     isSelected
                       ? "bg-emerald-800 text-white shadow-xs"
@@ -736,7 +753,7 @@ export function AgriInputsHub({ onContactProduct }: AgriInputsHubProps) {
               Category: {selectedCategory.replace(/_/g, " ")}
               <X
                 className="h-3 w-3 cursor-pointer hover:opacity-75"
-                onClick={() => setSelectedCategory("all")}
+                onClick={() => handleCategoryChange("all")}
               />
             </span>
           )}
