@@ -32,6 +32,7 @@ import { RequestExpertModal } from "@/components/disease/RequestExpertModal";
 import { KVKDirectoryModal } from "@/components/disease/KVKDirectoryModal";
 import { TrackCaseModal } from "@/components/disease/TrackCaseModal";
 import { SprayWeatherAdvisory } from "@/components/disease/SprayWeatherAdvisory";
+import { TreatmentPopupModal } from "@/components/disease/TreatmentPopupModal";
 import {
   type AssistantRequest,
   type Language,
@@ -74,6 +75,45 @@ interface PredictionResult {
   last_verified_date?: string;
 }
 
+function getRecommendedCategory(result?: PredictionResult | null): string {
+  const name = (result?.disease_name || result?.predicted_class || "").toLowerCase();
+  if (
+    name.includes("aphid") ||
+    name.includes("whitefly") ||
+    name.includes("borer") ||
+    name.includes("pest") ||
+    name.includes("worm") ||
+    name.includes("thrips") ||
+    name.includes("jassid") ||
+    name.includes("hopper")
+  ) {
+    return "insecticides";
+  }
+  if (
+    name.includes("rust") ||
+    name.includes("blast") ||
+    name.includes("blight") ||
+    name.includes("mildew") ||
+    name.includes("rot") ||
+    name.includes("spot") ||
+    name.includes("fungal")
+  ) {
+    return "fungicides";
+  }
+  if (name.includes("weed")) {
+    return "herbicides";
+  }
+  if (
+    name.includes("zinc") ||
+    name.includes("deficiency") ||
+    name.includes("chlorosis") ||
+    name.includes("nitrogen")
+  ) {
+    return "micronutrients";
+  }
+  return "fungicides";
+}
+
 function formatClassName(name: string): string {
   if (!name) return "";
   return name
@@ -106,6 +146,7 @@ export default function DiseaseClient() {
   const [kvkModalOpen, setKvkModalOpen] = useState(false);
   const [trackModalOpen, setTrackModalOpen] = useState(false);
   const [activeCaseId, setActiveCaseId] = useState<string | null>(null);
+  const [treatmentPopupOpen, setTreatmentPopupOpen] = useState(false);
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const camRef = useRef<HTMLInputElement | null>(null);
@@ -224,6 +265,11 @@ export default function DiseaseClient() {
       if (predictRes.ok) {
         const data: PredictionResult = await predictRes.json();
         setMlResult(data);
+        if ((data.confidence || 0) >= 0.60 && data.status !== "uncertain") {
+          setTimeout(() => {
+            setTreatmentPopupOpen(true);
+          }, 900);
+        }
       }
     } catch (err) {
       console.warn("Disease model API request error:", err);
@@ -547,6 +593,51 @@ export default function DiseaseClient() {
 
         {(mlResult || response) && (
           <div className="space-y-6 pt-2">
+            {/* Low Confidence Guidance Card */}
+            {(mlResult?.status === "uncertain" || (mlResult?.confidence !== undefined && mlResult.confidence < 0.60)) && (
+              <div className="rounded-2xl border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/40 p-5 sm:p-6 space-y-4 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white font-bold shrink-0">
+                    <AlertTriangle className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black text-amber-900 dark:text-amber-100">
+                      {isHindi
+                        ? "निदान अनिश्चित है — कृपया एक और स्पष्ट फोटो लें"
+                        : "Low Confidence Screening — Another Photo Recommended"}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-amber-800 dark:text-amber-200 mt-0.5">
+                      {isHindi
+                        ? "पत्ती के लक्षण अस्पष्ट या मिश्रित दिखाई दे रहे हैं। बिना पुष्टि के कोई रासायनिक छिड़काव न करें।"
+                        : "Visual symptoms are inconclusive. Do not apply chemical pesticides without expert confirmation."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImage(null);
+                      camRef.current?.click();
+                    }}
+                    className="h-11 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition"
+                  >
+                    <Camera className="h-4 w-4" />
+                    <span>{isHindi ? "नई फोटो खींचें" : "Take Clear Daytime Photo"}</span>
+                  </button>
+
+                  <a
+                    href="tel:18001801551"
+                    className="h-11 rounded-xl border border-amber-600 bg-white dark:bg-stone-900 text-amber-900 dark:text-amber-200 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:bg-amber-100 dark:hover:bg-amber-950 transition"
+                  >
+                    <Phone className="h-4 w-4 text-emerald-600" />
+                    <span>{isHindi ? "किसान हेल्पलाइन: 1800-180-1551" : "Kisan Helpline: 1800-180-1551"}</span>
+                  </a>
+                </div>
+              </div>
+            )}
+
             {/* 4. Display Possible Problem (No raw confidence scores) */}
             <div className="rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 sm:p-6 shadow-sm space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-stone-200/80 dark:border-stone-800 pb-3">
@@ -689,6 +780,16 @@ export default function DiseaseClient() {
         isOpen={trackModalOpen}
         onClose={() => setTrackModalOpen(false)}
         initialCaseId={activeCaseId || undefined}
+      />
+
+      <TreatmentPopupModal
+        isOpen={treatmentPopupOpen}
+        onClose={() => setTreatmentPopupOpen(false)}
+        crop={crop || mlResult?.crop || "Crop"}
+        diseaseName={mlResult?.disease_name || formatClassName(mlResult?.predicted_class || "")}
+        confidence={mlResult?.confidence || 0.85}
+        recommendedCategory={getRecommendedCategory(mlResult)}
+        diagnosisId={activeCaseId || undefined}
       />
     </div>
   );

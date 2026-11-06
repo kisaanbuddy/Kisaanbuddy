@@ -1,28 +1,25 @@
 import urllib.request
 import json
+import time
 
-for sha in ['12836f6', '0f96579']:
+sha = 'c5b4e8e'
+headers = {'User-Agent': 'Python-Check'}
+
+print(f"Monitoring commit {sha} on GitHub & Vercel...")
+for i in range(10):
     # Check commit status
-    url = f'https://api.github.com/repos/kisaanbuddy/Kisaanbuddy/commits/{sha}/status'
+    status_url = f'https://api.github.com/repos/kisaanbuddy/Kisaanbuddy/commits/{sha}/status'
     try:
-        req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        req = urllib.request.Request(status_url, headers=headers)
+        with urllib.request.urlopen(req) as resp:
             data = json.loads(resp.read().decode('utf-8'))
-            print(f"Commit {sha}: State={data.get('state')}, Total={data.get('total_count')}")
-            for s in data.get('statuses', []):
-                print(f"  {s.get('context')}: {s.get('state')} -> {s.get('target_url')}")
+            state = data.get('state')
+            statuses = data.get('statuses', [])
+            print(f"[{i+1}/10] Overall State: {state}")
+            for s in statuses:
+                print(f"   Context: {s.get('context')}, State: {s.get('state')}, Desc: {s.get('description')}, Target: {s.get('target_url')}")
+            if state in ('success', 'failure'):
+                break
     except Exception as e:
-        print(f"Commit {sha} status error: {e}")
-
-    # Check check-runs
-    check_url = f'https://api.github.com/repos/kisaanbuddy/Kisaanbuddy/commits/{sha}/check-runs'
-    try:
-        req = urllib.request.Request(check_url, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/vnd.github.v3+json'})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            check_data = json.loads(resp.read().decode('utf-8'))
-            runs = check_data.get('check_runs', [])
-            print(f"  Check runs ({len(runs)}):")
-            for r in runs:
-                print(f"    Name: {r.get('name')}, Status: {r.get('status')}, Conclusion: {r.get('conclusion')}, Details: {r.get('html_url')}")
-    except Exception as e:
-        print(f"Commit {sha} check-runs error: {e}")
+        print(f"Error checking status: {e}")
+    time.sleep(6)

@@ -55,6 +55,9 @@ import {
   formatCondition,
 } from "@/lib/marketplace-i18n";
 import { useMobileMenu } from "@/components/navigation/MobileMenuContext";
+import { useSearchParams } from "next/navigation";
+import { AgriInputsHub } from "@/components/marketplace/AgriInputsHub";
+import { AgriProductItem } from "@/lib/farmer-api";
 
 // Clean telephone number for tel: protocol
 function cleanPhoneForTel(phone?: string | null): string {
@@ -460,9 +463,21 @@ function getLocationScore(
 }
 
 export default function MarketplacePage() {
+  const searchParams = useSearchParams();
   const { lang } = useLanguage();
   const isHi = lang === "hi";
   const { openMenu } = useMobileMenu();
+  const [activeMarketTab, setActiveMarketTab] = useState<"inputs" | "machinery">("inputs");
+
+  // Sync tab from URL query params (e.g. from Crop Doctor or Soil Health)
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab === "equipment" || tab === "machinery") {
+      setActiveMarketTab("machinery");
+    } else if (tab === "inputs" || searchParams.get("crop") || searchParams.get("disease") || searchParams.get("deficiency")) {
+      setActiveMarketTab("inputs");
+    }
+  }, [searchParams]);
   const cmpDict = useMemo(() => getPriceComparisonI18n(lang), [lang]);
 
   // Data states
@@ -1594,8 +1609,77 @@ export default function MarketplacePage() {
           </div>
         </div>
       </header>
+      {/* ─── TOP LEVEL MARKET SEGMENT SWITCHER (Inputs & Crop Care vs Farm Machinery) ─── */}
+      <div className="w-full bg-stone-100/90 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800">
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-1.5 p-1 bg-stone-200/70 dark:bg-stone-800 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setActiveMarketTab("inputs")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                activeMarketTab === "inputs"
+                  ? "bg-emerald-700 text-white shadow-xs"
+                  : "text-stone-700 dark:text-stone-300 hover:text-emerald-700"
+              }`}
+            >
+              <span>🌱</span>
+              <span>{isHi ? "खाद, दवा व बीज (Farm Inputs)" : "Farm Inputs & Crop Care"}</span>
+              <span
+                className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                  activeMarketTab === "inputs"
+                    ? "bg-white/25 text-white"
+                    : "bg-stone-300 dark:bg-stone-700 text-stone-600 dark:text-stone-300"
+                }`}
+              >
+                11 Categories
+              </span>
+            </button>
 
-      {/* ─── 2. CATEGORY NAVIGATION: COMPACT SINGLE-ROW HORIZONTAL BAR ──────── */}
+            <button
+              type="button"
+              onClick={() => setActiveMarketTab("machinery")}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
+                activeMarketTab === "machinery"
+                  ? "bg-emerald-700 text-white shadow-xs"
+                  : "text-stone-700 dark:text-stone-300 hover:text-emerald-700"
+              }`}
+            >
+              <span>🚜</span>
+              <span>{isHi ? "कृषि यंत्र व ट्रैक्टर (Machinery)" : "Farm Machinery & Implements"}</span>
+            </button>
+          </div>
+
+          {activeMarketTab === "inputs" && (
+            <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 hidden md:inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>CIBRC & FCO Verified Authentic Sourcing</span>
+            </span>
+          )}
+        </div>
+      </div>
+
+
+      {activeMarketTab === "inputs" ? (
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-5 lg:py-6">
+          <AgriInputsHub
+            onContactProduct={(prod) => {
+              setContactTarget({
+                name: prod.seller_name,
+                phone: prod.seller_phone,
+                title: prod.name,
+                location: `${prod.district}, ${prod.state}`,
+                sourceType: "listing",
+                brand: prod.brand,
+                modelName: prod.pack_size,
+                officialSourceUrl: prod.official_source_url,
+              });
+              setShowContactModal(true);
+            }}
+          />
+        </div>
+      ) : (
+        <>
+{/* ─── 2. CATEGORY NAVIGATION: COMPACT SINGLE-ROW HORIZONTAL BAR ──────── */}
       <nav
         aria-label="Machinery Categories"
         className="w-full max-w-none bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 overflow-x-auto scrollbar-none"
@@ -2926,7 +3010,10 @@ export default function MarketplacePage() {
       )}
 
       {/* ─── 6. AUTHENTIC SELLER CONTACT & ENQUIRY MODAL ───────────────────────── */}
-      {showContactModal && contactTarget && (
+      
+        </>
+      )}
+{showContactModal && contactTarget && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-stone-900 w-full max-w-md rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">

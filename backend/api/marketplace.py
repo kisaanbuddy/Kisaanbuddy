@@ -1298,3 +1298,340 @@ def get_legacy_categories() -> List[str]:
         "institutional",
         "crop_protection",
     ]
+
+
+# ─── AGRICULTURAL INPUTS & CROP CARE MARKETPLACE ENDPOINTS ───────────────────
+
+from data.authentic_agri_products import AGRICULTURAL_PRODUCT_CATEGORIES, AUTHENTIC_AGRI_PRODUCTS
+from schemas.marketplace import (
+    AgriProductCategory,
+    AgriProductItem,
+    AgriPriceComparisonResult,
+    AgriPriceComparisonSection,
+)
+
+
+@router.get("/product-categories", response_model=List[AgriProductCategory])
+def get_agri_product_categories() -> Any:
+    """Return all 11 dedicated agricultural input categories with accurate product counts."""
+    counts: Dict[str, int] = {}
+    for p in AUTHENTIC_AGRI_PRODUCTS:
+        c = p.get("category", "")
+        counts[c] = counts.get(c, 0) + 1
+
+    categories_out = []
+    for cat in AGRICULTURAL_PRODUCT_CATEGORIES:
+        item = dict(cat)
+        item["product_count"] = counts.get(cat["id"], 0)
+        categories_out.append(item)
+    return categories_out
+
+
+@router.get("/products", response_model=Dict[str, Any])
+def list_agri_products(
+    category: Optional[str] = Query(None, description="Category slug or 'all'"),
+    crop: Optional[str] = Query(None, description="Target crop (e.g. Wheat, Rice, Cotton)"),
+    disease: Optional[str] = Query(None, description="Target disease or pest (e.g. Yellow Rust, Whitefly)"),
+    deficiency: Optional[str] = Query(None, description="Soil deficiency (e.g. nitrogen, phosphorus, zinc, acidic)"),
+    brand: Optional[str] = Query(None, description="Brand name filter"),
+    state: Optional[str] = Query(None, description="Seller state filter"),
+    district: Optional[str] = Query(None, description="Seller district filter"),
+    availability: Optional[str] = Query(None, description="Filter by stock status"),
+    min_price: Optional[float] = Query(None, ge=0),
+    max_price: Optional[float] = Query(None, ge=0),
+    search: Optional[str] = Query(None, description="Keyword search query"),
+    sort_by: Optional[str] = Query("relevance", description="relevance | price_asc | price_desc | newest"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(24, ge=1, le=100),
+) -> Any:
+    """List verified agricultural inputs, fertilizers, and crop protection products with authentic specifications."""
+    items = list(AUTHENTIC_AGRI_PRODUCTS)
+
+    # 1. Category Filter
+    if category and category.lower() != "all":
+        items = [p for p in items if p.get("category", "").lower() == category.lower()]
+
+    # 2. Crop Filter
+    if crop and crop.strip():
+        c_low = crop.strip().lower()
+        items = [
+            p for p in items
+            if any(c_low in tc.lower() for tc in p.get("target_crops", []))
+            or c_low in p.get("name", "").lower()
+            or c_low in p.get("recommended_dosage", "").lower()
+        ]
+
+    # 3. Disease / Pest Filter
+    if disease and disease.strip():
+        d_low = disease.strip().lower()
+        items = [
+            p for p in items
+            if any(d_low in td.lower() for td in p.get("target_pests_diseases", []))
+            or d_low in p.get("name", "").lower()
+            or d_low in p.get("active_ingredient", "").lower()
+        ]
+
+    # 4. Soil Deficiency Filter
+    if deficiency and deficiency.strip():
+        def_terms = [t.strip().lower() for t in deficiency.split(",") if t.strip()]
+        filtered = []
+        for p in items:
+            p_defs = [d.lower() for d in p.get("target_deficiencies", [])]
+            p_cat = p.get("category", "").lower()
+            p_act = p.get("active_ingredient", "").lower()
+            match = False
+            for term in def_terms:
+                if any(term in d for d in p_defs):
+                    match = True
+                    break
+                # Special semantic matching for essential fertilizer classes
+                if "nitrogen" in term and ("urea" in p_act or "nitrogen" in p_act):
+                    match = True
+                    break
+                if "phosphorus" in term and ("p2o5" in p_act or "dap" in p_act or "phosphate" in p_act):
+                    match = True
+                    break
+                if "potassium" in term and ("k2o" in p_act or "potash" in p_act or "mop" in p_act):
+                    match = True
+                    break
+                if "acidic" in term and ("dolomite" in p_act or "lime" in p_act or p_cat == "soil_conditioners"):
+                    match = True
+                    break
+                if "zinc" in term and "zinc" in p_act:
+                    match = True
+                    break
+            if match:
+                filtered.append(p)
+        items = filtered
+
+    # 5. Brand Filter
+    if brand and brand.lower() != "all":
+        b_low = brand.strip().lower()
+        items = [p for p in items if b_low in p.get("brand", "").lower()]
+
+    # 6. State Filter
+    if state and state.lower() != "all":
+        s_low = state.strip().lower()
+        items = [p for p in items if s_low in p.get("state", "").lower()]
+
+    # 7. District Filter
+    if district and district.strip():
+        dist_low = district.strip().lower()
+        items = [p for p in items if dist_low in p.get("district", "").lower()]
+
+    # 8. Availability Filter
+    if availability and availability.lower() != "all":
+        items = [p for p in items if p.get("stock_status", "").lower() == availability.lower()]
+
+    # 9. Price Range
+    if min_price is not None:
+        items = [p for p in items if p.get("selling_price", 0.0) >= min_price]
+    if max_price is not None:
+        items = [p for p in items if p.get("selling_price", 0.0) <= max_price]
+
+    # 10. Keyword Search
+    if search and search.strip():
+        q = search.strip().lower()
+        items = [
+            p for p in items
+            if q in p.get("name", "").lower()
+            or q in p.get("brand", "").lower()
+            or q in p.get("manufacturer", "").lower()
+            or q in p.get("active_ingredient", "").lower()
+            or any(q in tc.lower() for tc in p.get("target_crops", []))
+            or any(q in td.lower() for td in p.get("target_pests_diseases", []))
+        ]
+
+    # 11. Sorting
+    if sort_by == "price_asc":
+        items = sorted(items, key=lambda x: x.get("selling_price", 0.0))
+    elif sort_by == "price_desc":
+        items = sorted(items, key=lambda x: x.get("selling_price", 0.0), reverse=True)
+    elif sort_by == "newest":
+        items = sorted(items, key=lambda x: x.get("last_verified_date", ""), reverse=True)
+    # default "relevance" keeps initial ordering
+
+    total_count = len(items)
+    start_idx = (page - 1) * limit
+    end_idx = start_idx + limit
+    paginated_items = items[start_idx:end_idx]
+
+    return {
+        "items": paginated_items,
+        "total": total_count,
+        "page": page,
+        "limit": limit,
+        "total_pages": (total_count + limit - 1) // limit if total_count > 0 else 1,
+    }
+
+
+@router.get("/products/{product_id}", response_model=AgriProductItem)
+def get_agri_product_detail(product_id: str) -> Any:
+    """Return complete technical specifications, CIBRC/FCO compliance, and verified seller info for a product."""
+    for p in AUTHENTIC_AGRI_PRODUCTS:
+        if p["id"] == product_id:
+            return p
+    raise HTTPException(status_code=404, detail=f"Product with ID '{product_id}' not found.")
+
+
+@router.get("/product-compare-prices", response_model=AgriPriceComparisonResult)
+def compare_agri_product_prices(
+    product_id: Optional[str] = Query(None, description="Target product ID to compare against"),
+    category: Optional[str] = Query(None, description="Category filter"),
+    crop: Optional[str] = Query(None, description="Target crop"),
+    disease: Optional[str] = Query(None, description="Target disease or pest"),
+    active_ingredient: Optional[str] = Query(None, description="Active ingredient to match"),
+) -> Any:
+    """
+    Intelligent Price Comparison Engine with 3 Distinct Sections:
+    A. LOWEST PRICE: Lowest verified price among products with identical/equivalent active ingredients.
+    B. BEST VALUE: Product offering optimal balance of active concentration, brand credibility, and delivery.
+    C. OTHER SUITABLE ALTERNATIVES: Other verified formulations approved for the same crop/disease.
+    """
+    target: Optional[Dict[str, Any]] = None
+    if product_id:
+        for p in AUTHENTIC_AGRI_PRODUCTS:
+            if p["id"] == product_id:
+                target = p
+                break
+
+    target_category = category or (target.get("category") if target else None)
+    target_crop = crop or (target.get("target_crops")[0] if target and target.get("target_crops") else None)
+    target_disease = disease or (target.get("target_pests_diseases")[0] if target and target.get("target_pests_diseases") else None)
+    target_active = active_ingredient or (target.get("active_ingredient") if target else None)
+
+    # 1. Identify directly comparable products
+    # Strict authenticity rule: comparable products must share active ingredient or exact category/pack group
+    pool = list(AUTHENTIC_AGRI_PRODUCTS)
+
+    exact_pool = []
+    if target_active:
+        # Extract base chemical name, e.g. "Hexaconazole" from "Hexaconazole 5% SC" or "Imidacloprid"
+        base_chem = target_active.split()[0].lower()
+        exact_pool = [
+            p for p in pool
+            if base_chem in p.get("active_ingredient", "").lower()
+            and (not target or p["id"] != target["id"])
+        ]
+
+    # If no direct chemical match found or no active specified, match by category + crop + pest
+    if not exact_pool and target_category:
+        exact_pool = [
+            p for p in pool
+            if p.get("category") == target_category
+            and (not target or p["id"] != target["id"])
+        ]
+
+    # Sort exact pool by selling price
+    sorted_by_price = sorted(exact_pool, key=lambda x: x.get("selling_price", 999999))
+
+    lowest_section: Optional[AgriPriceComparisonSection] = None
+    best_value_section: Optional[AgriPriceComparisonSection] = None
+    alternatives_sections: List[AgriPriceComparisonSection] = []
+
+    if sorted_by_price:
+        lowest_item = sorted_by_price[0]
+        savings = max(0.0, lowest_item.get("mrp", 0.0) - lowest_item.get("selling_price", 0.0))
+        lowest_section = AgriPriceComparisonSection(
+            product=lowest_item,
+            badge_label="Lowest Verified Price",
+            badge_type="lowest_price",
+            headline=f"Lowest price in {lowest_item.get('district', 'verified hub')}",
+            reason=f"Verified seller '{lowest_item.get('seller_name')}' offers this genuine formulation at Rs. {lowest_item.get('selling_price')} ({lowest_item.get('price_unit')}), saving Rs. {savings:.2f} off MRP.",
+            savings_vs_mrp=savings,
+            price_per_unit_ratio=f"Rs. {lowest_item.get('selling_price')}/{lowest_item.get('pack_size')}",
+        )
+
+    # Best Value: Pick item from top brands (IFFCO, Bayer, Syngenta, Tata, Coromandel, FMC) or highest formulation spec
+    top_brands = ["iffco", "bayer", "syngenta", "tata rallis", "fmc", "coromandel", "mahadhan"]
+    best_candidate = None
+    for p in sorted_by_price:
+        if any(tb in p.get("brand", "").lower() for tb in top_brands) and p.get("stock_status") == "available_to_buy":
+            best_candidate = p
+            break
+    if not best_candidate and sorted_by_price:
+        best_candidate = sorted_by_price[-1]  # fallback to next candidate
+
+    if best_candidate and (not lowest_section or best_candidate["id"] != lowest_section.product.id):
+        b_savings = max(0.0, best_candidate.get("mrp", 0.0) - best_candidate.get("selling_price", 0.0))
+        best_value_section = AgriPriceComparisonSection(
+            product=best_candidate,
+            badge_label="Best Value & Reliability",
+            badge_type="best_value",
+            headline=f"Top-tier formulation from {best_candidate.get('brand')}",
+            reason=f"High-purity active ingredient ({best_candidate.get('active_ingredient')}) with verified dealer stock and full CIBRC/FCO compliance.",
+            savings_vs_mrp=b_savings,
+            price_per_unit_ratio=f"Rs. {best_candidate.get('selling_price')}/{best_candidate.get('pack_size')}",
+        )
+    elif sorted_by_price and len(sorted_by_price) > 1:
+        # If lowest is also top brand, pick second as alternative best value
+        cand2 = sorted_by_price[1]
+        c2_savings = max(0.0, cand2.get("mrp", 0.0) - cand2.get("selling_price", 0.0))
+        best_value_section = AgriPriceComparisonSection(
+            product=cand2,
+            badge_label="Best Value & Reliability",
+            badge_type="best_value",
+            headline=f"Alternative high-grade option from {cand2.get('brand')}",
+            reason=f"Strong grower trust with active stock at {cand2.get('seller_location')}.",
+            savings_vs_mrp=c2_savings,
+            price_per_unit_ratio=f"Rs. {cand2.get('selling_price')}/{cand2.get('pack_size')}",
+        )
+
+    # Section C: Other Suitable Alternatives (other registered products for target crop/disease or deficiency)
+    alt_pool = []
+    for p in pool:
+        if target and p["id"] == target["id"]:
+            continue
+        if lowest_section and p["id"] == lowest_section.product.id:
+            continue
+        if best_value_section and p["id"] == best_value_section.product.id:
+            continue
+
+        match = False
+        if target_disease and any(target_disease.lower() in d.lower() for d in p.get("target_pests_diseases", [])):
+            match = True
+        elif target_crop and any(target_crop.lower() in c.lower() for c in p.get("target_crops", [])) and p.get("category") == target_category:
+            match = True
+        elif target_category and p.get("category") == target_category:
+            match = True
+
+        if match:
+            alt_pool.append(p)
+            if len(alt_pool) >= 4:
+                break
+
+    for alt in alt_pool:
+        alt_savings = max(0.0, alt.get("mrp", 0.0) - alt.get("selling_price", 0.0))
+        alternatives_sections.append(
+            AgriPriceComparisonSection(
+                product=alt,
+                badge_label="Approved Alternative",
+                badge_type="alternative",
+                headline=f"{alt.get('brand')} — {alt.get('active_ingredient')}",
+                reason=f"Registered for {', '.join(alt.get('target_crops', [])[:3])}. Dosage: {alt.get('recommended_dosage', 'As per label')}.",
+                savings_vs_mrp=alt_savings,
+                price_per_unit_ratio=f"Rs. {alt.get('selling_price')}/{alt.get('pack_size')}",
+            )
+        )
+
+    total_found = len(sorted_by_price) + len(alt_pool)
+    is_sufficient = total_found >= 1
+
+    disclaimer = (
+        "Prices and stock availability are verified directly from authorized agricultural dealers, cooperatives, and FPOs. "
+        "Always observe CIBRC label recommendations and FCO nutrient guidelines before purchasing."
+    )
+
+    return AgriPriceComparisonResult(
+        query_crop=target_crop,
+        query_disease=target_disease,
+        query_category=target_category,
+        query_active_ingredient=target_active,
+        target_product=target,
+        lowest_price=lowest_section,
+        best_value=best_value_section,
+        alternatives=alternatives_sections,
+        total_comparable_found=total_found,
+        is_sufficient_data=is_sufficient,
+        disclaimer=disclaimer,
+    )

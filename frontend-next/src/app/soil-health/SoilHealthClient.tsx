@@ -26,9 +26,11 @@ import {
   Volume2,
   VolumeX,
   Zap,
+  Store,
+  ArrowRight,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { streamMessage, type Language } from "@/lib/assistant-api"
 import { Card, GlassCard, CardHeader } from "@/components/ui/card"
@@ -331,6 +333,7 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 
 export default function SoilHealthPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { t, lang } = useLanguage()
   const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang as Language) || "hi" }))
   
@@ -1011,6 +1014,79 @@ export default function SoilHealthPage() {
                     })}
                     {streaming && <span className="animate-pulse text-emerald-600 dark:text-emerald-400 font-bold">▌</span>}
                   </div>
+                </div>
+
+                {/* Module 7: Soil Health -> Fertilizer Marketplace CTA */}
+                <div className="mt-4 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-50/60 dark:bg-emerald-950/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                        <Store className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-extrabold text-stone-900 dark:text-stone-100">
+                          {lang === "hi"
+                            ? "उपयुक्त खाद व उर्वरक खोजें"
+                            : lang === "kn"
+                            ? "ಸೂಕ್ತ ಗೊಬ್ಬರಗಳನ್ನು ಹುಡುಕಿ"
+                            : "Find Suitable Fertilizers for Your Soil"}
+                        </h4>
+                        <p className="text-[11px] text-stone-600 dark:text-stone-300">
+                          {lang === "hi"
+                            ? "पहचाने गए पोषक तत्वों की कमी के आधार पर CIBRC/FCO प्रमाणित उर्वरक देखें।"
+                            : "Explore verified fertilizers matched to your detected nutrient deficiencies."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 text-[11px]">
+                    {form.nitrogen === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 font-semibold">
+                        {lang === "hi" ? "कम नाइट्रोजन (Low N)" : "Low Nitrogen (N)"}
+                      </span>
+                    )}
+                    {form.phosphorus === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 font-semibold">
+                        {lang === "hi" ? "कम फास्फोरस (Low P)" : "Low Phosphorus (P)"}
+                      </span>
+                    )}
+                    {form.potassium === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 font-semibold">
+                        {lang === "hi" ? "कम पोटाश (Low K)" : "Low Potash (K)"}
+                      </span>
+                    )}
+                    {form.ph === "acidic" && (
+                      <span className="px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-800 dark:text-orange-200 border border-orange-300 font-semibold">
+                        {lang === "hi" ? "अम्लीय मिट्टी (Acidic pH)" : "Acidic Soil (pH < 6.5)"}
+                      </span>
+                    )}
+                    {form.organicCarbon === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-300 font-semibold">
+                        {lang === "hi" ? "कम जैविक कार्बन" : "Low Organic Carbon"}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleFindFertilizers}
+                    className="w-full h-11 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition"
+                  >
+                    <span>
+                      {lang === "hi"
+                        ? "किसानबड्डी मार्केट में उपयुक्त उर्वरक देखें"
+                        : lang === "kn"
+                        ? "ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ಗೊಬ್ಬರಗಳನ್ನು ನೋಡಿ"
+                        : "Find Suitable Fertilizers"}
+                    </span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <p className="text-[10px] text-stone-500 italic text-center">
+                    {lang === "hi"
+                      ? "उर्वरक की सही मात्रा के लिए राज्य कृषि विश्वविद्यालय पैकेज व मृदा स्वास्थ्य कार्ड का पालन करें।"
+                      : "Always calibrate dosage with local soil test results & agricultural university guidance."}
+                  </p>
                 </div>
 
                 <div className="pt-4 mt-4 border-t border-border/40 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">

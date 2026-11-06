@@ -474,3 +474,79 @@ class ImportJobResponse(BaseModel):
     completed_at: Optional[datetime] = None
     logs: Optional[List[ImportLogResponse]] = None
     model_config = ConfigDict(from_attributes=True)
+
+
+# ─── Agricultural Inputs & Crop Care Product Schemas ─────────────────────────
+
+class AgriProductCategory(BaseModel):
+    id: str
+    slug: str
+    name_en: str
+    name_hi: str
+    name_kn: str
+    icon: str
+    regulatory_body: str
+    description: str
+    product_count: Optional[int] = 0
+
+
+class AgriProductItem(BaseModel):
+    id: str
+    name: str
+    brand: str
+    manufacturer: str
+    category: str
+    active_ingredient: str
+    formulation: str
+    registration_number: str
+    target_crops: List[str]
+    target_pests_diseases: List[str]
+    target_deficiencies: List[str]
+    recommended_dosage: str
+    pre_harvest_interval_days: int
+    safety_precautions: str
+    pack_size: str
+    mrp: float
+    selling_price: float
+    price_unit: str
+    stock_status: Literal["available_to_buy", "contact_seller", "out_of_stock", "unverified"]
+    seller_name: str
+    seller_phone: Optional[str] = None
+    seller_type: str
+    seller_license_no: Optional[str] = None
+    seller_location: str
+    state: str
+    district: str
+    delivery_options: str
+    delivery_charges: float
+    image_url: Optional[str] = None
+    official_source_url: Optional[str] = None
+    provenance: str
+    is_fco_approved: bool
+    is_cibrc_approved: bool
+    is_verified: bool
+    last_verified_date: str
+
+
+class AgriPriceComparisonSection(BaseModel):
+    product: AgriProductItem
+    badge_label: str
+    badge_type: Literal["lowest_price", "best_value", "alternative"]
+    headline: str
+    reason: str
+    savings_vs_mrp: Optional[float] = 0.0
+    price_per_unit_ratio: Optional[str] = None
+
+
+class AgriPriceComparisonResult(BaseModel):
+    query_crop: Optional[str] = None
+    query_disease: Optional[str] = None
+    query_category: Optional[str] = None
+    query_active_ingredient: Optional[str] = None
+    target_product: Optional[AgriProductItem] = None
+    lowest_price: Optional[AgriPriceComparisonSection] = None
+    best_value: Optional[AgriPriceComparisonSection] = None
+    alternatives: List[AgriPriceComparisonSection] = []
+    total_comparable_found: int = 0
+    is_sufficient_data: bool = True
+    disclaimer: str

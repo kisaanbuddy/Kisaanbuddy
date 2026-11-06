@@ -887,3 +887,147 @@ export function getSoilHealthScore(test: SoilTest): number {
 
   return factors > 0 ? Math.round(score / factors) : 0;
 }
+
+
+// ─── Agricultural Inputs & Crop Care Product APIs ────────────────────────────
+
+export interface AgriProductCategoryItem {
+  id: string;
+  slug: string;
+  name_en: string;
+  name_hi: string;
+  name_kn: string;
+  icon: string;
+  regulatory_body: string;
+  description: string;
+  product_count?: number;
+}
+
+export interface AgriProductItem {
+  id: string;
+  name: string;
+  brand: string;
+  manufacturer: string;
+  category: string;
+  active_ingredient: string;
+  formulation: string;
+  registration_number: string;
+  target_crops: string[];
+  target_pests_diseases: string[];
+  target_deficiencies: string[];
+  recommended_dosage: string;
+  pre_harvest_interval_days: number;
+  safety_precautions: string;
+  pack_size: string;
+  mrp: number;
+  selling_price: number;
+  price_unit: string;
+  stock_status: "available_to_buy" | "contact_seller" | "out_of_stock" | "unverified";
+  seller_name: string;
+  seller_phone?: string | null;
+  seller_type: string;
+  seller_license_no?: string | null;
+  seller_location: string;
+  state: string;
+  district: string;
+  delivery_options: string;
+  delivery_charges: number;
+  image_url?: string | null;
+  official_source_url?: string | null;
+  provenance: string;
+  is_fco_approved: boolean;
+  is_cibrc_approved: boolean;
+  is_verified: boolean;
+  last_verified_date: string;
+}
+
+export interface AgriPriceComparisonSection {
+  product: AgriProductItem;
+  badge_label: string;
+  badge_type: "lowest_price" | "best_value" | "alternative";
+  headline: string;
+  reason: string;
+  savings_vs_mrp?: number;
+  price_per_unit_ratio?: string;
+}
+
+export interface AgriPriceComparisonResult {
+  query_crop?: string | null;
+  query_disease?: string | null;
+  query_category?: string | null;
+  query_active_ingredient?: string | null;
+  target_product?: AgriProductItem | null;
+  lowest_price?: AgriPriceComparisonSection | null;
+  best_value?: AgriPriceComparisonSection | null;
+  alternatives: AgriPriceComparisonSection[];
+  total_comparable_found: number;
+  is_sufficient_data: boolean;
+  disclaimer: string;
+}
+
+export const agriProductsApi = {
+  listCategories: () =>
+    request<AgriProductCategoryItem[]>("/api/marketplace/product-categories"),
+
+  list: (params?: {
+    category?: string;
+    crop?: string;
+    disease?: string;
+    deficiency?: string;
+    brand?: string;
+    state?: string;
+    district?: string;
+    availability?: string;
+    min_price?: number;
+    max_price?: number;
+    search?: string;
+    sort_by?: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const q = new URLSearchParams();
+    if (params?.category) q.set("category", params.category);
+    if (params?.crop) q.set("crop", params.crop);
+    if (params?.disease) q.set("disease", params.disease);
+    if (params?.deficiency) q.set("deficiency", params.deficiency);
+    if (params?.brand) q.set("brand", params.brand);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    if (params?.availability) q.set("availability", params.availability);
+    if (params?.min_price !== undefined) q.set("min_price", String(params.min_price));
+    if (params?.max_price !== undefined) q.set("max_price", String(params.max_price));
+    if (params?.search) q.set("search", params.search);
+    if (params?.sort_by) q.set("sort_by", params.sort_by);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    const qs = q.toString();
+    return request<{
+      items: AgriProductItem[];
+      total: number;
+      page: number;
+      limit: number;
+      total_pages: number;
+    }>(`/api/marketplace/products${qs ? `?${qs}` : ""}`);
+  },
+
+  getDetail: (id: string) =>
+    request<AgriProductItem>(`/api/marketplace/products/${encodeURIComponent(id)}`),
+
+  comparePrices: (params: {
+    product_id?: string;
+    category?: string;
+    crop?: string;
+    disease?: string;
+    active_ingredient?: string;
+  }) => {
+    const q = new URLSearchParams();
+    if (params.product_id) q.set("product_id", params.product_id);
+    if (params.category) q.set("category", params.category);
+    if (params.crop) q.set("crop", params.crop);
+    if (params.disease) q.set("disease", params.disease);
+    if (params.active_ingredient) q.set("active_ingredient", params.active_ingredient);
+    return request<AgriPriceComparisonResult>(
+      `/api/marketplace/product-compare-prices?${q.toString()}`
+    );
+  },
+};
