@@ -130,7 +130,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     badge: "Farmer Support",
     icon: HeartHandshake,
     controls: (lang) => [
-      { label: lang === "hi" ? "मजदूर खोजें" : "Worker Connect", href: "/worker-connect", icon: Users },
+      { label: lang === "hi" ? "मजदूर खोजें" : "Labour Hiring", href: "/worker-connect", icon: Users },
       { label: lang === "hi" ? "सरकारी योजनाएं" : "Govt Schemes", href: "/schemes", icon: Landmark },
       { label: lang === "hi" ? "AI सलाहकार" : "AI Advisor", href: "/chatbot", icon: Mic },
       { label: lang === "hi" ? "मंडी सहायता" : "Mandi Help", href: "/mandi", icon: Store },
@@ -265,7 +265,7 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
   "worker-connect": {
     key: "worker-connect",
     title: {
-      en: "Workers Connect",
+      en: "Agricultural Labour Hiring",
       hi: "मजदूर सेवा",
       kn: "ಕಾರ್ಮಿಕ ಸಂಪರ್ಕ",
       ta: "பணியாளர் இணைப்பு",
