@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Briefcase,
@@ -159,6 +160,78 @@ const SAFETY_NOTICE: Record<string, string> = {
   pa: "🛡️ ਗੋਪਨੀਯਤਾ ਸੁਰੱਖਿਆ: ਮਜ਼ਦੂਰਾਂ ਦੇ ਫ਼ੋਨ ਨੰਬਰ ਸੁਰੱਖਿਅਤ ਹਨ ਅਤੇ ਆਪਸੀ ਸਹਿਮਤੀ ਤੋਂ ਬਾਅਦ ਹੀ ਦਿਖਾਈ ਦਿੰਦੇ ਹਨ। ਪੜਤਾਲ ਤੋਂ ਬਿਨਾਂ ਕੋਈ ਐਡਵਾਂਸ ਨਾ ਦਿਓ।",
   ml: "🛡️ സ്വകാര്യതാ സുരക്ഷ: തൊഴിലാളികളുടെ ഫോൺ നമ്പറുകൾ സുരക്ഷിതമാണ്, പരസ്പര സമ്മതത്തിന് ശേഷം മാത്രമേ ലഭ്യമാകൂ.",
   hi_en: "🛡️ Privacy First: Worker mobile numbers are protected and revealed only after mutual consent. Bina physical verification advance mat dein.",
+}
+
+
+// Clean Header Localization
+const BREADCRUMB_HOME: Record<string, string> = {
+  en: "Home",
+  hi: "होम",
+  kn: "ಮುಖಪುಟ",
+  te: "హోమ్",
+  ta: "முகப்பு",
+  mr: "मुख्यपृष्ठ",
+  gu: "હોમ",
+  bn: "হোম",
+  pa: "ਹੋਮ",
+  ml: "ഹോം",
+  hi_en: "Home",
+}
+
+const MODULE_TITLE: Record<string, string> = {
+  en: "Agricultural Labour Hiring",
+  hi: "कृषि मजदूर सेवा",
+  kn: "ಕೃಷಿ ಕಾರ್ಮಿಕ ನೇಮಕಾತಿ",
+  te: "వ్యవసాయ కూలీల నియాमకం",
+  ta: "விவசாய தொழிலாளர்கள் நியமனம்",
+  mr: "कृषी मजूर सेवा",
+  gu: "ખેતી મજૂર સેવા",
+  bn: "কৃষি শ্রমিক নিয়োগ",
+  pa: "ਖੇਤੀ ਮਜ਼ਦੂਰ ਸੇਵਾ",
+  ml: "കാർഷിക തൊഴിലാളി നിയമനം",
+  hi_en: "Agricultural Labour Hiring",
+}
+
+const PAGE_HEADING: Record<string, string> = {
+  en: "Find Agricultural Workers Near You",
+  hi: "नजदीकी कृषि मजदूर खोजें",
+  kn: "ನಿಮ್ಮ ಸಮೀಪದ ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ",
+  te: "మీ సమీపంలోని వ్యవసాయ కూలీలను వెతకండి",
+  ta: "உங்களுக்கு அருகிலுள்ள விவசாய தொழிலாளர்களை தேடுங்கள்",
+  mr: "तुमच्या जवळील शेतमजूर शोधा",
+  gu: "તમારી નજીકના ખેતી મજૂરો શોધો",
+  bn: "আপনার কাছাকাছি কৃষি শ্রমিক খুঁজুন",
+  pa: "ਆਪਣੇ ਨੇੜੇ ਖੇਤੀ ਮਜ਼ਦੂਰ ਲੱਭੋ",
+  ml: "നിങ്ങളുടെ അടുത്തുള്ള കാർഷിക തൊഴിലാളികളെ കണ്ടെത്തുക",
+  hi_en: "Find Agricultural Workers Near You",
+}
+
+const PAGE_SUBTITLE: Record<string, string> = {
+  en: "Hire farm workers, harvesting teams and tractor operators.",
+  hi: "खेत मजदूर, कटाई दल और ट्रैक्टर ऑपरेटरों को सीधे काम पर रखें।",
+  kn: "ಕೃಷಿ ಕೆಲಸಗಾರರು, ಕೊಯ್ಲು ತಂಡಗಳು ಮತ್ತು ಟ್ರ್ಯಾಕ್ಟರ್ ಆಪರೇಟರ್‌ಗಳನ್ನು ನೇಮಿಸಿ.",
+  te: "వ్యవసాయ కూలీలు, కోత బృందాలు మరియు ట్రాక్టర్ ఆపరేటర్లను సులభంగా నియమించుకోండి.",
+  ta: "பண்ணை தொழிலாளர்கள், அறுவடை குழுக்கள் மற்றும் டிராக்டர் ஆபரேட்டர்களை அமர்த்துங்கள்.",
+  mr: "शेतमजूर, कापणी पथके आणि ट्रॅक्टर चालकांना थेट कामावर घ्या.",
+  gu: "ખેતમજૂરો, લણણી ટીમો અને ટ્રેક્ટર ઓપરેટરોને સરળતાથી હાયર કરો.",
+  bn: "কৃষি শ্রমিক, ফসল কাটার দল এবং ট্রাক্টর চালক নিয়োগ করুন।",
+  pa: "ਖੇਤੀ ਮਜ਼ਦੂਰ, ਵਾਢੀ ਟੀਮਾਂ ਅਤੇ ਟਰੈਕਟਰ ਆਪਰੇਟਰਾਂ ਨੂੰ ਕੰਮ 'ਤੇ ਰੱਖੋ।",
+  ml: "ഫാം തൊഴിലാളികൾ, വിളവെടുപ്പ് സംഘങ്ങൾ, ട്രാക്ടർ ഓപ്പറേറ്റർമാർ എന്നിവരെ നിയമിക്കുക.",
+  hi_en: "Hire farm workers, harvesting teams and tractor operators.",
+}
+
+const POST_JOB_BTN: Record<string, string> = {
+  en: "+ Post a Farm Job",
+  hi: "+ खेत का काम पोस्ट करें",
+  kn: "+ ಕೃಷಿ ಕೆಲಸ ಪೋಸ್ಟ್ ಮಾಡಿ",
+  te: "+ వ్యవసాయ పనిని పోస్ట్ చేయండి",
+  ta: "+ பண்ணை வேலையை பதிவிடுங்கள்",
+  mr: "+ शेतीचे काम पोस्ट करा",
+  gu: "+ ખેતી કામ પોસ્ટ કરો",
+  bn: "+ খামারের কাজ পোস্ট করুন",
+  pa: "+ ਖੇਤੀ ਦਾ ਕੰਮ ਪੋਸਟ ਕਰੋ",
+  ml: "+ ഫാം ജോലി പോസ്റ്റ് ചെയ്യുക",
+  hi_en: "+ Post a Farm Job",
 }
 
 const INDIAN_STATES = [
@@ -811,21 +884,37 @@ export default function WorkerConnectClient() {
     <div className="min-h-screen bg-gradient-to-b from-stone-50 via-white to-stone-100 dark:from-stone-950 dark:via-stone-900 dark:to-stone-950 text-stone-900 dark:text-stone-100 py-6">
       <div className="w-full space-y-8">
         
-        {/* Header Hero */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-sm font-medium">
-            <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <span>KisaanBuddy • Workers Connect Module</span>
+        {/* Clean Marketplace Header */}
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400">
+              <Link href="/" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+                {BREADCRUMB_HOME[lang] || "Home"}
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
+              <span className="text-stone-800 dark:text-stone-200 font-semibold">
+                {MODULE_TITLE[lang] || "Agricultural Labour Hiring"}
+              </span>
+            </nav>
+
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-stone-900 dark:text-white">
+              {PAGE_HEADING[lang] || "Find Agricultural Workers Near You"}
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400">
+              {PAGE_SUBTITLE[lang] || "Hire farm workers, harvesting teams and tractor operators."}
+            </p>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-stone-900 dark:text-white">
-            Agricultural Labour Marketplace
-          </h1>
-          <p className="max-w-2xl mx-auto text-base sm:text-lg text-stone-600 dark:text-stone-300">
-            Connect verified farm workers, harvesting gangs, and tractor operators with farmers across India. Verified availability with official Labour Bureau rural wage intelligence.
-          </p>
-          <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 rounded-xl p-3 max-w-3xl mx-auto text-xs sm:text-sm text-amber-800 dark:text-amber-300 flex items-start gap-2.5 text-left shadow-sm">
-            <ShieldAlert className="w-5 h-5 flex-shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-            <span>{SAFETY_NOTICE[lang] || SAFETY_NOTICE.en}</span>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => setActiveTab("post_job")}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm shadow-sm hover:shadow transition-all duration-150 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{POST_JOB_BTN[lang] || "+ Post a Farm Job"}</span>
+            </button>
           </div>
         </div>
 
