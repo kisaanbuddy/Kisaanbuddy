@@ -20,8 +20,6 @@ import {
   ExternalLink,
   Gauge,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   AlertCircle,
   User,
   Sliders,
@@ -41,8 +39,6 @@ import {
   tradeInquiriesApi,
   priceComparisonApi,
   dealersApi,
-  agriProductsApi,
-  AgriProductCategoryItem,
   EquipmentCatalogItem,
   EquipmentListingItem,
   ProduceListingItem,
@@ -59,9 +55,6 @@ import {
   formatCondition,
 } from "@/lib/marketplace-i18n";
 import { useMobileMenu } from "@/components/navigation/MobileMenuContext";
-import { useSearchParams } from "next/navigation";
-import { AgriInputsHub } from "@/components/marketplace/AgriInputsHub";
-import { AgriProductItem } from "@/lib/farmer-api";
 
 // Clean telephone number for tel: protocol
 function cleanPhoneForTel(phone?: string | null): string {
@@ -190,40 +183,18 @@ const INDIAN_LOCATIONS: Record<string, string[]> = {
 
 // Category definitions matching user specification
 const CATEGORIES = [
-  { key: "all", labelEn: "All Equipment", labelHi: "सभी उपकरण", icon: "🚜" },
-  { key: "tractors", labelEn: "Tractors", labelHi: "ट्रैक्टर", icon: "🚜" },
-  { key: "harvesters", labelEn: "Harvesters", labelHi: "हार्वेस्टर", icon: "🌾" },
-  { key: "rotavators", labelEn: "Rotavators", labelHi: "रोटावेटर", icon: "🔄" },
-  { key: "seed_drills", labelEn: "Seed Drills", labelHi: "सीड ड्रिल", icon: "🌱" },
-  { key: "cultivators", labelEn: "Cultivators", labelHi: "कल्टीवेटर", icon: "⚙️" },
-  { key: "ploughs", labelEn: "Ploughs", labelHi: "हल / प्लाउ", icon: "⛏️" },
-  { key: "sprayers", labelEn: "Sprayers", labelHi: "स्प्रेयर", icon: "💦" },
-  { key: "threshers", labelEn: "Threshers", labelHi: "थ्रेशर", icon: "🌪️" },
-  { key: "trailers", labelEn: "Trailers", labelHi: "ट्रेलर व ट्रॉली", icon: "🚛" },
-  { key: "irrigation", labelEn: "Irrigation & Pumps", labelHi: "सिंचाई उपकरण", icon: "💧" },
-  { key: "other", labelEn: "Other Equipment", labelHi: "अन्य उपकरण", icon: "🔧" },
-];
-
-// Fallback static categories for Farm Inputs & Crop Care matching database
-const INPUT_CATEGORIES_STATIC: Array<{
-  slug: string;
-  name_en: string;
-  name_hi: string;
-  name_kn?: string;
-  icon: string;
-  product_count?: number;
-}> = [
-  { slug: "chemical_fertilizers", name_en: "Chemical Fertilizers", name_hi: "रासायनिक उर्वरक", name_kn: "ರಾಸಾಯನಿಕ ಗೊಬ್ಬರಗಳು", icon: "🧪" },
-  { slug: "organic_fertilizers", name_en: "Organic Fertilizers", name_hi: "जैविक खाद व कम्पोस्ट", name_kn: "ಸಾವಯವ ಗೊಬ್ಬರಗಳು", icon: "🌱" },
-  { slug: "biofertilizers", name_en: "Biofertilizers", name_hi: "जैव उर्वरक", name_kn: "ಜೈವಿಕ ಗೊಬ್ಬರಗಳು", icon: "🦠" },
-  { slug: "insecticides", name_en: "Insecticides", name_hi: "कीटनाशक (Insecticides)", name_kn: "ಕೀಟನಾಶಕಗಳು", icon: "🐛" },
-  { slug: "fungicides", name_en: "Fungicides", name_hi: "फफूंदनाशक (Fungicides)", name_kn: "ಶಿಲೀಂಧ್ರನಾಶಕಗಳು", icon: "🍄" },
-  { slug: "herbicides", name_en: "Herbicides", name_hi: "खरपतवारनाशक (Herbicides)", name_kn: "ಕಳೆನಾಶಕಗಳು", icon: "🌾" },
-  { slug: "micronutrients", name_en: "Micronutrients", name_hi: "सूक्ष्म पोषक तत्व", name_kn: "ಸೂಕ್ಷ್ಮ ಪೋಷಕಾಂಶಗಳು", icon: "✨" },
-  { slug: "plant_growth_regulators", name_en: "Plant Growth Regulators", name_hi: "पादप वृद्धि नियामक (PGR)", name_kn: "ಸಸ್ಯ ಬೆಳವಣಿಗೆ ನಿಯಂತ್ರಕಗಳು", icon: "🌿" },
-  { slug: "biological_crop_protection", name_en: "Biological Crop Protection", name_hi: "जैविक कीट व रोग नियंत्रण", name_kn: "ಜೈವಿಕ ಬೆಳೆ ಸಂರಕ್ಷಣೆ", icon: "🐞" },
-  { slug: "seeds", name_en: "Seeds", name_hi: "प्रमाणित बीज (Seeds)", name_kn: "ಪ್ರಮಾಣೀಕೃತ ಬೀಜಗಳು", icon: "🌰" },
-  { slug: "soil_conditioners", name_en: "Soil Conditioners", name_hi: "मृदा सुधारक", name_kn: "ಮಣ್ಣಿನ ಕಂಡಿಷನರ್‌ಗಳು", icon: "⛰️" },
+  { key: "all", labelEn: "All Equipment", labelHi: "सभी उपकरण" },
+  { key: "tractors", labelEn: "Tractors", labelHi: "ट्रैक्टर" },
+  { key: "harvesters", labelEn: "Harvesters", labelHi: "हार्वेस्टर" },
+  { key: "rotavators", labelEn: "Rotavators", labelHi: "रोटावेटर" },
+  { key: "seed_drills", labelEn: "Seed Drills", labelHi: "सीड ड्रिल" },
+  { key: "cultivators", labelEn: "Cultivators", labelHi: "कल्टीवेटर" },
+  { key: "ploughs", labelEn: "Ploughs", labelHi: "हल / प्लाउ" },
+  { key: "sprayers", labelEn: "Sprayers", labelHi: "स्प्रेयर" },
+  { key: "threshers", labelEn: "Threshers", labelHi: "थ्रेशर" },
+  { key: "trailers", labelEn: "Trailers", labelHi: "ट्रेलर व ट्रॉली" },
+  { key: "irrigation", labelEn: "Irrigation & Pumps", labelHi: "सिंचाई उपकरण" },
+  { key: "other", labelEn: "Other Equipment", labelHi: "अन्य उपकरण" },
 ];
 
 // Popular search suggestions for fast discovery
@@ -489,64 +460,9 @@ function getLocationScore(
 }
 
 export default function MarketplacePage() {
-  const searchParams = useSearchParams();
   const { lang } = useLanguage();
   const isHi = lang === "hi";
   const { openMenu } = useMobileMenu();
-  const [activeMarketTab, setActiveMarketTab] = useState<"inputs" | "machinery">("inputs");
-  const [selectedInputCategory, setSelectedInputCategory] = useState("all");
-  const [inputCategories, setInputCategories] = useState<AgriProductCategoryItem[]>([]);
-  const categoryNavRef = useRef<HTMLDivElement>(null);
-
-  const scrollCategoryNav = (distance: number) => {
-    if (categoryNavRef.current) {
-      categoryNavRef.current.scrollBy({ left: distance, behavior: "smooth" });
-    }
-  };
-
-  // Load input categories from authentic database API
-  useEffect(() => {
-    agriProductsApi
-      .listCategories()
-      .then((cats: AgriProductCategoryItem[]) => {
-        if (cats && cats.length > 0) {
-          setInputCategories(cats);
-        }
-      })
-      .catch((err: unknown) => {
-        console.warn("Failed to load input categories for nav:", err);
-      });
-  }, []);
-
-  const displayInputCategories = useMemo(() => {
-    if (inputCategories.length > 0) {
-      return inputCategories;
-    }
-    return INPUT_CATEGORIES_STATIC;
-  }, [inputCategories]);
-
-  // Sync tab and category from URL query params (e.g. from Crop Doctor or Soil Health)
-  useEffect(() => {
-    const tab = searchParams.get("tab");
-    const qCat = searchParams.get("category");
-
-    if (tab === "equipment" || tab === "machinery") {
-      setActiveMarketTab("machinery");
-    } else if (tab === "inputs" || searchParams.get("crop") || searchParams.get("disease") || searchParams.get("deficiency")) {
-      setActiveMarketTab("inputs");
-    }
-
-    if (qCat) {
-      const isMachineryCat = CATEGORIES.some((c) => c.key === qCat);
-      if (isMachineryCat) {
-        setSelectedCategory(qCat);
-        setActiveMarketTab("machinery");
-      } else {
-        setSelectedInputCategory(qCat);
-        setActiveMarketTab("inputs");
-      }
-    }
-  }, [searchParams]);
   const cmpDict = useMemo(() => getPriceComparisonI18n(lang), [lang]);
 
   // Data states
@@ -1678,194 +1594,33 @@ export default function MarketplacePage() {
           </div>
         </div>
       </header>
-      {/* ─── TOP LEVEL MARKET SEGMENT SWITCHER (Inputs & Crop Care vs Farm Machinery) ─── */}
-      <div className="w-full bg-stone-100/90 dark:bg-stone-900/90 border-b border-stone-200 dark:border-stone-800">
-        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-2.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 p-1 bg-stone-200/70 dark:bg-stone-800 rounded-xl">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveMarketTab("inputs");
-                categoryNavRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-              }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                activeMarketTab === "inputs"
-                  ? "bg-emerald-700 text-white shadow-xs"
-                  : "text-stone-700 dark:text-stone-300 hover:text-emerald-700"
-              }`}
-            >
-              <span>🌱</span>
-              <span>{isHi ? "खाद, दवा व बीज (Farm Inputs)" : "Farm Inputs & Crop Care"}</span>
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                  activeMarketTab === "inputs"
-                    ? "bg-white/25 text-white"
-                    : "bg-stone-300 dark:bg-stone-700 text-stone-600 dark:text-stone-300"
-                }`}
-              >
-                11 Categories
-              </span>
-            </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setActiveMarketTab("machinery");
-                categoryNavRef.current?.scrollTo({ left: 0, behavior: "smooth" });
-              }}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-all flex items-center gap-2 cursor-pointer ${
-                activeMarketTab === "machinery"
-                  ? "bg-emerald-700 text-white shadow-xs"
-                  : "text-stone-700 dark:text-stone-300 hover:text-emerald-700"
-              }`}
-            >
-              <span>🚜</span>
-              <span>{isHi ? "कृषि यंत्र व ट्रैक्टर (Machinery)" : "Farm Machinery & Implements"}</span>
-            </button>
-          </div>
-
-          {activeMarketTab === "inputs" && (
-            <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 hidden md:inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>CIBRC & FCO Verified Authentic Sourcing</span>
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* ─── DEDICATED MARKETPLACE CATEGORY NAVIGATION BAR (Inputs & Machinery) ─── */}
+      {/* ─── 2. CATEGORY NAVIGATION: COMPACT SINGLE-ROW HORIZONTAL BAR ──────── */}
       <nav
-        aria-label="Marketplace Categories"
-        className="sticky top-0 sm:top-14 z-20 w-full bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 shadow-xs"
+        aria-label="Machinery Categories"
+        className="w-full max-w-none bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 overflow-x-auto scrollbar-none"
       >
-        <div className="relative w-full max-w-none flex items-center">
-          {/* Left Scroll Arrow */}
-          <button
-            type="button"
-            onClick={() => scrollCategoryNav(-240)}
-            className="hidden sm:flex absolute left-0 top-0 bottom-0 z-10 w-9 items-center justify-center bg-gradient-to-r from-white via-white/95 to-transparent dark:from-stone-900 dark:via-stone-900/95 dark:to-transparent text-stone-600 hover:text-emerald-700 dark:text-stone-300 cursor-pointer"
-            aria-label="Scroll categories left"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          {/* Scrollable Categories List */}
-          <div
-            ref={categoryNavRef}
-            className="w-full flex items-center gap-1.5 sm:gap-2 px-3 sm:px-9 py-2 overflow-x-auto scroll-smooth scrollbar-none whitespace-nowrap"
-          >
-            {activeMarketTab === "inputs" ? (
-              // ─── FARM INPUTS & CROP CARE (All Products + 11 Dedicated Categories) ───
-              <>
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap py-1.5">
+            {CATEGORIES.map((cat) => {
+              const isSelected = selectedCategory === cat.key;
+              return (
                 <button
-                  type="button"
-                  onClick={() => setSelectedInputCategory("all")}
-                  className={`px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                    selectedInputCategory === "all"
-                      ? "bg-emerald-700 text-white shadow-xs ring-2 ring-emerald-700/20"
-                      : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-white"
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                    isSelected
+                      ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60"
+                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800"
                   }`}
                 >
-                  <span>📦</span>
-                  <span>{isHi ? "सभी उत्पाद (All Inputs)" : lang === "kn" ? "ಎಲ್ಲಾ ಉತ್ಪನ್ನಗಳು" : "All Products"}</span>
+                  {isHi ? cat.labelHi : cat.labelEn}
                 </button>
-
-                {displayInputCategories.map((cat) => {
-                  const isSelected = selectedInputCategory === cat.slug;
-                  const displayName =
-                    lang === "hi"
-                      ? cat.name_hi
-                      : lang === "kn" && cat.name_kn
-                      ? cat.name_kn
-                      : cat.name_en;
-
-                  return (
-                    <button
-                      key={cat.slug}
-                      type="button"
-                      onClick={() => setSelectedInputCategory(cat.slug)}
-                      className={`px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                        isSelected
-                          ? "bg-emerald-700 text-white shadow-xs ring-2 ring-emerald-700/20"
-                          : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-white"
-                      }`}
-                    >
-                      <span className="text-sm">{cat.icon}</span>
-                      <span>{displayName}</span>
-                      {cat.product_count !== undefined && cat.product_count > 0 && (
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                            isSelected
-                              ? "bg-white/25 text-white"
-                              : "bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300"
-                          }`}
-                        >
-                          {cat.product_count}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </>
-            ) : (
-              // ─── FARM MACHINERY & IMPLEMENTS (All Equipment + 11 Machinery Categories) ───
-              CATEGORIES.map((cat) => {
-                const isSelected = selectedCategory === cat.key;
-                const displayName = isHi ? cat.labelHi : cat.labelEn;
-
-                return (
-                  <button
-                    key={cat.key}
-                    type="button"
-                    onClick={() => setSelectedCategory(cat.key)}
-                    className={`px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                      isSelected
-                        ? "bg-emerald-700 text-white shadow-xs ring-2 ring-emerald-700/20"
-                        : "bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-white"
-                    }`}
-                  >
-                    <span className="text-sm">{cat.icon || "🚜"}</span>
-                    <span>{displayName}</span>
-                  </button>
-                );
-              })
-            )}
+              );
+            })}
           </div>
-
-          {/* Right Scroll Arrow */}
-          <button
-            type="button"
-            onClick={() => scrollCategoryNav(240)}
-            className="hidden sm:flex absolute right-0 top-0 bottom-0 z-10 w-9 items-center justify-center bg-gradient-to-l from-white via-white/95 to-transparent dark:from-stone-900 dark:via-stone-900/95 dark:to-transparent text-stone-600 hover:text-emerald-700 dark:text-stone-300 cursor-pointer"
-            aria-label="Scroll categories right"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
         </div>
       </nav>
-
-      {activeMarketTab === "inputs" ? (
-        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-5 lg:py-6">
-          <AgriInputsHub
-            selectedCategory={selectedInputCategory}
-            onSelectCategory={setSelectedInputCategory}
-            onContactProduct={(prod) => {
-              setContactTarget({
-                name: prod.seller_name,
-                phone: prod.seller_phone,
-                title: prod.name,
-                location: `${prod.district}, ${prod.state}`,
-                sourceType: "listing",
-                brand: prod.brand,
-                modelName: prod.pack_size,
-                officialSourceUrl: prod.official_source_url,
-              });
-              setShowContactModal(true);
-            }}
-          />
-        </div>
-      ) : (
-        <>
 
       {/* ─── 3. MAIN CONTENT: SIDEBAR + PRODUCT GRID ────────────────────────── */}
       <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-5 lg:py-6">
@@ -3171,10 +2926,7 @@ export default function MarketplacePage() {
       )}
 
       {/* ─── 6. AUTHENTIC SELLER CONTACT & ENQUIRY MODAL ───────────────────────── */}
-      
-        </>
-      )}
-{showContactModal && contactTarget && (
+      {showContactModal && contactTarget && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white dark:bg-stone-900 w-full max-w-md rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
