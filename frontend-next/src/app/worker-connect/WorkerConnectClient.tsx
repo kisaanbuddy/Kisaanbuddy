@@ -518,12 +518,12 @@ export default function WorkerConnectClient() {
           {/* Right Column: Exact Farmer & Tractor Artwork + Post a Farm Job Button */}
           <div className="flex items-center justify-between md:justify-end gap-5 z-10">
             {/* Cropped Farmers & Tractor Artwork from user's reference image */}
-            <div className="relative shrink-0">
+            <div className="relative h-18 sm:h-20 w-44 sm:w-64 rounded-2xl overflow-hidden shadow-xs border border-emerald-300/80 dark:border-emerald-700/60 shrink-0 bg-emerald-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/agrilabour-hero-farmers.png"
-                alt="Indian Farmers with Tractor"
-                className="h-16 sm:h-20 w-auto object-contain select-none drop-shadow-sm"
+                src="/images/hero-real-farmer-field.webp"
+                alt="Real Indian Farmer in Agricultural Field"
+                className="w-full h-full object-cover object-center select-none"
               />
             </div>
 
@@ -534,7 +534,7 @@ export default function WorkerConnectClient() {
               className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-2xl bg-[#0f5132] hover:bg-[#0c4128] text-white font-extrabold text-xs sm:text-sm shadow-sm hover:shadow transition-all duration-150 cursor-pointer shrink-0"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
-              <span>+ Post a Farm Job</span>
+              <span>Post a Farm Job</span>
             </button>
           </div>
 
@@ -583,7 +583,7 @@ export default function WorkerConnectClient() {
             }`}
           >
             <Plus className="w-4 h-4" />
-            <span>+ Post a Farm Job</span>
+            <span>Post a Farm Job</span>
           </button>
 
           <button
