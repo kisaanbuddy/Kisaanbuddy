@@ -47,6 +47,12 @@ import {
   DealerDiscoveryItem,
 } from "@/lib/farmer-api";
 import { useLanguage } from "@/lib/language";
+import {
+  getPriceComparisonI18n,
+  formatPriceUnit,
+  formatCategory,
+  formatCondition,
+} from "@/lib/marketplace-i18n";
 
 // Clean telephone number for tel: protocol
 function cleanPhoneForTel(phone?: string | null): string {
@@ -454,6 +460,7 @@ function getLocationScore(
 export default function MarketplacePage() {
   const { lang } = useLanguage();
   const isHi = lang === "hi";
+  const cmpDict = useMemo(() => getPriceComparisonI18n(lang), [lang]);
 
   // Data states
   const [catalogItems, setCatalogItems] = useState<EquipmentCatalogItem[]>([]);
@@ -544,6 +551,7 @@ export default function MarketplacePage() {
   const [compareProduct, setCompareProduct] = useState<UnifiedProduct | null>(null);
   const [compareLoading, setCompareLoading] = useState(false);
   const [compareData, setCompareData] = useState<PriceComparisonResponse | null>(null);
+  const [compareError, setCompareError] = useState<string | null>(null);
 
   // Dealer & Custom Hiring Center (CHC) Discovery State
   const [showDealersModal, setShowDealersModal] = useState(false);
@@ -1245,6 +1253,7 @@ export default function MarketplacePage() {
     setShowCompareModal(true);
     setCompareLoading(true);
     setCompareData(null);
+    setCompareError(null);
     try {
       const res = await priceComparisonApi.compare({
         category: product.category,
@@ -1256,8 +1265,9 @@ export default function MarketplacePage() {
         target_id: product.id,
       });
       setCompareData(res);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to load price comparison:", err);
+      setCompareError(err?.message || "Failed to load price comparison");
     } finally {
       setCompareLoading(false);
     }
@@ -2348,10 +2358,10 @@ export default function MarketplacePage() {
                             openPriceComparison(product);
                           }}
                           className="py-1.5 px-2 rounded-lg border border-emerald-700/30 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium text-xs hover:bg-emerald-100 transition flex items-center gap-1"
-                          title="Compare Prices against verified offers"
+                          title={cmpDict.compareTooltip}
                         >
                           <Scale className="w-3 h-3" />
-                          <span>Compare</span>
+                          <span>{cmpDict.compareBtn}</span>
                         </button>
                         <button
                           type="button"
@@ -2454,10 +2464,10 @@ export default function MarketplacePage() {
                               openPriceComparison(product);
                             }}
                             className="py-1.5 px-2.5 rounded-lg border border-emerald-700/30 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium text-xs hover:bg-emerald-100 transition flex items-center gap-1"
-                            title="Compare Prices"
+                            title={cmpDict.compareTooltip}
                           >
                             <Scale className="w-3 h-3" />
-                            <span>Compare</span>
+                            <span>{cmpDict.compareBtn}</span>
                           </button>
                           <button
                             type="button"
@@ -2845,10 +2855,10 @@ export default function MarketplacePage() {
                   <button
                     onClick={() => openPriceComparison(selectedProduct)}
                     className="py-2.5 px-3 rounded-lg border border-emerald-700/40 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-semibold text-xs transition flex items-center justify-center gap-1.5"
-                    title="Compare Prices against authentic marketplace offers"
+                    title={cmpDict.compareTooltip}
                   >
                     <Scale className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
-                    <span>Compare Prices</span>
+                    <span>{cmpDict.comparePricesBtn}</span>
                   </button>
 
                   {isValidWebUrl(selectedProduct.officialSourceUrl) ? (
@@ -3236,9 +3246,17 @@ export default function MarketplacePage() {
             <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
               <div className="flex items-center gap-2">
                 <Scale className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-                <h3 className="text-sm font-bold text-stone-900 dark:text-white">Smart Price Comparison</h3>
+                <h3 className="text-sm font-bold text-stone-900 dark:text-white">
+                  {cmpDict.modalTitle}
+                </h3>
               </div>
-              <button onClick={() => setShowCompareModal(false)} className="p-1 text-stone-400 hover:text-stone-600">
+              <button
+                type="button"
+                onClick={() => setShowCompareModal(false)}
+                className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition"
+                aria-label={cmpDict.closeAriaLabel}
+                title={cmpDict.closeAriaLabel}
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -3246,18 +3264,22 @@ export default function MarketplacePage() {
             {/* Selected Product Context */}
             <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 text-xs border border-stone-200 dark:border-stone-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
-                <span className="text-[10px] text-stone-400 uppercase font-bold block">Current Selection</span>
+                <span className="text-[10px] text-stone-400 uppercase font-bold block">
+                  {cmpDict.currentSelection}
+                </span>
                 <span className="font-bold text-stone-900 dark:text-white text-sm">{compareProduct.title}</span>
                 <span className="text-[11px] text-stone-500 block">
-                  {compareProduct.brand} • {compareProduct.category.replace("_", " ")} {compareProduct.hpRating ? `• ${compareProduct.hpRating} HP` : ""}
+                  {compareProduct.brand} • {formatCategory(compareProduct.category, cmpDict)} {compareProduct.hpRating ? `• ${compareProduct.hpRating} HP` : ""}
                 </span>
               </div>
               <div className="text-right shrink-0">
-                <span className="text-xs text-stone-400 block">Listed Rate</span>
+                <span className="text-xs text-stone-400 block">
+                  {cmpDict.listedRate}
+                </span>
                 <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">
                   {compareProduct.price != null
-                    ? `₹${compareProduct.price.toLocaleString("en-IN")} /${(compareProduct.priceUnit || "day").replace("per ", "")}`
-                    : "Indicative Spec"}
+                    ? `₹${compareProduct.price.toLocaleString("en-IN")} /${formatPriceUnit(compareProduct.priceUnit, cmpDict)}`
+                    : cmpDict.indicativeSpec}
                 </span>
               </div>
             </div>
@@ -3265,25 +3287,47 @@ export default function MarketplacePage() {
             {compareLoading ? (
               <div className="py-12 flex flex-col items-center justify-center text-center space-y-2">
                 <Loader2 className="w-6 h-6 animate-spin text-emerald-700" />
-                <span className="text-xs text-stone-500">Querying genuine marketplace comparison database...</span>
+                <span className="text-xs text-stone-500">
+                  {cmpDict.queryingDatabase}
+                </span>
+              </div>
+            ) : compareError ? (
+              <div className="p-6 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-center space-y-2.5">
+                <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
+                <h4 className="text-sm font-bold text-stone-900 dark:text-white">{cmpDict.errorTitle}</h4>
+                <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
+                  {cmpDict.errorDesc}
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => openPriceComparison(compareProduct)}
+                    className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
+                  >
+                    {cmpDict.retryBtn}
+                  </button>
+                </div>
               </div>
             ) : compareData && !compareData.is_sufficient ? (
               /* Insufficient comparison data state */
               <div className="p-6 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-center space-y-2.5">
                 <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
-                <h4 className="text-sm font-bold text-stone-900 dark:text-white">Comparison Data Insufficient</h4>
+                <h4 className="text-sm font-bold text-stone-900 dark:text-white">
+                  {cmpDict.insufficientDataTitle}
+                </h4>
                 <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
-                  Only 1 verified listing currently exists for this exact specification and pricing basis in our database. KisaanBuddy strictly uses genuine marketplace data and does not simulate artificial competitor prices.
+                  {cmpDict.insufficientDataDesc}
                 </p>
                 <div className="pt-2">
                   <button
+                    type="button"
                     onClick={() => {
                       setShowCompareModal(false);
                       openContact(compareProduct);
                     }}
                     className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
                   >
-                    Contact Current Seller Directly
+                    {cmpDict.contactCurrentSeller}
                   </button>
                 </div>
               </div>
@@ -3294,19 +3338,19 @@ export default function MarketplacePage() {
                   {compareData.lowest_offer && (
                     <div className="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-1">
                       <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
-                        <span>🏷️ Lowest Listed Price</span>
+                        <span>🏷️ {cmpDict.lowestListedPrice}</span>
                       </span>
                       <p className="text-lg font-bold text-stone-900 dark:text-white">
                         ₹{compareData.lowest_offer.price.toLocaleString("en-IN")}{" "}
                         <span className="text-xs font-normal text-stone-500">
-                          /{compareData.lowest_offer.price_unit.replace("per ", "")}
+                          /{formatPriceUnit(compareData.lowest_offer.price_unit, cmpDict)}
                         </span>
                       </p>
                       <p className="text-[11px] font-semibold text-stone-800 dark:text-stone-200">
                         {compareData.lowest_offer.title}
                       </p>
                       <p className="text-[10px] text-stone-500">
-                        📍 {compareData.lowest_offer.seller_location} • Seller: {compareData.lowest_offer.seller_name}
+                        📍 {compareData.lowest_offer.seller_location} • {cmpDict.sellerLabel} {compareData.lowest_offer.seller_name}
                       </p>
                     </div>
                   )}
@@ -3314,19 +3358,27 @@ export default function MarketplacePage() {
                   {compareData.best_value_offer && (
                     <div className="p-3.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 space-y-1">
                       <span className="text-[10px] font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wide flex items-center gap-1">
-                        <span>⭐ Best Value Analysis</span>
+                        <span>⭐ {cmpDict.bestValueAnalysis}</span>
                       </span>
                       <p className="text-lg font-bold text-stone-900 dark:text-white">
                         ₹{compareData.best_value_offer.price.toLocaleString("en-IN")}{" "}
                         <span className="text-xs font-normal text-stone-500">
-                          /{compareData.best_value_offer.price_unit.replace("per ", "")}
+                          /{formatPriceUnit(compareData.best_value_offer.price_unit, cmpDict)}
                         </span>
                       </p>
                       <p className="text-[11px] font-semibold text-stone-800 dark:text-stone-200">
                         {compareData.best_value_offer.title}
                       </p>
                       <p className="text-[10px] text-blue-800 dark:text-blue-300 font-medium">
-                        {compareData.best_value_reason}
+                        {compareData.best_value_offer.includes_operator
+                          ? cmpDict.bestValueOperatorReason
+                              .replace("{price}", Math.round(compareData.best_value_offer.price).toLocaleString("en-IN"))
+                              .replace("{unit}", formatPriceUnit(compareData.best_value_offer.price_unit, cmpDict))
+                              .replace("{location}", compareData.best_value_offer.seller_location)
+                          : cmpDict.lowestRateReason
+                              .replace("{price}", Math.round(compareData.best_value_offer.price).toLocaleString("en-IN"))
+                              .replace("{unit}", formatPriceUnit(compareData.best_value_offer.price_unit, cmpDict))
+                              .replace("{location}", compareData.best_value_offer.seller_location)}
                       </p>
                     </div>
                   )}
@@ -3336,10 +3388,10 @@ export default function MarketplacePage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-stone-800 dark:text-stone-200 uppercase tracking-wider">
-                      Genuine Comparable Offers ({compareData.comparable_offers.length})
+                      {cmpDict.comparableOffersTitle} ({compareData.comparable_offers.length})
                     </span>
                     <span className="text-[10px] text-stone-400">
-                      Sorted by verified price
+                      {cmpDict.sortedByVerifiedPrice}
                     </span>
                   </div>
 
@@ -3355,24 +3407,24 @@ export default function MarketplacePage() {
                             <span
                               className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
                                 offer.match_type === "exact_model"
-                                  ? "bg-emerald-100 text-emerald-800"
-                                  : "bg-stone-100 text-stone-600"
+                                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300"
+                                  : "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300"
                               }`}
                             >
-                              {offer.match_type === "exact_model" ? "Exact Model" : "Spec Alternative"}
+                              {offer.match_type === "exact_model" ? cmpDict.exactModel : cmpDict.specAlternative}
                             </span>
                             {offer.includes_operator && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 font-bold">
-                                Operator Included
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 font-bold">
+                                {cmpDict.operatorIncluded}
                               </span>
                             )}
                           </div>
                           <p className="text-[11px] text-stone-500">
-                            {offer.condition.toUpperCase()} • {offer.hp_rating ? `${offer.hp_rating} HP • ` : ""}
+                            {formatCondition(offer.condition, cmpDict)} • {offer.hp_rating ? `${offer.hp_rating} HP • ` : ""}
                             📍 {offer.seller_location} ({offer.seller_name})
                           </p>
                           <p className="text-[10px] text-stone-400">
-                            Warranty: {offer.warranty_info} • Delivery: {offer.delivery_info}
+                            {cmpDict.warrantyLabel} {offer.source_type === "catalog" ? cmpDict.warrantyCatalog : cmpDict.warrantyListing} • {cmpDict.deliveryLabel} {offer.source_type === "catalog" ? cmpDict.deliveryCatalog : cmpDict.deliveryListing}
                           </p>
                         </div>
 
@@ -3382,10 +3434,11 @@ export default function MarketplacePage() {
                               ₹{offer.price.toLocaleString("en-IN")}
                             </span>
                             <span className="text-[10px] text-stone-500 block">
-                              /{offer.price_unit.replace("per ", "")}
+                              /{formatPriceUnit(offer.price_unit, cmpDict)}
                             </span>
                           </div>
                           <button
+                            type="button"
                             onClick={() => {
                               setShowCompareModal(false);
                               const matched = unifiedProducts.find((p) => p.id === offer.id);
@@ -3393,7 +3446,7 @@ export default function MarketplacePage() {
                             }}
                             className="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition"
                           >
-                            Contact
+                            {cmpDict.contactBtn}
                           </button>
                         </div>
                       </div>
