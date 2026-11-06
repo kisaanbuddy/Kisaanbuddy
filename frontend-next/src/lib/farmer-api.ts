@@ -295,11 +295,16 @@ export type BuyerRequirementItem = {
   buyer_phone_masked?: string | null;
   buyer_location_state: string;
   buyer_location_district: string;
+  state?: string;
+  district?: string;
   delivery_destination?: string | null;
   quality_specifications?: string | null;
   max_moisture_pct?: number | null;
   target_procurement_date?: string | null;
   offer_expiry_date: string;
+  contact_person?: string | null;
+  contact_phone?: string | null;
+  contact_phone_masked?: string | null;
   verification_status: string;
   is_verified: boolean;
   source: string;
@@ -319,6 +324,7 @@ export type GovernmentProcurementItem = {
   state: string;
   district: string;
   procurement_centre_name: string;
+  procurement_center?: string;
   nodal_agency: string;
   msp_rate_per_quintal: number;
   bonus_rate_per_quintal?: number | null;
@@ -327,6 +333,7 @@ export type GovernmentProcurementItem = {
   end_date?: string | null;
   registration_portal_name?: string | null;
   registration_portal_url?: string | null;
+  official_portal_url?: string | null;
   eligibility_criteria?: string | null;
   faq_specs?: string | null;
   official_guidelines_url?: string | null;
@@ -843,6 +850,230 @@ export const marketPricesApi = {
 };
 
 // ─── Registered External Sources API ──────────────────────────────────────────
+
+// ─── Smart Mandi Price Alerts & Notification Engine API ───────────────────────
+
+export interface PriceAlertItem {
+  id: number;
+  crop_name: string;
+  variety?: string | null;
+  market_center?: string | null;
+  state?: string | null;
+  district?: string | null;
+  target_price: number;
+  condition: "above" | "below" | "exact";
+  channel: "whatsapp" | "sms" | "both";
+  phone_masked: string;
+  whatsapp_consent: boolean;
+  sms_consent: boolean;
+  is_active: boolean;
+  last_checked_at?: string | null;
+  last_triggered_at?: string | null;
+  last_triggered_price?: number | null;
+  trigger_count: number;
+  created_at: string;
+}
+
+export interface NotificationLogItem {
+  id: number;
+  alert_id?: number | null;
+  crop_name: string;
+  mandi_name?: string | null;
+  channel: "whatsapp" | "sms";
+  triggered_price: number;
+  target_price: number;
+  arrival_date?: string | null;
+  provider: string;
+  provider_message_id?: string | null;
+  delivery_status: "pending" | "sent" | "delivered" | "failed" | "pending_credentials";
+  failure_reason?: string | null;
+  sent_at?: string | null;
+  delivered_at?: string | null;
+  created_at: string;
+}
+
+export interface MandiRealizationItem {
+  mandi_name: string;
+  state: string;
+  district?: string | null;
+  modal_price: number;
+  min_price: number;
+  max_price: number;
+  arrival_date?: string | null;
+  est_distance_km: number;
+  gross_revenue: number;
+  transport_cost: number;
+  apmc_cess: number;
+  labor_and_weighment: number;
+  total_deductions: number;
+  net_realization: number;
+  net_realization_per_qtl: number;
+  source_name: string;
+  source_url?: string | null;
+}
+
+export interface MandiRealizationResponse {
+  crop: string;
+  quantity_quintals: number;
+  transport_rate_per_km: number;
+  apmc_cess_pct: number;
+  labor_rate_per_qtl: number;
+  total_mandis_compared: number;
+  best_mandi?: MandiRealizationItem | null;
+  comparisons: MandiRealizationItem[];
+  disclaimer: string;
+}
+
+export interface MandiSaleRecordItem {
+  id: number;
+  sale_date: string;
+  farmer_name: string;
+  mandi_name: string;
+  buyer_name: string;
+  commodity: string;
+  variety?: string | null;
+  quantity_quintals: number;
+  rate_per_quintal: number;
+  gross_amount: number;
+  weighment_charges: number;
+  mandi_cess: number;
+  labor_charges: number;
+  transport_charges: number;
+  other_deductions: number;
+  total_deductions: number;
+  net_amount: number;
+  amount_received: number;
+  pending_amount: number;
+  payment_mode: string;
+  payment_status: "paid" | "partial" | "pending";
+  notes?: string | null;
+  created_at: string;
+}
+
+export interface MandiNotificationProviderStatus {
+  whatsapp: {
+    configured: boolean;
+    provider: string;
+    phone_number_id_set: boolean;
+    template_name: string;
+    status: "active" | "pending_credentials";
+    required_env: string[];
+  };
+  sms: {
+    configured: boolean;
+    provider: string;
+    sender_id: string;
+    dlt_template_id_set: boolean;
+    status: "active" | "pending_credentials";
+    required_env: string[];
+  };
+  environment: string;
+  disclaimer: string;
+}
+
+export interface MandiMonitoringTelemetry {
+  status: string;
+  active_alerts_checked: number;
+  alerts_triggered: number;
+  notifications_queued: number;
+  whatsapp_sent: number;
+  sms_sent: number;
+  skipped_duplicate: number;
+  errors: number;
+}
+
+export const mandiAlertsApi = {
+  create: (data: {
+    crop_name: string;
+    variety?: string;
+    market_center?: string;
+    state?: string;
+    district?: string;
+    target_price: number;
+    condition: "above" | "below" | "exact";
+    channel: "whatsapp" | "sms" | "both";
+    whatsapp_consent: boolean;
+    sms_consent: boolean;
+    phone_number?: string;
+    farmer_name?: string;
+  }) => apiPost<{ success: boolean; message: string; alert: PriceAlertItem }>(`/api/mandi/alerts`, data),
+
+  list: (phone?: string) =>
+    apiGet<{ alerts: PriceAlertItem[]; count: number }>(`/api/mandi/alerts${phone ? `?phone=${phone}` : ""}`),
+
+  toggle: (id: number) =>
+    apiPatch<{ id: number; is_active: boolean; status: string }>(`/api/mandi/alerts/${id}/toggle`, {}),
+
+  delete: (id: number) =>
+    apiDelete(`/api/mandi/alerts/${id}`),
+
+  getHistory: (phone?: string) =>
+    apiGet<{ history: NotificationLogItem[]; count: number }>(`/api/mandi/alerts/history${phone ? `?phone=${phone}` : ""}`),
+
+  getProviderStatus: () =>
+    apiGet<MandiNotificationProviderStatus>(`/api/mandi/alerts/provider-status`),
+
+  triggerRunCheck: () =>
+    apiPost<{ status: string; telemetry: MandiMonitoringTelemetry }>(`/api/mandi/alerts/run-check`, {}),
+};
+
+export const mandiRealizationApi = {
+  compare: (data: {
+    crop: string;
+    variety?: string;
+    quantity_quintals: number;
+    farmer_state?: string;
+    farmer_district?: string;
+    transport_rate_per_km?: number;
+    apmc_cess_pct?: number;
+    labor_rate_per_qtl?: number;
+  }) => apiPost<MandiRealizationResponse>(`/api/mandi/realization-compare`, data),
+};
+
+export const mandiBuyersApi = {
+  list: (params?: { commodity?: string; state?: string; district?: string }) => {
+    const q = new URLSearchParams();
+    if (params?.commodity) q.set("commodity", params.commodity);
+    if (params?.state) q.set("state", params.state);
+    if (params?.district) q.set("district", params.district);
+    const qs = q.toString();
+    return apiGet<{ buyers: BuyerRequirementItem[]; count: number; available: boolean; unavailable_message?: string }>(
+      `/api/mandi/buyers${qs ? `?${qs}` : ""}`
+    );
+  },
+};
+
+export const mandiSalesLedgerApi = {
+  list: (phone?: string) =>
+    apiGet<{ sales: MandiSaleRecordItem[]; count: number; summary: { total_sales_value: number; total_received: number; total_pending: number } }>(
+      `/api/mandi/sales${phone ? `?phone=${phone}` : ""}`
+    ),
+
+  create: (data: {
+    sale_date: string;
+    mandi_name: string;
+    buyer_name: string;
+    commodity: string;
+    variety?: string;
+    quantity_quintals: number;
+    rate_per_quintal: number;
+    weighment_charges?: number;
+    mandi_cess?: number;
+    labor_charges?: number;
+    transport_charges?: number;
+    other_deductions?: number;
+    amount_received?: number;
+    payment_mode?: string;
+    notes?: string;
+  }) => apiPost<{ success: boolean; message: string; sale_id: number; net_amount: number; pending_amount: number; payment_status: string }>(
+    `/api/mandi/sales`,
+    data
+  ),
+
+  delete: (id: number) =>
+    apiDelete(`/api/mandi/sales/${id}`),
+};
+
 export const marketplaceSourcesApi = {
   list: () => apiGet<ImportSourceItem[]>(`/api/marketplace/sources`),
 };

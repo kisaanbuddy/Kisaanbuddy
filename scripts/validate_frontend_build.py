@@ -4,6 +4,7 @@ import re
 files_to_validate = [
     'frontend-next/src/app/soil-health/SoilHealthClient.tsx',
     'frontend-next/src/app/disease/DiseaseClient.tsx',
+    'frontend-next/src/app/mandi/MandiClient.tsx',
     'frontend-next/src/app/marketplace/page.tsx',
     'frontend-next/src/app/layout.tsx',
     'frontend-next/src/components/announcement/AnnouncementPopup.tsx',

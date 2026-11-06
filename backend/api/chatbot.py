@@ -235,48 +235,63 @@ def _fallback_reply(msg: str) -> str:
     mandi_keywords = ("mandi", "price", "rate", "bhav", "भाव", "मंडी", "दाम", "रेट", "कीमत", "बेचना", "sell", "buy", "खरीद")
     if any(x in m for x in mandi_keywords):
         try:
-            from api.mandi import MANDI_CROPS_DB
-            # Try to find a specific crop
-            matched = []
-            crop_names_map = {
-                "wheat": "Wheat", "गेहूं": "Wheat", "gehun": "Wheat",
-                "rice": "Rice", "चावल": "Rice", "chawal": "Rice", "paddy": "Rice", "धान": "Rice",
-                "soybean": "Soybean", "सोयाबीन": "Soybean",
-                "cotton": "Cotton", "कपास": "Cotton", "kapas": "Cotton",
-                "mustard": "Mustard", "सरसों": "Mustard", "sarson": "Mustard",
-                "chana": "Chana", "चना": "Chana", "gram": "Chana",
-                "tur": "Tur", "arhar": "Tur", "तूर": "Tur", "अरहर": "Tur", "dal": "Tur", "दाल": "Tur",
-                "onion": "Onion", "प्याज": "Onion", "pyaj": "Onion",
-                "potato": "Potato", "आलू": "Potato", "aloo": "Potato",
-                "sugarcane": "Sugarcane", "गन्ना": "Sugarcane", "ganna": "Sugarcane",
-                "maize": "Maize", "मक्का": "Maize", "makka": "Maize",
-                "groundnut": "Groundnut", "मूंगफली": "Groundnut", "moongfali": "Groundnut",
-            }
-            for keyword, crop_key in crop_names_map.items():
-                if keyword in m:
-                    matched = [c for c in MANDI_CROPS_DB if crop_key.lower() in c["name"].lower()]
-                    break
+            from db.session import SessionLocal
+            from db.models import MarketPriceRecord
+            from sqlalchemy import desc
 
-            if matched:
-                crop = matched[0]
-                trend_emoji = "📈" if crop["trend"] == "up" else "📉" if crop["trend"] == "down" else "➡️"
-                return (
-                    f"🌾 **{crop['name']}** — मंडी भाव\n\n"
-                    f"💰 मॉडल प्राइस: **₹{crop['price']:,}** / {crop['unit']}\n"
-                    f"📊 रेंज: ₹{crop['min_price']:,} — ₹{crop['max_price']:,}\n"
-                    f"{trend_emoji} ट्रेंड: {crop['trend']} ({'+' if crop['change_percent'] > 0 else ''}{crop['change_percent']}%)\n"
-                    f"📍 मंडी: {crop['mandi']}, {crop['state']}\n"
-                    f"🚛 आवक: {crop['arrival_tonnes']:,} टन\n\n"
-                    f"💡 सुझाव: बेचने से पहले enam.gov.in पर लाइव भाव जरूर चेक करें।"
+            with SessionLocal() as db:
+                crop_names_map = {
+                    "wheat": "Wheat", "गेहूं": "Wheat", "gehun": "Wheat",
+                    "rice": "Rice", "चावल": "Rice", "chawal": "Rice", "paddy": "Rice", "धान": "Rice",
+                    "soybean": "Soybean", "सोयाबीन": "Soybean",
+                    "cotton": "Cotton", "कपास": "Cotton", "kapas": "Cotton",
+                    "mustard": "Mustard", "सरसों": "Mustard", "sarson": "Mustard",
+                    "chana": "Chana", "चना": "Chana", "gram": "Chana",
+                    "tur": "Tur", "arhar": "Tur", "तूर": "Tur", "अरहर": "Tur", "dal": "Tur", "दाल": "Tur",
+                    "onion": "Onion", "प्याज": "Onion", "pyaj": "Onion",
+                    "potato": "Potato", "आलू": "Potato", "aloo": "Potato",
+                    "sugarcane": "Sugarcane", "गन्ना": "Sugarcane", "ganna": "Sugarcane",
+                    "maize": "Maize", "मक्का": "Maize", "makka": "Maize",
+                    "groundnut": "Groundnut", "मूंगफली": "Groundnut", "moongfali": "Groundnut",
+                }
+
+                target_crop = None
+                for keyword, crop_key in crop_names_map.items():
+                    if keyword in m:
+                        target_crop = crop_key
+                        break
+
+                if target_crop:
+                    rec = (
+                        db.query(MarketPriceRecord)
+                        .filter(MarketPriceRecord.commodity.ilike(f"%{target_crop}%"))
+                        .order_by(desc(MarketPriceRecord.arrival_date))
+                        .first()
+                    )
+                    if rec:
+                        date_str = rec.arrival_date.isoformat() if rec.arrival_date else "हाल ही में"
+                        return (
+                            f"🌾 **{rec.commodity} ({rec.variety or 'FAQ'})** — आधिकारिक मंडी भाव\n\n"
+                            f"💰 मॉडल प्राइस: **₹{int(rec.modal_price):,}** / क्विंटल\n"
+                            f"📊 मूल्य रेंज: ₹{int(rec.min_price):,} — ₹{int(rec.max_price):,}\n"
+                            f"📍 मंडी केंद्र: {rec.market_center}, {rec.district or ''} ({rec.state})\n"
+                            f"📅 रिपोर्टिंग तिथि: {date_str}\n"
+                            f"🏛️ स्रोत: {rec.source_name}\n\n"
+                            f"💡 KisaanBuddy सुझाव: सही लाभ के लिए मंडी ट्रांसपोर्ट खर्च घटाकर नेट रिटर्न जरूर जोड़ें।"
+                        )
+
+                recent = (
+                    db.query(MarketPriceRecord)
+                    .order_by(desc(MarketPriceRecord.arrival_date))
+                    .limit(6)
+                    .all()
                 )
-            else:
-                # Show all prices summary
-                lines = ["🏪 **आज के प्रमुख मंडी भाव (₹/क्विंटल):**\n"]
-                for c in MANDI_CROPS_DB:
-                    trend_emoji = "📈" if c["trend"] == "up" else "📉" if c["trend"] == "down" else "➡️"
-                    lines.append(f"{trend_emoji} {c['name']}: **₹{c['price']:,}** ({c['mandi']})")
-                lines.append("\n💡 किसी भी फसल का विस्तृत भाव जानने के लिए उसका नाम पूछें।")
-                return "\n".join(lines)
+                if recent:
+                    lines = ["🏪 **नवीनतम आधिकारिक मंडी भाव (AGMARKNET):**\n"]
+                    for r in recent:
+                        lines.append(f"• **{r.commodity}**: ₹{int(r.modal_price):,}/क्विंटल ({r.market_center}, {r.state})")
+                    lines.append("\n💡 किसी खास फसल का भाव जानने के लिए फसल का नाम पूछें (जैसे: 'गेहूं का भाव बताएं')।")
+                    return "\n".join(lines)
         except Exception:
             pass
 
