@@ -673,7 +673,7 @@ export default function AdminClient() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
+      <main className="flex-1 p-4 md:p-8 w-full">
         {/* TAB 1: DASHBOARD */}
         {activeTab === "dashboard" && (
           <div className="space-y-6">

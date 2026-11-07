@@ -7,7 +7,7 @@
     disease: "Disease Detection",
     schemes: "Schemes",
     market: "Market Prices",
-    workers: "Workers",
+    workers: "AgriLabour",
     chatbot: "Chatbot",
 
     // Common
@@ -59,7 +59,7 @@
 
     // Workers
     post_job: "Post a Job",
-    find_workers: "Find Workers",
+    find_workers: "Find AgriLabour",
     work_type: "Work Type",
     location: "Location",
     wage: "Wage",
@@ -87,7 +87,7 @@
     disease: "रोग पहचान",
     schemes: "योजनाएं",
     market: "मंडी भाव",
-    workers: "मजदूर",
+    workers: "AgriLabour",
     chatbot: "चैटबॉट",
 
     // Common
@@ -139,7 +139,7 @@
 
     // Workers
     post_job: "काम पोस्ट करें",
-    find_workers: "मजदूर खोजें",
+    find_workers: "Find AgriLabour",
     work_type: "काम का प्रकार",
     location: "स्थान",
     wage: "मजदूरी",
@@ -167,7 +167,7 @@
     disease: "ರೋಗ ಪತ್ತೆ",
     schemes: "ಯೋಜನೆಗಳು",
     market: "ಮಂಡಿ ಬೆಲೆ",
-    workers: "ಕೆಲಸಗಾರರು",
+    workers: "AgriLabour",
     chatbot: "ಚಾಟ್‌ಬಾಟ್",
 
     // Common
@@ -219,7 +219,7 @@
 
     // Workers
     post_job: "ಕೆಲಸ ಪೋಸ್ಟ್ ಮಾಡಿ",
-    find_workers: "ಕೆಲಸಗಾರರನ್ನು ಹುಡುಕಿ",
+    find_workers: "Find AgriLabour",
     work_type: "ಕೆಲಸದ ಪ್ರಕಾರ",
     location: "ಸ್ಥಳ",
     wage: "ಕೂಲಿ",

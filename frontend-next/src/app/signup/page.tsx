@@ -182,7 +182,7 @@ export default function SignupPage() {
   const cleanPhonePreview = normalizeIndianPhone(phone);
 
   return (
-    <div className="max-w-4xl mx-auto py-8 sm:py-12 px-4">
+    <div className="w-full max-w-6xl mx-auto py-8 sm:py-12 px-4">
       <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
         {/* Left column: Brand promise and farmer trust */}
         <div className="md:col-span-6 space-y-6">

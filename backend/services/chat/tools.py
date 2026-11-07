@@ -339,6 +339,168 @@ async def _tool_suggest_wage(
         return {"error": f"Wage suggestion unavailable: {e}"}
 
 
+
+# ============================================================================
+# Crop Doctor / Disease Diagnostic
+# ============================================================================
+async def _tool_diagnose_crop_disease(
+    crop_name: str,
+    symptoms: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Query authentic ICAR/CIBRC disease advisory database for a crop and symptoms."""
+    try:
+        from services.disease_knowledge_engine import query_knowledge_base
+        results = query_knowledge_base(crop_name, symptoms)
+        if not results:
+            return {
+                "found": False,
+                "crop": crop_name,
+                "message": f"No exact match found in ICAR records for '{crop_name}' with symptoms '{symptoms or ''}'. Please upload a clear photo of the leaf or stem in Crop Doctor for visual analysis.",
+            }
+        top = results[0]
+        return {
+            "found": True,
+            "crop": top.get("crop"),
+            "disease_name": top.get("disease_or_pest"),
+            "category": top.get("category"),
+            "symptoms_described": top.get("symptoms"),
+            "preventive_cultural": top.get("cultural_preventive"),
+            "biological_organic_solution": top.get("biological_organic"),
+            "chemical_control": top.get("chemical_control"),
+            "dosage_guidelines": top.get("dosage_guidelines"),
+            "pre_harvest_interval_days": top.get("pre_harvest_interval_days"),
+            "safety_instructions": top.get("safety_instructions"),
+            "source_institution": top.get("source_institution"),
+        }
+    except Exception as e:
+        log.warning("tool diagnose_crop_disease failed: %s", e)
+        return {"error": f"Crop diagnostic unavailable: {e}"}
+
+
+# ============================================================================
+# Agriculture Marketplace (Authentic Verified Listings)
+# ============================================================================
+async def _tool_search_marketplace(
+    query: str = "",
+    category: Optional[str] = None,
+    listing_type: Optional[str] = None,
+    limit: int = 5,
+) -> Dict[str, Any]:
+    """Search authentic equipment and produce listings from verified farmers/sellers."""
+    try:
+        from db.session import SessionLocal
+        from db.models import EquipmentListing, ProduceListing
+        q = (query or "").strip().lower()
+        items = []
+        with SessionLocal() as db:
+            eq_q = db.query(EquipmentListing).filter(EquipmentListing.availability_status == "available")
+            if listing_type in ("rent", "sale"):
+                eq_q = eq_q.filter(EquipmentListing.listing_type == listing_type)
+            for eq in eq_q.limit(25).all():
+                text_block = f"{eq.title or ''} {eq.category or ''} {eq.brand or ''} {eq.model_name or ''} {eq.district or ''} {eq.state or ''}".lower()
+                if not q or q in text_block:
+                    price_str = f"₹{int(eq.price):,}" if eq.price else "Negotiable"
+                    unit = f"/{eq.price_unit}" if eq.price_unit else ""
+                    items.append({
+                        "id": eq.id,
+                        "type": "equipment",
+                        "title": eq.title or f"{eq.brand} {eq.model_name}",
+                        "category": eq.category,
+                        "listing_type": eq.listing_type,
+                        "price": f"{price_str}{unit}",
+                        "location": f"{eq.district or ''}, {eq.state or ''}".strip(", "),
+                        "owner_name": eq.owner_name,
+                        "contact_phone": eq.owner_phone,
+                    })
+                    if len(items) >= limit:
+                        break
+
+            if len(items) < limit:
+                pr_q = db.query(ProduceListing).filter(ProduceListing.availability_status == "available")
+                for pr in pr_q.limit(20).all():
+                    text_block = f"{pr.crop_name or ''} {pr.variety or ''} {pr.district or ''} {pr.state or ''}".lower()
+                    if not q or q in text_block:
+                        price_val = f"₹{int(pr.asking_price):,}/{pr.price_unit or 'quintal'}" if pr.asking_price else "Market rate"
+                        items.append({
+                            "id": pr.id,
+                            "type": "produce",
+                            "title": f"{pr.crop_name} ({pr.variety or 'Standard'})",
+                            "quantity": f"{pr.quantity} {pr.quantity_unit or 'quintals'}" if pr.quantity else "Available",
+                            "price": price_val,
+                            "location": f"{pr.district or ''}, {pr.state or ''}".strip(", "),
+                            "farmer_name": pr.farmer_name,
+                            "contact_phone": pr.farmer_phone,
+                        })
+                        if len(items) >= limit:
+                            break
+
+        return {
+            "count": len(items),
+            "listings": items,
+            "source": "KisaanBuddy Authentic Marketplace (Farmer/Owner Direct)",
+        }
+    except Exception as e:
+        log.warning("tool search_marketplace failed: %s", e)
+        return {"error": f"Marketplace search unavailable: {e}"}
+
+
+# ============================================================================
+# Fertilizer & Nutrient Recommendations
+# ============================================================================
+async def _tool_get_fertilizer_recommendation(
+    crop_name: str,
+    growth_stage: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Get ICAR recommended NPK and organic fertilization dose per acre."""
+    crop_l = (crop_name or "").lower().strip()
+    guides = {
+        "wheat": {
+            "crop": "Wheat (गेहूं)",
+            "basal_dose": "50 kg DAP + 25 kg MOP per acre at sowing",
+            "top_dress_1": "50 kg Urea per acre at 1st irrigation (~21 days, CRI stage)",
+            "top_dress_2": "25 kg Urea per acre at 2nd irrigation (~45 days)",
+            "bio_fertilizer": "Azotobacter + PSB @ 500g/acre seed treatment",
+            "micronutrients": "Zinc Sulphate (21%) @ 10 kg/acre if soil deficient",
+        },
+        "rice": {
+            "crop": "Rice / Paddy (धान)",
+            "basal_dose": "35 kg DAP + 20 kg MOP + 10 kg Zinc Sulphate (21%) per acre at transplanting",
+            "top_dress_1": "35 kg Urea per acre at active tillering (~25 days)",
+            "top_dress_2": "25 kg Urea per acre at panicle initiation (~45 days)",
+            "bio_fertilizer": "Azospirillum + PSB root dip before transplanting",
+            "micronutrients": "If yellowing/Khaira appears: spray 5 kg Zinc Sulphate + 2.5 kg Slaked Lime per acre in 200 L water",
+        },
+        "tomato": {
+            "crop": "Tomato (टमाटर)",
+            "basal_dose": "8-10 tons well-rotted FYM + 40 kg DAP + 25 kg MOP per acre",
+            "top_dress_1": "25 kg Urea + 15 kg MOP at 30 days after transplanting",
+            "top_dress_2": "25 kg Urea at flowering & fruit setting stage",
+            "bio_fertilizer": "Trichoderma viride @ 2 kg/acre mixed in FYM for soil application",
+            "micronutrients": "Boron (Solubor) @ 1 g/L spray at flowering to prevent fruit cracking",
+        },
+        "cotton": {
+            "crop": "Cotton (कपास)",
+            "basal_dose": "40 kg DAP + 25 kg MOP per acre at sowing",
+            "top_dress_1": "35 kg Urea at squaring (~35-40 days)",
+            "top_dress_2": "35 kg Urea at peak flowering (~60-70 days)",
+            "bio_fertilizer": "Azotobacter + PSB seed treatment",
+            "micronutrients": "Magnesium Sulphate @ 10 g/L spray if leaf reddening occurs",
+        },
+    }
+    for k, v in guides.items():
+        if k in crop_l or (k == "rice" and ("धान" in crop_l or "paddy" in crop_l)) or (k == "wheat" and "गेहूं" in crop_l) or (k == "tomato" and "टमाटर" in crop_l) or (k == "cotton" and "कपास" in crop_l):
+            return {"crop": v["crop"], "recommendation": v}
+
+    return {
+        "crop": crop_name,
+        "recommendation": {
+            "basal_dose": "Balanced NPK 4:2:1 ratio. Apply all P & K + 1/3 N as basal dose.",
+            "top_dressing": "Apply remaining Nitrogen in 2 equal splits during vegetative and flowering stages.",
+            "advice": "Take a free Soil Health Card test from your block Krishi Bhavan for site-specific nutrient doses.",
+        }
+    }
+
+
 # ============================================================================
 # Registry + dispatcher
 # ============================================================================
@@ -353,6 +515,9 @@ TOOLS: Dict[str, ToolFn] = {
     "post_job": _tool_post_job,
     "search_jobs": _tool_search_jobs,
     "suggest_wage": _tool_suggest_wage,
+    "diagnose_crop_disease": _tool_diagnose_crop_disease,
+    "search_marketplace": _tool_search_marketplace,
+    "get_fertilizer_recommendation": _tool_get_fertilizer_recommendation,
 }
 
 

@@ -40,9 +40,9 @@ const STATS_DATA = [
     href: '/worker-connect',
     iconColor: 'text-emerald-600 bg-emerald-500/10 border-emerald-500/20',
     metric: {
-      en: 'Workers Connect', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್',
+      en: 'AgriLabour', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್',
       mr: 'वर्कर्स कनेक्ट', te: 'వర్కర్స్ కనెక్ట్', ta: 'வர்க்கர்ஸ் கனெக்ட்',
-      gu: 'વર્કર્સ કનેક્ટ', bn: 'ওয়ার্কার্স কানেক্ট', pa: 'ਵਰਕਰ ਕਨੈਕਟ', ml: 'വർക്കേഴ്സ് കണക്ട്', hi_en: 'Workers Connect',
+      gu: 'વર્કર્સ કનેક્ટ', bn: 'ওয়ার্কার্স কানেক্ট', pa: 'ਵਰਕਰ ਕਨੈਕਟ', ml: 'വർക്കേഴ്സ് കണക്ട്', hi_en: 'AgriLabour',
     },
     label: {
       en: 'Farm labour & jobs near you', hi: 'मजदूर खोजें या काम पाएं', kn: 'ಕೃಷಿ ಕಾರ್ಮಿಕರು & ಉದ್ಯೋಗಗಳು',
@@ -72,7 +72,7 @@ export function TrustPanel() {
 
   return (
     <section className="relative z-20 py-6 sm:py-8 border-b border-border/60 bg-muted/10">
-      <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
+      <div className="w-full px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
           {STATS_DATA.map((item, idx) => {
             const Icon = item.icon;

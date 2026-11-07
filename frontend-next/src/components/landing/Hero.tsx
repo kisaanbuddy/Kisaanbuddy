@@ -288,7 +288,7 @@ export function Hero() {
 
   return (
     <section className="relative isolate overflow-hidden bg-[#F8FAF7] dark:bg-background border-b border-[#E2E8E2] dark:border-slate-800 pb-12 pt-8 sm:pb-16 sm:pt-14 lg:pb-20 lg:pt-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full">
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
           
           {/* Left Column: Heading, Copy, Actions, Benefits */}

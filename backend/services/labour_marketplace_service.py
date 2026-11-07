@@ -746,6 +746,25 @@ def list_job_posts(
     limit: int = 50,
     offset: int = 0,
 ) -> List[LabourJobPostOut]:
+    # Automatic Job Lifecycle & Expiry Enforcement
+    today = date.today()
+    open_candidates = db.query(LabourJobPost).filter(LabourJobPost.status == "open").all()
+    dirty = False
+    for job_item in open_candidates:
+        if job_item.application_deadline and job_item.application_deadline < today:
+            job_item.status = "expired"
+            dirty = True
+        elif job_item.start_date:
+            exp_date = job_item.start_date + timedelta(days=job_item.duration_days or 1)
+            if exp_date < today:
+                job_item.status = "expired"
+                dirty = True
+    if dirty:
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
+
     q = db.query(LabourJobPost)
     if status_filter:
         q = q.filter(LabourJobPost.status == status_filter)

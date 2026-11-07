@@ -2,129 +2,216 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
+import machineryAuditData from "@/lib/data/machinery-image-mapping.json";
 import {
+  Menu,
   Search,
   X,
   SlidersHorizontal,
-  ArrowUpDown,
   LayoutGrid,
   List as ListIcon,
   Heart,
   Phone,
   ShieldCheck,
   MapPin,
-  Truck,
+  Crosshair,
+  Loader2,
   Plus,
-  Wrench,
   ExternalLink,
-  Calendar,
   Gauge,
-  FileText,
-  Layers,
-  Info,
-  Check,
-  ChevronRight,
   ChevronDown,
-  RotateCw,
   AlertCircle,
-  Eye,
-  Scale,
-  Share2,
-  CheckCircle2,
-  TrendingUp,
-  Clock,
-  Sparkles,
-  Store,
-  Fuel,
-  Sliders,
   User,
+  Sliders,
+  Check,
+  ArrowRight,
+  RotateCcw,
+  Scale,
+  MessageSquare,
+  Clock,
+  Building2,
+  Send,
 } from "lucide-react";
 import {
   equipmentCatalogApi,
   equipmentListingsApi,
   produceListingsApi,
-  marketPricesApi,
-  marketplaceSourcesApi,
-  marketplaceApi,
+  tradeInquiriesApi,
+  priceComparisonApi,
+  dealersApi,
   EquipmentCatalogItem,
   EquipmentListingItem,
   ProduceListingItem,
-  MarketPriceItem,
-  ImportSourceItem,
-  MarketplaceListing,
+  TradeInquiryItem,
+  PriceComparisonResponse,
+  PriceComparisonItem,
+  DealerDiscoveryItem,
 } from "@/lib/farmer-api";
-import { useLanguage, type Lang } from "@/lib/language";
-import { MARKETPLACE_I18N } from "@/lib/marketplace-i18n";
+import { useLanguage } from "@/lib/language";
+import {
+  getPriceComparisonI18n,
+  formatPriceUnit,
+  formatCategory,
+  formatCondition,
+} from "@/lib/marketplace-i18n";
+import { useMobileMenu } from "@/components/navigation/MobileMenuContext";
+import { useVoice } from "@/lib/voice/VoiceContext";
+import { useSearchParams } from "next/navigation";
 
-type MainSectionMode = "machinery" | "produce" | "buyers" | "provenance";
-type DealFilter = "all" | "rent" | "sale";
-type SortOption = "relevance" | "price_asc" | "price_desc" | "hp_desc" | "newest";
+// Clean telephone number for tel: protocol
+function cleanPhoneForTel(phone?: string | null): string {
+  if (!phone) return "";
+  return phone.replace(/[^0-9+]/g, "");
+}
 
-// Canonical category definitions with clean professional labels (no cartoon emojis in title)
-const EQUIPMENT_CATEGORIES = [
-  { key: "all", labelEn: "All Products", labelHi: "सभी उत्पाद" },
+// Clean WhatsApp number (removes + and non-digits, ensures India country code)
+function cleanPhoneForWa(phone?: string | null): string {
+  if (!phone) return "";
+  const digits = phone.replace(/[^0-9]/g, "");
+  if (digits.length === 10) return `91${digits}`;
+  if (digits.startsWith("91") && digits.length === 12) return digits;
+  return digits;
+}
+
+// Validate external URL safely
+function isValidWebUrl(url?: string | null): boolean {
+  if (!url || typeof url !== "string") return false;
+  const trimmed = url.trim();
+  if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) return false;
+  try {
+    const parsed = new URL(trimmed);
+    return Boolean(parsed.hostname && parsed.hostname.includes("."));
+  } catch {
+    return false;
+  }
+}
+
+// Comprehensive Indian States and Agricultural Districts Mapping
+const INDIAN_LOCATIONS: Record<string, string[]> = {
+  "Andhra Pradesh": [
+    "Guntur", "Krishna", "East Godavari", "West Godavari", "Kurnool", 
+    "Anantapur", "Chittoor", "Visakhapatnam", "Prakasam", "SPSR Nellore", "Kadapa"
+  ],
+  "Assam": [
+    "Kamrup (Guwahati)", "Nagaon", "Sonitpur", "Dibrugarh", "Cachar", 
+    "Barpeta", "Dhubri", "Jorhat", "Golaghat", "Tinsukia", "Sivasagar"
+  ],
+  "Bihar": [
+    "Samastipur", "Patna", "Muzaffarpur", "Gaya", "Bhagalpur", "Begusarai", 
+    "Darbhanga", "Purnia", "Rohtas", "Nalanda", "Saran", "Vaishali", 
+    "Madhubani", "Siwan", "East Champaran", "West Champaran", "Saharsa", 
+    "Katihar", "Munger", "Bhojpur (Arrah)", "Buxar", "Sitamarhi"
+  ],
+  "Chhattisgarh": [
+    "Raipur", "Durg", "Bilaspur", "Rajnandgaon", "Janjgir-Champa", "Balod", "Bemetara", "Dhamtari"
+  ],
+  "Delhi": [
+    "New Delhi", "North Delhi", "South Delhi", "West Delhi", "East Delhi", "Central Delhi", "South West Delhi", "North West Delhi"
+  ],
+  "Gujarat": [
+    "Rajkot", "Anand", "Ahmedabad", "Surat", "Vadodara", "Bhavnagar", 
+    "Junagadh", "Jamnagar", "Mehsana", "Banaskantha", "Sabarkantha", 
+    "Kheda", "Amreli", "Patan", "Surendranagar", "Bharuch"
+  ],
+  "Haryana": [
+    "Karnal", "Sirsa", "Ambala", "Kurukshetra", "Kaithal", "Hisar", 
+    "Fatehabad", "Jind", "Rohtak", "Sonipat", "Panipat", "Yamunanagar", 
+    "Bhiwani", "Jhajjar", "Rewari", "Palwal", "Gurugram", "Faridabad"
+  ],
+  "Himachal Pradesh": [
+    "Kangra", "Mandi", "Shimla", "Solan", "Sirmaur", "Una", "Kullu", "Hamirpur", "Bilaspur", "Chamba"
+  ],
+  "Jammu and Kashmir": [
+    "Jammu", "Srinagar", "Anantnag", "Baramulla", "Kathua", "Udhampur", "Pulwama"
+  ],
+  "Jharkhand": [
+    "Ranchi", "Jamshedpur", "Dhanbad", "Bokaro", "Hazaribagh", "Deoghar", "Giridih"
+  ],
+  "Karnataka": [
+    "Bengaluru", "Belagavi", "Mysuru", "Hubballi-Dharwad", "Kalaburagi", 
+    "Davanagere", "Ballari", "Vijayapura", "Shivamogga", "Tumakuru", 
+    "Raichur", "Mandya", "Hassan", "Bagalkote", "Koppal", "Udupi", "Dakshina Kannada"
+  ],
+  "Kerala": [
+    "Kochi (Ernakulam)", "Thiruvananthapuram", "Kozhikode", "Thrissur", "Palakkad", 
+    "Kollam", "Kannur", "Alappuzha", "Kottayam", "Malappuram", "Wayanad"
+  ],
+  "Madhya Pradesh": [
+    "Sehore", "Dewas", "Indore", "Ujjain", "Hoshangabad (Narmadapuram)", 
+    "Vidisha", "Bhopal", "Gwalior", "Jabalpur", "Sagar", "Dhar", "Khargone", 
+    "Ratlam", "Raisen", "Harda", "Shajapur", "Mandsaur", "Neemuch", 
+    "Chhindwara", "Rewa", "Satna", "Morena"
+  ],
+  "Maharashtra": [
+    "Nashik", "Kolhapur", "Ahmednagar", "Jalgaon", "Pune", "Solapur", 
+    "Chhatrapati Sambhajinagar", "Sangli", "Satara", "Nagpur", 
+    "Amravati", "Nanded", "Yavatmal", "Latur", "Beed", "Buldhana", "Akola"
+  ],
+  "Odisha": [
+    "Cuttack", "Sambalpur", "Bargarh", "Balasore", "Ganjam", "Puri", "Bhadrak", "Mayurbhanj"
+  ],
+  "Punjab": [
+    "Ludhiana", "Sangrur", "Patiala", "Bathinda", "Amritsar", "Jalandhar", 
+    "Firozpur", "Moga", "Fazilka", "Sri Muktsar Sahib", "Barnala", "Mansa", 
+    "Kapurthala", "Hoshiarpur", "Gurdaspur", "Fategarh Sahib", "Faridkot", 
+    "Tarn Taran", "Rupnagar", "Pathankot"
+  ],
+  "Rajasthan": [
+    "Kota", "Sri Ganganagar", "Jaipur", "Jodhpur", "Bikaner", "Alwar", 
+    "Hanumangarh", "Udaipur", "Nagaur", "Sikar", "Ajmer", "Bharatpur", 
+    "Chittorgarh", "Baran", "Bundi", "Pali", "Jhalawar"
+  ],
+  "Tamil Nadu": [
+    "Coimbatore", "Thanjavur", "Madurai", "Salem", "Tiruchirappalli", "Erode", "Tirunelveli", "Vellore", "Chennai"
+  ],
+  "Telangana": [
+    "Warangal", "Hyderabad", "Nizamabad", "Karimnagar", "Khammam", 
+    "Nalgonda", "Mahbubnagar", "Medak", "Rangareddy", "Adilabad", "Suryapet"
+  ],
+  "Uttar Pradesh": [
+    "Muzaffarnagar", "Aligarh", "Lakhimpur Kheri", "Meerut", "Bareilly", 
+    "Agra", "Varanasi", "Lucknow", "Kanpur", "Prayagraj", "Gorakhpur", 
+    "Moradabad", "Saharanpur", "Mathura", "Bijnor", "Bulandshahr", 
+    "Hardoi", "Sitapur", "Budaun", "Barabanki", "Shahjahanpur", "Ayodhya"
+  ],
+  "Uttarakhand": [
+    "Dehradun", "Haridwar", "Udham Singh Nagar", "Nainital", "Pauri Garhwal", "Almora"
+  ],
+  "West Bengal": [
+    "Purba Bardhaman", "Paschim Bardhaman", "Hooghly", "Murshidabad", 
+    "Nadia", "Purba Medinipur", "Paschim Medinipur", "Birbhum", "Malda", "Jalpaiguri", "Kolkata"
+  ]
+};
+
+// Category definitions matching user specification
+const CATEGORIES = [
+  { key: "all", labelEn: "All Equipment", labelHi: "सभी उपकरण" },
   { key: "tractors", labelEn: "Tractors", labelHi: "ट्रैक्टर" },
-  { key: "harvesters", labelEn: "Harvesters", labelHi: "कंबाइन हार्वेस्टर" },
+  { key: "harvesters", labelEn: "Harvesters", labelHi: "हार्वेस्टर" },
   { key: "rotavators", labelEn: "Rotavators", labelHi: "रोटावेटर" },
   { key: "seed_drills", labelEn: "Seed Drills", labelHi: "सीड ड्रिल" },
   { key: "cultivators", labelEn: "Cultivators", labelHi: "कल्टीवेटर" },
   { key: "ploughs", labelEn: "Ploughs", labelHi: "हल / प्लाउ" },
   { key: "sprayers", labelEn: "Sprayers", labelHi: "स्प्रेयर" },
   { key: "threshers", labelEn: "Threshers", labelHi: "थ्रेशर" },
-  { key: "agricultural_trailers", labelEn: "Trailers & Trolleys", labelHi: "ट्रेलर व ट्रॉली" },
-  { key: "irrigation_equipment", labelEn: "Irrigation & Pumps", labelHi: "सिंचाई उपकरण" },
-  { key: "other_implements", labelEn: "Other Equipment", labelHi: "अन्य उपकरण" },
+  { key: "trailers", labelEn: "Trailers", labelHi: "ट्रेलर व ट्रॉली" },
+  { key: "irrigation", labelEn: "Irrigation & Pumps", labelHi: "सिंचाई उपकरण" },
+  { key: "other", labelEn: "Other Equipment", labelHi: "अन्य उपकरण" },
 ];
 
-// Verified manufacturer image assets in /public/images/marketplace/
-const VERIFIED_MACHINE_IMAGES: Record<string, string> = {
-  // Tractors
-  "mahindra-575": "/images/marketplace/tractors/mahindra-575.webp",
-  "swaraj-744": "/images/marketplace/tractors/swaraj-744.png",
-  "sonalika-745": "/images/marketplace/tractors/sonalika-745.png",
-  "tafe-241": "/images/marketplace/tractors/tafe-241.jpg",
-  "john-deere-5310": "/images/marketplace/tractors/john-deere-5310.png",
-  // Harvesters
-  "dasmesh-9100": "/images/marketplace/harvesters/dasmesh-9100.png",
-  "preet-987": "/images/marketplace/harvesters/preet-987.png",
-  "shaktiman-sugarcane": "/images/marketplace/harvesters/shaktiman-sugarcane.png",
-  // Implements
-  "shaktiman-rotavator": "/images/marketplace/implements/shaktiman-rotavator.png",
-  "fieldking-rotavator": "/images/marketplace/implements/fieldking-rotavator.png",
-  "maschio-virat": "/images/marketplace/implements/maschio-virat.png",
-  "roto-seed-drill": "/images/marketplace/implements/roto-seed-drill.png",
-  "zero-till-drill": "/images/marketplace/implements/zero-till-drill.png",
-  cultivator: "/images/marketplace/implements/cultivator.png",
-  "spring-cultivator": "/images/marketplace/implements/spring-cultivator.png",
-  "lemken-plough": "/images/marketplace/implements/lemken-plough.png",
-  "disc-plough": "/images/marketplace/implements/disc-plough.png",
-  "boom-sprayer": "/images/marketplace/implements/boom-sprayer.png",
-  "orchard-sprayer": "/images/marketplace/implements/orchard-sprayer.png",
-  thresher: "/images/marketplace/implements/thresher.png",
-  "paddy-thresher": "/images/marketplace/implements/paddy-thresher.png",
-  "straw-reaper": "/images/marketplace/implements/straw-reaper.png",
-  "farm-trailer": "/images/marketplace/implements/farm-trailer.png",
-  "tipping-trailer": "/images/marketplace/implements/tipping-trailer.png",
-  "diesel-pump": "/images/marketplace/implements/diesel-pump.jpg",
-  "drip-irrigation": "/images/marketplace/implements/drip-irrigation.jpg",
-  "round-baler": "/images/marketplace/implements/round-baler.png",
-  "laser-leveller": "/images/marketplace/implements/laser-leveller.png",
-};
-
-// Top search suggestions for fast discovery
-const SEARCH_SUGGESTIONS = [
+// Popular search suggestions for fast discovery
+const POPULAR_SEARCHES = [
   "Mahindra 575 DI",
   "Swaraj 744 FE",
   "Shaktiman Rotavator",
-  "Boom Sprayer",
-  "Dasmesh Harvester",
+  "Dasmesh 9100 Combine",
   "Zero Till Seed Drill",
   "John Deere 5310",
-  "Paddy Thresher",
+  "ASPEE Sprayer",
   "Lemken Disc Plough",
 ];
 
-export interface UnifiedProduct {
+interface UnifiedProduct {
   id: string;
   sourceType: "catalog" | "listing";
   catalogId?: number;
@@ -155,7 +242,9 @@ export interface UnifiedProduct {
   state?: string;
   district?: string;
   isVerified: boolean;
+  hasVerifiedPhoto: boolean;
   imageUrl?: string | null;
+  images?: string[];
   officialSourceUrl?: string | null;
   supplierName?: string | null;
   description?: string | null;
@@ -163,13 +252,20 @@ export interface UnifiedProduct {
   provenanceLicense?: string | null;
 }
 
-// Comprehensive genuine machinery photograph resolver with category & model verification
-function getMachineryPhoto(
-  category?: string,
+interface UserLocation {
+  state: string;
+  district: string;
+  city?: string;
+  source: "gps" | "manual" | "default";
+  detectedAt?: number;
+}
+
+// Strict genuine machinery photograph resolver
+function getVerifiedMachineryPhoto(
   brand?: string,
   modelName?: string,
   rawUrl?: string | null
-): string {
+): string | null {
   if (rawUrl && typeof rawUrl === "string" && rawUrl.trim()) {
     if (rawUrl.endsWith(".svg")) {
       return rawUrl
@@ -181,229 +277,257 @@ function getMachineryPhoto(
     }
     return rawUrl;
   }
-
-  const b = (brand || "").toLowerCase().trim();
-  const m = (modelName || "").toLowerCase().trim();
-  const c = (category || "").toLowerCase().trim();
-
-  // 1. Exact model and brand matches
-  if (b.includes("mahindra") && (m.includes("575") || m.includes("475") || m.includes("585") || m.includes("sarpanch") || m.includes("novo"))) {
-    return "/images/marketplace/tractors/mahindra-575.webp";
-  }
-  if (b.includes("swaraj") || m.includes("744") || m.includes("855") || m.includes("735")) {
-    return "/images/marketplace/tractors/swaraj-744.png";
-  }
-  if (b.includes("sonalika") || m.includes("745") || m.includes("sikander") || m.includes("di 60") || m.includes("tiger")) {
-    return "/images/marketplace/tractors/sonalika-745.png";
-  }
-  if (b.includes("john deere") || m.includes("5310") || m.includes("5050") || m.includes("5405")) {
-    return "/images/marketplace/tractors/john-deere-5310.png";
-  }
-  if (b.includes("tafe") || b.includes("massey") || b.includes("eicher") || m.includes("241") || m.includes("380") || m.includes("dynatrack")) {
-    return "/images/marketplace/tractors/tafe-241.jpg";
-  }
-  if (b.includes("kubota") || b.includes("new holland") || b.includes("farmtrac") || b.includes("powertrac") || b.includes("escorts")) {
-    return "/images/marketplace/tractors/swaraj-744.png";
-  }
-
-  // 2. Harvesters
-  if (c.includes("harvest") || m.includes("combine") || m.includes("harvester")) {
-    if (b.includes("preet") || m.includes("987") || b.includes("kartar") || m.includes("4000")) {
-      return "/images/marketplace/harvesters/preet-987.png";
-    }
-    if (b.includes("shaktiman") || m.includes("sugarcane") || m.includes("tejas") || m.includes("3737")) {
-      return "/images/marketplace/harvesters/shaktiman-sugarcane.png";
-    }
-    return "/images/marketplace/harvesters/dasmesh-9100.png";
-  }
-
-  // 3. Rotavators
-  if (c.includes("rotavat") || m.includes("rotavator") || m.includes("rotary")) {
-    if (b.includes("fieldking") || m.includes("robusto") || m.includes("landforce")) {
-      return "/images/marketplace/implements/fieldking-rotavator.png";
-    }
-    if (b.includes("maschio") || m.includes("virat") || m.includes("gaspardo")) {
-      return "/images/marketplace/implements/maschio-virat.png";
-    }
-    return "/images/marketplace/implements/shaktiman-rotavator.png";
-  }
-
-  // 4. Seed drills & Planters
-  if (c.includes("drill") || c.includes("seed") || m.includes("seeder") || m.includes("planter")) {
-    if (m.includes("zero") || m.includes("happy") || m.includes("super seeder")) {
-      return "/images/marketplace/implements/zero-till-drill.png";
-    }
-    return "/images/marketplace/implements/roto-seed-drill.png";
-  }
-
-  // 5. Cultivators
-  if (c.includes("cultivat")) {
-    if (m.includes("spring")) return "/images/marketplace/implements/spring-cultivator.png";
-    return "/images/marketplace/implements/cultivator.png";
-  }
-
-  // 6. Ploughs
-  if (c.includes("plough") || c.includes("plow")) {
-    if (m.includes("disc")) return "/images/marketplace/implements/disc-plough.png";
-    return "/images/marketplace/implements/lemken-plough.png";
-  }
-
-  // 7. Sprayers
-  if (c.includes("spray") || m.includes("sprayer") || m.includes("drone") || m.includes("htp")) {
-    if (m.includes("orchard") || m.includes("bullet") || m.includes("mist")) {
-      return "/images/marketplace/implements/orchard-sprayer.png";
-    }
-    return "/images/marketplace/implements/boom-sprayer.png";
-  }
-
-  // 8. Threshers
-  if (c.includes("thresh")) {
-    if (m.includes("paddy") || m.includes("923")) return "/images/marketplace/implements/paddy-thresher.png";
-    return "/images/marketplace/implements/thresher.png";
-  }
-
-  // 9. Trailers
-  if (c.includes("trailer") || c.includes("trolley") || m.includes("tipping")) {
-    if (m.includes("tipping") || m.includes("hydraulic")) return "/images/marketplace/implements/tipping-trailer.png";
-    return "/images/marketplace/implements/farm-trailer.png";
-  }
-
-  // 10. Irrigation & Pumps
-  if (c.includes("irrigat") || c.includes("pump") || m.includes("pump") || m.includes("diesel")) {
-    if (m.includes("drip") || m.includes("rain-gun") || m.includes("mobile kit")) return "/images/marketplace/implements/drip-irrigation.jpg";
-    return "/images/marketplace/implements/diesel-pump.jpg";
-  }
-
-  // 11. Laser Leveller / Baler / Reaper
-  if (m.includes("laser") || c.includes("laser")) return "/images/marketplace/implements/laser-leveller.png";
-  if (m.includes("baler") || c.includes("baler")) return "/images/marketplace/implements/round-baler.png";
-  if (m.includes("reaper") || c.includes("reaper")) return "/images/marketplace/implements/straw-reaper.png";
-
-  // Category fallback
-  if (c.includes("tractor")) return "/images/marketplace/tractors/mahindra-575.webp";
-  if (c.includes("harvest")) return "/images/marketplace/harvesters/dasmesh-9100.png";
-
-  return "/images/marketplace/tractors/mahindra-575.webp";
+  return null;
 }
 
-// Resilient Product Image Component with 4:3 Aspect Ratio and Neutral Background
+// Clean Product Image with strict aspect ratio, contain fit, proxy fallback, and honest missing photo state
 function ProductCardImage({
   src,
   alt,
-  category,
-  brand,
-  modelName,
+  className,
 }: {
   src?: string | null;
   alt: string;
-  category: string;
-  brand: string;
-  modelName?: string;
+  className?: string;
 }) {
-  const fallbackPhoto = useMemo(
-    () => getMachineryPhoto(category, brand, modelName),
-    [category, brand, modelName]
-  );
+  const [imageError, setImageError] = useState(false);
+  const [useProxy, setUseProxy] = useState(false);
+  const [isLoading, setIsLoading] = useState(Boolean(src));
 
-  const initialUrl = useMemo(() => {
-    if (src && src.trim()) {
-      if (src.endsWith(".svg")) {
-        return getMachineryPhoto(category, brand, modelName, src);
-      }
-      return src;
-    }
-    return fallbackPhoto;
-  }, [src, fallbackPhoto, category, brand, modelName]);
-
-  const [imageSrc, setImageSrc] = useState<string>(initialUrl);
-
+  // Reset state when src updates across sort/filter/pagination
   useEffect(() => {
-    if (src && src.trim() && !src.endsWith(".svg")) {
-      setImageSrc(src);
-    } else {
-      setImageSrc(fallbackPhoto);
-    }
-  }, [src, fallbackPhoto]);
+    setImageError(false);
+    setUseProxy(false);
+    setIsLoading(Boolean(src));
+  }, [src]);
+
+  if (!src || imageError) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center bg-stone-50 dark:bg-stone-900 rounded-lg border border-dashed border-stone-200 dark:border-stone-800 select-none">
+        <AlertCircle className="w-5 h-5 text-amber-500 mb-1 shrink-0" />
+        <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300">
+          Photo Pending
+        </span>
+        <span className="text-[10px] text-stone-400">
+          Awaiting verified photo
+        </span>
+      </div>
+    );
+  }
+
+  // Automatic proxy fallback for remote cross-origin images (e.g. cdn.shopify.com)
+  const effectiveSrc = useProxy && src.startsWith("http")
+    ? `/api/marketplace/image-proxy?url=${encodeURIComponent(src)}`
+    : src;
 
   return (
-    <img
-      src={imageSrc}
-      alt={alt}
-      loading="lazy"
-      className="w-full h-full object-contain p-3.5 transition-transform duration-300 group-hover:scale-105"
-      onError={() => {
-        // Fall back gracefully to verified photographic agricultural machine image
-        if (imageSrc !== fallbackPhoto) {
-          setImageSrc(fallbackPhoto);
-        }
-      }}
-    />
+    <div className="relative w-full h-full flex items-center justify-center">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-50/60 dark:bg-stone-900/60 z-0">
+          <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      <img
+        src={effectiveSrc}
+        alt={alt}
+        className={`w-full h-full object-contain p-2 transition-all duration-200 group-hover:scale-105 ${
+          isLoading ? "opacity-0" : "opacity-100"
+        } ${className || ""}`}
+        onLoad={() => setIsLoading(false)}
+        onError={() => {
+          if (!useProxy && src.startsWith("http")) {
+            setUseProxy(true);
+          } else {
+            setImageError(true);
+            setIsLoading(false);
+          }
+        }}
+      />
+    </div>
   );
+}
+
+// Reverse geocode latitude and longitude to State, District and City (India)
+async function reverseGeocodeCoords(lat: number, lon: number): Promise<{ state: string; district: string; city: string }> {
+  // 1. Primary: Server-side Next.js route (no CORS, no CSP limits, multi-provider fallback)
+  try {
+    const res = await fetch(`/api/marketplace/reverse-geocode?lat=${lat}&lon=${lon}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.state) {
+        return {
+          state: data.state,
+          district: data.district || data.city || "",
+          city: data.city || data.district || "",
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("Internal reverse-geocode endpoint failed, attempting direct client fallback:", e);
+  }
+
+  // 2. Secondary client fallback: BigDataCloud
+  try {
+    const res = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const rawState = data.principalSubdivision || "";
+      let district = "";
+      if (Array.isArray(data.localityInfo?.administrative)) {
+        const distObj = data.localityInfo.administrative.find((a: any) =>
+          (a.description && a.description.toLowerCase().includes("district")) ||
+          (a.name && a.name.toLowerCase().includes("district"))
+        );
+        if (distObj?.name) {
+          district = distObj.name.replace(/\bdistrict\b/gi, "").trim();
+        }
+      }
+      if (!district) {
+        district = data.city || data.locality || "";
+      }
+      const city = data.city || data.locality || district;
+      if (rawState || district) {
+        return {
+          state: rawState || district,
+          district: district || city,
+          city: city || district,
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("Client BigDataCloud geocode failed:", e);
+  }
+
+  // 3. Tertiary client fallback: Nominatim
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const state = addr.state || addr.state_district || "";
+      const district = (addr.state_district || addr.county || addr.city || "").replace(/\bdistrict\b/gi, "").trim();
+      const city = addr.city || addr.town || addr.village || district;
+      if (state || district) {
+        return { state: state || district, district: district || city, city };
+      }
+    }
+  } catch (e) {
+    console.warn("Client Nominatim geocode failed:", e);
+  }
+
+  return { state: "", district: "", city: "" };
+}
+
+// Calculate location relevance score:
+// Same City = 120, Same District = 100, Same State = 60, Pan-India Catalog = 20, Other = 0
+function getLocationScore(
+  product: UnifiedProduct,
+  userLoc: UserLocation
+): number {
+  if (!userLoc.state || userLoc.state === "all") return 0;
+
+  const uState = userLoc.state.toLowerCase().trim();
+  const uDist = (userLoc.district || "").toLowerCase().trim();
+  const uCity = (userLoc.city || "").toLowerCase().trim();
+
+  const pState = (product.state || "").toLowerCase().trim();
+  const pDist = (product.district || "").toLowerCase().trim();
+  const pLoc = (product.sellerLocation || "").toLowerCase().trim();
+
+  // Tier 1: Exact City / Taluk Match
+  if (uCity && ((pDist && (pDist === uCity || pDist.includes(uCity) || uCity.includes(pDist))) || (pLoc && pLoc.includes(uCity)))) {
+    return 120;
+  }
+
+  // Tier 2: Same District Match
+  if (uDist && ((pDist && (pDist === uDist || pDist.includes(uDist) || uDist.includes(pDist))) || (pLoc && pLoc.includes(uDist)))) {
+    return 100;
+  }
+
+  // Tier 3: Same State Match
+  if (uState && ((pState && (pState === uState || pState.includes(uState) || uState.includes(pState))) || (pLoc && pLoc.includes(uState)))) {
+    return 60;
+  }
+
+  // Tier 4: Pan-India Catalog Equipment
+  if (product.sourceType === "catalog") {
+    return 20;
+  }
+
+  return 0;
 }
 
 export default function MarketplaceClient() {
   const { lang } = useLanguage();
   const isHi = lang === "hi";
+  const { openMenu } = useMobileMenu();
+  const cmpDict = useMemo(() => getPriceComparisonI18n(lang), [lang]);
 
-  // Navigation mode
-  const [sectionMode, setSectionMode] = useState<MainSectionMode>("machinery");
-
-  // Raw data collections
+  // Data states
   const [catalogItems, setCatalogItems] = useState<EquipmentCatalogItem[]>([]);
   const [equipmentListings, setEquipmentListings] = useState<EquipmentListingItem[]>([]);
-  const [produceListings, setProduceListings] = useState<ProduceListingItem[]>([]);
-  const [marketPrices, setMarketPrices] = useState<MarketPriceItem[]>([]);
-  const [sources, setSources] = useState<ImportSourceItem[]>([]);
-  const [legacyListings, setLegacyListings] = useState<MarketplaceListing[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Loading states
-  const [loadingProducts, setLoadingProducts] = useState(true);
-  const [loadingProduce, setLoadingProduce] = useState(false);
-  const [loadingLegacy, setLoadingLegacy] = useState(false);
-
-  // E-Commerce Search & Filter States
+  // Search & Autocomplete
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
+  // ─── 1. LOCATION STATE & GEOLOCATION ─────────────────────────────────────
+  const [userLocation, setUserLocation] = useState<UserLocation>({
+    state: "all",
+    district: "",
+    city: "",
+    source: "default",
+  });
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const [locationPermissionStatus, setLocationPermissionStatus] = useState<"granted" | "prompt" | "denied" | "unsupported">("prompt");
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [showLocationPopover, setShowLocationPopover] = useState(false);
+  const [locationSearchInput, setLocationSearchInput] = useState("");
+  const [selectedManualState, setSelectedManualState] = useState("");
+  const [selectedManualDistrict, setSelectedManualDistrict] = useState("");
+  const [selectedManualCity, setSelectedManualCity] = useState("");
+  const [strictLocationOnly, setStrictLocationOnly] = useState(false);
+  const locationPopoverRef = useRef<HTMLDivElement>(null);
+
+  // ─── OTHER FILTER STATES (In specific order: Category, Brand, Deal, Price, Condition) ─
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedBrand, setSelectedBrand] = useState("all");
-  const [dealFilter, setDealFilter] = useState<DealFilter>("all");
+  const [verifiedPhotoOnly, setVerifiedPhotoOnly] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [dealFilter, setDealFilter] = useState<"all" | "rent" | "sale">("all");
   const [hpRange, setHpRange] = useState<"all" | "under_40" | "40_55" | "55_75" | "above_75">("all");
   const [conditionFilter, setConditionFilter] = useState<"all" | "new" | "used">("all");
-  const [stateFilter, setStateFilter] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [availableNowOnly, setAvailableNowOnly] = useState(false);
 
   // Layout & Sorting
-  const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  const [sortBy, setSortBy] = useState<"relevance" | "price_asc" | "price_desc" | "hp_desc" | "newest">("relevance");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 24;
 
-  // Mobile Filter Drawer
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+  // Mobile drawer
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Accordion open/close states in sidebar
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    deal: true,
-    brand: true,
-    hp: true,
-    price: true,
-    condition: false,
-    location: false,
-  });
-
-  const toggleAccordion = (key: string) => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  // Wishlist & Recently Viewed & Comparison (Persisted in localStorage)
+  // Wishlist persisted in localStorage
   const [wishlist, setWishlist] = useState<string[]>([]);
-  const [recentProductIds, setRecentProductIds] = useState<string[]>([]);
-  const [compareItems, setCompareItems] = useState<UnifiedProduct[]>([]);
-  const [showCompareDrawer, setShowCompareDrawer] = useState(false);
+  const { registerVisibleItems, registerSelectedItem } = useVoice();
+  const searchParams = useSearchParams();
+
+  // Voice Search parameter detection from URL
+  useEffect(() => {
+    const urlQ = searchParams?.get("q");
+    if (urlQ && urlQ !== searchQuery) {
+      setSearchQuery(urlQ);
+    }
+  }, [searchParams]);
+
 
   // Modals
   const [selectedProduct, setSelectedProduct] = useState<UnifiedProduct | null>(null);
@@ -413,13 +537,45 @@ export default function MarketplaceClient() {
     phone?: string | null;
     title: string;
     location: string;
+    sourceType: "listing" | "catalog";
+    listingId?: number;
+    catalogId?: number;
+    brand?: string;
+    modelName?: string;
+    officialSourceUrl?: string | null;
   } | null>(null);
 
-  const [showListChoiceModal, setShowListChoiceModal] = useState(false);
-  const [showEqModal, setShowEqModal] = useState(false);
-  const [showProduceModal, setShowProduceModal] = useState(false);
+  // Seller Contact Modal Interactive State (Direct / Callback / Quotation)
+  const [contactTab, setContactTab] = useState<"direct" | "callback" | "quote">("direct");
+  const [inquiryName, setInquiryName] = useState("");
+  const [inquiryPhone, setInquiryPhone] = useState("");
+  const [preferredTime, setPreferredTime] = useState("Morning (9:00 AM – 12:00 PM)");
+  const [quoteMessage, setQuoteMessage] = useState("");
+  const [quotePrice, setQuotePrice] = useState("");
+  const [quoteQuantity, setQuoteQuantity] = useState("");
+  const [inquirySubmitting, setInquirySubmitting] = useState(false);
+  const [inquirySuccess, setInquirySuccess] = useState<{
+    refId: number;
+    status: string;
+    type: string;
+    message: string;
+  } | null>(null);
+  const [inquiryError, setInquiryError] = useState<string | null>(null);
 
-  // Form states for creation
+  // Smart Price Comparison State
+  const [showCompareModal, setShowCompareModal] = useState(false);
+  const [compareProduct, setCompareProduct] = useState<UnifiedProduct | null>(null);
+  const [compareLoading, setCompareLoading] = useState(false);
+  const [compareData, setCompareData] = useState<PriceComparisonResponse | null>(null);
+  const [compareError, setCompareError] = useState<string | null>(null);
+
+  // Dealer & Custom Hiring Center (CHC) Discovery State
+  const [showDealersModal, setShowDealersModal] = useState(false);
+  const [dealersList, setDealersList] = useState<DealerDiscoveryItem[]>([]);
+  const [dealersLoading, setDealersLoading] = useState(false);
+
+  // List Product Form Modal
+  const [showListModal, setShowListModal] = useState(false);
   const [newEqType, setNewEqType] = useState<"rent" | "sale">("rent");
   const [newEqTitle, setNewEqTitle] = useState("");
   const [newEqBrand, setNewEqBrand] = useState("");
@@ -427,45 +583,20 @@ export default function MarketplaceClient() {
   const [newEqCategory, setNewEqCategory] = useState("tractors");
   const [newEqHp, setNewEqHp] = useState("");
   const [newEqPrice, setNewEqPrice] = useState("");
-  const [newEqPriceUnit, setNewEqPriceUnit] = useState("per hour");
+  const [newEqPriceUnit, setNewEqPriceUnit] = useState("per day");
   const [newEqOwnerName, setNewEqOwnerName] = useState("");
   const [newEqOwnerPhone, setNewEqOwnerPhone] = useState("");
   const [newEqState, setNewEqState] = useState("");
   const [newEqDistrict, setNewEqDistrict] = useState("");
   const [newEqNotes, setNewEqNotes] = useState("");
-
-  const [newProdCrop, setNewProdCrop] = useState("");
-  const [newProdVariety, setNewProdVariety] = useState("");
-  const [newProdQty, setNewProdQty] = useState("");
-  const [newProdPrice, setNewProdPrice] = useState("");
-  const [newProdFarmerName, setNewProdFarmerName] = useState("");
-  const [newProdPhone, setNewProdPhone] = useState("");
-  const [newProdState, setNewProdState] = useState("");
-  const [newProdDistrict, setNewProdDistrict] = useState("");
-  const [newProdGrade, setNewProdGrade] = useState("Grade A FAQ");
-  const [newProdDelivery, setNewProdDelivery] = useState("Farm Gate Pickup");
-  const [newProdNotes, setNewProdNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Initialize wishlist and recents from localStorage
+  // Load wishlist from localStorage
   useEffect(() => {
     try {
-      const savedWishlist = localStorage.getItem("kisaanbuddy_wishlist");
-      if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
-      const savedRecents = localStorage.getItem("kisaanbuddy_recent_products");
-      if (savedRecents) setRecentProductIds(JSON.parse(savedRecents));
+      const saved = localStorage.getItem("kisaanbuddy_wishlist");
+      if (saved) setWishlist(JSON.parse(saved));
     } catch {}
-  }, []);
-
-  // Close search suggestions on click outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowSearchSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggleWishlist = (id: string, e?: React.MouseEvent) => {
@@ -479,39 +610,199 @@ export default function MarketplaceClient() {
     });
   };
 
-  const handleProductClick = (product: UnifiedProduct) => {
-    setSelectedProduct(product);
-    // Add to recents
-    setRecentProductIds((prev) => {
-      const updated = [product.id, ...prev.filter((x) => x !== product.id)].slice(0, 6);
-      try {
-        localStorage.setItem("kisaanbuddy_recent_products", JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
+  // Close search suggestions & location popover on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
+      }
+      if (locationPopoverRef.current && !locationPopoverRef.current.contains(e.target as Node)) {
+        setShowLocationPopover(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // ─── GEOLOCATION DETECTION FUNCTION ──────────────────────────────────────
+  const detectLocation = useCallback(async () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setLocationError("Browser geolocation is not available on this device.");
+      return;
+    }
+
+    setDetectingLocation(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const loc = await reverseGeocodeCoords(latitude, longitude);
+
+          if (loc.state && loc.state.toLowerCase() !== "all") {
+            const detected: UserLocation = {
+              state: loc.state,
+              district: loc.district || loc.city || "",
+              city: loc.city || loc.district || "",
+              source: "gps",
+              detectedAt: Date.now(),
+            };
+            setUserLocation(detected);
+            setSelectedManualState(loc.state);
+            setSelectedManualDistrict(loc.district || "");
+            setSelectedManualCity(loc.city || "");
+            setLocationPermissionStatus("granted");
+            setLocationError(null);
+            setShowLocationPopover(false);
+
+            // Avoid storing precise coordinates unnecessarily (store city, district, state only)
+            try {
+              localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(detected));
+            } catch {}
+          } else {
+            setLocationError("Could not resolve location address from coordinates. Please select manually.");
+          }
+        } catch (err: any) {
+          console.error("Failed to reverse geocode GPS coordinates:", err);
+          setLocationError("Could not determine address from GPS. Please select your location manually.");
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      (err) => {
+        setDetectingLocation(false);
+        if (err.code === 1) {
+          // PERMISSION_DENIED
+          setLocationPermissionStatus("denied");
+          setLocationError("Location permission denied. Please allow location access in browser settings or choose manually below.");
+        } else if (err.code === 2) {
+          // POSITION_UNAVAILABLE
+          setLocationError("GPS signal unavailable on your device. Please select your location manually.");
+        } else if (err.code === 3) {
+          // TIMEOUT
+          setLocationError("GPS detection timed out. Please try again or select your location manually.");
+        } else {
+          setLocationError(err.message || "Failed to detect GPS location.");
+        }
+      },
+      { timeout: 10000, enableHighAccuracy: true, maximumAge: 5 * 60 * 1000 }
+    );
+  }, []);
+
+  // On page load: check saved location or automatically request geolocation if permission already granted
+  useEffect(() => {
+    let hasValidSaved = false;
+    try {
+      const savedLoc = localStorage.getItem("kisaanbuddy_marketplace_location");
+      if (savedLoc) {
+        const parsed: UserLocation = JSON.parse(savedLoc);
+        // Strictly prevent contradictory state (state="all" with source="gps")
+        if (parsed.state && parsed.state !== "all") {
+          setUserLocation(parsed);
+          setSelectedManualState(parsed.state);
+          setSelectedManualDistrict(parsed.district || "");
+          setSelectedManualCity(parsed.city || "");
+          hasValidSaved = true;
+        } else {
+          localStorage.removeItem("kisaanbuddy_marketplace_location");
+        }
+      }
+    } catch {}
+
+    // Check if permission is already granted in the browser
+    if (typeof navigator !== "undefined" && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((permissionStatus) => {
+          setLocationPermissionStatus(permissionStatus.state as any);
+
+          // If already granted, automatically retrieve real coordinates
+          if (permissionStatus.state === "granted") {
+            detectLocation();
+          }
+
+          // React when user grants or revokes permission in browser settings
+          permissionStatus.onchange = () => {
+            setLocationPermissionStatus(permissionStatus.state as any);
+            if (permissionStatus.state === "granted") {
+              detectLocation();
+            }
+          };
+        })
+        .catch(() => {
+          if (!hasValidSaved) {
+            setLocationPermissionStatus("prompt");
+          }
+        });
+    }
+  }, [detectLocation]);
+
+  // Clear location (Reset to All India)
+  const clearLocation = () => {
+    const allIndia: UserLocation = { state: "all", district: "", city: "", source: "default" };
+    setUserLocation(allIndia);
+    setSelectedManualState("");
+    setSelectedManualDistrict("");
+    setSelectedManualCity("");
+    setStrictLocationOnly(false);
+    setShowLocationPopover(false);
+    setLocationError(null);
+    try {
+      localStorage.removeItem("kisaanbuddy_marketplace_location");
+    } catch {}
   };
 
-  // Toggle comparison item
-  const toggleCompare = (product: UnifiedProduct, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-    setCompareItems((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
-      if (exists) {
-        return prev.filter((p) => p.id !== product.id);
-      }
-      if (prev.length >= 3) {
-        alert(isHi ? "अधिकतम 3 उत्पादों की तुलना की जा सकती है।" : "You can compare up to 3 products at a time.");
-        return prev;
-      }
-      return [...prev, product];
-    });
-    setShowCompareDrawer(true);
+  // Manual location select
+  const setManualLocation = (state: string, district = "", city = "") => {
+    if (!state || state === "all") {
+      clearLocation();
+      return;
+    }
+    const loc: UserLocation = {
+      state,
+      district,
+      city: city || district,
+      source: "manual",
+      detectedAt: Date.now(),
+    };
+    setUserLocation(loc);
+    setSelectedManualState(state);
+    setSelectedManualDistrict(district);
+    setSelectedManualCity(city || district);
+    setShowLocationPopover(false);
+    setLocationError(null);
+    try {
+      localStorage.setItem("kisaanbuddy_marketplace_location", JSON.stringify(loc));
+    } catch {}
   };
 
-  // ─── 1. Load Data ─────────────────────────────────────────────────────────
+  // Search locations matching query (states, districts, and major cities)
+  const searchedLocations = useMemo(() => {
+    const q = locationSearchInput.toLowerCase().trim();
+    if (!q) return [];
+
+    const matches: { state: string; district: string; city: string }[] = [];
+
+    // Check states and districts
+    for (const [st, dists] of Object.entries(INDIAN_LOCATIONS)) {
+      if (st.toLowerCase().includes(q)) {
+        matches.push({ state: st, district: "", city: "" });
+      }
+      for (const d of dists) {
+        if (d.toLowerCase().includes(q)) {
+          matches.push({ state: st, district: d, city: d });
+        }
+      }
+    }
+
+    return matches.slice(0, 10);
+  }, [locationSearchInput]);
+
+  // Fetch marketplace data from backend APIs
   const loadData = useCallback(async () => {
     try {
-      setLoadingProducts(true);
+      setLoading(true);
       const [catRes, eqRes] = await Promise.all([
         equipmentCatalogApi.list({ limit: 250 }).catch(() => ({ items: [], total: 0 })),
         equipmentListingsApi.list({ limit: 100, status: "available" }).catch(() => ({ items: [], total: 0 })),
@@ -519,9 +810,9 @@ export default function MarketplaceClient() {
       setCatalogItems(catRes.items || []);
       setEquipmentListings(eqRes.items || []);
     } catch (err) {
-      console.error("Failed to load products:", err);
+      console.error("Failed to load marketplace listings:", err);
     } finally {
-      setLoadingProducts(false);
+      setLoading(false);
     }
   }, []);
 
@@ -529,42 +820,33 @@ export default function MarketplaceClient() {
     loadData();
   }, [loadData]);
 
-  // Lazy load alternate sections
-  useEffect(() => {
-    if (sectionMode === "produce" && produceListings.length === 0) {
-      setLoadingProduce(true);
-      Promise.all([
-        produceListingsApi.list({ status: "available" }).then((res) => setProduceListings(res.items || [])),
-        marketPricesApi.list({ limit: 10 }).then((res) => setMarketPrices(res || [])),
-      ])
-        .catch(console.error)
-        .finally(() => setLoadingProduce(false));
-    } else if (sectionMode === "buyers" && legacyListings.length === 0) {
-      setLoadingLegacy(true);
-      marketplaceApi.list({ listing_type: "buy" })
-        .then((res) => setLegacyListings(res || []))
-        .catch(console.error)
-        .finally(() => setLoadingLegacy(false));
-    } else if (sectionMode === "provenance" && sources.length === 0) {
-      marketplaceSourcesApi.list()
-        .then((res) => setSources(res || []))
-        .catch(console.error);
+  // Image audit mapping lookup
+  const auditImageMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const r of (machineryAuditData as any).records || []) {
+      if (r.imageUrl) {
+        if (r.productId) map.set(r.productId, r.imageUrl);
+        if (r.numericId && r.sourceType) map.set(`${r.sourceType}-${r.numericId}`, r.imageUrl);
+        if (r.exactModel) {
+          const key = `${(r.brand || "").toLowerCase()} ${(r.exactModel || "").toLowerCase()}`.trim();
+          map.set(key, r.imageUrl);
+        }
+      }
     }
-  }, [sectionMode, produceListings.length, legacyListings.length, sources.length]);
+    return map;
+  }, []);
 
-  // ─── 2. Build Unified Product Dataset ─────────────────────────────────────
+  // Combine reference models and active farmer listings into unified products
   const unifiedProducts = useMemo<UnifiedProduct[]>(() => {
     const list: UnifiedProduct[] = [];
 
-    // Local listings from farmers & custom hiring centers
+    // Real Farmer Listings (Rent / Sale)
     for (const item of equipmentListings) {
-      // Find matching catalog model for exact image if catalog_id present
+      const modelKey = `${(item.brand || "").toLowerCase()} ${(item.model_name || item.title || "").toLowerCase()}`.trim();
+      const auditImg = auditImageMap.get(`list-${item.id}`) || auditImageMap.get(modelKey);
       const matchedCat = item.catalog_id ? catalogItems.find((c) => c.id === item.catalog_id) : null;
-      const verifiedImg =
-        item.image_url ||
-        matchedCat?.image_url ||
-        VERIFIED_MACHINE_IMAGES[`${item.brand.toLowerCase()}-${item.model_name.toLowerCase().replace(/\s+/g, "-")}`] ||
-        getMachineryPhoto(item.category, item.brand, item.model_name);
+      const rawImg = auditImg || item.image_url || matchedCat?.image_url || null;
+      const verifiedImg = getVerifiedMachineryPhoto(item.brand, item.model_name, rawImg);
 
       list.push({
         id: `list-${item.id}`,
@@ -590,13 +872,20 @@ export default function MarketplaceClient() {
         state: item.state,
         district: item.district,
         isVerified: true,
+        hasVerifiedPhoto: Boolean(verifiedImg),
         imageUrl: verifiedImg,
+        images: (item as any).images && (item as any).images.length > 0 ? (item as any).images : (verifiedImg ? [verifiedImg] : []),
         description: item.notes,
       });
     }
 
-    // Reference & Manufacturer Catalog models
+    // Official Catalog Models
     for (const item of catalogItems) {
+      const modelKey = `${(item.brand || "").toLowerCase()} ${(item.model_name || "").toLowerCase()}`.trim();
+      const auditImg = auditImageMap.get(`cat-${item.id}`) || auditImageMap.get(modelKey);
+      const rawImg = auditImg || item.image_url;
+      const resolvedImg = getVerifiedMachineryPhoto(item.brand, item.model_name, rawImg);
+
       list.push({
         id: `cat-${item.id}`,
         sourceType: "catalog",
@@ -621,7 +910,9 @@ export default function MarketplaceClient() {
         sellerName: item.supplier_name || "Official Manufacturer Network",
         sellerLocation: "Authorized Pan-India Dealers",
         isVerified: item.is_verified ?? true,
-        imageUrl: getMachineryPhoto(item.category, item.brand, item.model_name, item.image_url),
+        hasVerifiedPhoto: Boolean(resolvedImg),
+        imageUrl: resolvedImg,
+        images: resolvedImg ? [resolvedImg] : [],
         officialSourceUrl: item.official_source_url,
         supplierName: item.supplier_name,
         description: item.description,
@@ -631,33 +922,70 @@ export default function MarketplaceClient() {
     }
 
     return list;
-  }, [equipmentListings, catalogItems]);
+  }, [equipmentListings, catalogItems, auditImageMap]);
 
-  // Extract unique brands for sidebar filter
+  // Unique brands with counts
   const availableBrands = useMemo(() => {
-    const brandMap: Record<string, number> = {};
+    const map: Record<string, number> = {};
     unifiedProducts.forEach((p) => {
       const b = p.brand?.trim();
-      if (b) brandMap[b] = (brandMap[b] || 0) + 1;
+      if (b) map[b] = (map[b] || 0) + 1;
     });
-    return Object.entries(brandMap)
+    return Object.entries(map)
       .sort((a, b) => b[1] - a[1])
       .map(([brand, count]) => ({ brand, count }));
   }, [unifiedProducts]);
 
-  // Extract unique states for location filter
-  const availableStates = useMemo(() => {
-    const states = new Set<string>();
-    unifiedProducts.forEach((p) => {
-      if (p.state && p.state.trim()) states.add(p.state.trim());
-    });
-    return Array.from(states).sort();
-  }, [unifiedProducts]);
+  // Autocomplete suggestions based on query
+  const autocompleteSuggestions = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return { brands: [], categories: [], products: [] };
 
-  // ─── 3. Filter & Sort Execution ───────────────────────────────────────────
+    const matchingBrands = availableBrands
+      .filter((b) => b.brand.toLowerCase().includes(q))
+      .slice(0, 4);
+
+    const matchingCategories = CATEGORIES
+      .filter((c) => c.key !== "all" && (c.labelEn.toLowerCase().includes(q) || c.key.toLowerCase().includes(q)))
+      .slice(0, 3);
+
+    const matchingProducts = unifiedProducts
+      .filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.modelName.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q)
+      )
+      .slice(0, 5);
+
+    return {
+      brands: matchingBrands,
+      categories: matchingCategories,
+      products: matchingProducts,
+    };
+  }, [searchQuery, availableBrands, unifiedProducts]);
+
+  // Category matching helper
+  const matchesCategory = (productCat: string, selected: string) => {
+    if (selected === "all") return true;
+    const pc = productCat.toLowerCase();
+    const sel = selected.toLowerCase();
+    if (sel === "trailers") {
+      return pc.includes("trailer") || pc.includes("trolley");
+    }
+    if (sel === "irrigation") {
+      return pc.includes("irrigation") || pc.includes("pump");
+    }
+    if (sel === "other") {
+      return pc.includes("other") || pc.includes("implement") || pc.includes("leveller");
+    }
+    return pc.includes(sel);
+  };
+
+  // Filter products
   const filteredProducts = useMemo(() => {
     return unifiedProducts.filter((product) => {
-      // Search
+      // 1. Search filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matches =
@@ -670,21 +998,38 @@ export default function MarketplaceClient() {
         if (!matches) return false;
       }
 
-      // Category
-      if (selectedCategory !== "all" && product.category.toLowerCase() !== selectedCategory.toLowerCase()) {
+      // 2. Strict Location Filter (if user toggled strict filter)
+      if (strictLocationOnly && userLocation.state !== "all") {
+        const uState = userLocation.state.toLowerCase().trim();
+        const uDist = (userLocation.district || "").toLowerCase().trim();
+        const pState = (product.state || "").toLowerCase().trim();
+        const pDist = (product.district || "").toLowerCase().trim();
+
+        const stateMatch = pState && (pState.includes(uState) || uState.includes(pState));
+        const distMatch = uDist && pDist && (pDist.includes(uDist) || uDist.includes(pDist));
+
+        if (userLocation.district) {
+          if (!distMatch && !stateMatch) return false;
+        } else if (!stateMatch) {
+          return false;
+        }
+      }
+
+      // 3. Category filter
+      if (selectedCategory !== "all" && !matchesCategory(product.category, selectedCategory)) {
         return false;
       }
 
-      // Brand
+      // 4. Brand filter
       if (selectedBrand !== "all" && product.brand.toLowerCase() !== selectedBrand.toLowerCase()) {
         return false;
       }
 
-      // Deal Type (Rent vs Sale)
+      // 5. Deal type filter
       if (dealFilter === "rent" && product.dealType !== "rent") return false;
       if (dealFilter === "sale" && product.dealType !== "sale" && product.dealType !== "catalog") return false;
 
-      // HP Range
+      // 6. Engine HP filter
       if (hpRange !== "all") {
         const hp = product.hpRating ?? 0;
         if (hpRange === "under_40" && (hp === 0 || hp >= 40)) return false;
@@ -693,39 +1038,57 @@ export default function MarketplaceClient() {
         if (hpRange === "above_75" && hp < 75) return false;
       }
 
-      // Condition
+      // 7. Condition filter
       if (conditionFilter === "new" && product.condition !== "new") return false;
       if (conditionFilter === "used" && product.condition === "new") return false;
 
-      // State
-      if (stateFilter !== "all" && product.state && product.state.toLowerCase() !== stateFilter.toLowerCase()) {
-        return false;
-      }
-
-      // Price Range
+      // 8. Price filter
       if (minPrice && product.price != null && product.price < parseFloat(minPrice)) return false;
       if (maxPrice && product.price != null && product.price > parseFloat(maxPrice)) return false;
 
-      // Available now only
-      if (availableNowOnly && product.sourceType !== "listing") return false;
+      // 9. Photo availability filter (prioritized via sorting, verified badge shown)
+      if (verifiedPhotoOnly && (!product.hasVerifiedPhoto || !product.imageUrl)) return false;
 
       return true;
     });
   }, [
     unifiedProducts,
     searchQuery,
+    strictLocationOnly,
+    userLocation,
     selectedCategory,
     selectedBrand,
     dealFilter,
     hpRange,
     conditionFilter,
-    stateFilter,
     minPrice,
     maxPrice,
-    availableNowOnly,
+    verifiedPhotoOnly,
   ]);
 
-  // Sort
+  // Count nearby matches for banner
+  const nearbyCounts = useMemo(() => {
+    if (userLocation.state === "all") return { district: 0, state: 0 };
+    const uState = userLocation.state.toLowerCase().trim();
+    const uDist = (userLocation.district || "").toLowerCase().trim();
+
+    let districtCount = 0;
+    let stateCount = 0;
+
+    for (const p of filteredProducts) {
+      const pState = (p.state || "").toLowerCase().trim();
+      const pDist = (p.district || "").toLowerCase().trim();
+      if (uDist && pDist && (pDist.includes(uDist) || uDist.includes(pDist))) {
+        districtCount++;
+      }
+      if (pState && (pState.includes(uState) || uState.includes(pState))) {
+        stateCount++;
+      }
+    }
+    return { district: districtCount, state: stateCount };
+  }, [filteredProducts, userLocation]);
+
+  // Sort products prioritizing location proximity
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
     switch (sortBy) {
@@ -740,14 +1103,23 @@ export default function MarketplaceClient() {
       case "relevance":
       default:
         return list.sort((a, b) => {
-          if (a.sourceType === "listing" && b.sourceType !== "listing") return -1;
-          if (b.sourceType === "listing" && a.sourceType !== "listing") return 1;
+          // Priority 1: Geographic proximity (Same District > Same State > Pan-India > Others)
+          const locScoreA = getLocationScore(a, userLocation);
+          const locScoreB = getLocationScore(b, userLocation);
+          if (locScoreA !== locScoreB) {
+            return locScoreB - locScoreA;
+          }
+
+          if (a.hasVerifiedPhoto && !b.hasVerifiedPhoto) return -1;
+          if (b.hasVerifiedPhoto && !a.hasVerifiedPhoto) return 1;
           if (a.price && !b.price) return -1;
           if (b.price && !a.price) return 1;
+          if (a.sourceType === "listing" && b.sourceType !== "listing") return -1;
+          if (b.sourceType === "listing" && a.sourceType !== "listing") return 1;
           return a.title.localeCompare(b.title);
         });
     }
-  }, [filteredProducts, sortBy]);
+  }, [filteredProducts, sortBy, userLocation]);
 
   // Pagination
   const paginatedProducts = useMemo(() => {
@@ -759,81 +1131,252 @@ export default function MarketplaceClient() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [
-    searchQuery,
-    selectedCategory,
-    selectedBrand,
-    dealFilter,
-    hpRange,
-    conditionFilter,
-    stateFilter,
-    minPrice,
-    maxPrice,
-    availableNowOnly,
-    sortBy,
-  ]);
+  }, [searchQuery, userLocation, strictLocationOnly, selectedCategory, selectedBrand, dealFilter, hpRange, conditionFilter, minPrice, maxPrice, sortBy]);
 
   const clearAllFilters = () => {
     setSearchQuery("");
+    clearLocation();
     setSelectedCategory("all");
     setSelectedBrand("all");
     setDealFilter("all");
     setHpRange("all");
     setConditionFilter("all");
-    setStateFilter("all");
     setMinPrice("");
     setMaxPrice("");
-    setAvailableNowOnly(false);
     setSortBy("relevance");
   };
 
+  // Sync visible items with Voice Operating System
+  useEffect(() => {
+    if (paginatedProducts && paginatedProducts.length > 0) {
+      const items = paginatedProducts.slice(0, 10).map((p, idx) => ({
+        id: p.id,
+        name: p.title,
+        price: p.price || 0,
+        category: p.category,
+        brand: p.brand,
+        index: idx + 1,
+      }));
+      registerVisibleItems(items);
+    }
+  }, [paginatedProducts, registerVisibleItems]);
+
+  // Sync selected modal product with Voice Operating System
+  useEffect(() => {
+    if (selectedProduct) {
+      registerSelectedItem({
+        id: selectedProduct.id,
+        name: selectedProduct.title,
+        price: selectedProduct.price || 0,
+        category: selectedProduct.category,
+        brand: selectedProduct.brand,
+      });
+    } else {
+      registerSelectedItem(null);
+    }
+  }, [selectedProduct, registerSelectedItem]);
+
+  // Listen for voice-triggered component actions
+  useEffect(() => {
+    const onFilterPrice = (e: any) => {
+      if (e.detail?.maxPrice) {
+        setMaxPrice(String(e.detail.maxPrice));
+      }
+    };
+    const onSortProducts = (e: any) => {
+      if (e.detail?.sortBy) {
+        setSortBy(e.detail.sortBy);
+      }
+    };
+    const onSelectItem = (e: any) => {
+      const idx = e.detail?.index;
+      if (idx && paginatedProducts[idx - 1]) {
+        setSelectedProduct(paginatedProducts[idx - 1]);
+      }
+    };
+    const onVoiceSearch = (e: any) => {
+      if (e.detail?.query) {
+        setSearchQuery(e.detail.query);
+      }
+    };
+
+    window.addEventListener("kisaanbuddy:filter-price", onFilterPrice);
+    window.addEventListener("kisaanbuddy:sort-products", onSortProducts);
+    window.addEventListener("kisaanbuddy:select-item", onSelectItem);
+    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+
+    return () => {
+      window.removeEventListener("kisaanbuddy:filter-price", onFilterPrice);
+      window.removeEventListener("kisaanbuddy:sort-products", onSortProducts);
+      window.removeEventListener("kisaanbuddy:select-item", onSelectItem);
+      window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+    };
+  }, [paginatedProducts]);
+
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
+    if (userLocation.state !== "all") count++;
     if (selectedCategory !== "all") count++;
     if (selectedBrand !== "all") count++;
     if (dealFilter !== "all") count++;
     if (hpRange !== "all") count++;
     if (conditionFilter !== "all") count++;
-    if (stateFilter !== "all") count++;
     if (minPrice || maxPrice) count++;
-    if (availableNowOnly) count++;
     if (searchQuery) count++;
     return count;
-  }, [
-    selectedCategory,
-    selectedBrand,
-    dealFilter,
-    hpRange,
-    conditionFilter,
-    stateFilter,
-    minPrice,
-    maxPrice,
-    availableNowOnly,
-    searchQuery,
-  ]);
+  }, [userLocation, selectedCategory, selectedBrand, dealFilter, hpRange, conditionFilter, minPrice, maxPrice, searchQuery]);
 
-  // Recent products data
-  const recentProducts = useMemo(() => {
-    return recentProductIds
-      .map((id) => unifiedProducts.find((p) => p.id === id))
-      .filter((p): p is UnifiedProduct => Boolean(p));
-  }, [recentProductIds, unifiedProducts]);
-
-  // Similar products in modal
-  const similarProducts = useMemo(() => {
-    if (!selectedProduct) return [];
-    return unifiedProducts
-      .filter((p) => p.id !== selectedProduct.id && (p.category === selectedProduct.category || p.brand === selectedProduct.brand))
-      .slice(0, 4);
-  }, [selectedProduct, unifiedProducts]);
-
-  const openContact = (name: string, phone: string | null | undefined, title: string, location: string) => {
-    setContactTarget({ name, phone, title, location });
+  const openContact = (product: UnifiedProduct) => {
+    setContactTarget({
+      name: product.sellerName,
+      phone: product.sellerPhone,
+      title: product.title,
+      location: product.sellerLocation,
+      sourceType: product.sourceType,
+      listingId: product.listingId,
+      catalogId: product.catalogId,
+      brand: product.brand,
+      modelName: product.modelName,
+      officialSourceUrl: product.officialSourceUrl,
+    });
+    setContactTab(product.sellerPhone ? "direct" : "callback");
+    setInquirySuccess(null);
+    setInquiryError(null);
     setShowContactModal(true);
   };
 
-  // Listings Submit Handlers
-  const handleCreateEquipmentListing = async (e: React.FormEvent) => {
+  // Submit Callback Request (Scenario B)
+  const handleCallbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactTarget) return;
+    if (!inquiryName.trim() || !inquiryPhone.trim()) {
+      setInquiryError("Please enter your name and valid phone number.");
+      return;
+    }
+    const cleanDigits = inquiryPhone.replace(/[^0-9]/g, "");
+    if (cleanDigits.length < 10) {
+      setInquiryError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    try {
+      setInquirySubmitting(true);
+      setInquiryError(null);
+      const res = await tradeInquiriesApi.submit({
+        listing_type: contactTarget.sourceType === "catalog" ? "equipment_catalog" : "equipment_listing",
+        listing_id: (contactTarget.sourceType === "catalog" ? contactTarget.catalogId : contactTarget.listingId) || 1,
+        sender_name: inquiryName.trim(),
+        sender_phone: inquiryPhone.trim(),
+        sender_type: "farmer",
+        inquiry_type: "callback",
+        preferred_callback_time: preferredTime,
+        message: `Callback requested for "${contactTarget.title}". Preferred time: ${preferredTime}`,
+      } as any);
+
+      setInquirySuccess({
+        refId: res.id,
+        status: res.status || "submitted",
+        type: "Callback Request",
+        message: `Callback scheduled! Our verified team / seller will call you at ${inquiryPhone} during ${preferredTime}.`,
+      });
+    } catch (err: any) {
+      console.error("Failed to submit callback request:", err);
+      setInquiryError(err.message || "Unable to save callback request. Please try again.");
+    } finally {
+      setInquirySubmitting(false);
+    }
+  };
+
+  // Submit Quotation Request (Scenario B)
+  const handleQuotationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactTarget) return;
+    if (!inquiryName.trim() || !inquiryPhone.trim()) {
+      setInquiryError("Please enter your name and contact phone number.");
+      return;
+    }
+    const cleanDigits = inquiryPhone.replace(/[^0-9]/g, "");
+    if (cleanDigits.length < 10) {
+      setInquiryError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    try {
+      setInquirySubmitting(true);
+      setInquiryError(null);
+      const res = await tradeInquiriesApi.submit({
+        listing_type: contactTarget.sourceType === "catalog" ? "equipment_catalog" : "equipment_listing",
+        listing_id: (contactTarget.sourceType === "catalog" ? contactTarget.catalogId : contactTarget.listingId) || 1,
+        sender_name: inquiryName.trim(),
+        sender_phone: inquiryPhone.trim(),
+        sender_type: "farmer",
+        inquiry_type: "quotation",
+        proposed_price: quotePrice ? parseFloat(quotePrice) : undefined,
+        proposed_quantity: quoteQuantity ? parseFloat(quoteQuantity) : undefined,
+        message: quoteMessage.trim() || `Quotation requested for "${contactTarget.title}"`,
+      } as any);
+
+      setInquirySuccess({
+        refId: res.id,
+        status: res.status || "submitted",
+        type: "Quotation Request",
+        message: `Quotation request registered! Reference ID #${res.id}. The seller / authorized distributor has received your enquiry.`,
+      });
+    } catch (err: any) {
+      console.error("Failed to submit quotation request:", err);
+      setInquiryError(err.message || "Failed to submit quotation request. Please check details and try again.");
+    } finally {
+      setInquirySubmitting(false);
+    }
+  };
+
+  // Open Smart Price Comparison
+  const openPriceComparison = async (product: UnifiedProduct) => {
+    setCompareProduct(product);
+    setShowCompareModal(true);
+    setCompareLoading(true);
+    setCompareData(null);
+    setCompareError(null);
+    try {
+      const res = await priceComparisonApi.compare({
+        category: product.category,
+        deal_type: product.dealType === "catalog" ? "sale" : product.dealType,
+        price_unit: product.priceUnit || (product.dealType === "rent" ? "per hour" : "total price"),
+        hp_rating: product.hpRating || undefined,
+        brand: product.brand,
+        model_name: product.modelName,
+        target_id: product.id,
+      });
+      setCompareData(res);
+    } catch (err: any) {
+      console.error("Failed to load price comparison:", err);
+      setCompareError(err?.message || "Failed to load price comparison");
+    } finally {
+      setCompareLoading(false);
+    }
+  };
+
+  // Open Dealer Discovery
+  const openDealersModal = async () => {
+    setShowDealersModal(true);
+    setDealersLoading(true);
+    try {
+      const data = await dealersApi.list({
+        state: userLocation.state !== "all" ? userLocation.state : undefined,
+        district: userLocation.district || undefined,
+        category: selectedCategory !== "all" ? selectedCategory : undefined,
+      });
+      setDealersList(data);
+    } catch (err) {
+      console.error("Failed to load dealers:", err);
+    } finally {
+      setDealersLoading(false);
+    }
+  };
+
+  // Create Listing
+  const handleCreateListing = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEqTitle || !newEqBrand || !newEqPrice || !newEqOwnerName || !newEqOwnerPhone) {
       alert("Please fill all required fields marked with *");
@@ -861,7 +1404,7 @@ export default function MarketplaceClient() {
         notes: newEqNotes || null,
       });
       alert(isHi ? "मशीन लिस्टिंग सफलतापूर्वक पोस्ट हो गई है!" : "Equipment listing published successfully!");
-      setShowEqModal(false);
+      setShowListModal(false);
       loadData();
     } catch (err) {
       console.error(err);
@@ -871,1440 +1414,1339 @@ export default function MarketplaceClient() {
     }
   };
 
-  const handleCreateProduceListing = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newProdCrop || !newProdQty || !newProdPrice || !newProdFarmerName || !newProdPhone) {
-      alert("Please fill all required fields marked with *");
-      return;
-    }
-    try {
-      setIsSubmitting(true);
-      await produceListingsApi.create({
-        crop_name: newProdCrop,
-        variety: newProdVariety || undefined,
-        category: "cereal",
-        quantity: parseFloat(newProdQty),
-        quantity_unit: "Quintals",
-        asking_price: parseFloat(newProdPrice),
-        price_unit: "₹ / Quintal",
-        is_negotiable: true,
-        farmer_name: newProdFarmerName,
-        farmer_phone: newProdPhone,
-        state: newProdState || "Madhya Pradesh",
-        district: newProdDistrict || "Sehore",
-        grade_or_quality: newProdGrade,
-        delivery_option: newProdDelivery,
-        contact_consent_verified: true,
-        verification_status: "verified",
-        notes: newProdNotes || undefined,
-      });
-      alert(isHi ? "फसल उत्पाद सफलतापूर्वक बाज़ार में लिस्ट हो गया है!" : "Produce lot published successfully!");
-      setShowProduceModal(false);
-      produceListingsApi.list({ status: "available" }).then((res) => setProduceListings(res.items || []));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to publish produce lot.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased selection:bg-emerald-100 selection:text-emerald-900">
-      {/* ─── 1. CLEAN, PREMIUM SINGLE-ROW HEADER ─────────────────────────────── */}
-      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-4 h-16">
+    <div className="marketplace-root min-h-screen w-full max-w-none bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 antialiased" data-marketplace="true">
+      {/* ─── 1. HEADER: CLEAN SINGLE-ROW AMAZON-INSPIRED HEADER ─────────────── */}
+      <header className="sticky top-0 z-40 w-full max-w-none bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between gap-3 sm:gap-4 h-16">
             {/* Left: Brand Identity */}
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+              <button
+                type="button"
+                onClick={openMenu}
+                className="md:hidden flex h-8 w-8 items-center justify-center rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-95 transition shrink-0"
+                aria-label="Open navigation menu / मेनू खोलें"
+              >
+                <Menu className="h-4.5 w-4.5" />
+              </button>
               <Link href="/marketplace" className="flex items-center gap-2.5 group">
-                <div className="w-9 h-9 rounded-xl bg-emerald-700 flex items-center justify-center text-white shadow-xs group-hover:bg-emerald-800 transition">
-                  <Store className="w-5 h-5 stroke-[2]" />
+                <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold text-base shadow-xs group-hover:bg-emerald-800 transition">
+                  🌾
                 </div>
                 <div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white">
-                      KisaanBuddy
-                    </span>
-                    <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200/60">
-                      B2B AgriMarket
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold leading-none">
-                    {isHi ? "कृषि उपकरण एवं उपज बाज़ार" : "Machinery & Farm Commerce"}
+                  <span className="text-base sm:text-lg font-bold tracking-tight text-stone-900 dark:text-white">
+                    Kisaan<span className="text-emerald-700">Buddy</span>
+                  </span>
+                  <p className="text-[11px] text-stone-500 font-normal leading-none hidden sm:block">
+                    Machinery & Farm Commerce
                   </p>
                 </div>
               </Link>
             </div>
 
-            {/* Centre: Prominent Clean Search Bar with Autocomplete Suggestions */}
-            <div ref={searchContainerRef} className="flex-1 max-w-xl relative hidden sm:block">
-              <div className="relative flex items-center">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onFocus={() => setShowSearchSuggestions(true)}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={
-                    isHi
-                      ? "ट्रैक्टर, रोटावेटर, कंबाइन या ब्रांड खोजें (उदा. Mahindra 575)..."
-                      : "Search tractors, harvesters, equipment, brands (e.g. Mahindra 575)..."
-                  }
-                  className="w-full pl-10 pr-9 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 transition"
-                />
-                {searchQuery && (
+            {/* Center: Large, Prominent Search Bar */}
+            <div ref={searchContainerRef} className="flex-1 max-w-4xl mx-2 md:mx-4 lg:mx-6 relative hidden sm:block">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  setSearchFocused(false);
+                }}
+                className="relative flex items-center"
+              >
+                <div className="relative w-full flex items-center">
+                  <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onFocus={() => setSearchFocused(true)}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={
+                      isHi
+                        ? "ट्रैक्टर, कंबाइन, रोटावेटर या ब्रांड खोजें (उदा. Mahindra 575)..."
+                        : "Search tractors, harvesters, equipment, brands..."
+                    }
+                    className="w-full pl-10 pr-24 py-2 text-sm rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 text-stone-900 dark:text-white placeholder:text-stone-400 transition"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-12 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 rounded-full"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                   <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600 rounded-full"
+                    type="submit"
+                    className="absolute right-1 top-1 bottom-1 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md text-xs font-semibold flex items-center justify-center transition"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <Search className="w-3.5 h-3.5" />
                   </button>
-                )}
-              </div>
+                </div>
+              </form>
 
-              {/* Suggestions Dropdown */}
-              {showSearchSuggestions && !searchQuery && (
-                <div className="absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl p-2 z-50">
-                  <div className="text-[10px] uppercase font-bold text-slate-400 px-2 py-1">Popular Agricultural Searches</div>
-                  <div className="flex flex-wrap gap-1.5 p-1">
-                    {SEARCH_SUGGESTIONS.map((sug) => (
-                      <button
-                        key={sug}
-                        onClick={() => {
-                          setSearchQuery(sug);
-                          setShowSearchSuggestions(false);
-                        }}
-                        className="text-xs px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-800 text-slate-700 dark:bg-slate-800 dark:text-slate-300 transition text-left"
-                      >
-                        {sug}
-                      </button>
-                    ))}
-                  </div>
+              {/* Instant Search Suggestions Dropdown */}
+              {searchFocused && (
+                <div className="absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-800 shadow-xl p-3 z-50 space-y-3">
+                  {/* Matching Brands */}
+                  {autocompleteSuggestions.brands.length > 0 && (
+                    <div>
+                      <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-1 mb-1">
+                        Brands
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {autocompleteSuggestions.brands.map((b) => (
+                          <button
+                            key={b.brand}
+                            onMouseDown={() => {
+                              setSelectedBrand(b.brand);
+                              setSearchFocused(false);
+                            }}
+                            className="text-xs px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 hover:text-emerald-800 text-stone-700 dark:text-stone-300 transition text-left"
+                          >
+                            {b.brand} <span className="text-[10px] text-stone-400">({b.count})</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Matching Categories */}
+                  {autocompleteSuggestions.categories.length > 0 && (
+                    <div>
+                      <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-1 mb-1">
+                        Categories
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {autocompleteSuggestions.categories.map((c) => (
+                          <button
+                            key={c.key}
+                            onMouseDown={() => {
+                              setSelectedCategory(c.key);
+                              setSearchFocused(false);
+                            }}
+                            className="text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 hover:bg-emerald-100 font-medium transition"
+                          >
+                            In {c.labelEn}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Matching Products with Genuine Thumbnails */}
+                  {autocompleteSuggestions.products.length > 0 && (
+                    <div>
+                      <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-1 mb-1.5">
+                        Matching Listings
+                      </div>
+                      <div className="divide-y divide-stone-100 dark:divide-stone-800">
+                        {autocompleteSuggestions.products.map((p) => (
+                          <div
+                            key={p.id}
+                            onMouseDown={() => {
+                              setSelectedProduct(p);
+                              setSearchFocused(false);
+                            }}
+                            className="flex items-center gap-3 p-1.5 rounded-md hover:bg-stone-50 dark:hover:bg-stone-800/60 cursor-pointer transition"
+                          >
+                            <div className="w-10 h-8 rounded bg-stone-100 dark:bg-stone-800 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                              {p.imageUrl ? (
+                                <img src={p.imageUrl} alt={p.title} className="w-full h-full object-contain" />
+                              ) : (
+                                <AlertCircle className="w-3.5 h-3.5 text-stone-300" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-stone-900 dark:text-white truncate">
+                                {p.title}
+                              </p>
+                              <p className="text-[10px] text-stone-400">
+                                {p.brand} • {p.district || p.sellerLocation}
+                              </p>
+                            </div>
+                            {p.price != null && (
+                              <span className="text-xs font-bold text-emerald-700 shrink-0">
+                                ₹{p.price.toLocaleString("en-IN")}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Popular Searches Fallback when query is empty */}
+                  {!searchQuery.trim() && (
+                    <div>
+                      <div className="text-[10px] font-bold text-stone-400 uppercase tracking-wider px-1 mb-1.5">
+                        Popular Searches
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {POPULAR_SEARCHES.map((term) => (
+                          <button
+                            key={term}
+                            onMouseDown={() => {
+                              setSearchQuery(term);
+                              setSearchFocused(false);
+                            }}
+                            className="text-xs px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 hover:text-emerald-800 text-stone-700 dark:text-stone-300 transition"
+                          >
+                            {term}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Right: Actions */}
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <Link
-                href="/mandi"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition shadow-2xs"
-              >
-                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="hidden md:inline">{isHi ? "मंडी लाइव भाव" : "Mandi Live"}</span>
-              </Link>
-
-              {/* Wishlist Button */}
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              {/* Wishlist */}
               <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("all");
-                  setSelectedBrand("all");
-                }}
-                className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition ${
-                  wishlist.length > 0
-                    ? "bg-rose-50 border-rose-200 text-rose-700 dark:bg-rose-950/40 dark:border-rose-900"
-                    : "border-slate-200 dark:border-slate-700 text-slate-600 hover:bg-slate-50"
-                }`}
-                title="View Saved Wishlist"
+                onClick={() => {}}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-rose-600 hover:bg-stone-50 dark:hover:bg-stone-800 rounded-md transition"
+                title={`${wishlist.length} Saved in Wishlist`}
               >
-                <Heart className={`w-3.5 h-3.5 ${wishlist.length > 0 ? "fill-rose-500 text-rose-500" : ""}`} />
-                <span className="text-[11px] font-bold">{wishlist.length}</span>
+                <Heart className={`w-4 h-4 ${wishlist.length > 0 ? "fill-rose-500 text-rose-500" : "text-stone-500"}`} />
+                <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{wishlist.length}</span>
+              </button>
+
+              {/* Dealer Discovery CTA */}
+              <button
+                onClick={openDealersModal}
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 font-semibold text-xs transition cursor-pointer"
+                title="Discover Verified Custom Hiring Centers and Machinery Sellers"
+              >
+                <Building2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                <span>Nearby CHCs & Dealers</span>
               </button>
 
               {/* List Your Product CTA */}
               <button
-                onClick={() => setShowListChoiceModal(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition active:scale-95 cursor-pointer"
+                onClick={() => setShowListModal(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs shadow-xs transition active:scale-95 cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
-                <span>{isHi ? "उत्पाद जोड़ें" : "List Product"}</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>List Product</span>
               </button>
+
+              {/* Account icon */}
+              <Link
+                href="/dashboard"
+                className="p-1.5 text-stone-600 dark:text-stone-300 hover:text-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-md transition"
+                title="Your Farm Account"
+              >
+                <User className="w-4 h-4" />
+              </Link>
             </div>
           </div>
 
-          {/* Mobile Search Bar Row (Only on small screens) */}
+          {/* Mobile Search Row */}
           <div className="pb-3 sm:hidden">
-            <div className="relative flex items-center">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setSearchFocused(false);
+              }}
+              className="relative flex items-center"
+            >
+              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search tractors, harvesters, brands..."
-                className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
+                className="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-2.5 p-1 text-slate-400">
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 p-1 text-stone-400"
+                >
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
-            </div>
-          </div>
-
-          {/* Compact Secondary Navigation Bar */}
-          <div className="flex items-center gap-2 overflow-x-auto py-2 border-t border-slate-100 dark:border-slate-800/80 scrollbar-none text-xs">
-            <button
-              onClick={() => setSectionMode("machinery")}
-              className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 ${
-                sectionMode === "machinery"
-                  ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <Wrench className="w-3.5 h-3.5" />
-              <span>{isHi ? "कृषि उपकरण व मशीनरी" : "Farm Equipment"}</span>
-              <span className="text-[10px] opacity-75 font-normal">({unifiedProducts.length})</span>
-            </button>
-
-            <button
-              onClick={() => setSectionMode("produce")}
-              className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 ${
-                sectionMode === "produce"
-                  ? "bg-amber-700 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <Truck className="w-3.5 h-3.5" />
-              <span>{isHi ? "सीधी फसल खरीद (फार्म गेट)" : "Direct Farm Sourcing"}</span>
-            </button>
-
-            <button
-              onClick={() => setSectionMode("buyers")}
-              className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 ${
-                sectionMode === "buyers"
-                  ? "bg-emerald-800 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>{isHi ? "थोक मांग एवं मिलर्स" : "Procurement & Mill Demands"}</span>
-            </button>
-
-            <button
-              onClick={() => setSectionMode("provenance")}
-              className={`px-3 py-1 rounded-lg font-bold transition flex items-center gap-1.5 shrink-0 ${
-                sectionMode === "provenance"
-                  ? "bg-sky-700 text-white"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800"
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{isHi ? "डेटा स्रोत व लाइसेंस" : "Data Provenance"}</span>
-            </button>
+            </form>
           </div>
         </div>
       </header>
 
-      {/* ─── 2. COMPACT HORIZONTAL CATEGORY NAVIGATION BAR ────────────────────── */}
-      {sectionMode === "machinery" && (
-        <nav aria-label="Machinery Categories" className="bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-800 py-2">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-              {EQUIPMENT_CATEGORIES.map((cat) => {
-                const isSelected = selectedCategory === cat.key;
-                return (
-                  <button
-                    key={cat.key}
-                    onClick={() => setSelectedCategory(cat.key)}
-                    className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer select-none ${
-                      isSelected
-                        ? "bg-emerald-700 text-white shadow-2xs font-bold ring-1 ring-emerald-600"
-                        : "bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
-                    }`}
-                  >
-                    {isHi ? cat.labelHi : cat.labelEn}
-                  </button>
-                );
-              })}
-            </div>
+      {/* ─── 2. CATEGORY NAVIGATION: COMPACT SINGLE-ROW HORIZONTAL BAR ──────── */}
+      <nav
+        aria-label="Machinery Categories"
+        className="w-full max-w-none bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 overflow-x-auto scrollbar-none"
+      >
+        <div className="w-full max-w-none px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap py-1.5">
+            {CATEGORIES.map((cat) => {
+              const isSelected = selectedCategory === cat.key;
+              return (
+                <button
+                  key={cat.key}
+                  onClick={() => setSelectedCategory(cat.key)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                    isSelected
+                      ? "text-emerald-700 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950/60"
+                      : "text-stone-600 dark:text-stone-400 hover:text-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  }`}
+                >
+                  {isHi ? cat.labelHi : cat.labelEn}
+                </button>
+              );
+            })}
           </div>
-        </nav>
-      )}
+        </div>
+      </nav>
 
-      {/* ─── 3. MAIN PRODUCT DISCOVERY SECTION ───────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {sectionMode === "machinery" && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* ─── Left Column: Compact Sticky Accordion Filter Sidebar ────── */}
-            <aside className="hidden lg:block lg:col-span-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 shadow-2xs sticky top-32 space-y-4">
-              {/* Sidebar Header */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-emerald-700" />
-                  <span className="font-extrabold text-xs uppercase tracking-wider text-slate-900 dark:text-white">
-                    {isHi ? "फ़िल्टर" : "Filter Machinery"}
+      {/* ─── 3. MAIN CONTENT: SIDEBAR + PRODUCT GRID ────────────────────────── */}
+      <div className="w-full max-w-none px-3 sm:px-4 lg:px-6 py-5 lg:py-6">
+        <div className="flex flex-col lg:flex-row gap-5 lg:gap-6 items-start w-full max-w-none">
+          {/* ─── Left Sidebar: STRICT NEW FILTER ORDER ──────────────────────── */}
+          {/* 1. Location (TOP)                                                 */}
+          {/* 2. Category                                                       */}
+          {/* 3. Brand                                                          */}
+          {/* 4. Listing Type (Buy / Rent)                                      */}
+          {/* 5. Price Range                                                    */}
+          {/* 6. Condition                                                      */}
+          <aside className="hidden lg:block w-[290px] xl:w-[310px] 2xl:w-[320px] shrink-0 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 space-y-5 sticky top-20">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+              <span className="font-bold text-xs uppercase tracking-wider text-stone-900 dark:text-white">
+                Filters
+              </span>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={clearAllFilters}
+                  className="text-xs font-semibold text-emerald-700 hover:underline"
+                >
+                  Clear all ({activeFilterCount})
+                </button>
+              )}
+            </div>
+
+            {/* ─── FILTER 1: LOCATION (ABSOLUTE TOP) ────────────────────────── */}
+            <div className="space-y-3 relative" ref={locationPopoverRef}>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-stone-900 dark:text-white flex items-center gap-1.5 uppercase tracking-wider">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Location</span>
+                </span>
+                {userLocation.state !== "all" && (
+                  <button
+                    onClick={clearLocation}
+                    className="text-[11px] font-semibold text-emerald-700 hover:underline"
+                  >
+                    All India
+                  </button>
+                )}
+              </div>
+
+              {/* Detected / Selected Location Card */}
+              <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/90 border border-stone-200 dark:border-stone-700 space-y-3">
+                <div>
+                  <span className="text-[10px] font-bold uppercase text-stone-500 dark:text-stone-400 flex items-center gap-1 tracking-wider">
+                    <span>📍 YOUR LOCATION</span>
                   </span>
-                  {activeFilterCount > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </div>
-                {activeFilterCount > 0 && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline"
-                  >
-                    Clear All
-                  </button>
-                )}
-              </div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-white mt-1">
+                    {userLocation.state !== "all"
+                      ? (userLocation.city && userLocation.city !== userLocation.state
+                          ? `${userLocation.city}, ${userLocation.state}`
+                          : userLocation.district && userLocation.district !== userLocation.state
+                          ? `${userLocation.district}, ${userLocation.state}`
+                          : userLocation.state)
+                      : "All India"}
+                  </p>
 
-              {/* Accordion 1: Deal Type (Rent vs Sale) */}
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <button
-                  onClick={() => toggleAccordion("deal")}
-                  className="w-full flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 py-1"
-                >
-                  <span>Listing Type</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.deal ? "rotate-180" : ""}`} />
-                </button>
-                {openSections.deal && (
-                  <div className="pt-2 space-y-1.5 text-xs">
-                    {[
-                      { key: "all", label: "All Deals" },
-                      { key: "rent", label: "Available for Rent" },
-                      { key: "sale", label: "Buy / For Sale" },
-                    ].map((opt) => (
-                      <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300">
-                        <input
-                          type="radio"
-                          name="dealType"
-                          checked={dealFilter === opt.key}
-                          onChange={() => setDealFilter(opt.key as DealFilter)}
-                          className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-600 border-slate-300"
-                        />
-                        <span>{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Accordion 2: Brand & Manufacturer */}
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <button
-                  onClick={() => toggleAccordion("brand")}
-                  className="w-full flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 py-1"
-                >
-                  <span>Brand & Manufacturer</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.brand ? "rotate-180" : ""}`} />
-                </button>
-                {openSections.brand && (
-                  <div className="pt-2 space-y-1.5 max-h-48 overflow-y-auto scrollbar-thin text-xs pr-1">
-                    <label className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300 font-semibold">
-                      <input
-                        type="radio"
-                        name="brandFilter"
-                        checked={selectedBrand === "all"}
-                        onChange={() => setSelectedBrand("all")}
-                        className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-600"
-                      />
-                      <span>All Brands</span>
-                    </label>
-                    {availableBrands.map(({ brand, count }) => (
-                      <label key={brand} className="flex items-center justify-between gap-2 cursor-pointer text-slate-600 dark:text-slate-400 hover:text-slate-900">
-                        <span className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="brandFilter"
-                            checked={selectedBrand === brand}
-                            onChange={() => setSelectedBrand(brand)}
-                            className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-600"
-                          />
-                          <span>{brand}</span>
-                        </span>
-                        <span className="text-[10px] text-slate-400">({count})</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Accordion 3: Engine Power (HP) */}
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <button
-                  onClick={() => toggleAccordion("hp")}
-                  className="w-full flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 py-1"
-                >
-                  <span>Engine Power (HP)</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.hp ? "rotate-180" : ""}`} />
-                </button>
-                {openSections.hp && (
-                  <div className="pt-2 space-y-1.5 text-xs">
-                    {[
-                      { key: "all", label: "Any Horsepower" },
-                      { key: "under_40", label: "Under 40 HP" },
-                      { key: "40_55", label: "40 – 55 HP" },
-                      { key: "55_75", label: "55 – 75 HP" },
-                      { key: "above_75", label: "75+ HP" },
-                    ].map((opt) => (
-                      <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300">
-                        <input
-                          type="radio"
-                          name="hpRange"
-                          checked={hpRange === opt.key}
-                          onChange={() => setHpRange(opt.key as any)}
-                          className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-600"
-                        />
-                        <span>{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Accordion 4: Price Range */}
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <button
-                  onClick={() => toggleAccordion("price")}
-                  className="w-full flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 py-1"
-                >
-                  <span>Price Range (₹)</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.price ? "rotate-180" : ""}`} />
-                </button>
-                {openSections.price && (
-                  <div className="pt-2 space-y-2 text-xs">
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <span className="text-[10px] text-slate-400 block mb-0.5">Min ₹</span>
-                        <input
-                          type="number"
-                          placeholder="e.g. 500"
-                          value={minPrice}
-                          onChange={(e) => setMinPrice(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
-                        />
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-slate-400 block mb-0.5">Max ₹</span>
-                        <input
-                          type="number"
-                          placeholder="e.g. 500000"
-                          value={maxPrice}
-                          onChange={(e) => setMaxPrice(e.target.value)}
-                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white"
-                        />
-                      </div>
+                  {/* GPS Verified Status or Manual Indicator */}
+                  {userLocation.source === "gps" && userLocation.state !== "all" ? (
+                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 mt-1.5 rounded-md bg-emerald-100/90 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 text-[11px] font-bold">
+                      <Check className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400 stroke-[2.5]" />
+                      <span>GPS Verified ✓</span>
                     </div>
+                  ) : userLocation.source === "manual" && userLocation.state !== "all" ? (
+                    <div className="inline-flex items-center gap-1 px-2 py-0.5 mt-1.5 rounded-md bg-stone-200/80 dark:bg-stone-700/70 text-stone-700 dark:text-stone-300 text-[11px] font-medium">
+                      <span>Manual Selection</span>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Useful Error Message */}
+                {locationError && (
+                  <div className="p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-[11px] text-rose-800 dark:text-rose-200 flex items-start gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                    <span className="leading-tight">{locationError}</span>
                   </div>
                 )}
-              </div>
 
-              {/* Accordion 5: Condition */}
-              <div className="border-b border-slate-100 dark:border-slate-800 pb-3">
-                <button
-                  onClick={() => toggleAccordion("condition")}
-                  className="w-full flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 py-1"
-                >
-                  <span>Condition</span>
-                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.condition ? "rotate-180" : ""}`} />
-                </button>
-                {openSections.condition && (
-                  <div className="pt-2 space-y-1.5 text-xs">
-                    {[
-                      { key: "all", label: "All Conditions" },
-                      { key: "new", label: "Brand New" },
-                      { key: "used", label: "Used / Certified" },
-                    ].map((opt) => (
-                      <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-slate-700 dark:text-slate-300">
-                        <input
-                          type="radio"
-                          name="condition"
-                          checked={conditionFilter === opt.key}
-                          onChange={() => setConditionFilter(opt.key as any)}
-                          className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-600"
-                        />
-                        <span>{opt.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
+                {/* Primary Action Buttons */}
+                <div className="space-y-2 pt-0.5">
+                  {/* Enable Location (GPS) button */}
+                  {userLocation.source !== "gps" && (
+                    <button
+                      type="button"
+                      onClick={detectLocation}
+                      disabled={detectingLocation}
+                      className="w-full py-2 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition shadow-xs disabled:opacity-50"
+                    >
+                      {detectingLocation ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Detecting GPS Location...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Crosshair className="w-3.5 h-3.5" />
+                          <span>Enable Location</span>
+                        </>
+                      )}
+                    </button>
+                  )}
 
-              {/* Accordion 6: State / Location */}
-              {availableStates.length > 0 && (
-                <div className="pb-1">
-                  <button
-                    onClick={() => toggleAccordion("location")}
-                    className="w-full flex items-center justify-between text-xs font-bold text-slate-800 dark:text-slate-200 py-1"
-                  >
-                    <span>Location / State</span>
-                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${openSections.location ? "rotate-180" : ""}`} />
-                  </button>
-                  {openSections.location && (
-                    <div className="pt-2 text-xs">
-                      <select
-                        value={stateFilter}
-                        onChange={(e) => setStateFilter(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
+                  {/* If already GPS verified, allow updating with spinner */}
+                  {userLocation.source === "gps" && detectingLocation && (
+                    <div className="py-1 flex items-center justify-center gap-1.5 text-xs text-emerald-700 font-medium">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Updating GPS location...</span>
+                    </div>
+                  )}
+
+                  {/* Change Location Button */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedManualState(userLocation.state !== "all" ? userLocation.state : "");
+                        setSelectedManualDistrict(userLocation.district || "");
+                        setSelectedManualCity(userLocation.city || "");
+                        setShowLocationPopover(!showLocationPopover);
+                      }}
+                      className="flex-1 py-1.5 px-3 text-xs font-semibold rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 transition text-center shadow-2xs"
+                    >
+                      Change Location
+                    </button>
+                    {userLocation.state !== "all" && (
+                      <button
+                        type="button"
+                        onClick={clearLocation}
+                        className="px-2 py-1.5 text-xs font-medium text-stone-500 hover:text-emerald-700 dark:text-stone-400 transition"
+                        title="Reset to All India"
                       >
-                        <option value="all">All States</option>
-                        {availableStates.map((st) => (
+                        All India
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Search & Selection Popover */}
+              {showLocationPopover && (
+                <div className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-700 shadow-2xl p-3.5 space-y-3.5">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-stone-100 dark:border-stone-800">
+                    <span className="text-xs font-bold text-stone-900 dark:text-white flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Select Location (Manual)</span>
+                    </span>
+                    <button onClick={() => setShowLocationPopover(false)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Search input for State, District, City or PIN */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={locationSearchInput}
+                      onChange={(e) => setLocationSearchInput(e.target.value)}
+                      placeholder="Search State, District or City..."
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-md border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                    />
+                  </div>
+
+                  {/* Autocomplete Search Results */}
+                  {locationSearchInput.trim() && searchedLocations.length > 0 && (
+                    <div className="space-y-1 max-h-40 overflow-y-auto pr-1 border rounded-md border-stone-100 dark:border-stone-800 p-1">
+                      {searchedLocations.map((item, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setManualLocation(item.state, item.district, item.city);
+                            setLocationSearchInput("");
+                          }}
+                          className="w-full text-left p-1.5 rounded-md hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-800 dark:hover:text-emerald-300 text-xs text-stone-700 dark:text-stone-300 flex items-center justify-between transition"
+                        >
+                          <span className="font-medium truncate">
+                            {item.district ? `${item.district}, ${item.state}` : item.state}
+                          </span>
+                          <span className="text-[10px] text-stone-400 uppercase font-mono">
+                            {item.district ? "District" : "State"}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Cascading State, District & City Selectors */}
+                  <div className="space-y-2.5 text-xs">
+                    <div>
+                      <label className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 block mb-1">State</label>
+                      <select
+                        value={selectedManualState}
+                        onChange={(e) => {
+                          const st = e.target.value;
+                          setSelectedManualState(st);
+                          setSelectedManualDistrict("");
+                          setSelectedManualCity("");
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      >
+                        <option value="">-- Choose State --</option>
+                        {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
                           <option key={st} value={st}>
                             {st}
                           </option>
                         ))}
                       </select>
                     </div>
-                  )}
+
+                    {selectedManualState && INDIAN_LOCATIONS[selectedManualState] && (
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 block mb-1">District</label>
+                        <select
+                          value={selectedManualDistrict}
+                          onChange={(e) => {
+                            const dist = e.target.value;
+                            setSelectedManualDistrict(dist);
+                            if (!selectedManualCity) {
+                              setSelectedManualCity(dist);
+                            }
+                          }}
+                          className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                        >
+                          <option value="">All Districts in {selectedManualState}</option>
+                          {INDIAN_LOCATIONS[selectedManualState].map((d) => (
+                            <option key={d} value={d}>
+                              {d}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {selectedManualState && (
+                      <div>
+                        <label className="text-[10px] uppercase font-bold text-stone-500 dark:text-stone-400 block mb-1">City / Town</label>
+                        <input
+                          type="text"
+                          value={selectedManualCity}
+                          onChange={(e) => setSelectedManualCity(e.target.value)}
+                          placeholder={selectedManualDistrict || "Enter city or town"}
+                          className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Popover Footer */}
+                  <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-800">
+                    <button
+                      type="button"
+                      onClick={clearLocation}
+                      className="text-xs font-semibold text-stone-500 hover:text-stone-800 dark:hover:text-white transition"
+                    >
+                      Reset to All India
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (selectedManualState) {
+                          setManualLocation(selectedManualState, selectedManualDistrict, selectedManualCity);
+                        } else {
+                          clearLocation();
+                        }
+                      }}
+                      className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md text-xs font-semibold transition"
+                    >
+                      Apply Location
+                    </button>
+                  </div>
                 </div>
               )}
-            </aside>
 
-            {/* ─── Right Column: Spacious Product Discovery Section ────────── */}
-            <div className="lg:col-span-9 space-y-4">
-              {/* Product Discovery Top Bar */}
-              <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-2xs flex flex-wrap items-center justify-between gap-3">
-                {/* Result count & active indicator */}
-                <div className="flex items-center gap-2.5">
-                  <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white">
-                    {sortedProducts.length}{" "}
-                    <span className="font-normal text-slate-500 text-xs">
-                      {isHi ? "कृषि मशीनें उपलब्ध" : "agricultural machines available"}
+              {/* Strict Local Filter Option */}
+              {userLocation.state !== "all" && (
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-stone-700 dark:text-stone-300 pt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={strictLocationOnly}
+                    onChange={(e) => setStrictLocationOnly(e.target.checked)}
+                    className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700 rounded border-stone-300"
+                  />
+                  <span>Only show listings in {userLocation.city || userLocation.district || userLocation.state}</span>
+                </label>
+              )}
+            </div>
+
+            {/* ─── FILTER 2: CATEGORY ──────────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
+              <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
+                Category
+              </span>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                {CATEGORIES.map((cat) => (
+                  <label key={cat.key} className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
+                    <input
+                      type="radio"
+                      name="sidebarCategory"
+                      checked={selectedCategory === cat.key}
+                      onChange={() => setSelectedCategory(cat.key)}
+                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700"
+                    />
+                    <span className={selectedCategory === cat.key ? "font-bold text-emerald-800 dark:text-emerald-400" : ""}>
+                      {cat.labelEn}
                     </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* ─── FILTER 3: BRAND ─────────────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
+              <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
+                Brand & Manufacturer
+              </span>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 text-xs">
+                <label className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300 font-medium">
+                  <input
+                    type="radio"
+                    name="brandFilter"
+                    checked={selectedBrand === "all"}
+                    onChange={() => setSelectedBrand("all")}
+                    className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700"
+                  />
+                  <span>All Brands</span>
+                </label>
+                {availableBrands.map(({ brand, count }) => (
+                  <label key={brand} className="flex items-center justify-between gap-2 cursor-pointer text-stone-600 dark:text-stone-400 hover:text-stone-900">
+                    <span className="flex items-center gap-2">
+                      <input
+                        type="radio"
+                        name="brandFilter"
+                        checked={selectedBrand === brand}
+                        onChange={() => setSelectedBrand(brand)}
+                        className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700"
+                      />
+                      <span>{brand}</span>
+                    </span>
+                    <span className="text-[11px] text-stone-400 font-mono">({count})</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* ─── FILTER 4: LISTING TYPE (BUY / RENT) ──────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
+              <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
+                Listing Type (Buy / Rent)
+              </span>
+              <div className="space-y-1.5 text-xs">
+                {[
+                  { key: "all", label: "All Equipment" },
+                  { key: "rent", label: "Available for Rent" },
+                  { key: "sale", label: "Buy / For Sale" },
+                ].map((opt) => (
+                  <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
+                    <input
+                      type="radio"
+                      name="dealType"
+                      checked={dealFilter === opt.key}
+                      onChange={() => setDealFilter(opt.key as any)}
+                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700 border-stone-300"
+                    />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* ─── FILTER 5: PRICE RANGE ───────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
+              <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
+                Price Range (₹)
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <input
+                  type="number"
+                  placeholder="Min ₹"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white"
+                />
+                <input
+                  type="number"
+                  placeholder="Max ₹"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-full px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs text-stone-900 dark:text-white"
+                />
+              </div>
+            </div>
+
+            {/* ─── FILTER 6: CONDITION ─────────────────────────────────────── */}
+            <div className="space-y-2 pt-3 border-t border-stone-100 dark:border-stone-800">
+              <span className="text-xs font-bold text-stone-800 dark:text-stone-200 block">
+                Condition
+              </span>
+              <div className="space-y-1.5 text-xs">
+                {[
+                  { key: "all", label: "All Conditions" },
+                  { key: "new", label: "Brand New / Spec" },
+                  { key: "used", label: "Used / Certified" },
+                ].map((opt) => (
+                  <label key={opt.key} className="flex items-center gap-2 cursor-pointer text-stone-700 dark:text-stone-300">
+                    <input
+                      type="radio"
+                      name="condition"
+                      checked={conditionFilter === opt.key}
+                      onChange={() => setConditionFilter(opt.key as any)}
+                      className="w-3.5 h-3.5 text-emerald-700 focus:ring-emerald-700"
+                    />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          {/* ─── Right Column: Results & Product Cards ──────────────────────── */}
+          <div className="flex-1 min-w-0 w-full space-y-4">
+            {/* Location Banner (When location is active) */}
+            {userLocation.state !== "all" && (
+              <div className="p-3 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+                <div className="flex items-center gap-2 text-stone-800 dark:text-stone-200">
+                  <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span>
+                    Showing equipment prioritizing{" "}
+                    <strong className="text-emerald-900 dark:text-emerald-200 font-bold">
+                      {userLocation.city && userLocation.city !== userLocation.state
+                        ? `${userLocation.city}, ${userLocation.state}`
+                        : userLocation.district
+                        ? `${userLocation.district}, ${userLocation.state}`
+                        : userLocation.state}
+                    </strong>
+                    {nearbyCounts.district > 0 && ` (${nearbyCounts.district} listings in your district)`}
                   </span>
-
-                  {/* Mobile Filters Trigger */}
-                  <button
-                    onClick={() => setMobileDrawerOpen(true)}
-                    className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold text-slate-700"
-                  >
-                    <Sliders className="w-3.5 h-3.5" />
-                    <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
-                  </button>
                 </div>
-
-                {/* Right: Deal Segmented Switch + Sort Dropdown + View Toggle */}
-                <div className="flex items-center gap-3">
-                  {/* Segmented Control for Deal Type */}
-                  <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl text-xs font-bold">
-                    <button
-                      onClick={() => setDealFilter("all")}
-                      className={`px-3 py-1 rounded-lg transition ${
-                        dealFilter === "all" ? "bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs" : "text-slate-500 hover:text-slate-800"
-                      }`}
-                    >
-                      All
-                    </button>
-                    <button
-                      onClick={() => setDealFilter("rent")}
-                      className={`px-3 py-1 rounded-lg transition ${
-                        dealFilter === "rent" ? "bg-emerald-700 text-white shadow-2xs" : "text-slate-500 hover:text-slate-800"
-                      }`}
-                    >
-                      For Rent
-                    </button>
-                    <button
-                      onClick={() => setDealFilter("sale")}
-                      className={`px-3 py-1 rounded-lg transition ${
-                        dealFilter === "sale" ? "bg-emerald-700 text-white shadow-2xs" : "text-slate-500 hover:text-slate-800"
-                      }`}
-                    >
-                      For Sale
-                    </button>
-                  </div>
-
-                  {/* Sort Dropdown */}
-                  <div className="flex items-center gap-1 text-xs">
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value as SortOption)}
-                      className="px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200"
-                    >
-                      <option value="relevance">Sort: Relevance</option>
-                      <option value="price_asc">Price: Low to High</option>
-                      <option value="price_desc">Price: High to Low</option>
-                      <option value="hp_desc">Horsepower: High to Low</option>
-                      <option value="newest">Newest First</option>
-                    </select>
-                  </div>
-
-                  {/* Grid / List Toggle */}
-                  <div className="flex items-center border border-slate-200 dark:border-slate-700 rounded-xl p-0.5 bg-slate-50 dark:bg-slate-800">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-1.5 rounded-lg transition ${viewMode === "grid" ? "bg-white dark:bg-slate-900 text-emerald-700 shadow-2xs" : "text-slate-400 hover:text-slate-600"}`}
-                      title="3-Column Grid View"
-                    >
-                      <LayoutGrid className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-1.5 rounded-lg transition ${viewMode === "list" ? "bg-white dark:bg-slate-900 text-emerald-700 shadow-2xs" : "text-slate-400 hover:text-slate-600"}`}
-                      title="List View"
-                    >
-                      <ListIcon className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStrictLocationOnly(!strictLocationOnly)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition border ${
+                      strictLocationOnly
+                        ? "bg-emerald-700 text-white border-emerald-700"
+                        : "bg-white dark:bg-stone-800 text-stone-700 border-stone-200 hover:bg-stone-100"
+                    }`}
+                  >
+                    {strictLocationOnly ? "Showing Local Only" : "Filter Local Only"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearLocation}
+                    className="text-stone-500 hover:text-stone-800 underline text-[11px]"
+                  >
+                    View All India
+                  </button>
                 </div>
               </div>
+            )}
 
-              {/* Active Filter Chips */}
-              {activeFilterCount > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                  <span className="text-[11px] font-bold text-slate-400 mr-1">Active Filters:</span>
-                  {selectedCategory !== "all" && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                      Category: {selectedCategory.replace("_", " ")}
-                      <button onClick={() => setSelectedCategory("all")}>
-                        <X className="w-3 h-3 hover:text-rose-600" />
-                      </button>
-                    </span>
+            {/* Top Toolbar: Results count, sorting, view toggle, mobile filter trigger */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-stone-200 dark:border-stone-800">
+              {/* Results headline */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-stone-800 dark:text-stone-200">
+                  {searchQuery ? (
+                    <>
+                      Results for &quot;<span className="text-stone-900 dark:text-white font-bold">{searchQuery}</span>&quot;
+                    </>
+                  ) : (
+                    <>
+                      Showing {Math.min(sortedProducts.length, pageSize)} of {sortedProducts.length} results
+                    </>
                   )}
-                  {selectedBrand !== "all" && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                      Brand: {selectedBrand}
-                      <button onClick={() => setSelectedBrand("all")}>
-                        <X className="w-3 h-3 hover:text-rose-600" />
-                      </button>
-                    </span>
-                  )}
-                  {dealFilter !== "all" && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                      Deal: {dealFilter === "rent" ? "For Rent" : "For Sale"}
-                      <button onClick={() => setDealFilter("all")}>
-                        <X className="w-3 h-3 hover:text-rose-600" />
-                      </button>
-                    </span>
-                  )}
-                  {hpRange !== "all" && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                      HP: {hpRange.replace("_", "–")}
-                      <button onClick={() => setHpRange("all")}>
-                        <X className="w-3 h-3 hover:text-rose-600" />
-                      </button>
-                    </span>
-                  )}
-                  {searchQuery && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700">
-                      &quot;{searchQuery}&quot;
-                      <button onClick={() => setSearchQuery("")}>
-                        <X className="w-3 h-3 hover:text-rose-600" />
-                      </button>
-                    </span>
-                  )}
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline ml-1"
+                </span>
+
+                {/* Mobile Filter Button */}
+                <button
+                  onClick={() => setMobileFilterOpen(true)}
+                  className="lg:hidden inline-flex items-center gap-1.5 px-3 py-1 rounded-md border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300"
+                >
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>Filters {activeFilterCount > 0 && `(${activeFilterCount})`}</span>
+                </button>
+              </div>
+
+              {/* Sort & View Mode */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-xs">
+                  <span className="text-stone-500 hidden sm:inline">Sort by:</span>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="px-2.5 py-1.5 rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-xs font-medium text-stone-800 dark:text-stone-200"
                   >
-                    Clear All
+                    <option value="relevance">Featured (Nearby First)</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="hp_desc">Horsepower: High to Low</option>
+                    <option value="newest">Newest First</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center border border-stone-200 dark:border-stone-700 rounded-md p-0.5 bg-stone-50 dark:bg-stone-800">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-1.5 rounded transition ${viewMode === "grid" ? "bg-white dark:bg-stone-900 text-emerald-700 shadow-2xs" : "text-stone-400"}`}
+                    title="Grid View"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-1.5 rounded transition ${viewMode === "list" ? "bg-white dark:bg-stone-900 text-emerald-700 shadow-2xs" : "text-stone-400"}`}
+                    title="List View"
+                  >
+                    <ListIcon className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              )}
+              </div>
+            </div>
 
-              {/* ─── 4. REDESIGNED PRODUCT GRID (Spacious 3-Column Desktop, 2-Col Mobile) ─── */}
-              {loadingProducts ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 p-4 space-y-3 animate-pulse">
-                      <div className="w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 rounded-xl" />
-                      <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/3" />
-                      <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-4/5" />
-                      <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/2" />
-                      <div className="h-8 bg-slate-100 dark:bg-slate-800 rounded w-full" />
-                    </div>
-                  ))}
-                </div>
-              ) : paginatedProducts.length === 0 ? (
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 p-12 text-center text-slate-500 space-y-3">
-                  <AlertCircle className="w-12 h-12 text-amber-500 mx-auto" />
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                    {isHi ? "कोई कृषि मशीन नहीं मिली" : "No agricultural products matched your criteria"}
-                  </h3>
-                  <p className="text-xs text-slate-500 max-w-md mx-auto">
-                    Try broadening your brand selection, adjusting the horsepower range, or clearing active filters to view all 284 machines.
-                  </p>
+            {/* Active Filter Pills */}
+            {activeFilterCount > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                {userLocation.state !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-900 border border-emerald-200">
+                    <MapPin className="w-3 h-3 text-emerald-700" />
+                    Location: {userLocation.city && userLocation.city !== userLocation.state ? `${userLocation.city}, ${userLocation.state}` : userLocation.district ? `${userLocation.district}, ${userLocation.state}` : userLocation.state}
+                    <button onClick={clearLocation}>
+                      <X className="w-3 h-3 hover:text-rose-600" />
+                    </button>
+                  </span>
+                )}
+                {selectedCategory !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700">
+                    Category: {selectedCategory}
+                    <button onClick={() => setSelectedCategory("all")}>
+                      <X className="w-3 h-3 hover:text-rose-600" />
+                    </button>
+                  </span>
+                )}
+                {selectedBrand !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700">
+                    Brand: {selectedBrand}
+                    <button onClick={() => setSelectedBrand("all")}>
+                      <X className="w-3 h-3 hover:text-rose-600" />
+                    </button>
+                  </span>
+                )}
+                {dealFilter !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700">
+                    {dealFilter === "rent" ? "For Rent" : "For Sale"}
+                    <button onClick={() => setDealFilter("all")}>
+                      <X className="w-3 h-3 hover:text-rose-600" />
+                    </button>
+                  </span>
+                )}
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-stone-100 dark:bg-stone-800 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700">
+                    &quot;{searchQuery}&quot;
+                    <button onClick={() => setSearchQuery("")}>
+                      <X className="w-3 h-3 hover:text-rose-600" />
+                    </button>
+                  </span>
+                )}
+                <button
+                  onClick={clearAllFilters}
+                  className="text-xs font-semibold text-emerald-700 hover:underline ml-1"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+
+            {/* ─── Product Feed ──────────────────────────────────────────────── */}
+            {loading ? (
+              <div className="marketplace-product-grid">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-4 space-y-3 animate-pulse">
+                    <div className="w-full aspect-[4/3] bg-stone-100 dark:bg-stone-800 rounded-lg" />
+                    <div className="h-4 bg-stone-100 dark:bg-stone-800 rounded w-1/3" />
+                    <div className="h-5 bg-stone-100 dark:bg-stone-800 rounded w-4/5" />
+                    <div className="h-4 bg-stone-100 dark:bg-stone-800 rounded w-1/2" />
+                    <div className="h-8 bg-stone-100 dark:bg-stone-800 rounded w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : paginatedProducts.length === 0 ? (
+              <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-12 text-center text-stone-500 space-y-3">
+                <AlertCircle className="w-10 h-10 text-amber-500 mx-auto" />
+                <h3 className="text-base font-bold text-stone-900 dark:text-white">
+                  No matching agricultural products found in this area
+                </h3>
+                <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                  Try broadening your location to All India, adjusting your search query, or clearing active filters.
+                </p>
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={clearLocation}
+                    className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
+                  >
+                    Search All India
+                  </button>
                   <button
                     onClick={clearAllFilters}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-700 text-white font-bold text-xs hover:bg-emerald-800 transition"
+                    className="px-4 py-2 rounded-lg border border-stone-200 text-stone-700 font-semibold text-xs hover:bg-stone-50 transition"
                   >
                     Reset All Filters
                   </button>
                 </div>
-              ) : viewMode === "grid" ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
-                  {paginatedProducts.map((product) => {
-                    const isWishlisted = wishlist.includes(product.id);
-                    const isCompared = compareItems.some((c) => c.id === product.id);
+              </div>
+            ) : viewMode === "grid" ? (
+              /* Amazon-Style Grid Cards */
+              <div className="marketplace-product-grid">
+                {paginatedProducts.map((product) => {
+                  const isWishlisted = wishlist.includes(product.id);
+                  const isLocal = userLocation.state !== "all" && product.state && 
+                    (product.state.toLowerCase() === userLocation.state.toLowerCase());
 
-                    return (
-                      <div
-                        key={product.id}
-                        onClick={() => handleProductClick(product)}
-                        className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 hover:border-emerald-600/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer"
-                      >
-                        <div>
-                          {/* PRODUCT IMAGE AREA (Strict 4:3 Aspect Ratio & Neutral Background) */}
-                          <div className="relative w-full aspect-[4/3] bg-slate-50 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-800 overflow-hidden flex items-center justify-center">
-                            <ProductCardImage
-                              src={product.imageUrl}
-                              alt={product.title}
-                              category={product.category}
-                              brand={product.brand}
-                              modelName={product.modelName}
-                            />
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }}
+                      className={`group bg-white dark:bg-stone-900 rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer ${
+                        isLocal
+                          ? "border-emerald-300 dark:border-emerald-800/80 shadow-xs"
+                          : "border-stone-200 dark:border-stone-800 hover:border-stone-300 hover:shadow-md"
+                      }`}
+                    >
+                      <div>
+                        {/* Image Container with 4:3 aspect ratio */}
+                        <div className="relative w-full aspect-[4/3] bg-white dark:bg-stone-900 border-b border-stone-100 dark:border-stone-800 flex items-center justify-center p-3 select-none overflow-hidden">
+                          <ProductCardImage key={product.imageUrl || product.id} src={product.imageUrl} alt={product.title} />
 
-                            {/* Top-Left: Deal Badge */}
-                            <div className="absolute top-2.5 left-2.5">
-                              {product.dealType === "rent" ? (
-                                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-700 text-white shadow-2xs">
-                                  {isHi ? "किराये पर" : "For Rent"}
-                                </span>
-                              ) : product.dealType === "sale" ? (
-                                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-sky-700 text-white shadow-2xs">
-                                  {isHi ? "बिक्री के लिए" : "For Sale"}
-                                </span>
-                              ) : (
-                                <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-800 text-white shadow-2xs">
-                                  {isHi ? "ब्रांड मॉडल" : "Verified Spec"}
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Top-Right: Wishlist Heart & Quick View */}
-                            <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5">
-                              <button
-                                onClick={(e) => toggleWishlist(product.id, e)}
-                                className={`p-1.5 rounded-full backdrop-blur-md transition shadow-2xs ${
-                                  isWishlisted
-                                    ? "bg-rose-50 text-rose-600 border border-rose-200"
-                                    : "bg-white/90 text-slate-400 hover:text-rose-600 hover:bg-white"
-                                }`}
-                                title={isWishlisted ? "Remove from wishlist" : "Save to wishlist"}
-                              >
-                                <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-rose-500" : ""}`} />
-                              </button>
-                            </div>
-
-                            {/* Bottom-Left: Condition Tag */}
-                            <div className="absolute bottom-2 left-2.5">
-                              <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-white/90 dark:bg-slate-800/90 text-slate-700 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700 uppercase">
-                                {product.condition === "new" ? "Brand New" : `${product.condition} Condition`}
+                          {/* Top Left: Deal Badge */}
+                          <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1">
+                            {product.dealType === "rent" ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                                For Rent
                               </span>
-                            </div>
+                            ) : product.dealType === "sale" ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-800 border border-sky-200/80">
+                                For Sale
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-stone-100 text-stone-700 border border-stone-200">
+                                Model Spec
+                              </span>
+                            )}
                           </div>
 
-                          {/* PRODUCT INFORMATION */}
-                          <div className="p-4 space-y-2">
-                            {/* Brand Name */}
-                            <div className="flex items-center justify-between text-[11px] text-slate-500">
-                              <span className="font-extrabold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                                {product.brand}
-                              </span>
-                              <span className="text-[10px] text-slate-400 capitalize">
-                                {product.category.replace("_", " ")}
-                              </span>
-                            </div>
-
-                            {/* Product Name (Sensible natural wrapping, no aggressive truncating) */}
-                            <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
-                              {product.title}
-                            </h4>
-
-                            {/* Important Specifications Row */}
-                            <div className="flex items-center gap-2 pt-1 flex-wrap text-xs text-slate-600 dark:text-slate-300">
-                              {product.hpRating != null && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-[11px] font-bold">
-                                  <Gauge className="w-3 h-3 text-emerald-700" />
-                                  <span>{product.hpRating} HP</span>
-                                </span>
-                              )}
-                              {product.workingWidthMm != null && (
-                                <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">
-                                  {product.workingWidthMm} mm width
-                                </span>
-                              )}
-                              {product.weightKg != null && (
-                                <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">
-                                  {product.weightKg} kg
-                                </span>
-                              )}
-                            </div>
-
-                            {/* Price / Rental Charges (Strong Visual Element) */}
-                            <div className="pt-2">
-                              {product.price != null ? (
-                                <div className="flex items-baseline gap-1">
-                                  <span className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">
-                                    ₹{product.price.toLocaleString("en-IN")}
-                                  </span>
-                                  {product.priceUnit && (
-                                    <span className="text-xs font-medium text-slate-500">
-                                      /{product.priceUnit.replace("per ", "")}
-                                    </span>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
-                                  Contact for Price
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Seller Name & Location */}
-                            <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-                              <span className="font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[140px]">
-                                {product.sellerName}
-                              </span>
-                              <span className="flex items-center gap-1 text-slate-400 shrink-0">
-                                <MapPin className="w-3 h-3 text-emerald-700 shrink-0" />
-                                <span className="truncate max-w-[100px]">{product.district || "Pan-India"}</span>
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* BOTTOM ACTIONS ([View Details] [Contact Seller]) */}
-                        <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center gap-2">
+                          {/* Top Right: Wishlist Icon */}
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleProductClick(product);
-                            }}
-                            className="flex-1 py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-800 dark:text-slate-200 font-bold text-xs transition text-center shadow-2xs"
-                          >
-                            {isHi ? "विवरण देखें" : "View Details"}
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openContact(
-                                product.sellerName,
-                                product.sellerPhone,
-                                product.title,
-                                product.sellerLocation
-                              );
-                            }}
-                            className="py-2 px-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-2xs"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                            <span>{isHi ? "संपर्क" : "Contact"}</span>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                /* LIST VIEW (Spacious horizontal e-commerce rows) */
-                <div className="space-y-3.5">
-                  {paginatedProducts.map((product) => {
-                    const isWishlisted = wishlist.includes(product.id);
-                    return (
-                      <div
-                        key={product.id}
-                        onClick={() => handleProductClick(product)}
-                        className="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 p-4 hover:border-emerald-600/50 hover:shadow-md transition flex flex-col sm:flex-row items-center gap-5 cursor-pointer"
-                      >
-                        {/* 4:3 Image Container */}
-                        <div className="w-full sm:w-56 aspect-[4/3] bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800 shrink-0 overflow-hidden relative flex items-center justify-center">
-                          <ProductCardImage
-                            src={product.imageUrl}
-                            alt={product.title}
-                            category={product.category}
-                            brand={product.brand}
-                            modelName={product.modelName}
-                          />
-                          <button
                             onClick={(e) => toggleWishlist(product.id, e)}
-                            className="absolute top-2 right-2 p-1.5 rounded-full bg-white/90 text-slate-400 hover:text-rose-600 shadow-2xs"
+                            className="absolute top-2.5 right-2.5 z-10 p-1.5 rounded-full bg-white/90 dark:bg-stone-800/90 hover:bg-white text-stone-400 hover:text-rose-600 shadow-2xs border border-stone-200/60 transition"
+                            title={isWishlisted ? "Remove from wishlist" : "Save to wishlist"}
                           >
                             <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
                           </button>
                         </div>
 
-                        {/* Middle: Details */}
-                        <div className="flex-1 space-y-1.5 w-full">
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="font-bold text-slate-500 uppercase tracking-wider">{product.brand}</span>
-                            <span className="text-slate-300">•</span>
-                            <span className="text-slate-400 capitalize">{product.category.replace("_", " ")}</span>
-                            {product.dealType === "rent" && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800">
-                                For Rent
+                        {/* Card Info */}
+                        <div className="p-3.5 space-y-2">
+                          {/* Brand & Category */}
+                          <div className="flex items-center justify-between text-[11px] text-stone-500">
+                            <span className="font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 truncate max-w-[140px]">
+                              {product.brand}
+                            </span>
+                            <span className="capitalize text-stone-400 truncate max-w-[100px]">
+                              {product.category.replace(/_/g, " ")}
+                            </span>
+                          </div>
+
+                          {/* Product Title */}
+                          <h4 className="text-sm font-semibold text-stone-900 dark:text-white group-hover:text-emerald-700 transition line-clamp-2 leading-snug">
+                            {product.title}
+                          </h4>
+
+                          {/* Specs Row */}
+                          <div className="flex items-center gap-1.5 flex-wrap text-[11px] text-stone-600 dark:text-stone-400">
+                            {product.hpRating != null && product.hpRating > 0 && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 font-semibold text-stone-700 dark:text-stone-300">
+                                <Gauge className="w-3 h-3 text-emerald-700" />
+                                {product.hpRating} HP
+                              </span>
+                            )}
+                            <span className="px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-[10px] capitalize">
+                              {product.condition === "new" ? "New" : `${product.condition} condition`}
+                            </span>
+                          </div>
+
+                          {/* Price */}
+                          <div className="pt-1">
+                            {product.price != null ? (
+                              <div className="flex items-baseline gap-1">
+                                <span className="text-lg font-bold text-stone-900 dark:text-white tracking-tight">
+                                  ₹{product.price.toLocaleString("en-IN")}
+                                </span>
+                                {product.priceUnit && (
+                                  <span className="text-xs text-stone-500 font-normal">
+                                    /{product.priceUnit.replace("per ", "")}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs font-semibold text-emerald-700">
+                                Official Spec • Price on Request
                               </span>
                             )}
                           </div>
 
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-700">
-                            {product.title}
-                          </h4>
-
-                          <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300 pt-1">
-                            {product.hpRating && (
-                              <span className="font-semibold">{product.hpRating} HP Power</span>
-                            )}
-                            {product.workingWidthMm && (
-                              <span>Width: {product.workingWidthMm} mm</span>
-                            )}
-                            {product.weightKg && (
-                              <span>Weight: {product.weightKg} kg</span>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-3 text-xs text-slate-500 pt-1">
-                            <span className="font-bold text-slate-800 dark:text-slate-200">{product.sellerName}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1">
+                          {/* Location & Seller */}
+                          <div className="pt-1.5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-[11px] text-stone-500">
+                            <span className="truncate max-w-[130px] font-medium text-stone-700 dark:text-stone-300">
+                              {product.sellerName}
+                            </span>
+                            <span className="flex items-center gap-0.5 text-stone-600 dark:text-stone-400 shrink-0 font-medium">
                               <MapPin className="w-3 h-3 text-emerald-700" />
-                              {product.sellerLocation}
+                              <span className="truncate max-w-[110px]">{product.district || product.state || "Pan-India"}</span>
                             </span>
                           </div>
                         </div>
-
-                        {/* Right: Strong Price & CTAs */}
-                        <div className="w-full sm:w-52 text-right shrink-0 border-t sm:border-t-0 sm:border-l border-slate-100 dark:border-slate-800 pl-0 sm:pl-5 pt-3 sm:pt-0 space-y-3">
-                          <div>
-                            {product.price != null ? (
-                              <div>
-                                <div className="text-xl font-black text-slate-900 dark:text-white">
-                                  ₹{product.price.toLocaleString("en-IN")}
-                                </div>
-                                {product.priceUnit && (
-                                  <div className="text-xs text-slate-500">
-                                    /{product.priceUnit.replace("per ", "")}
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              <div className="text-sm font-bold text-emerald-700">Contact for Price</div>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openContact(
-                                  product.sellerName,
-                                  product.sellerPhone,
-                                  product.title,
-                                  product.sellerLocation
-                                );
-                              }}
-                              className="w-full py-2 px-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs"
-                            >
-                              <Phone className="w-3.5 h-3.5" />
-                              <span>Contact Seller</span>
-                            </button>
-                          </div>
-                        </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
 
-              {/* ─── Pagination Controls ─────────────────────────────────── */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between pt-6 border-t border-slate-200 dark:border-slate-800">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 disabled:opacity-40 hover:bg-slate-50 transition"
-                  >
-                    Previous
-                  </button>
-
-                  <span className="text-xs font-semibold text-slate-600">
-                    Page {currentPage} of {totalPages}
-                  </span>
-
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 disabled:opacity-40 hover:bg-slate-50 transition"
-                  >
-                    Next
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ─── RECENTLY VIEWED PRODUCTS ROW ────────────────────────────────────── */}
-        {recentProducts.length > 0 && sectionMode === "machinery" && (
-          <section className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                {isHi ? "हाल ही में देखे गए उपकरण" : "Recently Viewed Machinery"}
-              </h3>
-              <button
-                onClick={() => {
-                  setRecentProductIds([]);
-                  localStorage.removeItem("kisaanbuddy_recent_products");
-                }}
-                className="text-xs text-slate-400 hover:text-slate-600"
-              >
-                Clear History
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-              {recentProducts.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => handleProductClick(p)}
-                  className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 p-2.5 hover:border-emerald-600 cursor-pointer transition text-center space-y-1.5 shadow-2xs"
-                >
-                  <div className="w-full aspect-[4/3] bg-slate-50 rounded-lg flex items-center justify-center overflow-hidden">
-                    <ProductCardImage
-                      src={p.imageUrl}
-                      alt={p.title}
-                      category={p.category}
-                      brand={p.brand}
-                      modelName={p.modelName}
-                    />
-                  </div>
-                  <div className="text-[11px] font-bold text-slate-900 dark:text-white line-clamp-1">{p.title}</div>
-                  <div className="text-[10px] font-extrabold text-emerald-700">
-                    {p.price ? `₹${p.price.toLocaleString("en-IN")}` : "Contact for Price"}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ─── SECTION 2: DIRECT FARM SOURCING (PRODUCE) ───────────────────────── */}
-        {sectionMode === "produce" && (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 shadow-2xs">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {isHi ? "खेतों से सीधी उपज खरीद" : "Direct Farm Sourcing & Harvest Lots"}
-                </h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {isHi ? "किसानों और सहकारी समितियों द्वारा सीधे पोस्ट किए गए अनाज व फसल लॉट।" : "Grain and produce lots posted directly by verified growers."}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowProduceModal(true)}
-                className="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs shadow-xs transition"
-              >
-                + {isHi ? "उपज लिस्ट करें" : "List Harvest Produce"}
-              </button>
-            </div>
-
-            {loadingProduce ? (
-              <div className="p-12 text-center text-slate-400">Loading harvest produce...</div>
-            ) : produceListings.length === 0 ? (
-              <div className="p-12 text-center bg-white rounded-2xl border border-slate-200 text-slate-500">
-                No produce lots currently listed.
+                      {/* Card Actions */}
+                      <div className="p-3 pt-0 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProduct(product);
+                          }}
+                          className="flex-1 py-1.5 px-2 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 hover:bg-stone-50 text-stone-800 dark:text-stone-200 font-medium text-xs transition text-center"
+                        >
+                          Details
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openPriceComparison(product);
+                          }}
+                          className="py-1.5 px-2 rounded-lg border border-emerald-700/30 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium text-xs hover:bg-emerald-100 transition flex items-center gap-1"
+                          title={cmpDict.compareTooltip}
+                        >
+                          <Scale className="w-3 h-3" />
+                          <span>{cmpDict.compareBtn}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openContact(product);
+                          }}
+                          className="py-1.5 px-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition flex items-center justify-center gap-1"
+                        >
+                          <Phone className="w-3 h-3" />
+                          <span>Contact</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {produceListings.map((lot) => (
-                  <div
-                    key={lot.id}
-                    className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 p-5 hover:border-amber-500 hover:shadow-md transition flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 font-bold uppercase text-[10px]">
-                          {lot.category}
-                        </span>
-                        <span className="text-[11px] font-bold text-emerald-700">Verified Grower</span>
-                      </div>
-                      <h4 className="text-base font-bold text-slate-900 dark:text-white">
-                        {lot.crop_name} {lot.variety && `(${lot.variety})`}
-                      </h4>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-                        <MapPin className="w-3.5 h-3.5 text-amber-700" />
-                        <span>{lot.district}, {lot.state}</span>
+              /* Amazon-Style List View */
+              <div className="space-y-3">
+                {paginatedProducts.map((product) => {
+                  const isWishlisted = wishlist.includes(product.id);
+
+                  return (
+                    <div
+                      key={product.id}
+                      onClick={() => { setSelectedProduct(product); setSelectedImageIndex(0); }}
+                      className="group bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 p-3.5 hover:border-stone-300 hover:shadow-sm transition flex flex-col sm:flex-row items-center gap-4 cursor-pointer"
+                    >
+                      <div className="w-full sm:w-48 aspect-[4/3] bg-white dark:bg-stone-900 rounded-lg border border-stone-100 dark:border-stone-800 shrink-0 overflow-hidden relative flex items-center justify-center p-2">
+                        <ProductCardImage key={product.imageUrl || product.id} src={product.imageUrl} alt={product.title} />
                       </div>
 
-                      <div className="my-3 p-3 rounded-xl bg-amber-50/50 border border-amber-200/60 flex items-center justify-between">
+                      <div className="flex-1 min-w-0 space-y-1.5 w-full">
+                        <div className="flex items-center gap-2 text-xs">
+                          <span className="font-bold text-stone-500 uppercase">{product.brand}</span>
+                          <span className="text-stone-300">•</span>
+                          <span className="capitalize text-stone-400">{product.category.replace(/_/g, " ")}</span>
+                          {product.dealType === "rent" ? (
+                            <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800">
+                              For Rent
+                            </span>
+                          ) : product.dealType === "sale" ? (
+                            <span className="px-2 py-0.2 rounded text-[10px] font-bold bg-sky-50 text-sky-800">
+                              For Sale
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <h4 className="text-sm font-semibold text-stone-900 dark:text-white group-hover:text-emerald-700">
+                          {product.title}
+                        </h4>
+
+                        <div className="flex items-center gap-3 text-xs text-stone-500">
+                          {product.hpRating && <span>{product.hpRating} HP Power</span>}
+                          {product.workingWidthMm && <span>Width: {product.workingWidthMm} mm</span>}
+                          <span>Condition: {product.condition}</span>
+                        </div>
+
+                        <div className="text-xs text-stone-500 flex items-center gap-2 pt-1">
+                          <span className="font-medium text-stone-700 dark:text-stone-300">{product.sellerName}</span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 font-semibold text-emerald-800 dark:text-emerald-300">
+                            <MapPin className="w-3 h-3 text-emerald-700" />
+                            {product.sellerLocation}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="w-full sm:w-44 text-right shrink-0 border-t sm:border-t-0 sm:border-l border-stone-100 dark:border-stone-800 pl-0 sm:pl-4 pt-2 sm:pt-0 space-y-2">
                         <div>
-                          <span className="text-[10px] text-slate-400 block uppercase">Quantity</span>
-                          <span className="text-base font-extrabold text-slate-900">
-                            {lot.quantity} {lot.quantity_unit}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-[10px] text-slate-400 block uppercase">Asking Rate</span>
-                          <span className="text-base font-extrabold text-amber-800">
-                            ₹{lot.asking_price} / Q
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{lot.farmer_name}</span>
-                      <button
-                        onClick={() =>
-                          openContact(
-                            lot.farmer_name,
-                            lot.farmer_phone,
-                            `${lot.crop_name} (${lot.quantity} ${lot.quantity_unit})`,
-                            `${lot.district}, ${lot.state}`
-                          )
-                        }
-                        className="px-3.5 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold transition flex items-center gap-1"
-                      >
-                        <Phone className="w-3 h-3" />
-                        <span>Contact Grower</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ─── SECTION 3: PROCUREMENT & MILL DEMANDS ─────────────────────────── */}
-        {sectionMode === "buyers" && (
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Verified Millers, Aggregators & FPO Purchase Orders
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Institutional procurement contracts and wholesale buying demands.
-              </p>
-            </div>
-
-            {loadingLegacy ? (
-              <div className="p-12 text-center text-slate-400">Loading procurement orders...</div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {legacyListings.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 p-5 hover:border-emerald-600 hover:shadow-md transition flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 font-bold uppercase text-[10px]">
-                          {item.category}
-                        </span>
-                        <span className="text-[10px] font-bold text-emerald-700">VERIFIED BUYER</span>
-                      </div>
-                      <h4 className="text-base font-bold text-slate-900 dark:text-white">{item.crop_or_item}</h4>
-                      <p className="text-xs text-slate-500">{item.organization_name}</p>
-
-                      <div className="my-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1">
-                        <p>Quantity Required: <strong>{item.quantity} {item.quantity_unit}</strong></p>
-                        <p>Target Rate: <strong className="text-emerald-700">₹{item.price} {item.price_unit}</strong></p>
-                        <p>Delivery: <strong>{item.district}, {item.state}</strong></p>
-                      </div>
-                    </div>
-
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">{item.contact_person || "Procurement Desk"}</span>
-                      <button
-                        onClick={() =>
-                          openContact(
-                            item.organization_name,
-                            item.contact_phone,
-                            item.crop_or_item,
-                            `${item.district}, ${item.state}`
-                          )
-                        }
-                        className="px-3.5 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition flex items-center gap-1"
-                      >
-                        <Phone className="w-3 h-3" />
-                        <span>Contact Buyer</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ─── SECTION 4: DATA PROVENANCE ────────────────────────────────────── */}
-        {sectionMode === "provenance" && (
-          <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 space-y-2">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                Authorized Public Agricultural Data Sources & Governance
-              </h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-4xl">
-                In strict adherence to platform governance, all reference equipment models are catalogued under the National
-                Data Sharing and Accessibility Policy (NDSAP) and Open Government Data (OGD) License - India from FMTTI Budni and
-                Hisar testing centers. Zero fake prices or synthetic buyer profiles are ever generated.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {sources.map((src) => (
-                <div key={src.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 p-5 space-y-2">
-                  <h4 className="text-sm font-bold text-slate-900 dark:text-white">{src.source_name}</h4>
-                  <p className="text-xs text-slate-500">{src.commercial_reuse_terms}</p>
-                  <a
-                    href={src.base_url || "#"}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-bold text-emerald-700 hover:underline inline-flex items-center gap-1"
-                  >
-                    <span>View Official Portal</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* ─── 5. PRODUCT DETAIL MODAL (Amazon / IndiaMART Quality Gallery & Specs) ── */}
-      {selectedProduct && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[92vh] overflow-y-auto my-auto">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-5 py-3.5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between z-10">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                  {selectedProduct.brand}
-                </span>
-                <span className="text-xs text-slate-400 capitalize">
-                  {selectedProduct.category.replace("_", " ")}
-                </span>
-              </div>
-              <button
-                onClick={() => setSelectedProduct(null)}
-                className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-5 sm:p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
-                {/* 4:3 Image View */}
-                <div className="md:col-span-6 space-y-3">
-                  <div className="w-full aspect-[4/3] bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-center overflow-hidden">
-                    <ProductCardImage
-                      src={selectedProduct.imageUrl}
-                      alt={selectedProduct.title}
-                      category={selectedProduct.category}
-                      brand={selectedProduct.brand}
-                      modelName={selectedProduct.modelName}
-                    />
-                  </div>
-                </div>
-
-                {/* Pricing & Key Actions */}
-                <div className="md:col-span-6 space-y-4">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white leading-snug">
-                      {selectedProduct.title}
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {selectedProduct.manufacturer || selectedProduct.brand}
-                    </p>
-                  </div>
-
-                  {/* Price Box */}
-                  <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/20 border border-emerald-200/80 space-y-2">
-                    <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 block uppercase">
-                      {selectedProduct.dealType === "rent" ? "Rental Rate Breakdown" : "Price Details"}
-                    </span>
-                    {selectedProduct.price != null ? (
-                      <div>
-                        <div className="text-2xl font-black text-slate-900 dark:text-white">
-                          ₹{selectedProduct.price.toLocaleString("en-IN")}{" "}
-                          {selectedProduct.priceUnit && (
-                            <span className="text-xs font-normal text-slate-500">
-                              /{selectedProduct.priceUnit.replace("per ", "")}
-                            </span>
+                          {product.price != null ? (
+                            <div>
+                              <div className="text-lg font-bold text-stone-900 dark:text-white">
+                                ₹{product.price.toLocaleString("en-IN")}
+                              </div>
+                              {product.priceUnit && (
+                                <div className="text-[11px] text-stone-500">
+                                  /{product.priceUnit.replace("per ", "")}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-xs font-semibold text-emerald-700">Price on Request</div>
                           )}
                         </div>
-                        {selectedProduct.dealType === "rent" && (
-                          <div className="grid grid-cols-2 gap-2 pt-2 mt-2 border-t border-emerald-200/50 text-[11px] text-slate-600 dark:text-slate-400">
-                            <div>
-                              Full Day (8 hrs): <strong>₹{(selectedProduct.price * 8).toLocaleString("en-IN")}</strong>
-                            </div>
-                            <div>
-                              Operator: <strong>{selectedProduct.includesOperator ? "Included" : "Self-Drive"}</strong>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-base font-bold text-emerald-700">
-                        Contact for Price & Delivery Terms
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Seller / Dealer Box */}
-                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-slate-400 uppercase font-bold">Seller / Provider</span>
-                      <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-emerald-700">
-                        <CheckCircle2 className="w-3 h-3" /> Verified
-                      </span>
-                    </div>
-                    <div className="font-bold text-slate-800 dark:text-slate-200">{selectedProduct.sellerName}</div>
-                    <div className="text-slate-500 flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>{selectedProduct.sellerLocation}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      onClick={() => {
-                        openContact(
-                          selectedProduct.sellerName,
-                          selectedProduct.sellerPhone,
-                          selectedProduct.title,
-                          selectedProduct.sellerLocation
-                        );
-                      }}
-                      className="flex-1 py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-1.5"
-                    >
-                      <Phone className="w-4 h-4" />
-                      <span>{isHi ? "विक्रेता से संपर्क करें" : "Contact Seller"}</span>
-                    </button>
-
-                    {selectedProduct.officialSourceUrl && (
-                      <a
-                        href={selectedProduct.officialSourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="py-3 px-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 text-slate-700 dark:text-slate-300 font-bold text-xs transition"
-                        title="View Official Source"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Complete Specifications Table */}
-              <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                  Technical Specifications
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">Manufacturer</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{selectedProduct.manufacturer}</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">Category</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200 capitalize">{selectedProduct.category.replace("_", " ")}</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">Horsepower (HP)</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{selectedProduct.hpRating ? `${selectedProduct.hpRating} HP` : "Specifications unavailable"}</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">Working Width</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{selectedProduct.workingWidthMm ? `${selectedProduct.workingWidthMm} mm` : "Specifications unavailable"}</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">PTO Power</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{selectedProduct.ptoHp ? `${selectedProduct.ptoHp} HP` : "Specifications unavailable"}</span>
-                  </div>
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
-                    <span className="text-[10px] text-slate-400 block">Total Weight</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{selectedProduct.weightKg ? `${selectedProduct.weightKg} kg` : "Specifications unavailable"}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Description */}
-              {selectedProduct.description && (
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 text-xs text-slate-600 dark:text-slate-300 leading-relaxed space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase block">Product Description</span>
-                  <p>{selectedProduct.description}</p>
-                </div>
-              )}
-
-              {/* Similar Products */}
-              {similarProducts.length > 0 && (
-                <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                    Similar Agricultural Equipment
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    {similarProducts.map((sim) => (
-                      <div
-                        key={sim.id}
-                        onClick={() => handleProductClick(sim)}
-                        className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-emerald-600 bg-white dark:bg-slate-900 cursor-pointer transition text-center space-y-1"
-                      >
-                        <div className="aspect-[4/3] w-full bg-slate-50 dark:bg-slate-800 rounded-lg flex items-center justify-center overflow-hidden">
-                          <ProductCardImage
-                            src={sim.imageUrl}
-                            alt={sim.title}
-                            category={sim.category}
-                            brand={sim.brand}
-                            modelName={sim.modelName}
-                          />
-                        </div>
-                        <h5 className="text-[11px] font-bold text-slate-800 dark:text-slate-200 line-clamp-1">{sim.title}</h5>
-                        <div className="text-[10px] font-extrabold text-emerald-700">
-                          {sim.price ? `₹${sim.price.toLocaleString("en-IN")}` : "Contact for Price"}
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            type="button"
+                            onClick={(e) => toggleWishlist(product.id, e)}
+                            className="p-1.5 rounded-lg border border-stone-200 text-stone-400 hover:text-rose-600"
+                          >
+                            <Heart className={`w-3.5 h-3.5 ${isWishlisted ? "fill-rose-500 text-rose-500" : ""}`} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openPriceComparison(product);
+                            }}
+                            className="py-1.5 px-2.5 rounded-lg border border-emerald-700/30 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 font-medium text-xs hover:bg-emerald-100 transition flex items-center gap-1"
+                            title={cmpDict.compareTooltip}
+                          >
+                            <Scale className="w-3 h-3" />
+                            <span>{cmpDict.compareBtn}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openContact(product);
+                            }}
+                            className="py-1.5 px-3 rounded-lg bg-emerald-700 text-white text-xs font-semibold hover:bg-emerald-800 flex items-center gap-1"
+                          >
+                            <Phone className="w-3 h-3" />
+                            <span>Contact</span>
+                          </button>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-5 border-t border-stone-200 dark:border-stone-800">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-3.5 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 text-xs font-medium disabled:opacity-40 hover:bg-stone-50 transition"
+                >
+                  Previous
+                </button>
+                <span className="text-xs text-stone-500">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-3.5 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 text-xs font-medium disabled:opacity-40 hover:bg-stone-50 transition"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ─── 6. MOBILE FILTER DRAWER (Slide-up bottom sheet) ────────────────── */}
-      {mobileDrawerOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end lg:hidden">
-          <div className="bg-white dark:bg-slate-900 rounded-t-3xl max-h-[85vh] overflow-y-auto p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">Filter Machinery</h3>
-              <button onClick={() => setMobileDrawerOpen(false)} className="p-1 text-slate-400">
+      {/* ─── 4. MOBILE FILTER DRAWER (STRICT FILTER ORDER) ──────────────────── */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex flex-col justify-end lg:hidden">
+          <div className="bg-white dark:bg-stone-900 rounded-t-2xl max-h-[85vh] overflow-y-auto p-4 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <span className="font-bold text-sm text-stone-900 dark:text-white">Filter Machinery</span>
+              <button onClick={() => setMobileFilterOpen(false)} className="p-1 text-stone-400">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Mobile Filter Controls */}
             <div className="space-y-4 text-xs">
-              <div>
-                <span className="font-bold block mb-2">Deal Type</span>
-                <div className="grid grid-cols-3 gap-2">
-                  {[
-                    { key: "all", label: "All" },
-                    { key: "rent", label: "For Rent" },
-                    { key: "sale", label: "For Sale" },
-                  ].map((d) => (
-                    <button
-                      key={d.key}
-                      onClick={() => setDealFilter(d.key as DealFilter)}
-                      className={`py-2 rounded-xl border text-center font-bold ${
-                        dealFilter === d.key ? "bg-emerald-700 text-white border-emerald-700" : "bg-slate-50 border-slate-200"
-                      }`}
-                    >
-                      {d.label}
+              {/* 1. Location */}
+              <div className="p-3 bg-stone-50 dark:bg-stone-800 rounded-lg space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold flex items-center gap-1.5 text-stone-900 dark:text-white">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>📍 YOUR LOCATION</span>
+                  </span>
+                  {userLocation.state !== "all" && (
+                    <button onClick={clearLocation} className="text-emerald-700 text-[11px] font-semibold">
+                      Clear (All India)
                     </button>
-                  ))}
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-white">
+                    {userLocation.state !== "all"
+                      ? (userLocation.city && userLocation.city !== userLocation.state
+                          ? `${userLocation.city}, ${userLocation.state}`
+                          : userLocation.district && userLocation.district !== userLocation.state
+                          ? `${userLocation.district}, ${userLocation.state}`
+                          : userLocation.state)
+                      : "All India"}
+                  </p>
+                  {userLocation.source === "gps" && userLocation.state !== "all" ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 dark:text-emerald-400 font-bold mt-1">
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>GPS Verified ✓</span>
+                    </span>
+                  ) : userLocation.source === "manual" && userLocation.state !== "all" ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-stone-500 font-medium mt-1">
+                      <span>Manual Selection</span>
+                    </span>
+                  ) : null}
+                </div>
+
+                {locationError && (
+                  <div className="p-2 rounded bg-rose-50 text-rose-800 text-[11px] flex items-start gap-1">
+                    <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                    <span>{locationError}</span>
+                  </div>
+                )}
+
+                <div className="space-y-2 pt-1">
+                  {userLocation.source !== "gps" && (
+                    <button
+                      type="button"
+                      onClick={detectLocation}
+                      disabled={detectingLocation}
+                      className="w-full py-1.5 px-3 rounded-md bg-emerald-700 text-white font-medium text-xs flex items-center justify-center gap-1 disabled:opacity-50"
+                    >
+                      {detectingLocation ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Detecting GPS Location...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Crosshair className="w-3 h-3" />
+                          <span>Enable Location (GPS)</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-semibold text-stone-500 uppercase">Manual State & District</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <select
+                        value={userLocation.state}
+                        onChange={(e) => {
+                          const st = e.target.value;
+                          if (st === "all") clearLocation();
+                          else setManualLocation(st, "");
+                        }}
+                        className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900"
+                      >
+                        <option value="all">All India</option>
+                        {Object.keys(INDIAN_LOCATIONS).sort().map((st) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+
+                      {userLocation.state !== "all" && INDIAN_LOCATIONS[userLocation.state] ? (
+                        <select
+                          value={userLocation.district}
+                          onChange={(e) => setManualLocation(userLocation.state, e.target.value)}
+                          className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900"
+                        >
+                          <option value="">All Districts</option>
+                          {INDIAN_LOCATIONS[userLocation.state].map((d) => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="City/Town"
+                          value={userLocation.city || ""}
+                          disabled={userLocation.state === "all"}
+                          onChange={(e) => setManualLocation(userLocation.state, userLocation.district, e.target.value)}
+                          className="w-full px-2 py-1.5 rounded-md border border-stone-200 text-xs bg-white dark:bg-stone-900 disabled:opacity-50"
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
+              {/* 2. Category */}
               <div>
-                <span className="font-bold block mb-2">Brand</span>
+                <span className="font-bold block mb-1.5">Category</span>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                >
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat.key} value={cat.key}>{cat.labelEn}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 3. Brand */}
+              <div>
+                <span className="font-bold block mb-1.5">Brand</span>
                 <select
                   value={selectedBrand}
                   onChange={(e) => setSelectedBrand(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                  className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
                 >
                   <option value="all">All Brands</option>
                   {availableBrands.map((b) => (
@@ -2315,32 +2757,76 @@ export default function MarketplaceClient() {
                 </select>
               </div>
 
+              {/* 4. Listing Type */}
               <div>
-                <span className="font-bold block mb-2">Engine Power</span>
+                <span className="font-bold block mb-1.5">Listing Type</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { key: "all", label: "All" },
+                    { key: "rent", label: "For Rent" },
+                    { key: "sale", label: "For Sale" },
+                  ].map((d) => (
+                    <button
+                      key={d.key}
+                      onClick={() => setDealFilter(d.key as any)}
+                      className={`py-1.5 rounded-lg border text-center font-medium ${
+                        dealFilter === d.key
+                          ? "bg-emerald-700 text-white border-emerald-700"
+                          : "bg-stone-50 border-stone-200 text-stone-700"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 5. Price Range */}
+              <div>
+                <span className="font-bold block mb-1.5">Price Range (₹)</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min ₹"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Max ₹"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50 text-xs"
+                  />
+                </div>
+              </div>
+
+              {/* 6. Condition */}
+              <div>
+                <span className="font-bold block mb-1.5">Condition</span>
                 <select
-                  value={hpRange}
-                  onChange={(e) => setHpRange(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                  value={conditionFilter}
+                  onChange={(e) => setConditionFilter(e.target.value as any)}
+                  className="w-full px-2.5 py-2 rounded-lg border border-stone-200 bg-stone-50 text-xs"
                 >
-                  <option value="all">Any Horsepower</option>
-                  <option value="under_40">Under 40 HP</option>
-                  <option value="40_55">40 – 55 HP</option>
-                  <option value="55_75">55 – 75 HP</option>
-                  <option value="above_75">75+ HP</option>
+                  <option value="all">All Conditions</option>
+                  <option value="new">Brand New</option>
+                  <option value="used">Used / Certified</option>
                 </select>
               </div>
             </div>
 
-            <div className="pt-4 flex items-center gap-2">
+            <div className="pt-3 flex items-center gap-2">
               <button
                 onClick={clearAllFilters}
-                className="flex-1 py-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700"
+                className="flex-1 py-2.5 rounded-lg border border-stone-200 text-xs font-semibold text-stone-700"
               >
                 Clear All
               </button>
               <button
-                onClick={() => setMobileDrawerOpen(false)}
-                className="flex-2 py-3 rounded-xl bg-emerald-700 text-white font-bold text-xs shadow-xs"
+                onClick={() => setMobileFilterOpen(false)}
+                className="flex-2 py-2.5 rounded-lg bg-emerald-700 text-white font-semibold text-xs shadow-xs"
               >
                 Show {filteredProducts.length} Results
               </button>
@@ -2349,136 +2835,851 @@ export default function MarketplaceClient() {
         </div>
       )}
 
-      {/* ─── 7. CONTACT SELLER MODAL ─────────────────────────────────────────── */}
+      {/* ─── 5. PRODUCT DETAIL MODAL ────────────────────────────────────────── */}
+      {selectedProduct && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white dark:bg-stone-900 w-full max-w-2xl rounded-2xl border border-stone-200 dark:border-stone-800 shadow-2xl max-h-[90vh] overflow-y-auto my-auto p-5 sm:p-6 space-y-5">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 dark:border-stone-800">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-stone-100 text-stone-700">
+                  {selectedProduct.brand}
+                </span>
+                <span className="text-xs text-stone-400 capitalize">
+                  {selectedProduct.category.replace("_", " ")}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="p-1 rounded-full text-stone-400 hover:text-stone-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+              {/* Image & Gallery */}
+              <div className="space-y-2">
+                <div className="w-full aspect-[4/3] bg-stone-50 dark:bg-stone-800/40 rounded-xl border border-stone-100 dark:border-stone-800 flex items-center justify-center p-4 overflow-hidden">
+                  <ProductCardImage
+                    src={
+                      selectedProduct.images && selectedProduct.images.length > selectedImageIndex
+                        ? selectedProduct.images[selectedImageIndex]
+                        : selectedProduct.imageUrl
+                    }
+                    alt={selectedProduct.title}
+                  />
+                </div>
+                {/* Thumbnails if multiple images exist */}
+                {selectedProduct.images && selectedProduct.images.length > 1 && (
+                  <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                    {selectedProduct.images.map((imgUrl, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(idx)}
+                        className={`w-14 h-14 rounded-lg border overflow-hidden p-1 bg-white dark:bg-stone-800 shrink-0 transition ${
+                          selectedImageIndex === idx
+                            ? "border-emerald-600 ring-2 ring-emerald-500/20"
+                            : "border-stone-200 dark:border-stone-700 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={imgUrl} alt={`${selectedProduct.title} ${idx + 1}`} className="w-full h-full object-contain" />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Info & Price */}
+              <div className="space-y-3">
+                <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white leading-snug">
+                  {selectedProduct.title}
+                </h3>
+                <p className="text-xs text-stone-400">
+                  Model: {selectedProduct.modelName}
+                </p>
+
+                {/* Price block */}
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/80">
+                  <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase block">
+                    {selectedProduct.dealType === "rent" ? "Rental Rate" : "Price"}
+                  </span>
+                  {selectedProduct.price != null ? (
+                    <div className="text-xl font-bold text-stone-900 dark:text-white mt-0.5">
+                      ₹{selectedProduct.price.toLocaleString("en-IN")}{" "}
+                      {selectedProduct.priceUnit && (
+                        <span className="text-xs font-normal text-stone-500">
+                          /{selectedProduct.priceUnit.replace("per ", "")}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-sm font-semibold text-emerald-700">
+                      Official Reference Specification
+                    </div>
+                  )}
+                </div>
+
+                {/* Seller info */}
+                <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs space-y-1">
+                  <div className="text-[10px] text-stone-400 uppercase font-bold">Seller / Provider</div>
+                  <div className="font-semibold text-stone-900 dark:text-white">{selectedProduct.sellerName}</div>
+                  <div className="text-stone-500 flex items-center gap-1 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>{selectedProduct.sellerLocation}</span>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    onClick={() => {
+                      openContact(selectedProduct);
+                    }}
+                    className="flex-1 py-2.5 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>{selectedProduct.sellerPhone ? "Contact Seller" : "Enquire / Callback"}</span>
+                  </button>
+
+                  <button
+                    onClick={() => openPriceComparison(selectedProduct)}
+                    className="py-2.5 px-3 rounded-lg border border-emerald-700/40 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 text-emerald-800 dark:text-emerald-300 font-semibold text-xs transition flex items-center justify-center gap-1.5"
+                    title={cmpDict.compareTooltip}
+                  >
+                    <Scale className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                    <span>{cmpDict.comparePricesBtn}</span>
+                  </button>
+
+                  {isValidWebUrl(selectedProduct.officialSourceUrl) ? (
+                    <a
+                      href={selectedProduct.officialSourceUrl!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2.5 rounded-lg border border-stone-200 text-stone-600 hover:bg-stone-50 text-xs flex items-center justify-center"
+                      title="View Verified Official Website"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : selectedProduct.officialSourceUrl ? (
+                    <button
+                      onClick={() => alert("Verified official website is currently unavailable or unverified for this listing.")}
+                      className="p-2.5 rounded-lg border border-dashed border-stone-300 text-stone-400 text-xs flex items-center justify-center"
+                      title="Official website unavailable"
+                    >
+                      <ExternalLink className="w-4 h-4 opacity-40" />
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            {/* Specifications grid */}
+            <div className="pt-3 border-t border-stone-100 dark:border-stone-800 space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-stone-800 dark:text-stone-200">
+                Specifications
+              </span>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                <div className="p-2.5 rounded-lg bg-stone-50 dark:bg-stone-800">
+                  <span className="text-[10px] text-stone-400 block">Horsepower</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200">
+                    {selectedProduct.hpRating ? `${selectedProduct.hpRating} HP` : "N/A"}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-stone-50 dark:bg-stone-800">
+                  <span className="text-[10px] text-stone-400 block">Category</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200 capitalize">
+                    {selectedProduct.category.replace("_", " ")}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-lg bg-stone-50 dark:bg-stone-800">
+                  <span className="text-[10px] text-stone-400 block">Condition</span>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200 capitalize">
+                    {selectedProduct.condition}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 6. AUTHENTIC SELLER CONTACT & ENQUIRY MODAL ───────────────────────── */}
       {showContactModal && contactTarget && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200 dark:border-slate-800 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-stone-900 w-full max-w-md rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center">
-                  <Phone className="w-4 h-4" />
+                <span className="text-sm font-bold text-stone-900 dark:text-white">Seller Contact & Inquiry</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-medium">
+                  Verified Data
+                </span>
+              </div>
+              <button
+                onClick={() => setShowContactModal(false)}
+                className="p-1 text-stone-400 hover:text-stone-600 rounded-lg transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Target Product Summary */}
+            <div className="p-3 rounded-lg bg-stone-50 dark:bg-stone-800 text-xs space-y-1 border border-stone-100 dark:border-stone-700">
+              <span className="text-[10px] text-stone-400 uppercase font-bold block">Equipment</span>
+              <p className="font-semibold text-stone-900 dark:text-white">{contactTarget.title}</p>
+              <div className="flex items-center justify-between text-stone-500 font-medium text-[11px] pt-0.5">
+                <span>👤 {contactTarget.name}</span>
+                <span>📍 {contactTarget.location}</span>
+              </div>
+            </div>
+
+            {/* Mode Navigation Tabs */}
+            <div className="flex border-b border-stone-200 dark:border-stone-700 text-xs">
+              {contactTarget.phone && (
+                <button
+                  type="button"
+                  onClick={() => setContactTab("direct")}
+                  className={`flex-1 py-2 font-semibold text-center border-b-2 transition ${
+                    contactTab === "direct"
+                      ? "border-emerald-700 text-emerald-700 dark:text-emerald-400"
+                      : "border-transparent text-stone-500 hover:text-stone-800"
+                  }`}
+                >
+                  Direct Contact
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setContactTab("callback")}
+                className={`flex-1 py-2 font-semibold text-center border-b-2 transition ${
+                  contactTab === "callback"
+                    ? "border-emerald-700 text-emerald-700 dark:text-emerald-400"
+                    : "border-transparent text-stone-500 hover:text-stone-800"
+                }`}
+              >
+                Request Callback
+              </button>
+              <button
+                type="button"
+                onClick={() => setContactTab("quote")}
+                className={`flex-1 py-2 font-semibold text-center border-b-2 transition ${
+                  contactTab === "quote"
+                    ? "border-emerald-700 text-emerald-700 dark:text-emerald-400"
+                    : "border-transparent text-stone-500 hover:text-stone-800"
+                }`}
+              >
+                Request Quotation
+              </button>
+            </div>
+
+            {/* Submission Status Alerts */}
+            {inquirySuccess && (
+              <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
+                  <Check className="w-4 h-4 text-emerald-700" />
+                  <span>{inquirySuccess.type} Registered Successfully!</span>
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
-                  {isHi ? "सत्यापित विक्रेता संपर्क" : "Verified Seller Contact"}
+                <p className="text-[11px] leading-relaxed">{inquirySuccess.message}</p>
+                <div className="pt-1 text-[10px] text-emerald-700 font-mono">
+                  Official Tracking Reference: #INQ-{inquirySuccess.refId} • Status: {inquirySuccess.status.toUpperCase()}
+                </div>
+              </div>
+            )}
+
+            {inquiryError && (
+              <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/50 border border-rose-200 text-xs text-rose-800 dark:text-rose-200 flex items-start gap-1.5">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <span className="leading-tight">{inquiryError}</span>
+              </div>
+            )}
+
+            {/* Scenario A: Direct Contact (When phone number exists) */}
+            {contactTab === "direct" && contactTarget.phone && (
+              <div className="space-y-2.5 text-xs">
+                <div className="p-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 space-y-1">
+                  <span className="text-[10px] text-stone-400 uppercase block font-bold">Verified Phone Number</span>
+                  <p className="text-base font-bold text-stone-900 dark:text-white tracking-wide">
+                    {contactTarget.phone}
+                  </p>
+                  <p className="text-[11px] text-emerald-700 font-medium">
+                    ✓ Preserved authentic owner / CHC contact
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <a
+                    href={`tel:${cleanPhoneForTel(contactTarget.phone)}`}
+                    className="w-full py-2.5 px-3 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition text-center"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Call Seller</span>
+                  </a>
+
+                  <a
+                    href={`https://wa.me/${cleanPhoneForWa(contactTarget.phone)}?text=${encodeURIComponent(`Hello ${contactTarget.name}, I found your listing "${contactTarget.title}" on KisaanBuddy. Is this equipment currently available?`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition text-center"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+
+                {isValidWebUrl(contactTarget.officialSourceUrl) && (
+                  <a
+                    href={contactTarget.officialSourceUrl!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-2 px-3 rounded-lg border border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 font-semibold text-xs flex items-center justify-center gap-1.5 transition"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Visit Verified Official Website</span>
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Scenario B: Request a Callback */}
+            {contactTab === "callback" && (
+              <form onSubmit={handleCallbackSubmit} className="space-y-3 text-xs">
+                {!contactTarget.phone && (
+                  <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 text-amber-800 dark:text-amber-300 text-[11px] leading-tight flex items-start gap-1.5">
+                    <Clock className="w-3.5 h-3.5 shrink-0 mt-0.5 text-amber-600" />
+                    <span>
+                      Direct phone number is not publicly listed for this equipment. Submit a Callback Request and the seller / authorized team will call you back.
+                    </span>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Your Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={inquiryName}
+                    onChange={(e) => setInquiryName(e.target.value)}
+                    placeholder="e.g. Ramesh Kumar"
+                    className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Your Contact Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={inquiryPhone}
+                    onChange={(e) => setInquiryPhone(e.target.value)}
+                    placeholder="e.g. 9826154321"
+                    className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Preferred Callback Window *
+                  </label>
+                  <select
+                    value={preferredTime}
+                    onChange={(e) => setPreferredTime(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                  >
+                    <option value="Morning (9:00 AM – 12:00 PM)">Morning (9:00 AM – 12:00 PM)</option>
+                    <option value="Afternoon (12:00 PM – 4:00 PM)">Afternoon (12:00 PM – 4:00 PM)</option>
+                    <option value="Evening (4:00 PM – 7:00 PM)">Evening (4:00 PM – 7:00 PM)</option>
+                    <option value="Anytime (Immediate when available)">Anytime (Immediate when available)</option>
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={inquirySubmitting}
+                  className="w-full py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition"
+                >
+                  {inquirySubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving to Server...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Clock className="w-3.5 h-3.5" />
+                      <span>Request Official Callback</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* Scenario B: Request a Quotation */}
+            {contactTab === "quote" && (
+              <form onSubmit={handleQuotationSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Your Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={inquiryName}
+                    onChange={(e) => setInquiryName(e.target.value)}
+                    placeholder="e.g. Gurpreet Singh"
+                    className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Your Contact Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={inquiryPhone}
+                    onChange={(e) => setInquiryPhone(e.target.value)}
+                    placeholder="e.g. 9872011990"
+                    className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                      Target Budget (₹) (Optional)
+                    </label>
+                    <input
+                      type="number"
+                      value={quotePrice}
+                      onChange={(e) => setQuotePrice(e.target.value)}
+                      placeholder="e.g. 800"
+                      className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                      Required Days / Hours
+                    </label>
+                    <input
+                      type="number"
+                      value={quoteQuantity}
+                      onChange={(e) => setQuoteQuantity(e.target.value)}
+                      placeholder="e.g. 5"
+                      className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 dark:text-stone-300 mb-1">
+                    Requirements & Attachment Specifications
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={quoteMessage}
+                    onChange={(e) => setQuoteMessage(e.target.value)}
+                    placeholder="e.g. Need machine with rotavator attachment for 10 acres tillage in Sehore district."
+                    className="w-full px-3 py-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={inquirySubmitting}
+                  className="w-full py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition"
+                >
+                  {inquirySubmitting ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Submitting Quotation Request...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Request Official Quotation</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* Official Website verification link */}
+            {isValidWebUrl(contactTarget.officialSourceUrl) ? (
+              <div className="pt-2 border-t border-stone-100 dark:border-stone-800">
+                <a
+                  href={contactTarget.officialSourceUrl!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-emerald-700 hover:underline flex items-center justify-center gap-1 font-medium"
+                >
+                  <span>Official Website: {new URL(contactTarget.officialSourceUrl!).hostname}</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            ) : contactTarget.officialSourceUrl ? (
+              <div className="p-2 rounded-lg bg-stone-100 dark:bg-stone-800 text-[11px] text-stone-500 text-center">
+                Official manufacturer website link currently unavailable. Prioritizing direct callback / quotation.
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* ─── 8. SMART PRICE COMPARISON MODAL ───────────────────────────────────── */}
+      {showCompareModal && compareProduct && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-stone-900 w-full max-w-2xl rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
+              <div className="flex items-center gap-2">
+                <Scale className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <h3 className="text-sm font-bold text-stone-900 dark:text-white">
+                  {cmpDict.modalTitle}
                 </h3>
               </div>
-              <button onClick={() => setShowContactModal(false)} className="p-1 text-slate-400">
-                <X className="w-5 h-5" />
+              <button
+                type="button"
+                onClick={() => setShowCompareModal(false)}
+                className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition"
+                aria-label={cmpDict.closeAriaLabel}
+                title={cmpDict.closeAriaLabel}
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 text-xs space-y-1">
-              <span className="text-[10px] text-slate-400 uppercase font-bold block">Inquiring for:</span>
-              <p className="font-extrabold text-slate-900 dark:text-white">{contactTarget.title}</p>
-              <p className="text-slate-500">📍 {contactTarget.location}</p>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              <div className="p-3 rounded-xl border border-slate-200 bg-white dark:bg-slate-900">
-                <span className="text-[10px] text-slate-400 uppercase block font-bold">Contact Person / CHC</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{contactTarget.name}</span>
+            {/* Selected Product Context */}
+            <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800 text-xs border border-stone-200 dark:border-stone-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <div>
+                <span className="text-[10px] text-stone-400 uppercase font-bold block">
+                  {cmpDict.currentSelection}
+                </span>
+                <span className="font-bold text-stone-900 dark:text-white text-sm">{compareProduct.title}</span>
+                <span className="text-[11px] text-stone-500 block">
+                  {compareProduct.brand} • {formatCategory(compareProduct.category, cmpDict)} {compareProduct.hpRating ? `• ${compareProduct.hpRating} HP` : ""}
+                </span>
               </div>
-
-              {contactTarget.phone ? (
-                <a
-                  href={`tel:${contactTarget.phone}`}
-                  className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span>Call {contactTarget.phone}</span>
-                </a>
-              ) : (
-                <div className="p-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-center">
-                  Inquiry request logged. Seller will contact you shortly.
-                </div>
-              )}
+              <div className="text-right shrink-0">
+                <span className="text-xs text-stone-400 block">
+                  {cmpDict.listedRate}
+                </span>
+                <span className="text-base font-bold text-emerald-700 dark:text-emerald-400">
+                  {compareProduct.price != null
+                    ? `₹${compareProduct.price.toLocaleString("en-IN")} /${formatPriceUnit(compareProduct.priceUnit, cmpDict)}`
+                    : cmpDict.indicativeSpec}
+                </span>
+              </div>
             </div>
+
+            {compareLoading ? (
+              <div className="py-12 flex flex-col items-center justify-center text-center space-y-2">
+                <Loader2 className="w-6 h-6 animate-spin text-emerald-700" />
+                <span className="text-xs text-stone-500">
+                  {cmpDict.queryingDatabase}
+                </span>
+              </div>
+            ) : compareError ? (
+              <div className="p-6 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-center space-y-2.5">
+                <AlertCircle className="w-8 h-8 text-red-500 mx-auto" />
+                <h4 className="text-sm font-bold text-stone-900 dark:text-white">{cmpDict.errorTitle}</h4>
+                <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
+                  {cmpDict.errorDesc}
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => openPriceComparison(compareProduct)}
+                    className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
+                  >
+                    {cmpDict.retryBtn}
+                  </button>
+                </div>
+              </div>
+            ) : compareData && !compareData.is_sufficient ? (
+              /* Insufficient comparison data state */
+              <div className="p-6 rounded-xl bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-center space-y-2.5">
+                <AlertCircle className="w-8 h-8 text-amber-500 mx-auto" />
+                <h4 className="text-sm font-bold text-stone-900 dark:text-white">
+                  {cmpDict.insufficientDataTitle}
+                </h4>
+                <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
+                  {cmpDict.insufficientDataDesc}
+                </p>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCompareModal(false);
+                      openContact(compareProduct);
+                    }}
+                    className="px-4 py-2 rounded-lg bg-emerald-700 text-white font-semibold text-xs hover:bg-emerald-800 transition"
+                  >
+                    {cmpDict.contactCurrentSeller}
+                  </button>
+                </div>
+              </div>
+            ) : compareData ? (
+              <div className="space-y-4">
+                {/* Highlight Cards: Lowest Price and Best Value */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  {compareData.lowest_offer && (
+                    <div className="p-3.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-1">
+                      <span className="text-[10px] font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wide flex items-center gap-1">
+                        <span>🏷️ {cmpDict.lowestListedPrice}</span>
+                      </span>
+                      <p className="text-lg font-bold text-stone-900 dark:text-white">
+                        ₹{compareData.lowest_offer.price.toLocaleString("en-IN")}{" "}
+                        <span className="text-xs font-normal text-stone-500">
+                          /{formatPriceUnit(compareData.lowest_offer.price_unit, cmpDict)}
+                        </span>
+                      </p>
+                      <p className="text-[11px] font-semibold text-stone-800 dark:text-stone-200">
+                        {compareData.lowest_offer.title}
+                      </p>
+                      <p className="text-[10px] text-stone-500">
+                        📍 {compareData.lowest_offer.seller_location} • {cmpDict.sellerLabel} {compareData.lowest_offer.seller_name}
+                      </p>
+                    </div>
+                  )}
+
+                  {compareData.best_value_offer && (
+                    <div className="p-3.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 space-y-1">
+                      <span className="text-[10px] font-bold text-blue-800 dark:text-blue-400 uppercase tracking-wide flex items-center gap-1">
+                        <span>⭐ {cmpDict.bestValueAnalysis}</span>
+                      </span>
+                      <p className="text-lg font-bold text-stone-900 dark:text-white">
+                        ₹{compareData.best_value_offer.price.toLocaleString("en-IN")}{" "}
+                        <span className="text-xs font-normal text-stone-500">
+                          /{formatPriceUnit(compareData.best_value_offer.price_unit, cmpDict)}
+                        </span>
+                      </p>
+                      <p className="text-[11px] font-semibold text-stone-800 dark:text-stone-200">
+                        {compareData.best_value_offer.title}
+                      </p>
+                      <p className="text-[10px] text-blue-800 dark:text-blue-300 font-medium">
+                        {compareData.best_value_offer.includes_operator
+                          ? cmpDict.bestValueOperatorReason
+                              .replace("{price}", Math.round(compareData.best_value_offer.price).toLocaleString("en-IN"))
+                              .replace("{unit}", formatPriceUnit(compareData.best_value_offer.price_unit, cmpDict))
+                              .replace("{location}", compareData.best_value_offer.seller_location)
+                          : cmpDict.lowestRateReason
+                              .replace("{price}", Math.round(compareData.best_value_offer.price).toLocaleString("en-IN"))
+                              .replace("{unit}", formatPriceUnit(compareData.best_value_offer.price_unit, cmpDict))
+                              .replace("{location}", compareData.best_value_offer.seller_location)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Other Available Offers Table / List */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-stone-800 dark:text-stone-200 uppercase tracking-wider">
+                      {cmpDict.comparableOffersTitle} ({compareData.comparable_offers.length})
+                    </span>
+                    <span className="text-[10px] text-stone-400">
+                      {cmpDict.sortedByVerifiedPrice}
+                    </span>
+                  </div>
+
+                  <div className="divide-y divide-stone-100 dark:divide-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl overflow-hidden text-xs">
+                    {compareData.comparable_offers.map((offer) => (
+                      <div
+                        key={offer.id}
+                        className="p-3 bg-white dark:bg-stone-900 hover:bg-stone-50 dark:hover:bg-stone-800/60 transition flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                      >
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-stone-900 dark:text-white">{offer.title}</span>
+                            <span
+                              className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                                offer.match_type === "exact_model"
+                                  ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300"
+                                  : "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300"
+                              }`}
+                            >
+                              {offer.match_type === "exact_model" ? cmpDict.exactModel : cmpDict.specAlternative}
+                            </span>
+                            {offer.includes_operator && (
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-300 font-bold">
+                                {cmpDict.operatorIncluded}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-stone-500">
+                            {formatCondition(offer.condition, cmpDict)} • {offer.hp_rating ? `${offer.hp_rating} HP • ` : ""}
+                            📍 {offer.seller_location} ({offer.seller_name})
+                          </p>
+                          <p className="text-[10px] text-stone-400">
+                            {cmpDict.warrantyLabel} {offer.source_type === "catalog" ? cmpDict.warrantyCatalog : cmpDict.warrantyListing} • {cmpDict.deliveryLabel} {offer.source_type === "catalog" ? cmpDict.deliveryCatalog : cmpDict.deliveryListing}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                          <div className="text-right">
+                            <span className="text-sm font-bold text-stone-900 dark:text-white">
+                              ₹{offer.price.toLocaleString("en-IN")}
+                            </span>
+                            <span className="text-[10px] text-stone-500 block">
+                              /{formatPriceUnit(offer.price_unit, cmpDict)}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowCompareModal(false);
+                              const matched = unifiedProducts.find((p) => p.id === offer.id);
+                              if (matched) openContact(matched);
+                            }}
+                            className="px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition"
+                          >
+                            {cmpDict.contactBtn}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       )}
 
-      {/* ─── 8. MODAL: LIST CHOICE (Machinery vs Produce) ────────────────────── */}
-      {showListChoiceModal && (
+      {/* ─── 9. DEALER & CHC DISCOVERY MODAL ───────────────────────────────────── */}
+      {showDealersModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl border border-slate-200 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                {isHi ? "आप क्या लिस्ट करना चाहते हैं?" : "What would you like to list?"}
-              </h3>
-              <button onClick={() => setShowListChoiceModal(false)} className="p-1 text-slate-400">
-                <X className="w-5 h-5" />
+          <div className="bg-white dark:bg-stone-900 w-full max-w-2xl rounded-2xl border border-stone-200 dark:border-stone-800 p-5 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                <h3 className="text-sm font-bold text-stone-900 dark:text-white">
+                  Verified Custom Hiring Centers & Machinery Sellers
+                </h3>
+              </div>
+              <button onClick={() => setShowDealersModal(false)} className="p-1 text-stone-400 hover:text-stone-600">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 pt-1">
-              <button
-                onClick={() => {
-                  setShowListChoiceModal(false);
-                  setShowEqModal(true);
-                }}
-                className="p-4 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-600 bg-emerald-50/40 text-left transition space-y-1"
-              >
-                <div className="flex items-center gap-2 font-bold text-emerald-800 text-sm">
-                  <span>🚜</span>
-                  <span>{isHi ? "कृषि मशीनरी (किराये या बिक्री पर)" : "Farm Machinery (Rent / Sale)"}</span>
-                </div>
-                <p className="text-xs text-slate-500">
-                  {isHi ? "अपने ट्रैक्टर, रोटावेटर या कंबाइन को स्थानीय किसानों के लिए पोस्ट करें।" : "Offer equipment for local hiring or sale."}
-                </p>
-              </button>
+            <p className="text-xs text-stone-500">
+              Directory of authentic Custom Hiring Centers (CHCs), farmer machinery cooperatives, and verified sellers across India.
+            </p>
 
-              <button
-                onClick={() => {
-                  setShowListChoiceModal(false);
-                  setShowProduceModal(true);
-                }}
-                className="p-4 rounded-2xl border-2 border-amber-500/30 hover:border-amber-600 bg-amber-50/40 text-left transition space-y-1"
-              >
-                <div className="flex items-center gap-2 font-bold text-amber-800 text-sm">
-                  <span>🌾</span>
-                  <span>{isHi ? "खेत की फसल उपज (गेहूं, धान आदि)" : "Farm Harvest Produce Lots"}</span>
-                </div>
-                <p className="text-xs text-slate-500">
-                  {isHi ? "अपनी तैयार फसल सीधे मिलर्स और थोक खरीदारों को बेचें।" : "Sell grain or vegetables directly to millers."}
-                </p>
-              </button>
-            </div>
+            {dealersLoading ? (
+              <div className="py-12 flex flex-col items-center justify-center space-y-2">
+                <Loader2 className="w-6 h-6 animate-spin text-emerald-700" />
+                <span className="text-xs text-stone-500">Loading verified CHCs & dealers...</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {dealersList.map((dealer) => (
+                  <div
+                    key={dealer.id}
+                    className="p-3.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800/80 space-y-2 hover:border-emerald-600/50 transition"
+                  >
+                    <div className="flex items-start justify-between gap-1">
+                      <div>
+                        <span className="font-bold text-stone-900 dark:text-white text-xs block">
+                          {dealer.seller_name}
+                        </span>
+                        <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold">
+                          {dealer.seller_type}
+                        </span>
+                      </div>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold shrink-0">
+                        {dealer.listings_count} Listing{dealer.listings_count > 1 ? "s" : ""}
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-stone-500 space-y-0.5">
+                      <p>📍 {dealer.district}, {dealer.state}</p>
+                      {dealer.sample_equipment.length > 0 && (
+                        <p className="truncate text-stone-400 text-[10px]">
+                          Inventory: {dealer.sample_equipment.join(", ")}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="pt-1 flex items-center gap-2">
+                      {dealer.phone ? (
+                        <>
+                          <a
+                            href={`tel:${cleanPhoneForTel(dealer.phone)}`}
+                            className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[11px] text-center flex items-center justify-center gap-1 transition"
+                          >
+                            <Phone className="w-3 h-3" />
+                            <span>Call</span>
+                          </a>
+                          <a
+                            href={`https://wa.me/${cleanPhoneForWa(dealer.phone)}?text=${encodeURIComponent(`Hello ${dealer.seller_name}, I am contacting you from KisaanBuddy regarding your machinery inventory.`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 py-1.5 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] text-center flex items-center justify-center gap-1 transition"
+                          >
+                            <MessageSquare className="w-3 h-3" />
+                            <span>WhatsApp</span>
+                          </a>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setShowDealersModal(false);
+                            // Find any item from this dealer to open enquiry
+                            const matched = unifiedProducts.find((p) => p.sellerName === dealer.seller_name);
+                            if (matched) openContact(matched);
+                          }}
+                          className="w-full py-1.5 px-2 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-50 font-semibold text-[11px] text-center transition"
+                        >
+                          Request Callback / Quote
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* ─── 9. MODALS: POST EQUIPMENT & PRODUCE FORMS ───────────────────────── */}
-      {showEqModal && (
+      {/* ─── 7. LIST YOUR EQUIPMENT MODAL ───────────────────────────────────── */}
+      {showListModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl border border-slate-200 p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900">List Machinery for Rent or Sale</h3>
-              <button onClick={() => setShowEqModal(false)} className="p-1.5 text-slate-400">
-                <X className="w-5 h-5" />
+          <div className="bg-white dark:bg-stone-900 w-full max-w-lg rounded-2xl border border-stone-200 p-5 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
+              <h3 className="text-sm font-bold text-stone-900 dark:text-white">List Machinery for Rent or Sale</h3>
+              <button onClick={() => setShowListModal(false)} className="p-1 text-stone-400">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateEquipmentListing} className="space-y-3.5 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+            <form onSubmit={handleCreateListing} className="space-y-3 text-xs">
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Listing Type *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Listing Type *</label>
                   <select
                     value={newEqType}
                     onChange={(e) => setNewEqType(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   >
                     <option value="rent">For Rent (Custom Hiring)</option>
                     <option value="sale">For Sale (Direct Sale)</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Category *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Category *</label>
                   <select
                     value={newEqCategory}
                     onChange={(e) => setNewEqCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   >
-                    {EQUIPMENT_CATEGORIES.filter((c) => c.key !== "all").map((cat) => (
+                    {CATEGORIES.filter((c) => c.key !== "all").map((cat) => (
                       <option key={cat.key} value={cat.key}>
                         {cat.labelEn}
                       </option>
@@ -2488,124 +3689,124 @@ export default function MarketplaceClient() {
               </div>
 
               <div>
-                <label className="block font-bold text-slate-800 mb-1">Listing Title *</label>
+                <label className="block font-semibold text-stone-700 mb-1">Equipment Title *</label>
                 <input
                   type="text"
                   placeholder="e.g. Mahindra 575 DI XP Plus with Rotavator"
                   value={newEqTitle}
                   onChange={(e) => setNewEqTitle(e.target.value)}
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Brand *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Brand *</label>
                   <input
                     type="text"
-                    placeholder="e.g. Mahindra, Swaraj, Shaktiman"
+                    placeholder="e.g. Mahindra, Swaraj"
                     value={newEqBrand}
                     onChange={(e) => setNewEqBrand(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Model Name</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Model Name</label>
                   <input
                     type="text"
-                    placeholder="e.g. 575 DI XP Plus"
+                    placeholder="e.g. 575 DI"
                     value={newEqModel}
                     onChange={(e) => setNewEqModel(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2.5">
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Rate / Price (₹) *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Rate (₹) *</label>
                   <input
                     type="number"
-                    placeholder="e.g. 850"
+                    placeholder="e.g. 1200"
                     value={newEqPrice}
                     onChange={(e) => setNewEqPrice(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Unit *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Unit *</label>
                   <select
                     value={newEqPriceUnit}
                     onChange={(e) => setNewEqPriceUnit(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   >
-                    <option value="per hour">per hour</option>
                     <option value="per day">per day</option>
+                    <option value="per hour">per hour</option>
                     <option value="per acre">per acre</option>
                     <option value="total price">total price</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">HP (Horsepower)</label>
+                  <label className="block font-semibold text-stone-700 mb-1">HP (Engine)</label>
                   <input
                     type="number"
                     placeholder="e.g. 47"
                     value={newEqHp}
                     onChange={(e) => setNewEqHp(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">State *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Madhya Pradesh"
-                    value={newEqState}
-                    onChange={(e) => setNewEqState(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">District *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Sehore"
-                    value={newEqDistrict}
-                    onChange={(e) => setNewEqDistrict(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Owner / CHC Name *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Owner Name *</label>
                   <input
                     type="text"
                     placeholder="Your Name"
                     value={newEqOwnerName}
                     onChange={(e) => setNewEqOwnerName(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold text-slate-800 mb-1">Phone Number *</label>
+                  <label className="block font-semibold text-stone-700 mb-1">Phone Number *</label>
                   <input
                     type="tel"
                     placeholder="+91 98261 XXXXX"
                     value={newEqOwnerPhone}
                     onChange={(e) => setNewEqOwnerPhone(e.target.value)}
                     required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">State *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Bihar, Madhya Pradesh"
+                    value={newEqState}
+                    onChange={(e) => setNewEqState(e.target.value)}
+                    required
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">District *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Samastipur, Sehore"
+                    value={newEqDistrict}
+                    onChange={(e) => setNewEqDistrict(e.target.value)}
+                    required
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-stone-200 bg-stone-50"
                   />
                 </div>
               </div>
@@ -2613,148 +3814,17 @@ export default function MarketplaceClient() {
               <div className="pt-2 flex items-center justify-end gap-2">
                 <button
                   type="button"
-                  onClick={() => setShowEqModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700"
+                  onClick={() => setShowListModal(false)}
+                  className="px-3 py-1.5 rounded-lg border border-stone-200 text-stone-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold"
+                  className="px-4 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold"
                 >
-                  {isSubmitting ? "Publishing..." : "Publish Equipment Listing"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showProduceModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-xl rounded-3xl border border-slate-200 p-6 shadow-2xl max-h-[90vh] overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900">List Harvest Produce for Sale</h3>
-              <button onClick={() => setShowProduceModal(false)} className="p-1.5 text-slate-400">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateProduceListing} className="space-y-3.5 text-xs">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Crop Name *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Wheat, Paddy, Soybean"
-                    value={newProdCrop}
-                    onChange={(e) => setNewProdCrop(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Variety</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Sharbati, 1121 Basmati"
-                    value={newProdVariety}
-                    onChange={(e) => setNewProdVariety(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Available Quantity (Quintals) *</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 150"
-                    value={newProdQty}
-                    onChange={(e) => setNewProdQty(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Asking Rate (₹ per Q) *</label>
-                  <input
-                    type="number"
-                    placeholder="e.g. 2650"
-                    value={newProdPrice}
-                    onChange={(e) => setNewProdPrice(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">State *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Madhya Pradesh"
-                    value={newProdState}
-                    onChange={(e) => setNewProdState(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">District *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Sehore"
-                    value={newProdDistrict}
-                    onChange={(e) => setNewProdDistrict(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Farmer Name *</label>
-                  <input
-                    type="text"
-                    placeholder="Your Name"
-                    value={newProdFarmerName}
-                    onChange={(e) => setNewProdFarmerName(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-800 mb-1">Phone Number *</label>
-                  <input
-                    type="tel"
-                    placeholder="+91 98261 XXXXX"
-                    value={newProdPhone}
-                    onChange={(e) => setNewProdPhone(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowProduceModal(false)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold"
-                >
-                  {isSubmitting ? "Publishing..." : "Publish Produce Lot"}
+                  {isSubmitting ? "Publishing..." : "Publish Listing"}
                 </button>
               </div>
             </form>

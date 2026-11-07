@@ -66,8 +66,8 @@ const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
     ml: 'പദ്ധതികൾ', mr: 'योजना', bn: 'প্রকল্প', pa: 'ਯੋਜਨਾਵਾਂ', gu: 'યોજનાઓ', hi_en: 'Schemes',
   },
   '/worker-connect': {
-    en: 'Worker Connect', hi: 'वर्कर कनेक्ट', kn: 'ವರ್ಕರ್ ಕನೆಕ್ಟ್', ta: 'பணியாளர் இணைப்பு', te: 'వర్కర్ కనెక్ట్',
-    ml: 'വർക്കർ കണക്ട്', mr: 'कामगार कनेक्ट', bn: 'শ্রমিক সংযোগ', pa: 'ਵਰਕਰ ਕਨੈਕਟ', gu: 'વર્કર કનેક્ટ', hi_en: 'Worker Connect',
+    en: 'AgriLabour', hi: 'AgriLabour', kn: 'AgriLabour', ta: 'AgriLabour', te: 'AgriLabour',
+    ml: 'AgriLabour', mr: 'AgriLabour', bn: 'AgriLabour', pa: 'AgriLabour', gu: 'AgriLabour', hi_en: 'AgriLabour',
   },
   '/settings': {
     en: 'Settings', hi: 'सेटिंग्स', kn: 'ಸೆಟ್ಟಿಂಗ್‌ಗಳು', ta: 'அமைப்புகள்', te: 'సెట్టింగ్‌లు',
@@ -109,8 +109,8 @@ const PUBLIC_NAV_LABELS: Record<string, Record<string, string>> = {
     ml: "കർഷക വിപണി", mr: "शेतकरी मार्केटप्लेस", bn: "কৃষক মার্কেটপ্লেস", pa: "ਕਿਸਾਨ ਮਾਰਕੀਟ", gu: "ખેડૂત માર્કેટપ્લેસ", hi_en: "Marketplace for Farmer",
   },
   worker_connect: {
-    en: "Worker Connect", hi: "वर्कर कनेक्ट", kn: "ವರ್ಕರ್ ಕನೆಕ್ಟ್", ta: "பணியாளர் இணைப்பு", te: "వర్కర్ కనెక్ట్",
-    ml: "വർക്കർ കണക്ട്", mr: "कामगार कनेक्ट", bn: "শ্রমিক সংযোগ", pa: "ਵਰਕਰ ਕਨੈਕਟ", gu: "વર્કર કનેક્ટ", hi_en: "Worker Connect",
+    en: "AgriLabour", hi: "AgriLabour", kn: "AgriLabour", ta: "AgriLabour", te: "AgriLabour",
+    ml: "AgriLabour", mr: "AgriLabour", bn: "AgriLabour", pa: "AgriLabour", gu: "AgriLabour", hi_en: "AgriLabour",
   },
   mandi_sell: {
     en: "Mandi & Sell Crop", hi: "मंडी व फसल बिक्री", kn: "ಮಂಡಿ & ಬೆಳೆ ಮಾರಾಟ",
@@ -232,6 +232,12 @@ export function Header() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  /* The full global navbar belongs exclusively to the Home page ('/') */
+  const isHome = pathname === '/' || pathname === '';
+  if (!isHome) {
+    return null;
+  }
+
   const isPublic    = PUBLIC_ROUTES.includes(pathname || '');
   const isHomePage  = pathname === '/';
   const showFullNav = !isPublic;
@@ -266,7 +272,7 @@ export function Header() {
             : 'bg-white/70 dark:bg-stone-950/70 backdrop-blur-sm border-border/50'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="w-full flex h-16 items-center justify-between page-gutter">
           {/* ── Logo ── */}
           <Link
             href={user ? '/dashboard' : '/'}
@@ -301,9 +307,9 @@ export function Header() {
             <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
             <Link
               href="/"
-              aria-current={pathname === '/' ? 'page' : undefined}
+              aria-current={(pathname as string) === '/' ? 'page' : undefined}
               className={`px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                pathname === '/'
+                (pathname as string) === '/'
                   ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
                   : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
               }`}
@@ -504,7 +510,7 @@ export function Header() {
             </div>
 
             {/* Logged-out Login + Start Free CTAs */}
-            {ready && !user && isPublic && pathname !== '/login' && (
+            {ready && !user && isPublic && (pathname as string) !== '/login' && (
               <div className="flex items-center gap-2">
                 <Link
                   href="/login"
@@ -574,7 +580,7 @@ export function Header() {
             )}
 
             {/* Mobile hamburger */}
-            {(showFullNav || (!user && isPublic && pathname !== '/login')) && (
+            {(showFullNav || (!user && isPublic && (pathname as string) !== '/login')) && (
               <button
                 type="button"
                 aria-label={open ? t("ui.navigation.close_menu") : t("ui.navigation.open_menu")}
@@ -735,7 +741,7 @@ export function Header() {
                   className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold text-stone-900 dark:text-white hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
                   <Users className="h-4 w-4 text-emerald-600" />
-                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "Worker Connect"}</span>
+                  <span>{PUBLIC_NAV_LABELS.worker_connect[lang] || "AgriLabour"}</span>
                 </Link>
 
                 <Link

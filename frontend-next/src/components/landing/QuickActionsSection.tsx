@@ -66,11 +66,11 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
       {
         id: 'sell-crop',
         category: 'फसल बिक्री',
-        title: 'अपनी फसल बेचें',
+        title: 'एग्री मार्केटप्लेस',
         desc: 'अपनी उपज की जानकारी दर्ज करके सीधे सत्यापित थोक खरीदारों, मिलों व व्यापारियों से जुड़ें।',
         benefit: 'बिना बिचौलियों के शून्य कमीशन पर सीधी बिक्री',
         cta: 'फसल बिक्री लिस्ट करें',
-        link: '/marketplace?action=sell',
+        link: '/marketplace',
         image: '/images/crops/punjab-wheat-field.webp',
         icon: Store,
       },
@@ -139,21 +139,21 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
       {
         id: 'sell-crop',
         category: 'DIRECT CROP TRADING',
-        title: 'Sell Your Crop',
+        title: 'AgriMarketplace',
         desc: 'Post your harvested produce directly to verified wholesale buyers, food processors, and traders with zero commission.',
         benefit: 'Direct buyer negotiations with zero middleman cuts',
         cta: 'List Harvest for Sale',
-        link: '/marketplace?action=sell',
+        link: '/marketplace',
         image: '/images/crops/punjab-wheat-field.webp',
         icon: Store,
       },
       {
         id: 'worker-connect',
         category: 'FARM LABOUR NETWORK',
-        title: 'Find Farm Workers',
+        title: 'Find AgriLabour',
         desc: 'Connect with agricultural labour crews for seasonal sowing, paddy transplantation, weeding, and harvesting.',
         benefit: 'Transparent daily wages with direct telephone contacts',
-        cta: 'Find Farm Workers',
+        cta: 'Find AgriLabour',
         link: '/worker-connect',
         image: '/images/farmers/farmer-field-tending.webp',
         icon: Users,
@@ -212,11 +212,11 @@ const QUICK_ACTIONS_I18N: Record<string, QuickActionsI18n> = {
       {
         id: 'sell-crop',
         category: 'ಬೆಳೆ ಮಾರಾಟ',
-        title: 'ನಿಮ್ಮ ಬೆಳೆ ಮಾರಿ',
+        title: 'ಅಗ್ರಿ ಮಾರ್ಕೆಟ್‌ಪ್ಲೇಸ್',
         desc: 'ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ ನೇರವಾಗಿ ಧಾನ್ಯ ವ್ಯಾಪಾರಿಗಳು, ಗಿರಣಿ ಮಾಲೀಕರು ಮತ್ತು ಸಗಟು ಖರೀದಿದಾರರಿಗೆ ಬೆಳೆ ಮಾರಿ.',
         benefit: 'ಕಮಿಷನ್ ರಹಿತ ನೇರ ನಗದು ವಹಿವಾಟು',
         cta: 'ಬೆಳೆ ಮಾರಾಟ ದಾಖಲಿಸಿ',
-        link: '/marketplace?action=sell',
+        link: '/marketplace',
         image: '/images/crops/punjab-wheat-field.webp',
         icon: Store,
       },
@@ -271,7 +271,7 @@ export function QuickActionsSection() {
       id="quick-actions"
       className="relative w-full py-16 sm:py-20 bg-[#F7F9F4] dark:bg-stone-950 border-b border-stone-200/80 dark:border-stone-800 scroll-mt-12"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">

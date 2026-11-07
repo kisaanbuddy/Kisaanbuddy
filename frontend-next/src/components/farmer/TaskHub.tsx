@@ -184,12 +184,12 @@ const HUBS_DATA: Record<
       {
         href: "/worker-connect",
         title: {
-          en: "Hire Farm Labour",
+          en: "Hire AgriLabour",
           hi: "कृषि मजदूर खोजें",
           kn: "ಕೃಷಿ ಕೂಲಿ ಕಾರ್ಮಿಕರನ್ನು ಹುಡುಕಿ",
         },
         description: {
-          en: "Find available workers for harvesting, sowing, spraying, and weeding with published wages.",
+          en: "Find available AgriLabour for harvesting, sowing, spraying, and weeding with published wages.",
           hi: "कटाई, बुवाई, निराई और कीटनाशक छिड़काव के लिए आस-पास उपलब्ध मजदूर और दरें देखें।",
           kn: "ಕೊಯ್ಲು, ಬಿತ್ತನೆ ಮತ್ತು ಕಳೆ ಕೀಳಲು ಸ್ಥಳೀಯ ಕೂಲಿ ಕಾರ್ಮಿಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
         },
@@ -273,7 +273,7 @@ export function TaskHub({ kind }: { kind: "fasal" | "madad" }) {
     obj[lang as string] || obj.hi || obj.en;
 
   return (
-    <div className="mx-auto max-w-4xl pb-8">
+    <div className="w-full pb-8 space-y-6">
       {/* Header */}
       <header className="mb-6 rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-900/90 p-5 md:p-6 shadow-xs">
         <p className="text-xs font-bold uppercase tracking-wider text-primary dark:text-emerald-400">
@@ -288,7 +288,7 @@ export function TaskHub({ kind }: { kind: "fasal" | "madad" }) {
       </header>
 
       {/* Task Cards Grid */}
-      <div className="grid gap-3.5 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {hub.tasks.map(
           ({ href, title, description, badge, icon: Icon, color }) => (
             <Link

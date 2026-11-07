@@ -1,38 +1,52 @@
-"""Speech-to-Text service.
+"""Speech-to-Text service for KisaanBuddy.
 
-Primary: OpenAI Whisper (`whisper-1`) — 99-language support, excellent on
-Hindi and Kannada, and great at code-mixed Hinglish/Kanglish audio.
+Provider cascade:
+  1. Sarvam.ai (saaras:v4 / saaras:v3) — Primary Indian language STT
+  2. Google Speech Recognition (sr.recognize_google) — High accuracy Hindi, Kannada, English fallback
+  3. OpenAI Whisper (whisper-1) — If OpenAI / Gemini API key is configured
 
-Fallback: if the OPENAI_API_KEY is missing or the call fails, we return
-an error. The frontend already does its own Web Speech API pass, so the
-user still gets a transcript — this endpoint is the *upgrade* path for
-when the browser's STT isn't trusted.
-
-Design choices:
-  * Language hint is OPTIONAL. Whisper auto-detects well, and forcing a
-    language on mixed speech hurts accuracy.
-  * 25 MB size limit enforced up-front (OpenAI's hard limit).
-  * The audio bytes never touch disk — we stream directly to the API.
+Supports live microphone recordings in WAV, WebM, MP4, OGG with automatic
+language identification and silence tolerance.
 """
 from __future__ import annotations
 
+import asyncio
 import io
 import logging
 from typing import Optional
 
 import httpx
+
 from core.config import settings
 from schemas.chatbot import STTResult
 
 log = logging.getLogger(__name__)
 
-MAX_BYTES = 25 * 1024 * 1024  # 25 MB — hard limit
+MAX_BYTES = 25 * 1024 * 1024  # 25 MB hard limit
+
+_LANG_BCP47 = {
+    "hi": "hi-IN",
+    "kn": "kn-IN",
+    "en": "en-IN",
+    "bn": "bn-IN",
+    "te": "te-IN",
+    "ta": "ta-IN",
+    "mr": "mr-IN",
+    "gu": "gu-IN",
+    "pa": "pa-IN",
+    "ml": "ml-IN",
+    "bho": "hi-IN",
+    "mai": "hi-IN",
+}
 
 
 class STTError(Exception):
     pass
 
 
+# ---------------------------------------------------------------------------
+# 1. Sarvam.ai STT (saaras:v4 / saaras:v3)
+# ---------------------------------------------------------------------------
 async def _sarvam_stt(
     audio_bytes: bytes,
     filename: str = "audio.wav",
@@ -49,17 +63,11 @@ async def _sarvam_stt(
         "model": "saaras:v4",
         "mode": "transcribe",
     }
-    lang_map = {
-        "hi": "hi-IN", "kn": "kn-IN", "en": "en-IN", "bn": "bn-IN",
-        "te": "te-IN", "ta": "ta-IN", "mr": "mr-IN", "gu": "gu-IN", "pa": "pa-IN",
-    }
-    if language and language in lang_map:
-        data["language_code"] = lang_map[language]
+    if language and language in _LANG_BCP47:
+        data["language_code"] = _LANG_BCP47[language]
     else:
         data["language_code"] = "unknown"
 
-    # Keep the browser recorder's actual codec. Labelling WebM/Opus as WAV
-    # made Sarvam reject or misread otherwise valid Hindi/Kannada recordings.
     files = {"file": (filename or "audio.wav", audio_bytes, content_type or "audio/wav")}
 
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
@@ -72,20 +80,109 @@ async def _sarvam_stt(
         raise STTError(f"Sarvam STT failed with {r.status_code}: {r.text[:200]}")
 
     result_json = r.json()
-    transcript = result_json.get("transcript", "")
-    detected = result_json.get("language_code", "") or language or "en"
+    transcript = (result_json.get("transcript") or "").strip()
+    detected = result_json.get("language_code", "") or language or "hi"
     return STTResult(
-        transcript=transcript.strip(),
+        transcript=transcript,
         language=_normalise_lang(detected),
         confidence=None,
         provider="sarvam-saaras",
     )
 
 
-async def transcribe(
+# ---------------------------------------------------------------------------
+# 2. Google Speech Recognition (via speech_recognition)
+# ---------------------------------------------------------------------------
+async def _google_sr_stt(
+    audio_bytes: bytes,
+    filename: str = "audio.wav",
+    language: Optional[str] = None,
+) -> STTResult:
+    try:
+        import speech_recognition as sr
+    except ImportError as e:
+        raise STTError(f"speech_recognition not installed: {e}") from e
+
+    # Check if WAV format (starts with 'RIFF')
+    if not audio_bytes.startswith(b"RIFF") and len(audio_bytes) > 12:
+        raise STTError("Google SR requires WAV PCM audio payload.")
+
+    lang_code = _LANG_BCP47.get(language or "hi", "hi-IN")
+    if language == "auto" or not language:
+        # Default to Hindi for Indian farm context when unspecified
+        lang_code = "hi-IN"
+
+    def _sync_recognize() -> str:
+        r = sr.Recognizer()
+        r.energy_threshold = 300
+        r.dynamic_energy_threshold = True
+        with sr.AudioFile(io.BytesIO(audio_bytes)) as source:
+            audio_data = r.record(source)
+        try:
+            return r.recognize_google(audio_data, language=lang_code)
+        except sr.UnknownValueError:
+            return ""
+        except sr.RequestError as e:
+            raise STTError(f"Google SR request failed: {e}") from e
+
+    try:
+        transcript = await asyncio.to_thread(_sync_recognize)
+        if not transcript:
+            raise STTError("No speech detected in audio segment.")
+        return STTResult(
+            transcript=transcript.strip(),
+            language=_normalise_lang(lang_code),
+            confidence=None,
+            provider="google-speech-recognition",
+        )
+    except Exception as e:
+        raise STTError(f"Google SR failed: {e}") from e
+
+
+# ---------------------------------------------------------------------------
+# 3. OpenAI Whisper (fallback if API key set)
+# ---------------------------------------------------------------------------
+async def _whisper_stt(
     audio_bytes: bytes,
     filename: str = "audio.webm",
-    content_type: str = "audio/webm",
+    language: Optional[str] = None,
+) -> STTResult:
+    key = settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
+    if not key or len(key) < 20:
+        raise STTError("No Whisper API key configured.")
+
+    try:
+        from openai import AsyncOpenAI  # type: ignore
+    except Exception as e:
+        raise STTError(f"openai SDK not installed: {e}") from e
+
+    client = AsyncOpenAI(api_key=key, timeout=settings.API_TIMEOUT * 6)
+    fileobj = io.BytesIO(audio_bytes)
+    fileobj.name = filename
+
+    kwargs: dict = {"model": "whisper-1", "file": fileobj, "response_format": "verbose_json"}
+    if language in ("en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"):
+        kwargs["language"] = language
+
+    resp = await client.audio.transcriptions.create(**kwargs)
+    text = getattr(resp, "text", "") or ""
+    detected_lang = getattr(resp, "language", None) or language or "en"
+
+    return STTResult(
+        transcript=text.strip(),
+        language=_normalise_lang(detected_lang),
+        confidence=None,
+        provider="openai-whisper-1",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Public Facade
+# ---------------------------------------------------------------------------
+async def transcribe(
+    audio_bytes: bytes,
+    filename: str = "audio.wav",
+    content_type: str = "audio/wav",
     language: Optional[str] = None,
 ) -> STTResult:
     """Transcribe audio to text. `language` is an ISO hint (en/hi/kn), may be None."""
@@ -94,6 +191,9 @@ async def transcribe(
     if len(audio_bytes) > MAX_BYTES:
         raise STTError(f"Audio too large ({len(audio_bytes)} bytes); max is 25 MB.")
 
+    errors: list[str] = []
+
+    # 1. Primary: Sarvam AI STT
     if settings.SARVAM_API_KEY:
         try:
             return await _sarvam_stt(
@@ -103,61 +203,39 @@ async def transcribe(
                 language=language,
             )
         except Exception as e:
-            log.warning("Sarvam STT failed, falling back to Whisper: %s", e)
-            if not (settings.GEMINI_API_KEY or settings.OPENAI_API_KEY):
-                raise
+            log.warning("Sarvam STT failed (%s), attempting secondary STT providers", e)
+            errors.append(f"Sarvam STT: {e}")
 
-    key = settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
-    if not key or len(key) < 20:
-        raise STTError("No STT provider configured (set SARVAM_API_KEY, GEMINI_API_KEY, or OPENAI_API_KEY).")
-
+    # 2. Resilient fallback: Google Speech Recognition (handles standard WAV from browser)
     try:
-        # Lazy import so the app boots even when openai isn't installed.
-        from openai import AsyncOpenAI  # type: ignore
+        return await _google_sr_stt(
+            audio_bytes,
+            filename=filename,
+            language=language,
+        )
     except Exception as e:
-        raise STTError(f"openai SDK not installed: {e}") from e
+        errors.append(f"Google SR: {e}")
 
-    client = AsyncOpenAI(api_key=key, timeout=settings.API_TIMEOUT * 6)  # STT can take a few seconds
+    # 3. Whisper (if OpenAI or Gemini API key set)
+    if (settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20):
+        try:
+            return await _whisper_stt(
+                audio_bytes,
+                filename=filename,
+                language=language,
+            )
+        except Exception as e:
+            errors.append(f"Whisper STT: {e}")
 
-    # OpenAI SDK accepts a file-like object. We wrap bytes with a tuple so it
-    # uses the correct mime/type.
-    fileobj = io.BytesIO(audio_bytes)
-    fileobj.name = filename  # SDK inspects .name for the MIME guess
-
-    kwargs = {"model": "whisper-1", "file": fileobj, "response_format": "verbose_json"}
-    # Whisper accepts ISO language hints. Keep the hint optional for genuinely
-    # mixed speech, but pass a farmer's explicit regional-language choice.
-    if language in ("en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"):
-        kwargs["language"] = language
-
-    try:
-        resp = await client.audio.transcriptions.create(**kwargs)
-    except Exception as e:
-        log.warning("Whisper call failed: %s", e)
-        raise STTError(f"Whisper call failed: {e}") from e
-
-    # `resp` is a Transcription object; attributes vary by SDK version.
-    text = getattr(resp, "text", "") or ""
-    detected_lang = getattr(resp, "language", None) or language or "en"
-
-    # Normalise to the assistant's supported preference set.
-    detected_lang = _normalise_lang(detected_lang)
-
-    return STTResult(
-        transcript=text.strip(),
-        language=detected_lang,  # type: ignore[arg-type]
-        confidence=None,
-        provider="openai-whisper-1",
-    )
+    raise STTError(f"All STT providers failed: {' | '.join(errors)}")
 
 
 def _normalise_lang(code: str) -> str:
     c = (code or "").lower().split("-")[0]
-    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"):
+    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"):
         return c
     return "en"
 
 
 def is_configured() -> bool:
-    key = settings.SARVAM_API_KEY or settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
-    return bool(key and len(key) > 20)
+    return True

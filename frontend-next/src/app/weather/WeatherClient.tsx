@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { CloudSun, Info, MapPin, Volume2, VolumeX, Share2 } from "lucide-react"
 import { useLanguage } from '@/lib/language'
+import { useVoice } from '@/lib/voice/VoiceContext'
 
 import {
   getCurrentByCoords,
@@ -29,6 +30,7 @@ import { Button } from "@/components/ui/button"
 
 import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice, getWeatherSpeech } from "@/lib/weather-translations"
 import { WEATHER_GUIDE_I18N } from "@/lib/weather-guide-i18n"
+import { MobileWeatherView } from "@/components/mobile/MobileWeatherView"
 
 interface ActiveLocation {
   lat: number
@@ -57,6 +59,23 @@ function WeatherPageInner() {
   const [resolving, setResolving] = useState(true)
 
   const [current, setCurrent] = useState<UnifiedWeather | null>(null)
+  const { registerVisibleItems } = useVoice();
+
+  // Register live weather conditions with Voice OS
+  useEffect(() => {
+    if (current?.current) {
+      registerVisibleItems([
+        {
+          id: "weather-current",
+          name: `${loc?.label || "Current Location"}: ${current.current.temp_c}°C, ${current.current.condition}`,
+          price: current.current.temp_c,
+          category: "Weather",
+          index: 1,
+        },
+      ]);
+    }
+  }, [current, loc, registerVisibleItems]);
+
   const [forecast, setForecast] = useState<ForecastBundle | null>(null)
 
   const [loadingCurrent, setLoadingCurrent] = useState(false)
@@ -336,7 +355,11 @@ function WeatherPageInner() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
+      <div className="block md:hidden">
+        <MobileWeatherView />
+      </div>
+      <div className="hidden md:flex flex-col gap-6">
       <motion.header
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -581,6 +604,7 @@ function WeatherPageInner() {
 
       {/* Contextual Farmer Quick Review */}
       <QuickReviewCard category="weather" sourcePage="/weather" />
-    </div>
+      </div>
+    </>
   )
 }

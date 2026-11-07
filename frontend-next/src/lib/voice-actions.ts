@@ -155,8 +155,8 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
     }
     return { feature: "khet-diary", path: "/khet-diary", label: "Khet Diary", params }
   }
-  if (/worker|mazdoor|मजदूर|labour|labor|कामगार|katai|कटाई|बुवाई|buwai|chhiptai|harvesting|sowing/i.test(text))
-    return { feature: "worker-connect", path: "/worker-connect", label: "Worker Connect", params: { ...params, mode: "find" } }
+  if (/agrilabour|worker|mazdoor|मजदूर|labour|labor|कामगार|katai|कटाई|बुवाई|buwai|chhiptai|harvesting|sowing/i.test(text))
+    return { feature: "worker-connect", path: "/worker-connect", label: "AgriLabour", params: { ...params, mode: "find" } }
   if (/farm profile|farm map|map kholo|farm details|my profile|mera profile|मेरा प्रोफाइल|मेरी खेत प्रोफ़ाइल|ನನ್ನ ಫಾರ್ಮ್/i.test(text))
     return { feature: "profile", path: "/profile", label: "Farm profile", params }
   return null

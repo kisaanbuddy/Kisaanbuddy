@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Providers } from '@/components/Providers';
-import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
@@ -9,6 +8,9 @@ import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
 import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
+import { MobileMenuDrawer } from '@/components/navigation/MobileMenuDrawer';
+import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
+
 
 /* ---------- System font stacks ----------
  * Replaced next/font/google to avoid build-time downloads from
@@ -134,6 +136,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             })
           }}
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  localStorage.removeItem('kisaanbuddy_lang');
+                  localStorage.removeItem('KisaanBuddy_lang');
+                  localStorage.removeItem('krishi_lang');
+                  document.cookie = 'kisaanbuddy_lang=; Path=/; Max-Age=0; SameSite=Lax';
+
+                  var sessionLang = sessionStorage.getItem('kisaanbuddy_session_lang');
+                  if (!sessionLang) {
+                    document.documentElement.classList.add('kb-fresh-session');
+                  } else {
+                    document.documentElement.lang = sessionLang;
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+        <noscript>
+          <style>{`html.kb-fresh-session .app-shell-container, .kb-session-pending { display: block !important; }`}</style>
+        </noscript>
       </head>
       <body className="font-sans min-h-screen antialiased">
         <Providers>
@@ -144,10 +170,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             सामग्री पर जाएं / Skip to Content
           </a>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
-            <Header />
+            <AppNavigationShell />
             <main
               id="main-content"
-              className="app-main flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 md:pt-8 pb-24 md:pb-12"
+              className="app-main flex-1 w-full page-gutter pt-4 md:pt-6 pb-24 md:pb-12"
             >
               <Breadcrumbs />
               {children}
@@ -157,14 +183,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <AssistantGate />
           <SwRegister />
           <Analytics />
+          <MobileMenuDrawer />
           <MobileBottomNav />
           <DeferredAdSense />
-
-
-
-
-
-
         </Providers>
       </body>
     </html>

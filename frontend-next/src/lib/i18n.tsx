@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
 import { translations } from "./translations"
@@ -18,14 +18,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("krishi_lang") as Lang | null
+      localStorage.removeItem("krishi_lang")
+      const saved = sessionStorage.getItem("kisaanbuddy_session_lang") as Lang | null
       if (saved && ["en", "hi", "kn"].includes(saved)) setLangState(saved)
     } catch {}
   }, [])
 
   function setLang(l: Lang) {
     setLangState(l)
-    try { localStorage.setItem("krishi_lang", l) } catch {}
+    try { sessionStorage.setItem("kisaanbuddy_session_lang", l) } catch {}
   }
 
   function t(key: string): string {

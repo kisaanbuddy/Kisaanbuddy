@@ -1,3 +1,4 @@
+@import "leaflet/dist/leaflet.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -51,7 +52,6 @@
   }
 
   .dark {
-    color-scheme: dark;
     --background: 222 47% 7%;
     --foreground: 210 40% 98%;
     --card: 222 47% 10%;
@@ -100,10 +100,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color-scheme: light;
-  }
-
-  html.dark {
-    color-scheme: dark;
   }
 
   body {
@@ -288,7 +284,6 @@
     --badge-bg: 100 35% 94%; --badge-text: 155 53% 19%;
   }
   .dark {
-    color-scheme: dark;
     --background: 156 20% 8%; --foreground: 40 33% 96%;
     --card: 156 18% 12%; --card-foreground: 40 33% 96%;
     --popover: 156 18% 12%; --popover-foreground: 40 33% 96%;
@@ -337,6 +332,24 @@
    improve hierarchy and responsive containment without changing API-driven UI.
    -------------------------------------------------------------------------- */
 @layer base {
+  :root {
+    --background: 90 18% 98%;
+    --foreground: 150 15% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 15% 13%;
+    --primary: 154 47% 24%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 145 39% 34%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 90 13% 94%;
+    --muted-foreground: 148 8% 39%;
+    --accent: 95 36% 45%;
+    --accent-foreground: 0 0% 100%;
+    --border: 100 10% 88%;
+    --input: 100 10% 84%;
+    --ring: 154 47% 24%;
+    --radius: .75rem;
+  }
 
   body {
     background-color: hsl(var(--background));
@@ -355,6 +368,173 @@
 
   .app-main > * {
     min-width: 0;
+  }
+
+  /* =========================================================================
+     KisaanBuddy Global Full-Width Layout System
+     ========================================================================= */
+
+  /* Standard full-width page shell */
+  .page-shell {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    min-width: 0;
+  }
+
+  /* Standardized responsive horizontal padding across the entire platform */
+  .page-gutter {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .page-gutter {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .page-gutter {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+  @media (min-width: 1600px) {
+    .page-gutter {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Full-width section with internal page gutter */
+  .full-width-section {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  /* Sidebar + Content layout pattern */
+  .layout-sidebar-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: none;
+    align-items: flex-start;
+  }
+  @media (min-width: 1024px) {
+    .layout-sidebar-main {
+      flex-direction: row;
+      gap: 1.5rem;
+    }
+  }
+
+  .layout-sidebar {
+    width: 100%;
+    flex-shrink: 0;
+  }
+  @media (min-width: 1024px) {
+    .layout-sidebar {
+      width: 290px;
+    }
+  }
+  @media (min-width: 1280px) {
+    .layout-sidebar {
+      width: 310px;
+    }
+  }
+  @media (min-width: 1600px) {
+    .layout-sidebar {
+      width: 320px;
+    }
+  }
+
+  .layout-main-content {
+    flex: 1 1 0%;
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Standard full-width dashboard grid */
+  .dashboard-grid-kpi {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  @media (min-width: 640px) {
+    .dashboard-grid-kpi {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .dashboard-grid-kpi {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1600px) {
+    .dashboard-grid-kpi {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+
+  /* Standard reading prose container for long-form legal and policy documents */
+  .prose-reading-container {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+  }
+
+  /* Suppress global headers completely on marketplace routes */
+  body:has(.marketplace-root) .global-header-desktop,
+  body:has(.marketplace-root) .global-header-mobile,
+  body:has([data-marketplace="true"]) .global-header-desktop,
+  body:has([data-marketplace="true"]) .global-header-mobile {
+    display: none !important;
+  }
+
+  /* Edge-to-edge layout overrides (Marketplace and full-bleed views) */
+  .app-main:has(.edge-to-edge),
+  .app-main:has(.marketplace-root),
+  .app-main:has([data-fullwidth="true"]),
+  .app-main:has([data-marketplace="true"]) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  /* Responsive Marketplace Product Grid */
+  .marketplace-product-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1440px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1680px) {
+    .marketplace-product-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
   }
 
   /* A compact, reusable page-heading pattern for existing and future routes. */
@@ -400,6 +580,12 @@
   }
 }
 
+
+/* Language Selection Flow & Anti-Flicker Protection */
+html.kb-fresh-session .app-shell-container,
+.kb-session-pending {
+  display: none !important;
+}
 
 /* ============================================================
    KISAANBUDDY UNIFIED ANIMATION SYSTEM (FARMER-FRIENDLY & ACCESSIBLE)

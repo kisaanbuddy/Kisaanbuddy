@@ -22,7 +22,7 @@ export function DashboardPreview() {
       {/* Decorative Blob */}
       <div className="absolute top-[20%] left-[-10%] w-[350px] h-[350px] rounded-full bg-emerald-500/5 blur-[120px] pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+      <div className="w-full">
         
         {/* Header */}
         <div className="text-center mb-12 space-y-4">

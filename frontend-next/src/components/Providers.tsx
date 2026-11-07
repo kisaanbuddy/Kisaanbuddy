@@ -7,6 +7,9 @@ import { AuthGate } from '@/components/AuthGate';
 import { LanguageGate } from '@/components/language/LanguageGate';
 import { FarmerFeedbackProvider } from '@/components/farmer/FarmerFeedbackContext';
 import { FarmerFeedbackModal } from '@/components/farmer/FarmerFeedbackModal';
+import { MobileMenuProvider } from '@/components/navigation/MobileMenuContext';
+import { CartProvider } from '@/lib/cart/CartContext';
+import { VoiceProvider } from '@/lib/voice/VoiceContext';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -18,16 +21,18 @@ export function Providers({ children }: { children: React.ReactNode }) {
           enableSystem={false}
           storageKey="kisaanbuddy-theme"
         >
-          {/* LanguageGate: First-time visitors see ONLY the language
-              welcome screen.  Placed above AuthGate so that even a
-              first-time visitor landing on a protected path
-              (e.g. /dashboard via bookmark) sees the language screen
-              before any authentication redirect fires. */}
+          {/* LanguageGate: First-time visitors see welcome if fresh session */}
           <LanguageGate>
-            <FarmerFeedbackProvider>
-              <AuthGate>{children}</AuthGate>
-              <FarmerFeedbackModal />
-            </FarmerFeedbackProvider>
+            <CartProvider>
+              <VoiceProvider>
+                <FarmerFeedbackProvider>
+                  <MobileMenuProvider>
+                    <AuthGate>{children}</AuthGate>
+                    <FarmerFeedbackModal />
+                  </MobileMenuProvider>
+                </FarmerFeedbackProvider>
+              </VoiceProvider>
+            </CartProvider>
           </LanguageGate>
         </ThemeProvider>
       </LanguageProvider>

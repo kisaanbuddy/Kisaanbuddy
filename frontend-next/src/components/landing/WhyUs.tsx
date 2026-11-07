@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useLanguage } from '@/lib/language';
 import { CheckCircle2 } from 'lucide-react';
@@ -9,9 +9,9 @@ export function WhyUs() {
 
   const stats = [
     {
-      value: "95%",
-      label: t("landing_why_us.prediction_accuracy"),
-      desc: t("landing_why_us.rigorous_ml_training_sets"),
+      value: "ICAR-Aligned",
+      label: "Scientific Agronomy",
+      desc: "Calibrated against ICAR packages of practices and regional agricultural university protocols.",
     },
     {
       value: "24/7",
@@ -32,7 +32,7 @@ export function WhyUs() {
 
   return (
     <section className="py-20 bg-muted/15 border-b border-border/20">
-      <div className="max-w-7xl mx-auto px-4 md:px-8">
+      <div className="w-full px-4 md:px-8">
         
         {/* Title Block */}
         <div className="text-center mb-16 space-y-4">

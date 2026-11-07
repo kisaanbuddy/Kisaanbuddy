@@ -91,7 +91,7 @@ export default function KhetDiaryPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 w-full pb-12 relative">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}

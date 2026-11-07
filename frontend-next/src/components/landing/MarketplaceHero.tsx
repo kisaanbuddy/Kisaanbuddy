@@ -36,7 +36,7 @@ export function MarketplaceHero() {
       {/* Background subtle grid pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#10b9810a_1px,transparent_1px),linear-gradient(to_bottom,#10b9810a_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
           {/* Left Column: Heading, Subtitle & Primary Actions */}
@@ -88,7 +88,7 @@ export function MarketplaceHero() {
                 <span>{t.ctaBuyers}</span>
               </Link>
 
-              {/* Primary 4: Worker Connect & Jobs */}
+              {/* Primary 4: AgriLabour & Jobs */}
               <Link
                 href="/worker-connect"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-900 dark:text-emerald-200 font-bold text-sm border border-emerald-300 dark:border-emerald-700 shadow-2xs hover:shadow transition-all group"
@@ -101,7 +101,7 @@ export function MarketplaceHero() {
               </Link>
             </div>
 
-            {/* High-visibility Workers Connect Promotion Card in Hero */}
+            {/* High-visibility AgriLabour Promotion Card in Hero */}
             <div className="p-3.5 sm:p-4 rounded-2xl bg-white/95 dark:bg-stone-900/90 border border-emerald-500/30 dark:border-emerald-700/50 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-left">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs">
@@ -113,7 +113,7 @@ export function MarketplaceHero() {
                       Farm Workers & Harvester Crews
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-500/20">
-                      Workers Connect
+                      AgriLabour
                     </span>
                   </div>
                   <p className="text-[11px] sm:text-xs text-stone-600 dark:text-stone-300">
@@ -394,7 +394,7 @@ export function MarketplaceHero() {
                 </div>
               )}
 
-              {/* Tab 3 Content: Workers Connect */}
+              {/* Tab 3 Content: AgriLabour */}
               {activeTab === 'workers' && (
                 <div className="p-4 space-y-2.5">
                   <div className="flex items-center justify-between text-[11px] text-stone-500 dark:text-stone-400 px-1 font-medium">
@@ -462,7 +462,7 @@ export function MarketplaceHero() {
                     className="w-full mt-1 py-2.5 px-3 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <Users className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Explore Worker Connect</span>
+                    <span>Explore AgriLabour</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

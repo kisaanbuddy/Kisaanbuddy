@@ -1,5 +1,6 @@
 "use client"
 import { useLanguage } from '@/lib/language'
+import { MobileSoilView } from '@/components/mobile/MobileSoilView'
 import { SOIL_HEALTH_GUIDE_I18N } from '@/lib/soil-health-guide-i18n'
 /**
  * KisaanBuddy — Soil Health & Fertilizer Recommendation
@@ -25,9 +26,11 @@ import {
   Volume2,
   VolumeX,
   Zap,
+  Store,
+  ArrowRight,
 } from "lucide-react"
 import { useCallback, useEffect, useRef, useState } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { streamMessage, type Language } from "@/lib/assistant-api"
 import { Card, GlassCard, CardHeader } from "@/components/ui/card"
@@ -330,6 +333,7 @@ function GaugeRing({ value, label, symbol }: { value: NPKLevel; label: string; s
 
 export default function SoilHealthPage() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const { t, lang } = useLanguage()
   const [form, setForm] = useState<SoilForm>(() => ({ ...INITIAL, language: (lang as Language) || "hi" }))
   
@@ -526,6 +530,74 @@ export default function SoilHealthPage() {
     }
   }
 
+  // Module 7: Soil Health -> Fertilizer Marketplace Integration
+  const handleFindFertilizers = useCallback(() => {
+    const deficiencies: string[] = []
+
+    // 1. Deficiencies from manual / interactive input form
+    if (form.nitrogen === "low") deficiencies.push("nitrogen")
+    if (form.phosphorus === "low") deficiencies.push("phosphorus")
+    if (form.potassium === "low") deficiencies.push("potassium")
+    if (form.organicCarbon === "low") deficiencies.push("organic_carbon")
+    if (form.ph === "acidic") deficiencies.push("acidic")
+
+    // 2. Deficiencies from verified soil test card scan if available
+    if (extractedCard) {
+      if (
+        extractedCard.nitrogen_kg_ha != null &&
+        extractedCard.nitrogen_kg_ha < 280 &&
+        !deficiencies.includes("nitrogen")
+      ) {
+        deficiencies.push("nitrogen")
+      }
+      if (
+        extractedCard.phosphorus_kg_ha != null &&
+        extractedCard.phosphorus_kg_ha < 10 &&
+        !deficiencies.includes("phosphorus")
+      ) {
+        deficiencies.push("phosphorus")
+      }
+      if (
+        extractedCard.potassium_kg_ha != null &&
+        extractedCard.potassium_kg_ha < 110 &&
+        !deficiencies.includes("potassium")
+      ) {
+        deficiencies.push("potassium")
+      }
+      if (
+        extractedCard.soil_ph != null &&
+        extractedCard.soil_ph < 6.5 &&
+        !deficiencies.includes("acidic")
+      ) {
+        deficiencies.push("acidic")
+      }
+      if (
+        extractedCard.organic_carbon_pct != null &&
+        extractedCard.organic_carbon_pct < 0.5 &&
+        !deficiencies.includes("organic_carbon")
+      ) {
+        deficiencies.push("organic_carbon")
+      }
+    }
+
+    const q = new URLSearchParams()
+    q.set("tab", "inputs")
+    q.set("category", "chemical_fertilizers")
+
+    // Crop extraction and cleaning
+    if (form.crop && form.crop !== "Other") {
+      const cleanCrop = form.crop.split(" ")[0].replace(/[^a-zA-Z]/g, "").trim()
+      if (cleanCrop) q.set("crop", cleanCrop)
+    }
+
+    // Apply deficiency filters if identified
+    if (deficiencies.length > 0) {
+      q.set("deficiency", deficiencies.join(","))
+    }
+
+    router.push(`/marketplace?${q.toString()}`)
+  }, [form, extractedCard, router])
+
   const reset = () => {
     abortRef.current?.abort()
     if (audioRef.current) {
@@ -542,7 +614,11 @@ export default function SoilHealthPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto pb-12 relative">
+    <>
+      <div className="block md:hidden">
+        <MobileSoilView />
+      </div>
+      <div className="hidden md:block space-y-8 w-full pb-12 relative">
       {/* Decorative Blob */}
       <div className="absolute top-[-10%] left-[20%] w-[350px] h-[350px] rounded-full bg-teal-500/10 blur-[120px] pointer-events-none -z-10" />
       <div className="absolute top-[30%] right-[10%] w-[250px] h-[250px] rounded-full bg-emerald-500/5 blur-[100px] pointer-events-none -z-10" />
@@ -1008,6 +1084,79 @@ export default function SoilHealthPage() {
                   </div>
                 </div>
 
+                {/* Module 7: Soil Health -> Fertilizer Marketplace CTA */}
+                <div className="mt-4 p-4 rounded-2xl border border-emerald-500/30 bg-emerald-50/60 dark:bg-emerald-950/40 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                        <Store className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs sm:text-sm font-extrabold text-stone-900 dark:text-stone-100">
+                          {lang === "hi"
+                            ? "उपयुक्त खाद व उर्वरक खोजें"
+                            : lang === "kn"
+                            ? "ಸೂಕ್ತ ಗೊಬ್ಬರಗಳನ್ನು ಹುಡುಕಿ"
+                            : "Find Suitable Fertilizers for Your Soil"}
+                        </h4>
+                        <p className="text-[11px] text-stone-600 dark:text-stone-300">
+                          {lang === "hi"
+                            ? "पहचाने गए पोषक तत्वों की कमी के आधार पर CIBRC/FCO प्रमाणित उर्वरक देखें।"
+                            : "Explore verified fertilizers matched to your detected nutrient deficiencies."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1.5 text-[11px]">
+                    {form.nitrogen === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 font-semibold">
+                        {lang === "hi" ? "कम नाइट्रोजन (Low N)" : "Low Nitrogen (N)"}
+                      </span>
+                    )}
+                    {form.phosphorus === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 font-semibold">
+                        {lang === "hi" ? "कम फास्फोरस (Low P)" : "Low Phosphorus (P)"}
+                      </span>
+                    )}
+                    {form.potassium === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-200 border border-rose-300 font-semibold">
+                        {lang === "hi" ? "कम पोटाश (Low K)" : "Low Potash (K)"}
+                      </span>
+                    )}
+                    {form.ph === "acidic" && (
+                      <span className="px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/60 text-orange-800 dark:text-orange-200 border border-orange-300 font-semibold">
+                        {lang === "hi" ? "अम्लीय मिट्टी (Acidic pH)" : "Acidic Soil (pH < 6.5)"}
+                      </span>
+                    )}
+                    {form.organicCarbon === "low" && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-200 border border-amber-300 font-semibold">
+                        {lang === "hi" ? "कम जैविक कार्बन" : "Low Organic Carbon"}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleFindFertilizers}
+                    className="w-full h-11 rounded-xl bg-emerald-700 hover:bg-emerald-800 active:scale-[0.98] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition"
+                  >
+                    <span>
+                      {lang === "hi"
+                        ? "किसानबड्डी मार्केट में उपयुक्त उर्वरक देखें"
+                        : lang === "kn"
+                        ? "ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ಗೊಬ್ಬರಗಳನ್ನು ನೋಡಿ"
+                        : "Find Suitable Fertilizers"}
+                    </span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <p className="text-[10px] text-stone-500 italic text-center">
+                    {lang === "hi"
+                      ? "उर्वरक की सही मात्रा के लिए राज्य कृषि विश्वविद्यालय पैकेज व मृदा स्वास्थ्य कार्ड का पालन करें।"
+                      : "Always calibrate dosage with local soil test results & agricultural university guidance."}
+                  </p>
+                </div>
+
                 <div className="pt-4 mt-4 border-t border-border/40 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
                   <RefreshCw className="h-3.5 w-3.5" />
                   <span>{t("soil_health.recommendation_calculated_using_regional")}</span>
@@ -1089,7 +1238,36 @@ export default function SoilHealthPage() {
             </div>
           )
         })()}
+
+        {/* Scientific Provenance & Laboratory vs Sensor Distinction */}
+        <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5 text-xs text-muted-foreground space-y-3">
+          <div className="flex items-center gap-2 font-bold text-foreground">
+            <FlaskConical className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>Soil Data Provenance &amp; Scientific Methodology</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+            <div className="space-y-1">
+              <strong className="text-foreground block font-semibold">1. Laboratory vs. Sensor Distinction:</strong>
+              <p className="leading-relaxed text-[11px]">
+                Chemical test results from certified district Soil Testing Laboratories (wet-chemistry spectrophotometer / flame photometer) are the gold standard. Handheld electrochemical sensor probes provide rapid screening estimates but may deviate &plusmn;15% under variable soil moisture.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <strong className="text-foreground block font-semibold">2. Units &amp; Standard Scales:</strong>
+              <p className="leading-relaxed text-[11px]">
+                Nutrient levels are measured in kilograms per hectare (kg/ha) for available Nitrogen, Phosphorus (P₂O₅), and Potassium (K₂O). Soil reaction is indexed on standard logarithmic pH scale (1–14), and Organic Carbon as weight percentage (%).
+              </p>
+            </div>
+            <div className="space-y-1">
+              <strong className="text-foreground block font-semibold">3. Advisory Scope &amp; Limitations:</strong>
+              <p className="leading-relaxed text-[11px]">
+                Recommendations follow ICAR and State Agricultural University fertilizer response curves under the Fertilizer (Control) Order, 1985 (FCO). These calculations serve as indicative agronomic guidance and do not guarantee yield outcomes without balanced micronutrients and irrigation.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
-    </div>
+      </div>
+    </>
   )
 }

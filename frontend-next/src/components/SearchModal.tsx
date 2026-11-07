@@ -182,7 +182,7 @@ const TOOLS_I18N: Record<string, {
     id: 'worker-connect',
     link: '/worker-connect',
     name: {
-      en: 'Farm Labor Worker Connect',
+      en: 'AgriLabour - Farm Labour Connect',
       hi: 'मजदूर और कृषि रोजगार खोज',
       kn: 'ಕೃಷಿ ಕಾರ್ಮಿಕರ ಸಂಪರ್ಕ',
       mr: 'कृषी मजूर व रोजगार संपर्क',
@@ -192,10 +192,10 @@ const TOOLS_I18N: Record<string, {
       bn: 'কৃষি শ্রমিক সংযোগ',
       pa: 'ਖੇਤੀ ਮਜ਼ਦੂਰ ਸੰਪਰਕ',
       ml: 'കാർഷിക തൊഴിലാളി കണക്ട്',
-      hi_en: 'Farm Labor Worker Connect'
+      hi_en: 'AgriLabour - Farm Labour Connect'
     },
     desc: {
-      en: 'Hire local farm workers or find agriculture labor jobs.',
+      en: 'Hire verified AgriLabour or find agriculture labour jobs.',
       hi: 'स्थानीय कृषि श्रमिकों को काम पर रखें या कृषि श्रम नौकरियां खोजें।',
       kn: 'ಸ್ಥಳೀಯ ಕೃಷಿ ಕಾರ್ಮಿಕರನ್ನು ಸಂಪರ್ಕಿಸಿ ಅಥವಾ ಕೃಷಿ ಉದ್ಯೋಗಗಳನ್ನು ಹುಡುಕಿ.',
       mr: 'स्थानिक शेतमजुरांना कामावर ठेवा किंवा शेतीकामाचे रोजगार शोधा.',

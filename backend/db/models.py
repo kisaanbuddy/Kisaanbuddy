@@ -533,6 +533,8 @@ if Column is not None:
         village = Column(String(150), nullable=True)
         pincode = Column(String(10), nullable=True)
         availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, booked, under_maintenance, sold, inactive
+        image_url = Column(String(500), nullable=True)
+        images_json = Column(Text, nullable=True)
         notes = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -666,6 +668,8 @@ if Column is not None:
         proposed_price = Column(Float, nullable=True)
         price_unit = Column(String(50), default="per Quintal", nullable=True)
         message = Column(Text, nullable=True)
+        inquiry_type = Column(String(50), default="quotation", nullable=True)  # quotation, callback, general_inquiry
+        preferred_callback_time = Column(String(100), nullable=True)
         status = Column(String(30), default="submitted", nullable=False, index=True)  # submitted, in_discussion, accepted, rejected, closed
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -1126,4 +1130,116 @@ if Column is not None:
         source_url = Column(String(255), nullable=True)
         last_verified_date = Column(Date, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+
+    class SatelliteObservationRecord(Base):  # type: ignore[misc]
+        """Authentic satellite observation record linking farm boundaries with Copernicus/Landsat telemetry."""
+        __tablename__ = "satellite_observation_records"
+        id = Column(Integer, primary_key=True, index=True)
+        farm_id = Column(Integer, ForeignKey("farms.id"), nullable=True, index=True)
+        field_id = Column(Integer, ForeignKey("farmer_fields.id"), nullable=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        polygon_geojson = Column(Text, nullable=True)
+        satellite_source = Column(String(50), nullable=False, default="Sentinel-2 L2A")
+        scene_id = Column(String(150), nullable=False, index=True)
+        observation_date = Column(DateTime, nullable=False, index=True)
+        cloud_cover_pct = Column(Float, nullable=True)
+        mean_ndvi = Column(Float, nullable=True)
+        min_ndvi = Column(Float, nullable=True)
+        max_ndvi = Column(Float, nullable=True)
+        mean_ndwi = Column(Float, nullable=True)
+        mean_evi = Column(Float, nullable=True)
+        valid_pixel_pct = Column(Float, nullable=True)
+        spatial_variation_pct = Column(Float, nullable=True)
+        health_status = Column(String(100), nullable=True)
+        stress_risk = Column(String(50), nullable=True)
+        processing_version = Column(String(20), default="v2.0", nullable=False)
+        processing_status = Column(String(30), default="completed", nullable=False)
+        asset_reference = Column(Text, nullable=True)
+        raw_metrics_json = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    class MandiPriceAlert(Base):  # type: ignore[misc]
+        """Farmer price monitoring alert for WhatsApp and SMS delivery."""
+        __tablename__ = "mandi_price_alerts"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        farmer_name = Column(String(150), nullable=True)
+        phone_number = Column(String(20), nullable=False, index=True)
+        commodity = Column(String(100), nullable=False, index=True)
+        variety = Column(String(100), nullable=True)
+        market_center = Column(String(150), nullable=True, index=True)
+        state = Column(String(100), nullable=True, index=True)
+        district = Column(String(100), nullable=True)
+        target_price = Column(Float, nullable=False)
+        condition = Column(String(30), default="above", nullable=False)  # above, below, range, percent_change
+        channel = Column(String(30), default="whatsapp", nullable=False)  # whatsapp, sms, both
+        whatsapp_consent = Column(Boolean, default=False, nullable=False)
+        whatsapp_consent_at = Column(DateTime, nullable=True)
+        sms_consent = Column(Boolean, default=False, nullable=False)
+        sms_consent_at = Column(DateTime, nullable=True)
+        consent_source = Column(String(100), default="kisaanbuddy_web", nullable=False)
+        is_active = Column(Boolean, default=True, nullable=False, index=True)
+        last_checked_at = Column(DateTime, nullable=True)
+        last_triggered_at = Column(DateTime, nullable=True)
+        last_triggered_price = Column(Float, nullable=True)
+        trigger_count = Column(Integer, default=0, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+
+    class MandiNotificationLog(Base):  # type: ignore[misc]
+        """Delivery and audit log for price notifications sent via WhatsApp or SMS."""
+        __tablename__ = "mandi_notification_logs"
+        id = Column(Integer, primary_key=True, index=True)
+        alert_id = Column(Integer, ForeignKey("mandi_price_alerts.id"), nullable=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        phone_number = Column(String(20), nullable=False, index=True)
+        channel = Column(String(30), nullable=False)  # whatsapp, sms
+        commodity = Column(String(100), nullable=False)
+        market_center = Column(String(150), nullable=True)
+        triggered_price = Column(Float, nullable=False)
+        target_price = Column(Float, nullable=False)
+        arrival_date = Column(Date, nullable=True)
+        message_body = Column(Text, nullable=False)
+        provider = Column(String(50), default="whatsapp_cloud_api", nullable=False)
+        provider_message_id = Column(String(150), nullable=True, index=True)
+        delivery_status = Column(String(30), default="pending", nullable=False, index=True)  # pending, sent, delivered, failed
+        failure_reason = Column(Text, nullable=True)
+        sent_at = Column(DateTime, nullable=True)
+        delivered_at = Column(DateTime, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+    class MandiSaleRecord(Base):  # type: ignore[misc]
+        """Farmer-entered record of actual mandi sale transactions and ledger payment status."""
+        __tablename__ = "mandi_sale_records"
+        id = Column(Integer, primary_key=True, index=True)
+        user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+        sale_date = Column(Date, nullable=False, index=True)
+        farmer_name = Column(String(150), nullable=False)
+        farmer_phone = Column(String(20), nullable=True)
+        mandi_name = Column(String(150), nullable=False)
+        buyer_name = Column(String(150), nullable=False)
+        commodity = Column(String(120), nullable=False, index=True)
+        variety = Column(String(100), nullable=True)
+        quantity_quintals = Column(Float, nullable=False)
+        rate_per_quintal = Column(Float, nullable=False)
+        gross_amount = Column(Float, nullable=False)
+        weighment_charges = Column(Float, default=0.0, nullable=False)
+        mandi_cess = Column(Float, default=0.0, nullable=False)
+        labor_charges = Column(Float, default=0.0, nullable=False)
+        transport_charges = Column(Float, default=0.0, nullable=False)
+        other_deductions = Column(Float, default=0.0, nullable=False)
+        total_deductions = Column(Float, default=0.0, nullable=False)
+        net_amount = Column(Float, nullable=False)
+        amount_received = Column(Float, default=0.0, nullable=False)
+        pending_amount = Column(Float, default=0.0, nullable=False)
+        payment_mode = Column(String(50), default="Bank Transfer", nullable=False)  # Cash, Bank Transfer, e-NAM Account, Cheque
+        payment_status = Column(String(30), default="pending", nullable=False, index=True)  # paid, partial, pending
+        receipt_image_url = Column(String(500), nullable=True)
+        notes = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

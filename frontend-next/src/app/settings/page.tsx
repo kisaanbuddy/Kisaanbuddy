@@ -33,18 +33,16 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  const handleLanguageChange = async (newLang: Lang) => {
+  const handleLanguageChange = (newLang: Lang) => {
     setLang(newLang);
-    try {
-      setSaving(true);
-      await farmerProfileApi.update({ preferred_language: newLang });
-      setSuccessMsg("Language preference saved.");
-      setTimeout(() => setSuccessMsg(null), 3000);
-    } catch (err) {
-      console.warn("Language preference save warning:", err);
-    } finally {
-      setSaving(false);
-    }
+    setSuccessMsg(
+      newLang === "hi"
+        ? "इस सत्र के लिए भाषा बदल दी गई है।"
+        : newLang === "kn"
+        ? "ಈ ಸೆಷನ್‌ಗಾಗಿ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸಲಾಗಿದೆ."
+        : "Language updated for this browsing session."
+    );
+    setTimeout(() => setSuccessMsg(null), 3000);
   };
 
   const handleExportData = async () => {
@@ -81,7 +79,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <PageTransition className="max-w-4xl mx-auto space-y-8 pb-16">
+    <PageTransition className="w-full space-y-8 pb-16">
       {/* Header */}
       <div className="border-b border-slate-200 dark:border-slate-800 pb-5">
         <div className="flex items-center gap-2">

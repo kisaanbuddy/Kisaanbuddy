@@ -121,13 +121,13 @@ const SECTION_TRANSLATIONS: Record<string, SectionI18n> = {
     },
     workers: {
       badge: 'FARM LABOUR NETWORK',
-      title: 'Worker Connect',
+      title: 'AgriLabour',
       desc: 'Connect directly with agricultural labour crews for seasonal sowing, weeding, and harvesting.',
       bullet1: 'Find agricultural labour crews for field transplantation and harvest operations',
       bullet2: 'Discover available farming jobs in nearby villages and districts',
       bullet3: 'View location, work dates, daily wages, and direct telephone contact',
       bullet4: 'Zero intermediary commission—direct farmer-to-worker agreements',
-      cta: 'Find Farm Workers',
+      cta: 'Find AgriLabour',
     },
     schemes: {
       badge: 'FARMER WELFARE & SUBSIDIES',
@@ -324,7 +324,7 @@ export function FeatureShowcaseSection() {
       id="features"
       className="relative w-full py-16 sm:py-24 bg-[#F7F9F4] dark:bg-stone-950 border-b border-stone-200 dark:border-stone-800 scroll-mt-12"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full relative z-10">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
@@ -497,10 +497,10 @@ export function FeatureShowcaseSection() {
 
           </div>
 
-          {/* ROW 2: 3-Pillar Distinctive Grid (Worker Connect, Schemes, Weather) */}
+          {/* ROW 2: 3-Pillar Distinctive Grid (AgriLabour, Schemes, Weather) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             
-            {/* 3. Worker Connect */}
+            {/* 3. AgriLabour */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}

@@ -722,3 +722,743 @@ export const MARKETPLACE_I18N: Record<Lang, MarketplaceDict> = {
     publishBtn: "Listing Publish Karein",
   },
 }
+
+// ─── Smart Price Comparison I18N ───────────────────────────────────────────
+
+export interface PriceComparisonDict {
+  modalTitle: string
+  closeAriaLabel: string
+  currentSelection: string
+  listedRate: string
+  indicativeSpec: string
+  queryingDatabase: string
+  insufficientDataTitle: string
+  insufficientDataDesc: string
+  contactCurrentSeller: string
+  lowestListedPrice: string
+  bestValueAnalysis: string
+  comparableOffersTitle: string
+  sortedByVerifiedPrice: string
+  exactModel: string
+  specAlternative: string
+  operatorIncluded: string
+  sellerLabel: string
+  warrantyLabel: string
+  deliveryLabel: string
+  contactBtn: string
+  compareBtn: string
+  comparePricesBtn: string
+  compareTooltip: string
+  errorTitle: string
+  errorDesc: string
+  retryBtn: string
+  bestValueOperatorReason: string
+  lowestRateReason: string
+  warrantyListing: string
+  warrantyCatalog: string
+  deliveryListing: string
+  deliveryCatalog: string
+  units: {
+    hour: string
+    day: string
+    acre: string
+    totalPrice: string
+    month: string
+    default: string
+  }
+  conditions: {
+    new: string
+    used: string
+    good: string
+    refurbished: string
+  }
+  categories: {
+    tractor: string
+    harvester: string
+    power_tiller: string
+    sprayer: string
+    seeder: string
+    rotavator: string
+    attachments: string
+    default: string
+  }
+}
+
+export const PRICE_COMPARISON_I18N: Record<Lang, PriceComparisonDict> = {
+  en: {
+    modalTitle: "Smart Price Comparison",
+    closeAriaLabel: "Close price comparison",
+    currentSelection: "Current Selection",
+    listedRate: "Listed Rate",
+    indicativeSpec: "Indicative Spec",
+    queryingDatabase: "Querying genuine marketplace comparison database...",
+    insufficientDataTitle: "Comparison Data Insufficient",
+    insufficientDataDesc: "Only 1 verified listing currently exists for this exact specification and pricing basis in our database. KisaanBuddy strictly uses genuine marketplace data and does not simulate artificial competitor prices.",
+    contactCurrentSeller: "Contact Current Seller Directly",
+    lowestListedPrice: "Lowest Listed Price",
+    bestValueAnalysis: "Best Value Analysis",
+    comparableOffersTitle: "Genuine Comparable Offers",
+    sortedByVerifiedPrice: "Sorted by verified price",
+    exactModel: "Exact Model",
+    specAlternative: "Spec Alternative",
+    operatorIncluded: "Operator Included",
+    sellerLabel: "Seller:",
+    warrantyLabel: "Warranty:",
+    deliveryLabel: "Delivery:",
+    contactBtn: "Contact",
+    compareBtn: "Compare",
+    comparePricesBtn: "Compare Prices",
+    compareTooltip: "Compare prices against verified offers",
+    errorTitle: "Price Comparison Unavailable",
+    errorDesc: "Unable to retrieve comparison offers at this time. Please try again.",
+    retryBtn: "Try Again",
+    bestValueOperatorReason: "Top value: Includes trained operator & implement at ₹{price}/{unit} from verified CHC in {location}.",
+    lowestRateReason: "Lowest listed rate at ₹{price}/{unit} from verified provider in {location}.",
+    warrantyListing: "Verified seller/CHC listing (terms negotiable with owner)",
+    warrantyCatalog: "Standard OEM manufacturer warranty applies",
+    deliveryListing: "Haulage / farm-gate delivery arranged upon agreement with owner",
+    deliveryCatalog: "Supplier direct dispatch across India",
+    units: {
+      hour: "hr",
+      day: "day",
+      acre: "acre",
+      totalPrice: "total price",
+      month: "month",
+      default: "unit",
+    },
+    conditions: {
+      new: "NEW",
+      used: "USED",
+      good: "GOOD",
+      refurbished: "REFURBISHED",
+    },
+    categories: {
+      tractor: "Tractor",
+      harvester: "Harvester",
+      power_tiller: "Power Tiller",
+      sprayer: "Sprayer",
+      seeder: "Seeder",
+      rotavator: "Rotavator",
+      attachments: "Attachments",
+      default: "Equipment",
+    },
+  },
+
+  hi: {
+    modalTitle: "स्मार्ट मूल्य तुलना",
+    closeAriaLabel: "मूल्य तुलना बंद करें",
+    currentSelection: "वर्तमान चयन",
+    listedRate: "सूचीबद्ध दर",
+    indicativeSpec: "सांकेतिक विवरण",
+    queryingDatabase: "प्रामाणिक बाज़ार तुलना डेटाबेस से दरें खोजी जा रही हैं...",
+    insufficientDataTitle: "तुलना डेटा अपर्याप्त है",
+    insufficientDataDesc: "हमारे डेटाबेस में इस सटीक विनिर्देश और मूल्य निर्धारण आधार के लिए वर्तमान में केवल 1 सत्यापित लिस्टिंग उपलब्ध है। किसानबडी केवल वास्तविक बाज़ार डेटा का उपयोग करता है और कृत्रिम रूप से नकली प्रतिस्पर्धी दरें नहीं बनाता।",
+    contactCurrentSeller: "वर्तमान विक्रेता से सीधे संपर्क करें",
+    lowestListedPrice: "न्यूनतम सूचीबद्ध मूल्य",
+    bestValueAnalysis: "सर्वोत्तम मूल्य विश्लेषण",
+    comparableOffersTitle: "प्रामाणिक तुलनीय ऑफर",
+    sortedByVerifiedPrice: "सत्यापित मूल्य अनुसार क्रमित",
+    exactModel: "सटीक मॉडल",
+    specAlternative: "समान विकल्प",
+    operatorIncluded: "ऑपरेटर शामिल",
+    sellerLabel: "विक्रेता:",
+    warrantyLabel: "वारंटी:",
+    deliveryLabel: "डिलीवरी:",
+    contactBtn: "संपर्क करें",
+    compareBtn: "तुलना करें",
+    comparePricesBtn: "कीमतों की तुलना करें",
+    compareTooltip: "सत्यापित ऑफ़र के साथ कीमतों की तुलना करें",
+    errorTitle: "मूल्य तुलना अनुपलब्ध",
+    errorDesc: "इस समय तुलना ऑफ़र प्राप्त करने में असमर्थ। कृपया पुनः प्रयास करें।",
+    retryBtn: "पुनः प्रयास करें",
+    bestValueOperatorReason: "सर्वोत्तम मूल्य: ₹{price}/{unit} में प्रशिक्षित ऑपरेटर और उपकरण शामिल ({location} के सत्यापित CHC से)।",
+    lowestRateReason: "₹{price}/{unit} की न्यूनतम सूचीबद्ध दर ({location} के सत्यापित प्रदाता से)।",
+    warrantyListing: "सत्यापित विक्रेता/CHC लिस्टिंग (शर्तें मालिक के साथ बातचीत योग्य)",
+    warrantyCatalog: "मानक OEM निर्माता वारंटी लागू",
+    deliveryListing: "मालिक के साथ सहमति पर फार्म-गेट डिलीवरी की व्यवस्था",
+    deliveryCatalog: "पूरे भारत में आपूर्तिकर्ता द्वारा सीधा प्रेषण",
+    units: {
+      hour: "घंटा",
+      day: "दिन",
+      acre: "एकड़",
+      totalPrice: "कुल कीमत",
+      month: "माह",
+      default: "इकाई",
+    },
+    conditions: {
+      new: "नया",
+      used: "इस्तेमाल किया हुआ",
+      good: "अच्छी स्थिति",
+      refurbished: "नवीनीकृत",
+    },
+    categories: {
+      tractor: "ट्रैक्टर",
+      harvester: "हार्वेस्टर",
+      power_tiller: "पावर टिलर",
+      sprayer: "स्प्रेयर",
+      seeder: "सीडर",
+      rotavator: "रोटावेटर",
+      attachments: "उपकरण",
+      default: "कृषि उपकरण",
+    },
+  },
+
+  kn: {
+    modalTitle: "ಸ್ಮಾರ್ಟ್ ಬೆಲೆ ಹೋಲಿಕೆ",
+    closeAriaLabel: "ಬೆಲೆ ಹೋಲಿಕೆಯನ್ನು ಮುಚ್ಚಿ",
+    currentSelection: "ಪ್ರಸ್ತುತ ಆಯ್ಕೆ",
+    listedRate: "ದಾಖಲಾದ ದರ",
+    indicativeSpec: "ಸೂಚಕ ವಿವರಣೆ",
+    queryingDatabase: "ನಿಜವಾದ ಮಾರುಕಟ್ಟೆ ಹೋಲಿಕೆ ಡೇಟಾಬೇಸ್‌ನಿಂದ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...",
+    insufficientDataTitle: "ಹೋಲಿಕೆ ಡೇಟಾ ಸಾಕಷ್ಟಿಲ್ಲ",
+    insufficientDataDesc: "ನಮ್ಮ ಡೇಟಾಬೇಸ್‌ನಲ್ಲಿ ಈ ನಿರ್ದಿಷ್ಟ ವಿವರಣೆ ಮತ್ತು ಬೆಲೆ ಆಧಾರಕ್ಕಾಗಿ ಪ್ರಸ್ತುತ 1 ಪರಿಶೀಲಿಸಿದ ಪಟ್ಟಿ ಮಾತ್ರ ಲಭ್ಯವಿದೆ. ಕಿಸಾನ್‌ಬಡ್ಡಿ ಕಟ್ಟುನಿಟ್ಟಾಗಿ ನೈಜ ಮಾರುಕಟ್ಟೆ ಡೇಟಾವನ್ನು ಬಳಸುತ್ತದೆ ಮತ್ತು ಕೃತಕ ಬೆಲೆಗಳನ್ನು ಸೃಷ್ಟಿಸುವುದಿಲ್ಲ.",
+    contactCurrentSeller: "ಪ್ರಸ್ತುತ ಮಾರಾಟಗಾರರನ್ನು ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ",
+    lowestListedPrice: "ಕನಿಷ್ಠ ದಾಖಲಾದ ಬೆಲೆ",
+    bestValueAnalysis: "ಅತ್ಯುತ್ತಮ ಮೌಲ್ಯ ವಿಶ್ಲೇಷಣೆ",
+    comparableOffersTitle: "ನಿಜವಾದ ಹೋಲಿಸಬಹುದಾದ ಕೊಡುಗೆಗಳು",
+    sortedByVerifiedPrice: "ಪರಿಶೀಲಿಸಿದ ಬೆಲೆಯ ಪ್ರಕಾರ ವಿಂಗಡಿಸಲಾಗಿದೆ",
+    exactModel: "ನಿಖರ ಮಾದರಿ",
+    specAlternative: "ಸ್ಪೆಕ್ ಪರ್ಯಾಯ",
+    operatorIncluded: "ಆಪರೇಟರ್ ಸೇರಿದ್ದಾರೆ",
+    sellerLabel: "ಮಾರಾಟಗಾರ:",
+    warrantyLabel: "ವಾರಂಟಿ:",
+    deliveryLabel: "ವಿತರಣೆ:",
+    contactBtn: "ಸಂಪರ್ಕಿಸಿ",
+    compareBtn: "ಹೋಲಿಕೆ ಮಾಡಿ",
+    comparePricesBtn: "ಬೆಲೆಗಳನ್ನು ಹೋಲಿಕೆ ಮಾಡಿ",
+    compareTooltip: "ಪರಿಶೀಲಿಸಿದ ಕೊಡುಗೆಗಳೊಂದಿಗೆ ಬೆಲೆಗಳನ್ನು ಹೋಲಿಕೆ ಮಾಡಿ",
+    errorTitle: "ಬೆಲೆ ಹೋಲಿಕೆ ಲಭ್ಯವಿಲ್ಲ",
+    errorDesc: "ಈ ಸಮಯದಲ್ಲಿ ಹೋಲಿಕೆ ಕೊಡುಗೆಗಳನ್ನು ಪಡೆಯಲು ಸಾಧ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    retryBtn: "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+    bestValueOperatorReason: "ಅತ್ಯುತ್ತಮ ಮೌಲ್ಯ: ₹{price}/{unit} ದರದಲ್ಲಿ ತರಬೇತಿ ಪಡೆದ ಆಪರೇಟರ್ ಒಳಗೊಂಡಿದೆ ({location} ನ ಪರಿಶೀಲಿಸಿದ CHC ಯಿಂದ).",
+    lowestRateReason: "₹{price}/{unit} ಕನಿಷ್ಠ ದಾಖಲಾದ ದರ ({location} ನ ಪರಿಶೀಲಿಸಿದ ಪೂರೈಕೆದಾರರಿಂದ).",
+    warrantyListing: "ಪರಿಶೀಲಿಸಿದ ಮಾರಾಟಗಾರ/CHC ಪಟ್ಟಿ (ಮಾಲೀಕರೊಂದಿಗೆ ಮಾತುಕತೆ ಮಾಡಬಹುದು)",
+    warrantyCatalog: "ಪ್ರಮಾಣಿತ OEM ತಯಾರಕರ ವಾರಂಟಿ ಅನ್ವಯಿಸುತ್ತದೆ",
+    deliveryListing: "ಮಾಲೀಕರೊಂದಿಗೆ ಒಪ್ಪಂದದ ನಂತರ ಜಮೀನಿಗೆ ತಲುಪಿಸಲಾಗುವುದು",
+    deliveryCatalog: "ಭಾರತದಾದ್ಯಂತ ಪೂರೈಕೆದಾರರಿಂದ ನೇರ ವಿತರಣೆ",
+    units: {
+      hour: "ಗಂಟೆ",
+      day: "ದಿನ",
+      acre: "ಎಕರೆ",
+      totalPrice: "ಒಟ್ಟು ಬೆಲೆ",
+      month: "ತಿಂಗಳು",
+      default: "ಘಟಕ",
+    },
+    conditions: {
+      new: "ಹೊಸತು",
+      used: "ಬಳಸಿದ",
+      good: "ಉತ್ತಮ ಸ್ಥಿತಿ",
+      refurbished: "ನವೀಕರಿಸಿದ",
+    },
+    categories: {
+      tractor: "ಟ್ರಾಕ್ಟರ್",
+      harvester: "ಹಾರ್ವೆಸ್ಟರ್",
+      power_tiller: "ಪವರ್ ಟಿಲ್ಲರ್",
+      sprayer: "ಸ್ಪ್ರೇಯರ್",
+      seeder: "ಬೀಜ ಬಿತ್ತುವ ಯಂತ್ರ",
+      rotavator: "ರೋಟಾವೇಟರ್",
+      attachments: "ಉಪಕರಣಗಳು",
+      default: "ಯಂತ್ರೋಪಕರಣ",
+    },
+  },
+
+  ta: {
+    modalTitle: "ஸ்மார்ட் விலை ஒப்பீடு",
+    closeAriaLabel: "விலை ஒப்பீட்டை மூடு",
+    currentSelection: "தற்போதைய தேர்வு",
+    listedRate: "பட்டியலிடப்பட்ட விலை",
+    indicativeSpec: "குறிப்பு விவரம்",
+    queryingDatabase: "உண்மையான சந்தை ஒப்பீட்டு தரவுத்தளத்தில் தேடப்படுகிறது...",
+    insufficientDataTitle: "ஒப்பீட்டுத் தரவு போதுமானதாக இல்லை",
+    insufficientDataDesc: "இந்த துல்லியமான விவரக்குறிப்பு மற்றும் விலைக்கு எங்கள் தரவுத்தளத்தில் தற்போது 1 சரிபார்க்கப்பட்ட பட்டியல் மட்டுமே உள்ளது. கிசான்படி உண்மையான சந்தைத் தரவை மட்டுமே பயன்படுத்துகிறது, போலி விலைகளை உருவாக்குவதில்லை.",
+    contactCurrentSeller: "தற்போதைய விற்பனையாளரை நேரடியாக தொடர்பு கொள்ளவும்",
+    lowestListedPrice: "குறைந்தபட்ச பட்டியலிடப்பட்ட விலை",
+    bestValueAnalysis: "சிறந்த மதிப்பு பகுப்பாய்வு",
+    comparableOffersTitle: "உண்மையான ஒப்பிடத்தக்க சலுகைகள்",
+    sortedByVerifiedPrice: "சரிபார்க்கப்பட்ட விலையின்படி வரிசைப்படுத்தப்பட்டது",
+    exactModel: "சரியான மாதிரி",
+    specAlternative: "விவரக்குறிப்பு மாற்று",
+    operatorIncluded: "ஆபரேட்டர் சேர்க்கப்பட்டுள்ளது",
+    sellerLabel: "விற்பனையாளர்:",
+    warrantyLabel: "உத்தரவாதம்:",
+    deliveryLabel: "டெலிவரி:",
+    contactBtn: "தொடர்பு கொள்ள",
+    compareBtn: "ஒப்பிடுக",
+    comparePricesBtn: "விலைகளை ஒப்பிடுக",
+    compareTooltip: "சரிபார்க்கப்பட்ட சலுகைகளுடன் விலைகளை ஒப்பிடுக",
+    errorTitle: "விலை ஒப்பீடு கிடைக்கவில்லை",
+    errorDesc: "தற்போது ஒப்பீட்டு சலுகைகளைப் பெற முடியவில்லை. மீண்டும் முயற்சிக்கவும்.",
+    retryBtn: "மீண்டும் முயற்சிக்கவும்",
+    bestValueOperatorReason: "சிறந்த மதிப்பு: ₹{price}/{unit} விலையில் பயிற்சி பெற்ற ஆபரேட்டர் மற்றும் கருவி அடங்கும் ({location} சரிபார்க்கப்பட்ட CHC).",
+    lowestRateReason: "₹{price}/{unit} குறைந்தபட்ச பட்டியலிடப்பட்ட விலை ({location} சரிபார்க்கப்பட்ட விற்பனையாளரிடமிருந்து).",
+    warrantyListing: "சரிபார்க்கப்பட்ட விற்பனையாளர்/CHC பட்டியல் (உரிமையாளருடன் கலந்தாலோசிக்கலாம்)",
+    warrantyCatalog: "நிலையான OEM உற்பத்தியாளர் உத்தரவாதம் பொருந்தும்",
+    deliveryListing: "உரிமையாளருடன் ஒப்பந்தத்தின் அடிப்படையில் பண்ணை வாசலில் டெலிவரி",
+    deliveryCatalog: "இந்தியா முழுவதும் சப்ளையர் நேரடி அனுப்புகை",
+    units: {
+      hour: "மணி",
+      day: "நாள்",
+      acre: "ஏக்கர்",
+      totalPrice: "மொத்த விலை",
+      month: "மாதம்",
+      default: "அலகு",
+    },
+    conditions: {
+      new: "புதியது",
+      used: "பயன்படுத்தப்பட்டது",
+      good: "நல்ல நிலை",
+      refurbished: "புதுப்பிக்கப்பட்டது",
+    },
+    categories: {
+      tractor: "டிராக்டர்",
+      harvester: "ஹார்வெஸ்டர்",
+      power_tiller: "பவர் டில்லர்",
+      sprayer: "ஸ்ப்ரேயர்",
+      seeder: "விதைப்பு இயந்திரம்",
+      rotavator: "ரோட்டாவேட்டர்",
+      attachments: "இணைப்புகள்",
+      default: "இயந்திரங்கள்",
+    },
+  },
+
+  te: {
+    modalTitle: "స్మార్ట్ ధర పోలిక",
+    closeAriaLabel: "ధర పోలికను మూసివేయి",
+    currentSelection: "ప్రస్తుత ఎంపిక",
+    listedRate: "లిస్ట్ చేయబడిన ధర",
+    indicativeSpec: "సూచిక వివరాలు",
+    queryingDatabase: "నిజమైన మార్కెట్ పోలిక డేటాబేస్ నుండి శోధిస్తోంది...",
+    insufficientDataTitle: "పోలిక డేటా సరిపోదు",
+    insufficientDataDesc: "మా డేటాబేస్‌లో ఈ ఖచ్చితమైన స్పెసిఫికేషన్ మరియు ధర ప్రాతిపదిక కోసం ప్రస్తుతం 1 ధృవీకరించబడిన లిస్టింగ్ మాత్రమే ఉంది. కిసాన్‌బడ్డీ కేవలం నిజమైన మార్కెట్ డేటాను మాత్రమే ఉపయోగిస్తుంది, కృత్రిమ పోటీ ధరలను సృష్టించదు.",
+    contactCurrentSeller: "ప్రస్తుత విక్రేతను నేరుగా సంప్రదించండి",
+    lowestListedPrice: "అత్యల్ప లిస్ట్ చేయబడిన ధర",
+    bestValueAnalysis: "ఉత్తమ విలువ విశ్లేషణ",
+    comparableOffersTitle: "నిజమైన పోల్చదగిన ఆఫర్లు",
+    sortedByVerifiedPrice: "ధృవీకరించబడిన ధర ప్రకారం క్రమబద్ధీకరించబడింది",
+    exactModel: "ఖచ్చితమైన మోడల్",
+    specAlternative: "స్పెసిఫికేషన్ ప్రత్యామ్నాయం",
+    operatorIncluded: "ఆపరేటర్ చేర్చబడింది",
+    sellerLabel: "విక్రేత:",
+    warrantyLabel: "వారంటీ:",
+    deliveryLabel: "డెలివరీ:",
+    contactBtn: "సంప్రదించండి",
+    compareBtn: "పోల్చండి",
+    comparePricesBtn: "ధరలను పోల్చండి",
+    compareTooltip: "ధృవీకరించబడిన ఆఫర్‌లతో ధరలను పోల్చండి",
+    errorTitle: "ధర పోలిక అందుబాటులో లేదు",
+    errorDesc: "ప్రస్తుతం పోలిక ఆఫర్‌లను పొందలేకపోయాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
+    retryBtn: "మళ్లీ ప్రయత్నించండి",
+    bestValueOperatorReason: "ఉత్తమ విలువ: ₹{price}/{unit} ధరలో శిక్షణ పొందిన ఆపరేటర్ చేర్చబడ్డారు ({location} లోని ధృవీకరించబడిన CHC నుండి).",
+    lowestRateReason: "₹{price}/{unit} అత్యల్ప లిస్ట్ చేయబడిన ధర ({location} లోని ధృవీకరించబడిన ప్రొవైడర్ నుండి).",
+    warrantyListing: "ధృవీకరించబడిన విక్రేత/CHC లిస్టింగ్ (నిబంధనలు యజమానితో చర్చించదగినవి)",
+    warrantyCatalog: "ప్రామాణిక OEM తయారీదారు వారంటీ వర్తిస్తుంది",
+    deliveryListing: "యజమానితో ఒప్పందం ప్రకారం పొలం వద్దకే డెలివరీ",
+    deliveryCatalog: "భారతదేశం అంతటా సరఫరాదారు ప్రత్యక్ష పంపిణీ",
+    units: {
+      hour: "గంట",
+      day: "రోజు",
+      acre: "ఎకరం",
+      totalPrice: "మొత్తం ధర",
+      month: "నెల",
+      default: "యూనిట్",
+    },
+    conditions: {
+      new: "కొత్తది",
+      used: "వాడినది",
+      good: "మంచి స్థితి",
+      refurbished: "పునరుద్ధరించబడింది",
+    },
+    categories: {
+      tractor: "ట్రాక్టర్",
+      harvester: "హార్వెస్టర్",
+      power_tiller: "పవర్ టిల్లర్",
+      sprayer: "స్ప్రేయర్",
+      seeder: "విత్తనాల యంత్రం",
+      rotavator: "రోటావేటర్",
+      attachments: "జోడింపులు",
+      default: "వ్యవసాయ యంత్రాలు",
+    },
+  },
+
+  ml: {
+    modalTitle: "സ്മാർട്ട് വില താരതമ്യം",
+    closeAriaLabel: "വില താരതമ്യം അടയ്ക്കുക",
+    currentSelection: "നിലവിലെ തിരഞ്ഞെടുപ്പ്",
+    listedRate: "ലിസ്റ്റ് ചെയ്ത നിരക്ക്",
+    indicativeSpec: "സൂചക വിവരണം",
+    queryingDatabase: "യഥാർത്ഥ വിപണി താരതമ്യ ഡാറ്റാബേസിൽ തിരയുന്നു...",
+    insufficientDataTitle: "താരതമ്യ ഡാറ്റ അപൂർണ്ണമാണ്",
+    insufficientDataDesc: "ഈ കൃത്യമായ സവിശേഷതകൾക്കും വിലയ്ക്കുമായി ഞങ്ങളുടെ ഡാറ്റാബേസിൽ നിലവിൽ 1 സ്ഥിരീകരിച്ച ലിസ്റ്റിംഗ് മാത്രമേയുള്ളൂ. കിസാൻബഡ്ഡി യഥാർത്ഥ വിപണി ഡാറ്റ മാത്രമേ ഉപയോഗിക്കുന്നുള്ളൂ, കൃത്രിമ വിലകൾ സൃഷ്ടിക്കുന്നില്ല.",
+    contactCurrentSeller: "നിലവിലെ വിൽപ്പനക്കാരനെ നേരിട്ട് ബന്ധപ്പെടുക",
+    lowestListedPrice: "ഏറ്റവും കുറഞ്ഞ ലിസ്റ്റ് ചെയ്ത വില",
+    bestValueAnalysis: "മികച്ച മൂല്യ വിശകലനം",
+    comparableOffersTitle: "യഥാർത്ഥ താരതമ്യ ഓഫറുകൾ",
+    sortedByVerifiedPrice: "പരിശോധിച്ച വില അടിസ്ഥാനത്തിൽ ക്രമീകരിച്ചത്",
+    exactModel: "സമാന മോഡൽ",
+    specAlternative: "സമാന സവിശേഷതകൾ",
+    operatorIncluded: "ഓപ്പറേറ്റർ ഉൾപ്പെടുന്നു",
+    sellerLabel: "വിൽപ്പനക്കാരൻ:",
+    warrantyLabel: "വാറന്റി:",
+    deliveryLabel: "ഡെലിവറി:",
+    contactBtn: "ബന്ധപ്പെടുക",
+    compareBtn: "താരതമ്യം ചെയ്യുക",
+    comparePricesBtn: "വില താരതമ്യം ചെയ്യുക",
+    compareTooltip: "സ്ഥിരീകരിച്ച ഓഫറുകളുമായി വില താരതമ്യം ചെയ്യുക",
+    errorTitle: "വില താരതമ്യം ലഭ്യമല്ല",
+    errorDesc: "നിലവിൽ താരതമ്യ ഓഫറുകൾ ലഭ്യമാക്കാൻ കഴിഞ്ഞില്ല. ദയവായി വീണ്ടും ശ്രമിക്കുക.",
+    retryBtn: "വീണ്ടും ശ്രമിക്കുക",
+    bestValueOperatorReason: "മികച്ച മൂല്യം: ₹{price}/{unit} നിരക്കിൽ പരിശീലനം ലഭിച്ച ഓപ്പറേറ്റർ ഉൾപ്പെടുന്നു ({location}-ലെ വെരിഫൈഡ് CHC).",
+    lowestRateReason: "₹{price}/{unit} ഏറ്റവും കുറഞ്ഞ ലിസ്റ്റ് ചെയ്ത നിരക്ക് ({location}-ലെ വെരിഫൈഡ് പ്രൊവൈഡറിൽ നിന്ന്).",
+    warrantyListing: "സ്ഥിരീകരിച്ച വിൽപ്പനക്കാരൻ/CHC ലിസ്റ്റിംഗ് (വ്യവസ്ഥകൾ ചർച്ച ചെയ്യാം)",
+    warrantyCatalog: "സ്റ്റാൻഡേർഡ് ഒഇഎം നിർമ്മാതാവിന്റെ വാറന്റി ബാധകമാണ്",
+    deliveryListing: "ഉടമയുമായുള്ള ധാരണപ്രകാരം ഫാം ഗേറ്റ് ഡെലിവറി",
+    deliveryCatalog: "ഇന്ത്യയിലുടനീളം സപ്ലയർ നേരിട്ടുള്ള വിതരണം",
+    units: {
+      hour: "മണിക്കൂർ",
+      day: "ദിവസം",
+      acre: "ഏക്കർ",
+      totalPrice: "ആകെ തുക",
+      month: "മാസം",
+      default: "യൂണിറ്റ്",
+    },
+    conditions: {
+      new: "പുതിയത്",
+      used: "ഉപയോഗിച്ചത്",
+      good: "നല്ല അവസ്ഥ",
+      refurbished: "നവീകരിച്ചത്",
+    },
+    categories: {
+      tractor: "ട്രാക്ടർ",
+      harvester: "ഹാർവെസ്റ്റർ",
+      power_tiller: "പവർ ടില്ലർ",
+      sprayer: "സ്പ്രേയർ",
+      seeder: "വിത്ത് വിതയ്ക്കുന്ന യന്ത്രം",
+      rotavator: "റോട്ടാവേറ്റർ",
+      attachments: "അറ്റാച്ച്മെന്റുകൾ",
+      default: "കാർഷിക യന്ത്രങ്ങൾ",
+    },
+  },
+
+  mr: {
+    modalTitle: "स्मार्ट दर तुलना",
+    closeAriaLabel: "दर तुलना बंद करा",
+    currentSelection: "सध्याची निवड",
+    listedRate: "नोंदवलेला दर",
+    indicativeSpec: "सांकेतिक तपशील",
+    queryingDatabase: "अस्सल बाजार दर तुलना डेटाबेसमधून शोधत आहे...",
+    insufficientDataTitle: "तुलना डेटा अपुरा आहे",
+    insufficientDataDesc: "या अचूक तपशीलासाठी आणि किंमतीच्या आधारासाठी आमच्या डेटाबेसमध्ये सध्या फक्त 1 पडताळलेली नोंद उपलब्ध आहे. किसानबडी केवळ अस्सल बाजार डेटा वापरते आणि बनावट स्पर्धात्मक दर तयार करत नाही.",
+    contactCurrentSeller: "सध्याच्या विक्रेत्याशी थेट संपर्क साधा",
+    lowestListedPrice: "सर्वात कमी नोंदवलेला दर",
+    bestValueAnalysis: "सर्वोत्कृष्ट मूल्य विश्लेषण",
+    comparableOffersTitle: "अस्सल तुल्य ऑफर",
+    sortedByVerifiedPrice: "पडताळलेल्या दरानुसार क्रमबद्ध",
+    exactModel: "अचूक मॉडेल",
+    specAlternative: "समान पर्याय",
+    operatorIncluded: "ऑपरेटर समाविष्ट",
+    sellerLabel: "विक्रेता:",
+    warrantyLabel: "वारंटी:",
+    deliveryLabel: "डिलिव्हरी:",
+    contactBtn: "संपर्क साधा",
+    compareBtn: "तुलना करा",
+    comparePricesBtn: "किमतींची तुलना करा",
+    compareTooltip: "पडताळलेल्या ऑफर्ससह दरांची तुलना करा",
+    errorTitle: "दर तुलना अनुपलब्ध",
+    errorDesc: "या वेळी तुलना ऑफर मिळवणे शक्य झाले नाही. कृपया पुन्हा प्रयत्न करा.",
+    retryBtn: "पुन्हा प्रयत्न करा",
+    bestValueOperatorReason: "सर्वोत्कृष्ट मूल्य: ₹{price}/{unit} मध्ये प्रशिक्षित ऑपरेटर आणि अवजार समाविष्ट ({location} मधील पडताळणी केलेल्या CHC कडून).",
+    lowestRateReason: "₹{price}/{unit} सर्वात कमी नोंदवलेला दर ({location} मधील पडताळणी केलेल्या विक्रेत्याकडून).",
+    warrantyListing: "पडताळलेला विक्रेता/CHC नोंदणी (अटी मालकाशी बोलणीयोग्य)",
+    warrantyCatalog: "प्रमाणित OEM उत्पादक वॉरंटी लागू",
+    deliveryListing: "मालकाशी सहमतीनंतर फार्म-गेट डिलिव्हरीची सोय",
+    deliveryCatalog: "भारतभर पुरवठादाराकडून थेट पाठवणी",
+    units: {
+      hour: "तास",
+      day: "दिवस",
+      acre: "एकर",
+      totalPrice: "एकूण किंमत",
+      month: "महिना",
+      default: "युनिट",
+    },
+    conditions: {
+      new: "नवीन",
+      used: "वापरलेले",
+      good: "चांगली स्थिती",
+      refurbished: "पुनर्संचयित",
+    },
+    categories: {
+      tractor: "ट्रॅक्टर",
+      harvester: "हार्वेस्टर",
+      power_tiller: "पॉवर टिलर",
+      sprayer: "स्प्रेअर",
+      seeder: "पेरणी यंत्र",
+      rotavator: "रोटಾವ्हेटर",
+      attachments: "जोडणी साधने",
+      default: "यंत्रसामग्री",
+    },
+  },
+
+  bn: {
+    modalTitle: "স্মার্ট মূল্য তুলনা",
+    closeAriaLabel: "মূল্য তুলনা বন্ধ করুন",
+    currentSelection: "বর্তমান নির্বাচন",
+    listedRate: "তালিকাভুক্ত দর",
+    indicativeSpec: "সূচক বিবরণ",
+    queryingDatabase: "প্রকৃত মার্কেটপ্লেস তুলনা ডেটাবেস থেকে তথ্য নেওয়া হচ্ছে...",
+    insufficientDataTitle: "তুলনা ডেটা অপর্যাপ্ত",
+    insufficientDataDesc: "আমাদের ডেটাবেসে এই সুনির্দিষ্ট বিবরণ ও মূল্যের ভিত্তিতে বর্তমানে কেবল ১টি যাচাইকৃত তালিকা রয়েছে। কিষাণবাডি কঠোরভাবে আসল মার্কেটপ্লেস ডেটা ব্যবহার করে এবং কোনো কৃত্রিম দাম তৈরি করে না।",
+    contactCurrentSeller: "বর্তমান বিক্রেতার সাথে সরাসরি যোগাযোগ করুন",
+    lowestListedPrice: "সর্বনিম্ন তালিকাভুক্ত মূল্য",
+    bestValueAnalysis: "সেরা মান বিশ্লেষণ",
+    comparableOffersTitle: "প্রকৃত তুলনামূলক অফার",
+    sortedByVerifiedPrice: "যাচাইকৃত মূল্য অনুযায়ী সাজানো",
+    exactModel: "সঠিক মডেল",
+    specAlternative: "স্পেক বিকল্প",
+    operatorIncluded: "অপারেটর সহ",
+    sellerLabel: "বিক্রেতা:",
+    warrantyLabel: "ওয়ারেন্টি:",
+    deliveryLabel: "ডেলিভারি:",
+    contactBtn: "যোগাযোগ",
+    compareBtn: "তুলনা করুন",
+    comparePricesBtn: "मूल्य তুলনা করুন",
+    compareTooltip: "যাচাইকৃত অফারগুলির সাথে মূল্য তুলনা করুন",
+    errorTitle: "মূল্য তুলনা অনুপলব্ধ",
+    errorDesc: "এই মুহূর্তে তুলনামূলক অফারগুলি আনা সম্ভব হয়নি। অনুগ্রহ করে আবার চেষ্টা করুন।",
+    retryBtn: "আবার চেষ্টা করুন",
+    bestValueOperatorReason: "সেরা মান: ₹{price}/{unit} মূল্যে প্রশিক্ষিত অপারেটর সহ ({location}-এর যাচাইকৃত CHC থেকে)।",
+    lowestRateReason: "₹{price}/{unit} সর্বনিম্ন তালিকাভুক্ত দর ({location}-এর যাচাইকৃত প্রদানকারীর কাছ থেকে)।",
+    warrantyListing: "যাচাইকৃত বিক্রেতা/CHC তালিকা (মালিকের সাথে আলোচনা সাপেক্ষে)",
+    warrantyCatalog: "স্ট্যান্ডার্ড OEM প্রস্তুতকারকের ওয়ারেন্টি প্রযোজ্য",
+    deliveryListing: "মালিকের সাথে সমঝোতার ভিত্তিতে খামার প্রাঙ্গণে ডেলিভারি",
+    deliveryCatalog: "সমগ্র ভারতে সরবরাহকারীর সরাসরি প্রেরণ",
+    units: {
+      hour: "ঘণ্টা",
+      day: "দিন",
+      acre: "একর",
+      totalPrice: "মোট মূল্য",
+      month: "মাস",
+      default: "একক",
+    },
+    conditions: {
+      new: "নতুন",
+      used: "ব্যবহৃত",
+      good: "ভালো অবস্থা",
+      refurbished: "পুনর্নবীকরণকৃত",
+    },
+    categories: {
+      tractor: "ট্রাক্টর",
+      harvester: "হার্ভেস্টার",
+      power_tiller: "পাওয়ার টিলার",
+      sprayer: "স্প্রেয়ার",
+      seeder: "বীজ বপন যন্ত্র",
+      rotavator: "রোটাভেটর",
+      attachments: "সংযুক্তি",
+      default: "কৃষি যন্ত্রপাতি",
+    },
+  },
+
+  pa: {
+    modalTitle: "ਸਮਾਰਟ ਕੀਮਤ ਤੁਲਨਾ",
+    closeAriaLabel: "ਕੀਮਤ ਤੁਲਨਾ ਬੰਦ ਕਰੋ",
+    currentSelection: "ਮੌਜੂਦਾ ਚੋਣ",
+    listedRate: "ਦਰਜ ਕੀਤਾ ਰੇਟ",
+    indicativeSpec: "ਸੰਕੇਤਕ ਵੇਰਵਾ",
+    queryingDatabase: "ਅਸਲ ਮਾਰਕੀਟਪਲੇਸ ਤੁਲਨਾ ਡਾਟਾਬੇਸ ਤੋਂ ਜਾਣਕਾਰੀ ਲਈ ਜਾ ਰਹੀ ਹੈ...",
+    insufficientDataTitle: "ਤੁਲਨਾ ਡਾਟਾ ਨਾਕਾਫ਼ੀ ਹੈ",
+    insufficientDataDesc: "ਸਾਡੇ ਡਾਟਾਬੇਸ ਵਿੱਚ ਇਸ ਵਿਸ਼ੇਸ਼ਤਾ ਅਤੇ ਕੀਮਤ ਆਧਾਰ ਲਈ ਇਸ ਵੇਲੇ ਸਿਰਫ 1 ਪ੍ਰਮਾਣਿਤ ਸੂਚੀ ਉਪਲਬਧ ਹੈ। ਕਿਸਾਨਬੱਡੀ ਸਿਰਫ਼ ਅਸਲ ਬਾਜ਼ਾਰ ਡਾਟਾ ਵਰਤਦਾ ਹੈ ਅਤੇ ਨਕਲੀ ਦਰਾਂ ਨਹੀਂ ਬਣਾਉਂਦਾ।",
+    contactCurrentSeller: "ਮੌਜੂਦਾ ਵਿਕਰੇਤਾ ਨਾਲ ਸਿੱਧਾ ਸੰਪਰਕ ਕਰੋ",
+    lowestListedPrice: "ਸਭ ਤੋਂ ਘੱਟ ਦਰਜ ਕੀਤਾ ਰੇਟ",
+    bestValueAnalysis: "ਸਭ ਤੋਂ ਵਧੀਆ ਮੁੱਲ ਵਿਸ਼ਲੇਸ਼ਣ",
+    comparableOffersTitle: "ਅਸਲ ਤੁਲਨਾਤਮਕ ਆਫਰ",
+    sortedByVerifiedPrice: "ਪ੍ਰਮਾਣਿਤ ਕੀਮਤ ਅਨੁਸਾਰ ਕ੍ਰਮਬੱਧ",
+    exactModel: "ਸਹੀ ਮਾਡਲ",
+    specAlternative: "ਸਮਾਨ ਵਿਕਲਪ",
+    operatorIncluded: "ਆਪਰੇਟਰ ਸ਼ਾਮਲ",
+    sellerLabel: "ਵਿਕਰੇਤਾ:",
+    warrantyLabel: "ਵਾਰੰਟੀ:",
+    deliveryLabel: "ਡਿਲੀਵਰੀ:",
+    contactBtn: "ਸੰਪਰਕ ਕਰੋ",
+    compareBtn: "ਤੁਲਨਾ ਕਰੋ",
+    comparePricesBtn: "ਕੀਮਤਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ",
+    compareTooltip: "ਪ੍ਰਮਾਣਿਤ ਪੇਸ਼ਕਸ਼ਾਂ ਨਾਲ ਕੀਮਤਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ",
+    errorTitle: "ਕੀਮਤ ਤੁਲਨਾ ਉਪਲਬਧ ਨਹੀਂ",
+    errorDesc: "ਇਸ ਸਮੇਂ ਤੁਲਨਾ ਪੇਸ਼ਕਸ਼ਾਂ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋ ਸਕੀਆਂ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+    retryBtn: "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+    bestValueOperatorReason: "ਸਭ ਤੋਂ ਵਧੀਆ ਮੁੱਲ: ₹{price}/{unit} ਵਿੱਚ ਸਿਖਿਅਤ ਆਪਰੇਟਰ ਸ਼ਾਮਲ ਹੈ ({location} ਦੇ ਪ੍ਰਮਾਣਿਤ CHC ਤੋਂ)।",
+    lowestRateReason: "₹{price}/{unit} ਸਭ ਤੋਂ ਘੱਟ ਦਰਜ ਕੀਤਾ ਰੇਟ ({location} ਦੇ ਪ੍ਰਮਾਣਿਤ ਪ੍ਰਦਾਤਾ ਤੋਂ)।",
+    warrantyListing: "ਪ੍ਰਮਾਣਿਤ ਵਿਕਰੇਤਾ/CHC ਸੂਚੀ (ਸ਼ਰਤਾਂ ਮਾਲਕ ਨਾਲ ਗੱਲਬਾਤ ਯੋਗ)",
+    warrantyCatalog: "ਮਿਆਰੀ OEM ਨਿਰਮਾਤਾ ਵਾਰੰਟੀ ਲਾਗੂ ਹੁੰਦੀ ਹੈ",
+    deliveryListing: "ਮਾਲਕ ਨਾਲ ਸਹਿਮਤੀ 'ਤੇ ਫਾਰਮ-ਗੇਟ ਡਿਲੀਵਰੀ",
+    deliveryCatalog: "ਪੂਰੇ ਭਾਰਤ ਵਿੱਚ ਸਪਲਾਇਰ ਸਿੱਧੀ ਡਿਸਪੈਚ",
+    units: {
+      hour: "ਘੰਟਾ",
+      day: "ਦਿਨ",
+      acre: "ਏਕੜ",
+      totalPrice: "ਕੁੱਲ ਕੀਮਤ",
+      month: "ਮਹੀਨਾ",
+      default: "ਇਕਾਈ",
+    },
+    conditions: {
+      new: "ਨਵਾਂ",
+      used: "ਵਰਤਿਆ ਹੋਇਆ",
+      good: "ਵਧੀਆ ਹਾਲਤ",
+      refurbished: "ਨਵੀਨੀਕਰਣ",
+    },
+    categories: {
+      tractor: "ਟਰੈਕਟਰ",
+      harvester: "ਹਾਰਵੈਸਟਰ",
+      power_tiller: "ਪਾਵਰ ਟਿਲਰ",
+      sprayer: "ਸਪ੍ਰੇਅਰ",
+      seeder: "ਬੀਜ ਬੀਜਣ ਵਾਲੀ ਮਸ਼ੀਨ",
+      rotavator: "ਰੋਟਾਵੇਟਰ",
+      attachments: "ਉਪਕਰਣ",
+      default: "ਮਸ਼ੀਨਰੀ",
+    },
+  },
+
+  gu: {
+    modalTitle: "સ્માર્ટ ભાવ સરખામણી",
+    closeAriaLabel: "ભાવ સરખામણી બંધ કરો",
+    currentSelection: "હાલની પસંદગી",
+    listedRate: "સૂચિબદ્ધ દર",
+    indicativeSpec: "સૂચક વિગત",
+    queryingDatabase: "અસલ માર્કેટપ્લેસ સરખામણી ડેટાબેઝમાંથી માહિતી મેળવી રહ્યાં છીએ...",
+    insufficientDataTitle: "સરખામણી ડેટા અપૂરતો છે",
+    insufficientDataDesc: "અમારા ડેટાબેઝમાં આ ચોક્કસ વિગતો અને ભાવ આધાર માટે હાલમાં માત્ર 1 ચકાસાયેલ લિસ્ટિંગ ઉપલબ્ધ છે. કિસાનબડી માત્ર વાસ્તવિક માર્કેટપ્લેસ ડેટાનો ઉપયોગ કરે છે અને નકલી ભાવો બનાવતું નથી.",
+    contactCurrentSeller: "હાલના વિક્રેતાનો સીધો સંપર્ક કરો",
+    lowestListedPrice: "સૌથી ઓછો સૂચિબદ્ધ ભાવ",
+    bestValueAnalysis: "શ્રેષ્ઠ મૂલ્ય વિશ્લેષણ",
+    comparableOffersTitle: "વાસ્તવિક તુલનાત્મક ઑફર્સ",
+    sortedByVerifiedPrice: "ચકાસાયેલ ભાવ અનુસાર ગોઠવાયેલ",
+    exactModel: "ચોક્કસ મોડેલ",
+    specAlternative: "સમાન વિકલ્પ",
+    operatorIncluded: "ઓપરેટર સામેલ",
+    sellerLabel: "વિક્રેતા:",
+    warrantyLabel: "વોરંટી:",
+    deliveryLabel: "ડિલિવરી:",
+    contactBtn: "સંપર્ક કરો",
+    compareBtn: "સરખાવો",
+    comparePricesBtn: "ભાવ સરખાવો",
+    compareTooltip: "ચકાસાયેલ ઑફરો સાથે ભાવોની સરખામણી કરો",
+    errorTitle: "ભાવ સરખામણી ઉપલબ્ધ નથી",
+    errorDesc: "આ સમયે સરખામણી ઑફરો મેળવી શકાઈ નથી. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    retryBtn: "ફરી પ્રયાસ કરો",
+    bestValueOperatorReason: "શ્રેષ્ઠ મૂલ્ય: ₹{price}/{unit} માં પ્રશિક્ષિત ઓપરેટર સામેલ ({location} ના ચકાસાયેલ CHC તરફથી).",
+    lowestRateReason: "₹{price}/{unit} નો સૌથી ઓછો સૂચિબદ્ધ ભાવ ({location} ના ચકાસાયેલ વિક્રેતા તરફથી).",
+    warrantyListing: "ચકાસાયેલ વિક્રેતા/CHC લિસ્ટિંગ (શરતો માલિક સાથે વાટાઘಾટપાત્ર)",
+    warrantyCatalog: "સ્ટાન્ડર્ડ OEM ઉત્પાદક વોરંટી લાગુ થાય છે",
+    deliveryListing: "માલિક સાથે કરાર મુજબ ફાર્મ-ગેટ ડિલિવરી વ્યવસ્થા",
+    deliveryCatalog: "સમગ્ર ભારતમાં સપ્લાયર દ્વારા સીધું મોકલવું",
+    units: {
+      hour: "કલાક",
+      day: "દિવસ",
+      acre: "એકર",
+      totalPrice: "કુલ ભાવ",
+      month: "મહિનો",
+      default: "એકમ",
+    },
+    conditions: {
+      new: "નવું",
+      used: "વપરાયેલ",
+      good: "સારી સ્થિતિ",
+      refurbished: "નવીનીકરણ",
+    },
+    categories: {
+      tractor: "ટ્રેક્ટર",
+      harvester: "હાર્વેસ્ટર",
+      power_tiller: "પાવર ટિલર",
+      sprayer: "સ્પ્રેયર",
+      seeder: "વાવણી યંત્ર",
+      rotavator: "રોટાવેટર",
+      attachments: "જોડાણો",
+      default: "મશીનરી",
+    },
+  },
+
+  hi_en: {
+    modalTitle: "Smart Price Comparison",
+    closeAriaLabel: "Price comparison band karein",
+    currentSelection: "Current Selection",
+    listedRate: "Listed Rate",
+    indicativeSpec: "Indicative Spec",
+    queryingDatabase: "Genuine marketplace database se rate compare ho rahe hain...",
+    insufficientDataTitle: "Comparison Data Insufficient",
+    insufficientDataDesc: "Hamare database me is exact spec aur price ke liye abhi sirf 1 verified listing hai. KisaanBuddy strictly genuine marketplace data use karta hai, fake competitor prices simulate nahi karta.",
+    contactCurrentSeller: "Current Seller se Direct Sampark Karein",
+    lowestListedPrice: "Lowest Listed Price",
+    bestValueAnalysis: "Best Value Analysis",
+    comparableOffersTitle: "Genuine Comparable Offers",
+    sortedByVerifiedPrice: "Verified price ke mutabik sorted",
+    exactModel: "Exact Model",
+    specAlternative: "Spec Alternative",
+    operatorIncluded: "Operator Included",
+    sellerLabel: "Seller:",
+    warrantyLabel: "Warranty:",
+    deliveryLabel: "Delivery:",
+    contactBtn: "Contact Karein",
+    compareBtn: "Compare",
+    comparePricesBtn: "Prices Compare Karein",
+    compareTooltip: "Verified offers ke sath rate compare karein",
+    errorTitle: "Price Comparison Unavailable",
+    errorDesc: "Is waqt comparison offers load nahi ho sake. Please dobara try karein.",
+    retryBtn: "Dobara Try Karein",
+    bestValueOperatorReason: "Top value: ₹{price}/{unit} me trained operator & implement included ({location} ke verified CHC se).",
+    lowestRateReason: "Lowest listed rate ₹{price}/{unit} ({location} ke verified provider se).",
+    warrantyListing: "Verified seller/CHC listing (terms owner ke sath negotiable)",
+    warrantyCatalog: "Standard OEM manufacturer warranty applies",
+    deliveryListing: "Owner se agreement par farm-gate delivery",
+    deliveryCatalog: "Supplier direct dispatch across India",
+    units: {
+      hour: "hr",
+      day: "day",
+      acre: "acre",
+      totalPrice: "total price",
+      month: "month",
+      default: "unit",
+    },
+    conditions: {
+      new: "NEW",
+      used: "USED",
+      good: "GOOD",
+      refurbished: "REFURBISHED",
+    },
+    categories: {
+      tractor: "Tractor",
+      harvester: "Harvester",
+      power_tiller: "Power Tiller",
+      sprayer: "Sprayer",
+      seeder: "Seeder",
+      rotavator: "Rotavator",
+      attachments: "Attachments",
+      default: "Equipment",
+    },
+  },
+}
+
+export function getPriceComparisonI18n(lang: Lang): PriceComparisonDict {
+  return PRICE_COMPARISON_I18N[lang] || PRICE_COMPARISON_I18N.en
+}
+
+export function formatPriceUnit(unit: string | undefined | null, dict: PriceComparisonDict): string {
+  if (!unit) return dict.units.day
+  const clean = unit.replace(/^per\s+/i, "").trim().toLowerCase()
+  if (clean === "hr" || clean === "hour" || clean === "hours") return dict.units.hour
+  if (clean === "day" || clean === "days") return dict.units.day
+  if (clean === "acre" || clean === "acres") return dict.units.acre
+  if (clean === "month" || clean === "months") return dict.units.month
+  if (clean === "total price" || clean === "total") return dict.units.totalPrice
+  return clean || dict.units.default
+}
+
+export function formatCategory(cat: string | undefined | null, dict: PriceComparisonDict): string {
+  if (!cat) return dict.categories.default
+  const key = cat.toLowerCase() as keyof typeof dict.categories
+  return dict.categories[key] || cat.replace(/_/g, " ")
+}
+
+export function formatCondition(cond: string | undefined | null, dict: PriceComparisonDict): string {
+  if (!cond) return ""
+  const key = cond.toLowerCase() as keyof typeof dict.conditions
+  return dict.conditions[key] || cond.toUpperCase()
+}
+

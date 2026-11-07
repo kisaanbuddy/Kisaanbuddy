@@ -319,7 +319,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-16">
       {/* Top sticky sub-bar with refresh action */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4 flex items-center justify-between">
+      <div className="w-full pt-4 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Wheat className="w-5 h-5 text-emerald-700 dark:text-emerald-400" />
           <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -339,7 +339,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      <div className="w-full space-y-6">
         {/* Error Notice if any */}
         {error && (
           <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-800 dark:text-amber-200 flex items-center gap-2">

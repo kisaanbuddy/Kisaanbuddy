@@ -2,7 +2,7 @@
  * KisaanBuddy Service Worker — offline-first cache strategy
  * Caches static pages + assets; falls back gracefully.
  */
-const CACHE = "KisaanBuddy-v2"
+const CACHE = "KisaanBuddy-v3"
 const OFFLINE_URL = "/"
 
 // Pages to pre-cache

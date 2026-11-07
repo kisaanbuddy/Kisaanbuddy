@@ -9,18 +9,31 @@ import { useLanguage } from "@/lib/language";
 const labels: Record<string, string> = {
   dashboard: "dashboard", weather: "weather", "crop-predictor": "aiPredictor",
   disease: "diseaseDetect", "soil-health": "soilHealth", schemes: "schemes",
-  mandi: "mandi", "worker-connect": "workers", chatbot: "aiChatbot",
+  mandi: "mandi", "worker-connect": "agrilabour", chatbot: "aiChatbot",
   "khet-diary": "khetDiary", about: "aboutUs", founders: "founders",
   contact: "contactUs", privacy: "privacyPolicy", terms: "termsConditions",
   disclaimer: "disclaimerLabel", "cookie-policy": "cookiePolicy", impact: "impact",
 };
 
-const hiddenRoutes = new Set(["/", "/login", "/signup", "/forgot-password", "/reset-password"]);
+const hiddenRoutes = new Set([
+  "/",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/marketplace",
+  "/worker-connect",
+  "/terms",
+  "/privacy",
+  "/disclaimer",
+  "/cookie-policy",
+  "/editorial-policy",
+]);
 
 export default function Breadcrumbs() {
   const pathname = usePathname();
   const { t } = useLanguage();
-  if (hiddenRoutes.has(pathname)) return null;
+  if (hiddenRoutes.has(pathname) || pathname?.startsWith("/marketplace")) return null;
 
   const segments = pathname.split("/").filter(Boolean);
   const format = (segment: string) => {

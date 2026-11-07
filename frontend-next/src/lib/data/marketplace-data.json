@@ -7507,7 +7507,7 @@
     {
       "id": 1,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 1,
       "listing_type": "rent",
       "title": "Mahindra 575 DI XP Plus with Rotavator for Custom Hiring",
       "brand": "Mahindra",
@@ -7533,12 +7533,15 @@
       "notes": "Available for sowing, rotavator bed preparation, and trolley haulage. Diesel included in hourly rate for local operations.",
       "created_at": "2026-10-19 16:20:45.737854",
       "updated_at": "2026-10-19 16:20:45.737856",
-      "image_url": "/images/marketplace/tractors/mahindra-575.webp"
+      "image_url": "/images/marketplace/tractors/mahindra-575.webp",
+      "images": [
+        "/images/marketplace/tractors/mahindra-575.webp"
+      ]
     },
     {
       "id": 2,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 6,
       "listing_type": "rent",
       "title": "Dasmesh 9100 Combine Harvester for Wheat & Paddy Harvest",
       "brand": "Dasmesh",
@@ -7564,12 +7567,15 @@
       "notes": "Fast harvesting with minimal grain loss. 2 experienced operators included.",
       "created_at": "2026-10-19 16:20:45.737857",
       "updated_at": "2026-10-19 16:20:45.737858",
-      "image_url": "/images/marketplace/harvesters/dasmesh-9100.png"
+      "image_url": "/images/marketplace/harvesters/dasmesh-9100.png",
+      "images": [
+        "/images/marketplace/harvesters/dasmesh-9100.png"
+      ]
     },
     {
       "id": 3,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 9,
       "listing_type": "rent",
       "title": "Shaktiman 6 Feet Multi-Speed Rotavator",
       "brand": "Shaktiman",
@@ -7595,12 +7601,15 @@
       "notes": "Brand new boron steel blades fitted recently. Suitable for 40-50 HP tractors.",
       "created_at": "2026-10-19 16:20:45.737859",
       "updated_at": "2026-10-19 16:20:45.737859",
-      "image_url": "/images/marketplace/implements/shaktiman-rotavator.png"
+      "image_url": "/images/marketplace/implements/shaktiman-rotavator.png",
+      "images": [
+        "/images/marketplace/implements/shaktiman-rotavator.png"
+      ]
     },
     {
       "id": 4,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 2,
       "listing_type": "sale",
       "title": "Swaraj 744 FE (2021 Model) Single Owner with Clean Papers",
       "brand": "Swaraj",
@@ -7626,7 +7635,10 @@
       "notes": "Single farmer ownership, regular agency service, rear tires at 70% life. All registration and insurance documents valid.",
       "created_at": "2026-10-19 16:20:45.737860",
       "updated_at": "2026-10-19 16:20:45.737861",
-      "image_url": "/images/marketplace/tractors/swaraj-744.png"
+      "image_url": "/images/marketplace/tractors/swaraj-744.png",
+      "images": [
+        "/images/marketplace/tractors/swaraj-744.png"
+      ]
     },
     {
       "id": 5,
@@ -7657,7 +7669,8 @@
       "notes": "High-torque 3-cylinder engine. Excellent for hard-pan breaking, disc harrow tilling, and laser leveller pulling. Experienced driver provided.",
       "created_at": "2026-10-19 17:34:56.439947",
       "updated_at": "2026-10-19 17:34:56.439950",
-      "image_url": "/images/marketplace/tractors/swaraj-744.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 6,
@@ -7688,12 +7701,13 @@
       "notes": "60 HP heavy duty tractor ideal for 3-bottom MB plough, heavy super seeder operation, and wet paddy cage wheel puddling.",
       "created_at": "2026-10-19 17:34:56.439951",
       "updated_at": "2026-10-19 17:34:56.439952",
-      "image_url": "/images/marketplace/tractors/sonalika-745.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 7,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 5,
       "listing_type": "rent",
       "title": "John Deere 5310 4WD 55 HP Tractor with Reversible Plough",
       "brand": "John Deere",
@@ -7719,7 +7733,10 @@
       "notes": "4-Wheel Drive traction suited for heavy black soils, subsoiling, deep vineyard tillage, and high-gradient operations. Operator included.",
       "created_at": "2026-10-19 17:34:56.439953",
       "updated_at": "2026-10-19 17:34:56.439953",
-      "image_url": "/images/marketplace/tractors/john-deere-5310.png"
+      "image_url": "/images/marketplace/tractors/john-deere-5310.png",
+      "images": [
+        "/images/marketplace/tractors/john-deere-5310.png"
+      ]
     },
     {
       "id": 8,
@@ -7750,12 +7767,15 @@
       "notes": "Equipped with dual clutch, heavy auxiliary hydraulics for tipping trailers and sugarcane grabs. Fuel provided by renter or billed at actual.",
       "created_at": "2026-10-19 17:34:56.439954",
       "updated_at": "2026-10-19 17:34:56.439955",
-      "image_url": "/images/marketplace/tractors/swaraj-744.png"
+      "image_url": "/images/marketplace/tractors/new-holland-3630.png",
+      "images": [
+        "/images/marketplace/tractors/new-holland-3630.png"
+      ]
     },
     {
       "id": 9,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 4,
       "listing_type": "rent",
       "title": "TAFE MF 241 DI Dynatrack 42 HP with 9-Tyne Cultivator",
       "brand": "TAFE",
@@ -7781,7 +7801,10 @@
       "notes": "Low fuel consumption utility tractor. Perfect for secondary cultivation, ridge making, fertilizer spreading, and garlic/soybean tillage.",
       "created_at": "2026-10-19 17:34:56.439955",
       "updated_at": "2026-10-19 17:34:56.439956",
-      "image_url": "/images/marketplace/tractors/tafe-241.jpg"
+      "image_url": "/images/marketplace/tractors/tafe-241.jpg",
+      "images": [
+        "/images/marketplace/tractors/tafe-241.jpg"
+      ]
     },
     {
       "id": 10,
@@ -7812,7 +7835,10 @@
       "notes": "Japanese 4WD technology with planetary drive. Zero slippage in wet paddy fields and sugarcane interculture trenches.",
       "created_at": "2026-10-19 17:34:56.439957",
       "updated_at": "2026-10-19 17:34:56.439957",
-      "image_url": "/images/marketplace/tractors/mahindra-575.webp"
+      "image_url": "/images/marketplace/tractors/kubota-mu4501.png",
+      "images": [
+        "/images/marketplace/tractors/kubota-mu4501.png"
+      ]
     },
     {
       "id": 11,
@@ -7843,12 +7869,13 @@
       "notes": "Air-cooled workhorse with extremely low operational cost. Ideal for mustard and wheat sowing, disc ridging, and trailer work.",
       "created_at": "2026-10-19 17:34:56.439958",
       "updated_at": "2026-10-19 17:34:56.439958",
-      "image_url": "/images/marketplace/tractors/tafe-241.jpg"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 12,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 7,
       "listing_type": "rent",
       "title": "Preet 987 Self-Propelled Combine Harvester for Paddy & Mustard",
       "brand": "Preet",
@@ -7874,7 +7901,10 @@
       "notes": "14-foot wide cutter bar. Equipped with double blower cleaning shoe for clean grain sample ready for direct APMC mandi unloading.",
       "created_at": "2026-10-19 17:34:56.439959",
       "updated_at": "2026-10-19 17:34:56.439960",
-      "image_url": "/images/marketplace/harvesters/preet-987.png"
+      "image_url": "/images/marketplace/harvesters/preet-987.png",
+      "images": [
+        "/images/marketplace/harvesters/preet-987.png"
+      ]
     },
     {
       "id": 13,
@@ -7905,12 +7935,13 @@
       "notes": "High capacity grain tank with hydraulic folding unloading auger. Suitable for wheat, paddy, barley, and pulses across Tarai belt.",
       "created_at": "2026-10-19 17:34:56.439960",
       "updated_at": "2026-10-19 17:34:56.439961",
-      "image_url": "/images/marketplace/harvesters/preet-987.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 14,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 8,
       "listing_type": "rent",
       "title": "Shaktiman 3737 Tejas Sugarcane Harvester with Crawler Tracks",
       "brand": "Shaktiman",
@@ -7936,7 +7967,10 @@
       "notes": "Billet cutting sugarcane harvester with dual extractor fans for clean cane delivery to sugar mills. Handles both green and burnt cane.",
       "created_at": "2026-10-19 17:34:56.439962",
       "updated_at": "2026-10-19 17:34:56.439962",
-      "image_url": "/images/marketplace/harvesters/shaktiman-sugarcane.png"
+      "image_url": "/images/marketplace/harvesters/shaktiman-sugarcane.png",
+      "images": [
+        "/images/marketplace/harvesters/shaktiman-sugarcane.png"
+      ]
     },
     {
       "id": 15,
@@ -7967,12 +8001,13 @@
       "notes": "Full rubber track undercarriage prevents sinking in wet paddy soils and marshy canal command areas. Tangential Axial Flow (TAF) threshing.",
       "created_at": "2026-10-19 17:34:56.439963",
       "updated_at": "2026-10-19 17:34:56.439963",
-      "image_url": "/images/marketplace/harvesters/dasmesh-9100.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 16,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 9,
       "listing_type": "rent",
       "title": "Shaktiman 6 Feet Multi-Speed Rotavator (Champion 165)",
       "brand": "Shaktiman",
@@ -7998,12 +8033,15 @@
       "notes": "Brand new boron steel L-blades fitted recently. Suitable for 40-50 HP tractors. Daily dry hire available at ₹2,800/day.",
       "created_at": "2026-10-19 17:34:56.439964",
       "updated_at": "2026-10-19 17:34:56.439965",
-      "image_url": "/images/marketplace/implements/shaktiman-rotavator.png"
+      "image_url": "/images/marketplace/implements/shaktiman-rotavator.png",
+      "images": [
+        "/images/marketplace/implements/shaktiman-rotavator.png"
+      ]
     },
     {
       "id": 17,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 10,
       "listing_type": "rent",
       "title": "Maschio Gaspardo Virat 185 (6 Feet) Heavy Duty Rotary Tiller",
       "brand": "Maschio Gaspardo",
@@ -8029,12 +8067,15 @@
       "notes": "Italian gear transmission with multi-speed adjustment. Produces fine pulverized seedbed in a single pass. Requires 45-55 HP tractor.",
       "created_at": "2026-10-19 17:34:56.439965",
       "updated_at": "2026-10-19 17:34:56.439966",
-      "image_url": "/images/marketplace/implements/maschio-virat.png"
+      "image_url": "/images/marketplace/implements/maschio-virat.png",
+      "images": [
+        "/images/marketplace/implements/maschio-virat.png"
+      ]
     },
     {
       "id": 18,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 11,
       "listing_type": "rent",
       "title": "Fieldking Multi-Speed 7 Feet Rotavator for Large Fields",
       "brand": "Fieldking",
@@ -8060,7 +8101,10 @@
       "notes": "66 high-grade boron steel blades. Covers up to 1.5 acres per hour with a 55+ HP tractor. Adjustable depth skids up to 7 inches.",
       "created_at": "2026-10-19 17:34:56.439967",
       "updated_at": "2026-10-19 17:34:56.439967",
-      "image_url": "/images/marketplace/implements/fieldking-rotavator.png"
+      "image_url": "/images/marketplace/implements/fieldking-rotavator.png",
+      "images": [
+        "/images/marketplace/implements/fieldking-rotavator.png"
+      ]
     },
     {
       "id": 19,
@@ -8091,7 +8135,8 @@
       "notes": "Heavy side gear drive, oil-submerged bearings. Ideal for heavy Malwa black clay soils without clogging.",
       "created_at": "2026-10-19 17:34:56.439968",
       "updated_at": "2026-10-19 17:34:56.439968",
-      "image_url": "/images/marketplace/implements/fieldking-rotavator.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 20,
@@ -8122,12 +8167,15 @@
       "notes": "Government approved CRM machine. Sows wheat directly in standing paddy residue without burning. Includes 55 HP tractor and experienced driver.",
       "created_at": "2026-10-19 17:34:56.439969",
       "updated_at": "2026-10-19 17:34:56.439970",
-      "image_url": "/images/marketplace/implements/zero-till-drill.png"
+      "image_url": "/images/marketplace/implements/roto-seed-drill.png",
+      "images": [
+        "/images/marketplace/implements/roto-seed-drill.png"
+      ]
     },
     {
       "id": 21,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 13,
       "listing_type": "rent",
       "title": "Fieldking Roto Seed Drill 9-Row (Combined Tillage & Sowing)",
       "brand": "Fieldking",
@@ -8153,7 +8201,8 @@
       "notes": "Prepares seedbed and delivers precise seed & fertilizer placement simultaneously. Saves fuel and preserves subsoil moisture.",
       "created_at": "2026-10-19 17:34:56.439970",
       "updated_at": "2026-10-19 17:34:56.439971",
-      "image_url": "/images/marketplace/implements/roto-seed-drill.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 22,
@@ -8184,7 +8233,10 @@
       "notes": "Vacuum disc metering ensures single-seed drop with exact plant-to-plant distance (15-60 cm adjustable). Saves 40% costly hybrid seeds.",
       "created_at": "2026-10-19 17:34:56.439971",
       "updated_at": "2026-10-19 17:34:56.439972",
-      "image_url": "/images/marketplace/implements/roto-seed-drill.png"
+      "image_url": "/images/marketplace/implements/zero-till-drill.png",
+      "images": [
+        "/images/marketplace/implements/zero-till-drill.png"
+      ]
     },
     {
       "id": 23,
@@ -8215,12 +8267,13 @@
       "notes": "Cuts straw and deposits it as surface mulch behind inverted-T furrow openers. Enhances organic matter and suppresses weeds.",
       "created_at": "2026-10-19 17:34:56.439973",
       "updated_at": "2026-10-19 17:34:56.439973",
-      "image_url": "/images/marketplace/implements/zero-till-drill.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 24,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 27,
       "listing_type": "rent",
       "title": "Fieldking Dual Mast Laser Land Leveller with Rotary Transmitter",
       "brand": "Fieldking",
@@ -8246,7 +8299,10 @@
       "notes": "Dual mast hydraulic scraper bucket with 400 m range laser beacon. Levels uneven fields to +/- 1.5 mm, reducing tube well pumping by 35%.",
       "created_at": "2026-10-19 17:34:56.439974",
       "updated_at": "2026-10-19 17:34:56.439975",
-      "image_url": "/images/marketplace/implements/laser-leveller.png"
+      "image_url": "/images/marketplace/implements/laser-leveller.png",
+      "images": [
+        "/images/marketplace/implements/laser-leveller.png"
+      ]
     },
     {
       "id": 25,
@@ -8277,12 +8333,13 @@
       "notes": "Automatic hydraulic grade controller. Increases canal irrigation efficiency and ensures uniform germination in cotton and wheat.",
       "created_at": "2026-10-19 17:34:56.439975",
       "updated_at": "2026-10-19 17:34:56.439976",
-      "image_url": "/images/marketplace/implements/laser-leveller.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 26,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 19,
       "listing_type": "rent",
       "title": "Mitra Bullet 600L Tractor Mounted Boom Sprayer for Orchards",
       "brand": "Mitra",
@@ -8308,12 +8365,15 @@
       "notes": "Air-assisted axial fan sprayer designed for grape vineyards, pomegranate, and citrus orchards. Deep canopy penetration with zero drift.",
       "created_at": "2026-10-19 17:34:56.439976",
       "updated_at": "2026-10-19 17:34:56.439977",
-      "image_url": "/images/marketplace/implements/orchard-sprayer.png"
+      "image_url": "/images/marketplace/implements/orchard-sprayer.png",
+      "images": [
+        "/images/marketplace/implements/orchard-sprayer.png"
+      ]
     },
     {
       "id": 27,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 18,
       "listing_type": "rent",
       "title": "ASPEE High Pressure Mist Blower Sprayer for Cotton & Veggies",
       "brand": "ASPEE",
@@ -8339,7 +8399,10 @@
       "notes": "Heavy brass piston pump delivering 400 PSI. Supplied with 100-meter high-pressure hose and twin spray guns. Dry rental.",
       "created_at": "2026-10-19 17:34:56.439978",
       "updated_at": "2026-10-19 17:34:56.439978",
-      "image_url": "/images/marketplace/implements/boom-sprayer.png"
+      "image_url": "/images/marketplace/implements/boom-sprayer.png",
+      "images": [
+        "/images/marketplace/implements/boom-sprayer.png"
+      ]
     },
     {
       "id": 28,
@@ -8370,7 +8433,8 @@
       "notes": "Spreads nano-urea, micronutrients, and crop protection sprays in 7 minutes per acre. Centrifugal atomizers save 90% water.",
       "created_at": "2026-10-19 17:34:56.439979",
       "updated_at": "2026-10-19 17:34:56.439979",
-      "image_url": "/images/marketplace/implements/boom-sprayer.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 29,
@@ -8401,12 +8465,15 @@
       "notes": "Equipped with automatic hopper feeder and reverse gear. Zero grain breakage in chickpea/gram and soybean. Rate ₹600/hr or ₹180/quintal.",
       "created_at": "2026-10-19 17:34:56.439980",
       "updated_at": "2026-10-19 17:34:56.439981",
-      "image_url": "/images/marketplace/implements/paddy-thresher.png"
+      "image_url": "/images/marketplace/implements/paddy-thresher.png",
+      "images": [
+        "/images/marketplace/implements/paddy-thresher.png"
+      ]
     },
     {
       "id": 30,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 28,
       "listing_type": "rent",
       "title": "Kartar Straw Reaper 54 Inch for Animal Fodder (Bhusa) Making",
       "brand": "Kartar",
@@ -8432,7 +8499,10 @@
       "notes": "Recovers remaining wheat stubble after combine harvest, converting it into fine, soft livestock bhusa blown directly into trailing trolley.",
       "created_at": "2026-10-19 17:34:56.439981",
       "updated_at": "2026-10-19 17:34:56.439982",
-      "image_url": "/images/marketplace/implements/straw-reaper.png"
+      "image_url": "/images/marketplace/implements/straw-reaper.png",
+      "images": [
+        "/images/marketplace/implements/straw-reaper.png"
+      ]
     },
     {
       "id": 31,
@@ -8463,12 +8533,15 @@
       "notes": "Threshes wheat, mustard, millet, and pulses at 15-20 quintals per hour output. Stone and dust separation screen pre-installed.",
       "created_at": "2026-10-19 17:34:56.439982",
       "updated_at": "2026-10-19 17:34:56.439983",
-      "image_url": "/images/marketplace/implements/thresher.png"
+      "image_url": "/images/marketplace/implements/thresher.png",
+      "images": [
+        "/images/marketplace/implements/thresher.png"
+      ]
     },
     {
       "id": 32,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 26,
       "listing_type": "rent",
       "title": "Shaktiman SRB-60 Round Straw Baler (Crop Residue Management)",
       "brand": "Shaktiman",
@@ -8494,7 +8567,10 @@
       "notes": "Collects paddy and wheat straw into compact 20 kg round bales for biomass plants and cattle feed. Clears 1.5 acres per hour.",
       "created_at": "2026-10-19 17:34:56.439984",
       "updated_at": "2026-10-19 17:34:56.439984",
-      "image_url": "/images/marketplace/implements/round-baler.png"
+      "image_url": "/images/marketplace/implements/round-baler.png",
+      "images": [
+        "/images/marketplace/implements/round-baler.png"
+      ]
     },
     {
       "id": 33,
@@ -8525,12 +8601,13 @@
       "notes": "High-density round baler producing weather-resistant bales. Complete farm-clearing contract including baling and field edge stacking.",
       "created_at": "2026-10-19 17:34:56.439985",
       "updated_at": "2026-10-19 17:34:56.439986",
-      "image_url": "/images/marketplace/implements/round-baler.png"
+      "image_url": null,
+      "images": []
     },
     {
       "id": 34,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 16,
       "listing_type": "rent",
       "title": "Lemken Opal 090 2-Bottom Hydraulic Reversible Mould Board Plough",
       "brand": "LEMKEN",
@@ -8556,7 +8633,10 @@
       "notes": "German engineered wear parts. Flips soil completely to bury crop residues and eradicate weed roots. Requires 45-55 HP tractor.",
       "created_at": "2026-10-19 17:34:56.439986",
       "updated_at": "2026-10-19 17:34:56.439987",
-      "image_url": "/images/marketplace/implements/lemken-plough.png"
+      "image_url": "/images/marketplace/implements/lemken-plough.png",
+      "images": [
+        "/images/marketplace/implements/lemken-plough.png"
+      ]
     },
     {
       "id": 35,
@@ -8587,7 +8667,10 @@
       "notes": "High clearance 3-bottom plough for deep cultivation down to 14 inches. Excellent for hard clay sugarcane and cotton fields.",
       "created_at": "2026-10-19 17:34:56.439987",
       "updated_at": "2026-10-19 17:34:56.439988",
-      "image_url": "/images/marketplace/implements/disc-plough.png"
+      "image_url": "/images/marketplace/implements/disc-plough.png",
+      "images": [
+        "/images/marketplace/implements/disc-plough.png"
+      ]
     },
     {
       "id": 36,
@@ -8618,7 +8701,10 @@
       "notes": "Twin ram heavy hydraulic tipping cylinder, double leaf spring suspension. Perfect for groundnut, cotton, and grain transport to APMC.",
       "created_at": "2026-10-19 17:34:56.439989",
       "updated_at": "2026-10-19 17:34:56.439989",
-      "image_url": "/images/marketplace/implements/tipping-trailer.png"
+      "image_url": "/images/marketplace/implements/tipping-trailer.png",
+      "images": [
+        "/images/marketplace/implements/tipping-trailer.png"
+      ]
     },
     {
       "id": 37,
@@ -8649,12 +8735,15 @@
       "notes": "Rigid channel chassis with 4-ton radial tyres. Fitted with removable high-mesh walls for bulk straw, bagasse, and crop transport.",
       "created_at": "2026-10-19 17:34:56.439990",
       "updated_at": "2026-10-19 17:34:56.439990",
-      "image_url": "/images/marketplace/implements/farm-trailer.png"
+      "image_url": "/images/marketplace/implements/farm-trailer.png",
+      "images": [
+        "/images/marketplace/implements/farm-trailer.png"
+      ]
     },
     {
       "id": 38,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 25,
       "listing_type": "rent",
       "title": "Kirloskar 5 HP Portable Diesel Monoblock Water Pump Set",
       "brand": "Kirloskar",
@@ -8680,12 +8769,15 @@
       "notes": "Includes 20 feet suction pipe with foot valve and 100 feet flexible delivery hose. 1200 litres/minute discharge rate for canal & well lifting.",
       "created_at": "2026-10-19 17:34:56.439991",
       "updated_at": "2026-10-19 17:34:56.439992",
-      "image_url": "/images/marketplace/implements/diesel-pump.jpg"
+      "image_url": "/images/marketplace/implements/diesel-pump.jpg",
+      "images": [
+        "/images/marketplace/implements/diesel-pump.jpg"
+      ]
     },
     {
       "id": 39,
       "user_id": null,
-      "catalog_id": null,
+      "catalog_id": 24,
       "listing_type": "rent",
       "title": "Field Portable 4-Rain-Gun High Pressure Sprinkler Set",
       "brand": "Jain Drip",
@@ -8711,7 +8803,10 @@
       "notes": "30-meter spray radius per gun with quick-coupling HDPE pipes. Ideal for sugarcane germination, groundnut, and wheat pre-sowing irrigation.",
       "created_at": "2026-10-19 17:34:56.439992",
       "updated_at": "2026-10-19 17:34:56.439993",
-      "image_url": "/images/marketplace/implements/drip-irrigation.jpg"
+      "image_url": "/images/marketplace/implements/drip-irrigation.jpg",
+      "images": [
+        "/images/marketplace/implements/drip-irrigation.jpg"
+      ]
     },
     {
       "id": 40,
@@ -8742,7 +8837,10 @@
       "notes": "Genuine condition, new battery installed, rear MRF tyres at 65%. Engine sealed and fully operational.",
       "created_at": "2026-10-19 17:34:56.439993",
       "updated_at": "2026-10-19 17:34:56.439994",
-      "image_url": "/images/marketplace/tractors/mahindra-575.webp"
+      "image_url": "/images/marketplace/tractors/mahindra-575.webp",
+      "images": [
+        "/images/marketplace/tractors/mahindra-575.webp"
+      ]
     },
     {
       "id": 41,
@@ -8773,7 +8871,10 @@
       "notes": "First owner, company serviced with complete logbook. Power steering, oil-immersed disc brakes, JDLink active.",
       "created_at": "2026-10-19 17:34:56.439995",
       "updated_at": "2026-10-19 17:34:56.439995",
-      "image_url": "/images/marketplace/tractors/john-deere-5310.png"
+      "image_url": "/images/marketplace/tractors/john-deere-5310.png",
+      "images": [
+        "/images/marketplace/tractors/john-deere-5310.png"
+      ]
     },
     {
       "id": 42,
@@ -8804,7 +8905,10 @@
       "notes": "Barely used for two seasons. Multi-speed gearbox, boron steel blades with 90% life intact. Upgrading to super seeder.",
       "created_at": "2026-10-19 17:34:56.439996",
       "updated_at": "2026-10-19 17:34:56.439996",
-      "image_url": "/images/marketplace/implements/shaktiman-rotavator.png"
+      "image_url": "/images/marketplace/implements/shaktiman-rotavator.png",
+      "images": [
+        "/images/marketplace/implements/shaktiman-rotavator.png"
+      ]
     }
   ],
   "produce_listings": [

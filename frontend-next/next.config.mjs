@@ -20,7 +20,7 @@ const nextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://adservice.google.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://plus.unsplash.com https://cdn.shopify.com https://*.shopify.com https://machinepoint.in https://*.machinepoint.in https://pagead2.googlesyndication.com; connect-src 'self' https://pagead2.googlesyndication.com https://krishiai-api.onrender.com; frame-src 'self' https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com;"
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://adservice.google.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://images.unsplash.com https://plus.unsplash.com https://cdn.shopify.com https://*.shopify.com https://machinepoint.in https://*.machinepoint.in https://pagead2.googlesyndication.com https://*.tile.openstreetmap.org https://server.arcgisonline.com https://services.arcgisonline.com https://planetarycomputer.microsoft.com; connect-src 'self' https://pagead2.googlesyndication.com https://krishiai-api.onrender.com https://api.bigdatacloud.net https://nominatim.openstreetmap.org https://planetarycomputer.microsoft.com https://archive-api.open-meteo.com; frame-src 'self' https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com;"
           }
         ]
       }
@@ -128,6 +128,15 @@ const nextConfig = {
         source: '/api/disease/:path*',
         destination: `${backendUrl}/api/disease/:path*`
       },
+      // Satellite Intelligence
+      {
+        source: '/api/satellite/:path*/',
+        destination: `${backendUrl}/api/satellite/:path*/`
+      },
+      {
+        source: '/api/satellite/:path*',
+        destination: `${backendUrl}/api/satellite/:path*`
+      },
       // Sarvam AI
       {
         source: '/api/sarvam/:path*/',
@@ -136,6 +145,15 @@ const nextConfig = {
       {
         source: '/api/sarvam/:path*',
         destination: `${backendUrl}/api/sarvam/:path*`
+      },
+      // Voice Operating System
+      {
+        source: '/api/voice/:path*/',
+        destination: `${backendUrl}/api/voice/:path*/`
+      },
+      {
+        source: '/api/voice/:path*',
+        destination: `${backendUrl}/api/voice/:path*`
       }
     ]
   }

@@ -30,7 +30,18 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
         return None
 
     try:
-        from db.models import Farm, FarmActivity, FarmerField, FieldCrop, FarmerProfile, User, SoilTest, Recommendation, FarmTask
+        from db.models import (
+            Farm,
+            FarmActivity,
+            FarmerField,
+            FieldCrop,
+            FarmerProfile,
+            User,
+            SoilTest,
+            Recommendation,
+            FarmTask,
+            SatelliteObservationRecord,
+        )
         from db.session import SessionLocal
 
         if SessionLocal is None:
@@ -81,6 +92,32 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
                         }
             except Exception:
                 pass  # SoilTest table may not exist yet
+
+            # Latest authentic satellite observations per field
+            latest_satellite_obs = {}
+            try:
+                sat_recs = (
+                    db.query(SatelliteObservationRecord)
+                    .filter(SatelliteObservationRecord.user_id == user_id)
+                    .order_by(SatelliteObservationRecord.observation_date.desc())
+                    .limit(5)
+                    .all()
+                )
+                for sr in sat_recs:
+                    key = str(sr.field_id) if sr.field_id else "general"
+                    if key not in latest_satellite_obs:
+                        latest_satellite_obs[key] = {
+                            "satellite": sr.satellite_source,
+                            "pass_date": sr.observation_date.isoformat() if sr.observation_date else None,
+                            "mean_ndvi": sr.mean_ndvi,
+                            "mean_ndwi": sr.mean_ndwi,
+                            "mean_evi": sr.mean_evi,
+                            "health_status": sr.health_status,
+                            "stress_risk": sr.stress_risk,
+                            "cloud_cover_pct": sr.cloud_cover_pct,
+                        }
+            except Exception:
+                pass
 
             # Active (pending) recommendations count
             pending_recs = 0
@@ -150,6 +187,7 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
                     for activity in recent
                 ],
                 "soil_tests": latest_soil_tests,
+                "satellite_observations": latest_satellite_obs,
                 "pending_recommendations": pending_recs,
                 "pending_tasks": [
                     {"title": t.title, "category": t.category, "due_date": t.due_date.isoformat(), "priority": t.priority}
@@ -165,8 +203,6 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
         finally:
             db.close()
     except Exception:
-        # Farm memory is an enhancement. Never make chat unavailable when a
-        # migration or optional database is temporarily unavailable.
         return None
 
 
@@ -179,5 +215,6 @@ def format_farmer_context(context: Optional[dict[str, Any]]) -> Optional[str]:
         "Use this to avoid repeating questions. If more than one field/crop could apply, ask which field. "
         "Never claim a stored fact is current when the farmer corrects it. Do not mention private IDs. "
         "When soil test data is available, use it to give nutrient-specific advice. "
-        "If soil data is marked verified=False, it is a farmer estimate — mention uncertainty appropriately."
+        "When satellite observation records are present, cite the satellite platform and acquisition date. "
+        "Interpret NDVI as chlorophyll vigor and NDWI as canopy hydration. Never diagnose a specific plant disease using NDVI alone; recommend field scouting."
     )

@@ -49,7 +49,7 @@ export function Technology() {
       <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-[450px] h-[450px] rounded-full bg-emerald-500/[0.03] blur-[130px] pointer-events-none" />
       <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-teal-500/[0.03] blur-[110px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
+      <div className="w-full px-4 md:px-8 relative z-10">
         
         {/* Title Block */}
         <div className="text-center mb-16 space-y-4">
@@ -68,7 +68,7 @@ export function Technology() {
         </div>
 
         {/* Tech Flow Grid */}
-        <div className="grid gap-6 md:grid-cols-4 relative max-w-6xl mx-auto">
+        <div className="grid gap-6 md:grid-cols-4 relative w-full">
           {steps.map((step, idx) => {
             const Icon = step.icon;
             return (

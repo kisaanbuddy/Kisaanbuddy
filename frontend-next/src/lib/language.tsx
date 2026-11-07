@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
-import { farmerProfileApi } from "./farmer-api"
 
 // Dynamic loaders for non-default languages to eliminate ~900 KB of unused JSON from initial bundle
 const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
@@ -154,6 +153,9 @@ export const SELECTABLE_LANGS: Lang[] = [
   "hi_en",
 ]
 
+export const SESSION_LANG_KEY = "kisaanbuddy_session_lang"
+export const SESSION_CONFIRMED_KEY = "kisaanbuddy_session_confirmed"
+
 // In-memory cache of loaded locales (English bundled statically as instant fallback)
 export const T: Record<string, any> = { en }
 
@@ -256,8 +258,8 @@ const NAMESPACE_TITLES: Record<string, Record<string, string>> = {
     hi: "स्मार्ट हब",
     kn: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
     ta: "ஸ்மார்ட் ஹப்",
-    te: "స్మార్ట్ ಹಬ್",
-    ml: "സ്മാർട്ട് ഹബ്",
+    te: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
+    ml: "ಸ್ಮಾರ್ಟ್ ಹಬ್",
     mr: "स्मार्ट हब",
     bn: "স্মার্ট হাব",
     pa: "ਸਮਾਰਟ ਹੱਬ",
@@ -297,50 +299,47 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [isLanguageSelected, setIsLanguageSelected] = useState<boolean>(false)
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState<boolean>(false)
 
-  // Synchronous/Layout check to detect if returning visitor has a valid language
+  // Session-scoped language detection:
+  // Shows language selection screen on EVERY fresh visit.
+  // Re-uses selection only within the current active browser tab session.
   useLayoutEffect(() => {
-    let saved: Lang | null = null
+    // 1. Proactively clear any legacy permanent language storage to avoid auto-selection
     try {
-      // 1. Check primary localStorage key
-      saved = localStorage.getItem("kisaanbuddy_lang") as Lang | null
-      if (!saved) {
-        // 2. Migration from legacy keys
-        saved = (localStorage.getItem("KisaanBuddy_lang") || localStorage.getItem("krishi_lang")) as Lang | null
-        if (saved && SELECTABLE_LANGS.includes(saved)) {
-          localStorage.setItem("kisaanbuddy_lang", saved)
-          localStorage.removeItem("KisaanBuddy_lang")
-          localStorage.removeItem("krishi_lang")
-        }
-      }
-
-      // 3. Check cookies if localStorage was empty
-      if (!saved) {
-        const cookieMatch = document.cookie.match(/(?:^|; )kisaanbuddy_lang=([^;]+)/)
-        if (cookieMatch && SELECTABLE_LANGS.includes(cookieMatch[1] as Lang)) {
-          saved = cookieMatch[1] as Lang
-          localStorage.setItem("kisaanbuddy_lang", saved)
-        }
-      }
+      localStorage.removeItem("kisaanbuddy_farmer_lang_confirmed")
+      localStorage.removeItem("kisaanbuddy_lang_confirmed")
+      localStorage.removeItem("kisaanbuddy_lang")
+      localStorage.removeItem("KisaanBuddy_lang")
+      localStorage.removeItem("krishi_lang")
+      localStorage.removeItem("krishiai_lang")
+      document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
+      document.cookie = "kisaanbuddy_farmer_lang_confirmed=; Path=/; Max-Age=0"
     } catch {
       // Storage might be restricted in some browser privacy modes
     }
 
-    if (saved && SELECTABLE_LANGS.includes(saved)) {
-      setLangState(saved)
-      setIsLanguageSelected(true)
-      try {
-        document.documentElement.lang = saved
-      } catch {}
+    // 2. Read session-scoped storage
+    try {
+      const isConfirmed = sessionStorage.getItem(SESSION_CONFIRMED_KEY) === "true"
+      const saved = sessionStorage.getItem(SESSION_LANG_KEY) as Lang | null
 
-      if (saved === "en") {
-        setTranslations(en)
+      if (isConfirmed && saved && SELECTABLE_LANGS.includes(saved)) {
+        setLangState(saved)
+        setIsLanguageSelected(true)
+        if (typeof document !== "undefined") {
+          document.documentElement.lang = saved
+        }
+        if (saved === "en") {
+          setTranslations(en)
+        } else {
+          void loadLocale(saved).then((data) => {
+            setTranslations(data)
+          })
+        }
       } else {
-        void loadLocale(saved).then((data) => {
-          setTranslations(data)
-        })
+        // Fresh browsing session: language selection screen MUST be displayed
+        setIsLanguageSelected(false)
       }
-    } else {
-      // First-time visitor: No preference selected yet
+    } catch {
       setIsLanguageSelected(false)
     }
 
@@ -370,17 +369,22 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, [lang])
 
+  /**
+   * Session-scoped language change.
+   * Persists to sessionStorage ONLY for the current browsing session.
+   * Never permanently writes to localStorage, cookies, or user database.
+   */
   const setLang = (l: Lang) => {
     if (!SELECTABLE_LANGS.includes(l)) return
     setLangState(l)
     setIsLanguageSelected(true)
 
     try {
-      localStorage.setItem("kisaanbuddy_lang", l)
-      localStorage.removeItem("KisaanBuddy_lang")
-      localStorage.removeItem("krishi_lang")
-      document.cookie = `kisaanbuddy_lang=${l}; Path=/; Max-Age=31536000; SameSite=Lax`
-      document.documentElement.lang = l
+      sessionStorage.setItem(SESSION_LANG_KEY, l)
+      sessionStorage.setItem(SESSION_CONFIRMED_KEY, "true")
+      if (typeof document !== "undefined") {
+        document.documentElement.lang = l
+      }
     } catch {
       // Graceful fallback if storage restricted
     }
@@ -392,16 +396,6 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         setTranslations(data)
       })
     }
-
-    // Sync with farmer account if logged in (fire-and-forget, non-blocking)
-    try {
-      farmerProfileApi.update({ preferred_language: l }).catch(() => {})
-      void fetch("/api/auth/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language: l }),
-      }).catch(() => {})
-    } catch {}
   }
 
   const openLanguageModal = () => setIsLanguageModalOpen(true)
@@ -409,10 +403,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const resetLanguagePreference = () => {
     try {
-      localStorage.removeItem("kisaanbuddy_lang")
-      localStorage.removeItem("KisaanBuddy_lang")
-      localStorage.removeItem("krishi_lang")
-      document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
+      sessionStorage.removeItem(SESSION_LANG_KEY)
+      sessionStorage.removeItem(SESSION_CONFIRMED_KEY)
     } catch {}
     setIsLanguageSelected(false)
   }

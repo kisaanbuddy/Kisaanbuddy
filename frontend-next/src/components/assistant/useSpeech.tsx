@@ -1,26 +1,22 @@
 "use client"
 /**
- * Browser speech primitives for the KisaanBuddy voice assistant.
+ * Production-ready voice primitives for KisaanBuddy Voice AI.
  *
- * Features:
- *   - Browser SpeechRecognition (Web Speech API) for zero-latency mic input
- *     with partial transcripts; falls back gracefully on unsupported browsers.
- *   - MediaRecorder-based server STT (Whisper via backend /api/chat/stt) for
- *     browsers without Web Speech (most Firefox, many mobile Chromium forks).
- *   - SpeechSynthesis for browser TTS with per-language voice selection and
- *     hard-cancel (for voice-interruption: stop TTS instantly when the user
- *     starts speaking again).
- *
- * Everything is decoupled — the widget picks whichever modes are available.
+ * Capabilities:
+ *   - Real microphone recording with Web Audio API (16kHz 16-bit PCM WAV)
+ *   - Dual capture pipeline: Web Speech API for instantaneous interim transcription
+ *     paired with high-fidelity server STT (Sarvam AI / Google SR)
+ *   - Live audio analyser node & real-time volume/frequency data for genuine waveforms
+ *   - Voice Activity Detection (VAD) / Silence detection for hands-free auto-commit
+ *   - Human-like AI voice playback (Sarvam Bulbul & Indian Neural TTS) with play,
+ *     pause, resume, and instant barge-in / interruption controls
  */
 
 import { useCallback, useEffect, useRef, useState } from "react"
-
 import type { Language } from "@/lib/assistant-api"
 import { synthesizeSpeech, transcribeAudio } from "@/lib/assistant-api"
 
-// ---------- Typings for Web Speech API (not in lib.dom yet in all TS envs) ----
-// Minimal interfaces so we don't drag in @types packages.
+// ---------- Typings for Web Speech API ----------
 interface WebSpeechRecognitionEvent extends Event {
   readonly resultIndex: number
   readonly results: ArrayLike<{
@@ -65,63 +61,117 @@ export const LANG_TO_BCP47: Record<Exclude<Language, "auto">, string> = {
   pa: "pa-IN",
   ml: "ml-IN",
   hi_en: "hi-IN",
-  // Browser vendors commonly fall back to Hindi for these until a dedicated
-  // voice has passed QA. The visible language selector remains honest about
-  // the user's preference, while provider support is tested separately.
   bho: "hi-IN",
   mai: "hi-IN",
 }
 
-// ---------- Hook ----------
+// Helper: Convert PCM Float32Array to 16-bit Mono WAV Blob
+function encodeWAV(samples: Float32Array, sampleRate = 16000): Blob {
+  const buffer = new ArrayBuffer(44 + samples.length * 2)
+  const view = new DataView(buffer)
+
+  const writeString = (offset: number, str: string) => {
+    for (let i = 0; i < str.length; i++) {
+      view.setUint8(offset + i, str.charCodeAt(i))
+    }
+  }
+
+  writeString(0, "RIFF")
+  view.setUint32(4, 36 + samples.length * 2, true)
+  writeString(8, "WAVE")
+  writeString(12, "fmt ")
+  view.setUint32(16, 16, true)
+  view.setUint16(20, 1, true) // PCM format
+  view.setUint16(22, 1, true) // 1 channel (mono)
+  view.setUint32(24, sampleRate, true) // sample rate
+  view.setUint32(28, sampleRate * 2, true) // byte rate
+  view.setUint16(32, 2, true) // block align
+  view.setUint16(34, 16, true) // bits per sample
+  writeString(36, "data")
+  view.setUint32(40, samples.length * 2, true)
+
+  let offset = 44
+  for (let i = 0; i < samples.length; i++) {
+    const s = Math.max(-1, Math.min(1, samples[i]))
+    view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
+    offset += 2
+  }
+
+  return new Blob([buffer], { type: "audio/wav" })
+}
+
+// ---------- Hook Types ----------
 export interface UseSpeechOptions {
-  /** Preferred language for STT/TTS. "auto" falls back to en-IN for speech. */
+  /** Preferred language for STT/TTS. "auto" defaults to hi-IN / en-IN. */
   language: Language
   /** Called on a final transcript (finished utterance). */
   onFinalTranscript: (text: string) => void
   /** Called on every partial (live) transcript update. */
   onInterim?: (text: string) => void
-  /** Called when STT fails for any reason. */
+  /** Called when STT or microphone fails. */
   onError?: (msg: string) => void
+  /** Enable automatic silence-based endpoint detection. Defaults to true. */
+  autoSilenceCommit?: boolean
+  /** Silence duration in milliseconds before auto-committing. Defaults to 2000. */
+  silenceDurationMs?: number
 }
 
 export interface UseSpeechReturn {
-  /** True if either Web Speech or MediaRecorder is usable. */
   speechSupported: boolean
-  /** True when the mic is actively listening. */
   listening: boolean
-  /** True while browser TTS is speaking. */
   speaking: boolean
-
-  /** Start capturing speech. Returns true if capture actually started. */
+  isPaused: boolean
+  audioLevel: number
+  analyserNode: AnalyserNode | null
+  getFrequencyData: () => Uint8Array
   startListening: () => Promise<boolean>
-  /** Stop listening immediately and commit any partial as final (if supported). */
   stopListening: () => void
-  /** Hard-abort listening without committing. */
   cancelListening: () => void
-
-  /** Speak the given text via browser TTS. */
   speak: (text: string, language: Language) => void
-  /** Stop the current utterance. Use as the voice-interruption kill-switch. */
+  pauseSpeaking: () => void
+  resumeSpeaking: () => void
   stopSpeaking: () => void
 }
 
 export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
-  const { language, onFinalTranscript, onInterim, onError } = opts
+  const {
+    language,
+    onFinalTranscript,
+    onInterim,
+    onError,
+    autoSilenceCommit = true,
+    silenceDurationMs = 2000,
+  } = opts
 
   const [listening, setListening] = useState(false)
   const [speaking, setSpeaking] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [audioLevel, setAudioLevel] = useState(0)
 
+  // Web Audio & Recording references
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const mediaStreamRef = useRef<MediaStream | null>(null)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const scriptProcessorRef = useRef<ScriptProcessorNode | null>(null)
+  const pcmChunksRef = useRef<Float32Array[]>([])
+  const totalSamplesRef = useRef(0)
+
+  // Web Speech recognition reference
   const recognitionRef = useRef<WebSpeechRecognition | null>(null)
   const recognitionActiveRef = useRef(false)
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const mediaChunksRef = useRef<Blob[]>([])
-  const mediaStreamRef = useRef<MediaStream | null>(null)
-  const useServerSTTRef = useRef(false)
+  const recognizedTextRef = useRef("")
+
+  // Playback references
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const audioUrlRef = useRef<string | null>(null)
   const speakGenerationRef = useRef(0)
 
-  // Keep latest callbacks in refs so we don't need to re-bind listeners.
+  // VAD (Voice Activity Detection) references
+  const hasSpokenRef = useRef(false)
+  const lastSpeechTimeRef = useRef<number>(0)
+  const vadIntervalRef = useRef<any>(null)
+
+  // Keep latest callbacks in refs to avoid re-binding listeners
   const onFinalRef = useRef(onFinalTranscript)
   const onInterimRef = useRef(onInterim)
   const onErrorRef = useRef(onError)
@@ -131,7 +181,7 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     onErrorRef.current = onError
   }, [onFinalTranscript, onInterim, onError])
 
-  // ---------- Browser capability probe ----------
+  // Probe Web Speech constructor
   const browserSTTCtor = (): WebSpeechRecognitionCtor | null => {
     if (typeof window === "undefined") return null
     const w = window as unknown as {
@@ -141,146 +191,179 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
     return w.SpeechRecognition || w.webkitSpeechRecognition || null
   }
 
-  const hasMediaRecorder =
+  const hasMediaDevices =
     typeof window !== "undefined" &&
-    typeof window.MediaRecorder !== "undefined" &&
     !!navigator?.mediaDevices?.getUserMedia
 
-  const speechSupported = !!browserSTTCtor() || hasMediaRecorder
+  const speechSupported = !!browserSTTCtor() || hasMediaDevices
 
-  // ---------- Browser STT (last-resort path) ----------
-  const startWebSpeech = useCallback((): boolean => {
-    const Ctor = browserSTTCtor()
-    if (!Ctor) return false
-    try {
-      const rec = new Ctor()
-      const bcp47 =
-        language === "auto" ? "en-IN" : LANG_TO_BCP47[language] ?? "en-IN"
-      rec.lang = bcp47
-      rec.continuous = false
-      rec.interimResults = true
-      rec.maxAlternatives = 1
+  // Get live frequency data for genuine visualizer
+  const getFrequencyData = useCallback((): Uint8Array => {
+    if (!analyserRef.current) return new Uint8Array(32)
+    const array = new Uint8Array(analyserRef.current.frequencyBinCount)
+    analyserRef.current.getByteFrequencyData(array)
+    return array
+  }, [])
 
-      let finalText = ""
-
-      rec.onstart = () => {
-        recognitionActiveRef.current = true
-        setListening(true)
-      }
-      rec.onresult = (ev) => {
-        let interim = ""
-        for (let i = ev.resultIndex; i < ev.results.length; i++) {
-          const r = ev.results[i]
-          const piece = r[0]?.transcript ?? ""
-          if (r.isFinal) finalText += piece
-          else interim += piece
-        }
-        if (interim && onInterimRef.current) onInterimRef.current(interim)
-      }
-      rec.onerror = (ev) => {
-        const msg = ev.error || "speech_recognition_error"
-        // "no-speech" / "aborted" are common and not really errors we need to surface.
-        if (msg !== "no-speech" && msg !== "aborted") {
-          onErrorRef.current?.(msg)
-        }
-      }
-      rec.onend = () => {
-        recognitionActiveRef.current = false
-        setListening(false)
-        const text = finalText.trim()
-        if (text) onFinalRef.current(text)
-      }
-
-      recognitionRef.current = rec
-      rec.start()
-      return true
-    } catch (e: any) {
-      onErrorRef.current?.(e?.message || "Failed to start browser STT")
-      return false
-    }
-  }, [language])
-
-  // ---------- Server STT via MediaRecorder + Sarvam/Whisper ----------
-  const startServerSTT = useCallback(async (): Promise<boolean> => {
-    if (!hasMediaRecorder) return false
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      mediaStreamRef.current = stream
-
-      // Prefer webm/opus — Whisper handles it cleanly.
-      const mimeCandidates = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/mp4",
-        "audio/ogg",
-      ]
-      const mimeType =
-        mimeCandidates.find((m) => MediaRecorder.isTypeSupported(m)) || ""
-      const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined)
-      mediaChunksRef.current = []
-
-      mr.ondataavailable = (e) => {
-        if (e.data.size > 0) mediaChunksRef.current.push(e.data)
-      }
-      mr.onstop = async () => {
-        setListening(false)
-        stream.getTracks().forEach((t) => t.stop())
-        mediaStreamRef.current = null
-        const blob = new Blob(mediaChunksRef.current, {
-          type: mimeType || "audio/webm",
-        })
-        if (!blob.size) return
-        try {
-          // Sarvam's ``unknown`` mode detects Hindi, Kannada and English from
-          // the recording.  Only pin a language after the farmer explicitly
-          // chose it in the picker; pinning was the reason every utterance was
-          // previously treated as English/Hindi.
-          const hint = language === "auto" ? undefined : language
-          const res = await transcribeAudio(blob, hint)
-          const text = (res.transcript || "").trim()
-          if (text) onFinalRef.current(text)
-        } catch (err: any) {
-          onErrorRef.current?.(err?.message || "Server STT failed")
-        }
-      }
-
-      mediaRecorderRef.current = mr
-      useServerSTTRef.current = true
-      mr.start()
-      setListening(true)
-      return true
-    } catch (e: any) {
-      onErrorRef.current?.(e?.message || "Microphone access denied")
-      return false
-    }
-  }, [hasMediaRecorder, language])
-
-  // ---------- Public start/stop ----------
-  const startListening = useCallback(async (): Promise<boolean> => {
-    if (listening) return true
-    // Always hard-stop any TTS first (voice interruption).
+  // Hard stop audio playback (barge-in kill switch)
+  const stopSpeaking = useCallback(() => {
     speakGenerationRef.current += 1
-    audioRef.current?.pause()
-    audioRef.current = null
-    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
-    setSpeaking(false)
-    useServerSTTRef.current = false
-    // Web Speech API provides zero-latency live interim transcription and automatic
-    // speech endpoint detection in modern Chromium/Safari browsers.
-    // If Web Speech is available, use it; otherwise fall back to MediaRecorder + Sarvam STT.
-    if (startWebSpeech()) return true
-    return startServerSTT()
-  }, [listening, startWebSpeech, startServerSTT])
-
-  const stopListening = useCallback(() => {
-    if (useServerSTTRef.current && mediaRecorderRef.current) {
-      try {
-        mediaRecorderRef.current.stop()
-      } catch {
-        /* ignore */
-      }
-      return
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      audioRef.current = null
     }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current)
+      audioUrlRef.current = null
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel()
+    }
+    setSpeaking(false)
+    setIsPaused(false)
+  }, [])
+
+  const pauseSpeaking = useCallback(() => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause()
+      setIsPaused(true)
+    } else if (typeof window !== "undefined" && "speechSynthesis" in window && window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause()
+      setIsPaused(true)
+    }
+  }, [])
+
+  const resumeSpeaking = useCallback(() => {
+    if (audioRef.current && audioRef.current.paused) {
+      void audioRef.current.play()
+      setIsPaused(false)
+    } else if (typeof window !== "undefined" && "speechSynthesis" in window && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume()
+      setIsPaused(false)
+    }
+  }, [])
+
+  // Browser TTS fallback
+  const speakWithBrowser = useCallback(
+    (text: string, spokenLang: Language) => {
+      if (typeof window === "undefined" || !("speechSynthesis" in window)) return
+      if (!text?.trim()) return
+
+      window.speechSynthesis.cancel()
+      const bcp47 =
+        spokenLang === "auto"
+          ? LANG_TO_BCP47["hi"]
+          : LANG_TO_BCP47[spokenLang] ?? "hi-IN"
+
+      const cleaned = text
+        .replace(/[*#_~`>]/g, "")
+        .replace(/https?:\/\/\S+/g, "")
+        .replace(/•\s*/g, ", ")
+        .replace(/\n+/g, ". ")
+        .trim()
+
+      const utterance = new SpeechSynthesisUtterance(cleaned)
+      utterance.lang = bcp47
+      utterance.rate = 0.95
+
+      const voices = window.speechSynthesis.getVoices()
+      const exact = voices.find((v) => v.lang.toLowerCase() === bcp47.toLowerCase())
+      if (exact) utterance.voice = exact
+
+      utterance.onstart = () => {
+        setSpeaking(true)
+        setIsPaused(false)
+      }
+      utterance.onend = () => {
+        setSpeaking(false)
+        setIsPaused(false)
+      }
+      utterance.onerror = () => {
+        setSpeaking(false)
+        setIsPaused(false)
+      }
+
+      setSpeaking(true)
+      window.speechSynthesis.speak(utterance)
+    },
+    []
+  )
+
+  // Primary AI Voice synthesis
+  const speak = useCallback(
+    (text: string, spokenLang: Language) => {
+      if (!text?.trim()) return
+      const generation = ++speakGenerationRef.current
+
+      stopSpeaking()
+      setSpeaking(true)
+      setIsPaused(false)
+
+      void (async () => {
+        try {
+          // Request real audio bytes from Sarvam / Indian Neural backend
+          const response = await synthesizeSpeech(text, spokenLang)
+          if (generation !== speakGenerationRef.current) return
+
+          if (response.kind === "audio" && response.blob.size > 0) {
+            const url = URL.createObjectURL(response.blob)
+            audioUrlRef.current = url
+            const audio = new Audio(url)
+            audioRef.current = audio
+
+            audio.onplay = () => {
+              if (generation === speakGenerationRef.current) {
+                setSpeaking(true)
+                setIsPaused(false)
+              }
+            }
+
+            audio.onpause = () => {
+              if (generation === speakGenerationRef.current && !audio.ended) {
+                setIsPaused(true)
+              }
+            }
+
+            audio.onended = () => {
+              if (generation === speakGenerationRef.current) {
+                setSpeaking(false)
+                setIsPaused(false)
+              }
+              URL.revokeObjectURL(url)
+              if (audioUrlRef.current === url) audioUrlRef.current = null
+            }
+
+            audio.onerror = () => {
+              if (generation === speakGenerationRef.current) {
+                setSpeaking(false)
+                setIsPaused(false)
+                speakWithBrowser(text, spokenLang)
+              }
+            }
+
+            await audio.play()
+            return
+          }
+
+          // Fallback to browser speech synthesis
+          speakWithBrowser(text, spokenLang)
+        } catch {
+          if (generation !== speakGenerationRef.current) return
+          speakWithBrowser(text, spokenLang)
+        }
+      })()
+    },
+    [stopSpeaking, speakWithBrowser]
+  )
+
+  // Stop listening helper
+  const stopListening = useCallback(() => {
+    if (vadIntervalRef.current) {
+      clearInterval(vadIntervalRef.current)
+      vadIntervalRef.current = null
+    }
+
     if (recognitionActiveRef.current && recognitionRef.current) {
       try {
         recognitionRef.current.stop()
@@ -288,191 +371,269 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
         /* ignore */
       }
     }
-  }, [])
 
-  const cancelListening = useCallback(() => {
-    if (useServerSTTRef.current && mediaRecorderRef.current) {
+    if (scriptProcessorRef.current) {
       try {
-        mediaRecorderRef.current.stop()
+        scriptProcessorRef.current.disconnect()
       } catch {
         /* ignore */
       }
-      mediaChunksRef.current = []
+      scriptProcessorRef.current = null
+    }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop())
+      mediaStreamRef.current = null
+    }
+
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      void audioContextRef.current.close()
+      audioContextRef.current = null
+    }
+
+    analyserRef.current = null
+    setListening(false)
+    setAudioLevel(0)
+
+    // Process final speech result
+    const localTranscript = recognizedTextRef.current.trim()
+    if (localTranscript) {
+      onFinalRef.current(localTranscript)
+      recognizedTextRef.current = ""
       return
     }
-    if (recognitionRef.current) {
+
+    // If local browser transcript was empty, commit recorded PCM WAV to backend STT
+    if (totalSamplesRef.current > 4000) {
+      const merged = new Float32Array(totalSamplesRef.current)
+      let offset = 0
+      for (const chunk of pcmChunksRef.current) {
+        merged.set(chunk, offset)
+        offset += chunk.length
+      }
+
+      const wavBlob = encodeWAV(merged, 16000)
+      pcmChunksRef.current = []
+      totalSamplesRef.current = 0
+
+      void (async () => {
+        try {
+          const hint = language === "auto" ? undefined : language
+          const res = await transcribeAudio(wavBlob, hint)
+          const text = (res.transcript || "").trim()
+          if (text) {
+            onFinalRef.current(text)
+          } else {
+            onErrorRef.current?.("No speech detected. Please speak clearly.")
+          }
+        } catch (err: any) {
+          onErrorRef.current?.(err?.message || "Speech transcription failed.")
+        }
+      })()
+    } else {
+      pcmChunksRef.current = []
+      totalSamplesRef.current = 0
+    }
+  }, [language])
+
+  const cancelListening = useCallback(() => {
+    if (vadIntervalRef.current) {
+      clearInterval(vadIntervalRef.current)
+      vadIntervalRef.current = null
+    }
+    if (recognitionActiveRef.current && recognitionRef.current) {
       try {
         recognitionRef.current.abort()
       } catch {
         /* ignore */
       }
     }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((t) => t.stop())
+      mediaStreamRef.current = null
+    }
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      void audioContextRef.current.close()
+      audioContextRef.current = null
+    }
+    analyserRef.current = null
+    pcmChunksRef.current = []
+    totalSamplesRef.current = 0
+    recognizedTextRef.current = ""
     setListening(false)
+    setAudioLevel(0)
   }, [])
 
-  // ---------- Browser TTS: compatibility fallback for English only ----------
-  const pickVoice = useCallback(
-    (lang: string): SpeechSynthesisVoice | null => {
-      if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-        return null
-      }
-      const voices = window.speechSynthesis.getVoices()
-      if (!voices.length) return null
-      const prefix = lang.split("-")[0]
-      // Prefer exact BCP-47 match; fallback to prefix match; then any.
-      const exact = voices.find((v) => v.lang?.toLowerCase() === lang.toLowerCase())
-      if (exact) return exact
-      const byPrefix = voices.find((v) =>
-        v.lang?.toLowerCase().startsWith(prefix.toLowerCase())
-      )
-      return byPrefix || voices[0]
-    },
-    []
-  )
+  // Start capturing speech
+  const startListening = useCallback(async (): Promise<boolean> => {
+    if (listening) return true
 
-  const speakWithBrowser = useCallback(
-    (text: string, spokenLang: Language) => {
-      if (typeof window === "undefined" || !("speechSynthesis" in window)) return
-      if (!text?.trim()) return
-      // Cancel any ongoing utterance first.
-      window.speechSynthesis.cancel()
+    // Voice interruption / barge-in: kill any active audio playback instantly
+    stopSpeaking()
 
-      const bcp47 =
-        spokenLang === "auto"
-          ? LANG_TO_BCP47["en"]
-          : LANG_TO_BCP47[spokenLang] ?? "en-IN"
+    pcmChunksRef.current = []
+    totalSamplesRef.current = 0
+    recognizedTextRef.current = ""
+    hasSpokenRef.current = false
+    lastSpeechTimeRef.current = Date.now()
 
-      // Strip markdown symbols and clean emojis/bullets for natural audio playback
-      const cleaned = text
-        .replace(/[*#_~`>]/g, "")
-        .replace(/•\s*/g, ", ")
-        .replace(/https?:\/\/\S+/g, "")
-        .replace(/\n+/g, ". ")
-        .trim()
+    try {
+      // 1. Acquire microphone stream with optimal acoustic preprocessing
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      })
+      mediaStreamRef.current = stream
 
-      const chunks = cleaned
-        .replace(/\s+/g, " ")
-        .match(/[^.!?।]+[.!?।]?/g)
-        ?.map((chunk) => chunk.trim())
-        .filter(Boolean) ?? [cleaned]
-      const voice = pickVoice(bcp47)
-      let remaining = chunks.length
-      setSpeaking(true)
-      for (const chunk of chunks) {
-        const utterance = new SpeechSynthesisUtterance(chunk)
-        utterance.lang = bcp47
-        if (voice) utterance.voice = voice
-        utterance.rate = spokenLang === "hi" || spokenLang === "bho" || spokenLang === "mai" ? 0.94 : 0.98
-        utterance.pitch = 1.0
-        utterance.volume = 1.0
-        utterance.onend = () => {
-          remaining -= 1
-          if (remaining <= 0) setSpeaking(false)
+      // 2. Set up Web Audio API pipeline for genuine FFT analysis & PCM capture
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext
+      const ctx = new AudioCtx()
+      audioContextRef.current = ctx
+
+      const source = ctx.createMediaStreamSource(stream)
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 64
+      analyser.smoothingTimeConstant = 0.5
+      source.connect(analyser)
+      analyserRef.current = analyser
+
+      // Script processor for PCM buffer collection & real-time RMS monitoring
+      const processor = ctx.createScriptProcessor(2048, 1, 1)
+      source.connect(processor)
+      processor.connect(ctx.destination)
+      scriptProcessorRef.current = processor
+
+      processor.onaudioprocess = (e) => {
+        const channelData = e.inputBuffer.getChannelData(0)
+        pcmChunksRef.current.push(new Float32Array(channelData))
+        totalSamplesRef.current += channelData.length
+
+        // Calculate Root Mean Square (RMS) volume
+        let sum = 0
+        for (let i = 0; i < channelData.length; i++) {
+          sum += channelData[i] * channelData[i]
         }
-        utterance.onerror = () => setSpeaking(false)
-        window.speechSynthesis.speak(utterance)
+        const rms = Math.sqrt(sum / channelData.length)
+        const normalizedLevel = Math.min(1, Math.max(0, rms * 4.5))
+        setAudioLevel(normalizedLevel)
+
+        // Voice Activity Detection: detect speech onset & silence pause
+        if (rms > 0.025) {
+          hasSpokenRef.current = true
+          lastSpeechTimeRef.current = Date.now()
+        }
       }
-    },
-    [pickVoice]
-  )
 
-  const speak = useCallback(
-    (text: string, spokenLang: Language) => {
-      if (!text?.trim()) return
-      const generation = ++speakGenerationRef.current
-      audioRef.current?.pause()
-      audioRef.current = null
-      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
-      audioUrlRef.current = null
-      if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
-      setSpeaking(true)
-
-      void (async () => {
+      // 3. Start Web Speech recognition concurrently for zero-latency interim transcripts
+      const Ctor = browserSTTCtor()
+      if (Ctor) {
         try {
-          const response = await synthesizeSpeech(text, spokenLang)
-          if (generation !== speakGenerationRef.current) return
-          if (response.kind === "audio" && response.blob.size > 0) {
-            const url = URL.createObjectURL(response.blob)
-            audioUrlRef.current = url
-            const audio = new Audio(url)
-            audioRef.current = audio
-            audio.onended = () => {
-              if (generation === speakGenerationRef.current) setSpeaking(false)
-              URL.revokeObjectURL(url)
-              if (audioUrlRef.current === url) audioUrlRef.current = null
-            }
-            audio.onerror = () => {
-              if (generation === speakGenerationRef.current) {
-                setSpeaking(false)
-                onErrorRef.current?.("Voice playback failed. Please replay the response.")
-              }
-            }
-            await audio.play()
-            return
+          const rec = new Ctor()
+          const bcp47 =
+            language === "auto" ? "hi-IN" : LANG_TO_BCP47[language] ?? "hi-IN"
+          rec.lang = bcp47
+          rec.continuous = true
+          rec.interimResults = true
+          rec.maxAlternatives = 1
+
+          rec.onstart = () => {
+            recognitionActiveRef.current = true
           }
 
-          // Fallback to browser TTS if Sarvam audio is unavailable
-          speakWithBrowser(text, spokenLang)
-        } catch (err: any) {
-          if (generation !== speakGenerationRef.current) return
-          speakWithBrowser(text, spokenLang)
+          rec.onresult = (ev) => {
+            let interim = ""
+            let final = ""
+            for (let i = ev.resultIndex; i < ev.results.length; i++) {
+              const r = ev.results[i]
+              const piece = r[0]?.transcript ?? ""
+              if (r.isFinal) {
+                final += piece
+              } else {
+                interim += piece
+              }
+            }
+            if (final) {
+              recognizedTextRef.current += " " + final
+            }
+            const live = (recognizedTextRef.current + " " + interim).trim()
+            if (live && onInterimRef.current) {
+              onInterimRef.current(live)
+            }
+            hasSpokenRef.current = true
+            lastSpeechTimeRef.current = Date.now()
+          }
+
+          rec.onerror = (ev) => {
+            const err = ev.error || ""
+            if (err && err !== "no-speech" && err !== "aborted") {
+              logOrNotifyError(err)
+            }
+          }
+
+          rec.onend = () => {
+            recognitionActiveRef.current = false
+          }
+
+          recognitionRef.current = rec
+          rec.start()
+        } catch {
+          /* Fall back entirely to server STT via PCM WAV */
         }
-      })()
-    },
-    [speakWithBrowser]
-  )
+      }
 
-  const stopSpeaking = useCallback(() => {
-    speakGenerationRef.current += 1
-    audioRef.current?.pause()
-    audioRef.current = null
-    if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
-    audioUrlRef.current = null
-    if (typeof window !== "undefined" && "speechSynthesis" in window) window.speechSynthesis.cancel()
-    setSpeaking(false)
-  }, [])
+      // 4. Silence monitor interval for automatic commit
+      if (autoSilenceCommit) {
+        vadIntervalRef.current = setInterval(() => {
+          if (hasSpokenRef.current && Date.now() - lastSpeechTimeRef.current > silenceDurationMs) {
+            stopListening()
+          }
+        }, 300)
+      }
 
-  // Cleanup on unmount.
+      setListening(true)
+      return true
+    } catch (e: any) {
+      const msg = e?.name === "NotAllowedError"
+        ? "Microphone access denied. Please allow microphone permission."
+        : e?.message || "Unable to access microphone."
+      onErrorRef.current?.(msg)
+      setListening(false)
+      return false
+    }
+  }, [listening, stopSpeaking, language, autoSilenceCommit, silenceDurationMs, stopListening])
+
+  const logOrNotifyError = (err: string) => {
+    if (err === "not-allowed" || err === "permission-denied") {
+      onErrorRef.current?.("Microphone access denied.")
+    }
+  }
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      try {
-        recognitionRef.current?.abort()
-      } catch {
-        /* ignore */
-      }
-      try {
-        mediaRecorderRef.current?.stop()
-      } catch {
-        /* ignore */
-      }
-      mediaStreamRef.current?.getTracks().forEach((t) => t.stop())
-      audioRef.current?.pause()
-      if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current)
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel()
-      }
+      cancelListening()
+      stopSpeaking()
     }
-  }, [])
-
-  // Warm up voice list (Chrome loads lazily).
-  useEffect(() => {
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) return
-    const ping = () => window.speechSynthesis.getVoices()
-    ping()
-    window.speechSynthesis.addEventListener?.("voiceschanged", ping)
-    return () => {
-      window.speechSynthesis.removeEventListener?.("voiceschanged", ping)
-    }
-  }, [])
+  }, [cancelListening, stopSpeaking])
 
   return {
     speechSupported,
     listening,
     speaking,
+    isPaused,
+    audioLevel,
+    analyserNode: analyserRef.current,
+    getFrequencyData,
     startListening,
     stopListening,
     cancelListening,
     speak,
+    pauseSpeaking,
+    resumeSpeaking,
     stopSpeaking,
   }
 }

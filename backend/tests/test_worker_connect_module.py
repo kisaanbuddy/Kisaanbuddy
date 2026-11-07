@@ -369,7 +369,31 @@ class TestWorkersConnectAgriculturalLabourModule(unittest.TestCase):
     # -----------------------------------------------------------------------
     def test_08_job_applications_flow(self):
         """Worker applies for an open job; farmer views submitted applications."""
-        job = self.db.query(LabourJobPost).first()
+        self.db.expire_all()
+        job = self.db.query(LabourJobPost).filter(LabourJobPost.status == "open").first()
+        if not job:
+            job_payload = {
+                "farmer_name": "Basavaraj Gowda",
+                "farmer_phone": "9845012345",
+                "state": "Karnataka",
+                "district": "Tumkur",
+                "category_id": 1,
+                "title": "Need 8 Workers for Paddy Harvesting & Threshing",
+                "description": "5 acres paddy ready for mechanical cutting and manual bundling.",
+                "workers_needed": 8,
+                "start_date": (date.today() + timedelta(days=2)).isoformat(),
+                "duration_days": 4,
+                "working_hours_desc": "7:00 AM - 2:00 PM (7 hours)",
+                "wage_amount": 500.0,
+                "wage_unit": "per_day",
+                "payment_terms": "Daily Cash on Site",
+                "contact_name": "Farmer Basavaraj",
+                "contact_phone": "9845012345",
+            }
+            res = self.client.post("/api/worker-connect/jobs", json=job_payload)
+            assert res.status_code == 201
+            self.db.expire_all()
+            job = self.db.query(LabourJobPost).filter(LabourJobPost.id == res.json()["id"]).first()
         self.assertIsNotNone(job)
 
         app_payload = {

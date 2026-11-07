@@ -8,7 +8,7 @@
     "weather_alerts": "हवामान चेतावण्या",
     "disease_detect": "रोगनिदान",
     "ai_chatbot": "कृत्रिम बुद्धिमत्ता संवादक",
-    "workers": "कामगार",
+    "workers": "AgriLabour",
     "schemes": "योजना",
     "soil_health": "मातीची आरोग्य",
     "khet_diary": "शेतची दिनदर्शी",
@@ -63,7 +63,7 @@
     "trading_value": "व्यापारिक मूल्य",
     "national_agriculture_market": "राष्ट्रीय कृषी बाजार"
   },
-  "workers": "मजूर",
+  "workers": "AgriLabour",
   "aiChatbot": "AI चॅटबॉट",
   "founders": {
     "heading": "भारतीय शेतकऱ्यांसाठी RVCE अभियंत्यांद्वारे निर्मित 🇮🇳",
@@ -265,7 +265,7 @@
     },
     {
       "p": "Hours wasted finding farm workers",
-      "s": "Get workers instantly via Worker Connect"
+      "s": "Get workers instantly via AgriLabour"
     }
   ],
   "featuresBadge": "सर्व एकाच ठिकाणी",
@@ -305,7 +305,7 @@
       "body": "Based on your soil, weather, location — AI tells which crop will be best next season"
     },
     {
-      "title": "Worker Connect",
+      "title": "AgriLabour",
       "body": "Workers, tractor, harvester — all nearby workers in one place. Call or WhatsApp directly"
     }
   ],
@@ -439,7 +439,7 @@
   "save": "जतन करा",
   "cancel": "रद्द करा",
   "noEntries": "अद्याप नोंदी नाहीत",
-  "workerTitle": "कामगार कनेक्ट",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "तुमच्या जवळील कुशल शेत कामगार शोधा",
   "callBtn": "कॉल करा",
   "whatsappBtn": "व्हॉट्सॲप",
@@ -578,7 +578,7 @@
     "we_process_your_information": "कायदेशीर व्यावसायिक हितसंबंध, तुमच्यासोबतच्या आमच्या कराराची पूर्तता आणि आमच्या कायदेशीर जबाबदाऱ्यांचे पालन यावर आधारित आम्ही तुमच्या माहितीवर प्रक्रिया करतो. यामध्ये हे समाविष्ट आहे:",
     "providing_and_delivering_agricultural": "कृषी अंतर्दृष्टी प्रदान करणे आणि वितरित करणे (जसे की मातीचे मूल्यांकन, पीक अंदाज आणि हवामान चेतावणी).",
     "analyzing_uploaded_plant_leaf": "पिकांचे रोग निश्चित करण्यासाठी आणि सेंद्रिय किंवा रासायनिक उपायांची शिफारस करण्यासाठी अपलोड केलेल्या वनस्पतीच्या पानांच्या प्रतिमांचे विश्लेषण करणे.",
-    "facilitating_connections_between_local": "Worker Connect द्वारे स्थानिक शेतकरी आणि शेत कामगार यांच्यातील कनेक्शनची सुविधा.",
+    "facilitating_connections_between_local": "AgriLabour द्वारे स्थानिक शेतकरी आणि शेत कामगार यांच्यातील कनेक्शनची सुविधा.",
     "displaying_relevant_government_schemes": "संबंधित सरकारी योजनांची पात्रता प्रदर्शित करणे.",
     "5_gdpr_ccpa_compliance": "5. GDPR आणि CCPA अनुपालन",
     "if_you_are_accessing": "तुम्ही युरोपियन युनियन (EU) किंवा कॅलिफोर्निया (यूएसए) मधून किसान बडीमध्ये प्रवेश करत असल्यास, तुमच्याकडे जनरल डेटा प्रोटेक्शन रेग्युलेशन (GDPR) आणि कॅलिफोर्निया ग्राहक गोपनीयता कायदा (CCPA) अंतर्गत विशिष्ट डेटा संरक्षण अधिकार आहेत.",

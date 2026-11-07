@@ -8,7 +8,7 @@
     "weather_alerts": "मौसम अलर्ट",
     "disease_detect": "रोग पहचान",
     "ai_chatbot": "AI चैटबॉट",
-    "workers": "मजदूर",
+    "workers": "AgriLabour",
     "schemes": "सरकारी योजनाएं",
     "soil_health": "मिट्टी स्वास्थ्य",
     "khet_diary": "खेत डायरी",
@@ -63,7 +63,7 @@
     "trading_value": "व्यापार मूल्य",
     "national_agriculture_market": "राष्ट्रीय कृषि बाजार"
   },
-  "workers": "मजदूर",
+  "workers": "AgriLabour",
   "aiChatbot": "AI चैटबॉट",
   "founders": {
     "founder_ceo_chief_architect": "संस्थापक, मुख्य कार्यकारी अधिकारी (CEO) और मुख्य वास्तुकार (Kisaan Buddy प्रमुख)",
@@ -265,7 +265,7 @@
     },
     {
       "p": "मजदूर ढूंढने में घंटे जाते हैं",
-      "s": "Worker Connect से तुरंत मजदूर लो"
+      "s": "AgriLabour से तुरंत मजदूर लो"
     }
   ],
   "featuresBadge": "सब एक जगह",
@@ -305,7 +305,7 @@
       "body": "अपनी मिट्टी, मौसम, location के basis पर AI बताएगा कौन सी फसल best रहेगी अगले season में"
     },
     {
-      "title": "Worker Connect",
+      "title": "AgriLabour",
       "body": "मजदूर, tractor, harvester — सब nearby workers एक जगह। Call या WhatsApp पे सीधा contact"
     }
   ],
@@ -440,7 +440,7 @@
   "save": "Save करें",
   "cancel": "रद्द करें",
   "noEntries": "अभी कोई entry नहीं",
-  "workerTitle": "Worker Connect",
+  "workerTitle": "AgriLabour",
   "workerSubtitle": "आपके पास skilled farm workers खोजें",
   "callBtn": "कॉल",
   "whatsappBtn": "WhatsApp",

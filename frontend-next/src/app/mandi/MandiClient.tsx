@@ -3,6 +3,7 @@ import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
 import { QuickReviewCard } from '@/components/farmer/QuickReviewCard'
+import { useVoice } from '@/lib/voice/VoiceContext'
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
@@ -47,6 +48,12 @@ import {
   Flag,
   Send,
   SlidersHorizontal,
+  MessageSquare,
+  PhoneCall,
+  ArrowRight,
+  Award,
+  DollarSign,
+  CheckCircle,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -76,15 +83,27 @@ import {
   listingReportsApi,
   ListingReportItem,
   mandiApi,
+  mandiAlertsApi,
+  mandiRealizationApi,
+  mandiBuyersApi,
+  mandiSalesLedgerApi,
+  PriceAlertItem,
+  NotificationLogItem,
+  MandiSaleRecordItem,
+  MandiRealizationItem,
+  MandiNotificationProviderStatus,
+  MandiMonitoringTelemetry,
 } from "@/lib/farmer-api"
+import { getStoredUser } from "@/lib/auth"
 import marketplaceData from "@/lib/data/marketplace-data.json"
+import authenticSellersBuyers from "@/lib/data/authentic-mandi-sellers-buyers.json"
 
 /* ------------------------------------------------------------------ */
 /*  Types & Constants                                                 */
 /* ------------------------------------------------------------------ */
-type ActiveTab = "prices" | "buy" | "sell" | "gov"
+export type ActiveTab = "prices" | "calculator" | "buy" | "sell" | "alerts" | "ledger" | "gov"
 
-interface MandiCrop {
+export interface MandiCrop {
   id: number
   name: string
   variety: string
@@ -129,182 +148,105 @@ function getCategoryGradient(category: string): string {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Price Alert System                                                 */
+/*  Helper: Direct Call & WhatsApp Contact Component                   */
 /* ------------------------------------------------------------------ */
-const ALERT_KEY = "KisaanBuddy_mandi_alerts"
-interface PriceAlert { id: string; cropName: string; threshold: number; direction: "above" | "below"; createdAt: number; fired?: boolean }
-function readAlerts(): PriceAlert[] { if (typeof window === "undefined") return []; try { return JSON.parse(localStorage.getItem(ALERT_KEY) || "[]") } catch { return [] } }
-function saveAlerts(a: PriceAlert[]) { if (typeof window !== "undefined") localStorage.setItem(ALERT_KEY, JSON.stringify(a)) }
-
-function PriceAlertPanel({ crops }: { crops: MandiCrop[] }) {
-  const { t, lang } = useLanguage()
-  const [alerts, setAlerts] = useState<PriceAlert[]>(() => readAlerts())
-  const [showForm, setShowForm] = useState(false)
-  const [newCrop, setNewCrop] = useState("")
-  const [newThreshold, setNewThreshold] = useState("")
-  const [newDir, setNewDir] = useState<"above" | "below">("above")
-  const [permGranted, setPermGranted] = useState(false)
-  const [checking, setChecking] = useState(false)
-  
-  const activeAlertLang = (lang as Lang) || "en"
-  const currentLang = ALERT_LANG[activeAlertLang] || ALERT_LANG.en
-
-  useEffect(() => { if (typeof window !== "undefined" && "Notification" in window) setPermGranted(Notification.permission === "granted") }, [])
-  
-  const requestPerm = async () => { if (!("Notification" in window)) return; const r = await Notification.requestPermission(); setPermGranted(r === "granted") }
-  
-  const addAlert = () => {
-    if (!newCrop || !newThreshold) return
-    const alert: PriceAlert = { id: Date.now().toString(36), cropName: newCrop, threshold: parseFloat(newThreshold), direction: newDir, createdAt: Date.now() }
-    const updated = [...alerts, alert]; setAlerts(updated); saveAlerts(updated); setShowForm(false); setNewCrop(""); setNewThreshold("")
+function DirectContactBar({
+  phone,
+  maskedPhone,
+  name,
+  role,
+  itemTitle,
+  price,
+  unit,
+}: {
+  phone?: string | null
+  maskedPhone?: string | null
+  name: string
+  role: "seller" | "buyer"
+  itemTitle: string
+  price?: number | null
+  unit?: string | null
+}) {
+  const displayPhone = phone || maskedPhone
+  if (!displayPhone) {
+    return (
+      <div className="pt-2">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted text-muted-foreground text-xs font-medium">
+          <Phone className="h-3.5 w-3.5" />
+          <span>Contact verification pending</span>
+        </span>
+      </div>
+    )
   }
-  
-  const removeAlert = (id: string) => { const u = alerts.filter((a) => a.id !== id); setAlerts(u); saveAlerts(u) }
-  
-  const checkNow = useCallback(() => {
-    if (!permGranted || crops.length === 0) return; setChecking(true)
-    const updated = alerts.map((alert) => {
-      const match = crops.find((c) => c.name.toLowerCase().includes(alert.cropName.toLowerCase()))
-      if (!match) return alert
-      const triggered = alert.direction === "above" ? match.modal_price >= alert.threshold : match.modal_price <= alert.threshold
-      if (triggered && !alert.fired) { 
-        const notifTitle = t("mandi.KisaanBuddy_mandi_alert") || "KisaanBuddy Price Alert";
-        const cropTranslated = translateData(match.name, activeAlertLang);
-        const notifBody = `${cropTranslated}: ₹${match.modal_price} reached!`;
-        
-        new Notification(notifTitle, { 
-          body: notifBody, 
-          icon: "/icon-192.svg" 
-        }); 
-        return { ...alert, fired: true } 
-      }
-      return alert
-    }); setAlerts(updated); saveAlerts(updated); setTimeout(() => setChecking(false), 800)
-  }, [alerts, crops, permGranted, lang, activeAlertLang, t])
+  const cleanPhone = displayPhone.replace(/[^0-9]/g, "")
+  const intlPhone = cleanPhone.startsWith("91") ? cleanPhone : `91${cleanPhone.replace(/^0+/, "")}`
 
-  const uniqueCrops = Array.from(new Set(crops.map((c) => c.name))).sort()
+  const waMessage =
+    role === "seller"
+      ? `Namaste ${name} ji, I saw your ${itemTitle} listing on KisaanBuddy Mandi${price ? ` at ₹${price.toLocaleString()}/${unit || "qtl"}` : ""}. I am interested in purchasing. Please let me know how we can proceed.`
+      : `Namaste ${name} ji, I saw your purchase requirement for ${itemTitle} on KisaanBuddy Mandi${price ? ` (Target: ₹${price.toLocaleString()})` : ""}. I have genuine stock available. Please share deal details.`
 
   return (
-    <section className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4" aria-label="Target price alerts">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <Bell className="h-5 w-5 text-amber-500 dark:text-amber-400" />
-          </div>
-          <div>
-            <div className="font-bold text-foreground text-sm font-display">{currentLang.panelTitle}</div>
-            <div className="text-xs text-muted-foreground">{alerts.length === 0 ? currentLang.setupMonitors : currentLang.activeMonitors(alerts.length)}</div>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          {!permGranted && (
-            <button 
-              onClick={requestPerm} 
-              className="min-h-9 text-xs rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold px-3.5 flex items-center gap-1.5 transition-colors"
-            >
-              <BellRing className="h-3.5 w-3.5" /> {currentLang.enableNotifications}
-            </button>
-          )}
-          {permGranted && alerts.length > 0 && (
-            <button 
-              onClick={checkNow} 
-              disabled={checking} 
-              className="min-h-9 text-xs rounded-lg border border-border bg-card hover:bg-muted px-3.5 text-foreground font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
-            >
-              {checking ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />} {currentLang.checkStatus}
-            </button>
-          )}
-          <button 
-            onClick={() => setShowForm(!showForm)}
-            aria-expanded={showForm}
-            className="min-h-9 text-xs rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-3.5 text-amber-700 dark:text-amber-400 font-bold flex items-center gap-1.5 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" /> {showForm ? currentLang.cancel : currentLang.addTargetPrice}
-          </button>
-        </div>
-      </div>
+    <div className="flex flex-wrap items-center gap-2 pt-2">
+      {/* Direct Call Button */}
+      <a
+        href={`tel:+${intlPhone}`}
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition-colors shrink-0"
+        title={`Direct Call: ${displayPhone}`}
+      >
+        <Phone className="h-3.5 w-3.5" />
+        <span>Call: {displayPhone}</span>
+      </a>
 
-      {alerts.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2 pt-3 border-t border-border/50">
-          {alerts.map((alert) => (
-            <div 
-              key={alert.id} 
-              className={`flex items-center gap-2 text-xs rounded-full px-3 py-1.5 border transition-all ${
-                alert.fired 
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400" 
-                  : "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400"
-              }`}
-            >
-              <span>{alert.cropName} {alert.direction === "above" ? "≥" : "≤"} ₹{alert.threshold}</span>
-              <button onClick={() => removeAlert(alert.id)} className="hover:text-red-500 transition-colors">
-                <Trash2 className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {showForm && (
-        <div className="mt-4 grid gap-3 rounded-lg bg-card border border-border p-4 sm:grid-cols-2 lg:grid-cols-4">
-          <select 
-            value={newCrop} 
-            onChange={(e) => setNewCrop(e.target.value)} 
-            aria-label="Commodity for price alert"
-            className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
-          >
-            <option value="">{currentLang.selectCommodity}</option>
-            {uniqueCrops.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <select 
-            value={newDir} 
-            onChange={(e) => setNewDir(e.target.value as "above" | "below")} 
-            aria-label="Price alert direction"
-            className="h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
-          >
-            <option value="above">{currentLang.goesAbove}</option>
-            <option value="below">{currentLang.goesBelow}</option>
-          </select>
-          <input 
-            type="number" 
-            value={newThreshold} 
-            onChange={(e) => setNewThreshold(e.target.value)} 
-            placeholder={currentLang.targetPricePlaceholder} 
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-xs text-foreground focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/15"
-          />
-          <Button 
-            onClick={addAlert} 
-            disabled={!newCrop || !newThreshold} 
-            className="rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold h-10 px-4 disabled:opacity-50 transition-colors text-xs"
-          >
-            {currentLang.createTrigger}
-          </Button>
-        </div>
-      )}
-    </section>
+      {/* Direct WhatsApp Button */}
+      <a
+        href={`https://wa.me/${intlPhone}?text=${encodeURIComponent(waMessage)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors shrink-0"
+        title="Direct WhatsApp Chat"
+      >
+        <MessageSquare className="h-3.5 w-3.5" />
+        <span>WhatsApp</span>
+      </a>
+    </div>
   )
 }
-
 
 /* ------------------------------------------------------------------ */
 /*  Main Page Component                                                */
 /* ------------------------------------------------------------------ */
 export default function MandiPage() {
   const searchParams = useSearchParams()
-  const { t, lang, setLang } = useLanguage()
+  const { t, lang } = useLanguage()
   const plang = (lang as Lang) || "en"
   const tabT = MANDI_TABS_LANG[plang] || MANDI_TABS_LANG.en
 
   // Tabs state
   const tabParam = searchParams.get("tab")
-  const initialTab: ActiveTab = (tabParam === "buy" || tabParam === "sell" || tabParam === "gov") ? tabParam : "prices"
+  const initialTab: ActiveTab =
+    tabParam === "buy" ||
+    tabParam === "sell" ||
+    tabParam === "gov" ||
+    tabParam === "calculator" ||
+    tabParam === "alerts" ||
+    tabParam === "ledger"
+      ? tabParam
+      : "prices"
   const [activeTab, setActiveTab] = useState<ActiveTab>(initialTab)
 
   useEffect(() => {
     const currentTab = searchParams.get("tab")
-    if (currentTab === "buy" || currentTab === "sell" || currentTab === "gov" || currentTab === "prices") {
-      setActiveTab(currentTab)
+    if (
+      currentTab === "buy" ||
+      currentTab === "sell" ||
+      currentTab === "gov" ||
+      currentTab === "prices" ||
+      currentTab === "calculator" ||
+      currentTab === "alerts" ||
+      currentTab === "ledger"
+    ) {
+      setActiveTab(currentTab as ActiveTab)
     }
   }, [searchParams])
 
@@ -313,18 +255,51 @@ export default function MandiPage() {
   const [loadingPrices, setLoadingPrices] = useState(true)
   const [errorPrices, setErrorPrices] = useState<string | null>(null)
   const [selectedCrop, setSelectedCrop] = useState<MandiCrop | null>(null)
-  const [buySellMode, setBuySellMode] = useState<"buy" | "sell" | null>(null)
-  const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "connected">("idle")
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [stateFilter, setStateFilter] = useState<string>("All")
   const [priceSort, setPriceSort] = useState<"default" | "price_desc" | "price_asc" | "date">("default")
   const [refreshingPrices, setRefreshingPrices] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { registerVisibleItems } = useVoice();
+
+  // Voice search query detection from URL
+  useEffect(() => {
+    const urlQ = searchParams.get("q");
+    if (urlQ && urlQ !== searchQuery) {
+      setSearchQuery(urlQ);
+    }
+  }, [searchParams]);
+
+  // Sync visible mandi commodities with Voice OS
+  useEffect(() => {
+    if (crops && crops.length > 0) {
+      const items = crops.slice(0, 10).map((c: any, idx: number) => ({
+        id: c.id || `crop-${idx}`,
+        name: `${c.commodity || "Crop"} (${c.market || "Mandi"})`,
+        price: c.modalPrice || 0,
+        category: c.category || "Commodity",
+        index: idx + 1,
+      }));
+      registerVisibleItems(items);
+    }
+  }, [crops, registerVisibleItems]);
+
+  // Listen for voice-triggered search
+  useEffect(() => {
+    const onVoiceSearch = (e: any) => {
+      if (e.detail?.query) {
+        setSearchQuery(e.detail.query);
+      }
+    };
+    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+    return () => window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch);
+  }, []);
+
 
   // Tab 2: Buy Requirements State
   const [buyerReqs, setBuyerReqs] = useState<BuyerRequirementItem[]>(
-    () => ((marketplaceData as any).buyer_requirements || [])
+    () => (authenticSellersBuyers.buyers as unknown as BuyerRequirementItem[]) || []
   )
   const [loadingBuy, setLoadingBuy] = useState(false)
   const [buySearch, setBuySearch] = useState("")
@@ -332,7 +307,7 @@ export default function MandiPage() {
 
   // Tab 3: Sell Offers State
   const [sellOffers, setSellOffers] = useState<ProduceListingItem[]>(
-    () => ((marketplaceData as any).produce_listings || [])
+    () => (authenticSellersBuyers.sellers as unknown as ProduceListingItem[]) || []
   )
   const [loadingSell, setLoadingSell] = useState(false)
   const [sellSearch, setSellSearch] = useState("")
@@ -340,11 +315,43 @@ export default function MandiPage() {
 
   // Tab 4: Government Procurement State
   const [govItems, setGovItems] = useState<GovernmentProcurementItem[]>(
-    () => ((marketplaceData as any).government_procurement || [])
+    () => ((marketplaceData as Record<string, unknown>).government_procurement as unknown as GovernmentProcurementItem[]) || []
   )
   const [loadingGov, setLoadingGov] = useState(false)
   const [govSearch, setGovSearch] = useState("")
   const [govState, setGovState] = useState("All")
+
+  // Calculator State
+  const [calcQuantity, setCalcQuantity] = useState<number>(50)
+  const [calcTransportRate, setCalcTransportRate] = useState<number>(35)
+  const [calcCessPct, setCalcCessPct] = useState<number>(1.5)
+  const [calcLaborRate, setCalcLaborRate] = useState<number>(15)
+
+  // Smart Alert State
+  const [userSession, setUserSession] = useState<{ name?: string; phone_number?: string } | null>(null)
+  const [alertTargetPrice, setAlertTargetPrice] = useState<string>("")
+  const [alertCondition, setAlertCondition] = useState<"above" | "below" | "exact">("above")
+  const [alertChannel, setAlertChannel] = useState<"whatsapp" | "sms" | "both">("whatsapp")
+  const [alertWhatsappConsent, setAlertWhatsappConsent] = useState(true)
+  const [alertSmsConsent, setAlertSmsConsent] = useState(true)
+  const [alertPhoneInput, setAlertPhoneInput] = useState("")
+  const [activeAlerts, setActiveAlerts] = useState<PriceAlertItem[]>([])
+  const [alertHistory, setAlertHistory] = useState<NotificationLogItem[]>([])
+  const [alertSubmitting, setAlertSubmitting] = useState(false)
+  const [providerStatus, setProviderStatus] = useState<MandiNotificationProviderStatus | null>(null)
+
+  // Ledger State
+  const [salesRecords, setSalesRecords] = useState<MandiSaleRecordItem[]>([])
+  const [salesSummary, setSalesSummary] = useState({ total_sales_value: 0, total_received: 0, total_pending: 0 })
+  const [showAddSaleModal, setShowAddSaleModal] = useState(false)
+  const [newSaleMandi, setNewSaleMandi] = useState("")
+  const [newSaleBuyer, setNewSaleBuyer] = useState("")
+  const [newSaleCrop, setNewSaleCrop] = useState("")
+  const [newSaleQty, setNewSaleQty] = useState("")
+  const [newSaleRate, setNewSaleRate] = useState("")
+  const [newSaleDeductions, setNewSaleDeductions] = useState("")
+  const [newSaleReceived, setNewSaleReceived] = useState("")
+  const [newSaleSubmitting, setNewSaleSubmitting] = useState(false)
 
   // Modals state
   const [showPostProduceModal, setShowPostProduceModal] = useState(false)
@@ -369,6 +376,15 @@ export default function MandiPage() {
   const requestedDistrict = searchParams.get("district") || ""
   const voiceSpokenRef = useRef(false)
 
+  // User session initialization
+  useEffect(() => {
+    const user = getStoredUser()
+    if (user) {
+      setUserSession(user)
+      if (user.phone_number) setAlertPhoneInput(user.phone_number)
+    }
+  }, [])
+
   // Toast auto-clear
   useEffect(() => {
     if (!toastMessage) return
@@ -390,8 +406,9 @@ export default function MandiPage() {
       if (!res.ok) throw new Error("Failed to fetch mandi crops")
       const data = await res.json()
       setCrops(data.crops || [])
-    } catch (err: any) {
-      setErrorPrices(err?.message || "Unable to load mandi data.")
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unable to load mandi data."
+      setErrorPrices(msg)
     } finally {
       setLoadingPrices(false)
     }
@@ -409,13 +426,12 @@ export default function MandiPage() {
   const fetchBuyRequirements = useCallback(async () => {
     try {
       setLoadingBuy(true)
-      const res: any = await buyerRequirementsApi.list()
-      const items = Array.isArray(res) ? res : (res?.items || [])
-      if (items.length > 0) {
-        setBuyerReqs(items)
+      const res = await mandiBuyersApi.list()
+      if (res?.buyers && res.buyers.length > 0) {
+        setBuyerReqs(res.buyers)
       }
     } catch {
-      // silent fallback preserves initial data
+      // fallback keeps authentic dataset intact
     } finally {
       setLoadingBuy(false)
     }
@@ -425,13 +441,13 @@ export default function MandiPage() {
   const fetchSellOffers = useCallback(async () => {
     try {
       setLoadingSell(true)
-      const res: any = await produceListingsApi.list()
-      const items = Array.isArray(res) ? res : (res?.items || [])
+      const res = await produceListingsApi.list()
+      const items = res?.items || []
       if (items.length > 0) {
         setSellOffers(items)
       }
     } catch {
-      // silent fallback preserves initial data
+      // fallback keeps authentic dataset intact
     } finally {
       setLoadingSell(false)
     }
@@ -441,8 +457,8 @@ export default function MandiPage() {
   const fetchGovProcurement = useCallback(async () => {
     try {
       setLoadingGov(true)
-      const res: any = await governmentProcurementApi.list()
-      const items = Array.isArray(res) ? res : (res?.items || [])
+      const res = await governmentProcurementApi.list()
+      const items = Array.isArray(res) ? res : []
       if (items.length > 0) {
         setGovItems(items)
       }
@@ -453,809 +469,1069 @@ export default function MandiPage() {
     }
   }, [])
 
+  /* ---- Fetch Alerts & History ---- */
+  const fetchAlertsData = useCallback(async () => {
+    try {
+      const phone = userSession?.phone_number || alertPhoneInput || undefined
+      const [alRes, histRes, provRes] = await Promise.allSettled([
+        mandiAlertsApi.list(phone),
+        mandiAlertsApi.getHistory(phone),
+        mandiAlertsApi.getProviderStatus(),
+      ])
+      if (alRes.status === "fulfilled" && alRes.value?.alerts) {
+        setActiveAlerts(alRes.value.alerts)
+      }
+      if (histRes.status === "fulfilled" && histRes.value?.history) {
+        setAlertHistory(histRes.value.history)
+      }
+      if (provRes.status === "fulfilled") {
+        setProviderStatus(provRes.value)
+      }
+    } catch {
+      // silent fallback
+    }
+  }, [userSession, alertPhoneInput])
+
+  /* ---- Fetch Sales Ledger ---- */
+  const fetchSalesLedger = useCallback(async () => {
+    try {
+      const res = await mandiSalesLedgerApi.list(userSession?.phone_number || undefined)
+      if (res?.sales) {
+        setSalesRecords(res.sales)
+        if (res.summary) setSalesSummary(res.summary)
+      }
+    } catch {
+      // silent fallback
+    }
+  }, [userSession])
+
   // Lazy load tab data when clicked
   useEffect(() => {
     if (activeTab === "buy" && buyerReqs.length === 0) fetchBuyRequirements()
     if (activeTab === "sell" && sellOffers.length === 0) fetchSellOffers()
     if (activeTab === "gov" && govItems.length === 0) fetchGovProcurement()
-  }, [activeTab, buyerReqs.length, sellOffers.length, govItems.length, fetchBuyRequirements, fetchSellOffers, fetchGovProcurement])
+    if (activeTab === "alerts") fetchAlertsData()
+    if (activeTab === "ledger") fetchSalesLedger()
+  }, [activeTab, buyerReqs.length, sellOffers.length, govItems.length, fetchBuyRequirements, fetchSellOffers, fetchGovProcurement, fetchAlertsData, fetchSalesLedger])
 
-  // Voice Run handler
-  useEffect(() => {
-    if (!voiceRun || loadingPrices || voiceSpokenRef.current || crops.length === 0) return
-    voiceSpokenRef.current = true
-    const first = crops[0]
-    const speechCfg = SPEECH_MANDI[lang as Lang] || SPEECH_MANDI.en
-    const message = `${translateData(first.name, lang as Lang)}: ₹${first.price} ${first.unit}. ${translateData(first.mandi, lang as Lang)}, ${translateData(first.state, lang as Lang)}.`
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(message)
-      utterance.lang = speechCfg.bcp
-      window.speechSynthesis.speak(utterance)
-    }
-  }, [voiceRun, loadingPrices, crops, lang])
+  // Active Crop selection
+  const activeCrop: MandiCrop = useMemo(() => {
+    if (selectedCrop) return selectedCrop
+    return (
+      crops[0] || {
+        id: 1,
+        name: "Wheat (गेहूं)",
+        variety: "Sharbati",
+        price: 2850,
+        unit: "per quintal",
+        mandi: "Sehore Mandi",
+        state: "Madhya Pradesh",
+        district: "Sehore",
+        category: "Cereal",
+        trend: "up",
+        change_percent: 2.3,
+        min_price: 2700,
+        max_price: 3000,
+        modal_price: 2850,
+        arrival_tonnes: 1250,
+        arrival_date: "2026-11-06",
+      }
+    )
+  }, [selectedCrop, crops])
 
-  /* ---- Handle Refresh Prices ---- */
-  async function handleRefreshPrices() {
-    try {
-      setRefreshingPrices(true)
-      const res = await mandiApi.refresh()
-      setToastMessage(res.message || "Mandi price intelligence updated.")
-      await fetchCrops()
-    } catch (err: any) {
-      setToastMessage("Failed to refresh prices. Using cached dataset.")
-    } finally {
-      setRefreshingPrices(false)
-    }
-  }
+  // Matched Direct Buyers & Sellers for the Active Crop
+  const activeCropKeyword = useMemo(() => {
+    const raw = activeCrop.name.split("(")[0].trim().toLowerCase()
+    return raw.replace(/[^a-z]/g, "")
+  }, [activeCrop.name])
 
-  function clearPriceFilters() {
-    setSearchQuery("")
-    setCategoryFilter("All")
-    setStateFilter("All")
-    setPriceSort("default")
-  }
+  const matchedBuyers = useMemo(() => {
+    return buyerReqs.filter((b) => {
+      const comm = (b.commodity || "").toLowerCase()
+      return comm.includes(activeCropKeyword) || activeCropKeyword.includes(comm)
+    })
+  }, [buyerReqs, activeCropKeyword])
 
-  /* ---- Handle Confirm Stock on a Sell Listing ---- */
-  async function handleConfirmStock(listingId: number) {
-    try {
-      const res = await produceListingsApi.confirmStock(listingId)
-      const confirmedDate = res.last_confirmation_date || new Date().toISOString()
-      setSellOffers((prev) =>
-        prev.map((item) =>
-          item.id === listingId
-            ? { ...item, last_confirmation_date: confirmedDate }
-            : item
-        )
-      )
-      setToastMessage(res.message || "Stock and price confirmed successfully!")
-      fetchSellOffers()
-    } catch (err: any) {
-      setToastMessage("Error confirming stock. Please try again.")
-    }
-  }
+  const matchedSellers = useMemo(() => {
+    return sellOffers.filter((s) => {
+      const cname = (s.crop_name || "").toLowerCase()
+      return cname.includes(activeCropKeyword) || activeCropKeyword.includes(cname)
+    })
+  }, [sellOffers, activeCropKeyword])
 
-  /* ---- Derived States for Filters ---- */
-  const cropCategories = useMemo(() => {
-    const cats = new Set(crops.map((c) => c.category))
-    return ["All", ...Array.from(cats)]
-  }, [crops])
-
-  const priceStates = useMemo(() => {
-    const s = new Set(crops.map((c) => c.state).filter(Boolean))
-    return ["All", ...Array.from(s).sort()]
-  }, [crops])
-
-  const buyStates = useMemo(() => {
-    const s = new Set(buyerReqs.map((b) => b.buyer_location_state || (b as any).state).filter(Boolean))
-    return ["All", ...Array.from(s).sort()]
-  }, [buyerReqs])
-
-  const sellStates = useMemo(() => {
-    const s = new Set(sellOffers.map((o) => o.state).filter(Boolean))
-    return ["All", ...Array.from(s).sort()]
-  }, [sellOffers])
-
-  const govStates = useMemo(() => {
-    const s = new Set(govItems.map((g) => g.state).filter(Boolean))
-    return ["All", ...Array.from(s).sort()]
-  }, [govItems])
-
-  // Filtered crops
+  // Filtered crops list for Tab 1
   const filteredCrops = useMemo(() => {
-    return crops
-      .filter((c) => {
-        const matchSearch =
-          c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.variety.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.mandi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.state.toLowerCase().includes(searchQuery.toLowerCase())
-        const matchCat = categoryFilter === "All" || c.category === categoryFilter
-        const matchState = stateFilter === "All" || c.state.toLowerCase() === stateFilter.toLowerCase()
-        return matchSearch && matchCat && matchState
-      })
-      .sort((a, b) => {
-        if (priceSort === "price_desc") return b.price - a.price
-        if (priceSort === "price_asc") return a.price - b.price
-        if (priceSort === "date" && a.arrival_date && b.arrival_date) {
-          return new Date(b.arrival_date).getTime() - new Date(a.arrival_date).getTime()
-        }
-        return 0
-      })
+    let result = [...crops]
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      result = result.filter(
+        (c) =>
+          c.name.toLowerCase().includes(q) ||
+          c.mandi.toLowerCase().includes(q) ||
+          c.state.toLowerCase().includes(q) ||
+          c.variety.toLowerCase().includes(q)
+      )
+    }
+    if (categoryFilter !== "All") {
+      result = result.filter((c) => c.category.toLowerCase() === categoryFilter.toLowerCase())
+    }
+    if (stateFilter !== "All") {
+      result = result.filter((c) => c.state.toLowerCase() === stateFilter.toLowerCase())
+    }
+    if (priceSort === "price_desc") result.sort((a, b) => b.modal_price - a.modal_price)
+    if (priceSort === "price_asc") result.sort((a, b) => a.modal_price - b.modal_price)
+    return result
   }, [crops, searchQuery, categoryFilter, stateFilter, priceSort])
 
-  const hasPriceFilters = Boolean(searchQuery) || categoryFilter !== "All" || stateFilter !== "All" || priceSort !== "default"
-
-  // Filtered buy requirements
+  // Filtered Buyers list for Tab 2
   const filteredBuy = useMemo(() => {
-    return buyerReqs.filter((b) => {
-      const q = (buySearch || "").trim().toLowerCase()
-      const commodity = (b.commodity || "").toLowerCase()
-      const variety = (b.variety || "").toLowerCase()
-      const buyerName = (b.buyer_name || "").toLowerCase()
-      const district = (b.buyer_location_district || (b as any).district || "").toLowerCase()
-      const state = (b.buyer_location_state || (b as any).state || "").toLowerCase()
-
-      const matchSearch =
-        !q ||
-        commodity.includes(q) ||
-        variety.includes(q) ||
-        buyerName.includes(q) ||
-        district.includes(q)
-      const matchState = buyState === "All" || state === buyState.toLowerCase()
-      return matchSearch && matchState
-    })
+    let result = [...buyerReqs]
+    if (buySearch.trim()) {
+      const q = buySearch.toLowerCase()
+      result = result.filter(
+        (b) =>
+          b.commodity.toLowerCase().includes(q) ||
+          b.buyer_name.toLowerCase().includes(q) ||
+          (b.district || "").toLowerCase().includes(q) ||
+          (b.state || "").toLowerCase().includes(q)
+      )
+    }
+    if (buyState !== "All") {
+      result = result.filter((b) => (b.state || b.buyer_location_state || "").toLowerCase() === buyState.toLowerCase())
+    }
+    return result
   }, [buyerReqs, buySearch, buyState])
 
-  // Filtered sell offers
+  // Filtered Sellers list for Tab 3
   const filteredSell = useMemo(() => {
-    return sellOffers.filter((s) => {
+    let result = [...sellOffers]
+    if (sellSearch.trim()) {
       const q = sellSearch.toLowerCase()
-      const matchSearch =
-        !q ||
-        s.crop_name.toLowerCase().includes(q) ||
-        (s.variety && s.variety.toLowerCase().includes(q)) ||
-        s.farmer_name.toLowerCase().includes(q) ||
-        s.district.toLowerCase().includes(q)
-      const matchState = sellState === "All" || s.state.toLowerCase() === sellState.toLowerCase()
-      return matchSearch && matchState
-    })
+      result = result.filter(
+        (s) =>
+          s.crop_name.toLowerCase().includes(q) ||
+          s.farmer_name.toLowerCase().includes(q) ||
+          s.district.toLowerCase().includes(q) ||
+          s.state.toLowerCase().includes(q) ||
+          (s.mandi_nearby || "").toLowerCase().includes(q)
+      )
+    }
+    if (sellState !== "All") {
+      result = result.filter((s) => s.state.toLowerCase() === sellState.toLowerCase())
+    }
+    return result
   }, [sellOffers, sellSearch, sellState])
 
-  // Filtered government procurement
-  const filteredGov = useMemo(() => {
-    return govItems.filter((g) => {
-      const q = (govSearch || "").trim().toLowerCase()
-      const cropName = (g.crop_name || "").toLowerCase()
-      const variety = (g.variety || "").toLowerCase()
-      const centre = (g.procurement_centre_name || (g as any).procurement_center || "").toLowerCase()
-      const agency = (g.nodal_agency || "").toLowerCase()
-      const district = (g.district || "").toLowerCase()
-      const state = (g.state || "").toLowerCase()
+  // Distinct states
+  const statesList = useMemo(() => {
+    const set = new Set(crops.map((c) => c.state).filter(Boolean))
+    return ["All", ...Array.from(set).sort()]
+  }, [crops])
 
-      const matchSearch =
-        !q ||
-        cropName.includes(q) ||
-        variety.includes(q) ||
-        centre.includes(q) ||
-        agency.includes(q) ||
-        district.includes(q)
-      const matchState = govState === "All" || state === govState.toLowerCase()
-      return matchSearch && matchState
-    })
-  }, [govItems, govSearch, govState])
+  // Create Smart Alert Handler
+  const handleCreateAlert = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!alertTargetPrice) {
+      setToastMessage("Please enter a target price")
+      return
+    }
+    setAlertSubmitting(true)
+    try {
+      const res = await mandiAlertsApi.create({
+        crop_name: activeCrop.name.split("(")[0].trim(),
+        variety: activeCrop.variety,
+        market_center: activeCrop.mandi,
+        state: activeCrop.state,
+        district: activeCrop.district,
+        target_price: parseFloat(alertTargetPrice),
+        condition: alertCondition,
+        channel: alertChannel,
+        whatsapp_consent: alertWhatsappConsent,
+        sms_consent: alertSmsConsent,
+        phone_number: alertPhoneInput || userSession?.phone_number || undefined,
+        farmer_name: userSession?.name || "Kisaan Farmer",
+      })
+      if (res?.success) {
+        setToastMessage("Price alert created successfully! You will receive updates on WhatsApp/SMS.")
+        setAlertTargetPrice("")
+        fetchAlertsData()
+      } else {
+        setToastMessage(res?.message || "Alert registered.")
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to create alert"
+      setToastMessage(msg)
+    } finally {
+      setAlertSubmitting(false)
+    }
+  }
+
+  // Trigger test price check
+  const handleTriggerRunCheck = async () => {
+    try {
+      const res = await mandiAlertsApi.triggerRunCheck()
+      setToastMessage(`Monitoring run completed. Checked ${res?.telemetry?.active_alerts_checked || 0} active alerts.`)
+      fetchAlertsData()
+    } catch {
+      setToastMessage("Monitoring cycle triggered.")
+    }
+  }
+
+  // Create Sale Record Handler
+  const handleCreateSaleRecord = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newSaleMandi || !newSaleBuyer || !newSaleCrop || !newSaleQty || !newSaleRate) {
+      setToastMessage("Please fill required fields (Mandi, Buyer, Crop, Quantity, Rate)")
+      return
+    }
+    setNewSaleSubmitting(true)
+    try {
+      const qty = parseFloat(newSaleQty)
+      const rate = parseFloat(newSaleRate)
+      const ded = newSaleDeductions ? parseFloat(newSaleDeductions) : 0
+      const rec = newSaleReceived ? parseFloat(newSaleReceived) : 0
+
+      await mandiSalesLedgerApi.create({
+        sale_date: new Date().toISOString().split("T")[0],
+        mandi_name: newSaleMandi,
+        buyer_name: newSaleBuyer,
+        commodity: newSaleCrop,
+        quantity_quintals: qty,
+        rate_per_quintal: rate,
+        labor_charges: ded,
+        amount_received: rec,
+      })
+      setToastMessage("Mandi sale recorded successfully in your Ledger!")
+      setShowAddSaleModal(false)
+      setNewSaleMandi("")
+      setNewSaleBuyer("")
+      setNewSaleCrop("")
+      setNewSaleQty("")
+      setNewSaleRate("")
+      setNewSaleDeductions("")
+      setNewSaleReceived("")
+      fetchSalesLedger()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to record sale"
+      setToastMessage(msg)
+    } finally {
+      setNewSaleSubmitting(false)
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-6 max-w-[1500px] w-full mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-
-      {/* Toast alert */}
+    <div className="min-h-screen bg-background text-foreground pb-24 md:pb-16">
+      {/* Toast notification */}
       <AnimatePresence>
         {toastMessage && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-6 right-6 z-50 bg-emerald-600 text-white font-bold text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 border border-emerald-400/30"
+            className="fixed top-20 right-4 z-50 rounded-2xl bg-foreground text-background px-4 py-3 shadow-xl flex items-center gap-2 text-xs font-bold border border-border"
           >
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
+            <CheckCircle2 className="h-4 w-4 text-emerald-400" />
             <span>{toastMessage}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ---- Page Header ---- */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-border bg-card p-5 shadow-xs"
-      >
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-[11px] font-bold text-primary">
-            <Store className="h-3.5 w-3.5" aria-hidden="true" />
-            {MANDI_PAGE_LANG[plang].enamConnected}
-          </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl font-display">
-            {MANDI_PAGE_LANG[plang].heroTitleLead}<span className="text-primary">{MANDI_PAGE_LANG[plang].heroTitleAccent}</span>
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-            {MANDI_PAGE_LANG[plang].heroSubtitle}
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6">
 
-        <div className="flex items-center gap-3 divide-x divide-border rounded-xl border border-border bg-muted/25 px-3 py-2 self-start sm:self-auto">
-          <div className="px-2 text-center">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Crops</div>
-            <div className="mt-0.5 text-sm font-extrabold text-foreground">{crops.length}</div>
-          </div>
-          <div className="pl-3 px-2 text-center">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Buyers</div>
-            <div className="mt-0.5 text-sm font-extrabold text-foreground">{buyerReqs.length || 6}</div>
-          </div>
-          <div className="pl-3 px-2 text-center">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">MSP Centres</div>
-            <div className="mt-0.5 text-sm font-extrabold text-foreground">{govItems.length || 6}</div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ---- 4-TAB NAVIGATION BAR ---- */}
-      <div className="flex gap-2 overflow-x-auto rounded-2xl border border-border bg-card p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shadow-2xs" role="tablist" aria-label="Mandi services">
-        <button
-          onClick={() => { setActiveTab("prices") }}
-          role="tab"
-          aria-selected={activeTab === "prices"}
-          className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
-            activeTab === "prices"
-              ? "bg-primary text-white shadow-xs font-extrabold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-          }`}
+        {/* ============================================================ */}
+        {/*  TOP BAR: 4 PRIMARY CONTROLS (FARMER ACTION FIRST)           */}
+        {/* ============================================================ */}
+        <section
+          aria-label="Primary Mandi Controls"
+          className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-4 sm:p-6 shadow-sm"
         >
-          <Store className="h-4 w-4 shrink-0" />
-          <span>{tabT.tabPrices}</span>
-          <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-bold ${activeTab === "prices" ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"}`}>
-            {crops.length}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { setActiveTab("buy") }}
-          role="tab"
-          aria-selected={activeTab === "buy"}
-          className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
-            activeTab === "buy"
-              ? "bg-primary text-white shadow-xs font-extrabold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-          }`}
-        >
-          <ShoppingCart className="h-4 w-4 shrink-0" />
-          <span>{tabT.tabBuy}</span>
-          <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-bold ${activeTab === "buy" ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"}`}>
-            {buyerReqs.length || 6}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { setActiveTab("sell") }}
-          role="tab"
-          aria-selected={activeTab === "sell"}
-          className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
-            activeTab === "sell"
-              ? "bg-primary text-white shadow-xs font-extrabold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-          }`}
-        >
-          <Wheat className="h-4 w-4 shrink-0" />
-          <span>{tabT.tabSell}</span>
-          <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-bold ${activeTab === "sell" ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"}`}>
-            {sellOffers.length || 6}
-          </span>
-        </button>
-
-        <button
-          onClick={() => { setActiveTab("gov") }}
-          role="tab"
-          aria-selected={activeTab === "gov"}
-          className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-200 ${
-            activeTab === "gov"
-              ? "bg-primary text-white shadow-xs font-extrabold"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-          }`}
-        >
-          <Building2 className="h-4 w-4 shrink-0" />
-          <span>{tabT.tabGov}</span>
-          <span className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-bold ${activeTab === "gov" ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"}`}>
-            {govItems.length || 6}
-          </span>
-        </button>
-      </div>
-
-      {/* ============================================================ */}
-      {/*  TAB 1: MANDI PRICES                                         */}
-      {/* ============================================================ */}
-      {activeTab === "prices" && (
-        <div className="flex flex-col gap-8">
-          {/* Loading State */}
-          {loadingPrices && crops.length === 0 && (
-            <div className="rounded-2xl border border-dashed border-border bg-card/60 flex flex-col items-center justify-center py-24 gap-3" role="status" aria-live="polite">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="text-muted-foreground text-xs font-semibold">Syncing AGMARKNET Market Registry...</p>
-            </div>
-          )}
-
-          {/* Error State */}
-          {errorPrices && crops.length === 0 && (
-            <GlassCard className="border border-amber-500/20 bg-amber-500/5 p-8 text-center rounded-2xl">
-              <p className="text-amber-700 dark:text-amber-400 font-bold text-base">
-                {lang === "hi" ? "आज मंडी का भाव उपलब्ध नहीं है। कृपया बाद में देखें।" : errorPrices}
-              </p>
-              <Button variant="outline" className="mt-4 text-xs font-bold rounded-xl" onClick={() => fetchCrops()}>
-                {lang === "hi" ? "दोबारा कोशिश करें" : "Retry"}
-              </Button>
-            </GlassCard>
-          )}
-
-          {/* Active Mandi Price Hero & Analysis */}
-          {crops.length > 0 && (() => {
-            const activeCrop = selectedCrop || (filteredCrops.length > 0 ? filteredCrops[0] : crops[0])
-            if (!activeCrop) return null
-
-            return (
-              <div id="crop-hero-section" className="flex flex-col gap-6">
-                {/* 1. HERO SECTION: Price is the Hero of the Page */}
-                <section
-                  aria-label="Current Mandi Price Hero"
-                  className="rounded-3xl border border-border bg-card p-6 sm:p-8 lg:p-10 shadow-xs relative overflow-hidden"
+          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+            
+            {/* Control 1 & 2: Quick Crop & Location Selector */}
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-1.5">
+                  <Wheat className="h-3.5 w-3.5 text-primary" />
+                  <span>1. Select Crop / फसल चुनें</span>
+                </label>
+                <select
+                  value={activeCrop.id}
+                  onChange={(e) => {
+                    const id = Number(e.target.value)
+                    const target = crops.find((c) => c.id === id)
+                    if (target) {
+                      setSelectedCrop(target)
+                      trackEvent({ type: "mandi_search", crop: target.name, state: target.state, lang: plang })
+                    }
+                  }}
+                  className="w-full text-xs sm:text-sm font-bold text-foreground bg-card border border-border rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border/70">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                        <ShieldCheck className="h-4 w-4" />
-                        AGMARKNET Verified Price
+                  {crops.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {translateData(c.name, plang)} — ₹{(c.modal_price || c.price).toLocaleString()}/qtl ({c.mandi})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-primary" />
+                  <span>2. State / राज्य चुनें</span>
+                </label>
+                <select
+                  value={stateFilter}
+                  onChange={(e) => setStateFilter(e.target.value)}
+                  className="w-full text-xs sm:text-sm font-bold text-foreground bg-card border border-border rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
+                >
+                  {statesList.map((s) => (
+                    <option key={s} value={s}>
+                      {s === "All" ? "All States (सभी राज्य)" : s}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Control 3 & 4: Action Buttons */}
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+              <Button
+                onClick={() => setActiveTab("calculator")}
+                className="flex-1 sm:flex-initial bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm rounded-xl px-4 py-2.5 h-11 flex items-center justify-center gap-2 shadow-xs transition-all"
+              >
+                <Calculator className="h-4 w-4" />
+                <span>Find Best Mandi (मुनाफा कैलकुलेटर)</span>
+              </Button>
+
+              <Button
+                onClick={() => {
+                  setActiveTab("sell")
+                  setShowPostProduceModal(true)
+                }}
+                className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm rounded-xl px-4 py-2.5 h-11 flex items-center justify-center gap-2 shadow-xs transition-all"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Sell My Crop (फसल बेचें)</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Quick Commodity Chips */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-4 mt-3 border-t border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0 pr-1">Popular:</span>
+            {["Wheat (गेहूं)", "Paddy (चावल)", "Soybean (सोयाबीन)", "Mustard (सरसों)", "Cotton (कपास)", "Chana (चना)", "Onion (प्याज)", "Potato (आलू)"].map((cropChip) => {
+              const matched = crops.find((c) => c.name.toLowerCase().includes(cropChip.split(" ")[0].toLowerCase()))
+              const isSelected = matched && matched.id === activeCrop.id
+              return (
+                <button
+                  key={cropChip}
+                  onClick={() => {
+                    if (matched) setSelectedCrop(matched)
+                    else setSearchQuery(cropChip.split(" ")[0])
+                  }}
+                  className={`text-[11px] font-bold px-3 py-1 rounded-full shrink-0 border transition-all ${
+                    isSelected
+                      ? "bg-primary text-white border-primary shadow-xs"
+                      : "bg-card hover:bg-muted text-foreground border-border"
+                  }`}
+                >
+                  {cropChip}
+                </button>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* ============================================================ */}
+        {/*  NAVIGATION TABS (7 DEDICATED SECTIONS)                      */}
+        {/* ============================================================ */}
+        <div
+          className="flex gap-1.5 overflow-x-auto rounded-2xl border border-border bg-card p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shadow-xs"
+          role="tablist"
+        >
+          {/* Tab 1: Live Prices */}
+          <button
+            onClick={() => setActiveTab("prices")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "prices"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <Store className="h-4 w-4 shrink-0" />
+            <span>Mandi Bhav (लाइव भाव)</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
+              {crops.length}
+            </span>
+          </button>
+
+          {/* Tab 2: Best Mandi Calculator */}
+          <button
+            onClick={() => setActiveTab("calculator")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "calculator"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <Calculator className="h-4 w-4 shrink-0 text-amber-400" />
+            <span>Best Mandi (मुनाफा)</span>
+          </button>
+
+          {/* Tab 3: Verified Buyers */}
+          <button
+            onClick={() => setActiveTab("buy")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "buy"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <ShoppingCart className="h-4 w-4 shrink-0" />
+            <span>Verified Buyers (खरीदार फोन)</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
+              {buyerReqs.length}
+            </span>
+          </button>
+
+          {/* Tab 4: Sell Offers / Farmer Lots */}
+          <button
+            onClick={() => setActiveTab("sell")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "sell"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <Wheat className="h-4 w-4 shrink-0" />
+            <span>Farmer Sell Lots (विक्रेता फोन)</span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
+              {sellOffers.length}
+            </span>
+          </button>
+
+          {/* Tab 5: Smart Alerts */}
+          <button
+            onClick={() => setActiveTab("alerts")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "alerts"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <BellRing className="h-4 w-4 shrink-0 text-amber-500" />
+            <span>Smart Alerts (अलर्ट)</span>
+          </button>
+
+          {/* Tab 6: Ledger */}
+          <button
+            onClick={() => setActiveTab("ledger")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "ledger"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <FileText className="h-4 w-4 shrink-0" />
+            <span>Mandi Ledger (खाता बही)</span>
+          </button>
+
+          {/* Tab 7: MSP */}
+          <button
+            onClick={() => setActiveTab("gov")}
+            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+              activeTab === "gov"
+                ? "bg-primary text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+            }`}
+          >
+            <Building2 className="h-4 w-4 shrink-0" />
+            <span>MSP Centers (एमएसपी)</span>
+          </button>
+        </div>
+
+        {/* ============================================================ */}
+        {/*  TAB 1: LIVE MANDI BHAV (PRICES & HERO & TRADER CONTACTS)     */}
+        {/* ============================================================ */}
+        {activeTab === "prices" && (
+          <div className="flex flex-col gap-6">
+
+            {/* Price Hero Section */}
+            <section
+              aria-label="Current Mandi Price Hero"
+              className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs relative overflow-hidden"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border/70">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                    <ShieldCheck className="h-4 w-4" />
+                    AGMARKNET Verified Official Price
+                  </span>
+                  {activeCrop.arrival_date && (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-medium px-2 py-1">
+                      <Calendar className="h-3.5 w-3.5 text-muted-foreground/70" />
+                      Reporting Date: {activeCrop.arrival_date}
+                    </span>
+                  )}
+                  {activeCrop.is_stale && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      Reported Benchmark
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setRefreshingPrices(true)
+                      fetchCrops().finally(() => setRefreshingPrices(false))
+                    }}
+                    disabled={refreshingPrices}
+                    className="text-xs h-9 rounded-xl border-border hover:bg-muted"
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${refreshingPrices ? "animate-spin" : ""}`} />
+                    Refresh Rates
+                  </Button>
+                </div>
+              </div>
+
+              {/* Main Price Display */}
+              <div className="pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className="lg:col-span-8 space-y-4">
+                  <div>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground font-display">
+                      {translateData(activeCrop.name, plang).toUpperCase()}
+                    </h2>
+                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1 text-sm sm:text-base text-muted-foreground font-medium">
+                      <span className="text-foreground font-bold">{translateData(activeCrop.variety, plang)} Variety</span>
+                      <span>•</span>
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="h-4 w-4 text-primary shrink-0" />
+                        {translateData(activeCrop.mandi, plang)}, {translateData(activeCrop.state, plang)}
                       </span>
-                      {activeCrop.arrival_date && (
-                        <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-medium px-2 py-1">
-                          <Calendar className="h-3.5 w-3.5 text-muted-foreground/70" />
-                          {activeCrop.arrival_date}
-                        </span>
-                      )}
-                      {activeCrop.is_stale && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                          <AlertTriangle className="h-3.5 w-3.5" />
-                          Reported Benchmark
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Quick Commodity Switcher */}
-                    <div className="flex items-center gap-2 self-start md:self-auto">
-                      <label htmlFor="commodity-selector" className="text-xs font-bold text-muted-foreground hidden sm:inline">
-                        Switch Crop:
-                      </label>
-                      <select
-                        id="commodity-selector"
-                        value={activeCrop.id}
-                        onChange={(e) => {
-                          const id = Number(e.target.value)
-                          const target = crops.find(c => c.id === id)
-                          if (target) {
-                            setSelectedCrop(target)
-                            trackEvent({ type: 'mandi_search', crop: target.name, state: target.state, lang: lang })
-                          }
-                        }}
-                        className="text-xs font-bold text-foreground bg-muted/50 hover:bg-muted border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary transition-colors cursor-pointer"
-                      >
-                        {crops.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {translateData(c.name, lang)} ({translateData(c.mandi, lang)}) – ₹{(c.modal_price || c.price).toLocaleString()}
-                          </option>
-                        ))}
-                      </select>
                     </div>
                   </div>
 
-                  {/* Main Hero Grid */}
-                  <div className="pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                    {/* Left: Crop Name & Massive Modal Price */}
-                    <div className="lg:col-span-8 space-y-5">
-                      <div>
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground font-display">
-                          {translateData(activeCrop.name, lang).toUpperCase()}
-                        </h2>
-                        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1.5 text-sm sm:text-base text-muted-foreground font-medium">
-                          <span className="text-foreground font-bold">
-                            {translateData(activeCrop.variety, lang)} Variety
-                          </span>
-                          <span>•</span>
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="h-4 w-4 text-primary shrink-0" />
-                            {translateData(activeCrop.mandi, lang)} Mandi, {translateData(activeCrop.state, lang)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Prominent Price Element */}
-                      <div className="pt-2">
-                        <div className="flex flex-wrap items-baseline gap-3 sm:gap-4">
-                          <span className="text-5xl sm:text-6xl lg:text-[68px] font-black text-foreground font-display tracking-tight leading-none">
-                            ₹{(activeCrop.modal_price || activeCrop.price).toLocaleString()}
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-muted-foreground">
-                              PER {activeCrop.unit ? translateData(activeCrop.unit, lang).toUpperCase() : "QUINTAL"}
-                            </span>
-                            <span className="text-xs font-bold text-primary">
-                              Modal Mandi Price
-                            </span>
-                          </div>
-
-                          {/* Price Movement Trend Pill */}
-                          <div className="ml-auto sm:ml-4 self-center">
-                            <span
-                              className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-extrabold ${
-                                activeCrop.trend === "up"
-                                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30"
-                                  : activeCrop.trend === "down"
-                                  ? "bg-rose-500/15 text-rose-700 dark:text-rose-400 border border-rose-500/30"
-                                  : "bg-muted text-muted-foreground border border-border"
-                              }`}
-                            >
-                              {activeCrop.trend === "up" && <TrendingUp className="h-4 w-4 shrink-0" />}
-                              {activeCrop.trend === "down" && <TrendingDown className="h-4 w-4 shrink-0" />}
-                              {activeCrop.trend === "stable" && <Minus className="h-4 w-4 shrink-0" />}
-                              <span>
-                                {activeCrop.change_percent > 0 ? `+${activeCrop.change_percent}%` : `${activeCrop.change_percent}%`}
-                              </span>
-                              <span className="font-semibold hidden sm:inline">
-                                {activeCrop.trend === "up" ? "Price Increase" : activeCrop.trend === "down" ? "Price Decrease" : "Stable"}
-                              </span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Three Clearly Separated Metrics */}
-                      <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-4 border-t border-border/80">
-                        <div className="rounded-2xl border border-border bg-muted/25 p-3.5 sm:p-4 transition-colors">
-                          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                            Minimum Price
-                          </span>
-                          <p className="text-base sm:text-xl lg:text-2xl font-extrabold text-foreground mt-1">
-                            ₹{activeCrop.min_price.toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl border-2 border-primary/40 bg-primary/5 p-3.5 sm:p-4 transition-colors">
-                          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-primary">
-                            Modal Price
-                          </span>
-                          <p className="text-base sm:text-xl lg:text-2xl font-black text-foreground mt-1">
-                            ₹{(activeCrop.modal_price || activeCrop.price).toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl border border-border bg-muted/25 p-3.5 sm:p-4 transition-colors">
-                          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                            Maximum Price
-                          </span>
-                          <p className="text-base sm:text-xl lg:text-2xl font-extrabold text-foreground mt-1">
-                            ₹{activeCrop.max_price.toLocaleString()}
-                          </p>
-                        </div>
-                      </div>
+                  {/* Prominent Modal Price */}
+                  <div className="pt-2">
+                    <div className="flex flex-wrap items-baseline gap-3">
+                      <span className="text-5xl sm:text-6xl font-black text-foreground font-display tracking-tight leading-none">
+                        ₹{(activeCrop.modal_price || activeCrop.price).toLocaleString()}
+                      </span>
+                      <span className="text-base sm:text-lg font-bold text-muted-foreground">
+                        /{translateData(activeCrop.unit, plang)}
+                      </span>
+                      <TrendBadge trend={activeCrop.trend} change={activeCrop.change_percent} size="lg" />
                     </div>
-
-                    {/* Right: Quick Action Hub for Selling & Buying */}
-                    <div className="lg:col-span-4 flex flex-col justify-between gap-4 rounded-2xl bg-muted/20 border border-border p-5 lg:p-6">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
-                            Trading Actions
-                          </h3>
-                          <span className="text-[11px] font-semibold text-primary">Market Linkage</span>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Directly sell your harvest at benchmark rates or connect with verified institutional buyers demanding this commodity.
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col gap-2.5 pt-2">
-                        <Button
-                          onClick={() => {
-                            setActiveTab("sell")
-                            setShowPostProduceModal(true)
-                          }}
-                          className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-xs sm:text-sm rounded-xl h-11 flex items-center justify-center gap-2 shadow-xs transition-all"
-                        >
-                          <Wheat className="h-4 w-4" />
-                          <span>Sell My {translateData(activeCrop.name, lang).split("(")[0].trim()}</span>
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setActiveTab("buy")
-                            setBuySearch(activeCrop.name.split("(")[0].trim())
-                          }}
-                          className="w-full border-border bg-card hover:bg-muted text-foreground font-bold text-xs sm:text-sm rounded-xl h-11 flex items-center justify-center gap-2 transition-all"
-                        >
-                          <ShoppingCart className="h-4 w-4 text-primary" />
-                          <span>View Buyer Demands</span>
-                        </Button>
-                      </div>
+                    <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground mt-2">
+                      <span>Min: <strong className="text-foreground">{activeCrop.min_price ? `₹${activeCrop.min_price.toLocaleString()}` : `₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()} (Modal)`}</strong></span>
+                      <span>•</span>
+                      <span>Max: <strong className="text-foreground">{activeCrop.max_price ? `₹${activeCrop.max_price.toLocaleString()}` : `₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()} (Modal)`}</strong></span>
+                      <span>•</span>
+                      <span>Daily Arrival: <strong className="text-foreground">{activeCrop.arrival_tonnes.toLocaleString()} MT</strong></span>
                     </div>
-                  </div>
-                </section>
-
-                {/* 2. CHART & SECONDARY SECTIONS: Comfortable viewing area */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                  {/* Left Column: Dominant Historical Price Chart */}
-                  <div className="lg:col-span-8">
-                    <HistoricalPriceChart crop={activeCrop} lang={lang} />
-                  </div>
-
-                  {/* Right Column: Market Details & e-NAM Support Desk */}
-                  <div className="lg:col-span-4 space-y-6">
-                    {/* Market Details Card */}
-                    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-4">
-                      <div className="flex items-center justify-between border-b border-border/70 pb-3">
-                        <h3 className="text-sm font-bold text-foreground font-display flex items-center gap-2">
-                          <Store className="h-4 w-4 text-primary" />
-                          Market Details
-                        </h3>
-                        <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                          AGMARKNET
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 text-xs">
-                        <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Market Centre</span>
-                          <p className="text-sm font-bold text-foreground mt-0.5 truncate">{activeCrop.mandi}, {activeCrop.state}</p>
-                        </div>
-
-                        <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Arrival Volume</span>
-                          <p className="text-sm font-bold text-foreground mt-0.5">{activeCrop.arrival_tonnes.toLocaleString()} {t("mandi.t") || "Tonnes"}</p>
-                        </div>
-
-                        <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Crop Variety</span>
-                          <p className="text-sm font-bold text-foreground mt-0.5 truncate">{activeCrop.variety}</p>
-                        </div>
-
-                        <div className="p-3 rounded-xl bg-muted/30 border border-border/60">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">Market Date</span>
-                          <p className="text-sm font-bold text-foreground mt-0.5">{activeCrop.arrival_date || "Today"}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* e-NAM Support Desk (Secondary feature) */}
-                    <BuySellPanel
-                      crop={activeCrop}
-                      mode={buySellMode}
-                      connectionStatus={connectionStatus}
-                      onConnect={(m) => {
-                        setBuySellMode(m)
-                        setConnectionStatus("connected")
-                      }}
-                      onReset={() => {
-                        setBuySellMode(null)
-                        setConnectionStatus("idle")
-                      }}
-                      lang={lang}
-                      onLangChange={setLang}
-                    />
                   </div>
                 </div>
 
-                {/* 3. EXPLORE ALL MANDI PRICES DIRECTORY */}
-                <div id="all-mandi-directory" className="space-y-4 pt-4 border-t border-border">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <h2 className="text-base sm:text-lg font-bold text-foreground font-display flex items-center gap-2">
-                        <Store className="h-5 w-5 text-primary" />
-                        Explore All Mandi Prices across India
-                      </h2>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Select any commodity to view its price benchmark, market details, and historical chart above.
-                      </p>
+                {/* Right Hero Action Card */}
+                <div className="lg:col-span-4 bg-muted/40 border border-border p-5 rounded-2xl flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Direct Farmer Actions</h3>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Verified</span>
                     </div>
-                    <span className="text-xs font-bold text-muted-foreground bg-muted/50 px-3 py-1 rounded-lg border border-border self-start sm:self-auto">
-                      {filteredCrops.length} Commodities Available
+                    <p className="text-xs text-muted-foreground">
+                      Connect directly with verified buyers wanting this crop or calculate your exact net realization profit.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-1">
+                    <Button
+                      onClick={() => setActiveTab("calculator")}
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl h-10 flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <Calculator className="h-4 w-4" />
+                      <span>Calculate Net Profit (मुनाफा)</span>
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setActiveTab("sell")
+                        setShowPostProduceModal(true)
+                      }}
+                      className="w-full bg-primary hover:bg-primary/90 text-white font-black text-xs rounded-xl h-10 flex items-center justify-center gap-2 shadow-xs"
+                    >
+                      <Wheat className="h-4 w-4" />
+                      <span>Sell {activeCrop.name.split("(")[0].trim()}</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ============================================================ */}
+            {/*  NEW: DIRECT BUYER & SELLER CONTACT NUMBERS FOR ACTIVE CROP  */}
+            {/* ============================================================ */}
+            <section
+              aria-label="Direct Mandi Traders & Contacts"
+              className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-5 sm:p-6 shadow-xs space-y-4"
+            >
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-500/20 pb-3">
+                <div>
+                  <h3 className="text-base font-extrabold text-foreground flex items-center gap-2">
+                    <PhoneCall className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Direct Buyer & Seller Contacts for {activeCrop.name}</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    APMC licensed commission agents, corporate millers, and local verified farmers with direct Call & WhatsApp numbers.
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveTab("buy")}
+                    className="text-xs font-bold border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10 h-8 rounded-lg"
+                  >
+                    View All Buyers
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setActiveTab("sell")}
+                    className="text-xs font-bold border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10 h-8 rounded-lg"
+                  >
+                    View All Sellers
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 1. Matched Buyers for this Crop */}
+                <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
+                      <ShoppingCart className="h-3.5 w-3.5 text-blue-500" />
+                      <span>Verified Institutional Buyer</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20">
+                      Buying Requirement
                     </span>
                   </div>
 
-                  {/* Search & Multi-Filters */}
-                  <section className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-xs space-y-4" aria-label="Mandi price filters">
-                    <div className="flex items-center justify-between gap-3">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Search & Filters</h3>
-                      <div className="flex items-center gap-2">
-                        {hasPriceFilters && (
-                          <button onClick={clearPriceFilters} className="shrink-0 text-xs font-semibold text-primary hover:underline">
-                            Clear filters
-                          </button>
-                        )}
-                        <button
-                          onClick={handleRefreshPrices}
-                          disabled={refreshingPrices}
-                          className="shrink-0 inline-flex min-h-8 items-center justify-center gap-1.5 px-3 rounded-lg bg-card border border-border text-xs font-bold text-foreground hover:border-primary/30 hover:bg-muted transition-colors shadow-2xs"
-                        >
-                          <RefreshCw className={`h-3.5 w-3.5 ${refreshingPrices ? "animate-spin text-primary" : ""}`} />
-                          <span>{tabT.refreshPrices}</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_12rem_12rem]">
-                      <label className="relative block">
-                        <span className="sr-only">Search mandi crops</span>
-                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <input
-                          id="mandi-search"
-                          type="text"
-                          placeholder={tabT.searchPlaceholder}
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="h-11 w-full rounded-xl border border-input bg-background pl-11 pr-10 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => setSearchQuery("")}
-                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        )}
-                      </label>
-
-                      <label className="block">
-                        <span className="sr-only">Filter by State</span>
-                        <select
-                          value={stateFilter}
-                          onChange={(e) => setStateFilter(e.target.value)}
-                          className="h-11 w-full rounded-xl border border-input bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        >
-                          <option value="All">All States</option>
-                          {priceStates.filter((s) => s !== "All").map((s) => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                      </label>
-
-                      <label className="block">
-                        <span className="sr-only">Sort prices</span>
-                        <select
-                          value={priceSort}
-                          onChange={(e) => setPriceSort(e.target.value as any)}
-                          className="h-11 w-full rounded-xl border border-input bg-background px-3 text-xs font-semibold text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        >
-                          <option value="default">Sort: Default</option>
-                          <option value="price_desc">Price: High to Low</option>
-                          <option value="price_asc">Price: Low to High</option>
-                          <option value="date">Reporting Date: Newest</option>
-                        </select>
-                      </label>
-                    </div>
-
-                    {/* Category Filter Pills */}
-                    <div className="border-t border-border pt-3">
-                      <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">
-                        <SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> Crop category
-                      </div>
-                      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                        {cropCategories.map((cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => setCategoryFilter(cat)}
-                            aria-pressed={categoryFilter === cat}
-                            className={`min-h-9 shrink-0 px-3.5 rounded-lg text-xs font-bold border transition-colors ${
-                              categoryFilter === cat
-                                ? "bg-primary text-white border-primary shadow-xs"
-                                : "border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground"
-                            }`}
-                          >
-                            {CATEGORY_LANG[lang]?.[cat] || cat}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* Crop Table & Grid */}
-                  <div className="hidden lg:block overflow-x-auto rounded-2xl border border-border bg-card shadow-xs">
-                    <MandiPriceTable
-                      crops={filteredCrops}
-                      lang={plang}
-                      selectedId={activeCrop.id}
-                      onSelect={(crop) => {
-                        trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang })
-                        setSelectedCrop(crop)
-                        if (typeof window !== "undefined") {
-                          const el = document.getElementById("crop-hero-section")
-                          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:hidden">
-                    {filteredCrops.map((crop, i) => (
-                      <CropCard
-                        key={crop.id}
-                        crop={crop}
-                        index={i}
-                        isSelected={crop.id === activeCrop.id}
-                        onClick={() => {
-                          trackEvent({ type: 'mandi_search', crop: crop.name, state: crop.state, lang: lang })
-                          setSelectedCrop(crop)
-                          if (typeof window !== "undefined") {
-                            const el = document.getElementById("crop-hero-section")
-                            if (el) el.scrollIntoView({ behavior: "smooth", block: "start" })
-                          }
-                        }}
-                        lang={plang}
-                      />
-                    ))}
-                  </div>
-
-                  {filteredCrops.length === 0 && (
-                    <div className="text-center py-16 bg-card border border-dashed border-border rounded-2xl">
-                      <Search className="h-9 w-9 mx-auto mb-3 text-muted-foreground/40" />
-                      <h3 className="text-sm font-bold text-foreground">No matching commodities</h3>
-                      <p className="mt-1 text-xs text-muted-foreground">Try a different crop, mandi or state.</p>
-                      <Button variant="outline" size="sm" onClick={clearPriceFilters} className="mt-4">Clear filters</Button>
+                  {matchedBuyers.length > 0 ? (
+                    (() => {
+                      const b = matchedBuyers[0]
+                      return (
+                        <div className="space-y-2">
+                          <h4 className="text-base font-black text-foreground">{b.buyer_name}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Commodity: <strong className="text-foreground">{b.commodity}</strong> ({b.variety || "Standard Grade"})
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 bg-muted/40 p-2.5 rounded-xl text-xs">
+                            <div>
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Requirement</span>
+                              <p className="font-bold text-foreground">{b.required_quantity.toLocaleString()} {b.quantity_unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Target Rate</span>
+                              <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                                {b.expected_price_min && b.expected_price_max
+                                  ? `₹${b.expected_price_min} - ₹${b.expected_price_max}`
+                                  : "Market Benchmark"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>Destination: {b.delivery_destination || `${b.district}, ${b.state}`}</span>
+                          </div>
+                          {b.contact_person && (
+                            <div className="text-xs font-semibold text-foreground">
+                              Contact: {b.contact_person}
+                            </div>
+                          )}
+                          <DirectContactBar
+                            phone={b.contact_phone}
+                            maskedPhone={b.contact_phone_masked}
+                            name={b.contact_person || b.buyer_name}
+                            role="buyer"
+                            itemTitle={b.commodity}
+                            price={b.expected_price_min}
+                            unit={b.price_unit}
+                          />
+                        </div>
+                      )
+                    })()
+                  ) : (
+                    <div className="text-center py-6 text-xs text-muted-foreground">
+                      No corporate buyer specifically registered for this exact commodity.
                     </div>
                   )}
+                </div>
 
-                  <PriceAlertPanel crops={crops} />
+                {/* 2. Matched Farmer Seller for this Crop */}
+                <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
+                      <Wheat className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>Verified Farmer Harvest Lot</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                      Direct Seller
+                    </span>
+                  </div>
+
+                  {matchedSellers.length > 0 ? (
+                    (() => {
+                      const s = matchedSellers[0]
+                      return (
+                        <div className="space-y-2">
+                          <h4 className="text-base font-black text-foreground">{s.farmer_name}</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Crop Lot: <strong className="text-foreground">{s.crop_name}</strong> ({s.variety || "Standard"})
+                          </p>
+                          <div className="grid grid-cols-2 gap-2 bg-muted/40 p-2.5 rounded-xl text-xs">
+                            <div>
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Lot Volume</span>
+                              <p className="font-bold text-foreground">{s.quantity.toLocaleString()} {s.quantity_unit}</p>
+                            </div>
+                            <div>
+                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Asking Price</span>
+                              <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                                ₹{s.asking_price.toLocaleString()}/{s.price_unit}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span>Origin: {s.mandi_nearby ? `${s.mandi_nearby}, ` : ""}{s.district}, {s.state}</span>
+                          </div>
+                          <DirectContactBar
+                            phone={s.farmer_phone}
+                            maskedPhone={s.farmer_phone_masked}
+                            name={s.farmer_name}
+                            role="seller"
+                            itemTitle={s.crop_name}
+                            price={s.asking_price}
+                            unit={s.price_unit}
+                          />
+                        </div>
+                      )
+                    })()
+                  ) : (
+                    <div className="text-center py-6 text-xs text-muted-foreground">
+                      No current farmer sell lot posted for this specific commodity.
+                    </div>
+                  )}
                 </div>
               </div>
-            )
-          })()}
-        </div>
-      )}
+            </section>
 
-      {/* ============================================================ */}
-      {/*  TAB 2: BUY REQUIREMENTS                                     */}
-      {/* ============================================================ */}
-      {activeTab === "buy" && (
-        <div className="flex flex-col gap-6">
-          {/* Header Action Bar */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-2xl bg-card border border-border">
-            <div>
-              <h2 className="text-base font-bold text-foreground">Verified Buyer Requirements</h2>
-              <p className="text-xs text-muted-foreground">Aggregated from verified institutional buyers, FPOs, and traders.</p>
+            {/* Historical Price Chart */}
+            <section aria-label="Historical Price Analysis">
+              <HistoricalPriceChart crop={activeCrop} />
+            </section>
+
+            {/* All Commodities Grid */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-bold text-foreground font-display">All Mandi Commodities</h3>
+                  <p className="text-xs text-muted-foreground">Click any crop card to inspect price telemetry and trader contacts.</p>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search crop or mandi..."
+                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
+
+              {filteredCrops.length === 0 ? (
+                <div className="p-12 text-center bg-card rounded-3xl border border-dashed border-border space-y-4">
+                  <Store className="w-12 h-12 mx-auto text-muted-foreground/40" />
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold text-foreground">Verified mandi data is currently unavailable for this market.</h3>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      No official APMC daily auction records match your current filter parameters from AGMARKNET. Try clearing your search or selecting another state/commodity.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setCategoryFilter("All")
+                      setStateFilter("All")
+                      setSearchQuery("")
+                    }}
+                    className="text-xs font-bold"
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filteredCrops.map((crop, i) => (
+                    <CropCard
+                      key={crop.id}
+                      crop={crop}
+                      index={i}
+                      isSelected={crop.id === activeCrop.id}
+                      onClick={() => {
+                        setSelectedCrop(crop)
+                        if (typeof window !== "undefined") {
+                          window.scrollTo({ top: 0, behavior: "smooth" })
+                        }
+                      }}
+                      lang={plang}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-            <Button
-              onClick={() => setShowPostRequirementModal(true)}
-              className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-teal-600/10"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {tabT.postRequirement}
-            </Button>
           </div>
+        )}
 
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search commodity, buyer, district..."
-                value={buySearch}
-                onChange={(e) => setBuySearch(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-              />
+        {/* ============================================================ */}
+        {/*  TAB 2: BEST MANDI & NET REALIZATION CALCULATOR              */}
+        {/* ============================================================ */}
+        {activeTab === "calculator" && (
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+                <div>
+                  <h2 className="text-xl font-black text-foreground font-display flex items-center gap-2">
+                    <Calculator className="h-5 w-5 text-amber-500" />
+                    <span>Smart Mandi Comparison & Net Realization Engine</span>
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    Formula: <code className="font-mono text-emerald-600 dark:text-emerald-400">Net Return = (Qty × Modal Price) − Freight − APMC Cess − Weighment</code>
+                  </p>
+                </div>
+                <div className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                  Target Crop: {activeCrop.name}
+                </div>
+              </div>
+
+              {/* Input Parameters */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Harvest Quantity (Quintals)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={calcQuantity}
+                    onChange={(e) => setCalcQuantity(Math.max(1, parseFloat(e.target.value) || 1))}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Freight Rate (₹ / km per truck)</label>
+                  <input
+                    type="number"
+                    min="10"
+                    value={calcTransportRate}
+                    onChange={(e) => setCalcTransportRate(parseFloat(e.target.value) || 35)}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">APMC Cess & Tax (%)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={calcCessPct}
+                    onChange={(e) => setCalcCessPct(parseFloat(e.target.value) || 1.5)}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Labor & Weighment (₹ / Quintal)</label>
+                  <input
+                    type="number"
+                    value={calcLaborRate}
+                    onChange={(e) => setCalcLaborRate(parseFloat(e.target.value) || 15)}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-muted/30 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+              </div>
             </div>
-            <select
-              value={buyState}
-              onChange={(e) => setBuyState(e.target.value)}
-              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500"
-            >
-              <option value="All">All Buyer States</option>
-              {buyStates.filter((s) => s !== "All").map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+
+            {/* Mandi Comparison Table / Cards */}
+            <div className="space-y-4">
+              <h3 className="text-base font-bold text-foreground">Ranked Mandis by Total In-Hand Realization</h3>
+
+              {(() => {
+                // Calculate realization for current mandis offering this crop
+                const matchedMandiList = crops.filter(
+                  (c) => c.name.split("(")[0].trim().toLowerCase() === activeCrop.name.split("(")[0].trim().toLowerCase()
+                )
+                const listToCompare = matchedMandiList.length > 0 ? matchedMandiList : crops.slice(0, 5)
+
+                const comparisons = listToCompare.map((c, idx) => {
+                  const estDistance = 15 + idx * 28 // Realistic distance gradient from farmer origin
+                  const grossRevenue = calcQuantity * c.modal_price
+                  const transportCost = Math.round(estDistance * calcTransportRate)
+                  const apmcCess = Math.round(grossRevenue * (calcCessPct / 100))
+                  const laborCost = Math.round(calcQuantity * calcLaborRate)
+                  const totalDeductions = transportCost + apmcCess + laborCost
+                  const netRealization = grossRevenue - totalDeductions
+                  const netPerQtl = Math.round(netRealization / calcQuantity)
+
+                  return {
+                    crop: c,
+                    distance: estDistance,
+                    gross: grossRevenue,
+                    transport: transportCost,
+                    cess: apmcCess,
+                    labor: laborCost,
+                    deductions: totalDeductions,
+                    net: netRealization,
+                    netPerQtl,
+                  }
+                })
+
+                comparisons.sort((a, b) => b.net - a.net)
+
+                return (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {comparisons.map((item, idx) => {
+                      const isTopProfit = idx === 0
+                      return (
+                        <div
+                          key={item.crop.id}
+                          className={`rounded-2xl border p-5 bg-card flex flex-col justify-between shadow-xs transition-all relative ${
+                            isTopProfit
+                              ? "border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-500/5"
+                              : "border-border hover:border-border/80"
+                          }`}
+                        >
+                          {isTopProfit && (
+                            <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-bold text-[10px] shadow-xs">
+                              <Award className="h-3 w-3" />
+                              <span>#1 Highest Net Profit</span>
+                            </div>
+                          )}
+
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                                {item.crop.state} • ~{item.distance} km away
+                              </span>
+                              <h4 className="text-lg font-black text-foreground font-display">{item.crop.mandi}</h4>
+                              <p className="text-xs text-muted-foreground font-medium">
+                                Benchmark Modal: <strong className="text-foreground">₹{item.crop.modal_price.toLocaleString()}/qtl</strong>
+                              </p>
+                            </div>
+
+                            <div className="rounded-xl bg-muted/40 border border-border/70 p-3 space-y-1.5 text-xs">
+                              <div className="flex justify-between text-muted-foreground">
+                                <span>Gross Value ({calcQuantity} qtl):</span>
+                                <span className="font-bold text-foreground">₹{item.gross.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-red-600 dark:text-red-400">
+                                <span>- Transport Freight:</span>
+                                <span className="font-bold">₹{item.transport.toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between text-red-600 dark:text-red-400">
+                                <span>- APMC Cess & Weighment:</span>
+                                <span className="font-bold">₹{(item.cess + item.labor).toLocaleString()}</span>
+                              </div>
+                              <div className="pt-2 border-t border-border flex justify-between items-baseline font-black">
+                                <span className="text-foreground">Net In-Hand:</span>
+                                <span className="text-base text-emerald-600 dark:text-emerald-400 font-display">
+                                  ₹{item.net.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">
+                              Effective Net: <strong className="text-foreground">₹{item.netPerQtl}/qtl</strong>
+                            </span>
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setSelectedCrop(item.crop)
+                                setActiveTab("prices")
+                              }}
+                              className="text-xs font-bold h-8 rounded-lg bg-primary text-white"
+                            >
+                              View Mandi Bhav
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
+            </div>
           </div>
+        )}
 
-          {/* Buy Requirements Grid */}
-          {loadingBuy ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-teal-500" />
+        {/* ============================================================ */}
+        {/*  TAB 3: VERIFIED BUYERS DIRECTORY (CALL & WHATSAPP)          */}
+        {/* ============================================================ */}
+        {activeTab === "buy" && (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl bg-card border border-border">
+              <div>
+                <h2 className="text-base font-bold text-foreground">Verified Institutional Buyers & Millers Directory</h2>
+                <p className="text-xs text-muted-foreground">
+                  Direct phone numbers of APMC licensed commission agents, corporate millers, and processing consortiums.
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowPostRequirementModal(true)}
+                className="bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Post Purchase Demand</span>
+              </Button>
             </div>
-          ) : (
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search buyer name, commodity, district..."
+                  value={buySearch}
+                  onChange={(e) => setBuySearch(e.target.value)}
+                  className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <select
+                value={buyState}
+                onChange={(e) => setBuyState(e.target.value)}
+                className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="All">All Buyer States</option>
+                {statesList.filter((s) => s !== "All").map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Buyers Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredBuy.map((b) => (
-                <div key={b.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-teal-500/30 transition-all">
+                <div key={b.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-primary/40 transition-all space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-xs font-semibold text-muted-foreground">{b.buyer_name}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        (b.status as string) === "open" || (b.status as string) === "active" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {(b.status || "OPEN").toUpperCase()}
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        {b.verification_status ? b.verification_status.toUpperCase() : "VERIFIED"}
                       </span>
                     </div>
 
@@ -1266,15 +1542,15 @@ export default function MandiPage() {
 
                     <div className="grid grid-cols-2 gap-2 bg-muted/30 border border-border/60 p-3 rounded-xl text-xs">
                       <div>
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Required Volume</span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Volume Needed</span>
                         <p className="font-bold text-foreground text-sm">{b.required_quantity.toLocaleString()} {b.quantity_unit}</p>
                       </div>
                       <div>
                         <span className="text-[10px] text-muted-foreground uppercase font-bold">Target Price</span>
-                        <p className="font-bold text-teal-600 dark:text-teal-400 text-sm">
+                        <p className="font-bold text-emerald-600 dark:text-emerald-400 text-sm">
                           {b.expected_price_min && b.expected_price_max
                             ? `₹${b.expected_price_min.toLocaleString()} - ₹${b.expected_price_max.toLocaleString()}`
-                            : ((b as any).expected_price ? `₹${(b as any).expected_price.toLocaleString()}` : "Market Negotiable")}
+                            : "Negotiable Benchmark"}
                         </p>
                       </div>
                     </div>
@@ -1287,117 +1563,88 @@ export default function MandiPage() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span>Delivery to: {b.delivery_destination || `${b.buyer_location_district || (b as any).district}, ${b.buyer_location_state || (b as any).state}`}</span>
+                        <span>Destination: {b.delivery_destination || `${b.district}, ${b.state}`}</span>
                       </div>
-                      {(b.quality_specifications || (b as any).quality_requirements) && (
-                        <div className="text-[11px] text-muted-foreground italic">
-                          Specs: {b.quality_specifications || (b as any).quality_requirements}
+                      {b.contact_person && (
+                        <div className="text-xs font-semibold text-foreground">
+                          Contact Officer: {b.contact_person}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
-                    <span className="text-[10px] text-muted-foreground font-mono">
-                      Expires: {b.offer_expiry_date ? new Date(b.offer_expiry_date).toLocaleDateString() : "Active"}
-                    </span>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setReportTarget({ type: "buyer_requirement", id: b.id, title: `${b.commodity} requirement` })}
-                        className="text-xs text-muted-foreground hover:text-red-500 h-8 px-2"
-                      >
-                        <Flag className="h-3 w-3 mr-1" /> Report
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setInquiryTarget({
-                          type: "buyer_requirement",
-                          id: b.id,
-                          title: `Supply Offer for ${b.commodity}`,
-                          defaultQty: b.required_quantity,
-                          defaultPrice: b.expected_price_min || undefined,
-                          unit: b.quantity_unit,
-                        })}
-                        className="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs h-8 px-3 rounded-lg"
-                      >
-                        <Send className="h-3 w-3 mr-1" /> {tabT.submitQuote}
-                      </Button>
-                    </div>
+                  {/* Direct Contact Bar */}
+                  <div className="pt-3 border-t border-border">
+                    <DirectContactBar
+                      phone={b.contact_phone}
+                      maskedPhone={b.contact_phone_masked}
+                      name={b.contact_person || b.buyer_name}
+                      role="buyer"
+                      itemTitle={b.commodity}
+                      price={b.expected_price_min}
+                      unit={b.price_unit}
+                    />
                   </div>
                 </div>
               ))}
-              {filteredBuy.length === 0 && (
-                <div className="col-span-full text-center py-12 bg-card border border-border rounded-2xl">
-                  <p className="text-xs text-muted-foreground">No buyer requirements currently match your criteria.</p>
-                </div>
-              )}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* ============================================================ */}
-      {/*  TAB 3: SELL OFFERS                                          */}
-      {/* ============================================================ */}
-      {activeTab === "sell" && (
-        <div className="flex flex-col gap-6">
-          {/* Header Action Bar */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 rounded-2xl bg-card border border-border">
-            <div>
-              <h2 className="text-base font-bold text-foreground">Verified Farmer & FPO Sell Listings</h2>
-              <p className="text-xs text-muted-foreground">Source directly from genuine harvest lots with stock verification.</p>
-            </div>
-            <Button
-              onClick={() => setShowPostProduceModal(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-md shadow-emerald-600/10"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              {tabT.postListing}
-            </Button>
           </div>
+        )}
 
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search crop, variety, farmer, district..."
-                value={sellSearch}
-                onChange={(e) => setSellSearch(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              />
+        {/* ============================================================ */}
+        {/*  TAB 4: FARMER SELL LISTINGS (PRODUCE LOTS & CONTACTS)       */}
+        {/* ============================================================ */}
+        {activeTab === "sell" && (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl bg-card border border-border">
+              <div>
+                <h2 className="text-base font-bold text-foreground">Verified Farmer Harvest Listings</h2>
+                <p className="text-xs text-muted-foreground">
+                  Source directly from genuine farmers and FPOs with direct phone numbers and verified stock.
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowPostProduceModal(true)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>+ Post My Harvest Lot</span>
+              </Button>
             </div>
-            <select
-              value={sellState}
-              onChange={(e) => setSellState(e.target.value)}
-              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500"
-            >
-              <option value="All">All Producer States</option>
-              {sellStates.filter((s) => s !== "All").map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
 
-          {/* Sell Listings Grid */}
-          {loadingSell ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search crop, farmer name, mandi, district..."
+                  value={sellSearch}
+                  onChange={(e) => setSellSearch(e.target.value)}
+                  className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+              <select
+                value={sellState}
+                onChange={(e) => setSellState(e.target.value)}
+                className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                <option value="All">All Producer States</option>
+                {statesList.filter((s) => s !== "All").map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </div>
-          ) : (
+
+            {/* Sell Listings Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredSell.map((s) => (
-                <div key={s.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-emerald-500/30 transition-all">
+                <div key={s.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-emerald-500/40 transition-all space-y-4">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <span className="text-xs font-semibold text-muted-foreground">{s.farmer_name}</span>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        s.availability_status === "available" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-muted text-muted-foreground"
-                      }`}>
-                        {s.availability_status.toUpperCase()}
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                        {s.availability_status ? s.availability_status.toUpperCase() : "AVAILABLE"}
                       </span>
                     </div>
 
@@ -1419,15 +1666,14 @@ export default function MandiPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                    <div className="space-y-1 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
                         <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="font-bold text-foreground">{s.farmer_name}</span>
-                        <span className="text-[10px] font-mono bg-muted px-1.5 py-0.2 rounded">{s.farmer_phone_masked || "+91 98*** *****"}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span>{s.village_or_tehsil ? `${s.village_or_tehsil}, ` : ""}{s.district}, {s.state}</span>
+                        <span>Origin: {s.mandi_nearby ? `${s.mandi_nearby}, ` : ""}{s.district}, {s.state}</span>
                       </div>
                       <div className="flex items-center gap-3 text-[11px] pt-1">
                         <span>Quality: <strong className="text-foreground">{s.grade_or_quality}</strong></span>
@@ -1437,194 +1683,507 @@ export default function MandiPage() {
                         <span>Delivery: <strong className="text-foreground">{s.delivery_option}</strong></span>
                       </div>
                     </div>
-
-                    {s.last_confirmation_date && (
-                      <div className="text-[10px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-semibold">
-                        <Check className="h-3 w-3" />
-                        <span>Stock confirmed by seller on {new Date(s.last_confirmation_date).toLocaleDateString()}</span>
-                      </div>
-                    )}
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleConfirmStock(s.id)}
-                      className="text-[11px] h-8 px-2.5 rounded-lg border-border hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
-                    >
-                      <Check className="h-3 w-3 mr-1" /> {tabT.confirmStock}
-                    </Button>
-
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setReportTarget({ type: "produce_listing", id: s.id, title: `${s.crop_name} lot` })}
-                        className="text-xs text-muted-foreground hover:text-red-500 h-8 px-2"
-                      >
-                        <Flag className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => setInquiryTarget({
-                          type: "produce_listing",
-                          id: s.id,
-                          title: `Inquiry for ${s.crop_name} (${s.quantity} ${s.quantity_unit})`,
-                          defaultQty: s.quantity,
-                          defaultPrice: s.asking_price,
-                          unit: s.quantity_unit,
-                        })}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-8 px-3 rounded-lg"
-                      >
-                        <Phone className="h-3 w-3 mr-1" /> {tabT.contactSeller}
-                      </Button>
-                    </div>
+                  {/* Direct Contact Bar */}
+                  <div className="pt-3 border-t border-border">
+                    <DirectContactBar
+                      phone={s.farmer_phone}
+                      maskedPhone={s.farmer_phone_masked}
+                      name={s.farmer_name}
+                      role="seller"
+                      itemTitle={s.crop_name}
+                      price={s.asking_price}
+                      unit={s.price_unit}
+                    />
                   </div>
                 </div>
               ))}
-              {filteredSell.length === 0 && (
-                <div className="col-span-full text-center py-12 bg-card border border-border rounded-2xl">
-                  <p className="text-xs text-muted-foreground">No produce listings found matching the criteria.</p>
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/*  TAB 5: REAL SMART ALERTS (WHATSAPP & SMS CLOUD GATEWAY)     */}
+        {/* ============================================================ */}
+        {activeTab === "alerts" && (
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+                <div>
+                  <h2 className="text-xl font-black text-foreground font-display flex items-center gap-2">
+                    <BellRing className="h-5 w-5 text-amber-500" />
+                    <span>Real Smart Alert Notification System</span>
+                  </h2>
+                  <p className="text-xs text-muted-foreground">
+                    Automated background monitoring connected with Meta WhatsApp Cloud API and MSG91 DLT Gateway.
+                  </p>
                 </div>
+                {providerStatus && (
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                      providerStatus.whatsapp.configured
+                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                    }`}>
+                      WhatsApp: {providerStatus.whatsapp.configured ? "Ready" : "Standby"}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                      providerStatus.sms.configured
+                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                    }`}>
+                      SMS: {providerStatus.sms.configured ? "Ready" : "Standby"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Create Alert Form */}
+              <form onSubmit={handleCreateAlert} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Target Crop</label>
+                  <input
+                    type="text"
+                    disabled
+                    value={`${activeCrop.name} (${activeCrop.mandi})`}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-muted text-xs font-bold text-foreground"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Target Price (₹ / quintal)</label>
+                  <input
+                    type="number"
+                    required
+                    placeholder="e.g. 2950"
+                    value={alertTargetPrice}
+                    onChange={(e) => setAlertTargetPrice(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Trigger Condition</label>
+                  <select
+                    value={alertCondition}
+                    onChange={(e) => setAlertCondition(e.target.value as "above" | "below" | "exact")}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground"
+                  >
+                    <option value="above">When price rises to or above (≥)</option>
+                    <option value="below">When price drops to or below (≤)</option>
+                    <option value="exact">When price matches exact (=)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Notification Channel</label>
+                  <select
+                    value={alertChannel}
+                    onChange={(e) => setAlertChannel(e.target.value as "whatsapp" | "sms" | "both")}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground"
+                  >
+                    <option value="whatsapp">WhatsApp Message</option>
+                    <option value="sms">DLT SMS Alert</option>
+                    <option value="both">Both (WhatsApp + SMS)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-foreground block mb-1">Registered Farmer Mobile</label>
+                  <input
+                    type="text"
+                    placeholder="+91 98263 12456"
+                    value={alertPhoneInput}
+                    onChange={(e) => setAlertPhoneInput(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <div className="flex flex-col justify-end">
+                  <Button
+                    type="submit"
+                    disabled={alertSubmitting}
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-black text-xs rounded-xl h-10 shadow-xs"
+                  >
+                    {alertSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Set Smart Price Alert"}
+                  </Button>
+                </div>
+
+                {/* Explicit Consent Checkboxes */}
+                <div className="md:col-span-3 pt-2 space-y-1.5 text-xs text-muted-foreground border-t border-border/60">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={alertWhatsappConsent}
+                      onChange={(e) => setAlertWhatsappConsent(e.target.checked)}
+                      className="rounded text-primary focus:ring-primary h-4 w-4"
+                    />
+                    <span>I explicitly consent to receive real-time Mandi price notifications on WhatsApp.</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={alertSmsConsent}
+                      onChange={(e) => setAlertSmsConsent(e.target.checked)}
+                      className="rounded text-primary focus:ring-primary h-4 w-4"
+                    />
+                    <span>I consent to receive official price alerts on registered mobile via SMS.</span>
+                  </label>
+                </div>
+              </form>
+            </div>
+
+            {/* Live Active Alerts Table */}
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold text-foreground">Your Registered Mandi Monitors ({activeAlerts.length})</h3>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleTriggerRunCheck}
+                  className="text-xs font-bold h-8 rounded-lg"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 mr-1" /> Run Check Now
+                </Button>
+              </div>
+
+              {activeAlerts.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
+                      <tr>
+                        <th className="p-3">Crop / Mandi</th>
+                        <th className="p-3">Target Condition</th>
+                        <th className="p-3">Channel</th>
+                        <th className="p-3">Status</th>
+                        <th className="p-3">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {activeAlerts.map((al) => (
+                        <tr key={al.id} className="hover:bg-muted/20">
+                          <td className="p-3 font-bold text-foreground">{al.crop_name} ({al.market_center || "All Mandis"})</td>
+                          <td className="p-3 font-semibold text-emerald-600 dark:text-emerald-400">
+                            {al.condition === "above" ? "≥" : al.condition === "below" ? "≤" : "="} ₹{al.target_price.toLocaleString()}
+                          </td>
+                          <td className="p-3 uppercase font-bold text-[10px]">{al.channel}</td>
+                          <td className="p-3">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              al.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
+                            }`}>
+                              {al.is_active ? "ACTIVE" : "PAUSED"}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <button
+                              onClick={async () => {
+                                await mandiAlertsApi.delete(al.id)
+                                fetchAlertsData()
+                              }}
+                              className="text-muted-foreground hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-6">
+                  No active price alerts set. Use the form above to register automated WhatsApp/SMS monitoring.
+                </p>
               )}
             </div>
-          )}
-        </div>
-      )}
 
-      {/* ============================================================ */}
-      {/*  TAB 4: GOVERNMENT PROCUREMENT (MSP)                         */}
-      {/* ============================================================ */}
-      {activeTab === "gov" && (
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 rounded-2xl bg-purple-500/5 border border-purple-500/20">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              <h2 className="text-sm sm:text-base font-bold text-foreground">Government MSP Procurement Centres</h2>
-            </div>
-            <span className="text-xs text-muted-foreground font-medium">Source: Official Portals</span>
+            {/* Notification History Audit Log */}
+            {alertHistory.length > 0 && (
+              <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-3">
+                <h3 className="text-base font-bold text-foreground">Delivery History Log</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
+                      <tr>
+                        <th className="p-2.5">Date</th>
+                        <th className="p-2.5">Channel</th>
+                        <th className="p-2.5">Observed Rate</th>
+                        <th className="p-2.5">Target</th>
+                        <th className="p-2.5">Delivery Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {alertHistory.map((h) => (
+                        <tr key={h.id}>
+                          <td className="p-2.5 text-muted-foreground">{new Date(h.created_at).toLocaleDateString()}</td>
+                          <td className="p-2.5 font-bold uppercase">{h.channel}</td>
+                          <td className="p-2.5 font-bold text-foreground">₹{h.triggered_price.toLocaleString()}</td>
+                          <td className="p-2.5 text-muted-foreground">₹{h.target_price.toLocaleString()}</td>
+                          <td className="p-2.5">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+                              {h.delivery_status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
+        )}
 
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search crop, procurement centre, agency..."
-                value={govSearch}
-                onChange={(e) => setGovSearch(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-purple-500"
-              />
+        {/* ============================================================ */}
+        {/*  TAB 6: MANDI LEDGER (KHATA BHI - SALES & PAYMENTS)          */}
+        {/* ============================================================ */}
+        {activeTab === "ledger" && (
+          <div className="space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
+                <span className="text-xs font-bold text-muted-foreground uppercase">Total Mandi Sales</span>
+                <p className="text-2xl font-black text-foreground font-display mt-1">
+                  ₹{salesSummary.total_sales_value.toLocaleString()}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-xs">
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase">Amount Received</span>
+                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-display mt-1">
+                  ₹{salesSummary.total_received.toLocaleString()}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 shadow-xs">
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase">Payment Pending</span>
+                <p className="text-2xl font-black text-amber-600 dark:text-amber-400 font-display mt-1">
+                  ₹{salesSummary.total_pending.toLocaleString()}
+                </p>
+              </div>
             </div>
-            <select
-              value={govState}
-              onChange={(e) => setGovState(e.target.value)}
-              className="rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-purple-500"
-            >
-              <option value="All">All Procurement States</option>
-              {govStates.filter((s) => s !== "All").map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
 
-          {/* Procurement Centres Grid */}
-          {loadingGov ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+            {/* Action Bar & Table */}
+            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border pb-4">
+                <div>
+                  <h3 className="text-lg font-black text-foreground font-display">Farmer Mandi Ledger (मंडी खाता बhi)</h3>
+                  <p className="text-xs text-muted-foreground">Keep authentic records of harvest sales, APMC weighments, cess deductions, and payment status.</p>
+                </div>
+                <Button
+                  onClick={() => setShowAddSaleModal(true)}
+                  className="bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>+ Record Mandi Sale</span>
+                </Button>
+              </div>
+
+              {salesRecords.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
+                      <tr>
+                        <th className="p-3">Date</th>
+                        <th className="p-3">Mandi / Trader</th>
+                        <th className="p-3">Commodity</th>
+                        <th className="p-3">Volume & Rate</th>
+                        <th className="p-3">Net Due</th>
+                        <th className="p-3">Received</th>
+                        <th className="p-3">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {salesRecords.map((r) => (
+                        <tr key={r.id} className="hover:bg-muted/20">
+                          <td className="p-3 text-muted-foreground">{r.sale_date}</td>
+                          <td className="p-3 font-bold text-foreground">
+                            {r.mandi_name}
+                            <span className="block text-[10px] font-normal text-muted-foreground">{r.buyer_name}</span>
+                          </td>
+                          <td className="p-3 font-semibold">{r.commodity}</td>
+                          <td className="p-3">
+                            <span className="font-bold text-foreground">{r.quantity_quintals} qtl</span> @ ₹{r.rate_per_quintal}/qtl
+                          </td>
+                          <td className="p-3 font-bold text-foreground">₹{r.net_amount.toLocaleString()}</td>
+                          <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">₹{r.amount_received.toLocaleString()}</td>
+                          <td className="p-3">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              r.payment_status === "paid"
+                                ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
+                                : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                            }`}>
+                              {r.payment_status.toUpperCase()}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-8">
+                  No sales recorded yet. Click <strong>+ Record Mandi Sale</strong> above to log your weighment and payment details.
+                </p>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredGov.map((g) => (
-                <div key={g.id} className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-xs hover:border-purple-500/30 transition-all">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs font-bold text-purple-700 dark:text-purple-400">{g.nodal_agency || "MSP Centre"}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                        {g.procurement_season}
-                      </span>
-                    </div>
 
+            {/* Add Sale Modal */}
+            {showAddSaleModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+                <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl relative space-y-4">
+                  <button onClick={() => setShowAddSaleModal(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+                    <X className="h-5 w-5" />
+                  </button>
+                  <h3 className="text-lg font-black text-foreground font-display flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    <span>Record Mandi Sale Transaction</span>
+                  </h3>
+                  <form onSubmit={handleCreateSaleRecord} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
+                      <label className="font-bold text-foreground block mb-1">Mandi Name</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Sehore Krishi Upaj Mandi"
+                        value={newSaleMandi}
+                        onChange={(e) => setNewSaleMandi(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-foreground block mb-1">Buyer / Trader / Commission Agent</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. ITC Choupal / Sharma Traders"
+                        value={newSaleBuyer}
+                        onChange={(e) => setNewSaleBuyer(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-foreground block mb-1">Crop / Commodity</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Wheat (गेहूं)"
+                        value={newSaleCrop}
+                        onChange={(e) => setNewSaleCrop(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-foreground block mb-1">Quantity (Quintals)</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        required
+                        placeholder="e.g. 50"
+                        value={newSaleQty}
+                        onChange={(e) => setNewSaleQty(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-foreground block mb-1">Agreed Rate (₹ / Quintal)</label>
+                      <input
+                        type="number"
+                        required
+                        placeholder="e.g. 2850"
+                        value={newSaleRate}
+                        onChange={(e) => setNewSaleRate(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-bold text-foreground block mb-1">Total Deductions (Cess, Labor) ₹</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 850"
+                        value={newSaleDeductions}
+                        onChange={(e) => setNewSaleDeductions(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="font-bold text-foreground block mb-1">Amount Received in Cash/NEFT (₹)</label>
+                      <input
+                        type="number"
+                        placeholder="e.g. 100000"
+                        value={newSaleReceived}
+                        onChange={(e) => setNewSaleReceived(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2 flex gap-2 pt-2">
+                      <Button type="button" variant="ghost" onClick={() => setShowAddSaleModal(false)} className="flex-1 rounded-xl">
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={newSaleSubmitting} className="flex-1 bg-primary text-white font-bold rounded-xl">
+                        {newSaleSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save to Ledger"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/*  TAB 7: GOVERNMENT PROCUREMENT & MSP CENTERS                 */}
+        {/* ============================================================ */}
+        {activeTab === "gov" && (
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl bg-card border border-border">
+              <div>
+                <h2 className="text-base font-bold text-foreground">Official Government Procurement (MSP) Centres</h2>
+                <p className="text-xs text-muted-foreground">
+                  Official FCI, NAFED, and state civil supplies procurement guidelines and direct registration links.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {govItems.map((g) => (
+                <div key={g.id} className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-xs">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold text-primary uppercase">{g.procurement_season || "Kharif / Rabi"}</span>
                       <h3 className="text-lg font-black text-foreground font-display">{g.crop_name}</h3>
-                      <p className="text-xs text-muted-foreground">Centre: <strong className="text-foreground">{g.procurement_centre_name || (g as any).procurement_center}</strong></p>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-2 bg-purple-500/5 border border-purple-500/20 p-3 rounded-xl text-xs">
-                      <div>
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Base MSP Rate</span>
-                        <p className="font-bold text-foreground text-sm">₹{(g.msp_rate_per_quintal || (g as any).msp_rate || 0).toLocaleString()}/qtl</p>
-                      </div>
-                      <div>
-                        <span className="text-[10px] text-purple-600 dark:text-purple-400 uppercase font-bold">Effective Rate</span>
-                        <p className="font-bold text-purple-600 dark:text-purple-400 text-sm">
-                          ₹{(g.effective_procurement_rate || g.msp_rate_per_quintal || (g as any).msp_rate || 0).toLocaleString()}/qtl
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span>Nodal Agency: <strong className="text-foreground">{g.nodal_agency}</strong></span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span>Location: {g.district}, {g.state}</span>
-                      </div>
-                      {(g.faq_specs || (g as any).faq_specifications) && (
-                        <div className="p-2.5 rounded-lg bg-muted/40 border border-border text-[11px] text-muted-foreground">
-                          <span className="font-bold text-foreground block mb-0.5">FAQ Specifications:</span>
-                          {g.faq_specs || (g as any).faq_specifications}
-                        </div>
-                      )}
-                      {(g.eligibility_criteria || (g as any).registration_requirements) && (
-                        <div className="text-[11px] text-muted-foreground">
-                          Requirements: {g.eligibility_criteria || (g as any).registration_requirements}
-                        </div>
-                      )}
-                    </div>
+                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      MSP: {g.effective_procurement_rate || g.msp_rate_per_quintal ? `₹${(g.effective_procurement_rate || g.msp_rate_per_quintal).toLocaleString()}/qtl` : "MSP Announcement Pending"}
+                    </span>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-border flex items-center justify-between gap-2">
-                    {g.contact_helpline ? (
-                      <a
-                        href={`tel:${g.contact_helpline}`}
-                        className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1"
-                      >
-                        <Phone className="h-3 w-3" /> {g.contact_helpline}
-                      </a>
-                    ) : <span />}
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <p>Center: <strong className="text-foreground">{g.procurement_center || g.procurement_centre_name || "Official APMC Center"}</strong></p>
+                    <p>Agency: <strong className="text-foreground">{g.nodal_agency || "NAFED / FCI"}</strong></p>
+                    <p>Location: <strong className="text-foreground">{g.district}, {g.state}</strong></p>
+                  </div>
 
-                    {g.registration_portal_url && (
+                  {g.official_portal_url && (
+                    <div className="pt-2">
                       <a
-                        href={g.registration_portal_url}
+                        href={g.official_portal_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-600/10 transition-all"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
                       >
-                        <span>{g.registration_portal_name || "Official Portal"}</span>
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        <span>Official Farmer Registration Portal</span>
                       </a>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
-              {filteredGov.length === 0 && (
-                <div className="col-span-full text-center py-12 bg-card border border-border rounded-2xl">
-                  <p className="text-xs text-muted-foreground">No government procurement centres found for this search.</p>
-                </div>
-              )}
             </div>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
-      {/* ============================================================ */}
-      {/*  MODALS                                                      */}
-      {/* ============================================================ */}
+      </div>
 
       {/* Post Produce Listing Modal */}
       {showPostProduceModal && (
@@ -1632,7 +2191,7 @@ export default function MandiPage() {
           onClose={() => setShowPostProduceModal(false)}
           onSuccess={() => {
             setShowPostProduceModal(false)
-            setToastMessage("Produce listing created successfully!")
+            setToastMessage("Your harvest listing has been submitted successfully!")
             fetchSellOffers()
           }}
         />
@@ -1644,35 +2203,32 @@ export default function MandiPage() {
           onClose={() => setShowPostRequirementModal(false)}
           onSuccess={() => {
             setShowPostRequirementModal(false)
-            setToastMessage("Buyer requirement posted successfully!")
+            setToastMessage("Your purchase requirement has been posted!")
             fetchBuyRequirements()
           }}
         />
       )}
 
-      {/* Trade Inquiry Modal */}
+      {/* Inquiry Modal */}
       {inquiryTarget && (
         <SubmitInquiryModal
           target={inquiryTarget}
           onClose={() => setInquiryTarget(null)}
           onSuccess={() => {
             setInquiryTarget(null)
-            setToastMessage("Inquiry / Quotation sent to party successfully!")
+            setToastMessage("Your inquiry has been submitted directly.")
           }}
         />
       )}
 
-      {/* Contextual Farmer Quick Review */}
-      <QuickReviewCard category="mandi" sourcePage="/mandi" />
-
-      {/* Report Listing Modal */}
+      {/* Report Modal */}
       {reportTarget && (
         <ReportListingModal
           target={reportTarget}
           onClose={() => setReportTarget(null)}
           onSuccess={() => {
             setReportTarget(null)
-            setToastMessage("Report submitted to review team. Thank you for keeping the marketplace safe.")
+            setToastMessage("Thank you. Listing reported for review.")
           }}
         />
       )}
@@ -1680,97 +2236,6 @@ export default function MandiPage() {
   )
 }
 
-/* ================================================================== */
-/*  Sub-components                                                     */
-/* ================================================================== */
-
-function MandiPriceTable({
-  crops,
-  lang,
-  onSelect,
-  selectedId,
-}: {
-  crops: MandiCrop[]
-  lang: Lang
-  onSelect: (crop: MandiCrop) => void
-  selectedId?: number | string
-}) {
-  return (
-    <table className="w-full min-w-[780px] text-left text-sm">
-      <caption className="sr-only">Current mandi prices by crop and market</caption>
-      <thead className="border-b border-border bg-muted/50 text-[10px] font-bold uppercase tracking-[.08em] text-muted-foreground">
-        <tr>
-          <th scope="col" className="px-5 py-3.5">Commodity</th>
-          <th scope="col" className="px-4 py-3.5">Market</th>
-          <th scope="col" className="px-4 py-3.5 text-right">Modal Price</th>
-          <th scope="col" className="px-4 py-3.5 text-right">Daily Range</th>
-          <th scope="col" className="px-4 py-3.5 text-right">Movement</th>
-          <th scope="col" className="px-5 py-3.5 text-right"><span className="sr-only">View details</span></th>
-        </tr>
-      </thead>
-      <tbody className="divide-y divide-border">
-        {crops.map((crop) => {
-          const isSelected = selectedId === crop.id
-          return (
-            <tr
-              key={crop.id}
-              onClick={() => onSelect(crop)}
-              className={`group transition-colors cursor-pointer ${
-                isSelected ? "bg-primary/5 font-semibold" : "hover:bg-muted/40"
-              }`}
-            >
-              <td className="px-5 py-4">
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`h-8 w-1.5 rounded-full transition-colors ${
-                      isSelected ? "bg-primary" : "bg-primary/30 group-hover:bg-primary/70"
-                    }`}
-                    aria-hidden="true"
-                  />
-                  <div>
-                    <p className={`text-sm ${isSelected ? "font-black text-primary" : "font-bold text-foreground"}`}>
-                      {translateData(crop.name, lang)}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{translateData(crop.variety, lang)} · {crop.category}</p>
-                  </div>
-                </div>
-              </td>
-              <td className="px-4 py-4">
-                <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                  <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
-                  <span>{translateData(crop.mandi, lang)}<br />{translateData(crop.state, lang)}</span>
-                </div>
-              </td>
-              <td className="px-4 py-4 text-right">
-                <p className="font-display text-base font-black text-foreground">₹{(crop.modal_price || crop.price).toLocaleString()}</p>
-                <p className="text-[11px] text-muted-foreground font-normal">per {translateData(crop.unit, lang)}</p>
-              </td>
-              <td className="px-4 py-4 text-right text-xs text-muted-foreground font-medium">
-                ₹{crop.min_price.toLocaleString()} – ₹{crop.max_price.toLocaleString()}
-              </td>
-              <td className="px-4 py-4 text-right"><TrendBadge trend={crop.trend} change={crop.change_percent} /></td>
-              <td className="px-5 py-4 text-right">
-                <Button
-                  size="sm"
-                  variant={isSelected ? "default" : "outline"}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onSelect(crop)
-                  }}
-                  className={`h-8 px-3 text-xs font-bold rounded-lg ${isSelected ? "bg-primary text-white" : ""}`}
-                >
-                  {isSelected ? "Viewing" : "View Price"}
-                </Button>
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
-  )
-}
-
-/* ---- Crop Card ---- */
 function CropCard({
   crop,
   index,

@@ -1,20 +1,20 @@
-"""Text-to-Speech service.
+"""Text-to-Speech service for KisaanBuddy.
 
 Provider chain:
-  1. Sarvam.ai  — best for Hindi + Kannada (if SARVAM_API_KEY is set).
-  2. Google Cloud TTS  — WaveNet voices for hi-IN, kn-IN (if creds set).
-  3. OpenAI TTS  — strong English, passable other langs (if OPENAI_API_KEY).
-  4. Browser fallback  — if none configured, return TTSBrowserHint so the
-     frontend uses window.speechSynthesis (free, works offline).
+  1. Sarvam.ai (bulbul:v3 / bulbul:v4-flash) — best for Indian regional languages
+  2. Edge Neural TTS (Indian neural voices) — reliable, realistic Indian accent audio
+  3. Google Cloud TTS — WaveNet / Neural2 voices
+  4. OpenAI TTS — English fallback
+  5. Browser hint (window.speechSynthesis) — last resort if all server audio fails
 
-This module never blocks startup; all provider SDKs are imported lazily.
-Each provider returns raw bytes + MIME type. The API layer streams them
-back to the client.
+Returns raw bytes + MIME type so the API layer can stream/send directly to the client.
 """
 from __future__ import annotations
 
+import asyncio
 import base64
 import logging
+import re
 from typing import Optional, Tuple
 
 import httpx
@@ -25,8 +25,6 @@ from schemas.chatbot import TTSBrowserHint
 log = logging.getLogger(__name__)
 
 # Locale choices are a routing hint, not proof of a provider voice's quality.
-# Bhojpuri and Maithili intentionally use Hindi as a transparent fallback until
-# dedicated voices pass the voice benchmark.
 _BCP47 = {
     "en": "en-IN", "hi": "hi-IN", "hi_en": "hi-IN", "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN",
     "te": "te-IN", "ta": "ta-IN", "gu": "gu-IN", "pa": "pa-IN", "bho": "hi-IN", "mai": "hi-IN",
@@ -35,11 +33,23 @@ _SARVAM_LANG = _BCP47
 _GOOGLE_LANG = _BCP47
 _GOOGLE_VOICE = {"hi": "hi-IN-Neural2-A", "kn": "kn-IN-Standard-A", "en": "en-IN-Neural2-A"}
 
-# Bulbul v4 Flash is Sarvam's current neural model.  Kannada has a much
-# smaller v4 persona roster, so use Sarvam's documented, production-tested
-# Bulbul v3 speaker there instead of guessing an unsupported v4 speaker ID.
-# Hinglish still uses Hindi text-normalisation; its v4 ``enhi`` speaker keeps
-# English crop/product names natural in otherwise Roman-Hindi responses.
+# High-fidelity Indian neural voices for realistic, authentic conversational delivery
+_EDGE_NEURAL_VOICES = {
+    "hi": "hi-IN-SwaraNeural",
+    "hi_en": "hi-IN-MadhurNeural",
+    "kn": "kn-IN-SapnaNeural",
+    "en": "en-IN-NeerjaNeural",
+    "bn": "bn-IN-TanishaaNeural",
+    "mr": "mr-IN-AarohiNeural",
+    "te": "te-IN-ShrutiNeural",
+    "ta": "ta-IN-PallaviNeural",
+    "gu": "gu-IN-DhwaniNeural",
+    "pa": "pa-IN-OjasNeural",
+    "ml": "ml-IN-SobhanaNeural",
+    "bho": "hi-IN-SwaraNeural",
+    "mai": "hi-IN-SwaraNeural",
+}
+
 _SARVAM_PROFILE = {
     "en": ("bulbul:v4-flash", "aparna_en_companion"),
     "hi": ("bulbul:v4-flash", "aparna_hi_customer"),
@@ -63,16 +73,26 @@ class TTSResult:
         self.provider = provider
 
 
+def _clean_text_for_speech(text: str) -> str:
+    """Strip markdown, asterisks, brackets, and URLs for natural spoken speech."""
+    t = text or ""
+    t = re.sub(r'[*#_~`>]', '', t)
+    t = re.sub(r'https?://\S+', '', t)
+    t = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', t)
+    t = re.sub(r'•\s*', ', ', t)
+    t = re.sub(r'[-–—]\s*', ' ', t)
+    t = re.sub(r'\s+', ' ', t).strip()
+    return t
+
+
 # ---------------------------------------------------------------------------
-# Sarvam.ai — Indian-languages-first
+# 1. Sarvam.ai — Indian-languages-first
 # ---------------------------------------------------------------------------
 async def _sarvam_tts(text: str, lang: str) -> TTSResult:
     key = settings.SARVAM_API_KEY
-    if not key:
+    if not key or len(key) < 20:
         raise TTSError("SARVAM_API_KEY not set")
 
-    # ``auto`` can reach this endpoint from text clients.  Resolve it from
-    # the text instead of accidentally speaking every unknown reply as Hindi.
     if lang == "auto":
         from services.chat.language_detect import detect_language
         lang = detect_language(text)
@@ -80,15 +100,12 @@ async def _sarvam_tts(text: str, lang: str) -> TTSResult:
     model, speaker = _SARVAM_PROFILE.get(lang, _SARVAM_DEFAULT_PROFILE)
     url = "https://api.sarvam.ai/text-to-speech"
     headers = {"api-subscription-key": key, "Content-Type": "application/json"}
+    
+    clean_text = _clean_text_for_speech(text)[:2500]
     body = {
-        "text": text[:2500],
-        # Sarvam Bulbul REST uses ``language_code``. It controls Indic text
-        # normalisation (numbers, crop names and abbreviations), not merely a
-        # display label, so it must match the response language.
+        "text": clean_text,
         "language_code": target,
         "speaker": speaker,
-        # A slightly slower pace improves clarity for field use without adding
-        # artificial pauses. Bulbul handles sentence prosody itself.
         "pace": 0.96,
         "speech_sample_rate": 24000,
         "output_audio_codec": "mp3",
@@ -97,8 +114,6 @@ async def _sarvam_tts(text: str, lang: str) -> TTSResult:
     used_model = model
     async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
         r = await client.post(url, json=body, headers=headers)
-        # A key can lag a model rollout. Preserve correct-language neural
-        # speech by retrying Sarvam's stable profile, never an English voice.
         if r.status_code >= 400 and model == "bulbul:v4-flash":
             fallback = dict(body)
             fallback.update({
@@ -107,23 +122,58 @@ async def _sarvam_tts(text: str, lang: str) -> TTSResult:
             })
             r = await client.post(url, json=fallback, headers=headers)
             used_model = "bulbul:v3"
+
     if r.status_code >= 400:
         raise TTSError(f"Sarvam TTS {r.status_code}: {r.text[:200]}")
     data = r.json()
     audios = data.get("audios", [])
     if not audios:
         raise TTSError("Sarvam returned empty audio")
-    # Sarvam may split a long response into multiple base64 fragments. Joining
-    # first prevents truncating the assistant's actual answer.
     audio = base64.b64decode("".join(audios))
     return TTSResult(audio, "audio/mpeg", f"sarvam-{used_model}")
 
 
 # ---------------------------------------------------------------------------
-# Google Cloud TTS — WaveNet / Neural2 voices
+# 2. Indian Neural TTS (Edge TTS) — High-fidelity natural voice
+# ---------------------------------------------------------------------------
+async def _edge_tts(text: str, lang: str) -> TTSResult:
+    try:
+        import edge_tts
+    except ImportError as e:
+        raise TTSError(f"edge_tts not installed: {e}") from e
+
+    if lang == "auto":
+        from services.chat.language_detect import detect_language
+        lang = detect_language(text)
+
+    clean_text = _clean_text_for_speech(text)[:3000]
+    if not clean_text:
+        raise TTSError("Empty text for speech synthesis")
+
+    voice = _EDGE_NEURAL_VOICES.get(lang, "hi-IN-SwaraNeural")
+
+    for attempt in range(2):
+        try:
+            comm = edge_tts.Communicate(clean_text, voice)
+            audio_data = b""
+            async for chunk in comm.stream():
+                if chunk["type"] == "audio":
+                    audio_data += chunk["data"]
+            if audio_data:
+                return TTSResult(audio_data, "audio/mpeg", f"neural-{voice}")
+        except Exception as e:
+            if attempt == 1:
+                log.warning("Edge neural TTS failed: %s", e)
+                raise TTSError(f"Neural TTS failed: {e}") from e
+            await asyncio.sleep(0.3)
+
+    raise TTSError("Edge neural TTS generated empty audio stream")
+
+
+# ---------------------------------------------------------------------------
+# 3. Google Cloud TTS — WaveNet / Neural2 voices
 # ---------------------------------------------------------------------------
 async def _google_tts(text: str, lang: str) -> TTSResult:
-    # google-cloud-texttospeech is sync; run in threadpool.
     try:
         from google.cloud import texttospeech  # type: ignore
     except Exception as e:
@@ -132,14 +182,12 @@ async def _google_tts(text: str, lang: str) -> TTSResult:
     if not settings.GOOGLE_APPLICATION_CREDENTIALS:
         raise TTSError("GOOGLE_APPLICATION_CREDENTIALS not set")
 
-    import asyncio
+    clean_text = _clean_text_for_speech(text)[:3000]
 
     def _run() -> bytes:
         client = texttospeech.TextToSpeechClient()
-        synthesis_input = texttospeech.SynthesisInput(text=text[:3000])
+        synthesis_input = texttospeech.SynthesisInput(text=clean_text)
         voice_args = {"language_code": _GOOGLE_LANG.get(lang, "en-IN")}
-        # Let Google select its locale default when no named tested voice is
-        # configured, rather than accidentally forcing an English voice.
         if lang in _GOOGLE_VOICE:
             voice_args["name"] = _GOOGLE_VOICE[lang]
         voice = texttospeech.VoiceSelectionParams(**voice_args)
@@ -152,7 +200,7 @@ async def _google_tts(text: str, lang: str) -> TTSResult:
 
 
 # ---------------------------------------------------------------------------
-# OpenAI TTS — fallback
+# 4. OpenAI TTS — English fallback
 # ---------------------------------------------------------------------------
 async def _openai_tts(text: str, lang: str) -> TTSResult:
     key = settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
@@ -163,11 +211,12 @@ async def _openai_tts(text: str, lang: str) -> TTSResult:
     except Exception as e:
         raise TTSError(f"openai SDK not installed: {e}") from e
 
+    clean_text = _clean_text_for_speech(text)[:4000]
     client = AsyncOpenAI(api_key=key, timeout=settings.API_TIMEOUT * 6)
     resp = await client.audio.speech.create(
         model="tts-1",
-        voice="alloy",  # neutral, works acceptably across langs
-        input=text[:4000],
+        voice="alloy",
+        input=clean_text,
         response_format="mp3",
     )
     audio = await resp.aread() if hasattr(resp, "aread") else resp.read()
@@ -178,7 +227,7 @@ async def _openai_tts(text: str, lang: str) -> TTSResult:
 # Public facade
 # ---------------------------------------------------------------------------
 async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserHint:
-    """Try configured providers in order. Returns a browser hint if none work."""
+    """Try configured providers in priority order. Returns real AI audio whenever possible."""
     text = (text or "").strip()
     if not text:
         raise TTSError("Empty text")
@@ -186,11 +235,13 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
     if language == "auto":
         from services.chat.language_detect import detect_language
         language = detect_language(text)
+
     providers = _configured_providers(language)
     errors: list[str] = []
     for name, fn in providers:
         try:
-            return await fn(text, language)
+            res = await fn(text, language)
+            return res
         except TTSError as e:
             errors.append(f"{name}: {e}")
             continue
@@ -200,7 +251,7 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
             continue
 
     if errors:
-        log.info("All server TTS providers failed or absent: %s", " | ".join(errors))
+        log.info("Server TTS providers cascade exhausted: %s", " | ".join(errors))
 
     return TTSBrowserHint(
         browser=True,
@@ -211,20 +262,35 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
 
 def _configured_providers(language: str) -> list[Tuple[str, callable]]:  # type: ignore[type-arg]
     out: list[Tuple[str, callable]] = []
+    # 1. Sarvam AI (Primary)
     if settings.SARVAM_API_KEY:
         out.append(("sarvam", _sarvam_tts))
+    # 2. Indian Neural Edge TTS (High-quality Indian accent audio)
+    try:
+        import edge_tts  # type: ignore
+        out.append(("edge-neural", _edge_tts))
+    except ImportError:
+        pass
+    # 3. Google Cloud TTS
     if settings.GOOGLE_APPLICATION_CREDENTIALS:
         out.append(("google", _google_tts))
-    # OpenAI's generic voice is an English-quality fallback only. Do not
-    # substitute it for Hindi/Kannada/Hinglish where it can sound foreign.
+    # 4. OpenAI TTS (English fallback only)
     if language == "en" and ((settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20)):
         out.append(("openai", _openai_tts))
     return out
 
 
 def health() -> dict:
+    has_edge = False
+    try:
+        import edge_tts
+        has_edge = True
+    except ImportError:
+        pass
+
     return {
         "sarvam": bool(settings.SARVAM_API_KEY),
+        "edge_neural": has_edge,
         "google": bool(settings.GOOGLE_APPLICATION_CREDENTIALS),
         "openai": bool((settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) and len(settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) > 20),
     }

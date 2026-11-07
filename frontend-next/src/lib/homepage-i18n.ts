@@ -118,7 +118,7 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
       ctaMandi: "Explore Farming Services",
       ctaSell: "Ask KisaanBuddy AI",
       ctaBuyers: "Find Verified Buyers",
-      ctaWorkers: "Hire Workers & Find Jobs",
+      ctaWorkers: "Hire AgriLabour & Find Jobs",
       trustPoint1: "Official APMC & e-NAM Mandi Benchmarks",
       trustPoint2: "Verified Farmers & Institutional Buyers",
       trustPoint3: "Zero Intermediary Commissions",
@@ -168,11 +168,11 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
     },
     workers: {
       badge: "LABOUR & EMPLOYMENT",
-      title: "Find Farm Workers. Find Farming Jobs.",
+      title: "Find AgriLabour. Find Farming Jobs.",
       subtitle: "Connect farmers who need agricultural labour with workers looking for farming opportunities.",
-      cardWorkersTitle: "Hire Farm Workers & Harvesting Crews",
+      cardWorkersTitle: "Hire AgriLabour & Harvesting Crews",
       cardWorkersDesc: "Find skilled labour groups, machine operators, and harvester teams for paddy transplantation (Ropai), weeding, spraying, and harvest.",
-      cardWorkersCta: "Find Farm Workers",
+      cardWorkersCta: "Find AgriLabour",
       cardWorkersPoints: [
         "Search individual workers or registered labour collectives (FPOs/CHCs)",
         "Filter by district, activity, verified phone status, and wage rates",

@@ -47,6 +47,8 @@ from api import disease as disease_api
 from api import soil_tests as soil_tests_api, recommendations as recommendations_api
 from api import tasks as tasks_api, marketplace as marketplace_api
 from api import sarvam as sarvam_api
+from api import satellite as satellite_api
+from api import voice as voice_api
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -160,7 +162,7 @@ app.include_router(schemes.router, prefix="/api/schemes", tags=["Schemes"])
 app.include_router(ml.router, prefix="/api/ml", tags=["Machine Learning"])
 app.include_router(chatbot.router, prefix="/api/chat", tags=["Chatbot"])
 app.include_router(mandi.router, prefix="/api/mandi", tags=["Mandi"])
-app.include_router(worker_connect.router, prefix="/api/worker-connect", tags=["Worker Connect"])
+app.include_router(worker_connect.router, prefix="/api/worker-connect", tags=["AgriLabour"])
 app.include_router(sensor.router, prefix="/api/sensor", tags=["Sensors"])
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(admin.router, prefix="/api/admin", tags=["Private Admin"])
@@ -178,6 +180,8 @@ app.include_router(recommendations_api.router, prefix="/api/farmer", tags=["Reco
 app.include_router(tasks_api.router, prefix="/api/farmer", tags=["Farm Tasks"])
 app.include_router(marketplace_api.router, prefix="/api/marketplace", tags=["Marketplace"])
 app.include_router(sarvam_api.router, prefix="/api/sarvam", tags=["Sarvam AI"])
+app.include_router(satellite_api.router, prefix="/api/satellite", tags=["Satellite Intelligence"])
+app.include_router(voice_api.router, prefix="/api/voice", tags=["Voice OS"])
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

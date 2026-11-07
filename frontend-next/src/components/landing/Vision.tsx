@@ -29,7 +29,7 @@ export function Vision() {
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5 -z-10" />
       <div className="absolute top-[20%] right-[-10%] w-[300px] h-[300px] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
  
-      <div className="max-w-5xl mx-auto px-4 md:px-8 text-center relative z-10 space-y-12">
+      <div className="w-full text-center relative z-10 space-y-12">
         
         {/* Core Vision Banner */}
         <motion.div

@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+const ALLOWED_HOSTS = [
+  "cdn.shopify.com",
+  "shopify.com",
+  "machinepoint.in",
+  "images.unsplash.com",
+  "plus.unsplash.com",
+];
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -9,6 +17,16 @@ export async function GET(request: Request) {
 
     if (!targetUrl || !targetUrl.startsWith("http")) {
       return NextResponse.json({ error: "Invalid URL parameter" }, { status: 400 });
+    }
+
+    const parsedUrl = new URL(targetUrl);
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isAllowed = ALLOWED_HOSTS.some(
+      (allowed) => hostname === allowed || hostname.endsWith(`.${allowed}`)
+    );
+
+    if (!isAllowed) {
+      return NextResponse.json({ error: "Host not allowed for proxying" }, { status: 403 });
     }
 
     const response = await fetch(targetUrl, {

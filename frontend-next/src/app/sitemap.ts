@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/terms', changeScore: 0.3, changefreq: 'monthly' as const },
     { url: '/disclaimer', changeScore: 0.3, changefreq: 'monthly' as const },
     { url: '/cookie-policy', changeScore: 0.3, changefreq: 'monthly' as const },
+    { url: '/editorial-policy', changeScore: 0.3, changefreq: 'monthly' as const },
   ];
 
   return pages.map((page) => ({

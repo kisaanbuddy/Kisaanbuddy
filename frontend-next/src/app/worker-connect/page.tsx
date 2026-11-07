@@ -4,14 +4,14 @@ import WorkerConnectClient from './WorkerConnectClient';
 import { Users, Briefcase, ShieldCheck, IndianRupee, HeartHandshake, CheckCircle2 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Worker Connect — Hire Farm Labour & Find Agricultural Jobs | कृषि मजदूर | KisaanBuddy',
+  title: 'AgriLabour — Hire Agricultural Labourers & Farm Workers | कृषि मजदूर | KisaanBuddy',
   description:
-    'Connect directly with local farm owners looking to hire agricultural labor, or find farm jobs for harvesting, sowing, weeding, and tractor operations across India with zero agent commission.',
+    'Find and hire genuine agricultural workers, harvesting gangs, and tractor operators near you, or post farm job openings on KisaanBuddy with zero agent commission.',
   alternates: {
     canonical: 'https://www.kisaanbuddy.com/worker-connect',
   },
   openGraph: {
-    title: 'Worker Connect — Hire Farm Labour & Find Agricultural Jobs | KisaanBuddy',
+    title: 'AgriLabour — Hire Agricultural Labourers & Farm Workers | कृषि मजदूर | KisaanBuddy',
     description:
       'Connect local farm owners with skilled agricultural labor. Find harvesting crews, tractor drivers, and daily farm jobs with official wage benchmarks.',
     url: 'https://www.kisaanbuddy.com/worker-connect',
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
         url: '/logo.png',
         width: 1200,
         height: 630,
-        alt: 'KisaanBuddy Worker Connect',
+        alt: 'KisaanBuddy AgriLabour Worker Connect',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Worker Connect — Hire Farm Labour & Find Agricultural Jobs | KisaanBuddy',
+    title: 'AgriLabour — Hire Agricultural Labourers & Farm Workers | KisaanBuddy',
     description:
       'Connect local farm owners with skilled agricultural labor. Find harvesting crews, tractor drivers, and daily farm jobs with official wage benchmarks.',
     images: ['/logo.png'],
@@ -38,7 +38,7 @@ export default function WorkerConnectPage() {
   const webAppSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'KisaanBuddy Worker Connect',
+    name: 'KisaanBuddy AgriLabour Worker Connect',
     url: 'https://www.kisaanbuddy.com/worker-connect',
     applicationCategory: 'BusinessApplication',
     operatingSystem: 'All',
@@ -58,7 +58,7 @@ export default function WorkerConnectPage() {
     mainEntity: [
       {
         '@type': 'Question',
-        name: 'Is there any commission or middleman fee on Worker Connect?',
+        name: 'Is there any commission or middleman fee on AgriLabour Worker Connect?',
         acceptedAnswer: {
           '@type': 'Answer',
           text: 'No. KisaanBuddy charges 0% commission. Farm owners and agricultural laborers communicate and negotiate daily wage terms directly with complete transparency.',
@@ -99,52 +99,52 @@ export default function WorkerConnectPage() {
         <div className="space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
             <Users className="w-3.5 h-3.5" />
-            <span>Direct Agricultural Labor Network & Wage Intelligence</span>
+            <span>0% Commission Agricultural Labor & Job Exchange</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-black font-display text-foreground tracking-tight">
-            Connect with Skilled Farm Labor & Discover Agricultural Employment
+            AgriLabour: Verified Farm Labor Network & Rural Employment Directory
           </h1>
           <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-4xl">
-            Overcoming seasonal agricultural labor shortages through direct, transparent rural connections.
-            Hire experienced harvesting crews and tractor operators, or register your availability to secure steady agricultural work during peak farming seasons.
+            Finding reliable farm workers during peak sowing and harvesting seasons is critical for crop survival. 
+            KisaanBuddy AgriLabour directly links farm owners with skilled daily wage laborers, tractor operators, and harvesting crews without commission or middleman fees.
           </p>
         </div>
 
-        {/* Key Operational Pillars */}
+        {/* Labor Exchange Principles */}
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Zero Middlemen Commission</span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Direct farmer-to-worker agreements. No contractors, brokers, or deductions cutting into hard-earned daily wages.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-2">
+          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               <IndianRupee className="w-4 h-4" />
-              <span>Official Wage Intelligence</span>
+              <span>Zero Middleman Commission</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Benchmarked against Labor Bureau published rural agricultural wage statistics across 20+ Indian states for fair pay.
+              100% of agreed daily wages go directly from farm owner to agricultural worker. No contractor cuts or platform deductions.
             </p>
           </div>
 
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-2">
+          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
             <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              <HeartHandshake className="w-4 h-4" />
-              <span>Privacy & Trust First</span>
+              <ShieldCheck className="w-4 h-4" />
+              <span>Verified Identity & Skill Badges</span>
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Mobile numbers are protected until mutual consent is granted. Zero advance payment policy safeguards both parties.
+              Workers and farm owners complete basic phone verification. Operators can list tractor, sprayer, and harvesting experience.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <HeartHandshake className="w-4 h-4" />
+              <span>Direct Village Coordination</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Filter available workers or farm vacancies by district and block (tehsil) to hire nearby laborers and minimize travel costs.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Interactive Worker Connect Interface & Directory */}
+      {/* Interactive Agricultural Labor Marketplace Tabs & Listings */}
       <Suspense
         fallback={
           <div className="min-h-[400px] flex items-center justify-center">

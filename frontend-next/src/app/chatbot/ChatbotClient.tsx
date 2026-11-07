@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { GlassCard } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { MobileAIAssistant } from "@/components/mobile/MobileAIAssistant"
 
 type Message = { 
   id: string; 
@@ -645,7 +646,11 @@ function ChatbotInner() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col gap-6 pb-8">
+    <>
+      <div className="block md:hidden">
+        <MobileAIAssistant />
+      </div>
+      <div className="hidden md:flex w-full max-w-6xl mx-auto flex-col gap-6 pb-8">
       {/* Language Switcher bar */}
       <div className="flex shrink-0 flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -980,6 +985,7 @@ function ChatbotInner() {
 
       </div>
     </div>
+    </>
   )
 }
 
