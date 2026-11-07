@@ -1,15 +1,15 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { DisclaimerClient } from './DisclaimerClient';
 
 export const metadata: Metadata = {
-  title: 'Disclaimer | KisaanBuddy',
-  description: 'Disclaimer of liability and AI predictions limits for KisaanBuddy. Read about our agricultural predictions limitations, mandi rates alerts, and advisory recommendations verification.',
+  title: 'Legal & Agricultural Disclaimer | KisaanBuddy — Real Agricultural Intelligence',
+  description: 'Advisory and legal disclaimer for KisaanBuddy. Review guidance regarding AI crop leaf disease diagnosis, live mandi rates, weather data, and the non-governmental status of our platform.',
   alternates: {
     canonical: '/disclaimer',
   },
   openGraph: {
-    title: 'Disclaimer | KisaanBuddy',
-    description: 'Advisory and liability disclaimers for the KisaanBuddy smart farming platform.',
+    title: 'Legal & Agricultural Disclaimer | KisaanBuddy',
+    description: 'Advisory scope and legal limits of AI crop recommendations, mandi prices, and weather data on KisaanBuddy.',
     url: '/disclaimer',
     type: 'website',
   },

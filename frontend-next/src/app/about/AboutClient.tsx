@@ -401,7 +401,7 @@ export function AboutClient() {
       {/* =================================================================== */}
       {/* 1. HERO SECTION: BUILDING TECHNOLOGY THAT UNDERSTANDS FARMING       */}
       {/* =================================================================== */}
-      <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-emerald-50/50 via-background to-background dark:from-emerald-950/20 dark:via-background dark:to-background pt-12 md:pt-20 pb-16 md:pb-24 px-4 sm:px-6 lg:px-8">
+      <section id="mission" className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-emerald-50/50 via-background to-background dark:from-emerald-950/20 dark:via-background dark:to-background pt-12 md:pt-20 pb-16 md:pb-24 px-4 sm:px-6 lg:px-8 scroll-mt-16">
         {/* Subtle agricultural grid & geometric accent */}
         <div
           aria-hidden="true"

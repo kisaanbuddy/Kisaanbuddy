@@ -1,129 +1,229 @@
-﻿'use client';
+'use client';
 
-import Link from 'next/link';
-import { AlertTriangle, ArrowLeft, Leaf, CloudSun, TrendingUp, ShieldAlert } from 'lucide-react';
-import { useLanguage } from '@/lib/language';
-import { PageTransition } from '@/components/motion/MotionComponents';
+import React from 'react';
+import {
+  AlertTriangle,
+  Leaf,
+  CloudSun,
+  TrendingUp,
+  ShieldAlert,
+  HelpCircle,
+  Building2,
+  CheckCircle2,
+  Info,
+} from 'lucide-react';
+import { LegalPageLayout, type LegalSectionMeta } from '@/components/legal/LegalPageLayout';
+
+const SECTIONS: LegalSectionMeta[] = [
+  { id: 'general-disclaimer', number: '1', title: 'General Informational Nature of Agricultural Advice' },
+  { id: 'ai-disease-limits', number: '2', title: 'AI-Generated Crop Disease Diagnosis Limits' },
+  { id: 'chemical-safety', number: '3', title: 'Chemical Pesticide & Agrochemical Safety Advisory' },
+  { id: 'weather-data', number: '4', title: 'Weather Intelligence & Meteorological Alert Limits' },
+  { id: 'mandi-rates', number: '5', title: 'Live Mandi Wholesale Commodity Price Dynamics' },
+  { id: 'no-guarantees', number: '6', title: 'No Guaranteed Crop Yield, Profit, or MSP Realization' },
+  { id: 'independent-verification', number: '7', title: 'Mandatory Independent Verification Obligation' },
+  { id: 'non-government', number: '8', title: 'Independent Private Entity (Non-Governmental) Notice' },
+];
 
 export function DisclaimerClient() {
-  const { t, lang } = useLanguage();
-
   return (
-    <PageTransition className="max-w-4xl mx-auto py-8 px-2 md:px-6">
-      
-      {/* Back button */}
-      <Link
-        href="/"
-        className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-colors group"
-      >
-        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-        <span>{t("disclaimer.back_to_home")}</span>
-      </Link>
-
-      {/* Header card */}
-      <div className="rounded-2xl border border-border/40 bg-card/25 backdrop-blur-md p-6 md:p-8 mb-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-emerald-500/5 blur-2xl pointer-events-none" />
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 shadow shadow-emerald-500/10">
-            <AlertTriangle className="h-5 w-5" />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400">
-            {t("disclaimer.legal_disclaimer")}
+    <LegalPageLayout
+      title="Legal & Agricultural Disclaimer"
+      subtitle="Critical operational guidance regarding the advisory nature of our artificial intelligence models, computer vision crop diagnosis, mandi rates, and weather intelligence."
+      badge="Advisory & Liability Disclaimer"
+      badgeIcon={<AlertTriangle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+      lastUpdated="November 2026"
+      effectiveDate="November 2026"
+      currentPath="/disclaimer"
+      sections={SECTIONS}
+    >
+      {/* 1. General Disclaimer */}
+      <section id="general-disclaimer" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            1
           </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            General Informational Nature of Agricultural Advice
+          </h2>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground font-display">
-          {t("disclaimer.advisory_disclaimer")}
-        </h1>
-        <p className="text-xs text-muted-foreground mt-2">
-          {t("disclaimer.last_updated_june_5")}
+
+        <p>
+          All content, automated suggestions, fertilizer calculators, agronomic schedules, disease analyses, and seasonal guidance delivered through <strong>KisaanBuddy</strong> are provided strictly for <strong>educational and informational guidance purposes</strong>.
         </p>
-      </div>
 
-      {/* Policy contents */}
-      <div className="glass-panel rounded-2xl p-6 md:p-8 space-y-6 text-xs md:text-sm text-muted-foreground leading-relaxed">
-        
-        <section className="space-y-2">
-          <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-            <ShieldAlert className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-            {t("disclaimer.1_general_disclaimer")}
-          </h2>
-          <p>
-            {t("disclaimer.all_information_provided_on")}
-          </p>
-          <p>
-            {t("disclaimer.the_content_is_provided")}
-          </p>
-        </section>
+        <p>
+          Agricultural science is inherently dependent on biological factors, micro-climates, soil physical dynamics, prior field chemical histories, irrigation quality, and rapid biological mutations. Digital guidance must never be considered exhaustive, absolute, or applicable universally to every farm plot without contextual assessment.
+        </p>
+      </section>
 
-        <section className="space-y-2">
-          <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-            <Leaf className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-            {t("disclaimer.2_ai_plant_disease")}
+      {/* 2. AI Disease Limits */}
+      <section id="ai-disease-limits" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            2
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            AI-Generated Crop Disease Diagnosis Limits
           </h2>
-          <p>
-            {t("disclaimer.our_crop_disease_ai")}
-          </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>
-              {t("disclaimer.machine_learning_models_can")}
-            </li>
-            <li>
-              {t("disclaimer.recommended_pesticides_insecticides_fungicides")}
-            </li>
-            <li>
-              {t("disclaimer.we_are_not_responsible")}
-            </li>
-          </ul>
-        </section>
+        </div>
 
-        <section className="space-y-2">
-          <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-            <CloudSun className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-            {t("disclaimer.3_weather_intelligence_alerts")}
-          </h2>
-          <p>
-            {t("disclaimer.weather_data_is_compiled")}
-          </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-            <TrendingUp className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
-            {t("disclaimer.4_live_mandi_prices")}
-          </h2>
-          <p>
-            {t("disclaimer.market_prices_are_updated")}
-          </p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>{t("disclaimer.the_prices_displayed_might")}</li>
-            <li>{t("disclaimer.set_target_notifications_are")}</li>
-            <li>{t("disclaimer.KisaanBuddy_does_not_guarantee")}</li>
-          </ul>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-            🏛️ {t("disclaimer.5_government_schemes_eligibility")}
-          </h2>
-          <p>
-            {t("disclaimer.KisaanBuddy_offers_an_interactive")}
-          </p>
-          <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            <strong>{t("disclaimer.government_representation_disclaimer")}</strong>{' '}
-            {t("disclaimer.KisaanBuddy_is_a_private")}
+        <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-300 dark:border-amber-800/40 space-y-2 text-xs">
+          <div className="flex items-center gap-2 font-bold text-amber-900 dark:text-amber-200">
+            <Leaf className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span>Computer Vision &amp; Diagnostic Models Are Indicative</span>
           </div>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-base font-bold text-foreground font-display flex items-center gap-2">
-            📞 {t("disclaimer.6_support_questions")}
-          </h2>
-          <p>
-            {t("disclaimer.if_you_require_professional")}
+          <p className="text-stone-700 dark:text-stone-300 leading-relaxed">
+            Our <strong>Crop Doctor</strong> utilizes deep learning models trained on agricultural plant leaf datasets. While highly accurate under optimal conditions, image-based machine learning inference is subject to operational limitations:
           </p>
-        </section>
+          <ul className="list-disc pl-5 space-y-1.5 text-stone-700 dark:text-stone-300">
+            <li>Camera resolution, glare, shadows, focal blur, or multiple co-occurring deficiencies can impact classification confidence.</li>
+            <li>Early-stage bacterial infections can closely mimic fungal spots or mechanical leaf tearing.</li>
+            <li><strong>AI diagnosis is not a substitute for physical inspection</strong> by certified agronomists, plant pathologists, or extension scientists at your local Krishi Vigyan Kendra (KVK).</li>
+          </ul>
+        </div>
+      </section>
 
-      </div>
-    </PageTransition>
+      {/* 3. Chemical Safety */}
+      <section id="chemical-safety" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            3
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            Chemical Pesticide &amp; Agrochemical Safety Advisory
+          </h2>
+        </div>
+
+        <p>
+          Whenever biological remedies or chemical treatments (such as fungicides, insecticides, bactericides, or micronutrient sprays) are referenced:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-2 text-xs text-stone-600 dark:text-stone-300">
+          <li>
+            Farmers must strictly read the physical manufacturer container label, approved statutory dosages, and pre-harvest intervals (PHI) authorized by the <strong>Central Insecticides Board &amp; Registration Committee (CIBRC)</strong>.
+          </li>
+          <li>
+            Never mix unapproved tank-mix combinations without verifying compatibility.
+          </li>
+          <li>
+            Always utilize appropriate personal protective equipment (PPE), masks, and eye protection during spray applications. KisaanBuddy disclaims liability for improper chemical handling or crop phytotoxicity.
+          </li>
+        </ul>
+      </section>
+
+      {/* 4. Weather Data */}
+      <section id="weather-data" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            4
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            Weather Intelligence &amp; Meteorological Alert Limits
+          </h2>
+        </div>
+
+        <div className="flex items-start gap-3 p-4 rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 text-xs">
+          <CloudSun className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+          <div className="space-y-1.5">
+            <p className="font-semibold text-stone-900 dark:text-white">External Meteorological Dependency</p>
+            <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
+              Weather forecasts, rainfall projections, humidity readings, and heat wave advisories are aggregated from third-party meteorological observation APIs (such as Open-Meteo) and regional meteorological station sensors. Micro-climate cloudbursts, sudden localized hail, or unseasonal frost may occur without digital warning. Critical irrigation or harvest decisions should account for on-ground local sky conditions.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. Mandi Rates */}
+      <section id="mandi-rates" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            5
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            Live Mandi Wholesale Commodity Price Dynamics
+          </h2>
+        </div>
+
+        <p>
+          Market prices published in the <strong>Mandi Prices</strong> module are synchronized from official agricultural produce market committee (APMC) returns and published wholesale lot auctions:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-1.5 text-xs text-stone-600 dark:text-stone-300">
+          <li>Displayed rates represent recorded minimum, maximum, and modal price points from previous auction rounds.</li>
+          <li>Actual realization at the physical mandi yard gate varies significantly based on moisture content percentage, foreign matter foreign matter percentage, grain luster, variety purity, and arrival volumes on the trading day.</li>
+          <li>KisaanBuddy does not guarantee that a trader or commission agent will purchase produce at the displayed platform benchmark rate.</li>
+        </ul>
+      </section>
+
+      {/* 6. No Guarantees */}
+      <section id="no-guarantees" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            6
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            No Guaranteed Crop Yield, Profit, or MSP Realization
+          </h2>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-stone-100/70 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs space-y-2">
+          <p className="font-bold text-stone-900 dark:text-white">
+            Explicit Disclaimer of Financial &amp; Agronomic Outcomes:
+          </p>
+          <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
+            KisaanBuddy makes no express or implied warranty that adopting recommendations generated by our AI tools, soil analyses, or crop calendars will result in increased yield, specific crop quality grades, lower operational expenditures, or profitable sale prices. Agricultural returns are subject to natural, biological, and commodity market forces outside human technological control.
+          </p>
+        </div>
+      </section>
+
+      {/* 7. Mandatory Verification */}
+      <section id="independent-verification" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            7
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            Mandatory Independent Verification Obligation
+          </h2>
+        </div>
+
+        <p>
+          Users agree to independently evaluate and cross-verify any critical agricultural strategy before committing capital, purchasing inputs, spraying chemicals, or signing delivery contracts. Please consult:
+        </p>
+
+        <ul className="list-disc pl-5 space-y-1 text-xs text-stone-600 dark:text-stone-300">
+          <li>Your local Block Agricultural Officer (BAO) or Village Agricultural Assistant (VAA).</li>
+          <li>Scientists at your nearest Krishi Vigyan Kendra (KVK).</li>
+          <li>Agronomy faculty at State Agricultural Universities (SAUs).</li>
+          <li>Licensed agrochemical retailers possessing genuine seed and pesticide dealer permits.</li>
+        </ul>
+      </section>
+
+      {/* 8. Non-Government Entity */}
+      <section id="non-government" className="space-y-4 scroll-mt-24">
+        <div className="flex items-center gap-2.5 pb-2 border-b border-stone-200 dark:border-stone-800">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs shrink-0">
+            8
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold font-display text-stone-900 dark:text-white">
+            Independent Private Entity (Non-Governmental) Notice
+          </h2>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-950 dark:text-emerald-200 space-y-2">
+          <div className="flex items-center gap-2 font-bold text-sm text-emerald-900 dark:text-emerald-100">
+            <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span>Clarification of Institutional Status</span>
+          </div>
+          <p className="leading-relaxed">
+            <strong>KisaanBuddy is a private, independent agricultural technology platform.</strong> KisaanBuddy is NOT an official agency, department, statutory board, or direct affiliate of the Government of India, the Ministry of Agriculture &amp; Farmers Welfare, or any State Department of Agriculture.
+          </p>
+          <p className="leading-relaxed">
+            Government welfare schemes (such as PM-KISAN, PMFBY, or Sub-Mission on Agricultural Mechanization) described on the platform are provided solely for farmer awareness. For official applications, sanction letters, and beneficiary disbursements, farmers are directed to the respective official government portals (.gov.in / .nic.in).
+          </p>
+        </div>
+      </section>
+    </LegalPageLayout>
   );
 }

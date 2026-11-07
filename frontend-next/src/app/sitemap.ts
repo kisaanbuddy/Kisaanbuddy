@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '', changeScore: 1.0, changefreq: 'daily' as const },
     { url: '/weather', changeScore: 0.8, changefreq: 'daily' as const },
     { url: '/mandi', changeScore: 0.8, changefreq: 'daily' as const },
+    { url: '/marketplace', changeScore: 0.8, changefreq: 'daily' as const },
     { url: '/chatbot', changeScore: 0.7, changefreq: 'weekly' as const },
     { url: '/crop-predictor', changeScore: 0.7, changefreq: 'weekly' as const },
     { url: '/disease', changeScore: 0.7, changefreq: 'weekly' as const },
@@ -17,10 +18,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: '/founders', changeScore: 0.5, changefreq: 'monthly' as const },
     { url: '/contact', changeScore: 0.5, changefreq: 'monthly' as const },
     { url: '/impact', changeScore: 0.7, changefreq: 'weekly' as const },
-    { url: '/privacy', changeScore: 0.3, changefreq: 'monthly' as const },
-    { url: '/terms', changeScore: 0.3, changefreq: 'monthly' as const },
-    { url: '/disclaimer', changeScore: 0.3, changefreq: 'monthly' as const },
-    { url: '/cookie-policy', changeScore: 0.3, changefreq: 'monthly' as const },
+    { url: '/privacy', changeScore: 0.4, changefreq: 'monthly' as const },
+    { url: '/terms', changeScore: 0.4, changefreq: 'monthly' as const },
+    { url: '/disclaimer', changeScore: 0.4, changefreq: 'monthly' as const },
+    { url: '/cookie-policy', changeScore: 0.4, changefreq: 'monthly' as const },
+    { url: '/editorial-policy', changeScore: 0.4, changefreq: 'monthly' as const },
   ]
 
   return pages.map((page) => ({

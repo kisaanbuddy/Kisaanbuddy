@@ -182,9 +182,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Breadcrumbs />
               {children}
             </main>
-            <div className="hidden md:block">
-              <Footer />
-            </div>
+            <Footer />
           </div>
           <AnnouncementPopup />
           <AssistantGate />
