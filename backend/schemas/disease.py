@@ -86,6 +86,7 @@ class AdvisoryCaseCreate(BaseModel):
     farmer_phone: str
     preferred_contact_method: str = "phone"  # phone, whatsapp, sms
     consent_recorded: bool = True
+    consent_for_research: bool = True
     crop_name: str
     crop_variety: Optional[str] = None
     state: str
@@ -104,6 +105,12 @@ class AdvisoryCaseCreate(BaseModel):
     ai_status: Optional[str] = "confident"
     ai_differentials: Optional[str] = None
     priority: Optional[str] = "normal"
+    model_version: Optional[str] = None
+    artifact_hash: Optional[str] = None
+    image_quality_json: Optional[str] = None
+    session_id: Optional[str] = None
+    dhash: Optional[str] = None
+    farmer_crop_hint: Optional[str] = None
 
 
 class AdvisoryCaseResponse(BaseModel):
@@ -135,6 +142,21 @@ class AdvisoryCaseResponse(BaseModel):
     expert_recommendation: Optional[str] = None
     assigned_expert: Optional[AgriculturalExpertResponse] = None
     follow_up_date: Optional[date] = None
+    # Supervised Field Pilot Provenance & Expert Review
+    model_version: Optional[str] = None
+    artifact_hash: Optional[str] = None
+    image_quality_json: Optional[str] = None
+    review_outcome: Optional[str] = None
+    expert_crop: Optional[str] = None
+    expert_disease: Optional[str] = None
+    expert_is_healthy: Optional[bool] = False
+    reviewed_by_id: Optional[int] = None
+    reviewer_name: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
+    consent_for_research: bool = True
+    session_id: Optional[str] = None
+    dhash: Optional[str] = None
+    image_storage_path: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     resolved_at: Optional[datetime] = None
@@ -142,9 +164,13 @@ class AdvisoryCaseResponse(BaseModel):
 
 
 class AdvisoryCaseReview(BaseModel):
-    status: str  # accepted, farmer_contacted, resolved, request_more_info
+    review_outcome: str  # confirmed_correct, correct_crop_incorrect_disease, incorrect_crop, uncertain_diagnosis, unable_to_assess_photograph, additional_photograph_required
+    expert_crop: Optional[str] = None
+    expert_disease: Optional[str] = None
+    expert_is_healthy: Optional[bool] = False
     expert_notes: Optional[str] = None
     expert_recommendation: Optional[str] = None
+    status: Optional[str] = None  # resolved, accepted, farmer_contacted, request_more_info
     follow_up_date: Optional[date] = None
 
 

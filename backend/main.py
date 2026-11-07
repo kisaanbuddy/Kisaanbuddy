@@ -127,8 +127,24 @@ if _HAS_SLOWAPI and limiter is not None:
 else:
     log.warning("slowapi not installed - rate limiting disabled")
 
+def get_effective_cors_origins() -> list[str]:
+    raw_origins = list(settings.ALLOWED_ORIGINS)
+    # Security: Never permit wildcard '*' with allow_credentials=True
+    if "*" in raw_origins:
+        log.warning("Wildcard '*' in ALLOWED_ORIGINS cannot be used with allow_credentials=True. Stripping wildcard.")
+        raw_origins = [o for o in raw_origins if o != "*"]
+
+    # Security: In production (DEBUG=False), exclude localhost/loopback development fallbacks
+    if not settings.DEBUG:
+        raw_origins = [
+            o for o in raw_origins
+            if not (o.startswith("http://localhost") or o.startswith("http://127.0.0.1"))
+        ]
+    return raw_origins
+
+effective_origins = get_effective_cors_origins()
 _cors_kwargs = dict(
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=effective_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -136,8 +152,8 @@ _cors_kwargs = dict(
 )
 if settings.ALLOWED_ORIGIN_REGEX:
     _cors_kwargs["allow_origin_regex"] = settings.ALLOWED_ORIGIN_REGEX
-log.info("===== CORS DEBUG =====")
-log.info("ALLOWED_ORIGINS = %r", settings.ALLOWED_ORIGINS)
+log.info("===== CORS CONFIG =====")
+log.info("EFFECTIVE ALLOWED_ORIGINS = %r", effective_origins)
 log.info("ALLOWED_ORIGIN_REGEX = %r", settings.ALLOWED_ORIGIN_REGEX)
 log.info("CORS KWARGS = %r", _cors_kwargs)
 app.add_middleware(CORSMiddleware, **_cors_kwargs)

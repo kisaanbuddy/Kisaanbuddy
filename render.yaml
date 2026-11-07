@@ -16,6 +16,7 @@ services:
     branch: main
     rootDir: backend
     buildCommand: "pip install --no-cache-dir -r requirements.txt"
+    preDeployCommand: "alembic upgrade head"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /health
     autoDeploy: true
@@ -25,13 +26,25 @@ services:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_ORIGINS
-        value: '["https://kisaanbuddy.com","https://www.kisaanbuddy.com","https://krishiai.vercel.app","http://localhost:3000"]'
+        value: '["https://kisaanbuddy.com","https://www.kisaanbuddy.com","https://krishiai.vercel.app"]'
       - key: ALLOWED_ORIGIN_REGEX
-        value: 'https://.*\.vercel\.app'
+        value: '^https:\/\/.*\.vercel\.app$'
       - key: DATABASE_URL
         sync: false   # set in dashboard (PostgreSQL connection string)
       - key: JWT_SECRET
         sync: false   # REQUIRED: python -c "import secrets; print(secrets.token_urlsafe(48))"
+      - key: CROP_DOCTOR_MODEL_PATH
+        value: "ml/crop_doctor/artifacts/experiments/exp_c2_efficientnet_b0_pretrained_224/best_model.pth"
+      - key: CROP_DOCTOR_DEVICE
+        value: "cpu"
+      - key: CROP_DOCTOR_CONFIDENCE_THRESHOLD
+        value: "0.60"
+      - key: CROP_DOCTOR_TEMPERATURE
+        value: "1.0500"
+      - key: STORAGE_BACKEND
+        value: "mounted"
+      - key: PILOT_STORAGE_PATH
+        value: "uploads/pilot_images"
       - key: OPENWEATHERMAP_API_KEY
         sync: false   # set in dashboard
       - key: OPENAI_API_KEY

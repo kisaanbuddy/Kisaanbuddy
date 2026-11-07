@@ -1,0 +1,238 @@
+{
+  "timestamp": "2026-11-07T00:05:00Z",
+  "total_train_excluded": 33,
+  "total_val_excluded": 0,
+  "exclusions": [
+    {
+      "filename": "Early-blight.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Early blight leaf/Early-blight.jpg",
+      "hash": "0xc2c62d491a0a2c2c",
+      "original_class": "tomato_early_blight",
+      "reason": "Exact dHash duplicate of validation sample 'Early-bligh_t.jpg' (Val class: tomato_early_blight). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "Early_Blight_of_Tomato1687.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Early blight leaf/Early_Blight_of_Tomato1687.jpg",
+      "hash": "0x378bc52793d347a7",
+      "original_class": "tomato_early_blight",
+      "reason": "Exact dHash duplicate of validation sample '2OBH_29_Gardening_early_blight.jpg' (Val class: potato_early_blight). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "earlyblightpotato.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Early blight leaf/earlyblightpotato.jpg",
+      "hash": "0xbcad8db52c6d3910",
+      "original_class": "tomato_early_blight",
+      "reason": "Exact dHash duplicate of field holdout sample 'earlyblightpotato.jpg' (Holdout class: potato_early_blight). Excluded to guarantee zero evaluation leakage."
+    },
+    {
+      "filename": "tomatoblight.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Early blight leaf/tomatoblight.jpg",
+      "hash": "0x9db71311930b9696",
+      "original_class": "tomato_early_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "late_blight1.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf late blight/late_blight1.jpg",
+      "hash": "0xcc8d1b071e0c1c38",
+      "original_class": "tomato_late_blight",
+      "reason": "Exact dHash duplicate of field holdout sample '18c.jpg' (Holdout class: tomato_late_blight). Excluded to guarantee zero evaluation leakage."
+    },
+    {
+      "filename": "LateBlightLeaf.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf late blight/LateBlightLeaf.jpg",
+      "hash": "0xe13218983327159",
+      "original_class": "tomato_late_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "IMG_5360.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf late blight/IMG_5360.jpg",
+      "hash": "0x838c8ccdccc6e70e",
+      "original_class": "tomato_late_blight",
+      "reason": "Exact dHash duplicate of validation sample '20150619d.jpg' (Val class: tomato_late_blight). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "IMG_5813.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf late blight/IMG_5813.jpg",
+      "hash": "0xc98000018898d84d",
+      "original_class": "tomato_late_blight",
+      "reason": "Exact dHash duplicate of validation sample 'IMG_5813-1024x768.jpg' (Val class: potato_late_blight). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "TYLCVDFerrinlr.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf yellow virus/TYLCVDFerrinlr.jpg",
+      "hash": "0x24b313ae44b7c709",
+      "original_class": "tomato_leaf_curl",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "bacterial-canker3x2400-2ia1kgd.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf bacterial spot/bacterial-canker3x2400-2ia1kgd.jpg",
+      "hash": "0x25b4b66666335d0d",
+      "original_class": "tomato_bacterial_spot",
+      "reason": "Exact dHash duplicate of field holdout sample '07.17.18-Common_Tomato_Diseases_Canker-258x300.jpg' (Holdout class: tomato_bacterial_spot). Excluded to guarantee zero evaluation leakage."
+    },
+    {
+      "filename": "BCH%20small%20thumbnail%20for%20upload%20%2814%29.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf bacterial spot/BCH%20small%20thumbnail%20for%20upload%20%2814%29.jpg",
+      "hash": "0xd553797cfadaeb9a",
+      "original_class": "tomato_bacterial_spot",
+      "reason": "Exact dHash duplicate of validation sample 'BCH%20medium%20thumbnail%20for%20upload%20%2814%29.jpg' (Val class: tomato_bacterial_spot). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "RyBx7MH.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato leaf bacterial spot/RyBx7MH.jpg",
+      "hash": "0x23352b5ef0e71b51",
+      "original_class": "tomato_bacterial_spot",
+      "reason": "Exact dHash duplicate of validation sample 'Tomato%20bacterial%20spot%20closeup-050S.JPG.jpg' (Val class: tomato_septoria_leaf_spot). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "b54d0e40027ff5e90e8ba7e1e9abf9bd.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Septoria leaf spot/b54d0e40027ff5e90e8ba7e1e9abf9bd.jpg",
+      "hash": "0x22c58d16473e3f1b",
+      "original_class": "tomato_septoria_leaf_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "MPC105550.jpg.rendition.largest.550.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Septoria leaf spot/MPC105550.jpg.rendition.largest.550.jpg",
+      "hash": "0xd1cb4b54464374f9",
+      "original_class": "tomato_septoria_leaf_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "5c77186a4ea326e5495c9d03cd89ce16.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Septoria leaf spot/5c77186a4ea326e5495c9d03cd89ce16.jpg",
+      "hash": "0x9adad89482c5c4cc",
+      "original_class": "tomato_septoria_leaf_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "Septoria-Tomato.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato Septoria leaf spot/Septoria-Tomato.jpg",
+      "hash": "0x18888ca9c0e4694c",
+      "original_class": "tomato_septoria_leaf_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "tylc.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Tomato mold leaf/tylc.jpg",
+      "hash": "0x939373eb891999e9",
+      "original_class": "tomato_leaf_mold",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "IMG_9055.JPG.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf early blight/IMG_9055.JPG.jpg",
+      "hash": "0xc8cd4e8adece9e16",
+      "original_class": "potato_early_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "Early-Blight-Leaves-56a348bf3df78cf7727cb35e.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf early blight/Early-Blight-Leaves-56a348bf3df78cf7727cb35e.jpg",
+      "hash": "0x123838e4241c3c20",
+      "original_class": "potato_early_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "Blght.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf early blight/Blght.jpg",
+      "hash": "0x26270b3173273626",
+      "original_class": "potato_early_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "36-early-blight-concentric-rings.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf early blight/36-early-blight-concentric-rings.jpg",
+      "hash": "0x9db71311930b9696",
+      "original_class": "potato_early_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "early-blight-closeup-NCSU.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf early blight/early-blight-closeup-NCSU.jpg",
+      "hash": "0x921e2e2a2e4e4f53",
+      "original_class": "potato_early_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "b3a52d4eda0deedc34260c4dee847a5b.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf late blight/b3a52d4eda0deedc34260c4dee847a5b.jpg",
+      "hash": "0x162363d939199394",
+      "original_class": "potato_late_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "14321627273_58d893c3e2_b.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf late blight/14321627273_58d893c3e2_b.jpg",
+      "hash": "0x919193434707063c",
+      "original_class": "potato_late_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "Symptom_potato_late_blight.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf late blight/Symptom_potato_late_blight.jpg",
+      "hash": "0xc4c683274f8686d4",
+      "original_class": "potato_late_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "28430_web.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Corn leaf blight/28430_web.jpg",
+      "hash": "0x4b6f09c9ce8f8b8d",
+      "original_class": "corn_leaf_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "bacterial-corn-300x300.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Corn leaf blight/bacterial-corn-300x300.jpg",
+      "hash": "0x43c387874743c38f",
+      "original_class": "corn_leaf_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "Northern-corn-leaf-blight-NM-F2.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Corn leaf blight/Northern-corn-leaf-blight-NM-F2.jpg",
+      "hash": "0xcfcc846065c34b8f",
+      "original_class": "corn_leaf_blight",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "image_1500x1500%253E.jpeg_1467983528.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Bell_pepper leaf spot/image_1500x1500%253E.jpeg_1467983528.jpg",
+      "hash": "0x47d68e2971bd9c98",
+      "original_class": "bell_pepper_bacterial_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "peppers_bacterial_spot_zoom.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Bell_pepper leaf spot/peppers_bacterial_spot_zoom.jpg",
+      "hash": "0x2d1fdb53131e0d5f",
+      "original_class": "bell_pepper_bacterial_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "image_original.jpeg_1472603885.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Bell_pepper leaf spot/image_original.jpeg_1472603885.jpg",
+      "hash": "0x4418fa6c72f0b8e3",
+      "original_class": "bell_pepper_bacterial_spot",
+      "reason": "Duplicate dHash within training set."
+    },
+    {
+      "filename": "Septoria-leaf-spot.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Bell_pepper leaf spot/Septoria-leaf-spot.jpg",
+      "hash": "0x6e9eaeb3d1cdcbaf",
+      "original_class": "bell_pepper_bacterial_spot",
+      "reason": "Exact dHash duplicate of validation sample 'tomato-blight-treatment-blight.jpg' (Val class: tomato_septoria_leaf_spot). Excluded to guarantee zero validation leakage."
+    },
+    {
+      "filename": "6c460a55e7e8607e922d98e1416448d4.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Squash Powdery mildew leaf/6c460a55e7e8607e922d98e1416448d4.jpg",
+      "hash": "0x93ae9a0523a38f5f",
+      "original_class": "squash_powdery_mildew",
+      "reason": "Duplicate dHash within training set."
+    }
+  ]
+}

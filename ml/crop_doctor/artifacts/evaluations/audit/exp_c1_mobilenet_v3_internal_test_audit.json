@@ -1,0 +1,808 @@
+{
+  "checkpoint": "ml/crop_doctor/artifacts/experiments/exp_c1_mobilenet_v3_pretrained_224/best_model.pth",
+  "manifest": "ml/crop_doctor/data/splits/internal_test_manifest.json",
+  "total_samples": 549,
+  "architecture": "mobilenet_v3_small",
+  "temperature_applied": 0.9758,
+  "top1_accuracy": 0.8689,
+  "top3_accuracy": 0.9417,
+  "macro_f1": 0.8773,
+  "weighted_f1": 0.8683,
+  "per_class": {
+    "tomato_early_blight": {
+      "precision": 0.7647,
+      "recall": 0.8125,
+      "f1": 0.7879,
+      "support": 32
+    },
+    "tomato_late_blight": {
+      "precision": 0.8378,
+      "recall": 0.8857,
+      "f1": 0.8611,
+      "support": 35
+    },
+    "tomato_leaf_curl": {
+      "precision": 0.8824,
+      "recall": 0.9677,
+      "f1": 0.9231,
+      "support": 31
+    },
+    "tomato_bacterial_spot": {
+      "precision": 0.8148,
+      "recall": 0.6286,
+      "f1": 0.7097,
+      "support": 35
+    },
+    "tomato_septoria_leaf_spot": {
+      "precision": 0.6591,
+      "recall": 0.7632,
+      "f1": 0.7073,
+      "support": 38
+    },
+    "tomato_leaf_mold": {
+      "precision": 0.875,
+      "recall": 0.8485,
+      "f1": 0.8615,
+      "support": 33
+    },
+    "tomato_healthy": {
+      "precision": 0.9355,
+      "recall": 0.9667,
+      "f1": 0.9508,
+      "support": 30
+    },
+    "potato_early_blight": {
+      "precision": 0.9032,
+      "recall": 0.8,
+      "f1": 0.8485,
+      "support": 35
+    },
+    "potato_late_blight": {
+      "precision": 0.9091,
+      "recall": 0.8824,
+      "f1": 0.8955,
+      "support": 34
+    },
+    "potato_healthy": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 15
+    },
+    "corn_leaf_blight": {
+      "precision": 0.8333,
+      "recall": 0.8333,
+      "f1": 0.8333,
+      "support": 42
+    },
+    "corn_common_rust": {
+      "precision": 0.8421,
+      "recall": 0.9143,
+      "f1": 0.8767,
+      "support": 35
+    },
+    "corn_gray_leaf_spot": {
+      "precision": 0.931,
+      "recall": 0.871,
+      "f1": 0.9,
+      "support": 31
+    },
+    "corn_healthy": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "support": 25
+    },
+    "bell_pepper_bacterial_spot": {
+      "precision": 0.8929,
+      "recall": 0.8065,
+      "f1": 0.8475,
+      "support": 31
+    },
+    "bell_pepper_healthy": {
+      "precision": 0.9355,
+      "recall": 0.9667,
+      "f1": 0.9508,
+      "support": 30
+    },
+    "squash_powdery_mildew": {
+      "precision": 0.9474,
+      "recall": 0.973,
+      "f1": 0.96,
+      "support": 37
+    }
+  },
+  "confusion_matrix": [
+    [
+      26,
+      0,
+      0,
+      1,
+      3,
+      0,
+      0,
+      1,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      3,
+      31,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      22,
+      8,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      1,
+      1,
+      0,
+      3,
+      29,
+      2,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      1,
+      1,
+      28,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      29,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      2,
+      0,
+      0,
+      2,
+      1,
+      0,
+      28,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      30,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      15,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      35,
+      4,
+      2,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      32,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      3,
+      1,
+      27,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      25,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      1,
+      0,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      25,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      29,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      36
+    ]
+  ],
+  "raw_calibration": {
+    "ece": 0.0426,
+    "nll": 0.5344,
+    "brier": 0.1939,
+    "bins": [
+      {
+        "bin": "0.10-0.20",
+        "count": 1,
+        "acc": 0.0,
+        "conf": 0.1595
+      },
+      {
+        "bin": "0.20-0.30",
+        "count": 9,
+        "acc": 0.1111,
+        "conf": 0.2546
+      },
+      {
+        "bin": "0.30-0.40",
+        "count": 9,
+        "acc": 0.5556,
+        "conf": 0.3584
+      },
+      {
+        "bin": "0.40-0.50",
+        "count": 21,
+        "acc": 0.4762,
+        "conf": 0.4513
+      },
+      {
+        "bin": "0.50-0.60",
+        "count": 14,
+        "acc": 0.2143,
+        "conf": 0.5391
+      },
+      {
+        "bin": "0.60-0.70",
+        "count": 25,
+        "acc": 0.6,
+        "conf": 0.6532
+      },
+      {
+        "bin": "0.70-0.80",
+        "count": 39,
+        "acc": 0.6667,
+        "conf": 0.7536
+      },
+      {
+        "bin": "0.80-0.90",
+        "count": 58,
+        "acc": 0.9138,
+        "conf": 0.8553
+      },
+      {
+        "bin": "0.90-1.00",
+        "count": 373,
+        "acc": 0.9759,
+        "conf": 0.9571
+      }
+    ]
+  },
+  "scaled_calibration": {
+    "ece": 0.0363,
+    "nll": 0.5344,
+    "brier": 0.1939,
+    "bins": [
+      {
+        "bin": "0.10-0.20",
+        "count": 1,
+        "acc": 0.0,
+        "conf": 0.1622
+      },
+      {
+        "bin": "0.20-0.30",
+        "count": 8,
+        "acc": 0.125,
+        "conf": 0.253
+      },
+      {
+        "bin": "0.30-0.40",
+        "count": 8,
+        "acc": 0.375,
+        "conf": 0.3491
+      },
+      {
+        "bin": "0.40-0.50",
+        "count": 22,
+        "acc": 0.5455,
+        "conf": 0.4521
+      },
+      {
+        "bin": "0.50-0.60",
+        "count": 14,
+        "acc": 0.2143,
+        "conf": 0.5433
+      },
+      {
+        "bin": "0.60-0.70",
+        "count": 23,
+        "acc": 0.5217,
+        "conf": 0.657
+      },
+      {
+        "bin": "0.70-0.80",
+        "count": 37,
+        "acc": 0.7027,
+        "conf": 0.7562
+      },
+      {
+        "bin": "0.80-0.90",
+        "count": 53,
+        "acc": 0.8868,
+        "conf": 0.8536
+      },
+      {
+        "bin": "0.90-1.00",
+        "count": 383,
+        "acc": 0.9739,
+        "conf": 0.9607
+      }
+    ]
+  },
+  "raw_selective": {
+    "0.40": {
+      "threshold": 0.4,
+      "accepted_count": 530,
+      "rejected_count": 19,
+      "coverage": 0.9654,
+      "rejection_rate": 0.0346,
+      "correct_accepted": 471,
+      "incorrect_accepted": 59,
+      "selective_accuracy": 0.8887,
+      "selective_risk": 0.1113
+    },
+    "0.50": {
+      "threshold": 0.5,
+      "accepted_count": 509,
+      "rejected_count": 40,
+      "coverage": 0.9271,
+      "rejection_rate": 0.0729,
+      "correct_accepted": 461,
+      "incorrect_accepted": 48,
+      "selective_accuracy": 0.9057,
+      "selective_risk": 0.0943
+    },
+    "0.55": {
+      "threshold": 0.55,
+      "accepted_count": 500,
+      "rejected_count": 49,
+      "coverage": 0.9107,
+      "rejection_rate": 0.0893,
+      "correct_accepted": 460,
+      "incorrect_accepted": 40,
+      "selective_accuracy": 0.92,
+      "selective_risk": 0.08
+    },
+    "0.58": {
+      "threshold": 0.58,
+      "accepted_count": 496,
+      "rejected_count": 53,
+      "coverage": 0.9035,
+      "rejection_rate": 0.0965,
+      "correct_accepted": 458,
+      "incorrect_accepted": 38,
+      "selective_accuracy": 0.9234,
+      "selective_risk": 0.0766
+    },
+    "0.60": {
+      "threshold": 0.6,
+      "accepted_count": 495,
+      "rejected_count": 54,
+      "coverage": 0.9016,
+      "rejection_rate": 0.0984,
+      "correct_accepted": 458,
+      "incorrect_accepted": 37,
+      "selective_accuracy": 0.9253,
+      "selective_risk": 0.0747
+    },
+    "0.65": {
+      "threshold": 0.65,
+      "accepted_count": 483,
+      "rejected_count": 66,
+      "coverage": 0.8798,
+      "rejection_rate": 0.1202,
+      "correct_accepted": 453,
+      "incorrect_accepted": 30,
+      "selective_accuracy": 0.9379,
+      "selective_risk": 0.0621
+    },
+    "0.70": {
+      "threshold": 0.7,
+      "accepted_count": 470,
+      "rejected_count": 79,
+      "coverage": 0.8561,
+      "rejection_rate": 0.1439,
+      "correct_accepted": 443,
+      "incorrect_accepted": 27,
+      "selective_accuracy": 0.9426,
+      "selective_risk": 0.0574
+    },
+    "0.75": {
+      "threshold": 0.75,
+      "accepted_count": 454,
+      "rejected_count": 95,
+      "coverage": 0.827,
+      "rejection_rate": 0.173,
+      "correct_accepted": 433,
+      "incorrect_accepted": 21,
+      "selective_accuracy": 0.9537,
+      "selective_risk": 0.0463
+    },
+    "0.80": {
+      "threshold": 0.8,
+      "accepted_count": 431,
+      "rejected_count": 118,
+      "coverage": 0.7851,
+      "rejection_rate": 0.2149,
+      "correct_accepted": 417,
+      "incorrect_accepted": 14,
+      "selective_accuracy": 0.9675,
+      "selective_risk": 0.0325
+    },
+    "0.85": {
+      "threshold": 0.85,
+      "accepted_count": 406,
+      "rejected_count": 143,
+      "coverage": 0.7395,
+      "rejection_rate": 0.2605,
+      "correct_accepted": 393,
+      "incorrect_accepted": 13,
+      "selective_accuracy": 0.968,
+      "selective_risk": 0.032
+    },
+    "0.90": {
+      "threshold": 0.9,
+      "accepted_count": 373,
+      "rejected_count": 176,
+      "coverage": 0.6794,
+      "rejection_rate": 0.3206,
+      "correct_accepted": 364,
+      "incorrect_accepted": 9,
+      "selective_accuracy": 0.9759,
+      "selective_risk": 0.0241
+    }
+  },
+  "scaled_selective": {
+    "0.40": {
+      "threshold": 0.4,
+      "accepted_count": 532,
+      "rejected_count": 17,
+      "coverage": 0.969,
+      "rejection_rate": 0.031,
+      "correct_accepted": 473,
+      "incorrect_accepted": 59,
+      "selective_accuracy": 0.8891,
+      "selective_risk": 0.1109
+    },
+    "0.50": {
+      "threshold": 0.5,
+      "accepted_count": 510,
+      "rejected_count": 39,
+      "coverage": 0.929,
+      "rejection_rate": 0.071,
+      "correct_accepted": 461,
+      "incorrect_accepted": 49,
+      "selective_accuracy": 0.9039,
+      "selective_risk": 0.0961
+    },
+    "0.55": {
+      "threshold": 0.55,
+      "accepted_count": 501,
+      "rejected_count": 48,
+      "coverage": 0.9126,
+      "rejection_rate": 0.0874,
+      "correct_accepted": 460,
+      "incorrect_accepted": 41,
+      "selective_accuracy": 0.9182,
+      "selective_risk": 0.0818
+    },
+    "0.58": {
+      "threshold": 0.58,
+      "accepted_count": 499,
+      "rejected_count": 50,
+      "coverage": 0.9089,
+      "rejection_rate": 0.0911,
+      "correct_accepted": 460,
+      "incorrect_accepted": 39,
+      "selective_accuracy": 0.9218,
+      "selective_risk": 0.0782
+    },
+    "0.60": {
+      "threshold": 0.6,
+      "accepted_count": 496,
+      "rejected_count": 53,
+      "coverage": 0.9035,
+      "rejection_rate": 0.0965,
+      "correct_accepted": 458,
+      "incorrect_accepted": 38,
+      "selective_accuracy": 0.9234,
+      "selective_risk": 0.0766
+    },
+    "0.65": {
+      "threshold": 0.65,
+      "accepted_count": 487,
+      "rejected_count": 62,
+      "coverage": 0.8871,
+      "rejection_rate": 0.1129,
+      "correct_accepted": 455,
+      "incorrect_accepted": 32,
+      "selective_accuracy": 0.9343,
+      "selective_risk": 0.0657
+    },
+    "0.70": {
+      "threshold": 0.7,
+      "accepted_count": 473,
+      "rejected_count": 76,
+      "coverage": 0.8616,
+      "rejection_rate": 0.1384,
+      "correct_accepted": 446,
+      "incorrect_accepted": 27,
+      "selective_accuracy": 0.9429,
+      "selective_risk": 0.0571
+    },
+    "0.75": {
+      "threshold": 0.75,
+      "accepted_count": 458,
+      "rejected_count": 91,
+      "coverage": 0.8342,
+      "rejection_rate": 0.1658,
+      "correct_accepted": 435,
+      "incorrect_accepted": 23,
+      "selective_accuracy": 0.9498,
+      "selective_risk": 0.0502
+    },
+    "0.80": {
+      "threshold": 0.8,
+      "accepted_count": 436,
+      "rejected_count": 113,
+      "coverage": 0.7942,
+      "rejection_rate": 0.2058,
+      "correct_accepted": 420,
+      "incorrect_accepted": 16,
+      "selective_accuracy": 0.9633,
+      "selective_risk": 0.0367
+    },
+    "0.85": {
+      "threshold": 0.85,
+      "accepted_count": 416,
+      "rejected_count": 133,
+      "coverage": 0.7577,
+      "rejection_rate": 0.2423,
+      "correct_accepted": 403,
+      "incorrect_accepted": 13,
+      "selective_accuracy": 0.9688,
+      "selective_risk": 0.0312
+    },
+    "0.90": {
+      "threshold": 0.9,
+      "accepted_count": 383,
+      "rejected_count": 166,
+      "coverage": 0.6976,
+      "rejection_rate": 0.3024,
+      "correct_accepted": 373,
+      "incorrect_accepted": 10,
+      "selective_accuracy": 0.9739,
+      "selective_risk": 0.0261
+    }
+  }
+}

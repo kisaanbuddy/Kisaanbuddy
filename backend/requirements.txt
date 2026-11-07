@@ -56,3 +56,5 @@ user-agents>=2.2.0
 #   SARVAM_API_KEY               -> services/chat/tts_service.py hits Sarvam Bulbul (REST, no extra dep).
 #   GOOGLE_APPLICATION_CREDENTIALS -> uncomment the line below to enable Google Cloud TTS.
 # google-cloud-texttospeech>=2.16.0
+
+alembic>=1.13.0

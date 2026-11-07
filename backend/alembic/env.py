@@ -15,6 +15,11 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
+import sys
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
 # add your model's MetaData object here
 # for 'autogenerate' support
 from db.session import Base
@@ -22,8 +27,8 @@ from db.models import *
 
 target_metadata = Base.metadata
 
-# Set sqlalchemy.url from env
-database_url = os.environ.get("DATABASE_URL", "sqlite:///./krishiai.db")
+# Set sqlalchemy.url: prefer explicit config url, fallback to env
+database_url = config.get_main_option("sqlalchemy.url") or os.environ.get("DATABASE_URL", "sqlite:///./krishiai.db")
 config.set_main_option("sqlalchemy.url", database_url)
 
 def run_migrations_offline() -> None:

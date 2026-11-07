@@ -38,6 +38,7 @@ export function RequestExpertModal({
   const [contactMethod, setContactMethod] = useState<"phone" | "whatsapp" | "sms">("phone");
   const [village, setVillage] = useState("");
   const [consent, setConsent] = useState(true);
+  const [researchConsent, setResearchConsent] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [createdCaseId, setCreatedCaseId] = useState<string | null>(null);
   const [assignedExpertName, setAssignedExpertName] = useState<string | null>(null);
@@ -70,6 +71,7 @@ export function RequestExpertModal({
           farmer_phone: farmerPhone.trim(),
           preferred_contact_method: contactMethod,
           consent_recorded: consent,
+          consent_for_research: researchConsent,
           crop_name: cropName || "Field Crop",
           crop_variety: variety || null,
           state: state || "Madhya Pradesh",
@@ -282,7 +284,7 @@ export function RequestExpertModal({
                 )}
               </div>
 
-              {/* Explicit Consent Checkbox */}
+              {/* Explicit Consent Checkboxes */}
               <label className="flex items-start gap-2 pt-1 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -292,8 +294,22 @@ export function RequestExpertModal({
                 />
                 <span className="text-[11px] text-muted-foreground leading-tight">
                   {isHi
-                    ? "मैं अपनी पत्ती की फोटो और समस्या का विवरण KVK / ICAR प्रमाणित वैज्ञानिकों के साथ साझा करने की सहमति देता/देती हूँ।"
-                    : "I give explicit consent for KisaanBuddy to share my crop diagnosis, symptoms, and leaf photo with verified agricultural extension scientists for advisory review."}
+                    ? "मैं अपनी पत्ती की फोटो और समस्या का विवरण KVK / ICAR वैज्ञानिकों के साथ समीक्षा हेतु साझा करने की सहमति देता/देती हूँ।"
+                    : "I give explicit consent for KisaanBuddy to share my crop diagnosis, symptoms, and leaf photo with verified agricultural scientists for clinical review."}
+                </span>
+              </label>
+
+              <label className="flex items-start gap-2 pt-0.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={researchConsent}
+                  onChange={(e) => setResearchConsent(e.target.checked)}
+                  className="mt-0.5 rounded text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="text-[11px] text-muted-foreground leading-tight">
+                  {isHi
+                    ? "अनुसंधान सहमति: इस फोटो का उपयोग भविष्य के AI मॉडल को प्रशिक्षित करने के लिए गुमनाम रूप से किया जा सकता है।"
+                    : "Research Consent: I agree that this anonymized photograph can be included in agricultural computer vision research to improve diagnostic accuracy for all Indian farmers."}
                 </span>
               </label>
             </div>

@@ -50,12 +50,26 @@ export interface AdvisoryCase {
   ai_confidence?: number | null;
   ai_status?: string | null;
   ai_differentials?: string | null;
-  status: "pending" | "queued" | "sent" | "acknowledged" | "accepted" | "farmer_contacted" | "resolved" | "failed";
+  status: "pending" | "queued" | "sent" | "acknowledged" | "accepted" | "farmer_contacted" | "resolved" | "failed" | "in_review" | "unassessable" | "additional_photo_needed";
   priority: "low" | "normal" | "urgent";
   expert_notes?: string | null;
   expert_recommendation?: string | null;
   assigned_expert?: AgriculturalExpert;
   follow_up_date?: string | null;
+  // Supervised Field Pilot Observation & Review fields
+  model_version?: string | null;
+  artifact_hash?: string | null;
+  image_quality_json?: string | null;
+  review_outcome?: "confirmed_correct" | "correct_crop_incorrect_disease" | "incorrect_crop" | "uncertain_diagnosis" | "unable_to_assess_photograph" | "additional_photograph_required" | string | null;
+  expert_crop?: string | null;
+  expert_disease?: string | null;
+  expert_is_healthy?: boolean;
+  reviewed_by_id?: number | null;
+  reviewer_name?: string | null;
+  reviewed_at?: string | null;
+  consent_for_research?: boolean;
+  session_id?: string | null;
+  dhash?: string | null;
   created_at: string;
   updated_at: string;
   resolved_at?: string | null;
@@ -592,14 +606,49 @@ export function listAdvisoryCases(params?: { status?: string; crop?: string; sta
   return list;
 }
 
-export function reviewAdvisoryCase(caseId: string, review: { status: string; expert_notes?: string; expert_recommendation?: string; follow_up_date?: string }): AdvisoryCase | null {
+export function reviewAdvisoryCase(
+  caseId: string,
+  review: {
+    review_outcome?: string;
+    expert_crop?: string;
+    expert_disease?: string;
+    expert_is_healthy?: boolean;
+    status?: string;
+    expert_notes?: string;
+    expert_recommendation?: string;
+    follow_up_date?: string;
+    reviewer_name?: string;
+  }
+): AdvisoryCase | null {
   const item = advisoryCasesStore.find((c) => c.case_id.toLowerCase() === caseId.toLowerCase());
   if (!item) return null;
-  item.status = review.status as any;
+
+  if (review.review_outcome) item.review_outcome = review.review_outcome as any;
+  if (review.expert_crop) item.expert_crop = review.expert_crop;
+  if (review.expert_disease) item.expert_disease = review.expert_disease;
+  if (review.expert_is_healthy !== undefined) item.expert_is_healthy = review.expert_is_healthy;
   if (review.expert_notes) item.expert_notes = review.expert_notes;
   if (review.expert_recommendation) item.expert_recommendation = review.expert_recommendation;
   if (review.follow_up_date) item.follow_up_date = review.follow_up_date;
-  if (review.status === "resolved") item.resolved_at = new Date().toISOString();
+  if (review.reviewer_name) item.reviewer_name = review.reviewer_name;
+
+  // Status mapping based on review outcome
+  let resolvedStatus = review.status;
+  if (!resolvedStatus) {
+    if (["confirmed_correct", "correct_crop_incorrect_disease", "incorrect_crop"].includes(review.review_outcome || "")) {
+      resolvedStatus = "resolved";
+    } else if (review.review_outcome === "additional_photograph_required") {
+      resolvedStatus = "additional_photo_needed";
+    } else if (review.review_outcome === "unable_to_assess_photograph") {
+      resolvedStatus = "unassessable";
+    } else {
+      resolvedStatus = "in_review";
+    }
+  }
+
+  item.status = resolvedStatus as any;
+  item.reviewed_at = new Date().toISOString();
+  if (resolvedStatus === "resolved") item.resolved_at = new Date().toISOString();
   item.updated_at = new Date().toISOString();
   return item;
 }

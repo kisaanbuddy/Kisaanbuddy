@@ -1,0 +1,82 @@
+{
+  "checkpoint": "ml\\crop_doctor\\artifacts\\mobilenet_v3_small\\best_model.pth",
+  "manifest": "ml\\crop_doctor\\data\\splits\\ood_test_manifest.json",
+  "is_ood": true,
+  "total_samples": 300,
+  "mean_confidence": 0.3797,
+  "mean_entropy": 1.9676,
+  "ood_rejection_metrics": {
+    "thresh_0.50": {
+      "accepted_count": 82,
+      "rejection_rate": 0.7267,
+      "false_positive_rate": 0.2733
+    },
+    "thresh_0.60": {
+      "accepted_count": 53,
+      "rejection_rate": 0.8233,
+      "false_positive_rate": 0.1767
+    },
+    "thresh_0.70": {
+      "accepted_count": 30,
+      "rejection_rate": 0.9,
+      "false_positive_rate": 0.1
+    },
+    "thresh_0.80": {
+      "accepted_count": 18,
+      "rejection_rate": 0.94,
+      "false_positive_rate": 0.06
+    }
+  },
+  "predictions_sample": [
+    {
+      "idx": 0,
+      "top_pred_class": "tomato_early_blight",
+      "confidence": 0.2365
+    },
+    {
+      "idx": 1,
+      "top_pred_class": "corn_leaf_blight",
+      "confidence": 0.289
+    },
+    {
+      "idx": 2,
+      "top_pred_class": "tomato_bacterial_spot",
+      "confidence": 0.3712
+    },
+    {
+      "idx": 3,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.9119
+    },
+    {
+      "idx": 4,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.659
+    },
+    {
+      "idx": 5,
+      "top_pred_class": "tomato_healthy",
+      "confidence": 0.6403
+    },
+    {
+      "idx": 6,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.3861
+    },
+    {
+      "idx": 7,
+      "top_pred_class": "bell_pepper_bacterial_spot",
+      "confidence": 0.2937
+    },
+    {
+      "idx": 8,
+      "top_pred_class": "tomato_leaf_curl",
+      "confidence": 0.152
+    },
+    {
+      "idx": 9,
+      "top_pred_class": "tomato_late_blight",
+      "confidence": 0.281
+    }
+  ]
+}

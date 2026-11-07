@@ -1,0 +1,58 @@
+{
+  "checkpoint": "ml\\crop_doctor\\artifacts\\experiments\\exp_c1_mobilenet_v3_pretrained_224\\best_model.pth",
+  "validation_manifest": "ml/crop_doctor/data/splits_v2/val_manifest_v2.json",
+  "optimal_temperature": 0.9758,
+  "uncalibrated_ece": 0.0219,
+  "calibrated_ece": 0.0249,
+  "accuracy": 0.8656,
+  "bin_details": [
+    {
+      "bin": "0.20-0.30",
+      "count": 12,
+      "acc": 0.5,
+      "conf": 0.2655
+    },
+    {
+      "bin": "0.30-0.40",
+      "count": 22,
+      "acc": 0.3636,
+      "conf": 0.365
+    },
+    {
+      "bin": "0.40-0.50",
+      "count": 25,
+      "acc": 0.32,
+      "conf": 0.4483
+    },
+    {
+      "bin": "0.50-0.60",
+      "count": 44,
+      "acc": 0.5227,
+      "conf": 0.5461
+    },
+    {
+      "bin": "0.60-0.70",
+      "count": 32,
+      "acc": 0.625,
+      "conf": 0.6539
+    },
+    {
+      "bin": "0.70-0.80",
+      "count": 39,
+      "acc": 0.7692,
+      "conf": 0.7499
+    },
+    {
+      "bin": "0.80-0.90",
+      "count": 81,
+      "acc": 0.7901,
+      "conf": 0.8563
+    },
+    {
+      "bin": "0.90-1.00",
+      "count": 571,
+      "acc": 0.9737,
+      "conf": 0.9624
+    }
+  ]
+}

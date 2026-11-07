@@ -1,0 +1,551 @@
+{
+  "checkpoint": "ml\\crop_doctor\\artifacts\\mobilenet_v3_small\\best_model.pth",
+  "manifest": "ml\\crop_doctor\\data\\splits\\internal_test_manifest.json",
+  "total_samples": 549,
+  "top1_accuracy": 0.7541,
+  "top3_accuracy": 0.8907,
+  "macro_f1": 0.7595,
+  "ece": 0.0631,
+  "selective_prediction": {
+    "thresh_0.50": {
+      "accepted_count": 385,
+      "rejection_rate": 0.2987,
+      "selective_accuracy": 0.9065
+    },
+    "thresh_0.60": {
+      "accepted_count": 344,
+      "rejection_rate": 0.3734,
+      "selective_accuracy": 0.9477
+    },
+    "thresh_0.70": {
+      "accepted_count": 308,
+      "rejection_rate": 0.439,
+      "selective_accuracy": 0.9675
+    },
+    "thresh_0.80": {
+      "accepted_count": 273,
+      "rejection_rate": 0.5027,
+      "selective_accuracy": 0.989
+    }
+  },
+  "per_class_metrics": {
+    "tomato_early_blight": {
+      "f1": 0.7241,
+      "precision": 0.8077,
+      "recall": 0.6562
+    },
+    "tomato_late_blight": {
+      "f1": 0.5882,
+      "precision": 0.6061,
+      "recall": 0.5714
+    },
+    "tomato_leaf_curl": {
+      "f1": 0.7647,
+      "precision": 0.7027,
+      "recall": 0.8387
+    },
+    "tomato_bacterial_spot": {
+      "f1": 0.6,
+      "precision": 0.72,
+      "recall": 0.5143
+    },
+    "tomato_septoria_leaf_spot": {
+      "f1": 0.6022,
+      "precision": 0.5091,
+      "recall": 0.7368
+    },
+    "tomato_leaf_mold": {
+      "f1": 0.7097,
+      "precision": 0.7586,
+      "recall": 0.6667
+    },
+    "tomato_healthy": {
+      "f1": 0.8788,
+      "precision": 0.8056,
+      "recall": 0.9667
+    },
+    "potato_early_blight": {
+      "f1": 0.806,
+      "precision": 0.8438,
+      "recall": 0.7714
+    },
+    "potato_late_blight": {
+      "f1": 0.7536,
+      "precision": 0.7429,
+      "recall": 0.7647
+    },
+    "potato_healthy": {
+      "f1": 0.7333,
+      "precision": 0.7333,
+      "recall": 0.7333
+    },
+    "corn_leaf_blight": {
+      "f1": 0.7191,
+      "precision": 0.6809,
+      "recall": 0.7619
+    },
+    "corn_common_rust": {
+      "f1": 0.8308,
+      "precision": 0.9,
+      "recall": 0.7714
+    },
+    "corn_gray_leaf_spot": {
+      "f1": 0.8065,
+      "precision": 0.8065,
+      "recall": 0.8065
+    },
+    "corn_healthy": {
+      "f1": 1.0,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "bell_pepper_bacterial_spot": {
+      "f1": 0.7273,
+      "precision": 0.8333,
+      "recall": 0.6452
+    },
+    "bell_pepper_healthy": {
+      "f1": 0.807,
+      "precision": 0.8519,
+      "recall": 0.7667
+    },
+    "squash_powdery_mildew": {
+      "f1": 0.8608,
+      "precision": 0.8095,
+      "recall": 0.9189
+    }
+  },
+  "confusion_matrix": [
+    [
+      21,
+      1,
+      1,
+      0,
+      5,
+      2,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      20,
+      0,
+      2,
+      2,
+      0,
+      3,
+      0,
+      3,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      1,
+      26,
+      0,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      4,
+      18,
+      6,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      2
+    ],
+    [
+      0,
+      1,
+      1,
+      0,
+      28,
+      2,
+      1,
+      1,
+      1,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      3,
+      2,
+      1,
+      3,
+      22,
+      1,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      29,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      3,
+      0,
+      0,
+      2,
+      0,
+      1,
+      27,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      3,
+      1,
+      0,
+      2,
+      1,
+      0,
+      0,
+      26,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      11,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      32,
+      1,
+      6,
+      0,
+      1,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      27,
+      0,
+      0,
+      0,
+      0,
+      3
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      5,
+      1,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      25,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      0,
+      2,
+      1,
+      4,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      20,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      2,
+      1,
+      0,
+      0,
+      0,
+      2,
+      1,
+      0,
+      0,
+      0,
+      1,
+      23,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      34
+    ]
+  ],
+  "failure_count": 135,
+  "worst_failures_sample": [
+    {
+      "filename": "ba462265-a5c8-4fa8-abb4-24054691eb16___RS_GLSp 3809.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot/ba462265-a5c8-4fa8-abb4-24054691eb16___RS_GLSp 3809.JPG",
+      "true_class": "corn_gray_leaf_spot",
+      "pred_class": "corn_leaf_blight",
+      "confidence": 0.9296
+    },
+    {
+      "filename": "951d30.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Bell_pepper leaf/951d30.jpg",
+      "true_class": "bell_pepper_healthy",
+      "pred_class": "bell_pepper_bacterial_spot",
+      "confidence": 0.9133
+    },
+    {
+      "filename": "39c5ef21-730a-4e51-9eb0-a7639295c116___RS_Late.B 5157.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Tomato___Late_blight/39c5ef21-730a-4e51-9eb0-a7639295c116___RS_Late.B 5157.JPG",
+      "true_class": "tomato_late_blight",
+      "pred_class": "potato_late_blight",
+      "confidence": 0.8292
+    },
+    {
+      "filename": "ebb837be-867e-417a-8a0a-04fd3f0570ba___RS_NLB 4087.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Corn_(maize)___Northern_Leaf_Blight/ebb837be-867e-417a-8a0a-04fd3f0570ba___RS_NLB 4087.JPG",
+      "true_class": "corn_leaf_blight",
+      "pred_class": "corn_gray_leaf_spot",
+      "confidence": 0.7926
+    },
+    {
+      "filename": "2ee8fa50-545b-4de2-9b26-6af401c46ede___JR_Sept.L.S 2696.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Tomato___Septoria_leaf_spot/2ee8fa50-545b-4de2-9b26-6af401c46ede___JR_Sept.L.S 2696.JPG",
+      "true_class": "tomato_septoria_leaf_spot",
+      "pred_class": "tomato_leaf_mold",
+      "confidence": 0.7813
+    },
+    {
+      "filename": "a_solani.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf early blight/a_solani.jpg",
+      "true_class": "potato_early_blight",
+      "pred_class": "corn_common_rust",
+      "confidence": 0.7684
+    },
+    {
+      "filename": "IMG_1359.JPG.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Corn Gray leaf spot/IMG_1359.JPG.jpg",
+      "true_class": "corn_gray_leaf_spot",
+      "pred_class": "corn_leaf_blight",
+      "confidence": 0.7625
+    },
+    {
+      "filename": "87c36fb4-0ad9-4386-8324-25e21df2a7d4___JR_HL 8547.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Pepper,_bell___healthy/87c36fb4-0ad9-4386-8324-25e21df2a7d4___JR_HL 8547.JPG",
+      "true_class": "bell_pepper_healthy",
+      "pred_class": "potato_healthy",
+      "confidence": 0.7623
+    },
+    {
+      "filename": "1b09df7a-eb13-4192-b211-900898ab21b4___JR_HL 8533.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Pepper,_bell___healthy/1b09df7a-eb13-4192-b211-900898ab21b4___JR_HL 8533.JPG",
+      "true_class": "bell_pepper_healthy",
+      "pred_class": "potato_healthy",
+      "confidence": 0.7406
+    },
+    {
+      "filename": "986cde2a-3f8b-438d-8380-c5a8ff0a4993___UF.GRC_BS_Lab Leaf 8940.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Tomato___Bacterial_spot/986cde2a-3f8b-438d-8380-c5a8ff0a4993___UF.GRC_BS_Lab Leaf 8940.JPG",
+      "true_class": "tomato_bacterial_spot",
+      "pred_class": "tomato_leaf_curl",
+      "confidence": 0.7288
+    },
+    {
+      "filename": "f7bd710e84db49829a918d85a2ff809c1.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Corn leaf blight/f7bd710e84db49829a918d85a2ff809c1.jpg",
+      "true_class": "corn_leaf_blight",
+      "pred_class": "corn_gray_leaf_spot",
+      "confidence": 0.6664
+    },
+    {
+      "filename": "2619_600.jpg",
+      "filepath": "ml/crop_doctor/data/extracted/plantdoc/train/Potato leaf late blight/2619_600.jpg",
+      "true_class": "potato_late_blight",
+      "pred_class": "tomato_late_blight",
+      "confidence": 0.6617
+    },
+    {
+      "filename": "9a4627a2-053d-443b-9135-7c1a913b63c4___GHLB Leaf 25.1 Day 12.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Tomato___Late_blight/9a4627a2-053d-443b-9135-7c1a913b63c4___GHLB Leaf 25.1 Day 12.JPG",
+      "true_class": "tomato_late_blight",
+      "pred_class": "tomato_bacterial_spot",
+      "confidence": 0.65
+    },
+    {
+      "filename": "cfbb5e1c-2812-4467-9748-ee171462c331___RS_GLSp 4371.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot/cfbb5e1c-2812-4467-9748-ee171462c331___RS_GLSp 4371.JPG",
+      "true_class": "corn_gray_leaf_spot",
+      "pred_class": "corn_leaf_blight",
+      "confidence": 0.6313
+    },
+    {
+      "filename": "41bd0cc9-46c1-4c6a-a6d5-1d21a6aca540___Crnl_L.Mold 8749.JPG",
+      "filepath": "ml/crop_doctor/data/raw/plantvillage/raw/color/Tomato___Leaf_Mold/41bd0cc9-46c1-4c6a-a6d5-1d21a6aca540___Crnl_L.Mold 8749.JPG",
+      "true_class": "tomato_leaf_mold",
+      "pred_class": "tomato_septoria_leaf_spot",
+      "confidence": 0.6257
+    }
+  ]
+}

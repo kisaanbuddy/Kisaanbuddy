@@ -1,10 +1,16 @@
+"""
+Crop Doctor Production Vision Inference Service.
+Integrates vision backbones with Platt temperature scaling calibration,
+image quality guardrails, and out-of-distribution selective prediction.
+"""
+
 import os
 import sys
 import time
 import json
 import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Union
 import torch
 import numpy as np
 from PIL import Image, ImageOps
@@ -12,13 +18,15 @@ from PIL import Image, ImageOps
 # Ensure root in path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
 
-from ml.crop_doctor.models.factory import create_model, assert_random_initialization
+from ml.crop_doctor.models.factory import create_model
 from ml.crop_doctor.training.dataset import (
     get_eval_transforms,
     CANONICAL_CLASSES,
     IDX_TO_CLASS
 )
-from ml.crop_doctor.calibration.temperature_scaling import ModelWithTemperature
+from ml.crop_doctor.inference.calibrator import ModelWithTemperature
+from ml.crop_doctor.inference.validator import ImageQualityValidator
+from ml.crop_doctor.inference.ood_detector import OODAndAbstentionEngine
 
 # Crop mapping for canonical classes
 CLASS_CROP_MAP = {
@@ -41,22 +49,42 @@ CLASS_CROP_MAP = {
     "squash_powdery_mildew": {"id": "squash", "name": "Squash", "condition": "Powdery Mildew"},
 }
 
+EFFICIENTNET_CKPT = "ml/crop_doctor/artifacts/experiments/exp_c2_efficientnet_b0_pretrained_224/best_model.pth"
+DEFAULT_CANDIDATE_CKPT = EFFICIENTNET_CKPT
+MOBILENET_TRANSFER_CKPT = "ml/crop_doctor/artifacts/experiments/exp_c1_mobilenet_v3_pretrained_224/best_model.pth"
+BASELINE_CKPT = "ml/crop_doctor/artifacts/mobilenet_v3_small/best_model.pth"
+
 class CropDoctorInferenceService:
     _instance: Optional["CropDoctorInferenceService"] = None
 
-    def __init__(self, checkpoint_path: str = "ml/crop_doctor/artifacts/mobilenet_v3_small/best_model.pth", device_name: str = "cpu"):
+    def __init__(self, checkpoint_path: Optional[str] = None, device_name: str = "cpu"):
         self.device = torch.device(device_name)
-        self.checkpoint_path = checkpoint_path
+
+        # Determine active model path from env or prioritized defaults
+        env_ckpt = os.getenv("CROP_DOCTOR_MODEL_PATH")
+        if checkpoint_path:
+            self.checkpoint_path = checkpoint_path
+        elif env_ckpt and Path(env_ckpt).exists():
+            self.checkpoint_path = env_ckpt
+        elif Path(EFFICIENTNET_CKPT).exists():
+            self.checkpoint_path = EFFICIENTNET_CKPT
+        elif Path(MOBILENET_TRANSFER_CKPT).exists():
+            self.checkpoint_path = MOBILENET_TRANSFER_CKPT
+        else:
+            self.checkpoint_path = BASELINE_CKPT
+
         self.model = None
         self.calibrated_model = None
         self.transform = get_eval_transforms()
+        self.validator = ImageQualityValidator()
+        self.ood_engine = OODAndAbstentionEngine(min_confidence_thresh=0.58)
+
         self.model_version = "crop-doctor-v1.0.0-scratch"
         self.taxonomy_version = "1.0.0"
         self.artifact_hash = ""
         self.is_ready = False
-        self.temperature = 0.9472  # Calibrated on validation partition
-        self.uncertainty_threshold = 0.60
-        
+        self.temperature = 1.0
+
         self._load_model()
 
     @classmethod
@@ -75,10 +103,22 @@ class CropDoctorInferenceService:
         with open(p, "rb") as f:
             self.artifact_hash = hashlib.sha256(f.read()).hexdigest()
 
-        ckpt = torch.load(p, map_location=self.device)
+        ckpt = torch.load(p, map_location=self.device, weights_only=False)
         arch = ckpt.get("architecture", "mobilenet_v3_small")
-        
-        base_model = create_model(arch, num_classes=len(CANONICAL_CLASSES))
+        pretrained = ckpt.get("pretrained", ckpt.get("weights_mode") == "imagenet_transfer")
+
+        # Dynamically set calibrated temperature and model version from artifact metadata
+        if arch == "efficientnet_b0":
+            self.model_version = "crop-doctor-v2.1.0-efficientnet-b0"
+            self.temperature = 1.05
+        elif pretrained:
+            self.model_version = "crop-doctor-v2.0.0-mobilenet-v3-transfer"
+            self.temperature = 0.9758
+        else:
+            self.model_version = "crop-doctor-v1.0.0-mobilenet-scratch"
+            self.temperature = 0.9472
+
+        base_model = create_model(arch, num_classes=len(CANONICAL_CLASSES), pretrained=pretrained)
         base_model.load_state_dict(ckpt["model_state_dict"])
         base_model.to(self.device)
         base_model.eval()
@@ -89,52 +129,15 @@ class CropDoctorInferenceService:
         self.calibrated_model.eval()
 
         self.is_ready = True
-        print(f"CropDoctorInferenceService initialized successfully with {arch} (hash: {self.artifact_hash[:12]}...).")
+        print(f"CropDoctorInferenceService initialized successfully with {arch} from {self.checkpoint_path} (hash: {self.artifact_hash[:12]}...).")
 
     def inspect_image_quality(self, img_rgb: Image.Image) -> Dict[str, Any]:
-        """Runs fast deterministic quality and suitability checks."""
-        w, h = img_rgb.size
-        gray = np.asarray(img_rgb.convert("L"), dtype=np.float32)
-        
-        # 3x3 Laplacian kernel variance for blur
-        laplacian = np.array([[0, 1, 0], [1, -4, 1], [0, 1, 0]], dtype=np.float32)
-        from scipy.signal import convolve2d
-        convolved = convolve2d(gray, laplacian, mode="valid")
-        blur_score = float(np.var(convolved))
-        brightness = float(np.mean(gray))
+        """Runs fast deterministic quality and suitability checks via ImageQualityValidator."""
+        return self.validator.validate(img_rgb)
 
-        flags = []
-        is_acceptable = True
-        advice = []
-
-        if w < 64 or h < 64:
-            flags.append("insufficient_resolution")
-            is_acceptable = False
-            advice.append("Image resolution is too low. Please move closer to the plant.")
-        if blur_score < 15.0:
-            flags.append("extreme_blur")
-            is_acceptable = False
-            advice.append("Image is blurry. Hold your phone steady and tap to focus on the leaf.")
-        if brightness < 15.0:
-            flags.append("underexposed")
-            is_acceptable = False
-            advice.append("Photo is too dark. Please take the picture in bright daytime natural light.")
-        elif brightness > 240.0:
-            flags.append("overexposed")
-            is_acceptable = False
-            advice.append("Photo is washed out by direct flash or glare. Shade the leaf gently.")
-
-        return {
-            "status": "acceptable" if is_acceptable else "unsuitable",
-            "blur_score": round(blur_score, 2),
-            "brightness_mean": round(brightness, 2),
-            "flags": flags,
-            "retake_advice": " ".join(advice) if advice else None
-        }
-
-    def predict(self, image_file_or_bytes, crop_hint: Optional[str] = None) -> Dict[str, Any]:
+    def predict(self, image_file_or_bytes: Union[Image.Image, str, Path, bytes], crop_hint: Optional[str] = None) -> Dict[str, Any]:
         start_time = time.perf_counter()
-        
+
         if not self.is_ready:
             return {
                 "status": "model_unavailable",
@@ -152,7 +155,7 @@ class CropDoctorInferenceService:
                 img = Image.open(io.BytesIO(image_file_or_bytes))
             else:
                 img = Image.open(image_file_or_bytes)
-                
+
             img = ImageOps.exif_transpose(img)
             img_rgb = img.convert("RGB")
         except Exception as e:
@@ -164,22 +167,25 @@ class CropDoctorInferenceService:
 
         # 1. Quality & Suitability Check
         quality = self.inspect_image_quality(img_rgb)
-        if quality["status"] == "unsuitable":
+        if not quality.get("is_acceptable", True):
             return {
                 "status": "retake_image",
                 "image_quality": quality,
-                "retake_advice": quality["retake_advice"],
+                "retake_advice": quality.get("retake_advice", "Image quality is unsuitable for reliable diagnosis."),
                 "prediction": None,
                 "alternatives": [],
                 "model_version": self.model_version,
                 "inference_ms": round((time.perf_counter() - start_time) * 1000, 2)
             }
 
-        # 2. PyTorch Vision Inference
+        # 2. PyTorch Vision Inference with Calibrated Scaling
         tensor = self.transform(img_rgb).unsqueeze(0).to(self.device)
         with torch.no_grad():
-            logits = self.calibrated_model(tensor)
-            probs = torch.softmax(logits, dim=1).squeeze(0).cpu().numpy()
+            scaled_logits = self.calibrated_model(tensor)
+            probs = torch.softmax(scaled_logits, dim=1).squeeze(0).cpu().numpy()
+
+        # 3. Uncertainty, Energy, and OOD Evaluation
+        reliability = self.ood_engine.evaluate_reliability(scaled_logits, probs, temperature=self.temperature)
 
         top3_indices = np.argsort(probs)[::-1][:3]
         top_idx = top3_indices[0]
@@ -188,7 +194,7 @@ class CropDoctorInferenceService:
 
         top_meta = CLASS_CROP_MAP.get(top_cls, {"id": "unknown", "name": "Unknown", "condition": top_cls})
         is_healthy = "healthy" in top_cls
-        
+
         alternatives = []
         for alt_idx in top3_indices[1:]:
             alt_cls = IDX_TO_CLASS[alt_idx]
@@ -200,8 +206,16 @@ class CropDoctorInferenceService:
                 "confidence": round(float(probs[alt_idx]), 4),
             })
 
-        # 3. Calibrated Uncertainty Thresholding
-        is_uncertain = top_prob < self.uncertainty_threshold
+        # 4. Crop Hint Cross-Verification
+        crop_hint_mismatch = False
+        if crop_hint:
+            hint_norm = crop_hint.lower().strip()
+            detected_crop_id = top_meta["id"].lower()
+            if hint_norm not in detected_crop_id and detected_crop_id not in hint_norm:
+                crop_hint_mismatch = True
+
+        # 5. Final Diagnostic Status
+        is_uncertain = reliability["should_abstain"] or crop_hint_mismatch
         status = "uncertain" if is_uncertain else "diagnosed"
 
         inference_time_ms = round((time.perf_counter() - start_time) * 1000, 2)
@@ -218,7 +232,9 @@ class CropDoctorInferenceService:
                 "calibrated": True
             },
             "alternatives": alternatives,
+            "reliability_assessment": reliability,
             "image_quality": quality,
+            "crop_hint_mismatch": crop_hint_mismatch,
             "expert_review_recommended": is_uncertain,
             "model_version": self.model_version,
             "taxonomy_version": self.taxonomy_version,
