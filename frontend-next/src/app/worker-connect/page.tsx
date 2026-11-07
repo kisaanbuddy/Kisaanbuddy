@@ -1,44 +1,157 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import WorkerConnectClient from './WorkerConnectClient';
+import { Users, Briefcase, ShieldCheck, IndianRupee, HeartHandshake, CheckCircle2 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Worker Connect - Hire Farm Labours & Find Jobs | कृषि मजदूर सेवा',
-  description: 'Connect with local farm owners looking to hire workers, or post agricultural job openings for harvesting, sowing, weeding, and tractor operations.',
+  title: 'Worker Connect — Hire Farm Labour & Find Agricultural Jobs | कृषि मजदूर | KisaanBuddy',
+  description:
+    'Connect directly with local farm owners looking to hire agricultural labor, or find farm jobs for harvesting, sowing, weeding, and tractor operations across India with zero agent commission.',
   alternates: {
-    canonical: '/worker-connect',
+    canonical: 'https://www.kisaanbuddy.com/worker-connect',
   },
   openGraph: {
-    title: 'Worker Connect - Hire Farm Labours & Find Jobs | कृषि मजदूर सेवा',
-    description: 'Connect with local farm owners looking to hire workers, or post agricultural job openings for harvesting, sowing, weeding, and tractor operations.',
-    url: '/worker-connect',
+    title: 'Worker Connect — Hire Farm Labour & Find Agricultural Jobs | KisaanBuddy',
+    description:
+      'Connect local farm owners with skilled agricultural labor. Find harvesting crews, tractor drivers, and daily farm jobs with official wage benchmarks.',
+    url: 'https://www.kisaanbuddy.com/worker-connect',
     type: 'website',
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'KisaanBuddy Worker Connect',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Worker Connect — Hire Farm Labour & Find Agricultural Jobs | KisaanBuddy',
+    description:
+      'Connect local farm owners with skilled agricultural labor. Find harvesting crews, tractor drivers, and daily farm jobs with official wage benchmarks.',
+    images: ['/logo.png'],
   },
 };
 
 export default function WorkerConnectPage() {
   const webAppSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "KisaanBuddy Worker Connect",
-    "url": "https://kisaanbuddy.com/worker-connect",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "All",
-    "browserRequirements": "Requires JavaScript. Requires HTML5.",
-    "description": "Multilingual Farm Labor and Job Marketplace. Connects local farm owners with agricultural workers, helping post jobs for sowing, weeding, harvesting, and machinery operations."
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'KisaanBuddy Worker Connect',
+    url: 'https://www.kisaanbuddy.com/worker-connect',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'All',
+    browserRequirements: 'Requires JavaScript. Requires HTML5.',
+    description:
+      'Multilingual Agricultural Employment & Labor Exchange. Connects farm owners with verified agricultural workers, harvesting gangs, and tractor operators across Indian rural districts.',
+    provider: {
+      '@type': 'Organization',
+      name: 'KisaanBuddy',
+      url: 'https://www.kisaanbuddy.com',
+    },
+  };
+
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'Is there any commission or middleman fee on Worker Connect?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'No. KisaanBuddy charges 0% commission. Farm owners and agricultural laborers communicate and negotiate daily wage terms directly with complete transparency.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'How is worker and farmer phone number privacy protected?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Personal mobile numbers remain hidden on public profiles. Contact details are securely revealed only when both parties mutually accept a contact or job application request.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What farm operations are covered under Worker Connect?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'The platform covers Paddy transplanting, Wheat harvesting, Sugarcane cutting, Cotton picking, Tractor tillage and laser leveling, Drone/HTP spraying, and general farm maintenance.',
+        },
+      },
+    ],
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppSchema) }}
       />
-      <Suspense fallback={
-        <div className="min-h-[400px] flex items-center justify-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+
+      {/* Crawlable Semantic Overview Section */}
+      <section className="rounded-3xl border border-border/60 bg-gradient-to-b from-card to-card/60 p-6 md:p-8 shadow-xs space-y-6">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+            <Users className="w-3.5 h-3.5" />
+            <span>Direct Agricultural Labor Network & Wage Intelligence</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-black font-display text-foreground tracking-tight">
+            Connect with Skilled Farm Labor & Discover Agricultural Employment
+          </h1>
+          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-4xl">
+            Overcoming seasonal agricultural labor shortages through direct, transparent rural connections.
+            Hire experienced harvesting crews and tractor operators, or register your availability to secure steady agricultural work during peak farming seasons.
+          </p>
         </div>
-      }>
+
+        {/* Key Operational Pillars */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <ShieldCheck className="w-4 h-4" />
+              <span>Zero Middlemen Commission</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Direct farmer-to-worker agreements. No contractors, brokers, or deductions cutting into hard-earned daily wages.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <IndianRupee className="w-4 h-4" />
+              <span>Official Wage Intelligence</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Benchmarked against Labor Bureau published rural agricultural wage statistics across 20+ Indian states for fair pay.
+            </p>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+              <HeartHandshake className="w-4 h-4" />
+              <span>Privacy & Trust First</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Mobile numbers are protected until mutual consent is granted. Zero advance payment policy safeguards both parties.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Worker Connect Interface & Directory */}
+      <Suspense
+        fallback={
+          <div className="min-h-[400px] flex items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
+          </div>
+        }
+      >
         <WorkerConnectClient />
       </Suspense>
     </div>

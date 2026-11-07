@@ -458,7 +458,7 @@ export function WorkersConnectHomeSection() {
               <div className="pt-2">
                 <Link
                   href={selectedState === "All States"
-                    ? "/worker-connect?tab=find_workers"
+                    ? "/worker-connect"
                     : `/worker-connect?tab=find_workers&state=${encodeURIComponent(selectedState)}`
                   }
                   className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-sm transition-all cursor-pointer"
@@ -570,7 +570,7 @@ export function WorkersConnectHomeSection() {
               <div className="pt-2">
                 <Link
                   href={selectedState === "All States"
-                    ? "/worker-connect?tab=find_jobs"
+                    ? "/worker-connect"
                     : `/worker-connect?tab=find_jobs&state=${encodeURIComponent(selectedState)}`
                   }
                   className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-sm transition-all cursor-pointer"

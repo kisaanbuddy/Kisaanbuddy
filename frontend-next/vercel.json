@@ -7,12 +7,12 @@
   "regions": ["bom1"],
   "env": {
     "NEXT_PUBLIC_API_URL": "https://krishiai-api.onrender.com",
-    "NEXT_PUBLIC_SITE_URL": "https://kisaanbuddy.com"
+    "NEXT_PUBLIC_SITE_URL": "https://www.kisaanbuddy.com"
   },
   "build": {
     "env": {
       "NEXT_PUBLIC_API_URL": "https://krishiai-api.onrender.com",
-      "NEXT_PUBLIC_SITE_URL": "https://kisaanbuddy.com"
+      "NEXT_PUBLIC_SITE_URL": "https://www.kisaanbuddy.com"
     }
   },
   "github": {

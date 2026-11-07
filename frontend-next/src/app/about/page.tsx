@@ -5,18 +5,18 @@ export const metadata: Metadata = {
   title: 'About Us | KisaanBuddy',
   description: 'Learn about KisaanBuddy - an AI-powered smart agriculture platform designed to help Indian farmers optimize crop yields, detect diseases, monitor soil health, and track live mandi prices.',
   alternates: {
-    canonical: '/about',
+    canonical: 'https://www.kisaanbuddy.com/about',
   },
   openGraph: {
     title: 'About Us | KisaanBuddy',
     description: 'Empowering Indian farmers with cutting-edge AI technologies.',
-    url: '/about',
+    url: 'https://www.kisaanbuddy.com/about',
     type: 'website',
   },
 };
 
 export default function AboutPage() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kisaanbuddy.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kisaanbuddy.com';
   
   const organizationSchema = {
     '@context': 'https://schema.org',

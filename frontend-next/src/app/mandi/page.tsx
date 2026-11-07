@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   title: 'Live Mandi Prices & Market Rates | मंडी भाव',
   description: 'Track real-time eNAM mandi market rates for crops across India. Get historical price charts, daily trends, and volume indicators.',
   alternates: {
-    canonical: '/mandi',
+    canonical: 'https://www.kisaanbuddy.com/mandi',
   },
   openGraph: {
     title: 'Live Mandi Prices & Market Rates | मंडी भाव',
     description: 'Track real-time eNAM mandi market rates for crops across India. Get historical price charts, daily trends, and volume indicators.',
-    url: '/mandi',
+    url: 'https://www.kisaanbuddy.com/mandi',
     type: 'website',
   },
 };
@@ -21,7 +21,7 @@ export default function MandiPage() {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "KisaanBuddy Live Mandi Prices Index",
-    "url": "https://kisaanbuddy.com/mandi",
+    "url": "https://www.kisaanbuddy.com/mandi",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",
     "browserRequirements": "Requires JavaScript. Requires HTML5.",

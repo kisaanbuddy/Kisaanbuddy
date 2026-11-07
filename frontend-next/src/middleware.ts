@@ -4,8 +4,6 @@ const PROTECTED_PATHS = [
   "/dashboard",
   "/profile",
   "/farmer-profile",
-  "/soil-health",
-  "/khet-diary",
   "/settings",
 ];
 
@@ -98,8 +96,6 @@ export const config = {
     "/dashboard/:path*",
     "/profile/:path*",
     "/farmer-profile/:path*",
-    "/soil-health/:path*",
-    "/khet-diary/:path*",
     "/settings/:path*",
   ],
 };

@@ -59,25 +59,25 @@ export function Footer() {
               <Link href="/mandi" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Live Mandi Rates
               </Link>
-              <Link href="/marketplace?tab=produce" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Wholesale Crops
               </Link>
-              <Link href="/marketplace?action=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Sell Your Harvest
               </Link>
-              <Link href="/marketplace?tab=buyers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Buyer Requirements
               </Link>
-              <Link href="/marketplace?tab=equipment" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Farm Machinery & Tools
               </Link>
-              <Link href="/marketplace?tab=fertilizers" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Seeds & Fertilizers
               </Link>
-              <Link href="/marketplace?tab=requirements" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 Buyer Requirements
               </Link>
-              <Link href="/marketplace?tab=sell" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
+              <Link href="/marketplace" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
                 List Your Produce
               </Link>
             </div>

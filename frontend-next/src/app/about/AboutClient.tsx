@@ -8,57 +8,10 @@ import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/language';
 import { PublicImprovementsSection } from '@/components/farmer/PublicImprovementsSection';
 
-type Founder = {
-  name: string;
-  role: string;
-  email: string;
-  bio: string;
-  initials: string;
-  gradient: string;
-  image: string;
-};
 
 export function AboutClient() {
   const { t, lang } = useLanguage();
 
-  const founders: Founder[] = [
-    {
-      name: "Aditya Ishwar",
-      role: t("about.founder_ceo_chief_architect"),
-      email: "info@kisaanbuddy.com",
-      bio: t("about.drives_the_technical_vision"),
-      initials: "AI",
-      gradient: "from-emerald-400 to-green-600",
-      image: "/aditya.png",
-    },
-    {
-      name: "Utkarsh Sinha",
-      role: t("about.co_founder_managing_director"),
-      email: "info@kisaanbuddy.com",
-      bio: t("about.owns_the_ml_pipeline"),
-      initials: "US",
-      gradient: "from-blue-400 to-indigo-600",
-      image: "/utkarsh.png",
-    },
-    {
-      name: "Sanidhya Sharma",
-      role: t("about.co_founder_cto"),
-      email: "info@kisaanbuddy.com",
-      bio: t("about.steers_KisaanBuddy_s_technical"),
-      initials: "SS",
-      gradient: "from-purple-400 to-fuchsia-600",
-      image: "",
-    },
-    {
-      name: "Yash Singh",
-      role: t("about.co_founder_cmo"),
-      email: "info@kisaanbuddy.com",
-      bio: t("about.co_founder_and_chief"),
-      initials: "YS",
-      gradient: "from-rose-400 to-pink-600",
-      image: "/yash.png",
-    },
-  ];
 
   return (
     <div className="-mt-8 -mx-4 md:-mx-8 flex flex-col relative pb-12 overflow-hidden">
@@ -171,68 +124,27 @@ export function AboutClient() {
         </div>
       </section>
 
-      {/* FOUNDERS GRID */}
+      {/* LEADERSHIP & FOUNDING VISION */}
       <section className="px-6 md:px-12 py-16">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold font-display text-foreground">{t("about.meet_the_founders")}</h2>
-            <p className="text-xs text-muted-foreground mt-2">{t("about.the_development_team_behind")}</p>
+        <div className="mx-auto max-w-4xl rounded-3xl border border-border/40 bg-card/40 backdrop-blur-md p-8 md:p-10 text-center space-y-5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400 mx-auto">
+            <Users className="w-3.5 h-3.5" />
+            <span>KisaanBuddy Founding Leadership</span>
           </div>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {founders.map((f, i) => (
-              <motion.div 
-                key={f.email}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-              >
-                <GlassCard className="h-full flex flex-col justify-between group overflow-hidden relative border border-border/40 bg-card/25 hover:border-emerald-500/40 hover:shadow-2xl hover:shadow-emerald-500/5 hover:-translate-y-2 transition-all duration-300 p-6">
-                  {/* Accent Line */}
-                  <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${f.gradient}`} />
-                  
-                  {/* Glow effect on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
-                  <div className="relative z-10">
-                    <div className="flex justify-between items-center mb-4">
-                      {f.image ? (
-                        <div className="relative h-12 w-12 rounded-xl overflow-hidden border border-white/[0.15] shadow-md shadow-emerald-500/10 transition-all duration-300 group-hover:scale-105">
-                          <img
-                            src={f.image}
-                            alt={f.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${f.gradient} text-base font-black text-white shadow-md shadow-emerald-500/10`}>
-                          {f.initials}
-                        </div>
-                      )}
-                    </div>
-                    <h3 className="text-base font-bold text-foreground font-display transition-colors group-hover:text-emerald-400">{f.name}</h3>
-                    <p className="text-[10px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-emerald-500 to-green-600 bg-clip-text text-transparent mt-0.5">
-                      {f.role}
-                    </p>
-                    <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground/90 font-medium">
-                      {f.bio}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 pt-3 border-t border-border/20 relative z-10">
-                    <a
-                      href={`mailto:${f.email}`}
-                      className="flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-background/50 border border-border/30 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-xs font-semibold text-foreground transition-all duration-200"
-                    >
-                      <Mail className="h-3.5 w-3.5 text-emerald-500 group-hover:text-white transition-colors" />
-                      <span>
-                        {t("about.email_f_role_includes").replace('{role}', f.initials === "AI" ? "Founder" : "Co-Founder")}
-                      </span>
-                    </a>
-                  </div>
-                </GlassCard>
-              </motion.div>
-            ))}
+          <h2 className="text-2xl md:text-3xl font-bold font-display text-foreground">
+            Built by Agricultural Innovators & Agritech Engineers
+          </h2>
+          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+            KisaanBuddy was founded by Aditya Ishwar, Utkarsh Sinha, Sanidhya Sharma, and Yash Singh to bridge the digital divide in Indian agriculture. Detailed credentials, technical specializations, and backgrounds are documented on our dedicated founders page.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/founders"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition-all"
+            >
+              <span>Meet the Founders & Team Profiles</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </section>
