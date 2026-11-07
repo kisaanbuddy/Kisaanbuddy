@@ -5,18 +5,18 @@ export const metadata: Metadata = {
   title: 'Contact Us | KisaanBuddy',
   description: 'Have any questions, issues, or partnership proposals? Get in touch with the KisaanBuddy co-founding team. Write us directly or send a query through our contact form.',
   alternates: {
-    canonical: '/contact',
+    canonical: 'https://www.kisaanbuddy.com/contact',
   },
   openGraph: {
     title: 'Contact Us | KisaanBuddy',
     description: 'Connect with KisaanBuddy founders and support teams.',
-    url: '/contact',
+    url: 'https://www.kisaanbuddy.com/contact',
     type: 'website',
   },
 };
 
 export default function ContactPage() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kisaanbuddy.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kisaanbuddy.com';
   
   const contactPageSchema = {
     '@context': 'https://schema.org',

@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 1. If file provided, try remote FastAPI backend if available
+    // 1. If photo is uploaded, run authentic vision model inference on FastAPI backend
     if (file && typeof file !== "string") {
       try {
         const backendUrl = getBackendUrl();
@@ -63,19 +63,32 @@ export async function POST(request: Request) {
         if (remoteRes.ok) {
           return NextResponse.json(await remoteRes.json());
         }
+
+        const errData = await remoteRes.json().catch(() => ({}));
+        return NextResponse.json(
+          {
+            detail: errData.detail || "The Crop Doctor backend failed to process this image.",
+          },
+          { status: remoteRes.status }
+        );
       } catch {
-        // Backend offline, fallback to calibrated knowledge store
+        // When a photo is provided and backend is offline: fail closed honestly!
+        return NextResponse.json(
+          {
+            detail: "The Crop Doctor vision inference server is currently offline. Please ensure the backend is running at http://127.0.0.1:8000.",
+          },
+          { status: 503 }
+        );
       }
     }
 
-    // 2. Calibrated Diagnosis with ICAR / CIBRC Data (Both Vision Fallback & Text Diagnosis)
+    // 2. Text-only symptom inquiry (explicitly labeled as non-vision text search)
     const normCrop = normalizeCropName(cropHint);
     let knowledgeList = getKnowledge({ crop: normCrop });
     if (knowledgeList.length === 0 && cropHint) {
       knowledgeList = getKnowledge();
     }
 
-    // Find best match according to symptoms if provided
     let selectedKnowledge = knowledgeList[0] || getKnowledge()[0];
     if (symptomNotes) {
       const sLower = symptomNotes.toLowerCase();
@@ -97,36 +110,21 @@ export async function POST(request: Request) {
       ? "healthy_general"
       : `${selectedKnowledge.crop.toLowerCase()}_${selectedKnowledge.disease_or_pest.split(" ")[0].toLowerCase()}`;
 
-    const hasPhoto = Boolean(file && typeof file !== "string");
-    const confidence = isHealthy ? 0.92 : hasPhoto ? 0.84 : 0.76;
-
-    const topPredictions = [
-      {
-        class: predictedCode,
-        confidence: confidence,
-      },
-      {
-        class: `${selectedKnowledge.crop.toLowerCase()}_leaf_spot`,
-        confidence: isHealthy ? 0.05 : 0.14,
-      },
-      {
-        class: "healthy_general",
-        confidence: isHealthy ? 0.03 : 0.10,
-      },
-    ];
-
     return NextResponse.json({
       predicted_class: predictedCode,
       crop: selectedKnowledge.crop,
       disease_name: isHealthy ? "Healthy Foliage" : selectedKnowledge.disease_or_pest,
-      confidence: confidence,
-      status: hasPhoto && !isHealthy ? "ok" : "uncertain",
-      note: hasPhoto
-        ? "Calibrated diagnosis validated against ICAR crop disease guidelines."
-        : "Symptom-based advisory from ICAR knowledge base. Upload a leaf photo or request KVK review for definitive visual staging.",
-      model: hasPhoto ? "EfficientNetV2-S (Calibrated T=0.75)" : "ICAR-CIBRC Agronomic Expert Engine (Symptom Match)",
-      top_predictions: topPredictions,
-      recommend_expert_review: !hasPhoto || (!isHealthy && confidence < 0.80),
+      confidence: 0.50,
+      status: "uncertain",
+      note: "Symptom-based advisory from ICAR knowledge base. Please upload a leaf photo or request KVK review for definitive visual diagnosis.",
+      model: "ICAR Agronomic Text Knowledge Search (No Image Provided)",
+      top_predictions: [
+        {
+          class: predictedCode,
+          confidence: 0.50,
+        },
+      ],
+      recommend_expert_review: true,
       immediate_action: isHealthy
         ? "Maintain regular balanced nutrition and scheduled scouting."
         : `Begin field hygiene and preventive treatment using ${selectedKnowledge.cibrc_registered_compounds || "recommended biological spray"}.`,

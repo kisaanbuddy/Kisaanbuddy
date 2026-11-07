@@ -1,0 +1,2732 @@
+[
+  {
+    "filename": "10148582-green-leaf-of-pepper.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "tomato_healthy",
+    "confidence": 0.4243,
+    "top3": [
+      {
+        "class": "tomato_healthy",
+        "prob": 0.4243
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.3679
+      },
+      {
+        "class": "corn_healthy",
+        "prob": 0.1324
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "4825902504_5fa80b65b8_z.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.616,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.616
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.0972
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.0694
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "e33155.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2181,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2181
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1598
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1382
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "GREEN%20BELL%20PLANT%20YELLOW%20LEAF.JPG.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.1609,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1609
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1521
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1473
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "IMG_1629.JPG_1507122477.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.2067,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2067
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1797
+      },
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.1457
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "pepper_leaf.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "tomato_leaf_mold",
+    "confidence": 0.2214,
+    "top3": [
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.2214
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1353
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.1235
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "RnGnC.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.1582,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1582
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1217
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1118
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "why-are-my-pepper-plants-yellow-yellow-pepper-plants-yellow-leaves-green-veins-pepper-plants-yellow-veins.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_healthy",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.1937,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1937
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.1388
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.0974
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "00.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.2036,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2036
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1724
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1596
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "000.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "tomato_bacterial_spot",
+    "confidence": 0.2835,
+    "top3": [
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.2835
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1048
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.099
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "01.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "tomato_healthy",
+    "confidence": 0.3784,
+    "top3": [
+      {
+        "class": "tomato_healthy",
+        "prob": 0.3784
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.2767
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.0688
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Bacterial-spot-pepper2.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "tomato_early_blight",
+    "confidence": 0.1912,
+    "top3": [
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1912
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1266
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1159
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "bacterial_leaf_spot_pepper_l.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "tomato_bacterial_spot",
+    "confidence": 0.1279,
+    "top3": [
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1279
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1273
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1205
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "CMVpepperLeafShock-copy-50QUALITY-1ge8umw.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.2953,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2953
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2239
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1458
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "H5w92.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.4165,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.4165
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1217
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1201
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "pepper-spot.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.3633,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.3633
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2491
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1634
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "pepper_bacterial-spot_03_zoom.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "bell_pepper_bacterial_spot",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2624,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2624
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.1362
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.0983
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "IMG_42231.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_gray_leaf_spot",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.2251,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2251
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1539
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1506
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "rsz0803Figure6.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_gray_leaf_spot",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.5987,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.5987
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.2368
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.0661
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "show_picture.asp_id=aaaaaaaaaaogcqq&w2=420&h2=378&clip=center,420,378&meta=0.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_gray_leaf_spot",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.4349,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.4349
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.3987
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0839
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "strom5.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_gray_leaf_spot",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.7386,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.7386
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2202
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.024
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "02c.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.8156,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.8156
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0597
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.0378
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0796.20graylssymt.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.5556,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.5556
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.3622
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0661
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "07c.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.5357,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.5357
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.2285
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0891
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0c.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.8101,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.8101
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0491
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.0436
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "1321189.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.6114,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.6114
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2812
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0736
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "160314_web.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.9107,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.9107
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0263
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.0183
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2013Corn_GrayLeafSpot_0815_0003.JPG.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.3884,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.3884
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.3617
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1737
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2015070295153021.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.9725,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.9725
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.0188
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0036
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Common%20Diseases%20Figure%201.JPG.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.5855,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.5855
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.285
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0684
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "corn-disease-update-fig-3-gray-leaf-spot.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.5438,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.5438
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.3862
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0466
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "corn-gray-leaf-spot-f4.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.4636,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.4636
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2628
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.2267
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Corn-SCLB-2017-1.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_leaf_blight",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.5145,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.5145
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.2076
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.0781
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0796.39maizerust.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "tomato_leaf_mold",
+    "confidence": 0.1747,
+    "top3": [
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1747
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1637
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1404
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0796.40comrust.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.1952,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1952
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1786
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1554
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0796.47southrust.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.2216,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.2216
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.202
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1309
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0796.52srusttelia.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_gray_leaf_spot",
+    "confidence": 0.4127,
+    "top3": [
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.4127
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.3126
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.2264
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "12-19striprustJIM.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.2203,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.2203
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1815
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.156
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "1355.50commonrust.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.3987,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.3987
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2335
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.0992
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2256-body-1501555581-1.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.6703,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.6703
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.0717
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.0657
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "393.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.6122,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.6122
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1209
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.0493
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "5496239405_d95bdb97d1_z.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.2457,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.2457
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.2308
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1174
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "80104747.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "corn_common_rust",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.9734,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.9734
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.0055
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.0055
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "3023.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2489,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2489
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1484
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.128
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "backus-056-potato-blight.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.1631,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1631
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.1507
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.1168
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "early-blight-alternaria-alternata-leaf-spotting-on-potato-leaf-X91XJE.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.2772,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2772
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2728
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1689
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "early-blight-or-target-spot-alternaria-solani-lesions-on-a-tomato-AXK6AY.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.4552,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.4552
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2056
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1335
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "earlyblightpotato.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.1567,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1567
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1109
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.105
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "potato-blight-phytophthora-infestans-close-up-of-upper-surface-of-BMMRXC.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "bell_pepper_healthy",
+    "confidence": 0.7697,
+    "top3": [
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.7697
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.0872
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.0387
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "potato-early-blight-alternaria-alternata-lesion-on-a-potato-leaf-a1w1em.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.432,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.432
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1837
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1394
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "potatobd001.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_early_blight",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.2762,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2762
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1695
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1144
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "1421_0.jpeg_itok=FMtmgePj.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.252,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.252
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1752
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1527
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "20090710-lateblight.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "bell_pepper_healthy",
+    "confidence": 0.2247,
+    "top3": [
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.2247
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.158
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1077
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2540_600.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.461,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.461
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.2161
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1902
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "5816740026_d42ef24413_Phytophthora-Infestans.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.2562,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2562
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.2496
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.227
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "B2750109-Late_blight_on_a_potato_plant-SPL.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.2756,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2756
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.223
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1887
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "irish-blight-symptoms-on-potato-leaves-atmf8b.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.3535,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.3535
+      },
+      {
+        "class": "tomato_healthy",
+        "prob": 0.2154
+      },
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.0757
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "LateBlight04.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.1508,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.1508
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.1298
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.0992
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "potato-late-blight.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "potato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.4473,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.4473
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.2117
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1273
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "powdery-mildew-erysiphe-plantani-on-young-sycamore-leaves-b774tm.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "squash_powdery_mildew",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.2636,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2636
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2443
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.1718
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "powdery-mildew-on-pumpkin-leaves-close-up-2.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "squash_powdery_mildew",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.9785,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.9785
+      },
+      {
+        "class": "corn_healthy",
+        "prob": 0.0056
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.0034
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Powdery-Mildew-on-squash.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "squash_powdery_mildew",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.8392,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.8392
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.0195
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.0181
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "powdery-mildew-sphaerotheca-fuliginea-infection-on-pumpkin-leaves-ajdkkx.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "squash_powdery_mildew",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.9256,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.9256
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.0126
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.0091
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "squash-leave-w-powd-mild.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "squash_powdery_mildew",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.8864,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.8864
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.0349
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.023
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "surface.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "squash_powdery_mildew",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.3695,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.3695
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1727
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.15
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "039b47d574bc4bb8a14259a1cd96a741.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.4932,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.4932
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2721
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.0786
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "100983448.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.2194,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.2194
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1585
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1032
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "1234080-Early-Blight.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.2082,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2082
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2029
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1614
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "bugs-and-blight-061.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2814,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2814
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1524
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1175
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "dscn3175.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2852,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2852
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.125
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1184
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "earlyblight21_.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_early_blight",
+    "confidence": 0.1569,
+    "top3": [
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1569
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1274
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1234
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "early_blight1-150x150.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_early_blight",
+    "confidence": 0.2543,
+    "top3": [
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.2543
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1788
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1401
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Shoemaker_7068.JPG.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.2426,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2426
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1841
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1751
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "tomato_early-blight_01_zoom.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_early_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2339,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2339
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1363
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1143
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "1684.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "tomato_healthy",
+    "confidence": 0.3369,
+    "top3": [
+      {
+        "class": "tomato_healthy",
+        "prob": 0.3369
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1579
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.1007
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2013-08-20-06.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.4841,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.4841
+      },
+      {
+        "class": "corn_gray_leaf_spot",
+        "prob": 0.1844
+      },
+      {
+        "class": "tomato_healthy",
+        "prob": 0.161
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "90e2c0.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.4676,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.4676
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.2583
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1732
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "DSCN1015.JPG.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "squash_powdery_mildew",
+    "confidence": 0.3921,
+    "top3": [
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.3921
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1455
+      },
+      {
+        "class": "tomato_healthy",
+        "prob": 0.1089
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "IMG_1246.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.2158,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2158
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.2063
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1488
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "main-qimg-d9c2a93f60568485c989670d9bbf703b.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "tomato_healthy",
+    "confidence": 0.6153,
+    "top3": [
+      {
+        "class": "tomato_healthy",
+        "prob": 0.6153
+      },
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.1607
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.0752
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Tomato59.JPG.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.1905,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1905
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1287
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1101
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Tomato_leaf.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_healthy",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.1644,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1644
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1442
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1181
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "%2320+Bacterial+Spot+and+Speck.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "tomato_healthy",
+    "confidence": 0.1965,
+    "top3": [
+      {
+        "class": "tomato_healthy",
+        "prob": 0.1965
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1779
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1132
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "07.17.18-Common_Tomato_Diseases_Canker-258x300.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "tomato_early_blight",
+    "confidence": 0.1355,
+    "top3": [
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1355
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1241
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1225
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "bact-spot-fig-1.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.167,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.167
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1512
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1131
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Bacterial_spots563.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "bell_pepper_healthy",
+    "confidence": 0.3736,
+    "top3": [
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.3736
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.2082
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1042
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Tomato%2BBacterial%2BSpot%2Bon%2BLeaves.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2267,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2267
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1957
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.0984
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "tomato_bacterial-speck_01_zoom.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.2726,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2726
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1991
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1882
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "tomato_V8.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.442,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.442
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1307
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.0776
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Tom_Bact3.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.2502,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2502
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1512
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1098
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "Tom_Bact7.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_bacterial_spot",
+    "pred_class": "tomato_bacterial_spot",
+    "confidence": 0.1334,
+    "top3": [
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1334
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1318
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1226
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "110822-206-Tomato-blight.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.2988,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2988
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1993
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1185
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "18c.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.2238,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2238
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.1938
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.1522
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "636368370164094909-late-blight-15-.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_bacterial_spot",
+    "confidence": 0.1781,
+    "top3": [
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1781
+      },
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.1544
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1277
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "70.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_leaf_mold",
+    "confidence": 0.1582,
+    "top3": [
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1582
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1458
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.0872
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "dsc_8148cs.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "potato_late_blight",
+    "confidence": 0.2711,
+    "top3": [
+      {
+        "class": "potato_late_blight",
+        "prob": 0.2711
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.2224
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1962
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "E%29Tomato-late-blight-foliar.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_bacterial_spot",
+    "confidence": 0.3767,
+    "top3": [
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.3767
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.2554
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.0861
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "image.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_leaf_mold",
+    "confidence": 0.1877,
+    "top3": [
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1877
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1312
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.1049
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "IMG_5808.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.1925,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1925
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1462
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1258
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "LateBlt09_06.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.1767,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1767
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1632
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1183
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "late_blight_tomato_leaf_spore1x1200.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_late_blight",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.3071,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.3071
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.112
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.0953
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "11-40580_5.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_curl",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.5501,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.5501
+      },
+      {
+        "class": "tomato_healthy",
+        "prob": 0.1453
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.0752
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "17fc47.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_curl",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2227,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2227
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1464
+      },
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.093
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "8226402877_9abf151b5b_b.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_curl",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.6635,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.6635
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.1072
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.0569
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "fwa2013313115151.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_curl",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.2104,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.2104
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.184
+      },
+      {
+        "class": "squash_powdery_mildew",
+        "prob": 0.1053
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "glyphosate.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_curl",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.5015,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.5015
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.1457
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.0672
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "tylcv-seminar-1-638.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_curl",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.4065,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.4065
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.0981
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.0777
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "49%20Leafmold%20Bottom.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_mold",
+    "pred_class": "bell_pepper_bacterial_spot",
+    "confidence": 0.2533,
+    "top3": [
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.2533
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.091
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.0787
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "50%20Leafmold%20Top.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_mold",
+    "pred_class": "corn_common_rust",
+    "confidence": 0.181,
+    "top3": [
+      {
+        "class": "corn_common_rust",
+        "prob": 0.181
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1524
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1122
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "BIGSD.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_mold",
+    "pred_class": "corn_leaf_blight",
+    "confidence": 0.3335,
+    "top3": [
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.3335
+      },
+      {
+        "class": "tomato_healthy",
+        "prob": 0.0723
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.0692
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "black_leaf_mold_in_zina_tina.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_mold",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.4037,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.4037
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.1658
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.0935
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "dscn6689.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_mold",
+    "pred_class": "bell_pepper_bacterial_spot",
+    "confidence": 0.2435,
+    "top3": [
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.2435
+      },
+      {
+        "class": "corn_leaf_blight",
+        "prob": 0.1385
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1342
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "fungus-univ-of-minnesoeta.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_leaf_mold",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2998,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2998
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1712
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1044
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "0.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_late_blight",
+    "confidence": 0.5266,
+    "top3": [
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.5266
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1862
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.0881
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2septoria-tomato.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.4444,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.4444
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.144
+      },
+      {
+        "class": "corn_common_rust",
+        "prob": 0.1161
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "2STEM.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_leaf_curl",
+    "confidence": 0.4972,
+    "top3": [
+      {
+        "class": "tomato_leaf_curl",
+        "prob": 0.4972
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1561
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1184
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "55830b60a7cf2.image.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.3205,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.3205
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1254
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1252
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "6134794031202304.jpeg.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.2397,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.2397
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.124
+      },
+      {
+        "class": "potato_early_blight",
+        "prob": 0.0867
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "636227737977191231-septoria-leaf-spot-VT.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "bell_pepper_healthy",
+    "confidence": 0.2247,
+    "top3": [
+      {
+        "class": "bell_pepper_healthy",
+        "prob": 0.2247
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1864
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.1023
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "6447731_orig.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_early_blight",
+    "confidence": 0.1885,
+    "top3": [
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1885
+      },
+      {
+        "class": "tomato_late_blight",
+        "prob": 0.1724
+      },
+      {
+        "class": "tomato_leaf_mold",
+        "prob": 0.1663
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "7-17-Photo3_Septoria-MARY.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_septoria_leaf_spot",
+    "confidence": 0.1738,
+    "top3": [
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1738
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1487
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.1381
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "early-blight-septoria-ls-fig-3.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.23,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.23
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.175
+      },
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.1355
+      }
+    ],
+    "quality_flags": []
+  },
+  {
+    "filename": "RARZ4.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "tomato_early_blight",
+    "confidence": 0.4642,
+    "top3": [
+      {
+        "class": "tomato_early_blight",
+        "prob": 0.4642
+      },
+      {
+        "class": "potato_late_blight",
+        "prob": 0.0952
+      },
+      {
+        "class": "tomato_bacterial_spot",
+        "prob": 0.0849
+      }
+    ],
+    "quality_flags": [
+      "extreme_blur"
+    ]
+  },
+  {
+    "filename": "sept4disease-019.jpg",
+    "source": "plantdoc_field_test",
+    "true_class": "tomato_septoria_leaf_spot",
+    "pred_class": "potato_early_blight",
+    "confidence": 0.2529,
+    "top3": [
+      {
+        "class": "potato_early_blight",
+        "prob": 0.2529
+      },
+      {
+        "class": "bell_pepper_bacterial_spot",
+        "prob": 0.2073
+      },
+      {
+        "class": "tomato_septoria_leaf_spot",
+        "prob": 0.1648
+      }
+    ],
+    "quality_flags": []
+  }
+]

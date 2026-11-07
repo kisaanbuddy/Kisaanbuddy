@@ -26,6 +26,16 @@ const nextConfig = {
       }
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'kisaanbuddy.com' }],
+        destination: 'https://www.kisaanbuddy.com/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL ||

@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: "Impact & Investor Dashboard | KisaanBuddy",
   description: "Explore the growth metrics, agritech roadmap, and agricultural impact of KisaanBuddy V2, serving over 100,000+ farmers across India.",
   alternates: {
-    canonical: "/impact",
+    canonical: 'https://www.kisaanbuddy.com/impact',
   },
   openGraph: {
     title: "Impact & Investor Dashboard | KisaanBuddy",
     description: "Explore the growth metrics, agritech roadmap, and agricultural impact of KisaanBuddy V2, serving over 100,000+ farmers across India.",
-    url: "/impact",
+    url: 'https://www.kisaanbuddy.com/impact',
     type: "website",
   },
 }

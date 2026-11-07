@@ -763,7 +763,7 @@ export const ALL_SERVICES: ServiceItem[] = [
   {
     id: "tractor-machinery",
     category: "support",
-    href: "/marketplace?tab=equipment",
+    href: "/marketplace",
     icon: Tractor,
     iconColor: "orange",
     title: {
@@ -801,7 +801,7 @@ export const ALL_SERVICES: ServiceItem[] = [
   {
     id: "agricultural-services",
     category: "support",
-    href: "/worker-connect?tab=services",
+    href: "/worker-connect",
     icon: Wrench,
     iconColor: "teal",
     title: {

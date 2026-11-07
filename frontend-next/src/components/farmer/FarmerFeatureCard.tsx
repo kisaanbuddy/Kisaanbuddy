@@ -100,7 +100,7 @@ export function FarmerFeatureCard({
   return (
     <Link
       href={href}
-      className={`group relative flex min-h-[145px] sm:min-h-[155px] md:min-h-[160px] flex-col justify-between rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900/95 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:border-emerald-600/40 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.985] active:translate-y-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-600/20 ${className}`}
+      className={`group relative flex min-h-[145px] sm:min-h-[155px] md:min-h-[160px] flex-col justify-between rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900/95 p-4 sm:p-5 shadow-xs transition-all duration-200 ease-out hover:border-emerald-600/50 hover:shadow-md hover:-translate-y-1 active:scale-[0.98] active:translate-y-0 active:bg-stone-50 dark:active:bg-stone-800/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-emerald-600/25 ${className}`}
     >
       {/* Top row: [ ICON ] ... [ BADGE (optional) ] [ ARROW → ] */}
       <div className="flex items-start justify-between gap-3">
@@ -112,12 +112,12 @@ export function FarmerFeatureCard({
 
         <div className="flex items-center gap-2 pt-1">
           {badge && (
-            <span className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 px-2 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+            <span className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800/60 px-2.5 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
               {badge}
             </span>
           )}
           <span className="flex h-8 w-8 items-center justify-center rounded-full text-stone-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:bg-emerald-50/80 dark:group-hover:bg-emerald-950/40 transition-all duration-200">
-            <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden="true" />
+            <ArrowRight className="h-4 w-4 sm:h-4.5 sm:w-4.5 transition-transform duration-200 group-hover:translate-x-1" aria-hidden="true" />
           </span>
         </div>
       </div>

@@ -462,7 +462,7 @@ export function WorkersConnectSection() {
 
             <div className="pt-8 mt-6 border-t border-border/60">
               <Link
-                href="/worker-connect?tab=find_workers"
+                href="/worker-connect"
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md shadow-emerald-900/20 transition-all active:scale-[0.98]"
               >
                 <Search className="h-4 w-4" />
@@ -510,7 +510,7 @@ export function WorkersConnectSection() {
 
             <div className="pt-8 mt-6 border-t border-border/60">
               <Link
-                href="/worker-connect?tab=find_jobs"
+                href="/worker-connect"
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-sm shadow-md shadow-amber-900/20 transition-all active:scale-[0.98]"
               >
                 <Briefcase className="h-4 w-4" />
@@ -546,7 +546,7 @@ export function WorkersConnectSection() {
 
           <div className="flex items-center gap-3 shrink-0">
             <Link
-              href="/worker-connect?tab=wage_benchmarks"
+              href="/worker-connect"
               className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
             >
               <span>Labour Bureau Wage Benchmarks</span>

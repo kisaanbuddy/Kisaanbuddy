@@ -81,7 +81,7 @@ export function MarketplaceHero() {
 
               {/* Primary 3: Find Buyers */}
               <Link
-                href="/marketplace?tab=buyers"
+                href="/marketplace"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 font-semibold text-sm border border-stone-300 dark:border-stone-700 shadow-2xs transition-all"
               >
                 <Building2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -124,13 +124,13 @@ export function MarketplaceHero() {
 
               <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
                 <Link
-                  href="/worker-connect?tab=find_workers"
+                  href="/worker-connect"
                   className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-2xs"
                 >
                   Hire Workers
                 </Link>
                 <Link
-                  href="/worker-connect?tab=find_jobs"
+                  href="/worker-connect"
                   className="flex-1 sm:flex-none text-center px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-all shadow-2xs"
                 >
                   Find Farm Jobs
@@ -385,7 +385,7 @@ export function MarketplaceHero() {
 
                   {/* Bottom Action */}
                   <Link
-                    href="/marketplace?tab=buyers"
+                    href="/marketplace"
                     className="w-full mt-1 py-2.5 px-3 rounded-xl bg-amber-600/10 hover:bg-amber-600/20 text-amber-900 dark:text-amber-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <span>Connect with Institutional Buyers</span>

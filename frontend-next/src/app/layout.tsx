@@ -26,7 +26,7 @@ const FONT_DISPLAY =
   'Outfit, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kisaanbuddy.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kisaanbuddy.com'),
   title: 'KisaanBuddy — Kheti ka har kaam, ab ek hi jagah | Agriculture Platform',
   description: 'A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.',
   keywords: ['agriculture', 'farming', 'AI', 'crop disease', 'mandi prices', 'India', 'kisan', 'KisaanBuddy'],
@@ -40,14 +40,11 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'KisaanBuddy',
   },
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
     title: 'KisaanBuddy — Kheti ka har kaam, ab ek hi jagah',
     description: 'A practical digital companion for Indian farmers bringing crop advice, mandi rates, and agricultural services together.',
     type: 'website',
-    url: '/',
+    url: 'https://www.kisaanbuddy.com',
     images: [
       {
         url: '/logo.png',
@@ -109,7 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "KisaanBuddy",
-              "url": "https://kisaanbuddy.com",
+              "url": "https://www.kisaanbuddy.com",
               "description": "A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.",
               "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu"]
             })
@@ -122,8 +119,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "KisaanBuddy",
-              "url": "https://kisaanbuddy.com",
-              "logo": "https://kisaanbuddy.com/icon-192.svg",
+              "url": "https://www.kisaanbuddy.com",
+              "logo": "https://www.kisaanbuddy.com/icon-192.svg",
               "contactPoint": {
                 "@type": "ContactPoint",
                 "email": "info@kisaanbuddy.com",

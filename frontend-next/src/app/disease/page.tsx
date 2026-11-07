@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   title: 'Crop Leaf Disease Detection Online | फसल की बीमारी की पहचान',
   description: 'Upload a photo of your crop leaf and get instant diagnosis, organic remedies, and chemical treatment guidelines.',
   alternates: {
-    canonical: '/disease',
+    canonical: 'https://www.kisaanbuddy.com/disease',
   },
   openGraph: {
     title: 'Crop Leaf Disease Detection Online | फसल की बीमारी की पहचान',
     description: 'Upload a photo of your crop leaf and get instant diagnosis, organic remedies, and chemical treatment guidelines.',
-    url: '/disease',
+    url: 'https://www.kisaanbuddy.com/disease',
     type: 'website',
   }
 };
@@ -21,7 +21,7 @@ export default function DiseasePage() {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "KisaanBuddy AI Crop Leaf Disease Detector",
-    "url": "https://kisaanbuddy.com/disease",
+    "url": "https://www.kisaanbuddy.com/disease",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",
     "browserRequirements": "Requires JavaScript. Requires HTML5. Requires camera access.",

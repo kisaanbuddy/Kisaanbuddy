@@ -6,12 +6,12 @@ export const metadata: Metadata = {
   title: 'Farm Weather Forecast | KisaanBuddy',
   description: 'Get real-time weather forecasts, humidity, wind speeds, and hyper-local agricultural weather advice for your crops.',
   alternates: {
-    canonical: '/weather',
+    canonical: 'https://www.kisaanbuddy.com/weather',
   },
   openGraph: {
     title: 'Farm Weather Forecast | KisaanBuddy',
     description: 'Get real-time weather forecasts, humidity, wind speeds, and hyper-local agricultural weather advice for your crops.',
-    url: '/weather',
+    url: 'https://www.kisaanbuddy.com/weather',
     type: 'website',
   },
 };
@@ -21,7 +21,7 @@ export default function WeatherPage() {
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "KisaanBuddy Farm Weather Forecast",
-    "url": "https://kisaanbuddy.com/weather",
+    "url": "https://www.kisaanbuddy.com/weather",
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "All",
     "browserRequirements": "Requires JavaScript. Requires HTML5. Requires location access.",

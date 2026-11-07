@@ -202,7 +202,7 @@ const HUBS_DATA: Record<
         color: "bg-sky-50 text-sky-800 border-sky-200",
       },
       {
-        href: "/marketplace?tab=equipment",
+        href: "/marketplace",
         title: {
           en: "Tractor & Machinery",
           hi: "ट्रैक्टर व कृषि उपकरण",
@@ -222,7 +222,7 @@ const HUBS_DATA: Record<
         color: "bg-emerald-50 text-emerald-800 border-emerald-200",
       },
       {
-        href: "/worker-connect?tab=services",
+        href: "/worker-connect",
         title: {
           en: "Agricultural Services",
           hi: "खेत की विशेष सेवाएं",
