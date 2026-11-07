@@ -1,0 +1,218 @@
+{
+  "validator_audit": {
+    "real_leaf_sample_count": 100,
+    "real_passed": 98,
+    "real_rejected": 2,
+    "false_rejection_rate": 0.02,
+    "edge_cases": [
+      {
+        "case": "tiny_16x16",
+        "description": "Tiny 16x16 icon",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "insufficient_resolution",
+          "low_contrast_flat",
+          "excessive_blur"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 1.0,
+        "test_passed": true
+      },
+      {
+        "case": "tiny_32x32",
+        "description": "Tiny 32x32 thumbnail",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "insufficient_resolution",
+          "low_contrast_flat",
+          "excessive_blur"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 1.0,
+        "test_passed": true
+      },
+      {
+        "case": "solid_black",
+        "description": "Completely black photo",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "underexposed",
+          "low_contrast_flat",
+          "excessive_blur",
+          "low_vegetation_content"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 0.0,
+        "test_passed": true
+      },
+      {
+        "case": "dark_underexposed",
+        "description": "Very dark night photo",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "underexposed",
+          "low_contrast_flat",
+          "excessive_blur",
+          "low_vegetation_content"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 0.0,
+        "test_passed": true
+      },
+      {
+        "case": "solid_white",
+        "description": "Overexposed washed out",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "overexposed",
+          "low_contrast_flat",
+          "excessive_blur",
+          "low_vegetation_content"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 0.0,
+        "test_passed": true
+      },
+      {
+        "case": "pure_soil_brown",
+        "description": "Pure dry field soil",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "low_contrast_flat",
+          "excessive_blur"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 1.0,
+        "test_passed": true
+      },
+      {
+        "case": "blue_sky",
+        "description": "Pure open sky",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "low_contrast_flat",
+          "excessive_blur",
+          "low_vegetation_content"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 0.0,
+        "test_passed": true
+      },
+      {
+        "case": "extreme_aspect_ratio",
+        "description": "Panorama strip 12:1",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "insufficient_resolution",
+          "extreme_aspect_ratio",
+          "low_contrast_flat",
+          "excessive_blur"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 1.0,
+        "test_passed": true
+      },
+      {
+        "case": "solid_green_wall",
+        "description": "Solid green painted wall / cloth",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "low_contrast_flat",
+          "excessive_blur"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 1.0,
+        "test_passed": true
+      },
+      {
+        "case": "artificial_green_turf",
+        "description": "Synthetic green turf flat",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "low_contrast_flat",
+          "excessive_blur"
+        ],
+        "blur_score": 0.0,
+        "vegetation_ratio": 1.0,
+        "test_passed": true
+      },
+      {
+        "case": "real_leaf_valid",
+        "description": "Real sharp diseased leaf",
+        "expected_acceptable": true,
+        "actual_acceptable": true,
+        "flags": [],
+        "blur_score": 1489.46,
+        "vegetation_ratio": 0.5468,
+        "test_passed": true
+      },
+      {
+        "case": "leaf_mild_blur",
+        "description": "Mildly blurred leaf",
+        "expected_acceptable": true,
+        "actual_acceptable": true,
+        "flags": [],
+        "blur_score": 254.45,
+        "vegetation_ratio": 0.5592,
+        "test_passed": true
+      },
+      {
+        "case": "leaf_extreme_blur",
+        "description": "Severely blurred leaf",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "excessive_blur"
+        ],
+        "blur_score": 4.66,
+        "vegetation_ratio": 0.6054,
+        "test_passed": true
+      },
+      {
+        "case": "leaf_darkened",
+        "description": "Heavily underexposed leaf",
+        "expected_acceptable": false,
+        "actual_acceptable": false,
+        "flags": [
+          "underexposed",
+          "low_contrast_flat",
+          "excessive_blur",
+          "low_vegetation_content"
+        ],
+        "blur_score": 17.35,
+        "vegetation_ratio": 0.0,
+        "test_passed": true
+      }
+    ]
+  },
+  "ood_audit": {
+    "Maximum_Softmax_Probability (MSP)": {
+      "AUROC": 0.8808,
+      "AUPR_In": 0.9455,
+      "AUPR_Out": 0.7196,
+      "FPR_at_95TPR": 0.5833
+    },
+    "Negative_Shannon_Entropy": {
+      "AUROC": 0.8849,
+      "AUPR_In": 0.9435,
+      "AUPR_Out": 0.7587,
+      "FPR_at_95TPR": 0.5033
+    },
+    "Energy_Score (Negative Free Energy / LogSumExp)": {
+      "AUROC": 0.8954,
+      "AUPR_In": 0.9432,
+      "AUPR_Out": 0.7848,
+      "FPR_at_95TPR": 0.4567
+    }
+  }
+}

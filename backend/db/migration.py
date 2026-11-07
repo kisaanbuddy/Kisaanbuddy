@@ -141,6 +141,34 @@ def run_migrations():
                 cursor.execute("ALTER TABLE market_price_records ADD COLUMN data_retrieval_timestamp DATETIME DEFAULT NULL")
                 altered = True
 
+        # Advisory cases extended columns for Supervised Field Pilot (Migration 006)
+        cursor.execute("PRAGMA table_info(advisory_cases)")
+        advisory_cols = [row[1] for row in cursor.fetchall()]
+        if advisory_cols:
+            advisory_additions = [
+                ("model_version", "VARCHAR(100) DEFAULT NULL"),
+                ("artifact_hash", "VARCHAR(64) DEFAULT NULL"),
+                ("image_quality_json", "TEXT DEFAULT NULL"),
+                ("review_outcome", "VARCHAR(50) DEFAULT NULL"),
+                ("expert_crop", "VARCHAR(100) DEFAULT NULL"),
+                ("expert_disease", "VARCHAR(150) DEFAULT NULL"),
+                ("expert_is_healthy", "BOOLEAN DEFAULT 0"),
+                ("reviewed_by_id", "INTEGER DEFAULT NULL"),
+                ("reviewer_name", "VARCHAR(150) DEFAULT NULL"),
+                ("reviewed_at", "DATETIME DEFAULT NULL"),
+                ("consent_for_research", "BOOLEAN DEFAULT 1"),
+                ("session_id", "VARCHAR(64) DEFAULT NULL"),
+                ("dhash", "VARCHAR(32) DEFAULT NULL"),
+                ("image_storage_path", "VARCHAR(255) DEFAULT NULL"),
+            ]
+            for name, col_type in advisory_additions:
+                if name not in advisory_cols:
+                    cursor.execute(f"ALTER TABLE advisory_cases ADD COLUMN {name} {col_type}")
+                    altered = True
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_advisory_cases_review_outcome ON advisory_cases(review_outcome)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_advisory_cases_session_id ON advisory_cases(session_id)")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_advisory_cases_dhash ON advisory_cases(dhash)")
+
         conn.commit()
         if altered:
             log.info("Database schema updated with auth/review/marketplace fields.")

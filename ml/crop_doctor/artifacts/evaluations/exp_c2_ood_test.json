@@ -1,0 +1,82 @@
+{
+  "checkpoint": "ml/crop_doctor/artifacts/experiments/exp_c2_efficientnet_b0_pretrained_224/best_model.pth",
+  "manifest": "ml/crop_doctor/data/splits/ood_test_manifest.json",
+  "is_ood": true,
+  "total_samples": 300,
+  "mean_confidence": 0.5979,
+  "mean_entropy": 1.3296,
+  "ood_rejection_metrics": {
+    "thresh_0.50": {
+      "accepted_count": 181,
+      "rejection_rate": 0.3967,
+      "false_positive_rate": 0.6033
+    },
+    "thresh_0.60": {
+      "accepted_count": 147,
+      "rejection_rate": 0.51,
+      "false_positive_rate": 0.49
+    },
+    "thresh_0.70": {
+      "accepted_count": 114,
+      "rejection_rate": 0.62,
+      "false_positive_rate": 0.38
+    },
+    "thresh_0.80": {
+      "accepted_count": 79,
+      "rejection_rate": 0.7367,
+      "false_positive_rate": 0.2633
+    }
+  },
+  "predictions_sample": [
+    {
+      "idx": 0,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.5828
+    },
+    {
+      "idx": 1,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.9671
+    },
+    {
+      "idx": 2,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.9423
+    },
+    {
+      "idx": 3,
+      "top_pred_class": "tomato_healthy",
+      "confidence": 0.56
+    },
+    {
+      "idx": 4,
+      "top_pred_class": "tomato_healthy",
+      "confidence": 0.3901
+    },
+    {
+      "idx": 5,
+      "top_pred_class": "tomato_healthy",
+      "confidence": 0.8597
+    },
+    {
+      "idx": 6,
+      "top_pred_class": "potato_healthy",
+      "confidence": 0.4066
+    },
+    {
+      "idx": 7,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.6564
+    },
+    {
+      "idx": 8,
+      "top_pred_class": "bell_pepper_healthy",
+      "confidence": 0.7822
+    },
+    {
+      "idx": 9,
+      "top_pred_class": "potato_late_blight",
+      "confidence": 0.6776
+    }
+  ]
+}

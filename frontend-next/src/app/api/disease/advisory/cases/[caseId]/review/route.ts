@@ -24,21 +24,35 @@ export async function POST(
   try {
     const body = await request.json();
 
+    // Pass incoming authentication headers to FastAPI backend
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const authHeader = request.headers.get("authorization");
+    if (authHeader) headers["Authorization"] = authHeader;
+    const cookieHeader = request.headers.get("cookie");
+    if (cookieHeader) headers["Cookie"] = cookieHeader;
+
     try {
       const backendUrl = getBackendUrl();
       const res = await fetch(`${backendUrl}/api/disease/advisory/cases/${encodeURIComponent(caseId)}/review`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(body),
         cache: "no-store",
       });
+
       if (res.ok) {
         const data = await res.json();
         reviewAdvisoryCase(caseId, body);
         return NextResponse.json(data);
       }
+
+      // Propagate authorization errors and validation failures
+      if (res.status === 401 || res.status === 403 || res.status === 400 || res.status === 404) {
+        const errData = await res.json().catch(() => ({ detail: "Request failed" }));
+        return NextResponse.json(errData, { status: res.status });
+      }
     } catch {
-      // Backend offline
+      // Backend offline network failure: fall back to local store
     }
 
     const updated = reviewAdvisoryCase(caseId, body);

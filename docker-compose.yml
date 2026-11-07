@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: kisaanbuddy-staging-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: krishiai_staging
+      POSTGRES_USER: kisaan_admin
+      POSTGRES_PASSWORD: staging_secure_password_replace
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kisaan_admin -d krishiai_staging"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kisaanbuddy-api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c "alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://kisaan_admin:staging_secure_password_replace@db:5432/krishiai_staging
+      - DEBUG=false
+      - JWT_SECRET=staging_super_secret_key_48_bytes_minimum_length_required_here_1234
+      - ALLOWED_ORIGINS=["https://kisaanbuddy-staging.vercel.app","https://kisaanbuddy.com"]
+      - ALLOWED_ORIGIN_REGEX=^https:\/\/.*\.vercel\.app$
+      - CROP_DOCTOR_MODEL_PATH=ml/crop_doctor/artifacts/experiments/exp_c2_efficientnet_b0_pretrained_224/best_model.pth
+      - CROP_DOCTOR_DEVICE=cpu
+      - CROP_DOCTOR_CONFIDENCE_THRESHOLD=0.60
+      - CROP_DOCTOR_TEMPERATURE=1.0500
+      - STORAGE_BACKEND=mounted
+      - PILOT_STORAGE_PATH=/app/backend/uploads/pilot_images
+      - RATE_LIMIT_PER_MINUTE=60
+    volumes:
+      - pilot_image_uploads:/app/backend/uploads/pilot_images
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  pilot_image_uploads:

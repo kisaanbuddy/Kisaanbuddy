@@ -16,6 +16,7 @@ __pycache__/
 venv/
 env/
 .venv/
+.venv_cuda/
 backend/venv/
 *.egg-info/
 .pytest_cache/
@@ -48,6 +49,9 @@ ml/crop_doctor/data/curated/
 ml/crop_doctor/data/quarantine/
 ml/crop_doctor/data/staging/
 backend/data/uploads/
+backend/data/field_pilot_images/
+ml/crop_doctor/data/field_pilot_images/
+backend/uploads/
 
 # --- OS / IDE ---
 .DS_Store

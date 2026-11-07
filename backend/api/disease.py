@@ -1,3 +1,9 @@
+from fastapi.responses import FileResponse, Response
+import uuid
+import hashlib
+import json
+from PIL import Image
+import io
 import os
 import sys
 import datetime
@@ -7,7 +13,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from api.auth import get_current_user
+from api.auth import get_current_user, get_current_user_optional, require_expert_or_admin
+from services.pilot_storage_service import get_pilot_storage_service, StorageError
+from services.pilot_otp_service import request_consent_otp, verify_consent_otp
 from db.session import get_db
 from db.models import (
     DiseaseDetection,
@@ -128,6 +136,24 @@ async def predict_crop_disease(
 
     try:
         contents = await file.read()
+        if len(contents) > 15 * 1024 * 1024:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail="File too large. Maximum image upload size is 15 MB.",
+            )
+        if len(contents) < 32:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Uploaded file is empty or too small.",
+            )
+        try:
+            test_img = Image.open(io.BytesIO(contents))
+            test_img.verify()
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid, corrupt, or unsupported image file.",
+            )
         classifier = get_disease_classifier()
         vision_res = classifier.predict(contents, crop_hint=crop_hint)
 
@@ -196,9 +222,11 @@ async def predict_crop_disease(
             "note": (
                 "Visual features are ambiguous or confidence is below threshold. KVK expert confirmation is advised."
                 if is_uncertain
-                else "High-confidence visual diagnosis from randomly initialized vision model."
+                else "Calibrated visual diagnosis from crop doctor vision model."
             ),
-            "model": f"MobileNetV3-Small (Trained from Scratch, T=0.9472)",
+            "model": vision_res.get("model_version", "CropDoctor-Vision"),
+            "model_version": vision_res.get("model_version"),
+            "artifact_hash": vision_res.get("artifact_hash"),
             "top_predictions": top_preds,
             "image_quality": vision_res.get("image_quality"),
             "recommend_expert_review": is_uncertain,
@@ -263,12 +291,14 @@ def get_model_status():
     """Returns operational status, model version, and artifact verification."""
     classifier = get_disease_classifier()
     svc = classifier.service
+    arch = "efficientnet_b0" if "efficientnet" in svc.model_version else "mobilenet_v3_small"
+    weights_init = "imagenet_pretrained" if ("transfer" in svc.model_version or "efficientnet" in svc.model_version) else "strictly_random_from_scratch"
     return {
         "status": "ready" if svc.is_ready else "unavailable",
         "model_version": svc.model_version,
         "taxonomy_version": svc.taxonomy_version,
-        "architecture": "mobilenet_v3_small",
-        "weights_initialization": "strictly_random_from_scratch",
+        "architecture": arch,
+        "weights_initialization": weights_init,
         "temperature_calibrated": True,
         "temperature": svc.temperature,
         "artifact_hash": svc.artifact_hash[:16],
@@ -373,7 +403,7 @@ def list_agricultural_experts(
 # ---------------------------------------------------------------------------
 @router.get("/history", response_model=List[DiseaseHistoryResponse])
 def get_disease_history(
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ) -> Any:
     """Get all disease detections for the current user, or recent global records if guest."""
@@ -416,4 +446,529 @@ def submit_diagnosis_feedback(payload: FarmerFeedbackPayload, db: Session = Depe
         "diagnosis_id": payload.diagnosis_id,
         "recorded_at": datetime.datetime.utcnow().isoformat(),
         "thank_you_message": "Dhanyawaad! Your feedback helps agricultural scientists refine Crop Doctor."
+    }
+
+
+# ---------------------------------------------------------------------------
+# 6. Supervised Field Pilot & Expert Advisory Workflow
+# ---------------------------------------------------------------------------
+PILOT_IMAGE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "field_pilot_images")
+os.makedirs(PILOT_IMAGE_DIR, exist_ok=True)
+
+VALID_REVIEW_OUTCOMES = {
+    "confirmed_correct",
+    "correct_crop_incorrect_disease",
+    "incorrect_crop",
+    "uncertain_diagnosis",
+    "unable_to_assess_photograph",
+    "additional_photograph_required",
+}
+
+
+def _compute_dhash(image_bytes: bytes, hash_size: int = 8) -> str:
+    """Computes a robust 64-bit difference hash (dHash) for rapid perceptual deduplication."""
+    try:
+        img = Image.open(io.BytesIO(image_bytes)).convert("L").resize((hash_size + 1, hash_size), Image.Resampling.LANCZOS)
+        diff = []
+        for row in range(hash_size):
+            for col in range(hash_size):
+                pixel_left = img.getpixel((col, row))
+                pixel_right = img.getpixel((col + 1, row))
+                diff.append(pixel_left > pixel_right)
+        decimal_val = 0
+        hex_str = []
+        for index, val in enumerate(diff):
+            if val:
+                decimal_val += 2 ** (index % 4)
+            if (index % 4) == 3:
+                hex_str.append(hex(decimal_val)[2:])
+                decimal_val = 0
+        return "".join(hex_str)
+    except Exception:
+        return ""
+
+
+@router.post("/upload-pilot-image")
+async def upload_pilot_image(
+    file: UploadFile = File(...),
+    session_id: Optional[str] = Query(None, description="Client photo capture session UUID"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+):
+    """
+    Secure image upload for field pilot leaf photographs.
+    Performs MIME validation, computes SHA-256 and perceptual dHash,
+    executes pre-inference quality guardrails, and stores securely.
+    """
+    if file.content_type and not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files (JPEG, PNG, WebP) are accepted.")
+
+    contents = await file.read()
+    if len(contents) > 15 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File exceeds maximum size limit of 15 MB.")
+    if len(contents) < 32:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty or too small.")
+
+    # Magic byte and image format validation
+    try:
+        pil_img = Image.open(io.BytesIO(contents))
+        img_format = (pil_img.format or "").upper()
+        if img_format not in ["JPEG", "JPG", "PNG", "WEBP"]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unsupported image format: {img_format}. Allowed formats: JPEG, PNG, WebP.",
+            )
+        # Quality assessment using verified PIL image
+        classifier = get_disease_classifier()
+        svc = classifier.service
+        quality_assessment = svc.validator.validate(pil_img)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Corrupt or unreadable image file: {str(e)}")
+
+    # Calculate SHA256 and dHash
+    sha256_hex = hashlib.sha256(contents).hexdigest()
+    dhash_str = _compute_dhash(contents)
+
+    # Check for exact duplicate in recently stored pilot cases
+    existing_dup = db.query(AdvisoryCase).filter(
+        (AdvisoryCase.dhash == dhash_str) | (AdvisoryCase.artifact_hash == sha256_hex[:16])
+    ).first()
+    is_duplicate = existing_dup is not None
+
+    # Generate secure non-guessable storage filename via storage service
+    storage_svc = get_pilot_storage_service()
+    try:
+        storage_res = storage_svc.save_image(contents, file.filename or "leaf.jpg")
+    except StorageError as se:
+        raise HTTPException(status_code=500, detail=f"Storage operation failed: {str(se)}")
+
+    stored_filename = storage_res["stored_filename"]
+    image_url = storage_res["relative_url"]
+
+    return {
+        "status": "uploaded",
+        "image_url": image_url,
+        "stored_filename": stored_filename,
+        "sha256": sha256_hex,
+        "dhash": dhash_str,
+        "is_duplicate": is_duplicate,
+        "session_id": session_id or str(uuid.uuid4()),
+        "image_quality": {
+            "passed": quality_assessment.get("passed", True) if isinstance(quality_assessment, dict) else getattr(quality_assessment, "passed", True),
+            "blur_score": quality_assessment.get("blur_score", 0.0) if isinstance(quality_assessment, dict) else getattr(quality_assessment, "blur_score", 0.0),
+            "brightness": quality_assessment.get("brightness", 0.0) if isinstance(quality_assessment, dict) else getattr(quality_assessment, "brightness", 0.0),
+            "contrast": quality_assessment.get("contrast", 0.0) if isinstance(quality_assessment, dict) else getattr(quality_assessment, "contrast", 0.0),
+            "green_ratio": quality_assessment.get("green_ratio", 0.0) if isinstance(quality_assessment, dict) else getattr(quality_assessment, "green_ratio", 0.0),
+            "reason": quality_assessment.get("reason", "") if isinstance(quality_assessment, dict) else getattr(quality_assessment, "reason", ""),
+        },
+        "file_size": len(contents),
+    }
+
+
+@router.get("/images/{image_name}")
+def get_pilot_image(
+    image_name: str,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+):
+    """
+    Secure delivery of field pilot foliage photographs.
+    Prevents path traversal and returns private cache headers.
+    """
+    storage_svc = get_pilot_storage_service()
+    try:
+        safe_basename = storage_svc.sanitize_filename(image_name)
+    except StorageError:
+        raise HTTPException(status_code=400, detail="Invalid image path.")
+
+    result = storage_svc.get_image(safe_basename)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Image not found.")
+
+    file_or_bytes, media_type = result
+    headers = {"Cache-Control": "private, max-age=86400"}
+    if isinstance(file_or_bytes, str):
+        return FileResponse(file_or_bytes, media_type=media_type, headers=headers)
+    else:
+        return Response(content=file_or_bytes, media_type=media_type, headers=headers)
+
+
+@router.post("/advisory/cases", response_model=AdvisoryCaseResponse)
+def create_advisory_case_endpoint(
+    payload: AdvisoryCaseCreate,
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+):
+    """
+    Creates a new field pilot advisory case for human expert review.
+    Enforces farmer explicit consent and privacy preservation.
+    """
+    if not payload.consent_recorded:
+        raise HTTPException(
+            status_code=400,
+            detail="Explicit farmer consent is required to share diagnosis data with agricultural experts.",
+        )
+
+    # Resolve expert assignment
+    expert = find_matching_expert(payload.state, payload.district, payload.crop_name)
+    assigned_expert_id = expert.get("id") if expert else None
+
+    case_id = generate_advisory_case_id()
+    phone_masked = mask_phone_number(payload.farmer_phone)
+
+    # Derive model provenance if omitted
+    model_version = payload.model_version
+    artifact_hash = payload.artifact_hash
+    if not model_version or not artifact_hash:
+        classifier = get_disease_classifier()
+        model_version = model_version or classifier.service.model_version
+        artifact_hash = artifact_hash or classifier.service.artifact_hash[:16]
+
+    case = AdvisoryCase(
+        case_id=case_id,
+        user_id=current_user.id if current_user else None,
+        assigned_expert_id=assigned_expert_id,
+        farmer_name=payload.farmer_name,
+        farmer_phone=payload.farmer_phone,
+        farmer_phone_masked=phone_masked,
+        preferred_contact_method=payload.preferred_contact_method,
+        consent_recorded=payload.consent_recorded,
+        consent_for_research=payload.consent_for_research,
+        crop_name=payload.crop_name,
+        crop_variety=payload.crop_variety,
+        state=payload.state,
+        district=payload.district,
+        village_or_tehsil=payload.village_or_tehsil,
+        growth_stage=payload.growth_stage,
+        sowing_date=payload.sowing_date,
+        visible_symptoms=payload.visible_symptoms,
+        symptom_duration_days=payload.symptom_duration_days,
+        affected_area_acres=payload.affected_area_acres,
+        recent_weather_conditions=payload.recent_weather_conditions,
+        fertilizer_pesticide_history=payload.fertilizer_pesticide_history,
+        image_url=payload.image_url,
+        ai_predicted_disease=payload.ai_predicted_disease,
+        ai_confidence=payload.ai_confidence,
+        ai_status=payload.ai_status,
+        ai_differentials=payload.ai_differentials,
+        status="pending",
+        priority=payload.priority or "normal",
+        model_version=model_version,
+        artifact_hash=artifact_hash,
+        image_quality_json=payload.image_quality_json,
+        session_id=payload.session_id or str(uuid.uuid4()),
+        dhash=payload.dhash,
+        created_at=datetime.datetime.utcnow(),
+        updated_at=datetime.datetime.utcnow(),
+    )
+
+    db.add(case)
+    db.commit()
+    db.refresh(case)
+
+    # Dispatch simulated notifications and record audit trail
+    if expert:
+        dispatch_logs = dispatch_advisory_notifications(case_id, expert, payload.farmer_phone)
+        for dlog in dispatch_logs:
+            audit_entry = AdvisoryNotificationLog(
+                case_id=case.id,
+                channel=dlog["channel"],
+                recipient=dlog["recipient"],
+                status=dlog["status"],
+                message_snippet=dlog["message_snippet"],
+                error_message=None,
+            )
+            db.add(audit_entry)
+        db.commit()
+
+    return case
+
+
+@router.get("/advisory/cases", response_model=List[AdvisoryCaseResponse])
+def list_advisory_cases_endpoint(
+    status: Optional[str] = Query(None, description="Filter by case status: pending, resolved, etc."),
+    crop: Optional[str] = Query(None, description="Filter by crop name"),
+    state: Optional[str] = Query(None, description="Filter by state"),
+    review_outcome: Optional[str] = Query(None, description="Filter by review outcome"),
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns paginated list of advisory cases for expert dashboard or farmer tracking.
+    """
+    query = db.query(AdvisoryCase)
+    if status and status.lower() != "all":
+        query = query.filter(AdvisoryCase.status == status)
+    if crop and crop.lower() != "all":
+        query = query.filter(AdvisoryCase.crop_name.ilike(f"%{crop}%"))
+    if state and state.lower() != "all":
+        query = query.filter(AdvisoryCase.state.ilike(f"%{state}%"))
+    if review_outcome and review_outcome.lower() != "all":
+        query = query.filter(AdvisoryCase.review_outcome == review_outcome)
+
+    return query.order_by(desc(AdvisoryCase.created_at)).offset(offset).limit(limit).all()
+
+
+@router.get("/advisory/cases/{case_id}", response_model=AdvisoryCaseResponse)
+def get_advisory_case_endpoint(
+    case_id: str,
+    db: Session = Depends(get_db),
+):
+    """Retrieves a single advisory case by case_id."""
+    case = db.query(AdvisoryCase).filter(AdvisoryCase.case_id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="Advisory case not found.")
+    return case
+
+
+@router.post("/advisory/cases/{case_id}/review", response_model=AdvisoryCaseResponse)
+def review_advisory_case_endpoint(
+    case_id: str,
+    payload: AdvisoryCaseReview,
+    current_user: User = Depends(require_expert_or_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Submits an expert review for a field pilot observation.
+    ENFORCES STRICT ROLE-BASED ACCESS CONTROL (Expert, Agronomist, or Admin required).
+    Ordinary farmers cannot self-verify or mark predictions as expert verified.
+    """
+    case = db.query(AdvisoryCase).filter(AdvisoryCase.case_id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="Advisory case not found.")
+
+    if payload.review_outcome not in VALID_REVIEW_OUTCOMES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid review outcome. Must be one of: {sorted(list(VALID_REVIEW_OUTCOMES))}",
+        )
+
+    # Determine status transition
+    new_status = payload.status
+    if not new_status:
+        if payload.review_outcome in ["confirmed_correct", "correct_crop_incorrect_disease", "incorrect_crop"]:
+            new_status = "resolved"
+        elif payload.review_outcome == "additional_photograph_required":
+            new_status = "additional_photo_needed"
+        elif payload.review_outcome == "unable_to_assess_photograph":
+            new_status = "unassessable"
+        else:
+            new_status = "in_review"
+
+    # Update case fields
+    case.review_outcome = payload.review_outcome
+    case.expert_crop = payload.expert_crop or case.crop_name
+    case.expert_disease = payload.expert_disease
+    case.expert_is_healthy = bool(payload.expert_is_healthy)
+    case.expert_notes = payload.expert_notes
+    case.expert_recommendation = payload.expert_recommendation
+    case.follow_up_date = payload.follow_up_date
+    case.status = new_status
+    case.reviewed_by_id = current_user.id
+    case.reviewer_name = f"{current_user.name or 'Agricultural Expert'} ({current_user.role})"
+    case.reviewed_at = datetime.datetime.utcnow()
+    case.updated_at = datetime.datetime.utcnow()
+    if new_status == "resolved":
+        case.resolved_at = datetime.datetime.utcnow()
+
+    db.commit()
+    db.refresh(case)
+
+    # Create audit log entry
+    audit_entry = AdvisoryNotificationLog(
+        case_id=case.id,
+        channel="expert_review_audit",
+        recipient=f"expert_user_{current_user.id}",
+        status="recorded",
+        message_snippet=f"Expert {case.reviewer_name} completed review: outcome={payload.review_outcome}",
+        error_message=None,
+    )
+    db.add(audit_entry)
+    db.commit()
+
+    return case
+
+
+@router.get("/advisory/export")
+def export_field_pilot_observations(
+    verified_only: bool = Query(True, description="Export only expert-verified observations"),
+    consent_only: bool = Query(True, description="Export only samples with research consent"),
+    current_user: User = Depends(require_expert_or_admin),
+    db: Session = Depends(get_db),
+):
+    """
+    Exports field pilot observations for independent ML benchmark construction.
+    Requires expert or admin authorization. Excludes unverified/unconsented records.
+    """
+    query = db.query(AdvisoryCase)
+    if consent_only:
+        query = query.filter(AdvisoryCase.consent_for_research == True)
+    if verified_only:
+        query = query.filter(
+            AdvisoryCase.review_outcome.in_(["confirmed_correct", "correct_crop_incorrect_disease", "incorrect_crop"])
+        )
+
+    cases = query.all()
+    records = []
+    for c in cases:
+        canonical_label = c.expert_disease or c.ai_predicted_disease or "unspecified"
+        records.append({
+            "case_id": c.case_id,
+            "session_id": c.session_id or f"sess_{c.id}",
+            "image_url": c.image_url,
+            "dhash": c.dhash,
+            "crop": c.expert_crop or c.crop_name,
+            "canonical_label": canonical_label,
+            "is_healthy": c.expert_is_healthy,
+            "review_outcome": c.review_outcome,
+            "original_ai_prediction": c.ai_predicted_disease,
+            "original_ai_confidence": c.ai_confidence,
+            "model_version": c.model_version,
+            "artifact_hash": c.artifact_hash,
+            "state": c.state,
+            "district": c.district,
+            "reviewed_by": c.reviewer_name,
+            "reviewed_at": c.reviewed_at.isoformat() if c.reviewed_at else None,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    return {
+        "export_timestamp": datetime.datetime.utcnow().isoformat(),
+        "total_records": len(records),
+        "verified_only": verified_only,
+        "consent_only": consent_only,
+        "records": records,
+    }
+
+
+@router.post("/advisory/cases/{case_id}/request-consent-otp")
+def request_case_consent_otp(
+    case_id: str,
+    phone: str = Query(..., description="Farmer mobile number for identity verification"),
+    db: Session = Depends(get_db),
+):
+    """
+    Dispatches a single-use OTP for anonymous consent withdrawal or data erasure.
+    Timing-safe: never reveals if the case ID or phone number exists.
+    """
+    return request_consent_otp(case_id, phone, db)
+
+
+@router.post("/advisory/cases/{case_id}/withdraw-consent")
+def withdraw_pilot_consent(
+    case_id: str,
+    phone: Optional[str] = Query(None, description="Farmer phone number for unauthenticated verification"),
+    otp: Optional[str] = Query(None, description="Single-use OTP code"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+):
+    """
+    Withdraw research consent for a specific advisory observation.
+    Immediately excludes the observation and images from all future ML training/evaluation exports.
+    Requires authenticated user (case owner/expert/admin) OR verified phone OTP.
+    """
+    case = db.query(AdvisoryCase).filter(AdvisoryCase.case_id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="Advisory case not found.")
+
+    is_authorized = False
+    if current_user:
+        if current_user.role in ["expert", "admin"] or current_user.id == case.user_id:
+            is_authorized = True
+        else:
+            raise HTTPException(
+                status_code=403,
+                detail="Unauthorized: You do not have permission to modify this advisory case.",
+            )
+    else:
+        if not phone or not otp:
+            raise HTTPException(
+                status_code=401,
+                detail="Authentication or mobile OTP verification required to withdraw consent.",
+            )
+        if not verify_consent_otp(case_id, phone, otp, db):
+            raise HTTPException(
+                status_code=403,
+                detail="Invalid, expired, or exhausted OTP verification code.",
+            )
+        is_authorized = True
+
+    case.consent_for_research = False
+    case.farmer_consented_for_research = False
+    case.updated_at = datetime.datetime.utcnow()
+    db.commit()
+
+    audit_entry = AdvisoryNotificationLog(
+        case_id=case.id,
+        channel="consent_withdrawal",
+        recipient=current_user.email if current_user else f"verified_phone_{phone[-4:]}",
+        status="revoked",
+        message_snippet=f"Farmer research consent withdrawn for case {case_id}. Excluded from ML dataset exports.",
+        error_message=None,
+    )
+    db.add(audit_entry)
+    db.commit()
+
+    return {
+        "status": "consent_withdrawn",
+        "case_id": case_id,
+        "consent_for_research": False,
+        "message": "Consent has been successfully withdrawn. Your observation will not be used for ML training or benchmarks.",
+    }
+
+
+@router.delete("/advisory/cases/{case_id}")
+def delete_advisory_case_endpoint(
+    case_id: str,
+    phone: Optional[str] = Query(None, description="Farmer phone for verification"),
+    otp: Optional[str] = Query(None, description="Single-use OTP code"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db),
+):
+    """
+    Data erasure endpoint for privacy compliance (Right to Erasure / GDPR-aligned).
+    Removes the advisory case record and associated local/cloud image file.
+    Requires authenticated user (case owner/expert/admin) OR verified phone OTP.
+    """
+    case = db.query(AdvisoryCase).filter(AdvisoryCase.case_id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="Advisory case not found.")
+
+    is_authorized = False
+    if current_user:
+        if current_user.role in ["expert", "admin"] or current_user.id == case.user_id:
+            is_authorized = True
+        else:
+            raise HTTPException(
+                status_code=403,
+                detail="Unauthorized: You do not have permission to delete this advisory case.",
+            )
+    else:
+        if not phone or not otp:
+            raise HTTPException(
+                status_code=401,
+                detail="Authentication or mobile OTP verification required to delete this advisory case.",
+            )
+        if not verify_consent_otp(case_id, phone, otp, db):
+            raise HTTPException(
+                status_code=403,
+                detail="Invalid, expired, or exhausted OTP verification code.",
+            )
+        is_authorized = True
+
+    if case.image_url and "/api/disease/images/" in case.image_url:
+        img_filename = os.path.basename(case.image_url)
+        storage_svc = get_pilot_storage_service()
+        storage_svc.delete_image(img_filename)
+
+    db.delete(case)
+    db.commit()
+
+    return {
+        "status": "deleted",
+        "case_id": case_id,
+        "message": "Advisory case and associated photographic records have been permanently erased.",
     }

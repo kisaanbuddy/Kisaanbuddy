@@ -420,6 +420,36 @@ def require_admin(
     return current_user
 
 
+async def get_current_user_optional(
+    request: Request,
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """Optional authentication dependency: returns User if authenticated, None if guest."""
+    try:
+        return await get_current_user(request, db)
+    except HTTPException:
+        return None
+
+
+def require_expert_or_admin(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> User:
+    """Server-side authorization dependency for agricultural expert & agronomist reviews."""
+    if (is_configured_admin(current_user.email) or is_configured_admin(current_user.phone_number)) and (current_user.role or "").casefold() != "admin":
+        current_user.role = "Admin"
+        db.commit()
+
+    allowed_roles = {"admin", "expert", "agronomist", "kvk_scientist", "extension_officer"}
+    user_role = (current_user.role or "").casefold()
+    if user_role not in allowed_roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Expert or agronomist authorization is required to perform clinical reviews.",
+        )
+    return current_user
+
+
 # ===========================================================================
 # Routes
 # ===========================================================================

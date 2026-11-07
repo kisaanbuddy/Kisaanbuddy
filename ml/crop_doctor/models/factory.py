@@ -29,35 +29,53 @@ def assert_random_initialization(model: nn.Module):
             assert param.std() > 0.0001, f"Parameter {name} has zero variance (uninitialized or frozen)"
     return True
 
-def create_model(arch_name: str, num_classes: int = 17, seed: int = 42):
+def create_model(arch_name: str, num_classes: int = 17, seed: int = 42, pretrained: bool = False):
     """
-    Factory creating vision models strictly from random initialization (weights=None).
+    Factory creating vision models.
+    When pretrained=False: strictly from random initialization (weights=None, Kaiming init, verified).
+    When pretrained=True: loads official torchvision ImageNet-1k pretrained weights, replacing the classification head.
     """
     torch.manual_seed(seed)
-    
+
     if arch_name == "resnet18":
-        # Strict weights=None requirement
-        model = models.resnet18(weights=None)
+        weights = models.ResNet18_Weights.DEFAULT if pretrained else None
+        model = models.resnet18(weights=weights)
         in_features = model.fc.in_features
         model.fc = nn.Linear(in_features, num_classes)
-        model.apply(init_weights_kaiming)
-        
+        if not pretrained:
+            model.apply(init_weights_kaiming)
+            assert_random_initialization(model)
+
     elif arch_name == "mobilenet_v3_small":
-        model = models.mobilenet_v3_small(weights=None)
+        weights = models.MobileNet_V3_Small_Weights.DEFAULT if pretrained else None
+        model = models.mobilenet_v3_small(weights=weights)
         in_features = model.classifier[3].in_features
         model.classifier[3] = nn.Linear(in_features, num_classes)
-        model.apply(init_weights_kaiming)
-        
+        if not pretrained:
+            model.apply(init_weights_kaiming)
+            assert_random_initialization(model)
+
     elif arch_name == "efficientnet_b0":
-        model = models.efficientnet_b0(weights=None)
+        weights = models.EfficientNet_B0_Weights.DEFAULT if pretrained else None
+        model = models.efficientnet_b0(weights=weights)
         in_features = model.classifier[1].in_features
         model.classifier[1] = nn.Linear(in_features, num_classes)
-        model.apply(init_weights_kaiming)
-        
+        if not pretrained:
+            model.apply(init_weights_kaiming)
+            assert_random_initialization(model)
+
+    elif arch_name == "efficientnet_v2_s":
+        weights = models.EfficientNet_V2_S_Weights.DEFAULT if pretrained else None
+        model = models.efficientnet_v2_s(weights=weights)
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_features, num_classes)
+        if not pretrained:
+            model.apply(init_weights_kaiming)
+            assert_random_initialization(model)
+
     else:
         raise ValueError(f"Unsupported architecture: {arch_name}")
 
-    assert_random_initialization(model)
     return model
 
 def count_parameters(model: nn.Module):
@@ -66,7 +84,11 @@ def count_parameters(model: nn.Module):
     return {"total": total, "trainable": trainable}
 
 if __name__ == "__main__":
-    for arch in ["resnet18", "mobilenet_v3_small", "efficientnet_b0"]:
-        m = create_model(arch, num_classes=17)
-        params = count_parameters(m)
-        print(f"Architecture '{arch}' (weights=None, random init verified) -> Trainable params: {params['trainable']:,}")
+    for arch in ["resnet18", "mobilenet_v3_small", "efficientnet_b0", "efficientnet_v2_s"]:
+        m_scratch = create_model(arch, num_classes=17, pretrained=False)
+        p_scratch = count_parameters(m_scratch)
+        print(f"Architecture '{arch}' (From Scratch) -> Trainable params: {p_scratch['trainable']:,}")
+
+        m_pt = create_model(arch, num_classes=17, pretrained=True)
+        p_pt = count_parameters(m_pt)
+        print(f"Architecture '{arch}' (Pretrained)   -> Trainable params: {p_pt['trainable']:,}")
