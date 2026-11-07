@@ -41,7 +41,6 @@ import {
   Bed,
   Truck,
   Eye,
-  Bell,
   LayoutGrid,
   Tractor,
   CircleDot,
@@ -410,146 +409,8 @@ export default function WorkerConnectClient() {
   return (
     <div className="min-h-screen bg-[#fafcf9] text-stone-900 dark:bg-stone-950 dark:text-stone-100 font-sans pb-16">
       
-      {/* ========================================================================= */}
-      {/* 1. TOP SUB-NAVIGATION BAR (AgriLabour Brand + Quick Links)                 */}
-      {/* ========================================================================= */}
-      <div className="bg-white dark:bg-stone-900 border-b border-stone-200/80 dark:border-stone-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
-          
-          {/* Left: AgriLabour Brand Logo */}
-          <div className="flex items-center gap-6">
-            <Link href="/worker-connect" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-xs">
-                <Sprout className="w-5 h-5" />
-              </div>
-              <span className="text-lg font-black tracking-tight text-emerald-950 dark:text-white">
-                Agri<span className="text-emerald-600">Labour</span>
-              </span>
-            </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 space-y-6">
 
-            {/* Nav Links / Pills */}
-            <nav className="hidden md:flex items-center gap-1 text-xs">
-              <button
-                type="button"
-                onClick={() => setActiveTab("find_workers")}
-                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
-                  activeTab === "find_workers"
-                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                }`}
-              >
-                Find Workers
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("find_jobs")}
-                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
-                  activeTab === "find_jobs"
-                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                }`}
-              >
-                Find Farming Jobs
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("post_job")}
-                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
-                  activeTab === "post_job"
-                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                }`}
-              >
-                Post a Farm Job
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("worker_portal")}
-                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
-                  activeTab === "worker_portal"
-                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                }`}
-              >
-                Worker Portal
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("wage_intelligence")}
-                className={`px-3 py-1.5 rounded-full font-bold transition-colors cursor-pointer ${
-                  activeTab === "wage_intelligence"
-                    ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300"
-                    : "text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white"
-                }`}
-              >
-                Wage Intelligence
-              </button>
-            </nav>
-          </div>
-
-          {/* Right: Notifications & Profile */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              className="relative p-2 rounded-full text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
-              title="Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-600" />
-            </button>
-            <div className="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-800 dark:text-emerald-200">
-              <User className="w-4 h-4" />
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
-
-        {/* ========================================================================= */}
-        {/* 2. HERO SECTION BANNER (Matches Reference Image Layout & Visuals)         */}
-        {/* ========================================================================= */}
-        <div className="bg-gradient-to-r from-[#eef7ee] via-[#e5f4e5] to-[#dbefdc] dark:from-emerald-950/40 dark:via-emerald-900/30 dark:to-green-950/40 border border-emerald-200/70 dark:border-emerald-800/60 rounded-3xl p-6 sm:p-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xs">
-          
-          {/* Left Text Column */}
-          <div className="space-y-1.5 z-10 max-w-xl">
-            <div className="flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium">
-              <Link href="/" className="hover:text-emerald-800 dark:hover:text-emerald-400 transition-colors">
-                Home
-              </Link>
-              <ChevronRight className="w-3.5 h-3.5 text-stone-400" />
-              <span className="text-stone-700 dark:text-stone-200 font-semibold">
-                Agricultural Labour Hiring
-              </span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0f3822] dark:text-white tracking-tight leading-tight">
-              Find AgriLabour Near You
-            </h1>
-
-            <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-              Hire verified AgriLabour, harvesting teams and tractor operators.
-            </p>
-          </div>
-
-          {/* Right Column: Clean Button */}
-          <div className="flex items-center justify-start md:justify-end z-10 shrink-0">
-            <button
-              type="button"
-              onClick={() => setActiveTab("post_job")}
-              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-2xl bg-[#0f5132] hover:bg-[#0c4128] text-white font-extrabold text-xs sm:text-sm shadow-sm hover:shadow transition-all duration-150 cursor-pointer shrink-0"
-            >
-              <Plus className="w-4 h-4 stroke-[3]" />
-              <span>Post a Farm Job</span>
-            </button>
-          </div>
-
-          {/* Background Ambient Glow */}
-          <div className="absolute right-0 top-0 bottom-0 w-1/2 bg-gradient-to-l from-emerald-100/40 to-transparent pointer-events-none" />
-        </div>
-
-        {/* ========================================================================= */}
         {/* 3. MAIN NAVIGATION TABS (5 Tabs Container matching Screenshot)            */}
         {/* ========================================================================= */}
         <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl p-1.5 shadow-2xs flex items-center gap-1.5 overflow-x-auto">

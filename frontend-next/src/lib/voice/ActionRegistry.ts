@@ -70,6 +70,11 @@ export const PERMITTED_ROUTES: Record<string, string> = {
   "/khet-diary": "Khet Diary",
   "/crop-predictor": "Crop Predictor",
   "/features": "Features",
+  "/chat": "AI Assistant Chat",
+  "/chatbot": "AI Assistant Chat",
+  "/contact": "Contact",
+  "/about": "About",
+  "/crops": "Crops",
 };
 
 export class ActionRegistry {

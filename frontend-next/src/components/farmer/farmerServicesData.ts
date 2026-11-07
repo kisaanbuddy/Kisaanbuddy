@@ -461,13 +461,13 @@ export const ALL_SERVICES: ServiceItem[] = [
   {
     id: "sell-crop",
     category: "mandi",
-    href: "/marketplace?tab=sell",
+    href: "/marketplace",
     icon: Wheat,
     iconColor: "emerald",
     title: {
-      hi: "अपनी फसल बेचें",
-      en: "Sell My Crop",
-      kn: "ನನ್ನ ಬೆಳೆ ಮಾರಾಟ ಮಾಡಿ",
+      hi: "एग्री मार्केटप्लेस",
+      en: "AgriMarketplace",
+      kn: "ಅಗ್ರಿ ಮಾರ್ಕೆಟ್‌ಪ್ಲೇಸ್",
     },
     description: {
       hi: "थोक खरीदारों और व्यापारियों को बिना बिचौलियों के बेचें",

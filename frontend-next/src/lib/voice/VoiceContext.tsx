@@ -6,6 +6,7 @@ import { useLanguage, type Lang } from "@/lib/language";
 import { useTheme } from "next-themes";
 import { useCart } from "@/lib/cart/CartContext";
 import { ActionRegistry, type VoiceAction, type ActionExecutionContext } from "./ActionRegistry";
+import { interpretLocally } from "./LocalVoiceInterpreter";
 
 export interface VisibleItem {
   id: string | number;
@@ -201,7 +202,10 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     goBack: () => {
       if (typeof window !== "undefined") window.history.back();
     },
-    setLanguage: (newLang) => setLang(newLang as Lang),
+    setLanguage: (newLang) => {
+      setLang(newLang as Lang);
+      setVoiceLanguage(newLang);
+    },
     setTheme: (newTheme) => setTheme(newTheme),
     cart: {
       addToCart: (it) => cartCtx.addToCart(it),
@@ -216,7 +220,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     },
   };
 
-  // Play real Sarvam TTS audio
+  // Play real Sarvam TTS audio with browser speech synthesis fallback (never blocks site control)
   const playSarvamAudio = useCallback(
     async (base64Audio?: string | null, textFallback?: string) => {
       if (audioMuted) return;
@@ -248,11 +252,12 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
           await audio.play();
           return;
         } catch (e) {
-          console.warn("Failed to play base64 audio, falling back to server TTS route:", e);
+          // Gracefully continue; user doesn't require audio to control site
+          console.warn("Audio base64 playback skipped:", e);
         }
       }
 
-      // Fallback: fetch from backend TTS endpoint
+      // Fallback: try fetching from server TTS route, else Web Speech API
       if (textFallback) {
         try {
           const res = await fetch("/api/sarvam/tts", {
@@ -280,6 +285,26 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
             };
             audio.onerror = () => setIsSpeaking(false);
             await audio.play();
+            return;
+          }
+        } catch {
+          // Ignore server TTS error
+        }
+
+        // Web Speech API fallback (silent and graceful if unsupported)
+        try {
+          if (typeof window !== "undefined" && "speechSynthesis" in window) {
+            const utterance = new SpeechSynthesisUtterance(textFallback);
+            utterance.lang = voiceLanguage === "kn" ? "kn-IN" : voiceLanguage === "en" ? "en-IN" : "hi-IN";
+            utterance.onstart = () => setIsSpeaking(true);
+            utterance.onend = () => {
+              setIsSpeaking(false);
+              if (continuousModeRef.current) {
+                setTimeout(() => void triggerStartListening(), 600);
+              }
+            };
+            utterance.onerror = () => setIsSpeaking(false);
+            window.speechSynthesis.speak(utterance);
           }
         } catch {
           setIsSpeaking(false);
@@ -289,7 +314,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     [audioMuted, killOngoingSpeech, voiceLanguage]
   );
 
-  // Send command to backend voice OS
+  // Send command to voice OS: Executes instantaneously via local engine + server fallback
   const sendVoiceCommand = useCallback(
     async (transcript: string) => {
       const clean = transcript.trim();
@@ -298,17 +323,47 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       setIsProcessing(true);
       setTranscriptLive(clean);
 
+      const pageSnapshot = {
+        current_route: pathname || "/",
+        visible_items: visibleItems.slice(0, 15),
+        selected_item: selectedItem,
+        cart_items: cartCtx.cart,
+        cart_total: cartCtx.totalAmount,
+        pending_action: pendingConfirmation,
+      };
+
+      // ─── 1. INSTANT LOCAL EXECUTION (0ms latency, zero server dependency) ───
+      const localResult = interpretLocally(clean, pageSnapshot, voiceLanguage);
+      if (localResult) {
+        setLastReply(localResult.reply_text);
+
+        if (localResult.action.requires_confirmation) {
+          setPendingConfirmation({
+            type: localResult.action.payload?.action_to_confirm || localResult.action.action_type,
+            payload: localResult.action.payload,
+            total_amount: localResult.action.payload?.total_amount || 0,
+            prompt: localResult.reply_text,
+          });
+        } else {
+          setPendingConfirmation(null);
+          // Execute website action immediately!
+          ActionRegistry.execute(localResult.action, executionContext);
+        }
+
+        setIsProcessing(false);
+
+        // Optional non-blocking audio output
+        if (!audioMuted) {
+          void playSarvamAudio(null, localResult.reply_text);
+        }
+        return;
+      }
+
+      // ─── 2. SERVER INTERPRETATION (Complex NLP & conversational queries) ───
       try {
         const payload = {
           transcript: clean,
-          page_context: {
-            current_route: pathname || "/",
-            visible_items: visibleItems.slice(0, 15),
-            selected_item: selectedItem,
-            cart_items: cartCtx.cart,
-            cart_total: cartCtx.totalAmount,
-            pending_action: pendingConfirmation,
-          },
+          page_context: pageSnapshot,
           language: voiceLanguage,
           want_audio: !audioMuted,
         };
@@ -332,18 +387,24 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
         } else {
           setPendingConfirmation(null);
           // Execute Safe Action immediately
-          if (data.action) {
+          if (data.action && data.action.action_type !== "NOOP") {
             ActionRegistry.execute(data.action as VoiceAction, executionContext);
           }
         }
 
-        // Play real Sarvam audio reply
+        // Play real audio reply non-blockingly
         if (!audioMuted && data.reply_text) {
-          await playSarvamAudio(data.reply_audio_base64, data.reply_text);
+          void playSarvamAudio(data.reply_audio_base64, data.reply_text);
         }
       } catch (err: any) {
-        console.error("Voice command processing failed:", err);
-        setLastReply("माफ़ करें, आदेश समझने में समस्या हुई। कृपया दोबारा बोलें।");
+        console.warn("Voice command server interpretation error:", err);
+        const fallbackMsg =
+          voiceLanguage === "kn"
+            ? "ಮಾರುಕಟ್ಟೆ, ಮಂಡಿ ದರ, ಅಥವಾ ಹವಾಮಾನ ನೋಡಲು ನೀವು ಆಜ್ಞೆ ನೀಡಬಹುದು."
+            : voiceLanguage === "en"
+            ? "You can speak to control the site: 'Open marketplace', 'Mandi prices', or 'Weather'."
+            : "वेबसाइट कंट्रोल करने के लिए बोलें: 'मार्केटप्लेस खोलो', 'मंडी भाव', 'मौसम', या 'डार्क मोड'।";
+        setLastReply(fallbackMsg);
       } finally {
         setIsProcessing(false);
       }
