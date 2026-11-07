@@ -273,11 +273,13 @@ class TestMandiMarketplaceAggregation(unittest.TestCase):
         produce_r = self.client.get("/api/marketplace/produce-listings")
         target_lot = produce_r.json()["items"][0]
 
+        import time
+        unique_phone = f"+91 9893{int(time.time() * 1000) % 1000000:06d}"
         inquiry_payload = {
             "listing_type": "produce_listing",
             "listing_id": target_lot["id"],
             "sender_name": "Suresh Aggarwal (Malwa Agro Trader)",
-            "sender_phone": "+91 98930 55443",
+            "sender_phone": unique_phone,
             "sender_type": "buyer",
             "proposed_quantity": 100.0,
             "quantity_unit": "Quintal",

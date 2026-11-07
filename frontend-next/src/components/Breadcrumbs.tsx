@@ -15,7 +15,20 @@ const labels: Record<string, string> = {
   disclaimer: "disclaimerLabel", "cookie-policy": "cookiePolicy", impact: "impact",
 };
 
-const hiddenRoutes = new Set(["/", "/login", "/signup", "/forgot-password", "/reset-password", "/marketplace", "/worker-connect"]);
+const hiddenRoutes = new Set([
+  "/",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/marketplace",
+  "/worker-connect",
+  "/terms",
+  "/privacy",
+  "/disclaimer",
+  "/cookie-policy",
+  "/editorial-policy",
+]);
 
 export default function Breadcrumbs() {
   const pathname = usePathname();

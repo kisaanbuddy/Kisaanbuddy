@@ -1238,6 +1238,34 @@ export default function SoilHealthPage() {
             </div>
           )
         })()}
+
+        {/* Scientific Provenance & Laboratory vs Sensor Distinction */}
+        <div className="mt-8 rounded-2xl border border-border/60 bg-muted/30 p-5 text-xs text-muted-foreground space-y-3">
+          <div className="flex items-center gap-2 font-bold text-foreground">
+            <FlaskConical className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>Soil Data Provenance &amp; Scientific Methodology</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+            <div className="space-y-1">
+              <strong className="text-foreground block font-semibold">1. Laboratory vs. Sensor Distinction:</strong>
+              <p className="leading-relaxed text-[11px]">
+                Chemical test results from certified district Soil Testing Laboratories (wet-chemistry spectrophotometer / flame photometer) are the gold standard. Handheld electrochemical sensor probes provide rapid screening estimates but may deviate &plusmn;15% under variable soil moisture.
+              </p>
+            </div>
+            <div className="space-y-1">
+              <strong className="text-foreground block font-semibold">2. Units &amp; Standard Scales:</strong>
+              <p className="leading-relaxed text-[11px]">
+                Nutrient levels are measured in kilograms per hectare (kg/ha) for available Nitrogen, Phosphorus (P₂O₅), and Potassium (K₂O). Soil reaction is indexed on standard logarithmic pH scale (1–14), and Organic Carbon as weight percentage (%).
+              </p>
+            </div>
+            <div className="space-y-1">
+              <strong className="text-foreground block font-semibold">3. Advisory Scope &amp; Limitations:</strong>
+              <p className="leading-relaxed text-[11px]">
+                Recommendations follow ICAR and State Agricultural University fertilizer response curves under the Fertilizer (Control) Order, 1985 (FCO). These calculations serve as indicative agronomic guidance and do not guarantee yield outcomes without balanced micronutrients and irrigation.
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
       </div>
     </>

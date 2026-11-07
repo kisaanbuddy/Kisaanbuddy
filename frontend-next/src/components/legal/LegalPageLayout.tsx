@@ -113,10 +113,10 @@ export function LegalPageLayout({
   const relatedPolicies = ALL_POLICIES.filter((p) => p.href !== currentPath);
 
   return (
-    <PageTransition className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+    <PageTransition className="w-full pb-12 space-y-6">
       
       {/* Top Breadcrumb & Back Navigation */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-xs font-semibold text-stone-500 dark:text-stone-400">
           <Link href="/" className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors">
             Home
@@ -150,9 +150,9 @@ export function LegalPageLayout({
       </div>
 
       {/* Hero Header Card */}
-      <header className="relative overflow-hidden rounded-3xl border border-emerald-900/10 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/70 via-white to-stone-50/50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 p-6 sm:p-8 md:p-10 mb-8 shadow-xs">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative z-10 max-w-4xl space-y-4">
+      <header className="relative overflow-hidden rounded-3xl border border-emerald-900/10 dark:border-emerald-800/30 bg-gradient-to-br from-emerald-50/70 via-white to-stone-50/50 dark:from-stone-900 dark:via-stone-900 dark:to-stone-950 p-6 sm:p-8 md:p-10 mb-6 shadow-xs w-full">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative z-10 w-full space-y-4">
           
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-600/10 border border-emerald-600/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold uppercase tracking-wider">
@@ -166,7 +166,7 @@ export function LegalPageLayout({
           </h1>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed font-normal max-w-3xl">
+          <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed font-normal max-w-5xl">
             {subtitle}
           </p>
 
@@ -225,10 +225,10 @@ export function LegalPageLayout({
       </div>
 
       {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start w-full">
         
         {/* Left Sticky Table of Contents on Desktop */}
-        <aside className="hidden lg:block lg:col-span-4 sticky top-24 space-y-6">
+        <aside className="hidden lg:block lg:col-span-4 xl:col-span-3 sticky top-24 space-y-6">
           <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-xs">
             <div className="flex items-center gap-2 pb-3 mb-3 border-b border-stone-100 dark:border-stone-800 text-xs font-black uppercase tracking-wider text-stone-500 dark:text-stone-400">
               <List className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -290,8 +290,8 @@ export function LegalPageLayout({
         </aside>
 
         {/* Right Main Content Column */}
-        <main className="lg:col-span-8 space-y-8">
-          <div className="rounded-3xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 sm:p-8 md:p-10 shadow-xs space-y-10 text-stone-700 dark:text-stone-300 leading-relaxed text-sm">
+        <div className="lg:col-span-8 xl:col-span-9 space-y-8 w-full min-w-0">
+          <div className="rounded-3xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 sm:p-8 md:p-10 shadow-xs space-y-10 text-stone-700 dark:text-stone-300 leading-relaxed text-sm w-full">
             {children}
           </div>
 
@@ -301,7 +301,7 @@ export function LegalPageLayout({
               <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <span>Related Legal &amp; Trust Documents</span>
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               {relatedPolicies.map((policy) => {
                 const IconComponent = policy.icon;
                 return (
@@ -343,7 +343,7 @@ export function LegalPageLayout({
             </p>
           </div>
 
-        </main>
+        </div>
 
       </div>
 

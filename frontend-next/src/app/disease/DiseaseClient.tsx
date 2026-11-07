@@ -788,7 +788,7 @@ export default function DiseaseClient() {
         onClose={() => setTreatmentPopupOpen(false)}
         crop={crop || mlResult?.crop || "Crop"}
         diseaseName={mlResult?.disease_name || formatClassName(mlResult?.predicted_class || "")}
-        confidence={mlResult?.confidence || 0.85}
+        confidence={mlResult?.confidence ?? 0}
         recommendedCategory={getRecommendedCategory(mlResult)}
         diagnosisId={activeCaseId || undefined}
       />

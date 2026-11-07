@@ -114,7 +114,7 @@ export async function GET(request: Request) {
       min_price: Math.round(minP),
       max_price: Math.round(maxP),
       modal_price: Math.round(modal),
-      arrival_tonnes: Math.round(Number(r.arrival_quantity || 120)),
+      arrival_tonnes: Math.round(Number(r.arrival_quantity || 0)),
       arrival_date: r.arrival_date || "2026-10-19",
       source_name: r.source_name || "AGMARKNET / Directorate of Marketing & Inspection",
       source_url: r.source_url || "https://agmarknet.gov.in",

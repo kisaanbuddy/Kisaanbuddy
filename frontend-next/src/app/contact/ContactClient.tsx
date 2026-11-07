@@ -152,15 +152,11 @@ export function ContactClient() {
               </div>
               
               <a 
-                href="https://wa.me/919876543210?text=Hello%20KisaanBuddy%20Support%2C%20I%20need%20help%20with..."
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="mt-4 inline-flex items-center justify-center gap-2 w-full rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold h-10 px-4 transition-colors text-xs"
+                href="mailto:info@kisaanbuddy.com?subject=Farmer%20Support%20Request%20-%20KisaanBuddy"
+                className="mt-4 inline-flex items-center justify-center gap-2 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-4 transition-colors text-xs"
               >
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.42 9.864-9.864.002-2.637-1.03-5.115-2.903-6.99-1.872-1.873-4.353-2.904-6.999-2.906-5.437 0-9.862 4.423-9.866 9.868-.001 1.716.452 3.39 1.31 4.877L1.644 20.73l4.003-1.05z" />
-                </svg>
-                <span>{t("contact.whatsapp_helpline")}</span>
+                <Mail className="w-4 h-4" />
+                <span>Email Official Support: info@kisaanbuddy.com</span>
               </a>
             </div>
           </div>

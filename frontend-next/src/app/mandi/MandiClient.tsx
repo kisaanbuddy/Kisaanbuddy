@@ -167,7 +167,17 @@ function DirectContactBar({
   price?: number | null
   unit?: string | null
 }) {
-  const displayPhone = phone || maskedPhone || "+91 98263 12456"
+  const displayPhone = phone || maskedPhone
+  if (!displayPhone) {
+    return (
+      <div className="pt-2">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-muted text-muted-foreground text-xs font-medium">
+          <Phone className="h-3.5 w-3.5" />
+          <span>Contact verification pending</span>
+        </span>
+      </div>
+    )
+  }
   const cleanPhone = displayPhone.replace(/[^0-9]/g, "")
   const intlPhone = cleanPhone.startsWith("91") ? cleanPhone : `91${cleanPhone.replace(/^0+/, "")}`
 
@@ -1017,9 +1027,9 @@ export default function MandiPage() {
                       <TrendBadge trend={activeCrop.trend} change={activeCrop.change_percent} size="lg" />
                     </div>
                     <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground mt-2">
-                      <span>Min: <strong className="text-foreground">₹{(activeCrop.min_price || activeCrop.price * 0.95).toLocaleString()}</strong></span>
+                      <span>Min: <strong className="text-foreground">{activeCrop.min_price ? `₹${activeCrop.min_price.toLocaleString()}` : `₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()} (Modal)`}</strong></span>
                       <span>•</span>
-                      <span>Max: <strong className="text-foreground">₹{(activeCrop.max_price || activeCrop.price * 1.05).toLocaleString()}</strong></span>
+                      <span>Max: <strong className="text-foreground">{activeCrop.max_price ? `₹${activeCrop.max_price.toLocaleString()}` : `₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()} (Modal)`}</strong></span>
                       <span>•</span>
                       <span>Daily Arrival: <strong className="text-foreground">{activeCrop.arrival_tonnes.toLocaleString()} MT</strong></span>
                     </div>
@@ -1244,23 +1254,47 @@ export default function MandiPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredCrops.map((crop, i) => (
-                  <CropCard
-                    key={crop.id}
-                    crop={crop}
-                    index={i}
-                    isSelected={crop.id === activeCrop.id}
+              {filteredCrops.length === 0 ? (
+                <div className="p-12 text-center bg-card rounded-3xl border border-dashed border-border space-y-4">
+                  <Store className="w-12 h-12 mx-auto text-muted-foreground/40" />
+                  <div className="space-y-1">
+                    <h3 className="text-base font-bold text-foreground">Verified mandi data is currently unavailable for this market.</h3>
+                    <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+                      No official APMC daily auction records match your current filter parameters from AGMARKNET. Try clearing your search or selecting another state/commodity.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => {
-                      setSelectedCrop(crop)
-                      if (typeof window !== "undefined") {
-                        window.scrollTo({ top: 0, behavior: "smooth" })
-                      }
+                      setCategoryFilter("All")
+                      setStateFilter("All")
+                      setSearchQuery("")
                     }}
-                    lang={plang}
-                  />
-                ))}
-              </div>
+                    className="text-xs font-bold"
+                  >
+                    Reset Filters
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filteredCrops.map((crop, i) => (
+                    <CropCard
+                      key={crop.id}
+                      crop={crop}
+                      index={i}
+                      isSelected={crop.id === activeCrop.id}
+                      onClick={() => {
+                        setSelectedCrop(crop)
+                        if (typeof window !== "undefined") {
+                          window.scrollTo({ top: 0, behavior: "smooth" })
+                        }
+                      }}
+                      lang={plang}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -2120,7 +2154,7 @@ export default function MandiPage() {
                       <h3 className="text-lg font-black text-foreground font-display">{g.crop_name}</h3>
                     </div>
                     <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                      MSP: ₹{(g.effective_procurement_rate || g.msp_rate_per_quintal || 2275).toLocaleString()}/qtl
+                      MSP: {g.effective_procurement_rate || g.msp_rate_per_quintal ? `₹${(g.effective_procurement_rate || g.msp_rate_per_quintal).toLocaleString()}/qtl` : "MSP Announcement Pending"}
                     </span>
                   </div>
 

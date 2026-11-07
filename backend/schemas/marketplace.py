@@ -42,7 +42,17 @@ EquipmentListingType = Literal["rent", "sale"]
 EquipmentCondition = Literal["new", "excellent", "good", "fair"]
 EquipmentAvailability = Literal["available", "booked", "under_maintenance", "sold", "inactive"]
 
-ProduceCategory = Literal["cereal", "pulse", "oilseed", "vegetable", "fruit", "cash_crop"]
+ProduceCategory = Literal[
+    "cereal",
+    "pulse",
+    "oilseed",
+    "vegetable",
+    "fruit",
+    "cash_crop",
+    "fiber",
+    "spice",
+    "plantation",
+]
 ProduceAvailability = Literal["available", "under_negotiation", "sold_out", "inactive"]
 
 

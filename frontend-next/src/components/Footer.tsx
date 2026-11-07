@@ -177,7 +177,7 @@ export function Footer() {
                 className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors py-0.5 group"
               >
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all" />
-                <span>Agricultural Labour (Worker Connect)</span>
+                <span>AgriLabour (Agricultural Workforce)</span>
               </Link>
               <Link
                 href="/weather"

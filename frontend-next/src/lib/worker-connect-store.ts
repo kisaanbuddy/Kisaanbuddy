@@ -1091,7 +1091,27 @@ export function getFallbackJobs(filters: {
   if (activeJobs.length === 0) {
     seedRealDemoData()
   }
-  let list = [...activeJobs]
+  const now = new Date()
+  const todayStr = now.toISOString().split("T")[0]
+
+  // Automatic Job Lifecycle & Expiry Management:
+  // Strictly ensure past application deadlines or concluded field contracts do not remain 'open'
+  let list = activeJobs.map((j) => {
+    let isExpired = false
+    if (j.application_deadline && j.application_deadline < todayStr) {
+      isExpired = true
+    } else if (j.start_date) {
+      const startDate = new Date(j.start_date)
+      const expiryDate = new Date(startDate.getTime() + (j.duration_days || 1) * 86400000)
+      if (expiryDate < now) {
+        isExpired = true
+      }
+    }
+    if (isExpired && j.status === "open") {
+      return { ...j, status: "expired" }
+    }
+    return j
+  })
   if (filters.state && filters.state !== "All States") {
     list = list.filter((j) => j.state.toLowerCase().includes(filters.state!.toLowerCase()))
   }
