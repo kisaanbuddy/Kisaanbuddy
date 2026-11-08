@@ -150,7 +150,7 @@ export function WorldClassHomePage() {
                     <button
                       key={idx}
                       type="button"
-                      onClick={() => openVoiceAssistant()}
+                      onClick={() => openVoiceAssistant(item.text)}
                       className="flex items-center gap-3 p-3 rounded-2xl bg-white/10 hover:bg-white/20 border border-white/15 text-left text-xs sm:text-sm text-white transition-colors cursor-pointer"
                     >
                       <span className="text-base">{item.icon}</span>
@@ -189,6 +189,38 @@ export function WorldClassHomePage() {
             </span>
           </div>
 
+          {/* KisaanBuddy AI Voice Hub interactive launcher banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 text-white border border-emerald-500/30 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600/30 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
+                <Mic className="w-5 h-5 animate-pulse" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-white">KisaanBuddy AI Voice Hub</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    6 Services • 100% Voice
+                  </span>
+                </div>
+                <p className="text-xs text-stone-300">
+                  {lang === "kn"
+                    ? "ಬರೆಯಲು ಕಷ್ಟವೇ? ಮೈಕ್ ಒತ್ತಿ ನೇರವಾಗಿ ಮಾತನಾಡಿ — 6 ಸೇವೆಗಳು ನಿಮ್ಮ ಧ್ವನಿಯಿಂದ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತವೆ"
+                    : lang === "hi"
+                    ? "टाइप करने की जरूरत नहीं — नीचे दी गई किसी भी सेवा के लिए सिर्फ बोलें"
+                    : "Speak naturally in Hindi, Kannada or English to control all 6 agricultural services"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => openVoiceAssistant()}
+              className="self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 shrink-0"
+            >
+              <Sparkles className="w-4 h-4 text-emerald-200" />
+              <span>{lang === "kn" ? "ಧ್ವನಿ ಹಬ್ ತೆರೆಯಿರಿ" : lang === "hi" ? "वॉइस हब खोलें" : "Open Voice Hub"}</span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Card 1: Crop Doctor (पत्ती की फोटो खींचें) */}
             <Link
@@ -219,6 +251,22 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.cropDoctor.desc}
                   </p>
+                  {/* Voice Shortcut Trigger */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openVoiceAssistant("Mere tamatar ke paudhe mein bimari hai");
+                    }}
+                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-900 text-[11px] font-semibold text-rose-800 dark:text-rose-300 flex items-center justify-between transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Mic className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                      <span className="italic truncate">बोलें: "टमाटर में बीमारी है"</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-rose-500">Ask AI →</span>
+                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-rose-700 dark:text-rose-400">
                   {dict.cards.cropDoctor.cta}
@@ -255,6 +303,22 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.mandi.desc}
                   </p>
+                  {/* Voice Shortcut Trigger */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openVoiceAssistant("Mujhe aaj ka mandi bhav batao");
+                    }}
+                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-900 text-[11px] font-semibold text-amber-800 dark:text-amber-300 flex items-center justify-between transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Mic className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <span className="italic truncate">बोलें: "आज का मंडी भाव बताओ"</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-amber-500">Ask AI →</span>
+                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-amber-800 dark:text-amber-400">
                   {dict.cards.mandi.cta}
@@ -291,6 +355,22 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.weather.desc}
                   </p>
+                  {/* Voice Shortcut Trigger */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openVoiceAssistant("Kal baarish hogi kya?");
+                    }}
+                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-900 text-[11px] font-semibold text-sky-800 dark:text-sky-300 flex items-center justify-between transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Mic className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                      <span className="italic truncate">बोलें: "कल बारिश होगी क्या?"</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-sky-500">Ask AI →</span>
+                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-sky-700 dark:text-sky-400">
                   {dict.cards.weather.cta}
@@ -327,6 +407,22 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.machinery.desc}
                   </p>
+                  {/* Voice Shortcut Trigger */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openVoiceAssistant("Mujhe tractor rent par chahiye");
+                    }}
+                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-900 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 flex items-center justify-between transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Mic className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <span className="italic truncate">बोलें: "ट्रैक्टर रेंट पर चाहिए"</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-emerald-600">Ask AI →</span>
+                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-emerald-800 dark:text-emerald-400">
                   {dict.cards.machinery.cta}
@@ -363,6 +459,22 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.agrilabour.desc}
                   </p>
+                  {/* Voice Shortcut Trigger */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openVoiceAssistant("Mujhe kheti ke liye mazdoor chahiye");
+                    }}
+                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-900 text-[11px] font-semibold text-indigo-800 dark:text-indigo-300 flex items-center justify-between transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Mic className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                      <span className="italic truncate">बोलें: "खेती के लिए मजदूर चाहिए"</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-indigo-500">Ask AI →</span>
+                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-indigo-800 dark:text-indigo-400">
                   {dict.cards.agrilabour.cta}
@@ -399,6 +511,22 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.aiAdvisor.desc}
                   </p>
+                  {/* Voice Shortcut Trigger */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openVoiceAssistant("Fertilizer kab dalna hai?");
+                    }}
+                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-900 text-[11px] font-semibold text-teal-800 dark:text-teal-300 flex items-center justify-between transition-colors"
+                  >
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Mic className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <span className="italic truncate">बोलें: "खाद कब डालना है?"</span>
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-teal-600">Ask AI →</span>
+                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-teal-800 dark:text-teal-400">
                   {dict.cards.aiAdvisor.cta}
