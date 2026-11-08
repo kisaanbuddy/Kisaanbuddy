@@ -1,25 +1,26 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import Link from "next/link";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   X,
   ArrowRight,
   Sprout,
-  ShieldCheck,
-  CheckCircle2,
-  Bug,
-  FlaskConical,
   CloudSun,
-  Sparkles,
-  Camera,
-  Activity,
+  TrendingUp,
+  ShieldCheck,
+  CheckCheck,
+  PhoneCall,
+  Video,
+  MoreVertical,
+  Paperclip,
+  Smile,
+  Mic,
 } from "lucide-react";
-import { useLanguage, type Lang } from "@/lib/language";
+import { useLanguage } from "@/lib/language";
 
-export const ANNOUNCEMENT_STORAGE_KEY = "kisaanbuddy_feature_announcement_seen_v2";
-export const PREFILLED_WHATSAPP_MESSAGE = "Hello KisaanBuddy! I need guidance regarding crop disease diagnosis and farm updates.";
+export const ANNOUNCEMENT_STORAGE_KEY = "kisaanbuddy_whatsapp_brand_announcement_seen";
+export const PREFILLED_WHATSAPP_MESSAGE = "नमस्ते KisaanBuddy! मुझे खेती से जुड़ी जानकारी चाहिए।";
 
 /**
  * Resolves the official WhatsApp Business URL.
@@ -56,112 +57,20 @@ export function getWhatsAppBusinessUrl(customMessage: string = PREFILLED_WHATSAP
   };
 }
 
-interface AnnouncementContent {
-  badge: string;
-  headlinePrefix: string;
-  headlineHighlight: string;
-  headlineSuffix: string;
-  description: string;
-  b1Title: string;
-  b1Desc: string;
-  b2Title: string;
-  b2Desc: string;
-  b3Title: string;
-  b3Desc: string;
-  ctaPrimary: string;
-  ctaSecondary: string;
-  trustTag1: string;
-  trustTag2: string;
-  mockupTitle: string;
-  mockupSubtitle: string;
-  mockupScanLabel: string;
-  mockupMatchLabel: string;
-  mockupDisease: string;
-  mockupSeverity: string;
-  mockupTreatment: string;
-  mockupSprayWindow: string;
-  mockupActionBtn: string;
-}
-
-const CONTENT: Record<string, AnnouncementContent> = {
-  en: {
-    badge: "✦ NEW AI FEATURE LAUNCH",
-    headlinePrefix: "Introducing ",
-    headlineHighlight: "AI Crop Doctor 2.0",
-    headlineSuffix: "",
-    description:
-      "Diagnose crop diseases instantly with AI. Upload any leaf photo to identify pests and infections with ICAR-verified scientific remedies in seconds.",
-    b1Title: "1. Instant Leaf Photo Diagnosis",
-    b1Desc: "AI-powered detection for blights, rust, mildew, and pest damage",
-    b2Title: "2. Certified Treatment Plans",
-    b2Desc: "Organic and chemical remedies with exact dosage and safety guides",
-    b3Title: "3. Spray Weather & Risk Advisory",
-    b3Desc: "Optimal spray windows based on wind speed, rain, and humidity",
-    ctaPrimary: "Try AI Crop Doctor Free",
-    ctaSecondary: "Ask on WhatsApp",
-    trustTag1: "100% Free for Farmers",
-    trustTag2: "ICAR-Backed Remedies",
-    mockupTitle: "AI Crop Doctor",
-    mockupSubtitle: "Instant Leaf Screening • Active",
-    mockupScanLabel: "Tomato Leaf • Analyzed",
-    mockupMatchLabel: "94% Match • High Confidence",
-    mockupDisease: "Early Blight (Alternaria solani)",
-    mockupSeverity: "Early Stage • Leaf Spotting",
-    mockupTreatment: "Mancozeb 75% WP @ 2g/L water",
-    mockupSprayWindow: "Optimal spray window today (Wind 6 km/h)",
-    mockupActionBtn: "View Full Treatment Guide →",
-  },
-  hi: {
-    badge: "✦ नया एआई फीचर लॉन्च",
-    headlinePrefix: "पेश है ",
-    headlineHighlight: "एआई क्रॉप डॉक्टर 2.0",
-    headlineSuffix: "",
-    description:
-      "फसल के रोगों की तुरंत एआई से पहचान करें। पत्ते की फोटो अपलोड करें और सेकंडों में प्रमाणित उपचार, सही मात्रा और मौसम सलाह पाएं।",
-    b1Title: "1. तुरंत पत्ता फोटो जांच",
-    b1Desc: "झुलसा, फफूंद, कीट और रोगों की सटीक एआई पहचान",
-    b2Title: "2. प्रमाणित उपचार व दवाइयां",
-    b2Desc: "जैविक व रासायनिक समाधान सही मात्रा और उपयोग विधि के साथ",
-    b3Title: "3. छिड़काव मौसम सलाह",
-    b3Desc: "हवा की गति और बारिश के आधार पर सही छिड़काव समय",
-    ctaPrimary: "क्रॉप डॉक्टर अभी आज़माएं",
-    ctaSecondary: "व्हाट्सएप पर पूछें",
-    trustTag1: "किसानों के लिए पूर्णतः निःशुल्क",
-    trustTag2: "वैज्ञानिक कृषि सलाह",
-    mockupTitle: "क्रॉप डॉक्टर एआई",
-    mockupSubtitle: "पत्ता जांच • सक्रिय",
-    mockupScanLabel: "टमाटर का पत्ता • जांच पूर्ण",
-    mockupMatchLabel: "94% सटीकता • उच्च विश्वास",
-    mockupDisease: "अगेती झुलसा (अर्ली ब्लाइट)",
-    mockupSeverity: "प्रारंभिक अवस्था • धब्बेदार पत्ते",
-    mockupTreatment: "मैंकोजेब 75% WP @ 2 ग्राम/लीटर",
-    mockupSprayWindow: "आज छिड़काव के लिए अनुकूल मौसम (हवा 6 किमी/घंटा)",
-    mockupActionBtn: "उपचार विवरण देखें →",
-  },
-};
-
 /**
- * Premium Feature Announcement Popup for KisaanBuddy.
- * Highlights the newly launched "AI Crop Doctor 2.0" feature.
+ * Official Brand Announcement Popup: "KisaanBuddy is Now on WhatsApp!"
  *
- * Design features:
- * - Crisp English copy with full bilingual capability
- * - Light cream and pale green brand background
- * - Realistic phone mockup showcasing the live AI Crop Doctor screening & remedy
- * - Seamless integration with direct feature routing (/disease) and WhatsApp connectivity
- * - sessionStorage-based visit control (once per session)
- * - Accessible modal dialog with focus management, Escape key, and outside click dismiss
+ * Preserves the exact modal design, dimensions, palette, animations,
+ * and smartphone mockup while replacing AI Crop Doctor content with
+ * the general WhatsApp brand launch.
  */
 export function AnnouncementPopup() {
-  const { lang, isReady, isLanguageModalOpen } = useLanguage();
+  const { isReady, isLanguageModalOpen } = useLanguage();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const prefersReducedMotion = useReducedMotion();
   const modalRef = useRef<HTMLDivElement>(null);
   const ctaButtonRef = useRef<HTMLAnchorElement>(null);
-
-  const currentLang = (lang as Lang) === "hi" ? "hi" : "en";
-  const t = CONTENT[currentLang] || CONTENT.en;
 
   const { url: waUrl, isConfigured, phoneNumber } = getWhatsAppBusinessUrl();
 
@@ -257,6 +166,15 @@ export function AnnouncementPopup() {
     };
   }, [isOpen, handleDismiss]);
 
+  const handleCtaClick = () => {
+    try {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, "true");
+      }
+    } catch {}
+    setIsOpen(false);
+  };
+
   if (!isMounted) return null;
 
   return (
@@ -275,8 +193,8 @@ export function AnnouncementPopup() {
             ref={modalRef}
             role="dialog"
             aria-modal="true"
-            aria-labelledby="feature-announcement-title"
-            aria-describedby="feature-announcement-desc"
+            aria-labelledby="whatsapp-announcement-title"
+            aria-describedby="whatsapp-announcement-desc"
             className="relative w-full max-w-4xl my-auto bg-gradient-to-br from-[#FEFDF9] via-[#F7FAF4] to-[#EEF7EC] text-stone-900 rounded-3xl border border-emerald-900/10 dark:border-emerald-700/20 shadow-2xl shadow-emerald-950/25 overflow-hidden"
             initial={{ opacity: 0, scale: prefersReducedMotion ? 1 : 0.95, y: prefersReducedMotion ? 0 : 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -293,7 +211,7 @@ export function AnnouncementPopup() {
             <button
               type="button"
               onClick={handleDismiss}
-              aria-label="Close feature announcement"
+              aria-label="Close WhatsApp announcement"
               className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-30 p-2 sm:p-2.5 rounded-full bg-white/90 hover:bg-emerald-50 text-stone-600 hover:text-emerald-800 border border-emerald-900/10 shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -335,10 +253,10 @@ export function AnnouncementPopup() {
             {/* Inner Content Grid */}
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 p-5 sm:p-7 md:p-9 lg:p-10 items-center">
               
-              {/* LEFT COLUMN: Brand, Headline, Benefits, Action Buttons */}
+              {/* LEFT COLUMN: Brand, Headline, Feature Cards, Action Buttons */}
               <div className="lg:col-span-7 flex flex-col justify-center space-y-4 sm:space-y-5">
                 
-                {/* Brand Header & Feature Badge */}
+                {/* Brand Header & Top Badge */}
                 <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/90 border border-emerald-900/10 shadow-2xs">
                     <img
@@ -353,131 +271,140 @@ export function AnnouncementPopup() {
                     </span>
                   </div>
 
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-200 text-emerald-800 font-extrabold text-xs tracking-wide">
-                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>{t.badge}</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#25D366]/15 border border-[#25D366]/30 text-[#075E54] font-extrabold text-xs tracking-wide">
+                    {/* WhatsApp Icon */}
+                    <svg
+                      className="w-3.5 h-3.5 fill-[#25D366]"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    <span>KISAANBUDDY WHATSAPP LAUNCH</span>
                   </span>
                 </div>
 
-                {/* Main Headline & Description */}
+                {/* Main Heading & Description */}
                 <div className="space-y-1.5">
                   <h2
-                    id="feature-announcement-title"
+                    id="whatsapp-announcement-title"
                     className="text-2xl sm:text-3xl lg:text-[34px] font-black text-stone-900 leading-[1.22] tracking-tight"
                   >
-                    {t.headlinePrefix}
-                    <span className="text-[#0f5132] underline decoration-emerald-400 decoration-4 underline-offset-4">
-                      {t.headlineHighlight}
+                    KisaanBuddy is Now on{" "}
+                    <span className="text-[#075E54] underline decoration-[#25D366] decoration-4 underline-offset-4">
+                      WhatsApp!
                     </span>
-                    {t.headlineSuffix}
                   </h2>
                   <p
-                    id="feature-announcement-desc"
+                    id="whatsapp-announcement-desc"
                     className="text-stone-600 text-xs sm:text-sm lg:text-[15px] leading-relaxed pt-1"
                   >
-                    {t.description}
+                    Your farming companion is now just one WhatsApp message away. Get agricultural information, farming guidance, market updates and important notifications directly on WhatsApp.
                   </p>
                 </div>
 
-                {/* 3 Core Feature Highlights */}
+                {/* 3 Feature Cards */}
                 <div className="space-y-2 pt-1 sm:pt-2">
+                  {/* Card 1: Farming Assistance */}
                   <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100/90 text-emerald-800 shrink-0">
-                      <Camera className="w-5 h-5 text-emerald-700" />
+                      <Sprout className="w-5 h-5 text-emerald-700" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-stone-900">
-                        {t.b1Title}
+                      <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                        <span>🌱</span>
+                        <span>Farming Assistance</span>
                       </div>
                       <div className="text-[11px] text-stone-500 truncate">
-                        {t.b1Desc}
+                        Get guidance and answers to your farming questions.
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100/90 text-amber-800 shrink-0">
-                      <FlaskConical className="w-5 h-5 text-amber-700" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-stone-900">
-                        {t.b2Title}
-                      </div>
-                      <div className="text-[11px] text-stone-500 truncate">
-                        {t.b2Desc}
-                      </div>
-                    </div>
-                  </div>
-
+                  {/* Card 2: Weather & Crop Updates */}
                   <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100/90 text-sky-800 shrink-0">
                       <CloudSun className="w-5 h-5 text-sky-700" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-stone-900">
-                        {t.b3Title}
+                      <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                        <span>🌤️</span>
+                        <span>Weather &amp; Crop Updates</span>
                       </div>
                       <div className="text-[11px] text-stone-500 truncate">
-                        {t.b3Desc}
+                        Receive useful weather and agricultural updates.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Mandi Price Information */}
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100/90 text-amber-800 shrink-0">
+                      <TrendingUp className="w-5 h-5 text-amber-700" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                        <span>📊</span>
+                        <span>Mandi Price Information</span>
+                      </div>
+                      <div className="text-[11px] text-stone-500 truncate">
+                        Stay informed about agricultural market prices.
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Action Buttons: Primary Feature Launch & Secondary WhatsApp Link */}
+                {/* Primary & Secondary CTA Buttons */}
                 <div className="pt-2 sm:pt-3 space-y-2.5">
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-                    {/* Primary Button: Direct Access to AI Crop Doctor */}
-                    <Link
-                      ref={ctaButtonRef}
-                      href="/disease"
-                      onClick={handleDismiss}
-                      className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-[#0f5132] hover:bg-[#146c43] active:scale-[0.98] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-emerald-900/25 transition-all group cursor-pointer"
-                    >
-                      <Sparkles className="w-4 h-4 text-emerald-300" />
-                      <span>{t.ctaPrimary}</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-
-                    {/* Secondary Button: Official WhatsApp Channel */}
+                    {/* Primary Button: Open Official WhatsApp Conversation */}
                     <a
+                      ref={ctaButtonRef}
                       href={waUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      onClick={handleDismiss}
-                      className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#075E54] font-bold text-xs sm:text-sm border border-[#25D366]/30 transition-all cursor-pointer"
-                      title="Open WhatsApp Help Desk"
+                      onClick={handleCtaClick}
+                      className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba59] active:scale-[0.98] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-[#25D366]/35 transition-all group cursor-pointer"
                     >
                       <svg
-                        className="w-4 h-4 fill-[#25D366]"
+                        className="w-5 h-5 fill-white"
                         viewBox="0 0 24 24"
                       >
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                       </svg>
-                      <span>{t.ctaSecondary}</span>
+                      <span>Chat with KisaanBuddy on WhatsApp</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </a>
+
+                    {/* Secondary Button: Continue Exploring Website */}
+                    <button
+                      type="button"
+                      onClick={handleDismiss}
+                      className="inline-flex items-center justify-center px-5 py-3.5 rounded-2xl bg-white/90 hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-bold text-xs sm:text-sm border border-stone-200/90 transition-all cursor-pointer"
+                    >
+                      <span>Continue Exploring Website</span>
+                    </button>
                   </div>
 
-                  {/* Trust indicator and configuration status */}
+                  {/* Trust indicator & configuration note */}
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-stone-500 pt-0.5">
                     <span className="inline-flex items-center gap-1 font-semibold text-emerald-800">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>{t.trustTag1}</span>
+                      <span>Free Farming Assistance</span>
                     </span>
                     <span>•</span>
-                    <span>{t.trustTag2}</span>
-                    {isConfigured && phoneNumber && (
-                      <>
-                        <span>•</span>
-                        <span>Helpline: +{phoneNumber}</span>
-                      </>
-                    )}
+                    <span>
+                      {isConfigured && phoneNumber ? (
+                        <span>Official Helpline: +{phoneNumber}</span>
+                      ) : (
+                        <span>Official WhatsApp Channel</span>
+                      )}
+                    </span>
                   </div>
                 </div>
 
               </div>
 
-              {/* RIGHT COLUMN: Realistic Phone Mockup with AI Crop Doctor in Action */}
+              {/* RIGHT COLUMN: Realistic Phone Mockup with WhatsApp Conversation UI Preview */}
               <div className="lg:col-span-5 flex justify-center items-center">
                 <div className="w-[270px] sm:w-[290px] lg:w-[305px] bg-[#0F172A] rounded-[36px] p-2.5 shadow-2xl shadow-emerald-950/25 border-4 border-slate-700/60 ring-1 ring-slate-900/40 relative select-none">
                   
@@ -487,100 +414,91 @@ export function AnnouncementPopup() {
                   </div>
 
                   {/* Phone Screen Glass */}
-                  <div className="bg-[#F8FAF6] rounded-[26px] overflow-hidden flex flex-col border border-slate-800/10 shadow-inner">
+                  <div className="bg-[#EFEAE2] rounded-[26px] overflow-hidden flex flex-col border border-slate-800/10 shadow-inner">
                     
-                    {/* App Header Inside Phone */}
-                    <div className="bg-[#0f5132] text-white px-3 py-2 flex items-center justify-between shadow-xs">
+                    {/* WhatsApp Top Header Bar */}
+                    <div className="bg-[#075E54] text-white px-2.5 py-2 flex items-center justify-between shadow-xs">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <img
-                          src="/logo.webp"
-                          alt="Crop Doctor"
-                          width={24}
-                          height={24}
-                          className="w-6 h-6 rounded-full bg-white object-contain p-0.5"
-                        />
+                        <span className="text-white text-xs font-bold">←</span>
+                        <div className="relative">
+                          <img
+                            src="/logo.webp"
+                            alt="KisaanBuddy Logo"
+                            width={28}
+                            height={28}
+                            className="w-7 h-7 rounded-full bg-white object-contain p-0.5"
+                          />
+                          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#25D366] border border-white" />
+                        </div>
                         <div className="flex flex-col min-w-0">
-                          <div className="flex items-center gap-1">
-                            <span className="text-xs font-bold text-white truncate">
-                              {t.mockupTitle}
-                            </span>
-                            <span className="inline-flex items-center justify-center w-3 h-3 rounded-full bg-emerald-400 text-[#0f5132] text-[8px] font-black">
-                              ✓
-                            </span>
-                          </div>
-                          <span className="text-[8.5px] text-emerald-200 truncate">
-                            {t.mockupSubtitle}
+                          <span className="text-xs font-bold text-white truncate max-w-[110px]">
+                            KisaanBuddy
+                          </span>
+                          <span className="text-[9px] text-emerald-200 truncate">
+                            Online • WhatsApp Service
                           </span>
                         </div>
                       </div>
 
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-800/80 text-emerald-200 text-[9px] font-bold">
-                        AI Ready
-                      </span>
+                      <div className="flex items-center gap-2 text-white/90 shrink-0">
+                        <Video className="w-3.5 h-3.5" />
+                        <PhoneCall className="w-3.5 h-3.5" />
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </div>
                     </div>
 
-                    {/* App Screen Content: Live Crop Disease Detection Result */}
+                    {/* WhatsApp Chat Conversation UI Preview */}
                     <div className="p-2.5 space-y-2 text-[10.5px] leading-tight min-h-[220px] flex flex-col justify-between">
                       
+                      {/* UI Preview Disclaimer Tag */}
+                      <div className="flex justify-center">
+                        <span className="px-2 py-0.5 rounded-full bg-[#E1DCD3] text-stone-600 text-[8.5px] font-semibold shadow-2xs">
+                          UI Preview • WhatsApp
+                        </span>
+                      </div>
+
                       <div className="space-y-2">
-                        {/* 1. Leaf Scan Status Card */}
-                        <div className="bg-white rounded-xl p-2.5 shadow-2xs border border-emerald-500/20 flex items-center gap-2.5">
-                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 shrink-0 relative">
-                            <Sprout className="w-5 h-5 text-emerald-700" />
-                            <div className="absolute inset-0 rounded-xl border border-emerald-400/50 animate-ping opacity-25" />
+                        {/* 1. Official Welcome Message Bubble in Hindi */}
+                        <div className="bg-white rounded-xl rounded-tl-none p-2.5 shadow-2xs text-stone-800 max-w-[92%] border border-stone-200/50 space-y-1">
+                          <p className="font-bold text-[#075E54] text-[10px]">
+                            KisaanBuddy 🌱
+                          </p>
+                          <p className="text-stone-700 leading-snug">
+                            नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?
+                          </p>
+                          <div className="pt-1 border-t border-stone-100 text-[9px] text-stone-600 space-y-0.5 font-medium">
+                            <div>🌱 1. Farming Assistance</div>
+                            <div>🌤️ 2. Weather &amp; Crop Updates</div>
+                            <div>📊 3. Mandi Price Information</div>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-bold text-stone-900 text-[11px] truncate">
-                              {t.mockupScanLabel}
-                            </div>
-                            <div className="text-[9.5px] text-emerald-700 font-bold flex items-center gap-1 mt-0.5">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
-                              <span>{t.mockupMatchLabel}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 2. Detected Disease Card */}
-                        <div className="bg-amber-50/90 rounded-xl p-2 shadow-2xs border border-amber-200/70">
-                          <div className="flex items-center gap-1.5 text-amber-900 font-bold text-[10px]">
-                            <Bug className="w-3.5 h-3.5 text-amber-700 shrink-0" />
-                            <span className="truncate">{t.mockupDisease}</span>
-                          </div>
-                          <div className="text-[9px] text-amber-800/90 mt-1 flex items-center justify-between">
-                            <span>Status: {t.mockupSeverity}</span>
-                            <span className="px-1.5 py-0.2 rounded bg-amber-200/60 font-semibold text-[8px]">
-                              Screened
-                            </span>
+                          <div className="text-[8.5px] text-stone-400 text-right mt-1">
+                            10:30 AM
                           </div>
                         </div>
 
-                        {/* 3. Certified Treatment Remedy */}
-                        <div className="bg-white rounded-xl p-2 shadow-2xs border border-stone-200/60 space-y-1">
-                          <div className="flex items-center gap-1.5 text-stone-900 font-bold text-[10px]">
-                            <FlaskConical className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                            <span>Recommended Solution:</span>
-                          </div>
-                          <div className="text-[9.5px] font-semibold text-stone-800 pl-5">
-                            {t.mockupTreatment}
-                          </div>
-                          <div className="text-[8.5px] text-stone-500 pl-5 flex items-center gap-1 pt-0.5">
-                            <CloudSun className="w-3 h-3 text-sky-500 shrink-0" />
-                            <span className="truncate">{t.mockupSprayWindow}</span>
+                        {/* 2. Outgoing Farmer Inquiry Bubble */}
+                        <div className="bg-[#DCF8C6] rounded-xl rounded-tr-none p-2 shadow-2xs text-stone-900 ml-auto max-w-[85%] border border-[#c4eab0]">
+                          <p className="text-stone-900 leading-snug font-medium">
+                            {PREFILLED_WHATSAPP_MESSAGE}
+                          </p>
+                          <div className="flex items-center justify-end gap-1 text-[8.5px] text-stone-500 mt-1">
+                            <span>10:31 AM</span>
+                            <CheckCheck className="w-3.5 h-3.5 text-sky-500 stroke-[2.5]" />
                           </div>
                         </div>
                       </div>
 
-                      {/* Mockup Button Link to /disease */}
-                      <div className="pt-1.5">
-                        <Link
-                          href="/disease"
-                          onClick={handleDismiss}
-                          className="block w-full py-2 rounded-xl bg-[#0f5132] hover:bg-[#146c43] text-white text-center font-bold text-[10px] shadow-xs transition-colors"
-                        >
-                          {t.mockupActionBtn}
-                        </Link>
-                        <div className="flex items-center justify-center gap-1.5 text-[8.5px] text-stone-400 mt-1.5 text-center">
-                          <span>✓ Verified by Agricultural Experts</span>
+                      {/* WhatsApp Bottom Simple Message Input Area */}
+                      <div className="pt-2 flex items-center gap-1.5">
+                        <div className="flex-1 bg-white rounded-full px-2.5 py-1.5 flex items-center gap-1.5 shadow-2xs border border-stone-200/70 text-stone-400 text-[10px]">
+                          <Smile className="w-3.5 h-3.5 text-stone-400 shrink-0" />
+                          <span className="flex-1 text-stone-500 truncate">
+                            Type a message...
+                          </span>
+                          <Paperclip className="w-3 h-3 text-stone-400 shrink-0" />
+                        </div>
+                        <div className="w-7 h-7 rounded-full bg-[#128C7E] flex items-center justify-center text-white shadow-2xs shrink-0">
+                          <Mic className="w-3.5 h-3.5" />
                         </div>
                       </div>
 
