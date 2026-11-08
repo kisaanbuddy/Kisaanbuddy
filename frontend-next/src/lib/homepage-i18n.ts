@@ -463,3 +463,1010 @@ export const HOMEPAGE_STRINGS: Record<string, HomepageI18n> = {
 export function getHomepageI18n(lang: Lang): HomepageI18n {
   return HOMEPAGE_STRINGS[lang] || HOMEPAGE_STRINGS.en;
 }
+
+
+
+export interface HomePageTranslations {
+  liveBar: {
+    officialData: string;
+    yourRegion: string;
+  };
+  voiceCard: {
+    badge: string;
+    greeting: string;
+    subtitle: string;
+    voiceBtn: string;
+    faqPromptHeading: string;
+    prompts: Array<{ text: string; icon: string }>;
+  };
+  cardsHeading: string;
+  cardsSubheading: string;
+  cards: {
+    cropDoctor: {
+      title: string;
+      badge: string;
+      desc: string;
+      cta: string;
+    };
+    mandi: {
+      title: string;
+      badge: string;
+      desc: string;
+      cta: string;
+    };
+    weather: {
+      title: string;
+      badge: string;
+      desc: string;
+      cta: string;
+    };
+    machinery: {
+      title: string;
+      badge: string;
+      desc: string;
+      cta: string;
+    };
+    agrilabour: {
+      title: string;
+      badge: string;
+      desc: string;
+      cta: string;
+    };
+    aiAdvisor: {
+      title: string;
+      badge: string;
+      desc: string;
+      cta: string;
+    };
+  };
+  advisory: {
+    title: string;
+    source: string;
+    weatherStatusTitle: string;
+    weatherStatusDesc: string;
+    mandiTipTitle: string;
+    mandiTipDesc: string;
+  };
+  whatsapp: {
+    title: string;
+    desc: string;
+    cta: string;
+    messageText: string;
+  };
+  howItWorks: {
+    heading: string;
+    step1Title: string;
+    step1Desc: string;
+    step2Title: string;
+    step2Desc: string;
+    step3Title: string;
+    step3Desc: string;
+    footerNote: string;
+  };
+}
+
+export const HOME_I18N: Record<Lang, HomePageTranslations> = {
+  hi: {
+    liveBar: {
+      officialData: "सरकारी AGMARKNET मंडी भाव • IMD मौसम",
+      yourRegion: "आपका क्षेत्र",
+    },
+    voiceCard: {
+      badge: "🎙️ किसान वॉइस असिस्टेंट (बोलकर पूछें)",
+      greeting: "नमस्ते किसान भाई! आज आपकी खेती में क्या मदद चाहिए?",
+      subtitle: "टाइप करने की जरूरत नहीं है — बस नीचे दिए गए हरे माइक बटन को दबाएं और अपनी भाषा में कोई भी सवाल बोलकर पूछें।",
+      voiceBtn: "बोलें / Speak",
+      faqPromptHeading: "किसान भाई अक्सर ये सवाल पूछते हैं (टैप करें और तुरंत सुनें):",
+      prompts: [
+        { text: "गेहूं का आज का मंडी भाव क्या है?", icon: "🌾" },
+        { text: "टमाटर की पत्ती पर पीले धब्बे हैं, क्या दवा डालें?", icon: "🍃" },
+        { text: "क्या आज बारिश होगी, दवा छिड़क सकते हैं?", icon: "🌧️" },
+        { text: "कटाई के लिए मजदूर कहां मिलेंगे?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "सीधे इस्तेमाल करें (Select Service)",
+    cardsSubheading: "एक क्लिक में सेवा शुरू करें",
+    cards: {
+      cropDoctor: {
+        title: "1. फसल डॉक्टर",
+        badge: "फोटो खींचें",
+        desc: "पत्ती की फोटो खींचकर रोग पहचानें और सही दवा व खुराक जानें।",
+        cta: "जांच शुरू करें →",
+      },
+      mandi: {
+        title: "2. आज का मंडी भाव",
+        badge: "Live AGMARKNET",
+        desc: "अपनी नज़दीकी मंडी के गेहूं, सरसों, चना और अन्य फसलों के ताज़ा रेट देखें।",
+        cta: "भाव देखें →",
+      },
+      weather: {
+        title: "3. मौसम व बारिश",
+        badge: "3 दिन का अनुमान",
+        desc: "बारिश कब होगी और कीटनाशक छिड़काव के लिए आज सही समय है या नहीं।",
+        cta: "मौसम देखें →",
+      },
+      machinery: {
+        title: "4. ट्रैक्टर व मशीनरी",
+        badge: "किराया व खरीद",
+        desc: "ट्रैक्टर, रोटावेटर और हार्वेस्टर किराए पर लें। सीधे मालिक से बात करें।",
+        cta: "उपकरण खोजें →",
+      },
+      agrilabour: {
+        title: "5. खेत मजदूर (AgriLabour)",
+        badge: "मजदूर खोजें",
+        desc: "फसल कटाई, रोपाई और छिड़काव के लिए अनुभवी मजदूर खोजें या पंजीकरण करें।",
+        cta: "मजदूर देखें →",
+      },
+      aiAdvisor: {
+        title: "6. AI कृषि सलाहकार",
+        badge: "24x7 सेवा",
+        desc: "खाद की मात्रा, बीज उपचार और बुवाई से कटाई तक कोई भी सवाल पूछें।",
+        cta: "चैट शुरू करें →",
+      },
+    },
+    advisory: {
+      title: "आज की खेती सलाह (Field Advisory)",
+      source: "IMD & कृषि विभाग द्वारा",
+      weatherStatusTitle: "छिड़काव के लिए स्थिति: अनुकूल",
+      weatherStatusDesc: "आज आपके क्षेत्र में तेज़ बारिश की संभावना नहीं है। कीटनाशक या खाद का छिड़काव सुबह 10 बजे से पहले या शाम 4 बजे के बाद करें।",
+      mandiTipTitle: "मंडी भाव सुझाव: गेहूं व सरसों",
+      mandiTipDesc: "आज प्रमुख मंडियों में गेहूं की औसत दर ₹2,275 और सरसों ₹5,450 प्रति क्विंटल है। फसल बेचने से पहले नज़दीकी 2 मंडियों के भाव ज़रूर मिला लें।",
+    },
+    whatsapp: {
+      title: "फोन चलाने में कोई परेशानी आ रही है?",
+      desc: "हमारे WhatsApp पर सीधे जुड़ें। अपनी फसल का फोटो या वॉइस मैसेज भेजें।",
+      cta: "WhatsApp पर पूछें →",
+      messageText: "नमस्ते KisaanBuddy! मुझे खेती से जुड़ी जानकारी चाहिए।",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy का उपयोग करना बहुत आसान है:",
+      step1Title: "1. बोलें",
+      step1Desc: "माइक का बटन दबाएं और अपनी फसल या मंडी के बारे में बोलकर पूछें।",
+      step2Title: "2. फोटो भेजें",
+      step2Desc: "अगर फसल में रोग है, तो पत्ते की फोटो खींचकर तुरंत सही दवा जानें।",
+      step3Title: "3. समाधान पाएं",
+      step3Desc: "सरकारी प्रमाणित मंडी भाव, मौसम अलर्ट और सही सलाह सीधे अपनी स्क्रीन पर देखें।",
+      footerNote: "✓ 100% निःशुल्क सेवा • ✓ कोई ऐप डाउनलोड करने की जरूरत नहीं • ✓ भारत सरकार AGMARKNET व IMD प्रमाणित",
+    },
+  },
+
+  en: {
+    liveBar: {
+      officialData: "Official AGMARKNET Mandi Rates • IMD Weather",
+      yourRegion: "Your Farm Region",
+    },
+    voiceCard: {
+      badge: "🎙️ Farmer Voice Assistant (Tap to Speak)",
+      greeting: "Namaste Farmer Friend! What help do you need with your farm today?",
+      subtitle: "No need to type — simply tap the green microphone button below and ask any farming question in your language.",
+      voiceBtn: "Speak / बोलें",
+      faqPromptHeading: "Common questions farmers ask (Tap to ask):",
+      prompts: [
+        { text: "What is today's wheat mandi rate?", icon: "🌾" },
+        { text: "Yellow spots on tomato leaf, which medicine to spray?", icon: "🍃" },
+        { text: "Will it rain today? Is it safe to spray pesticides?", icon: "🌧️" },
+        { text: "Where can I find workers for harvesting?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "Direct Access (Select Service)",
+    cardsSubheading: "Open any service in one tap",
+    cards: {
+      cropDoctor: {
+        title: "1. Crop Doctor",
+        badge: "Snap Photo",
+        desc: "Photograph sick leaves to identify diseases and receive exact ICAR medicine dosages.",
+        cta: "Start Diagnosis →",
+      },
+      mandi: {
+        title: "2. Today's Mandi Rates",
+        badge: "Live AGMARKNET",
+        desc: "Track real-time modal prices for wheat, mustard, chana, and vegetables in nearby mandis.",
+        cta: "Check Prices →",
+      },
+      weather: {
+        title: "3. Weather & Rain Alert",
+        badge: "3-Day Forecast",
+        desc: "Check when it will rain and know the safe operational hours for pesticide spraying.",
+        cta: "View Forecast →",
+      },
+      machinery: {
+        title: "4. Tractor & Machinery",
+        badge: "Rent or Buy",
+        desc: "Rent tractors, rotavators, and combine harvesters directly from verified owners.",
+        cta: "Find Equipment →",
+      },
+      agrilabour: {
+        title: "5. Farm Labour (AgriLabour)",
+        badge: "Find Workers",
+        desc: "Connect with experienced agricultural labour for harvesting, sowing, and spraying.",
+        cta: "View Workers →",
+      },
+      aiAdvisor: {
+        title: "6. AI Agriculture Advisor",
+        badge: "24x7 Assistance",
+        desc: "Ask any question about fertilizer schedules, seed treatment, and crop lifecycle.",
+        cta: "Start Chat →",
+      },
+    },
+    advisory: {
+      title: "Today's Field Advisory",
+      source: "Sourced from IMD & Agriculture Dept",
+      weatherStatusTitle: "Spray Condition: Favorable",
+      weatherStatusDesc: "No heavy rain expected in your area today. Spray pesticides before 10 AM or after 4 PM for maximum efficacy.",
+      mandiTipTitle: "Mandi Selling Insight: Wheat & Mustard",
+      mandiTipDesc: "Today's average modal rate is ₹2,275/qtl for wheat and ₹5,450/qtl for mustard. Compare 2 nearby mandis before selling.",
+    },
+    whatsapp: {
+      title: "Finding it difficult to use the phone?",
+      desc: "Connect directly with our team on WhatsApp. Send a leaf photo or voice note.",
+      cta: "Ask on WhatsApp →",
+      messageText: "Hello KisaanBuddy! I need agricultural assistance for my farm.",
+    },
+    howItWorks: {
+      heading: "Using KisaanBuddy is extremely simple:",
+      step1Title: "1. Speak",
+      step1Desc: "Tap the microphone and ask questions about your crops or mandi rates.",
+      step2Title: "2. Snap Photo",
+      step2Desc: "If your crop is diseased, snap a clear leaf photo for instant diagnosis.",
+      step3Title: "3. Get Solution",
+      step3Desc: "Receive verified mandi rates, weather alerts, and treatment dosages right on your screen.",
+      footerNote: "✓ 100% Free for Farmers • ✓ No app download required • ✓ Official AGMARKNET & IMD verified",
+    },
+  },
+
+  hi_en: {
+    liveBar: {
+      officialData: "Official AGMARKNET Mandi Bhav • IMD Mausam",
+      yourRegion: "Aapka Area",
+    },
+    voiceCard: {
+      badge: "🎙️ Kisaan Voice Assistant (Bolkar Poochein)",
+      greeting: "Namaste Kisaan Bhai! Aaj kheti mein kya madad chahiye?",
+      subtitle: "Type karne ki zaroorat nahi hai — bas green mic button dabayein aur apni bhasha mein bolkar sawal poochein.",
+      voiceBtn: "Bolein / Speak",
+      faqPromptHeading: "Kisaan bhai aksar yeh sawal poochte hain (Tap karein):",
+      prompts: [
+        { text: "Gehun ka aaj ka mandi bhav kya hai?", icon: "🌾" },
+        { text: "Tamatar ke patte par peele daag hain, kaunsi dawa dalein?", icon: "🍃" },
+        { text: "Kya aaj baarish hogi? Spray karna safe hai?", icon: "🌧️" },
+        { text: "Katai ke liye majdoor kahan milenge?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "Direct Access (Service Chunein)",
+    cardsSubheading: "Ek tap mein service shuru karein",
+    cards: {
+      cropDoctor: {
+        title: "1. Fasal Doctor",
+        badge: "Photo Kheencho",
+        desc: "Patte ki photo kheenchkar bimari pehchanein aur sahi dawa aur dosage jaanein.",
+        cta: "Jaanch Shuru Karein →",
+      },
+      mandi: {
+        title: "2. Aaj Ka Mandi Bhav",
+        badge: "Live AGMARKNET",
+        desc: "Apni nazdeeki mandi ke gehun, sarson, chana ke fresh rates check karein.",
+        cta: "Bhav Dekhein →",
+      },
+      weather: {
+        title: "3. Mausam aur Baarish",
+        badge: "3 Din Ka Forecast",
+        desc: "Baarish kab hogi aur spray karne ka sahi samay kab hai.",
+        cta: "Mausam Dekhein →",
+      },
+      machinery: {
+        title: "4. Tractor aur Upkaran",
+        badge: "Kiraya aur Kharid",
+        desc: "Tractor, rotavator aur harvester kiraye par lein. Seedhe maalik se baat karein.",
+        cta: "Upkaran Khojein →",
+      },
+      agrilabour: {
+        title: "5. Khet Majdoor (AgriLabour)",
+        badge: "Majdoor Khojein",
+        desc: "Katai, ropayi aur spray ke liye tajurbe-kaar majdoor khojein ya register karein.",
+        cta: "Majdoor Dekhein →",
+      },
+      aiAdvisor: {
+        title: "6. AI Krishi Salahkar",
+        badge: "24x7 Sahayata",
+        desc: "Khaad ki matra, beej upchar aur kheti ka koi bhi sawal poochein.",
+        cta: "Chat Shuru Karein →",
+      },
+    },
+    advisory: {
+      title: "Aaj Ki Kheti Salah (Field Advisory)",
+      source: "IMD aur Krishi Vibhag Dwara",
+      weatherStatusTitle: "Spray Karne Ke Liye: Anukool",
+      weatherStatusDesc: "Aaj aapke area mein tez baarish ki sambhavna nahi hai. Subah 10 baje se pehle ya sham 4 baje ke baad spray karein.",
+      mandiTipTitle: "Mandi Bhav Tip: Gehun aur Sarson",
+      mandiTipDesc: "Aaj gehun ka average modal bhav ₹2,275 aur sarson ₹5,450/qtl hai. Fasal bechne se pehle 2 mandiyon ke rate zaroor compare karein.",
+    },
+    whatsapp: {
+      title: "Phone chalane mein koi pareshani aa rahi hai?",
+      desc: "Hamare WhatsApp par seedhe judein. Patte ki photo ya voice note bhejein.",
+      cta: "WhatsApp Par Poochein →",
+      messageText: "Namaste KisaanBuddy! Mujhe kheti se judi jaankari chahiye.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy use karna bahut aasan hai:",
+      step1Title: "1. Bolein",
+      step1Desc: "Mic button dabayein aur apni fasal ya mandi ke baare mein bolkar poochein.",
+      step2Title: "2. Photo Bhejein",
+      step2Desc: "Agar fasal mein bimari hai, toh patte ki photo kheenchkar sahi dawa jaanein.",
+      step3Title: "3. Samadhan Paayein",
+      step3Desc: "Sarkari verified mandi bhav, weather alert aur sahi salah screen par dekhein.",
+      footerNote: "✓ 100% Free Kisaan Seva • ✓ Koi app download ki zaroorat nahi • ✓ Sarkari AGMARKNET aur IMD Verified",
+    },
+  },
+
+  kn: {
+    liveBar: {
+      officialData: "ಅಧಿಕೃತ AGMARKNET ಮಂಡಿ ಬೆಲೆಗಳು • IMD ಹವಾಮಾನ",
+      yourRegion: "ನಿಮ್ಮ ಜಮೀನಿನ ಪ್ರದೇಶ",
+    },
+    voiceCard: {
+      badge: "🎙️ ರೈತ ಧ್ವನಿ ಸಹಾಯಕ (ಮಾತನಾಡಿ ಕೇಳಿ)",
+      greeting: "ನಮಸ್ಕಾರ ರೈತ ಮಿತ್ರರೇ! ಇಂದು ನಿಮ್ಮ ಕೃಷಿಗೆ ಯಾವ ಸಹಾಯ ಬೇಕು?",
+      subtitle: "ಟೈಪ್ ಮಾಡುವ ಅಗತ್ಯವಿಲ್ಲ — ಕೆಳಗಿನ ಹಸಿರು ಮೈಕ್ ಬಟನ್ ಒತ್ತಿ ನಿಮ್ಮ ಭಾಷೆಯಲ್ಲಿ ಮಾತನಾಡಿ ಕೇಳಿ.",
+      voiceBtn: "ಮಾತನಾಡಿ / Speak",
+      faqPromptHeading: "ರೈತರು ಹೆಚ್ಚಾಗಿ ಕೇಳುವ ಪ್ರಶ್ನೆಗಳು (ಟ್ಯಾಪ್ ಮಾಡಿ):",
+      prompts: [
+        { text: "ಇಂದಿನ ಗೋಧಿ ಮತ್ತು ಭತ್ತದ ಮಂಡಿ ಬೆಲೆ ಎಷ್ಟು?", icon: "🌾" },
+        { text: "ಟೊಮೆಟೊ ಎಲೆ ಹಳದಿ ಚುಕ್ಕೆ ರೋಗಕ್ಕೆ ಯಾವ ಔಷಧಿ ಸಿಂಪಡಿಸಬೇಕು?", icon: "🍃" },
+        { text: "ಇಂದು ಮಳೆ ಬರುತ್ತದೆಯೇ? ಔಷಧಿ ಸಿಂಪಡಣೆ ಮಾಡಬಹುದೇ?", icon: "🌧️" },
+        { text: "ಬೆಳೆ ಕಟಾವಿಗೆ ಕೂಲಿ ಆಳುಗಳು ಎಲ್ಲಿ ಸಿಗುತ್ತಾರೆ?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "ನೇರ ಸೇವೆಗಳು (Service ಆಯ್ಕೆಮಾಡಿ)",
+    cardsSubheading: "ಒಂದೇ ಕ್ಲಿಕ್‌ನಲ್ಲಿ ಸೇವೆ ಆರಂಭಿಸಿ",
+    cards: {
+      cropDoctor: {
+        title: "1. ಬೆಳೆ ವೈದ್ಯ (Crop Doctor)",
+        badge: "ಫೋಟೋ ತೆಗೆಯಿರಿ",
+        desc: "ರೋಗಪೀಡಿತ ಎಲೆಯ ಫೋಟೋ ತೆಗೆದು ರೋಗ ಗುರುತಿಸಿ ಮತ್ತು ನಿಖರ ಔಷಧ ಪ್ರಮಾಣ ತಿಳಿಯಿರಿ.",
+        cta: "ತಪಾಸಣೆ ಪ್ರಾರಂಭಿಸಿ →",
+      },
+      mandi: {
+        title: "2. ಇಂದಿನ ಮಂಡಿ ದರಗಳು",
+        badge: "Live AGMARKNET",
+        desc: "ನಿಮ್ಮ ಹತ್ತಿರದ ಮಾರುಕಟ್ಟೆಗಳಲ್ಲಿ ಗೋಧಿ, ಭತ್ತ, ಹತ್ತಿ, ತರಕಾರಿಗಳ ಇಂದಿನ ದರ ನೋಡಿ.",
+        cta: "ದರಗಳನ್ನು ನೋಡಿ →",
+      },
+      weather: {
+        title: "3. ಹವಾಮಾನ & ಮಳೆ ಮುನ್ಸೂಚನೆ",
+        badge: "3 ದಿನದ ಹವಾಮಾನ",
+        desc: "ಮಳೆ ಯಾವಾಗ ಬರುತ್ತದೆ ಮತ್ತು ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆಗೆ ಸೂಕ್ತ ಸಮಯವನ್ನು ತಿಳಿಯಿರಿ.",
+        cta: "ಹವಾಮಾನ ನೋಡಿ →",
+      },
+      machinery: {
+        title: "4. ಟ್ರ್ಯಾಕ್ಟರ್ & ಕೃಷಿ ಯಂತ್ರಗಳು",
+        badge: "ಬಾಡಿಗೆ & ಖರೀದಿ",
+        desc: "ಟ್ರ್ಯಾಕ್ಟರ್, ರೋಟಾವೇಟರ್, ಹಾರ್ವೆಸ್ಟರ್ ಬಾಡಿಗೆಗೆ ಪಡೆಯಿರಿ. ನೇರವಾಗಿ ಮಾಲೀಕರೊಂದಿಗೆ ಮಾತನಾಡಿ.",
+        cta: "ಯಂತ್ರಗಳನ್ನು ಹುಡುಕಿ →",
+      },
+      agrilabour: {
+        title: "5. ಕೃಷಿ ಕೂಲಿ ಕಾರ್ಮಿಕರು",
+        badge: "ಆಳುಗಳನ್ನು ಹುಡುಕಿ",
+        desc: "ನಾಟಿ, ಕಳೆ ಕೀಳಲು ಮತ್ತು ಕಟಾವಿಗೆ ಅನುಭವಿ ಕೃಷಿ ಕೂಲಿ ಕಾರ್ಮಿಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+        cta: "ಕಾರ್ಮಿಕರನ್ನು ನೋಡಿ →",
+      },
+      aiAdvisor: {
+        title: "6. AI ಕೃಷಿ ಸಲಹೆಗಾರ",
+        badge: "24x7 ಸೇವೆ",
+        desc: "ಗೊಬ್ಬರದ ಪ್ರಮಾಣ, ಬೀಜೋಪಚಾರ ಮತ್ತು ಕೃಷಿಯ ಯಾವುದೇ ಪ್ರಶ್ನೆಯನ್ನು ಕೇಳಿ.",
+        cta: "ಸಲಹೆ ಪಡೆಯಿರಿ →",
+      },
+    },
+    advisory: {
+      title: "ಇಂದಿನ ಕೃಷಿ ಸಲಹೆ (Field Advisory)",
+      source: "IMD & ಕೃಷಿ ಇಲಾಖೆಯಿಂದ ಅಧಿಕೃತ ಮಾಹಿತಿ",
+      weatherStatusTitle: "ಔಷಧ ಸಿಂಪಡಣೆಗೆ: ಅನುಕೂಲಕರ",
+      weatherStatusDesc: "ಇಂದು ನಿಮ್ಮ ಪ್ರದೇಶದಲ್ಲಿ ಭಾರಿ ಮಳೆಯ ಸಾಧ್ಯತೆಯಿಲ್ಲ. ಬೆಳಿಗ್ಗೆ 10 ಗಂಟೆಯೊಳಗೆ ಅಥವಾ ಸಂಜೆ 4 ರ ನಂತರ ಕೀಟನಾಶಕ ಸಿಂಪಡಿಸಿ.",
+      mandiTipTitle: "ಮಂಡಿ ಮಾರಾಟ ಸಲಹೆ",
+      mandiTipDesc: "ಫಸಲನ್ನು ಮಾರಾಟ ಮಾಡುವ ಮೊದಲು ಕನಿಷ್ಠ 2 ಹತ್ತಿರದ ಮಂಡಿಗಳಲ್ಲಿ ದರಗಳನ್ನು ಪರಿಶೀಲಿಸಿ.",
+    },
+    whatsapp: {
+      title: "ಫೋನ್ ಬಳಸಲು ತೊಂದರೆಯಾಗುತ್ತಿದೆಯೇ?",
+      desc: "ನಮ್ಮ WhatsApp ನಲ್ಲಿ ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಿ. ಎಲೆಯ ಫೋಟೋ ಅಥವಾ ಧ್ವನಿ ಸಂದೇಶ ಕಳುಹಿಸಿ.",
+      cta: "WhatsApp ನಲ್ಲಿ ಕೇಳಿ →",
+      messageText: "ನಮಸ್ಕಾರ KisaanBuddy! ನನಗೆ ಕೃಷಿ ಸಂಬಂಧಿತ ಮಾಹಿತಿ ಬೇಕು.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy ಬಳಸುವುದು ತುಂಬಾ ಸುಲಭ:",
+      step1Title: "1. ಮಾತನಾಡಿ",
+      step1Desc: "ಮೈಕ್ ಬಟನ್ ಒತ್ತಿ ನಿಮ್ಮ ಬೆಳೆ ಅಥವಾ ಮಂಡಿ ಬೆಲೆಯ ಬಗ್ಗೆ ಮಾತನಾಡಿ ಕೇಳಿ.",
+      step2Title: "2. ಫೋಟೋ ಕಳುಹಿಸಿ",
+      step2Desc: "ಬೆಳೆಯಲ್ಲಿ ರೋಗವಿದ್ದರೆ, ಎಲೆಯ ಫೋಟೋ ತೆಗೆದು ಸರಿಯಾದ ಔಷಧ ಮಾಹಿತಿ ಪಡೆಯಿರಿ.",
+      step3Title: "3. ಪರಿಹಾರ ಪಡೆಯಿರಿ",
+      step3Desc: "ಅಧಿಕೃತ ಮಂಡಿ ಬೆಲೆ, ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ಮತ್ತು ಸಲಹೆಗಳನ್ನು ನೇರವಾಗಿ ಪರದೆಯ ಮೇಲೆ ನೋಡಿ.",
+      footerNote: "✓ ರೈತರಿಗೆ 100% ಉಚಿತ ಸೇವೆ • ✓ ಯಾವುದೇ ಆ್ಯಪ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡುವ ಅಗತ್ಯವಿಲ್ಲ • ✓ ಸರ್ಕಾರಿ AGMARKNET & IMD ಪ್ರಮಾಣೀಕೃತ",
+    },
+  },
+
+  pa: {
+    liveBar: {
+      officialData: "ਸਰਕਾਰੀ AGMARKNET ਮੰਡੀ ਭਾਅ • IMD ਮੌਸਮ",
+      yourRegion: "ਤੁਹਾਡਾ ਇਲਾਕਾ",
+    },
+    voiceCard: {
+      badge: "🎙️ ਕਿਸਾਨ ਵੌਇਸ ਅਸਿਸਟੈਂਟ (ਬੋਲ ਕੇ ਪੁੱਛੋ)",
+      greeting: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ ਕਿਸਾਨ ਵੀਰੋ! ਅੱਜ ਖੇਤੀ ਵਿੱਚ ਕੀ ਮਦਦ ਚਾਹੀਦੀ ਹੈ?",
+      subtitle: "ਟਾਈਪ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ — ਹੇਠਾਂ ਦਿੱਤੇ ਹਰੇ ਮਾਈਕ ਬਟਨ ਨੂੰ ਦਬਾਓ ਅਤੇ ਆਪਣੀ ਬੋਲੀ ਵਿੱਚ ਸਵਾਲ ਪੁੱਛੋ।",
+      voiceBtn: "ਬੋਲੋ / Speak",
+      faqPromptHeading: "ਕਿਸਾਨ ਅਕਸਰ ਇਹ ਸਵਾਲ ਪੁੱਛਦੇ ਹਨ (ਟੈਪ ਕਰੋ):",
+      prompts: [
+        { text: "ਕਣਕ ਦਾ ਅੱਜ ਦਾ ਮੰਡੀ ਭਾਅ ਕੀ ਹੈ?", icon: "🌾" },
+        { text: "ਕਣਕ ਵਿੱਚ ਪੀਲੀ ਕੁੰਗੀ ਦਾ ਕੀ ਇਲਾਜ ਹੈ?", icon: "🍃" },
+        { text: "ਕੀ ਅੱਜ ਮੀਂਹ ਪਵੇਗਾ, ਸਪਰੇਅ ਕਰ ਸਕਦੇ ਹਾਂ?", icon: "🌧️" },
+        { text: "ਵਾਢੀ ਲਈ ਮਜ਼ਦੂਰ ਕਿੱਥੇ ਮਿਲਣਗੇ?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "ਸਿੱਧੀ ਵਰਤੋਂ ਕਰੋ (ਸੇਵਾ ਚੁਣੋ)",
+    cardsSubheading: "ਇੱਕ ਕਲਿੱਕ ਵਿੱਚ ਸੇਵਾ ਸ਼ੁਰੂ ਕਰੋ",
+    cards: {
+      cropDoctor: {
+        title: "1. ਫਸਲ ਡਾਕਟਰ (Crop Doctor)",
+        badge: "ਫੋਟੋ ਖਿੱਚੋ",
+        desc: "ਪੱਤੇ ਦੀ ਫੋਟੋ ਖਿੱਚ ਕੇ ਬਿਮਾਰੀ ਪਛਾਣੋ ਅਤੇ ਸਹੀ ਦਵਾਈ ਤੇ ਖੁਰਾਕ ਜਾਣੋ।",
+        cta: "ਜਾਂਚ ਸ਼ੁਰੂ ਕਰੋ →",
+      },
+      mandi: {
+        title: "2. ਅੱਜ ਦਾ ਮੰਡੀ ਭਾਅ",
+        badge: "Live AGMARKNET",
+        desc: "ਆਪਣੀ ਨੇੜਲੀ ਮੰਡੀ ਦੇ ਕਣਕ, ਸਰ੍ਹੋਂ, ਝੋਨੇ ਦੇ ਤਾਜ਼ਾ ਭਾਅ ਵੇਖੋ।",
+        cta: "ਭਾਅ ਵੇਖੋ →",
+      },
+      weather: {
+        title: "3. ਮੌਸਮ ਅਤੇ ਮੀਂਹ",
+        badge: "3 ਦਿਨਾਂ ਦਾ ਅਨੁਮਾਨ",
+        desc: "ਮੀਂਹ ਕਦੋਂ ਪਵੇਗਾ ਅਤੇ ਸਪਰੇਅ ਕਰਨ ਦਾ ਸਹੀ ਸਮਾਂ ਜਾਣੋ।",
+        cta: "ਮੌਸਮ ਵੇਖੋ →",
+      },
+      machinery: {
+        title: "4. ਟਰੈਕਟਰ ਅਤੇ ਮਸ਼ੀਨਰੀ",
+        badge: "ਕਿਰਾਇਆ ਅਤੇ ਖਰੀਦ",
+        desc: "ਟਰੈਕਟਰ, ਰੋਟਾਵੇਟਰ ਅਤੇ ਕੰਬਾਈਨ ਕਿਰਾਏ 'ਤੇ ਲਵੋ। ਸਿੱਧਾ ਮਾਲਕ ਨਾਲ ਗੱਲ ਕਰੋ।",
+        cta: "ਮਸ਼ੀਨਰੀ ਲੱਭੋ →",
+      },
+      agrilabour: {
+        title: "5. ਖੇਤ ਮਜ਼ਦੂਰ (AgriLabour)",
+        badge: "ਮਜ਼ਦੂਰ ਲੱਭੋ",
+        desc: "ਵਾਢੀ, ਬਿਜਾਈ ਅਤੇ ਸਪਰੇਅ ਲਈ ਮਜ਼ਦੂਰ ਲੱਭੋ ਜਾਂ ਰਜਿਸਟਰ ਕਰੋ।",
+        cta: "ਮਜ਼ਦੂਰ ਵੇਖੋ →",
+      },
+      aiAdvisor: {
+        title: "6. AI ਖੇਤੀ ਸਲਾਹਕਾਰ",
+        badge: "24x7 ਸੇਵਾ",
+        desc: "ਖਾਦ ਦੀ ਮਾਤਰਾ, ਬੀਜ ਸੋਧ ਅਤੇ ਖੇਤੀ ਦਾ ਕੋਈ ਵੀ ਸਵਾਲ ਪੁੱਛੋ।",
+        cta: "ਗੱਲਬਾਤ ਸ਼ੁਰੂ ਕਰੋ →",
+      },
+    },
+    advisory: {
+      title: "ਅੱਜ ਦੀ ਖੇਤੀ ਸਲਾਹ",
+      source: "IMD ਅਤੇ ਖੇਤੀਬਾੜੀ ਵਿਭਾਗ ਵੱਲੋਂ",
+      weatherStatusTitle: "ਸਪਰੇਅ ਲਈ ਮੌਸਮ: ਅਨੁਕੂਲ",
+      weatherStatusDesc: "ਅੱਜ ਤੁਹਾਡੇ ਇਲਾਕੇ ਵਿੱਚ ਤੇਜ਼ ਮੀਂਹ ਦੀ ਸੰਭਾਵਨਾ ਨਹੀਂ ਹੈ। ਸਵੇਰੇ 10 ਵਜੇ ਤੋਂ ਪਹਿਲਾਂ ਜਾਂ ਸ਼ਾਮ 4 ਵਜੇ ਤੋਂ ਬਾਅਦ ਸਪਰੇਅ ਕਰੋ।",
+      mandiTipTitle: "ਮੰਡੀ ਵੇਚਣ ਦੀ ਸਲਾਹ",
+      mandiTipDesc: "ਫਸਲ ਵੇਚਣ ਤੋਂ ਪਹਿਲਾਂ ਨੇੜਲੀਆਂ 2 ਮੰਡੀਆਂ ਦੇ ਭਾਅ ਜ਼ਰੂਰ ਮਿਲਾ ਲਵੋ।",
+    },
+    whatsapp: {
+      title: "ਫੋਨ ਚਲਾਉਣ ਵਿੱਚ ਕੋਈ ਮੁਸ਼ਕਲ ਆ ਰਹੀ ਹੈ?",
+      desc: "ਸਾਡੇ WhatsApp 'ਤੇ ਸਿੱਧਾ ਜੁੜੋ। ਪੱਤੇ ਦੀ ਫੋਟੋ ਜਾਂ ਵੌਇਸ ਮੈਸੇਜ ਭੇਜੋ।",
+      cta: "WhatsApp 'ਤੇ ਪੁੱਛੋ →",
+      messageText: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ KisaanBuddy! ਮੈਨੂੰ ਖੇਤੀ ਬਾਰੇ ਜਾਣਕਾਰੀ ਚਾਹੀਦੀ ਹੈ।",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy ਵਰਤਣਾ ਬਹੁਤ ਆਸਾਨ ਹੈ:",
+      step1Title: "1. ਬੋਲੋ",
+      step1Desc: "ਮਾਈਕ ਬਟਨ ਦਬਾਓ ਅਤੇ ਆਪਣੀ ਫਸਲ ਜਾਂ ਮੰਡੀ ਬਾਰੇ ਬੋਲ ਕੇ ਪੁੱਛੋ।",
+      step2Title: "2. ਫੋਟੋ ਭੇਜੋ",
+      step2Desc: "ਜੇਕਰ ਫਸਲ ਵਿੱਚ ਰੋਗ ਹੈ, ਤਾਂ ਪੱਤੇ ਦੀ ਫੋਟੋ ਖਿੱਚ ਕੇ ਦਵਾਈ ਜਾਣੋ।",
+      step3Title: "3. ਹੱਲ ਪਾਓ",
+      step3Desc: "ਸਰਕਾਰੀ ਪ੍ਰਮਾਣਿਤ ਮੰਡੀ ਭਾਅ ਅਤੇ ਮੌਸਮ ਅਲਰਟ ਸਿੱਧਾ ਸਕ੍ਰੀਨ 'ਤੇ ਵੇਖੋ।",
+      footerNote: "✓ 100% ਮੁਫਤ ਸੇਵਾ • ✓ ਕੋਈ ਐਪ ਡਾਊਨਲੋਡ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ • ✓ ਸਰਕਾਰੀ AGMARKNET & IMD ਪ੍ਰਮਾਣਿਤ",
+    },
+  },
+
+  mr: {
+    liveBar: {
+      officialData: "शासकीय AGMARKNET बाजार भाव • IMD हवामान",
+      yourRegion: "तुमचा परिसर",
+    },
+    voiceCard: {
+      badge: "🎙️ शेतकरी व्हॉईस असिस्टंट (बोलून विचारा)",
+      greeting: "नमस्कार शेतकरी मित्र! आज शेतीत काय मदत हवी आहे?",
+      subtitle: "टाईप करण्याची गरज नाही — खालील हिरवे माइक बटण दाबा आणि आपल्या भाषेत कोणताही प्रश्न बोला.",
+      voiceBtn: "बोला / Speak",
+      faqPromptHeading: "शेतकरी अनेकदा हे प्रश्न विचारतात (टॅप करा):",
+      prompts: [
+        { text: "सोयाबीन आणि कापसाचा आजचा बाजार भाव काय आहे?", icon: "🌾" },
+        { text: "टोमॅटोच्या पानांवर काळे ठिपके आहेत, काय फवारणी करावी?", icon: "🍃" },
+        { text: "आज पाऊस पडेल का? फवारणी करणे सुरक्षित आहे का?", icon: "🌧️" },
+        { text: "कापणीसाठी मजूर कुठे मिळतील?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "थेट सेवा निवडा (Select Service)",
+    cardsSubheading: "एका क्लिकवर सेवा सुरू करा",
+    cards: {
+      cropDoctor: {
+        title: "1. पीक डॉक्टर (Crop Doctor)",
+        badge: "फोटो काढा",
+        desc: "आजारी पानाचा फोटो काढून रोग ओळखा आणि योग्य औषध व प्रमाण जाणून घ्या.",
+        cta: "तपासणी सुरू करा →",
+      },
+      mandi: {
+        title: "2. आजचे बाजार भाव",
+        badge: "Live AGMARKNET",
+        desc: "जवळच्या बाजार समितीतील सोयाबीन, कापूस, हरभरा आणि इतर पिकांचे ताजे दर पहा.",
+        cta: "भाव पहा →",
+      },
+      weather: {
+        title: "3. हवामान व पाऊस",
+        badge: "3 दिवसांचा अंदाज",
+        desc: "पाऊस कधी येईल आणि कीटकनाशक फवारणीसाठी योग्य वेळ कोणती ते जाणून घ्या.",
+        cta: "हवामान पहा →",
+      },
+      machinery: {
+        title: "4. ट्रॅक्टर व अवजारे",
+        badge: "भाडे व खरेदी",
+        desc: "ट्रॅक्टर, रोटाव्हेटर आणि हार्वेस्टर भाड्याने घ्या. थेट मालकांशी संपर्क साधा.",
+        cta: "अवजारे शोधा →",
+      },
+      agrilabour: {
+        title: "5. शेतमजूर (AgriLabour)",
+        badge: "मजूर शोधा",
+        desc: "कापणी, खुरपणी आणि फवारणीसाठी कुशल शेतमजूर शोधा किंवा नोंदणी करा.",
+        cta: "मजूर पहा →",
+      },
+      aiAdvisor: {
+        title: "6. AI कृषी सल्लागार",
+        badge: "24x7 सेवा",
+        desc: "खतांचे प्रमाण, बीज प्रक्रिया आणि शेतीविषयक कोणताही प्रश्न विचारा.",
+        cta: "सल्ला घ्या →",
+      },
+    },
+    advisory: {
+      title: "आजचा कृषी सल्ला",
+      source: "IMD व कृषी विभागाद्वारे",
+      weatherStatusTitle: "फवारणीसाठी स्थिती: अनुकूल",
+      weatherStatusDesc: "आज जोरदार पावसाची शक्यता नाही. सकाळी 10 पूर्वी किंवा संध्याकाळी 4 नंतर फवारणी करा.",
+      mandiTipTitle: "बाजार भाव सल्ला",
+      mandiTipDesc: "माल विकण्यापूर्वी जवळच्या किमान 2 बाजार समित्यांमधील भाव नक्की तपासा.",
+    },
+    whatsapp: {
+      title: "फोन वापरताना काही अडचण येत आहे का?",
+      desc: "आमच्या WhatsApp वर थेट संपर्क साधा. पानाचा फोटो किंवा व्हॉईस मेसेज पाठवा.",
+      cta: "WhatsApp वर विचारा →",
+      messageText: "नमस्कार KisaanBuddy! मला शेतीविषयक माहिती हवी आहे.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy वापरणे अतिशय सोपे आहे:",
+      step1Title: "1. बोला",
+      step1Desc: "माइक बटण दाबा आणि पिकाबद्दल किंवा बाजार भावाबद्दल बोलून विचारा.",
+      step2Title: "2. फोटो पाठवा",
+      step2Desc: "पिकावर रोग असल्यास, पानाचा फोटो काढून योग्य औषध जाणून घ्या.",
+      step3Title: "3. उपाय मिळवा",
+      step3Desc: "शासकीय प्रमाणित बाजार भाव, हवामान अंदाज आणि सल्ला स्क्रीनवर पहा.",
+      footerNote: "✓ शेतकऱ्यांसाठी 100% मोफत • ✓ कोणतेही ॲप डाउनलोड करण्याची गरज नाही • ✓ शासकीय AGMARKNET & IMD प्रमाणित",
+    },
+  },
+
+  gu: {
+    liveBar: {
+      officialData: "સરકારી AGMARKNET બજાર ભાવ • IMD હવામાન",
+      yourRegion: "તમારો વિસ્તાર",
+    },
+    voiceCard: {
+      badge: "🎙️ ખેડૂત વૉઇસ સહાયક (બોલીને પૂછો)",
+      greeting: "નમસ્તે ખેડૂત મિત્ર! આજે ખેતીમાં શું મદદ જોઈએ છે?",
+      subtitle: "ટાઈપ કરવાની જરૂર નથી — ફક્ત નીચેનું લીલું માઈક બટન દબાવો અને બોલીને પ્રશ્ન પૂછો.",
+      voiceBtn: "બોલો / Speak",
+      faqPromptHeading: "ખેડૂતો વારંવાર આ પ્રશ્નો પૂછે છે (ટેપ કરો):",
+      prompts: [
+        { text: "કપાસ અને મગફળીનો આજનો બજાર ભાવ શું છે?", icon: "🌾" },
+        { text: "જીરામાં ચરમી રોગ માટે કઈ દવા છાંટવી?", icon: "🍃" },
+        { text: "શું આજે વરસાદ પડશે? દવા છાંટવી યોગ્ય છે?", icon: "🌧️" },
+        { text: "લણણી માટે મજૂરો ક્યાં મળશે?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "સીધો ઉપયોગ કરો (સેવા પસંદ કરો)",
+    cardsSubheading: "એક ક્લિકમાં સેવા શરૂ કરો",
+    cards: {
+      cropDoctor: {
+        title: "1. પાક ડૉક્ટર (Crop Doctor)",
+        badge: "ફોટો પાડો",
+        desc: "રોગિષ્ઠ પાનનો ફોટો પાડી રોગ ઓળખો અને યોગ્ય દવા તથા પ્રમાણ જાણો.",
+        cta: "તપાસ શરૂ કરો →",
+      },
+      mandi: {
+        title: "2. આજના બજાર ભાવ",
+        badge: "Live AGMARKNET",
+        desc: "નજીકના માર્કેટ યાર્ડના કપાસ, મગફળી, ઘઉંના તાજા ભાવ જુઓ.",
+        cta: "ભાવ જુઓ →",
+      },
+      weather: {
+        title: "3. હવામાન અને વરસાદ",
+        badge: "3 દિવસની આગાહી",
+        desc: "વરસાદ ક્યારે પડશે અને જંતુનાશક દવાનો છંટકાવ કરવાનો યોગ્ય સમય જાણો.",
+        cta: "હવામાન જુઓ →",
+      },
+      machinery: {
+        title: "4. ટ્રેક્ટર અને ઓજારો",
+        badge: "ભાડે અને ખરીદી",
+        desc: "ટ્રેક્ટર, રોટાવેટર અને થ્રેશર ભાડે મેળવો. સીધા માલિક સાથે વાત કરો.",
+        cta: "ઓજારો શોધો →",
+      },
+      agrilabour: {
+        title: "5. ખેત મજૂર (AgriLabour)",
+        badge: "મજૂરો શોધો",
+        desc: "વાવણી, નિંદામણ અને લણણી માટે અનુભવી ખેત મજૂરો મેળવો.",
+        cta: "મજૂરો જુઓ →",
+      },
+      aiAdvisor: {
+        title: "6. AI કૃષિ સલાહકાર",
+        badge: "24x7 સેવા",
+        desc: "ખાતરનું પ્રમાણ, બીજ માવજત અને ખેતી સંબંધિત કોઈપણ પ્રશ્ન પૂછો.",
+        cta: "સલાહ મેળવો →",
+      },
+    },
+    advisory: {
+      title: "આજની ખેતી સલાહ",
+      source: "IMD અને કૃષિ વિભાગ દ્વારા",
+      weatherStatusTitle: "દવા છંટકાવ માટે: અનુકૂળ",
+      weatherStatusDesc: "આજે ભારે વરસાદની શક્યતા નથી. સવારે 10 વાગ્યા પહેલા અથવા સાંજે 4 પછી દવા છાંટો.",
+      mandiTipTitle: "બજાર ભાવ સલાહ",
+      mandiTipDesc: "માલ વેચતા પહેલા નજીકના 2 માર્કેટ યાર્ડના ભાવ જરૂર સરખાવો.",
+    },
+    whatsapp: {
+      title: "ફોન વાપરવામાં કોઈ તકલીફ થાય છે?",
+      desc: "અમારા WhatsApp પર સીધા સંપર્ક કરો. પાનનો ફોટો અથવા વૉઇસ મેસેજ મોકલો.",
+      cta: "WhatsApp પર પૂછો →",
+      messageText: "નમસ્તે KisaanBuddy! મને ખેતી સંબંધિત માહિતી જોઈએ છે.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy વાપરવું ખૂબ સરળ છે:",
+      step1Title: "1. બોલો",
+      step1Desc: "માઈક બટન દબાવો અને પાક કે બજાર ભાવ વિશે બોલીને પૂછો.",
+      step2Title: "2. ફોટો મોકલો",
+      step2Desc: "જો પાકમાં રોગ હોય તો પાનનો ફોટો પાડીને સાચી દવા જાણો.",
+      step3Title: "3. ઉકેલ મેળવો",
+      step3Desc: "સરકારી પ્રમાણિત ભાવ અને હવામાન અપડેટ સ્ક્રીન પર જુઓ.",
+      footerNote: "✓ ખેડૂતો માટે 100% મફત • ✓ કોઈ એપ ડાઉનલોડ કરવાની જરૂર નથી • ✓ સરકારી AGMARKNET & IMD પ્રમાણિત",
+    },
+  },
+
+  ta: {
+    liveBar: {
+      officialData: "அரசு AGMARKNET மண்டி விலைகள் • IMD வானிலை",
+      yourRegion: "உங்கள் பண்ணை பகுதி",
+    },
+    voiceCard: {
+      badge: "🎙️ விவசாயி குரல் உதவியாளர் (பேசி கேளுங்கள்)",
+      greeting: "வணக்கம் உழவர் தோழரே! இன்று உங்கள் விவசாயத்திற்கு என்ன உதவி தேவை?",
+      subtitle: "டைப் செய்ய தேவையில்லை — கீழே உள்ள பச்சை மைக் பொத்தானை அழுத்தி உங்கள் மொழியில் பேசி கேளுங்கள்.",
+      voiceBtn: "பேசுங்கள் / Speak",
+      faqPromptHeading: "விவசாயிகள் அடிக்கடி கேட்கும் கேள்விகள் (தட்டவும்):",
+      prompts: [
+        { text: "இன்றைய நெல் மற்றும் பருத்தி மண்டி விலை என்ன?", icon: "🌾" },
+        { text: "தக்காளி இலை கருகல் நோய்க்கு என்ன மருந்து தெளிக்க வேண்டும்?", icon: "🍃" },
+        { text: "இன்று மழை பெய்யுமா? பூச்சிக்கொல்லி தெளிக்கலாமா?", icon: "🌧️" },
+        { text: "அறுவடைக்கு கூலி ஆட்கள் எங்கு கிடைப்பார்கள்?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "நேரடி சேவைகள் (Service தேர்ந்தெடுக்கவும்)",
+    cardsSubheading: "ஒரே தட்டலில் சேவையை தொடங்கவும்",
+    cards: {
+      cropDoctor: {
+        title: "1. பயிர் மருத்துவர் (Crop Doctor)",
+        badge: "படம் எடுக்கவும்",
+        desc: "நோயுற்ற இலையை புகைப்படம் எடுத்து நோய் மற்றும் சரியான மருந்து அளவை அறியவும்.",
+        cta: "பரிசோதிக்கவும் →",
+      },
+      mandi: {
+        title: "2. இன்றைய மண்டி விலைகள்",
+        badge: "Live AGMARKNET",
+        desc: "அருகிலுள்ள ஒழுங்குமுறை விற்பனைக்கூடங்களின் நெல், மக்காச்சோள விலைகளை பார்க்கவும்.",
+        cta: "விலைகளை பார்க்க →",
+      },
+      weather: {
+        title: "3. வானிலை & மழை நிலவரம்",
+        badge: "3 நாள் நிலவரம்",
+        desc: "மழை எப்போது பெய்யும் மற்றும் மருந்து தெளிக்க சரியான நேரத்தை அறியவும்.",
+        cta: "வானிலை பார்க்க →",
+      },
+      machinery: {
+        title: "4. டிராக்டர் & இயந்திரங்கள்",
+        badge: "வாடகை & விற்பனை",
+        desc: "டிராக்டர், ரோட்டவேட்டர் வாடகைக்கு பெறவும். நேரடியாக உரிமையாளரிடம் பேசவும்.",
+        cta: "இயந்திரங்களை தேட →",
+      },
+      agrilabour: {
+        title: "5. விவசாய கூலி ஆட்கள்",
+        badge: "ஆட்கள் தேட",
+        desc: "நடவு, களையெடுப்பு மற்றும் அறுவடைக்கு அனுபவமிக்க கூலி தொழிலாளர்களை கண்டறியவும்.",
+        cta: "ஆட்களை பார்க்க →",
+      },
+      aiAdvisor: {
+        title: "6. AI விவசாய ஆலோசகர்",
+        badge: "24x7 சேவை",
+        desc: "உர மேலாண்மை, விதை நேர்த்தி மற்றும் விவசாயம் சார்ந்த சந்தேகங்களை கேளுங்கள்.",
+        cta: "ஆலோசனை பெற →",
+      },
+    },
+    advisory: {
+      title: "இன்றைய விவசாய ஆலோசனை",
+      source: "IMD & வேளாண்மை துறை தகவல்",
+      weatherStatusTitle: "மருந்து தெளிப்பு: சாதகமானது",
+      weatherStatusDesc: "இன்று பலத்த மழைக்கு வாய்ப்பில்லை. காலை 10 மணிக்குள் அல்லது மாலை 4 மணிக்கு மேல் தெளிக்கவும்.",
+      mandiTipTitle: "மண்டி விற்பனை குறிப்பு",
+      mandiTipDesc: "பயிர்களை விற்பனை செய்வதற்கு முன் 2 அருகிலுள்ள சந்தை விலைகளை ஒப்பிடவும்.",
+    },
+    whatsapp: {
+      title: "போன் பயன்படுத்த சிரமமாக உள்ளதா?",
+      desc: "எங்கள் WhatsApp மூலம் நேரடியாக தொடர்பு கொள்ளவும். இலை படம் அல்லது குரல் செய்தி அனுப்பவும்.",
+      cta: "WhatsApp-ல் கேட்க →",
+      messageText: "வணக்கம் KisaanBuddy! எனக்கு விவசாயம் சார்ந்த தகவல் தேவை.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy பயன்படுத்துவது மிகவும் எளிது:",
+      step1Title: "1. பேசுங்கள்",
+      step1Desc: "மைக் பொத்தானை அழுத்தி பயிர் அல்லது மண்டி விலை பற்றி பேசி கேளுங்கள்.",
+      step2Title: "2. படம் அனுப்பவும்",
+      step2Desc: "பயிரில் நோய் இருந்தால் இலையின் படத்தை அனுப்பி மருந்து அறியவும்.",
+      step3Title: "3. தீர்வு பெறவும்",
+      step3Desc: "அரசு சான்றளிக்கப்பட்ட விலை மற்றும் வானிலை எச்சரிக்கைகளை திரையில் பார்க்கவும்.",
+      footerNote: "✓ விவசாயிகளுக்கு 100% இலவசம் • ✓ ஆப் பதிவிறக்கம் தேவையில்லை • ✓ அரசு AGMARKNET & IMD சான்றளிக்கப்பட்டது",
+    },
+  },
+
+  te: {
+    liveBar: {
+      officialData: "ప్రభుత్వ AGMARKNET మార్కెట్ ధరలు • IMD వాతావరణం",
+      yourRegion: "మీ వ్యవసాయ ప్రాంతం",
+    },
+    voiceCard: {
+      badge: "🎙️ రైతు వాయిస్ అసిస్టెంట్ (మాట్లాడి అడగండి)",
+      greeting: "నమస్కారం రైతు మిత్రమా! ఈరోజు మీ వ్యవసాయానికి ఏ సహాయం కావాలి?",
+      subtitle: "టైప్ చేయాల్సిన అవసరం లేదు — కింద ఉన్న ఆకుపచ్చ మైక్ బటన్ నొక్కి మీ భాషలో మాట్లాడి అడగండి.",
+      voiceBtn: "మాట్లాడండి / Speak",
+      faqPromptHeading: "రైతులు తరచుగా అడిగే ప్రశ్నలు (ట్యాప్ చేయండి):",
+      prompts: [
+        { text: "ఈరోజు వరి మరియు పత్తి మార్కెట్ ధర ఎంత?", icon: "🌾" },
+        { text: "మిరప ఆకు ముడత తెగులుకు ఏ మందు పిచికారీ చేయాలి?", icon: "🍃" },
+        { text: "ఈరోజు వర్షం పడుతుందా? మందు పిచికారీ చేయవచ్చా?", icon: "🌧️" },
+        { text: "కోత కోయడానికి కూలీలు ఎక్కడ దొరుకుతారు?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "నేరుగా ఉపయోగించండి (Service ఎంచుకోండి)",
+    cardsSubheading: "ఒకే క్లిక్‌తో సేవ ప్రారంభించండి",
+    cards: {
+      cropDoctor: {
+        title: "1. పంట డాక్టర్ (Crop Doctor)",
+        badge: "ఫోటో తీయండి",
+        desc: "తెగులు సోకిన ఆకు ఫోటో తీసి వ్యాధిని గుర్తించి సరైన మందు మోతాదు తెలుసుకోండి.",
+        cta: "పరీక్ష ప్రారంభించండి →",
+      },
+      mandi: {
+        title: "2. నేటి మార్కెట్ ధరలు",
+        badge: "Live AGMARKNET",
+        desc: "సమీప మార్కెట్లలో వరి, పత్తి, మిర్చి, మొక్కజొన్న తాజా ధరలు చూడండి.",
+        cta: "ధరలు చూడండి →",
+      },
+      weather: {
+        title: "3. వాతావరణం & వర్షం",
+        badge: "3 రోజుల అంచనా",
+        desc: "వర్షం ఎప్పుడు పడుతుంది మరియు పురుగుమందులు పిచికారీ చేయడానికి సరైన సమయం తెలుసుకోండి.",
+        cta: "వాతావరణం చూడండి →",
+      },
+      machinery: {
+        title: "4. ట్రాక్టర్ & యంత్రాలు",
+        badge: "అద్దె & కొనుగోలు",
+        desc: "ట్రాక్టర్, రోటవేటర్, హార్వెస్టర్ అద్దెకు తీసుకోండి. యజమానులతో నేరుగా మాట్లాడండి.",
+        cta: "యంత్రాలను వెతకండి →",
+      },
+      agrilabour: {
+        title: "5. వ్యవసాయ కూలీలు (AgriLabour)",
+        badge: "కూలీలను వెతకండి",
+        desc: "నాట్లు, కలుపు తీత మరియు కోతల కోసం అనుభవజ్ఞులైన కూలీలను సంప్రదించండి.",
+        cta: "కూలీలను చూడండి →",
+      },
+      aiAdvisor: {
+        title: "6. AI వ్యవసాయ సలహాదారు",
+        badge: "24x7 సేవ",
+        desc: "ఎరువుల మోతాదు, విత్తన శుద్ధి మరియు వ్యవసాయ సందేహాలను అడగండి.",
+        cta: "సలహా పొందండి →",
+      },
+    },
+    advisory: {
+      title: "నేటి వ్యవసాయ సలహా",
+      source: "IMD & వ్యవసాయ శాఖ సమాచారం",
+      weatherStatusTitle: "మందు పిచికారీకి: అనుకూలం",
+      weatherStatusDesc: "ఈరోజు భారీ వర్ష సూచన లేదు. ఉదయం 10 గంటల లోపు లేదా సాయంత్రం 4 తర్వాత పిచికారీ చేయండి.",
+      mandiTipTitle: "మార్కెట్ అమ్మకపు సూచన",
+      mandiTipDesc: "పంట అమ్మే ముందు సమీపంలోని కనీసం 2 మార్కెట్లలో ధరలను సరిపోల్చండి.",
+    },
+    whatsapp: {
+      title: "ఫోన్ వాడటం కష్టంగా ఉందా?",
+      desc: "మా WhatsApp లో నేరుగా సంప్రదించండి. ఆకు ఫోటో లేదా వాయిస్ మెసేజ్ పంపండి.",
+      cta: "WhatsApp లో అడగండి →",
+      messageText: "నమస్కారం KisaanBuddy! నాకు వ్యవసాయ సమాచారం కావాలి.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy ఉపయోగించడం చాలా సులభం:",
+      step1Title: "1. మాట్లాడండి",
+      step1Desc: "మైక్ బటన్ నొక్కి పంట లేదా మార్కెట్ ధరల గురించి మాట్లాడి అడగండి.",
+      step2Title: "2. ఫోటో పంపండి",
+      step2Desc: "పంటకు తెగులు సోకితే ఆకు ఫోటో తీసి సరైన మందు వివరాలు తెలుసుకోండి.",
+      step3Title: "3. పరిష్కారం పొందండి",
+      step3Desc: "ప్రభుత్వ ధృవీకరించిన ధరలు మరియు వాతావరణ హెచ్చరికలను స్క్రీన్‌పై చూడండి.",
+      footerNote: "✓ రైతులకు 100% ఉచితం • ✓ యాప్ డౌన్‌లోడ్ అవసరం లేదు • ✓ ప్రభుత్వ AGMARKNET & IMD ధృవీకృతం",
+    },
+  },
+
+  bn: {
+    liveBar: {
+      officialData: "সরকারি AGMARKNET মান্ডি দর • IMD আবহাওয়া",
+      yourRegion: "আপনার অঞ্চল",
+    },
+    voiceCard: {
+      badge: "🎙️ কৃষক ভয়েস সহকারী (মুখে বলে জিজ্ঞাসা করুন)",
+      greeting: "নমস্কার কৃষক ভাই! আজ আপনার কৃষিকাজে কী সাহায্য লাগবে?",
+      subtitle: "টাইপ করার কোনো প্রয়োজন নেই — নিচের সবুজ মাইক বোতাম টিপুন এবং নিজের ভাষায় মুখে বলে জিজ্ঞাসা করুন।",
+      voiceBtn: "বলুন / Speak",
+      faqPromptHeading: "কৃষকরা প্রায়শই এই প্রশ্নগুলি করেন (ট্যাপ করুন):",
+      prompts: [
+        { text: "আজকের ধান এবং পাটের মান্ডি দর কত?", icon: "🌾" },
+        { text: "আলু বা টমেটোর পাতায় দাগ হলে কী ওষুধ দেব?", icon: "🍃" },
+        { text: "আজ কি বৃষ্টি হবে? কীটনাশক স্প্রে করা যাবে?", icon: "🌧️" },
+        { text: "ফসল কাটার জন্য মজুর কোথায় পাব?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "সরাসরি ব্যবহার করুন (সার্ভিস বাছুন)",
+    cardsSubheading: "এক ক্লিকে পরিষেবা শুরু করুন",
+    cards: {
+      cropDoctor: {
+        title: "1. ফসল ডাক্তার (Crop Doctor)",
+        badge: "ছবি তুলুন",
+        desc: "আক্রান্ত পাতার ছবি তুলে রোগ শনাক্ত করুন এবং সঠিক ওষুধের পরিমাণ জানুন।",
+        cta: "পরীক্ষা শুরু করুন →",
+      },
+      mandi: {
+        title: "2. আজকের মান্ডি দর",
+        badge: "Live AGMARKNET",
+        desc: "কাছের মান্ডির ধান, পাট, সরিষা ও সবজির তাজা দর দেখুন।",
+        cta: "দর দেখুন →",
+      },
+      weather: {
+        title: "3. আবহাওয়া ও বৃষ্টি",
+        badge: "3 দিনের পূর্বাভাস",
+        desc: "বৃষ্টি কখন হবে এবং ওষুধ স্প্রে করার সঠিক সময় জেনে নিন।",
+        cta: "আবহাওয়া দেখুন →",
+      },
+      machinery: {
+        title: "4. ট্রাক্টর ও যন্ত্রপাতি",
+        badge: "ভাড়া ও ক্রয়",
+        desc: "ট্রাক্টর, রোটাভেটর ও হারভেস্টার ভাড়া নিন। সরাসরি মালিকের সাথে কথা বলুন।",
+        cta: "যন্ত্রপাতি খুঁজুন →",
+      },
+      agrilabour: {
+        title: "5. খেতমজুর (AgriLabour)",
+        badge: "মজুর খুঁজুন",
+        desc: "ফসল কাটা, রোপণ ও স্প্রে করার জন্য অভিজ্ঞ খেতমজুর খুঁজুন।",
+        cta: "মজুর দেখুন →",
+      },
+      aiAdvisor: {
+        title: "6. AI কৃষি উপদেষ্টা",
+        badge: "24x7 সেবা",
+        desc: "সারের পরিমাণ, বীজ শোধন ও কৃষিকাজের যেকোনো প্রশ্ন জিজ্ঞাসা করুন।",
+        cta: "পরামর্শ নিন →",
+      },
+    },
+    advisory: {
+      title: "আজকের কৃষিকাজের পরামর্শ",
+      source: "IMD ও কৃষি দপ্তর সূত্রে",
+      weatherStatusTitle: "স্প্রে করার পরিস্থিতি: অনুকূল",
+      weatherStatusDesc: "আজ ভারী বৃষ্টির সম্ভাবনা নেই। সকাল ১০টার আগে বা বিকেল ৪টের পর স্প্রে করুন।",
+      mandiTipTitle: "মান্ডি বিক্রির পরামর্শ",
+      mandiTipDesc: "ফসল বিক্রির আগে অন্তত ২টি কাছের মান্ডির দর মিলিয়ে নিন।",
+    },
+    whatsapp: {
+      title: "ফোন ব্যবহার করতে অসুবিধা হচ্ছে?",
+      desc: "আমাদের WhatsApp-এ সরাসরি যোগাযোগ করুন। পাতার ছবি বা ভয়েস মেসেজ পাঠান।",
+      cta: "WhatsApp-এ জিজ্ঞাসা করুন →",
+      messageText: "নমস্কার KisaanBuddy! আমার কৃষিকাজ সংক্রান্ত তথ্য প্রয়োজন।",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy ব্যবহার করা খুব সহজ:",
+      step1Title: "1. মুখে বলুন",
+      step1Desc: "মাইক বোতাম টিপুন এবং ফসল বা মান্ডি দর সম্পর্কে মুখে বলে জিজ্ঞাসা করুন।",
+      step2Title: "2. ছবি পাঠান",
+      step2Desc: "ফসলে রোগ থাকলে পাতার ছবি তুলে সঠিক ওষুধ জানুন।",
+      step3Title: "3. সমাধান পান",
+      step3Desc: "সরকারি যাচাইকৃত দর ও আবহাওয়া সতর্কতা সরাসরি স্ক্রিনে দেখুন।",
+      footerNote: "✓ কৃষকদের জন্য ১০০% বিনামূল্যে • ✓ কোনো অ্যাপ ডাউনলোডের প্রয়োজন নেই • ✓ সরকারি AGMARKNET & IMD যাচাইকৃত",
+    },
+  },
+
+  ml: {
+    liveBar: {
+      officialData: "ഔദ്യോഗിക AGMARKNET മാർക്കറ്റ് നിരക്കുകൾ • IMD കാലാവസ്ഥ",
+      yourRegion: "നിങ്ങളുടെ പ്രദേശം",
+    },
+    voiceCard: {
+      badge: "🎙️ കർഷക വോയ്‌സ് അസിസ്റ്റന്റ് (സംസാരിച്ച് ചോദിക്കൂ)",
+      greeting: "നമസ്കാരം കർഷക സുഹൃത്തേ! ഇന്ന് നിങ്ങളുടെ കൃഷിക്ക് എന്ത് സഹായമാണ് വേണ്ടത്?",
+      subtitle: "ടൈപ്പ് ചെയ്യേണ്ടതില്ല — താഴെയുള്ള പച്ച മൈക്ക് ബട്ടൺ അമർത്തി നിങ്ങളുടെ ഭാഷയിൽ സംസാരിച്ച് ചോദിക്കൂ.",
+      voiceBtn: "സംസാരിക്കൂ / Speak",
+      faqPromptHeading: "കർഷകർ സാധാരണ ചോദിക്കുന്ന ചോദ്യങ്ങൾ (ടാപ്പ് ചെയ്യുക):",
+      prompts: [
+        { text: "ഇന്നത്തെ നെല്ല്, നാളികേരം വിപണി വില എത്രയാണ്?", icon: "🌾" },
+        { text: "ഇല മഞ്ഞളിക്കുന്ന രോഗത്തിന് എന്ത് മരുന്ന് തളിക്കണം?", icon: "🍃" },
+        { text: "ഇന്ന് മഴ പെയ്യുമോ? കീടനാശിനി തളിക്കാമോ?", icon: "🌧️" },
+        { text: "വിളവെടുപ്പിന് തൊഴിലാളികളെ എവിടെ ലഭിക്കും?", icon: "👥" },
+      ],
+    },
+    cardsHeading: "നേരിട്ട് ഉപയോഗിക്കുക (Service തിരഞ്ഞെടുക്കുക)",
+    cardsSubheading: "ഒറ്റ ക്ലിക്കിൽ സേവനം ആരംഭിക്കുക",
+    cards: {
+      cropDoctor: {
+        title: "1. വിള ഡോക്ടർ (Crop Doctor)",
+        badge: "ഫോട്ടോ എടുക്കൂ",
+        desc: "രോഗം ബാധിച്ച ഇലയുടെ ഫോട്ടോ എടുത്ത് രോഗവും കൃത്യമായ മരുന്നിന്റെ അളവും അറിയുക.",
+        cta: "പരിശോധന തുടങ്ങൂ →",
+      },
+      mandi: {
+        title: "2. ഇന്നത്തെ വിപണി വില",
+        badge: "Live AGMARKNET",
+        desc: "അടുത്തുള്ള മാർക്കറ്റുകളിലെ നെല്ല്, കുരുമുളക്, പച്ചക്കറി നിരക്കുകൾ കാണുക.",
+        cta: "വില പരിശോധിക്കൂ →",
+      },
+      weather: {
+        title: "3. കാലാവസ്ഥ & മഴ മുന്നറിയിപ്പ്",
+        badge: "3 ദിവസത്തെ പ്രവചനം",
+        desc: "മഴ എപ്പോൾ പെയ്യുമെന്നും മരുന്ന് തളിക്കാൻ അനുയോജ്യമായ സമയവും അറിയുക.",
+        cta: "കാലാവസ്ഥ കാണൂ →",
+      },
+      machinery: {
+        title: "4. ട്രാക്ടർ & ഉപകരണങ്ങൾ",
+        badge: "വാടകയ്ക്കും വിൽപ്പനയ്ക്കും",
+        desc: "ട്രാക്ടർ, റോട്ടവേറ്റർ വാടകയ്ക്ക് എടുക്കുക. ഉടമസ്ഥരുമായി നേരിട്ട് സംസാരിക്കുക.",
+        cta: "ഉപകരണങ്ങൾ തിരയൂ →",
+      },
+      agrilabour: {
+        title: "5. കൃഷി തൊഴിലാളികൾ (AgriLabour)",
+        badge: "തൊഴിലാളികളെ കണ്ടെത്തൂ",
+        desc: "ഞാറുനടീൽ, വിളവെടുപ്പ് എന്നിവയ്ക്കായി പരിചയസമ്പന്നരായ തൊഴിലാളികളെ കണ്ടെത്തുക.",
+        cta: "തൊഴിലാളികളെ കാണൂ →",
+      },
+      aiAdvisor: {
+        title: "6. AI കാർഷിക ഉപദേശകൻ",
+        badge: "24x7 സേവനം",
+        desc: "വളപ്രయోగം, വിത്ത് സംസ്കരണം എന്നിവയെക്കുറിച്ചുള്ള ചോദ്യങ്ങൾ ചോദിക്കുക.",
+        cta: "ഉപദേശം തേടൂ →",
+      },
+    },
+    advisory: {
+      title: "ഇന്നത്തെ കാർഷിക നിർദ്ദേശം",
+      source: "IMD & കൃഷി വകുപ്പ് റിപ്പോർട്ട്",
+      weatherStatusTitle: "മരുന്ന് തളിക്കാൻ: അനുയോജ്യമായ സമയം",
+      weatherStatusDesc: "ഇന്ന് ശക്തമായ മഴയ്ക്ക് സാധ്യതയില്ല. രാവിലെ 10 മണിക്ക് മുൻപോ വൈകുന്നേരം 4 ന് ശേഷമോ മരുന്ന് തളിക്കുക.",
+      mandiTipTitle: "വിപണി വിൽപ്പന നിർദ്ദേശം",
+      mandiTipDesc: "വിളകൾ വിൽക്കുന്നതിന് മുൻപ് അടുത്തുള്ള 2 മാർക്കറ്റുകളിലെ നിരക്കുകൾ താരതമ്യം ചെയ്യുക.",
+    },
+    whatsapp: {
+      title: "ഫോൺ ഉപയോഗിക്കാൻ ബുദ്ധിമുട്ടുണ്ടോ?",
+      desc: "ഞങ്ങളുടെ WhatsApp ലേക്ക് നേരിട്ട് ബന്ധപ്പെടുക. ഇലയുടെ ഫോട്ടോയോ വോയ്‌സ് മെസ്സേജോ അയക്കൂ.",
+      cta: "WhatsApp-ൽ ചോദിക്കൂ →",
+      messageText: "നമസ്കാരം KisaanBuddy! എനിക്ക് കൃഷിയുമായി ബന്ധപ്പെട്ട വിവരം വേണം.",
+    },
+    howItWorks: {
+      heading: "KisaanBuddy ഉപയോഗിക്കാൻ വളരെ എളുപ്പമാണ്:",
+      step1Title: "1. സംസാരിക്കൂ",
+      step1Desc: "മൈക്ക് ബട്ടൺ അമർത്തി നിങ്ങളുടെ വിളയെക്കുറിച്ചോ മാർക്കറ്റ് നിരക്കിനെക്കുറിച്ചോ സംസാരിക്കൂ.",
+      step2Title: "2. ഫോട്ടോ അയക്കൂ",
+      step2Desc: "വിളയ്ക്ക് രോഗമുണ്ടെങ്കിൽ ഇലയുടെ ഫോട്ടോ എടുത്ത് ശരിയായ മരുന്ന് അറിയുക.",
+      step3Title: "3. പരിഹാരം നേടൂ",
+      step3Desc: "ഔദ്യോഗിക നിരക്കുകളും കാലാവസ്ഥ മുന്നറിയിപ്പുകളും സ്ക്രീനിൽ നേരിട്ട് കാണുക.",
+      footerNote: "✓ കർഷകർക്ക് 100% സൗജന്യം • ✓ ആപ്പ് ഡൗൺലോഡ് ചെയ്യേണ്ടതില്ല • ✓ സർക്കാർ AGMARKNET & IMD അംഗീകൃതം",
+    },
+  },
+};

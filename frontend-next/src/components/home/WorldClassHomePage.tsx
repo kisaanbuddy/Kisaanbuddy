@@ -14,15 +14,8 @@ import {
   ArrowRight,
   ShieldCheck,
   MessageCircle,
-  Phone,
   Sparkles,
-  CheckCircle2,
   ChevronRight,
-  Droplets,
-  BookOpen,
-  Volume2,
-  FlaskConical,
-  Landmark,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/lib/language";
@@ -33,15 +26,18 @@ import {
   type UnifiedWeather,
 } from "@/lib/weather-api";
 import { translateCondition } from "@/lib/weather-translations";
+import { HOME_I18N } from "@/lib/homepage-i18n";
 
 export function WorldClassHomePage() {
   const { user } = useAuth();
   const { lang } = useLanguage();
 
+  // Load language dictionary dynamically based on selected language
+  const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
+
   // Location & Weather state
   const [weather, setWeather] = useState<UnifiedWeather | null>(null);
-  const [locationName, setLocationName] = useState<string>("आपका क्षेत्र");
-  const [voiceQuery, setVoiceQuery] = useState<string>("");
+  const [locationName, setLocationName] = useState<string>("");
 
   useEffect(() => {
     let isMounted = true;
@@ -49,7 +45,7 @@ export function WorldClassHomePage() {
       try {
         const loc = await resolveUserLocation();
         if (loc && isMounted) {
-          setLocationName(loc.city || "आपका क्षेत्र");
+          setLocationName(loc.city || "");
           const w = await getCurrentByCoords(loc.lat, loc.lon);
           if (w && isMounted) setWeather(w);
         }
@@ -63,12 +59,8 @@ export function WorldClassHomePage() {
     };
   }, []);
 
-  const sampleVoicePrompts = [
-    { text: "गेहूं का आज का मंडी भाव क्या है?", icon: "🌾" },
-    { text: "टमाटर की पत्ती पर पीले धब्बे हैं, क्या दवा डालें?", icon: "🍃" },
-    { text: "क्या आज बारिश होगी, दवा छिड़क सकते हैं?", icon: "🌧️" },
-    { text: "कटाई के लिए मजदूर कहां मिलेंगे?", icon: "👥" },
-  ];
+  const displayLocation = locationName || dict.liveBar.yourRegion;
+  const whatsappUrl = `https://wa.me/919429693427?text=${encodeURIComponent(dict.whatsapp.messageText)}`;
 
   return (
     <div className="edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
@@ -80,7 +72,7 @@ export function WorldClassHomePage() {
           {/* Location & Today's Temperature */}
           <div className="flex items-center gap-2 font-semibold text-emerald-950 dark:text-emerald-300">
             <MapPin className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <span>{locationName}</span>
+            <span>{displayLocation}</span>
             {weather?.current && (
               <>
                 <span className="text-stone-400">•</span>
@@ -97,7 +89,7 @@ export function WorldClassHomePage() {
           {/* Official Verification Note */}
           <div className="flex items-center gap-1.5 text-xs text-emerald-900 dark:text-emerald-300 font-medium">
             <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-            <span>सरकारी AGMARKNET मंडी भाव • IMD मौसम</span>
+            <span>{dict.liveBar.officialData}</span>
           </div>
         </div>
       </div>
@@ -113,16 +105,15 @@ export function WorldClassHomePage() {
 
           <div className="relative space-y-6 text-center sm:text-left">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
+              <div className="flex-1">
                 <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider mb-2">
-                  🎙️ किसान वॉइस असिस्टेंट (बोलकर पूछें)
+                  {dict.voiceCard.badge}
                 </span>
                 <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
-                  नमस्ते किसान भाई! <br className="hidden sm:inline" />
-                  आज आपकी खेती में क्या मदद चाहिए?
+                  {dict.voiceCard.greeting}
                 </h1>
                 <p className="mt-2 text-sm sm:text-base text-emerald-100 max-w-xl font-normal">
-                  टाइप करने की जरूरत नहीं है — बस नीचे दिए गए हरे माइक बटन को दबाएं और अपनी भाषा में कोई भी सवाल बोलकर पूछें।
+                  {dict.voiceCard.subtitle}
                 </p>
               </div>
 
@@ -131,14 +122,14 @@ export function WorldClassHomePage() {
                 type="button"
                 onClick={() => openVoiceAssistant()}
                 className="group relative flex flex-col items-center justify-center w-28 h-28 sm:w-32 sm:h-32 rounded-3xl bg-white text-emerald-900 shadow-2xl hover:scale-105 active:scale-95 transition-all shrink-0 cursor-pointer border-4 border-emerald-300"
-                aria-label="बोलकर सवाल पूछें"
+                aria-label={dict.voiceCard.voiceBtn}
               >
                 <div className="relative flex items-center justify-center">
                   <span className="absolute -inset-3 rounded-full bg-emerald-500/30 animate-ping opacity-75" />
                   <Mic className="w-10 h-10 sm:w-12 sm:h-12 text-emerald-700 stroke-[2.4]" />
                 </div>
                 <span className="mt-2 text-xs sm:text-sm font-black text-emerald-900 tracking-wide uppercase">
-                  बोलें / Speak
+                  {dict.voiceCard.voiceBtn}
                 </span>
               </button>
             </div>
@@ -146,10 +137,10 @@ export function WorldClassHomePage() {
             {/* Quick Sample Voice Prompts - Tap to Ask */}
             <div className="pt-4 border-t border-white/20">
               <span className="text-xs font-bold text-emerald-200 uppercase tracking-wider block mb-3 text-center sm:text-left">
-                किसान भाई अक्सर ये सवाल पूछते हैं (टैप करें और तुरंत सुनें):
+                {dict.voiceCard.faqPromptHeading}
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {sampleVoicePrompts.map((item, idx) => (
+                {dict.voiceCard.prompts.map((item, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -167,16 +158,16 @@ export function WorldClassHomePage() {
         </section>
 
         {/* ─────────────────────────────────────────────────────────────
-            3. BIG, SIMPLE PRIMARY TASK CARDS (खेती के 5 मुख्य काम)
+            3. BIG, SIMPLE PRIMARY TASK CARDS (खेती के मुख्य काम)
             Ultra-clear, high contrast, big touch targets for easy navigation
         ───────────────────────────────────────────────────────────── */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-white">
-              सीधे इस्तेमाल करें (Select Service)
+              {dict.cardsHeading}
             </h2>
             <span className="text-xs text-stone-500 font-semibold">
-              एक क्लिक में सेवा शुरू करें
+              {dict.cardsSubheading}
             </span>
           </div>
 
@@ -192,17 +183,17 @@ export function WorldClassHomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
-                    1. फसल डॉक्टर
+                    {dict.cards.cropDoctor.title}
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300">
-                    फोटो खींचें
+                    {dict.cards.cropDoctor.badge}
                   </span>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                  पत्ती की फोटो खींचकर रोग पहचानें और सही दवा व खुराक जानें।
+                  {dict.cards.cropDoctor.desc}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-rose-700 dark:text-rose-400">
-                  जांच शुरू करें →
+                  {dict.cards.cropDoctor.cta}
                 </span>
               </div>
             </Link>
@@ -218,17 +209,17 @@ export function WorldClassHomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-amber-400 transition-colors">
-                    2. आज का मंडी भाव
+                    {dict.cards.mandi.title}
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
-                    Live AGMARKNET
+                    {dict.cards.mandi.badge}
                   </span>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                  अपनी नज़दीकी मंडी के गेहूं, सरसों, चना और अन्य फसलों के ताज़ा रेट देखें।
+                  {dict.cards.mandi.desc}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-amber-800 dark:text-amber-400">
-                  भाव देखें →
+                  {dict.cards.mandi.cta}
                 </span>
               </div>
             </Link>
@@ -244,17 +235,17 @@ export function WorldClassHomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                    3. मौसम व बारिश
+                    {dict.cards.weather.title}
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300">
-                    3 दिन का अनुमान
+                    {dict.cards.weather.badge}
                   </span>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                  बारिश कब होगी और कीटनाशक छिड़काव के लिए आज सही समय है या नहीं।
+                  {dict.cards.weather.desc}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-sky-700 dark:text-sky-400">
-                  मौसम देखें →
+                  {dict.cards.weather.cta}
                 </span>
               </div>
             </Link>
@@ -270,17 +261,17 @@ export function WorldClassHomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
-                    4. ट्रैक्टर व मशीनरी
+                    {dict.cards.machinery.title}
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                    किराया व खरीद
+                    {dict.cards.machinery.badge}
                   </span>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                  ट्रैक्टर, रोटावेटर और हार्वेस्टर किराए पर लें। सीधे मालिक से बात करें।
+                  {dict.cards.machinery.desc}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-emerald-800 dark:text-emerald-400">
-                  उपकरण खोजें →
+                  {dict.cards.machinery.cta}
                 </span>
               </div>
             </Link>
@@ -296,17 +287,17 @@ export function WorldClassHomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors">
-                    5. खेत मजदूर (AgriLabour)
+                    {dict.cards.agrilabour.title}
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
-                    मजदूर खोजें
+                    {dict.cards.agrilabour.badge}
                   </span>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                  फसल कटाई, रोपाई और छिड़काव के लिए अनुभवी मजदूर खोजें या पंजीकरण करें।
+                  {dict.cards.agrilabour.desc}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-indigo-800 dark:text-indigo-400">
-                  मजदूर देखें →
+                  {dict.cards.agrilabour.cta}
                 </span>
               </div>
             </Link>
@@ -322,17 +313,17 @@ export function WorldClassHomePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-teal-700 dark:group-hover:text-teal-400 transition-colors">
-                    6. AI कृषि सलाहकार
+                    {dict.cards.aiAdvisor.title}
                   </h3>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300">
-                    24x7 सेवा
+                    {dict.cards.aiAdvisor.badge}
                   </span>
                 </div>
                 <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                  खाद की मात्रा, बीज उपचार और बुवाई से कटाई तक कोई भी सवाल पूछें।
+                  {dict.cards.aiAdvisor.desc}
                 </p>
                 <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-teal-800 dark:text-teal-400">
-                  चैट शुरू करें →
+                  {dict.cards.aiAdvisor.cta}
                 </span>
               </div>
             </Link>
@@ -346,10 +337,10 @@ export function WorldClassHomePage() {
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>आज की खेती सलाह (Field Advisory)</span>
+              <span>{dict.advisory.title}</span>
             </h3>
             <span className="text-xs text-stone-500 font-medium">
-              IMD & कृषि विभाग द्वारा
+              {dict.advisory.source}
             </span>
           </div>
 
@@ -359,10 +350,10 @@ export function WorldClassHomePage() {
               <CloudSun className="w-6 h-6 text-emerald-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-sm font-bold text-emerald-950 dark:text-emerald-200">
-                  छिड़काव के लिए स्थिति: अनुकूल
+                  {dict.advisory.weatherStatusTitle}
                 </strong>
                 <p className="text-xs text-emerald-900 dark:text-emerald-300 mt-0.5 leading-relaxed">
-                  आज आपके क्षेत्र में तेज़ बारिश की संभावना नहीं है। कीटनाशक या खाद का छिड़काव सुबह 10 बजे से पहले या शाम 4 बजे के बाद करें।
+                  {dict.advisory.weatherStatusDesc}
                 </p>
               </div>
             </div>
@@ -372,10 +363,10 @@ export function WorldClassHomePage() {
               <TrendingUp className="w-6 h-6 text-amber-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-sm font-bold text-amber-950 dark:text-amber-200">
-                  मंडी भाव सुझाव: गेहूं व सरसों
+                  {dict.advisory.mandiTipTitle}
                 </strong>
                 <p className="text-xs text-amber-900 dark:text-amber-300 mt-0.5 leading-relaxed">
-                  आज प्रमुख मंडियों में गेहूं की औसत दर ₹2,275 और सरसों ₹5,450 प्रति क्विंटल है। फसल बेचने से पहले नज़दीकी 2 मंडियों के भाव ज़रूर मिला लें।
+                  {dict.advisory.mandiTipDesc}
                 </p>
               </div>
             </div>
@@ -393,58 +384,58 @@ export function WorldClassHomePage() {
             </div>
             <div>
               <strong className="block text-base sm:text-lg font-bold text-stone-900 dark:text-white">
-                फोन चलाने में कोई परेशानी आ रही है?
+                {dict.whatsapp.title}
               </strong>
               <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300">
-                हमारे WhatsApp पर सीधे जुड़ें। अपनी फसल का फोटो या वॉइस मैसेज भेजें।
+                {dict.whatsapp.desc}
               </p>
             </div>
           </div>
 
           <a
-            href="https://wa.me/919429693427?text=%E0%A4%A8%E0%A4%AE%E0%A4%B8%E0%A5%8D%E0%A4%A4%E0%A5%87%20KisaanBuddy!%20%E0%A4%AE%E0%A5%81%E0%A4%9D%E0%A5%87%20%E0%A4%96%E0%A5%87%E0%A4%A4%E0%A5%80%20%E0%A4%B8%E0%A5%87%20%E0%A4%9C%E0%A5%81%E0%A4%A1%E0%A4%BC%E0%A5%80%20%E0%A4%9C%E0%A4%BE%E0%A4%A8%E0%A4%95%E0%A4%BE%E0%A4%B0%E0%A5%80%20%E0%A4%9A%E0%A4%BE%E0%A4%B9%E0%A4%BF%E0%A4%8F%E0%A4%Ahandled"
+            href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-sm shadow-md transition-all shrink-0 cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 fill-current" />
-            <span>WhatsApp पर पूछें →</span>
+            <span>{dict.whatsapp.cta}</span>
           </a>
         </section>
 
         {/* ─────────────────────────────────────────────────────────────
-            6. SIMPLE 3-STEP GUIDE (कैसे इस्तेमाल करें?)
+            6. SIMPLE 3-STEP GUIDE (उपयोग कैसे करें?)
         ───────────────────────────────────────────────────────────── */}
         <section className="text-center space-y-4 pt-4">
           <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white">
-            KisaanBuddy का उपयोग करना बहुत आसान है:
+            {dict.howItWorks.heading}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
             <div className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
-              <span className="text-2xl font-black text-emerald-700">1. बोलें</span>
+              <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step1Title}</span>
               <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                माइक का बटन दबाएं और अपनी फसल या मंडी के बारे में बोलकर पूछें।
+                {dict.howItWorks.step1Desc}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
-              <span className="text-2xl font-black text-emerald-700">2. फोटो भेजें</span>
+              <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step2Title}</span>
               <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                अगर फसल में रोग है, तो पत्ते की फोटो खींचकर तुरंत सही दवा जानें।
+                {dict.howItWorks.step2Desc}
               </p>
             </div>
 
             <div className="p-4 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800">
-              <span className="text-2xl font-black text-emerald-700">3. समाधान पाएं</span>
+              <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step3Title}</span>
               <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                सरकारी प्रमाणित मंडी भाव, मौसम अलर्ट और सही सलाह सीधे अपनी स्क्रीन पर देखें।
+                {dict.howItWorks.step3Desc}
               </p>
             </div>
           </div>
 
           <div className="pt-4 text-xs text-stone-500 font-medium">
-            <span>✓ 100% निःशुल्क सेवा</span> • <span>✓ कोई ऐप डाउनलोड करने की जरूरत नहीं</span> • <span>✓ भारत सरकार AGMARKNET व IMD प्रमाणित</span>
+            <span>{dict.howItWorks.footerNote}</span>
           </div>
         </section>
       </div>
