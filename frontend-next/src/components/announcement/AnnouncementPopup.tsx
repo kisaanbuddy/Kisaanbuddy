@@ -6,7 +6,7 @@ import {
   X,
   ArrowRight,
   Sprout,
-  CloudSun,
+  Store,
   TrendingUp,
   ShieldCheck,
   CheckCheck,
@@ -320,18 +320,18 @@ export function AnnouncementPopup() {
                     </div>
                   </div>
 
-                  {/* Card 2: Weather & Crop Updates */}
+                  {/* Card 2: Farm Marketplace */}
                   <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100/90 text-sky-800 shrink-0">
-                      <CloudSun className="w-5 h-5 text-sky-700" />
+                      <Store className="w-5 h-5 text-sky-700" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
-                        <span>🌤️</span>
-                        <span>Weather &amp; Crop Updates</span>
+                        <span>🛒</span>
+                        <span>Farm Marketplace</span>
                       </div>
                       <div className="text-[11px] text-stone-500 truncate">
-                        Receive useful weather and agricultural updates.
+                        Connect with verified sellers for equipment, seeds, and produce.
                       </div>
                     </div>
                   </div>
@@ -468,7 +468,7 @@ export function AnnouncementPopup() {
                           </p>
                           <div className="pt-1 border-t border-stone-100 text-[9px] text-stone-600 space-y-0.5 font-medium">
                             <div>🌱 1. Farming Assistance</div>
-                            <div>🌤️ 2. Weather &amp; Crop Updates</div>
+                            <div>🛒 2. Farm Marketplace</div>
                             <div>📊 3. Mandi Price Information</div>
                           </div>
                           <div className="text-[8.5px] text-stone-400 text-right mt-1">

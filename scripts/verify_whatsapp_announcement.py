@@ -6,7 +6,7 @@ Validates all requirements specified in the user request:
 3. Description: Your farming companion is now just one WhatsApp message away...
 4. 3 Feature Cards:
    - 🌱 Farming Assistance
-   - 🌤️ Weather & Crop Updates
+   - 🛒 Farm Marketplace
    - 📊 Mandi Price Information
 5. CTA Buttons:
    - Primary: "Chat with KisaanBuddy on WhatsApp"
@@ -58,9 +58,9 @@ def run_tests():
     assert "Get guidance and answers to your farming questions." in popup_src, "Feature 1 desc missing"
     print("  ✓ Card 1: 🌱 Farming Assistance")
 
-    assert "Weather &amp; Crop Updates" in popup_src or "Weather & Crop Updates" in popup_src, "Feature 2 title missing"
-    assert "Receive useful weather and agricultural updates." in popup_src, "Feature 2 desc missing"
-    print("  ✓ Card 2: 🌤️ Weather & Crop Updates")
+    assert "Farm Marketplace" in popup_src, "Feature 2 title missing"
+    assert "Connect with verified sellers for equipment, seeds, and produce." in popup_src, "Feature 2 desc missing"
+    print("  ✓ Card 2: 🛒 Farm Marketplace")
 
     assert "Mandi Price Information" in popup_src, "Feature 3 title missing"
     assert "Stay informed about agricultural market prices." in popup_src, "Feature 3 desc missing"
