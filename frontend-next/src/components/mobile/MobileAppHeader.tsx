@@ -61,13 +61,19 @@ export function MobileAppHeader({ currentLocationName }: Props) {
               <Menu className="h-5 w-5" />
             </button>
             <Link href="/" className="flex items-center gap-2 group active:scale-95 transition-transform">
-            <div className="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-black shadow-xs text-sm">
-              🌾
+            <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 p-1 border border-emerald-600/20 flex items-center justify-center shrink-0">
+              <img
+                src="/logo.webp"
+                alt="KisaanBuddy Logo"
+                width={28}
+                height={28}
+                className="w-full h-full object-contain rounded-md"
+              />
             </div>
             <div className="flex flex-col leading-tight">
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-base tracking-tight text-emerald-950 dark:text-emerald-50">
-                  Krishi<span className="text-emerald-700 dark:text-emerald-400">AI</span>
+                <span className="font-display font-extrabold text-base tracking-tight text-stone-900 dark:text-white">
+                  Kisaan<span className="text-emerald-700 dark:text-emerald-400">Buddy</span>
                 </span>
                 <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
                   किसान
