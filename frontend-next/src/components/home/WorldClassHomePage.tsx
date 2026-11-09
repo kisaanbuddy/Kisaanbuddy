@@ -21,6 +21,7 @@ import { useAuth } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/lib/language";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import { SpeakHeroControlHub } from "@/components/voice/SpeakHeroControlHub";
+import { HeroFeatureShowcase } from "@/components/home/HeroFeatureShowcase";
 import {
   resolveUserLocation,
   getCurrentByCoords,
@@ -100,7 +101,7 @@ export function WorldClassHomePage() {
             2. HERO SECTION (EXACT REFERENCE FROM SCREENSHOT)
             Left: Typography, Headline, 3 CTA Buttons (Explore, AI Advisor,
                   and Central Speak / बोलें Control Hub with 6 Floating Pills)
-            Right: Live Field Intelligence telemetry card
+            Right: Interactive SaaS Feature Ecosystem Showcase
         ───────────────────────────────────────────────────────────── */}
         <section className="space-y-6 pt-2">
           {/* Top Live Badges Row */}
@@ -182,104 +183,9 @@ export function WorldClassHomePage() {
               </div>
             </div>
 
-            {/* Right Visual Showcase: Live Field Intelligence Card (5 cols) */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-xl">
-                {/* Authentic Agricultural Field Photo */}
-                <div className="relative aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
-                  <img
-                    src="/images/crops/indian-paddy-field.webp"
-                    alt="Authentic agricultural field in India"
-                    className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700"
-                    loading="eager"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/80 via-stone-950/20 to-transparent" />
-
-                  {/* Top Floating Badge */}
-                  <div className="absolute top-3 left-3 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md rounded-xl px-3 py-1.5 border border-stone-200/80 dark:border-stone-700 shadow-md flex items-center gap-2 text-xs font-bold text-stone-800 dark:text-stone-100">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span>Live Field Intelligence</span>
-                  </div>
-                </div>
-
-                {/* Overlaid Live Telemetry Rows */}
-                <div className="p-4 sm:p-5 space-y-3 bg-white dark:bg-stone-900">
-                  {/* Row 1: Mandi Modal Price */}
-                  <div className="flex items-center justify-between p-3 rounded-2xl bg-[#F7F9F4] dark:bg-stone-800/70 border border-stone-200/80 dark:border-stone-700/80">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-700 dark:text-amber-400 font-bold text-xs">
-                        ₹
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                          <span>Wheat (गेहूं)</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-semibold">
-                            AGMARKNET
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-stone-500 dark:text-stone-400">
-                          Average Modal Rate: ₹2,275 / क्विंटल
-                        </div>
-                      </div>
-                    </div>
-                    <Link
-                      href="/mandi"
-                      className="text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline shrink-0"
-                    >
-                      Compare Mandis →
-                    </Link>
-                  </div>
-
-                  {/* Row 2: Crop Pathology Leaf Diagnosis */}
-                  <div className="flex items-center justify-between p-3 rounded-2xl bg-[#F7F9F4] dark:bg-stone-800/70 border border-stone-200/80 dark:border-stone-700/80">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-700 dark:text-rose-400 font-bold text-xs">
-                        <Bug className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                          <span>Leaf Diagnosis</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 font-semibold">
-                            ICAR Dosages
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-stone-500 dark:text-stone-400">
-                          Early screening for blights & rusts
-                        </div>
-                      </div>
-                    </div>
-                    <Link
-                      href="/disease"
-                      className="text-xs font-bold text-rose-700 dark:text-rose-400 hover:underline shrink-0"
-                    >
-                      Scan Leaf →
-                    </Link>
-                  </div>
-
-                  {/* Row 3: Weather Spray Advisory Window */}
-                  <div className="flex items-center justify-between p-3 rounded-2xl bg-[#F7F9F4] dark:bg-stone-800/70 border border-stone-200/80 dark:border-stone-700/80">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400 font-bold text-xs">
-                        <CloudSun className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                          Spray Advisory Window
-                        </div>
-                        <div className="text-[11px] text-stone-500 dark:text-stone-400">
-                          Clear skies today • Safe for pesticide application
-                        </div>
-                      </div>
-                    </div>
-                    <Link
-                      href="/weather"
-                      className="text-xs font-bold text-sky-700 dark:text-sky-400 hover:underline shrink-0"
-                    >
-                      3-Day View →
-                    </Link>
-                  </div>
-                </div>
-              </div>
+            {/* Right Visual Showcase: Interactive SaaS Feature Ecosystem Showcase (5 cols) */}
+            <div className="lg:col-span-5 relative w-full">
+              <HeroFeatureShowcase />
             </div>
           </div>
         </section>
