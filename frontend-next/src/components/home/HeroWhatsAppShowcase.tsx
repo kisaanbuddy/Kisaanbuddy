@@ -1,13 +1,27 @@
 "use client";
 
 import React from "react";
-import { MessageCircle, Sparkles, ShieldCheck, ArrowRight, PhoneCall } from "lucide-react";
+import {
+  MessageCircle,
+  Sparkles,
+  ArrowRight,
+  PhoneCall,
+  ArrowLeft,
+  Video,
+  Phone,
+  MoreVertical,
+  Smile,
+  Paperclip,
+  Camera,
+  Mic,
+  CheckCheck,
+  Wifi,
+  Battery,
+} from "lucide-react";
 import { useLanguage, type Lang } from "@/lib/language";
-import { HOME_I18N } from "@/lib/homepage-i18n";
 
 export function HeroWhatsAppShowcase() {
   const { lang } = useLanguage();
-  const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
   const isHi = lang === "hi";
 
   const whatsappMessage = isHi
@@ -17,7 +31,7 @@ export function HeroWhatsAppShowcase() {
   const whatsappUrl = `https://wa.me/919429693427?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <div className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-5 sm:p-6 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
+    <div className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
       {/* Decorative ambient radial glows */}
       <div
         className="absolute -top-14 -right-14 w-48 h-48 bg-[#25D366]/15 rounded-full blur-3xl pointer-events-none"
@@ -29,7 +43,7 @@ export function HeroWhatsAppShowcase() {
       />
 
       {/* Top Header Badge & Title */}
-      <div className="relative z-10 w-full space-y-2">
+      <div className="relative z-10 w-full space-y-1.5 mb-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#25D366]/15 dark:bg-[#25D366]/20 border border-[#25D366]/30 text-emerald-950 dark:text-emerald-300 text-xs font-bold uppercase tracking-wide">
           <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" />
           <span>{isHi ? "24/7 AI व्हाट्सएप साथी" : "24/7 AI WhatsApp Companion"}</span>
@@ -49,25 +63,152 @@ export function HeroWhatsAppShowcase() {
 
         <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 max-w-sm mx-auto leading-relaxed">
           {isHi
-            ? "पत्ती की फोटो भेजें या बोलकर पूछें — रोग निदान, आज का मंडी भाव व मौसम सलाह सीधे अपने व्हाट्सएप पर।"
+            ? "पत्ती की फोटो भेजें या बोलकर पूछें — रोग निदान, आज का मंडी भाव व मौसम सलाह सीधे WhatsApp पर पाएं।"
             : "Send crop leaf photos or voice notes — get instant diagnosis, mandi rates & weather advisory directly on WhatsApp."}
         </p>
       </div>
 
-      {/* Smartphone Mockup Image with Authentic Shadow & Elevation */}
-      <div className="relative z-10 my-4 sm:my-5 flex justify-center w-full">
-        <div className="relative w-[210px] sm:w-[230px] md:w-[250px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white dark:border-stone-800 bg-white dark:bg-stone-900 hover:scale-105 transition-transform duration-300">
-          <img
-            src="/images/whatsapp-phone-mockup.jpg"
-            alt="KisaanBuddy WhatsApp and Voice Interface on Smartphone"
-            className="w-full h-auto object-contain"
-            loading="eager"
-          />
-        </div>
-      </div>
+      {/* ─────────────────────────────────────────────────────────────
+          MODERN IPHONE / FLAGSHIP SMARTPHONE UI MOCKUP
+      ───────────────────────────────────────────────────────────── */}
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={isHi ? "व्हाट्सएप पर चैट करने के लिए क्लिक करें" : "Click to chat on WhatsApp"}
+        className="group relative z-10 my-2 sm:my-3 block w-[280px] sm:w-[305px] md:w-[315px] cursor-pointer"
+      >
+        {/* Outer Phone Border & Realistic Metallic Ring */}
+        <div className="relative rounded-[46px] p-[3px] bg-gradient-to-b from-stone-400 via-stone-300 to-stone-500 dark:from-stone-600 dark:via-stone-700 dark:to-stone-900 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.4)] group-hover:shadow-[0_30px_70px_-15px_rgba(37,211,102,0.3)] group-hover:scale-[1.02] transition-all duration-300">
+          {/* Inner Matte Bezel */}
+          <div className="rounded-[43px] p-[7px] bg-stone-950">
+            {/* Screen Glass */}
+            <div className="relative rounded-[36px] overflow-hidden bg-[#EFEAE2] dark:bg-[#0b141a] text-stone-900 dark:text-stone-100 flex flex-col justify-between shadow-inner">
+              
+              {/* iPhone Status Bar with Dynamic Island */}
+              <div className="relative pt-2 px-5 pb-1 flex items-center justify-between text-[11px] font-semibold bg-[#075E54] text-white">
+                <span className="font-mono text-[10px]">9:41</span>
+                {/* Dynamic Island Pill */}
+                <div className="w-20 h-4 bg-black rounded-full flex items-center justify-end px-1.5 gap-1 shadow-xs">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#151515] border border-stone-800" />
+                  <div className="w-1 h-1 rounded-full bg-[#0d2847]" />
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px]">
+                  <Wifi className="w-3 h-3" />
+                  <Battery className="w-3.5 h-3.5" />
+                </div>
+              </div>
 
-      {/* Direct WhatsApp Call-to-Action Bar */}
-      <div className="relative z-10 w-full space-y-2.5">
+              {/* WhatsApp App Top Bar */}
+              <div className="bg-[#075E54] text-white px-3 py-2 flex items-center justify-between shadow-sm border-t border-[#065047]">
+                <div className="flex items-center gap-2">
+                  <ArrowLeft className="w-4 h-4 text-white" />
+                  <div className="relative w-8 h-8 rounded-full bg-white/20 p-0.5 flex items-center justify-center shrink-0">
+                    <img
+                      src="/logo.webp"
+                      alt="KisaanBuddy"
+                      className="w-full h-full object-contain rounded-full"
+                    />
+                    <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#25D366] border-2 border-[#075E54] rounded-full" />
+                  </div>
+                  <div className="text-left">
+                    <div className="flex items-center gap-1 leading-tight">
+                      <span className="text-xs font-bold text-white">KisaanBuddy</span>
+                      <span className="w-3 h-3 rounded-full bg-[#25D366] text-stone-950 flex items-center justify-center text-[7px] font-black">
+                        ✓
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-emerald-200 leading-none">
+                      Online • WhatsApp Service
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-white/90">
+                  <Video className="w-4 h-4" />
+                  <Phone className="w-3.5 h-3.5" />
+                  <MoreVertical className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* WhatsApp Chat Canvas */}
+              <div className="p-3 space-y-2 text-left text-[11px] bg-[#EFEAE2] dark:bg-[#0b141a] min-h-[265px] relative">
+                {/* Date Pill */}
+                <div className="flex justify-center mb-1">
+                  <span className="px-2.5 py-0.5 rounded-md bg-white/85 dark:bg-stone-800/80 text-[10px] font-medium text-stone-600 dark:text-stone-300 shadow-2xs">
+                    {isHi ? "UI Preview • WhatsApp" : "UI Preview • WhatsApp"}
+                  </span>
+                </div>
+
+                {/* Message 1: Incoming from KisaanBuddy */}
+                <div className="flex justify-start">
+                  <div className="max-w-[88%] bg-white dark:bg-stone-800 p-2.5 rounded-2xl rounded-tl-xs shadow-xs border border-stone-200/50 dark:border-stone-700/50 space-y-1">
+                    <p className="font-bold text-emerald-700 dark:text-emerald-400 text-[11px]">
+                      KisaanBuddy 🌱
+                    </p>
+                    <p className="text-stone-800 dark:text-stone-200 leading-snug">
+                      {isHi
+                        ? "नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?"
+                        : "Welcome to KisaanBuddy! How can we assist your farm today?"}
+                    </p>
+                    <div className="pt-1 text-[10.5px] text-stone-600 dark:text-stone-300 space-y-0.5 font-medium">
+                      <p>🌾 1. {isHi ? "Farming Assistance (फसल रोग)" : "Farming Assistance"}</p>
+                      <p>🚜 2. {isHi ? "Farm Marketplace (यंत्र व मजदूर)" : "Farm Marketplace"}</p>
+                      <p>📊 3. {isHi ? "Mandi Price Information (भाव)" : "Mandi Price Info"}</p>
+                    </div>
+                    <span className="block text-right text-[9px] text-stone-400 pt-0.5">
+                      10:30 AM
+                    </span>
+                  </div>
+                </div>
+
+                {/* Message 2: Outgoing from Farmer */}
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] bg-[#D9FDD3] dark:bg-[#005c4b] p-2.5 rounded-2xl rounded-tr-xs shadow-xs text-stone-900 dark:text-stone-100">
+                    <p className="leading-snug">
+                      {isHi
+                        ? "नमस्ते KisaanBuddy! मुझे खेती से जुड़ी जानकारी चाहिए।"
+                        : "Hello KisaanBuddy! I need farming assistance for my crop."}
+                    </p>
+                    <div className="flex items-center justify-end gap-1 mt-0.5">
+                      <span className="text-[9px] text-stone-500 dark:text-stone-300">
+                        10:31 AM
+                      </span>
+                      <CheckCheck className="w-3.5 h-3.5 text-sky-500" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* WhatsApp Bottom Chat Input Bar */}
+              <div className="bg-[#F0F2F5] dark:bg-[#1f2c34] p-2 flex items-center gap-1.5 border-t border-stone-200 dark:border-stone-800">
+                <div className="flex-1 bg-white dark:bg-stone-800 rounded-full py-1 px-3 flex items-center justify-between text-stone-400 text-xs shadow-2xs">
+                  <div className="flex items-center gap-1.5">
+                    <Smile className="w-3.5 h-3.5 text-stone-400" />
+                    <span className="text-[10px] text-stone-500">
+                      {isHi ? "Type a message..." : "Type a message..."}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-stone-400">
+                    <Paperclip className="w-3 h-3" />
+                  </div>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-[#00A884] text-white flex items-center justify-center shadow-xs shrink-0">
+                  <Mic className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* iPhone Home Indicator Swipe Bar */}
+              <div className="bg-[#F0F2F5] dark:bg-[#1f2c34] pb-1 pt-0.5 flex justify-center">
+                <div className="w-24 h-1 bg-stone-400 dark:bg-stone-600 rounded-full" />
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </a>
+
+      {/* Direct WhatsApp Action Button */}
+      <div className="relative z-10 w-full space-y-2 mt-2">
         <a
           href={whatsappUrl}
           target="_blank"
