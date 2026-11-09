@@ -21,7 +21,7 @@ import { useAuth } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/lib/language";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import { SpeakHeroControlHub } from "@/components/voice/SpeakHeroControlHub";
-import { HeroFeatureShowcase } from "@/components/home/HeroFeatureShowcase";
+import { HeroWhatsAppShowcase } from "@/components/home/HeroWhatsAppShowcase";
 import {
   resolveUserLocation,
   getCurrentByCoords,
@@ -126,9 +126,9 @@ export function WorldClassHomePage() {
           </div>
 
           {/* Hero Grid: Typography on Left, Visual Telemetry on Right */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* Left Content Column (7 cols) */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-7 space-y-6 pt-1">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.15]">
                 Your Farm. Your Decisions.{" "}
                 <span className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">
@@ -183,9 +183,9 @@ export function WorldClassHomePage() {
               </div>
             </div>
 
-            {/* Right Visual Showcase: Interactive SaaS Feature Ecosystem Showcase (5 cols) */}
-            <div className="lg:col-span-5 relative w-full">
-              <HeroFeatureShowcase />
+            {/* Right Visual Showcase: KisaanBuddy on WhatsApp Phone Mockup Showcase (5 cols) */}
+            <div className="lg:col-span-5 relative w-full flex justify-center">
+              <HeroWhatsAppShowcase />
             </div>
           </div>
         </section>
