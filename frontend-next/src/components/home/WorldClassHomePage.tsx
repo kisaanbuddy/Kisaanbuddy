@@ -16,6 +16,8 @@ import {
   MessageCircle,
   Sparkles,
   ChevronRight,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/lib/language";
@@ -40,6 +42,26 @@ export function WorldClassHomePage() {
   // Location & Weather state
   const [weather, setWeather] = useState<UnifiedWeather | null>(null);
   const [locationName, setLocationName] = useState<string>("");
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(Boolean(document.fullscreenElement));
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (typeof document === "undefined") return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -65,55 +87,78 @@ export function WorldClassHomePage() {
 
   return (
     <div className="edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 sm:space-y-12">
+      <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-4 sm:py-8 space-y-10 sm:space-y-16">
         {/* ─────────────────────────────────────────────────────────────
-            2. HERO SECTION (EXACT REFERENCE FROM SCREENSHOT)
+            2. HERO SECTION (EXPANSIVE FULL SCREEN VIEWPORT)
             Left: Typography, Headline, 3 CTA Buttons (Explore, AI Advisor,
                   and Central Speak / बोलें Control Hub with 6 Floating Pills)
             Right: Interactive SaaS Feature Ecosystem Showcase
         ───────────────────────────────────────────────────────────── */}
-        <section className="space-y-6 pt-2">
-          {/* Top Live Badges Row */}
+        <section className="min-h-[calc(100vh-6rem)] flex flex-col justify-between py-2 sm:py-4 gap-6">
+          {/* Top Live Badges Row - Spans Full Width */}
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
               <span>Intelligent Agriculture Platform for India</span>
             </div>
 
-            {/* Live Weather Indicator Chip */}
-            {weather?.current && (
-              <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-2xs">
-                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="font-bold text-stone-900 dark:text-white">
-                  {weather.location?.name || locationName || "Local Farm"}:
-                </span>
-                <span>{Math.round(weather.current.temp_c)}°C</span>
-                <span className="text-stone-400">•</span>
-                <span className="capitalize">{translateCondition(weather.current.condition, lang as Lang)}</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Live Weather Indicator Chip */}
+              {weather?.current && (
+                <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-2xs">
+                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="font-bold text-stone-900 dark:text-white">
+                    {weather.location?.name || locationName || "Local Farm"}:
+                  </span>
+                  <span>{Math.round(weather.current.temp_c)}°C</span>
+                  <span className="text-stone-400">•</span>
+                  <span className="capitalize">{translateCondition(weather.current.condition, lang as Lang)}</span>
+                </div>
+              )}
+
+              {/* Full Screen Native Browser Mode Toggle */}
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-stone-900 hover:bg-emerald-50 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-2xs transition-all active:scale-95 cursor-pointer"
+                title={isFullscreen ? (lang === "hi" ? "फुल स्क्रीन बंद करें" : "Exit Full Screen") : (lang === "hi" ? "फुल स्क्रीन चालू करें" : "Full Screen")}
+                aria-label="Toggle Full Screen"
+              >
+                {isFullscreen ? (
+                  <>
+                    <Minimize2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="font-medium">{lang === "hi" ? "स्क्रीन सामान्य करें" : "Exit Full Screen"}</span>
+                  </>
+                ) : (
+                  <>
+                    <Maximize2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="font-medium">{lang === "hi" ? "फुल स्क्रीन" : "Full Screen"}</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Hero Grid: Typography on Left, Visual Telemetry on Right */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-16 items-center flex-1 my-auto py-4">
             {/* Left Content Column (7 cols) */}
-            <div className="lg:col-span-7 space-y-6 pt-1">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.15]">
+            <div className="lg:col-span-7 space-y-6 lg:space-y-8 pt-1">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl 2xl:text-[68px] font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.12]">
                 Your Farm. Your Decisions.{" "}
                 <span className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">
                   Smarter with AI.
                 </span>
               </h1>
 
-              <p className="text-base sm:text-lg text-stone-600 dark:text-stone-300 font-normal leading-relaxed max-w-2xl">
+              <p className="text-base sm:text-lg md:text-xl text-stone-600 dark:text-stone-300 font-normal leading-relaxed max-w-2xl xl:max-w-3xl">
                 From crop health diagnosis and hyperlocal weather intelligence to live mandi rates and agricultural services, KisaanBuddy helps Indian farmers make confident, data-driven farming decisions.
               </p>
 
               {/* Call to Actions - Including Central Speak Control Hub Anchor */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-3.5 pt-1">
                 <a
                   href="#capabilities"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
                 >
                   <span>Explore KisaanBuddy</span>
                   <ArrowRight className="w-4 h-4" />
@@ -121,7 +166,7 @@ export function WorldClassHomePage() {
 
                 <Link
                   href="/chatbot"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white dark:bg-stone-900 hover:bg-emerald-50/60 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 font-bold text-sm sm:text-base shadow-2xs hover:border-emerald-600/40 transition-all active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-emerald-50/60 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 font-bold text-sm sm:text-base shadow-2xs hover:border-emerald-600/40 transition-all active:scale-[0.98]"
                 >
                   <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Talk to AI Advisor</span>
@@ -132,7 +177,7 @@ export function WorldClassHomePage() {
               </div>
 
               {/* Trust & Source Assurance Markers */}
-              <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-stone-500 dark:text-stone-400 font-medium">
+              <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-stone-500 dark:text-stone-400 font-medium">
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>AGMARKNET Mandi Data</span>
@@ -154,7 +199,9 @@ export function WorldClassHomePage() {
 
             {/* Right Visual Showcase: KisaanBuddy on WhatsApp Phone Mockup Showcase (5 cols) */}
             <div className="lg:col-span-5 relative w-full flex justify-center">
-              <HeroWhatsAppShowcase />
+              <div className="w-full max-w-md lg:max-w-lg xl:max-w-xl">
+                <HeroWhatsAppShowcase />
+              </div>
             </div>
           </div>
         </section>

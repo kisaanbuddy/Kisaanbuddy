@@ -6,7 +6,7 @@ import {
   LayoutDashboard, CloudSun, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
   FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
-  Store, BarChart3, Settings, HeartHandshake, BookOpen
+  Store, BarChart3, Settings, HeartHandshake, BookOpen, Maximize2, Minimize2
 } from 'lucide-react';
 import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
 import { useEffect, useState } from 'react';
@@ -198,6 +198,22 @@ export function Header() {
   const [langOpen, setLangOpen]     = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [toolsOpen, setToolsOpen]   = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (typeof document === 'undefined') return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
   const NAV_LINKS = NAV_LINK_DEFS.map(d => ({
     href: d.href,
     label: NAV_LINK_LABELS[d.href]?.[lang] || NAV_LINK_LABELS[d.href]?.en || 'Menu',
@@ -329,6 +345,17 @@ export function Header() {
               <span className="text-[11px] font-bold">{lang === 'hi' ? 'सुझाव दें' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Feedback'}</span>
             </button>
             <div className="flex items-center"><ThemeToggle /></div>
+
+            {/* Native Fullscreen Toggle */}
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? (lang === 'hi' ? 'फुल स्क्रीन बंद करें' : 'Exit Full Screen') : (lang === 'hi' ? 'फुल स्क्रीन' : 'Full Screen')}
+              aria-label="Toggle Full Screen"
+              className="hidden sm:flex h-8 w-8 items-center justify-center rounded-lg border border-border/70 bg-card/60 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors cursor-pointer"
+            >
+              {isFullscreen ? <Minimize2 className="h-3.5 w-3.5 text-emerald-600" /> : <Maximize2 className="h-3.5 w-3.5 text-emerald-600" />}
+            </button>
 
             {/* Language Selector */}
             <div className="relative">
