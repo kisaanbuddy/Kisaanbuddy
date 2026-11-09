@@ -10,6 +10,7 @@ import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { MobileMenuDrawer } from '@/components/navigation/MobileMenuDrawer';
 import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
+import { AnnouncementPopup } from '@/components/announcement/AnnouncementPopup';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppFloatingButton';
 
 /* ---------- System font stacks ----------
@@ -180,6 +181,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
             <Footer />
           </div>
+          <AnnouncementPopup />
           <AssistantGate />
           <SwRegister />
           <Analytics />

@@ -6,7 +6,7 @@ import {
   LayoutDashboard, CloudSun, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
   FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
-  Store, BarChart3, Settings, HeartHandshake
+  Store, BarChart3, Settings, HeartHandshake, BookOpen
 } from 'lucide-react';
 import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
 import { useEffect, useState } from 'react';
@@ -301,133 +301,6 @@ export function Header() {
             </div>
           </Link>
 
-          {/* Four primary farmer tasks. Supporting tools live in the hubs below. */}
-          {/* On homepage, header is kept compact without Home/Fasal/Mandi/Madad navigation links; preserved on subpages */}
-          {!isHomePage && (
-            <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 text-xs xl:text-[13px] font-semibold text-[#1D2B22] dark:text-stone-200" aria-label="Main Navigation">
-            <Link
-              href="/"
-              aria-current={(pathname as string) === '/' ? 'page' : undefined}
-              className={`px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                (pathname as string) === '/'
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <span>{PUBLIC_NAV_LABELS.home?.[lang] || "Home"}</span>
-            </Link>
-
-            <Link
-              href="/fasal"
-              aria-current={isActive('/fasal') ? 'page' : undefined}
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/fasal')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <Sprout className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{lang === 'hi' ? 'फसल' : lang === 'kn' ? 'ಬೆಳೆ' : 'Fasal'}</span>
-            </Link>
-
-            <Link
-              href="/mandi"
-              aria-current={isActive('/mandi') ? 'page' : undefined}
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/mandi')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <TrendingUp className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{PUBLIC_NAV_LABELS.mandi?.[lang] || "Mandi Rates"}</span>
-            </Link>
-
-            <Link
-              href="/madad"
-              aria-current={isActive('/madad') ? 'page' : undefined}
-              className={`flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors duration-150 ${
-                isActive('/madad')
-                  ? 'bg-[#174B35]/10 text-[#174B35] dark:text-emerald-300 font-bold'
-                  : 'hover:text-[#174B35] dark:hover:text-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-              }`}
-            >
-              <Users className="h-3.5 w-3.5 text-[#27834A] shrink-0" />
-              <span>{lang === 'hi' ? 'मदद' : lang === 'kn' ? 'ಸಹಾಯ' : 'Madad'}</span>
-            </Link>
-
-            {/* More Tools Dropdown */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setToolsOpen((v) => !v)}
-                aria-expanded={toolsOpen}
-                className="flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-foreground"
-              >
-                <span>{PUBLIC_NAV_LABELS.more_tools[lang] || "More"}</span>
-                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence>
-                {toolsOpen && (
-                  <>
-                    <button type="button" aria-label="Close tools menu" onClick={() => setToolsOpen(false)} className="fixed inset-0 z-40 cursor-default" />
-                    <motion.div
-                      variants={dropdownVariants}
-                      initial="initial"
-                      animate="animate"
-                      exit="exit"
-                      className="absolute right-0 top-9 z-50 grid w-56 grid-cols-1 gap-1 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-2 shadow-xl"
-                    >
-                    <Link href="/dashboard" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <LayoutDashboard className="h-4 w-4 text-emerald-600" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link href="/marketplace" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <Store className="h-4 w-4 text-emerald-600" />
-                      <span>{PUBLIC_NAV_LABELS.marketplace?.[lang] || "Marketplace"}</span>
-                    </Link>
-                    <Link href="/crop-predictor" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <Sprout className="h-4 w-4 text-emerald-600" />
-                      <span>{lang === 'hi' ? 'फसल सलाह' : lang === 'kn' ? 'ಬೆಳೆ ಸಲಹೆ' : 'Crop Advisory'}</span>
-                    </Link>
-                    <Link href="/profile" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <Sprout className="h-4 w-4 text-emerald-600" />
-                      <span>{PUBLIC_NAV_LABELS.farmer_profile[lang] || "Farmer Profile"}</span>
-                    </Link>
-                    <Link href="/disease" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <Bug className="h-4 w-4 text-rose-600" />
-                      <span>Crop Doctor</span>
-                    </Link>
-                    <Link href="/soil-health" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <FlaskConical className="h-4 w-4 text-amber-600" />
-                      <span>Soil Health</span>
-                    </Link>
-                    <Link href="/schemes" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <Landmark className="h-4 w-4 text-indigo-600" />
-                      <span>Govt Schemes</span>
-                    </Link>
-                    <div className="border-t border-stone-200 dark:border-stone-800 my-1" />
-                    <Link href="/about" onClick={() => setToolsOpen(false)} className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
-                      <span>About KisaanBuddy</span>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setToolsOpen(false);
-                        openFeedback();
-                      }}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors w-full text-left font-semibold"
-                    >
-                      <HeartHandshake className="h-4 w-4 text-emerald-600" />
-                      <span>{lang === 'hi' ? 'सुझाव दें' : lang === 'kn' ? 'ಸಲಹೆ ನೀಡಿ' : 'Help Us Improve'}</span>
-                    </button>
-                  </motion.div>
-                </>
-              )}
-              </AnimatePresence>
-            </div>
-          </nav>
-          )}
 
           {/* ── Right side controls ── */}
           <div className="flex items-center gap-1.5 md:gap-2">
