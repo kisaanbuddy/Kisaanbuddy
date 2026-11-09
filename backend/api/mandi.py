@@ -48,16 +48,23 @@ AGMARKNET_URL = "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a4
 
 # Category mapping for AGMARKNET commodities
 CATEGORY_MAP = {
-    "wheat": "Cereal", "rice": "Cereal", "paddy": "Cereal",
-    "maize": "Cereal", "jowar": "Cereal", "bajra": "Cereal", "barley": "Cereal",
-    "soyabean": "Oilseed", "soybean": "Oilseed", "mustard": "Oilseed", "groundnut": "Oilseed",
-    "sunflower": "Oilseed", "sesame": "Oilseed", "linseed": "Oilseed",
-    "chana": "Pulse", "gram": "Pulse", "tur": "Pulse", "arhar": "Pulse",
-    "urad": "Pulse", "moong": "Pulse", "masur": "Pulse",
-    "cotton": "Fiber", "jute": "Fiber",
-    "onion": "Vegetable", "potato": "Vegetable", "tomato": "Vegetable",
-    "cabbage": "Vegetable", "cauliflower": "Vegetable", "brinjal": "Vegetable",
-    "sugarcane": "Cash Crop", "tobacco": "Cash Crop", "ginger": "Cash Crop",
+    "wheat": "Cereals", "rice": "Cereals", "paddy": "Cereals",
+    "maize": "Cereals", "jowar": "Cereals", "bajra": "Cereals", "barley": "Cereals", "ragi": "Cereals",
+    "chana": "Pulses", "gram": "Pulses", "tur": "Pulses", "arhar": "Pulses",
+    "urad": "Pulses", "moong": "Pulses", "masur": "Pulses", "masoor": "Pulses", "peas": "Pulses",
+    "soyabean": "Oilseeds", "soybean": "Oilseeds", "mustard": "Oilseeds", "groundnut": "Oilseeds",
+    "sunflower": "Oilseeds", "sesame": "Oilseeds", "linseed": "Oilseeds", "castor": "Oilseeds",
+    "cotton": "Commercial Crops", "jute": "Commercial Crops", "sugarcane": "Commercial Crops", "tobacco": "Commercial Crops",
+    "onion": "Vegetables", "potato": "Vegetables", "tomato": "Vegetables",
+    "cabbage": "Vegetables", "cauliflower": "Vegetables", "brinjal": "Vegetables",
+    "chilli": "Vegetables", "okra": "Vegetables", "cucumber": "Vegetables",
+    "garlic": "Vegetables", "ginger": "Vegetables", "carrot": "Vegetables",
+    "capsicum": "Vegetables", "spinach": "Vegetables",
+    "mango": "Fruits", "banana": "Fruits", "apple": "Fruits", "grapes": "Fruits",
+    "orange": "Fruits", "papaya": "Fruits", "guava": "Fruits", "pomegranate": "Fruits",
+    "watermelon": "Fruits", "litchi": "Fruits",
+    "turmeric": "Spices", "coriander": "Spices", "cumin": "Spices",
+    "cardamom": "Spices", "pepper": "Spices", "fenugreek": "Spices",
 }
 
 

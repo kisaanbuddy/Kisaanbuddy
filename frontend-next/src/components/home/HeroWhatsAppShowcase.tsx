@@ -15,6 +15,7 @@ import {
   Battery,
 } from "lucide-react";
 import { useLanguage } from "@/lib/language";
+import { getWhatsAppBusinessUrl } from "@/components/announcement/AnnouncementPopup";
 
 export function HeroWhatsAppShowcase() {
   const { lang } = useLanguage();
@@ -24,7 +25,7 @@ export function HeroWhatsAppShowcase() {
     ? "नमस्ते KisaanBuddy! मुझे मेरी फसल और मंडी भाव के बारे में सलाह चाहिए।"
     : "Hello KisaanBuddy! I need advice regarding my crop and live mandi rates.";
 
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
+  const { url: whatsappUrl } = getWhatsAppBusinessUrl(whatsappMessage);
 
   return (
     <div className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
@@ -135,42 +136,37 @@ export function HeroWhatsAppShowcase() {
                   </span>
                 </div>
 
-                {/* Message 1: Incoming from KisaanBuddy */}
-                <div className="flex justify-start">
-                  <div className="max-w-[88%] bg-white dark:bg-stone-800 p-2.5 rounded-2xl rounded-tl-xs shadow-xs border border-stone-200/50 dark:border-stone-700/50 space-y-1">
-                    <p className="font-bold text-emerald-700 dark:text-emerald-400 text-[11px]">
-                      KisaanBuddy 🌱
-                    </p>
-                    <p className="text-stone-800 dark:text-stone-200 leading-snug">
-                      {isHi
-                        ? "नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?"
-                        : "Welcome to KisaanBuddy! How can we assist your farm today?"}
-                    </p>
-                    <div className="pt-1 text-[10.5px] text-stone-600 dark:text-stone-300 space-y-0.5 font-medium">
-                      <p>🌾 1. {isHi ? "Farming Assistance (फसल रोग)" : "Farming Assistance"}</p>
-                      <p>🚜 2. {isHi ? "Farm Marketplace (यंत्र व मजदूर)" : "Farm Marketplace"}</p>
-                      <p>📊 3. {isHi ? "Mandi Price Information (भाव)" : "Mandi Price Info"}</p>
-                    </div>
-                    <span className="block text-right text-[9px] text-stone-400 pt-0.5">
-                      10:30 AM
-                    </span>
-                  </div>
-                </div>
-
-                {/* Message 2: Outgoing from Farmer */}
+                {/* Message 1: Outgoing from Farmer */}
                 <div className="flex justify-end">
-                  <div className="max-w-[85%] bg-[#D9FDD3] dark:bg-[#005c4b] p-2.5 rounded-2xl rounded-tr-xs shadow-xs text-stone-900 dark:text-stone-100">
-                    <p className="leading-snug">
+                  <div className="max-w-[86%] bg-[#D9FDD3] dark:bg-[#005c4b] p-2.5 rounded-2xl rounded-tr-xs shadow-xs text-stone-900 dark:text-stone-100">
+                    <p className="text-[11.5px] leading-snug">
                       {isHi
-                        ? "नमस्ते KisaanBuddy! मुझे खेती से जुड़ी जानकारी चाहिए।"
-                        : "Hello KisaanBuddy! I need farming assistance for my crop."}
+                        ? "मेरी गेहूं की फसल में पत्तियां पीली हो रही हैं।"
+                        : "Yellowing leaves observed in my wheat crop."}
                     </p>
                     <div className="flex items-center justify-end gap-1 mt-0.5">
                       <span className="text-[9px] text-stone-500 dark:text-stone-300">
-                        10:31 AM
+                        10:14 AM
                       </span>
-                      <CheckCheck className="w-3.5 h-3.5 text-sky-500" />
+                      <CheckCheck className="w-3.5 h-3.5 text-[#34B7F1]" />
                     </div>
+                  </div>
+                </div>
+
+                {/* Message 2: Incoming from KisaanBuddy */}
+                <div className="flex justify-start">
+                  <div className="max-w-[88%] bg-white dark:bg-[#202c33] p-2.5 rounded-2xl rounded-tl-xs shadow-xs border border-stone-200/50 dark:border-stone-700/50 space-y-1">
+                    <p className="font-semibold text-emerald-700 dark:text-emerald-400 text-[10px]">
+                      KisaanBuddy 🌱
+                    </p>
+                    <p className="text-stone-900 dark:text-stone-100 text-[11.5px] leading-relaxed">
+                      {isHi
+                        ? "नमस्ते! कृपया फसल की पत्तियों की एक साफ फोटो भेजें। मैं समस्या पहचानने में आपकी मदद करूंगा।"
+                        : "Hello! Please send a clear photo of the crop leaves. I will assist you in identifying the issue."}
+                    </p>
+                    <span className="block text-right text-[9px] text-stone-400 pt-0.5">
+                      10:14 AM
+                    </span>
                   </div>
                 </div>
               </div>

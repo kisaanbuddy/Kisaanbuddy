@@ -1,11 +1,12 @@
 "use client"
+
 import { useLanguage } from '@/lib/language'
 import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
 import { QuickReviewCard } from '@/components/farmer/QuickReviewCard'
 import { useVoice } from '@/lib/voice/VoiceContext'
 
-import { useState, useEffect, useMemo, useCallback, useRef } from "react"
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -54,11 +55,19 @@ import {
   Award,
   DollarSign,
   CheckCircle,
+  Layers,
+  ChevronDown,
+  Filter,
+  BarChart3,
+  HelpCircle,
 } from "lucide-react"
 
 import { GlassCard, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { HistoricalPriceChart } from "@/components/mandi/HistoricalPriceChart"
+import { MandiPriceTable } from "@/components/mandi/MandiPriceTable"
+import { MandiIntelligencePanels } from "@/components/mandi/MandiIntelligencePanels"
+import { CommodityCatalogModal } from "@/components/mandi/CommodityCatalogModal"
 
 import { Lang, LANG_NAMES } from "@/lib/language"
 import {
@@ -97,11 +106,26 @@ import {
 import { getStoredUser } from "@/lib/auth"
 import marketplaceData from "@/lib/data/marketplace-data.json"
 import authenticSellersBuyers from "@/lib/data/authentic-mandi-sellers-buyers.json"
+import {
+  COMMODITY_CATALOG,
+  COMMODITY_CATEGORIES,
+  CommodityCategory,
+  CommodityCatalogItem,
+  matchCatalogCommodity,
+} from "@/lib/data/commodity-catalog"
 
 /* ------------------------------------------------------------------ */
 /*  Types & Constants                                                 */
 /* ------------------------------------------------------------------ */
-export type ActiveTab = "prices" | "calculator" | "buy" | "sell" | "alerts" | "ledger" | "gov"
+export type ActiveTab =
+  | "prices"
+  | "intelligence"
+  | "calculator"
+  | "buy"
+  | "sell"
+  | "alerts"
+  | "ledger"
+  | "gov"
 
 export interface MandiCrop {
   id: number
@@ -124,27 +148,6 @@ export interface MandiCrop {
   stale_warning?: string
   source_origin?: string
   source_url?: string
-}
-
-const CATEGORY_COLORS: Record<string, string> = {
-  Cereal: "from-amber-500/10 to-yellow-500/10 border-amber-500/20 text-amber-500 dark:text-amber-400",
-  Oilseed: "from-lime-500/10 to-green-500/10 border-lime-500/20 text-lime-600 dark:text-lime-400",
-  Pulse: "from-orange-500/10 to-red-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400",
-  Fiber: "from-blue-500/10 to-indigo-500/10 border-blue-500/20 text-blue-600 dark:text-blue-400",
-  Vegetable: "from-emerald-500/10 to-teal-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400",
-  "Cash Crop": "from-purple-500/10 to-fuchsia-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400",
-}
-
-function getCategoryGradient(category: string): string {
-  const map: Record<string, string> = {
-    Cereal: "from-amber-400 to-yellow-500",
-    Oilseed: "from-lime-400 to-green-500",
-    Pulse: "from-orange-400 to-red-500",
-    Fiber: "from-blue-400 to-indigo-500",
-    Vegetable: "from-emerald-400 to-teal-500",
-    "Cash Crop": "from-purple-400 to-fuchsia-500",
-  }
-  return map[category] || "from-gray-400 to-gray-500"
 }
 
 /* ------------------------------------------------------------------ */
@@ -230,7 +233,8 @@ export default function MandiPage() {
     tabParam === "gov" ||
     tabParam === "calculator" ||
     tabParam === "alerts" ||
-    tabParam === "ledger"
+    tabParam === "ledger" ||
+    tabParam === "intelligence"
       ? tabParam
       : "prices"
   const [activeTab, setActiveTab] = useState<ActiveTab>(initialTab)
@@ -242,6 +246,7 @@ export default function MandiPage() {
       currentTab === "sell" ||
       currentTab === "gov" ||
       currentTab === "prices" ||
+      currentTab === "intelligence" ||
       currentTab === "calculator" ||
       currentTab === "alerts" ||
       currentTab === "ledger"
@@ -250,7 +255,7 @@ export default function MandiPage() {
     }
   }, [searchParams])
 
-  // Tab 1: Prices State
+  // Crops & Prices State
   const [crops, setCrops] = useState<MandiCrop[]>([])
   const [loadingPrices, setLoadingPrices] = useState(true)
   const [errorPrices, setErrorPrices] = useState<string | null>(null)
@@ -258,44 +263,47 @@ export default function MandiPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [stateFilter, setStateFilter] = useState<string>("All")
-  const [priceSort, setPriceSort] = useState<"default" | "price_desc" | "price_asc" | "date">("default")
+  const [districtFilter, setDistrictFilter] = useState<string>("All")
+  const [mandiFilter, setMandiFilter] = useState<string>("All")
+  const [dateFilter, setDateFilter] = useState<string>("All")
+  const [priceSort, setPriceSort] = useState<"date" | "price_desc" | "price_asc" | "arrival_desc" | "name_asc">("date")
   const [refreshingPrices, setRefreshingPrices] = useState(false)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
-  const { registerVisibleItems } = useVoice();
+  const [showCatalogModal, setShowCatalogModal] = useState(false)
+  const { registerVisibleItems } = useVoice()
 
   // Voice search query detection from URL
   useEffect(() => {
-    const urlQ = searchParams.get("q");
+    const urlQ = searchParams.get("q")
     if (urlQ && urlQ !== searchQuery) {
-      setSearchQuery(urlQ);
+      setSearchQuery(urlQ)
     }
-  }, [searchParams]);
+  }, [searchParams])
 
   // Sync visible mandi commodities with Voice OS
   useEffect(() => {
     if (crops && crops.length > 0) {
       const items = crops.slice(0, 10).map((c: any, idx: number) => ({
         id: c.id || `crop-${idx}`,
-        name: `${c.commodity || "Crop"} (${c.market || "Mandi"})`,
-        price: c.modalPrice || 0,
+        name: `${c.name || "Crop"} (${c.mandi || "Mandi"})`,
+        price: c.modal_price || c.price || 0,
         category: c.category || "Commodity",
         index: idx + 1,
-      }));
-      registerVisibleItems(items);
+      }))
+      registerVisibleItems(items)
     }
-  }, [crops, registerVisibleItems]);
+  }, [crops, registerVisibleItems])
 
   // Listen for voice-triggered search
   useEffect(() => {
     const onVoiceSearch = (e: any) => {
       if (e.detail?.query) {
-        setSearchQuery(e.detail.query);
+        setSearchQuery(e.detail.query)
       }
-    };
-    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch);
-    return () => window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch);
-  }, []);
-
+    }
+    window.addEventListener("kisaanbuddy:voice-search", onVoiceSearch)
+    return () => window.removeEventListener("kisaanbuddy:voice-search", onVoiceSearch)
+  }, [])
 
   // Tab 2: Buy Requirements State
   const [buyerReqs, setBuyerReqs] = useState<BuyerRequirementItem[]>(
@@ -370,11 +378,9 @@ export default function MandiPage() {
     title: string
   } | null>(null)
 
-  const voiceRun = searchParams.get("voice") === "1"
   const requestedCrop = searchParams.get("crop") || ""
   const requestedState = searchParams.get("state") || ""
   const requestedDistrict = searchParams.get("district") || ""
-  const voiceSpokenRef = useRef(false)
 
   // User session initialization
   useEffect(() => {
@@ -520,21 +526,21 @@ export default function MandiPage() {
     return (
       crops[0] || {
         id: 1,
-        name: "Wheat (गेहूं)",
+        name: "Wheat",
         variety: "Sharbati",
         price: 2850,
         unit: "per quintal",
-        mandi: "Sehore Mandi",
+        mandi: "Sehore APMC",
         state: "Madhya Pradesh",
         district: "Sehore",
-        category: "Cereal",
+        category: "Cereals",
         trend: "up",
         change_percent: 2.3,
         min_price: 2700,
         max_price: 3000,
         modal_price: 2850,
         arrival_tonnes: 1250,
-        arrival_date: "2026-11-06",
+        arrival_date: "2026-10-19",
       }
     )
   }, [selectedCrop, crops])
@@ -559,29 +565,151 @@ export default function MandiPage() {
     })
   }, [sellOffers, activeCropKeyword])
 
-  // Filtered crops list for Tab 1
+  // Multi-field Filtered Crops List
   const filteredCrops = useMemo(() => {
     let result = [...crops]
+
+    // 1. Search Query: English, Hindi, Mandi, State, District, Variety
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
-      result = result.filter(
-        (c) =>
+      const q = searchQuery.toLowerCase().trim()
+      result = result.filter((c) => {
+        const commCatalog = matchCatalogCommodity(c.name)
+        const hindiMatch = commCatalog?.hindiName && commCatalog.hindiName.includes(q)
+        const aliasMatch =
+          commCatalog?.searchKeywords &&
+          commCatalog.searchKeywords.some((k) => k.toLowerCase().includes(q))
+        return (
           c.name.toLowerCase().includes(q) ||
           c.mandi.toLowerCase().includes(q) ||
           c.state.toLowerCase().includes(q) ||
-          c.variety.toLowerCase().includes(q)
+          (c.district || "").toLowerCase().includes(q) ||
+          c.variety.toLowerCase().includes(q) ||
+          hindiMatch ||
+          aliasMatch
+        )
+      })
+    }
+
+    // 2. Category Filter
+    if (categoryFilter !== "All") {
+      result = result.filter(
+        (c) => c.category && c.category.toLowerCase() === categoryFilter.toLowerCase()
       )
     }
-    if (categoryFilter !== "All") {
-      result = result.filter((c) => c.category.toLowerCase() === categoryFilter.toLowerCase())
-    }
+
+    // 3. State Filter
     if (stateFilter !== "All") {
       result = result.filter((c) => c.state.toLowerCase() === stateFilter.toLowerCase())
     }
-    if (priceSort === "price_desc") result.sort((a, b) => b.modal_price - a.modal_price)
-    if (priceSort === "price_asc") result.sort((a, b) => a.modal_price - b.modal_price)
+
+    // 4. District Filter
+    if (districtFilter !== "All") {
+      result = result.filter(
+        (c) => (c.district || "").toLowerCase() === districtFilter.toLowerCase()
+      )
+    }
+
+    // 5. Mandi Filter
+    if (mandiFilter !== "All") {
+      result = result.filter((c) => c.mandi.toLowerCase() === mandiFilter.toLowerCase())
+    }
+
+    // 6. Date Filter
+    if (dateFilter === "Today") {
+      const todayStr = new Date().toISOString().split("T")[0]
+      result = result.filter((c) => c.arrival_date === todayStr)
+    } else if (dateFilter === "7D") {
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const cutoff = sevenDaysAgo.toISOString().split("T")[0]
+      result = result.filter((c) => (c.arrival_date || "") >= cutoff)
+    }
+
+    // 7. Sort
+    if (priceSort === "price_desc") {
+      result.sort((a, b) => (b.modal_price || b.price) - (a.modal_price || a.price))
+    } else if (priceSort === "price_asc") {
+      result.sort((a, b) => (a.modal_price || a.price) - (b.modal_price || b.price))
+    } else if (priceSort === "arrival_desc") {
+      result.sort((a, b) => (b.arrival_tonnes || 0) - (a.arrival_tonnes || 0))
+    } else if (priceSort === "name_asc") {
+      result.sort((a, b) => a.name.localeCompare(b.name))
+    } else if (priceSort === "date") {
+      result.sort((a, b) => (b.arrival_date || "").localeCompare(a.arrival_date || ""))
+    }
+
     return result
-  }, [crops, searchQuery, categoryFilter, stateFilter, priceSort])
+  }, [
+    crops,
+    searchQuery,
+    categoryFilter,
+    stateFilter,
+    districtFilter,
+    mandiFilter,
+    dateFilter,
+    priceSort,
+  ])
+
+  // Distinct Lists for Dropdowns
+  const statesList = useMemo(() => {
+    const set = new Set(crops.map((c) => c.state).filter(Boolean))
+    return ["All", ...Array.from(set).sort()]
+  }, [crops])
+
+  const districtsList = useMemo(() => {
+    let pool = crops
+    if (stateFilter !== "All") {
+      pool = pool.filter((c) => c.state.toLowerCase() === stateFilter.toLowerCase())
+    }
+    const set = new Set(pool.map((c) => c.district).filter(Boolean))
+    return ["All", ...Array.from(set).sort()]
+  }, [crops, stateFilter])
+
+  const mandisList = useMemo(() => {
+    let pool = crops
+    if (stateFilter !== "All") {
+      pool = pool.filter((c) => c.state.toLowerCase() === stateFilter.toLowerCase())
+    }
+    if (districtFilter !== "All") {
+      pool = pool.filter((c) => (c.district || "").toLowerCase() === districtFilter.toLowerCase())
+    }
+    const set = new Set(pool.map((c) => c.mandi).filter(Boolean))
+    return ["All", ...Array.from(set).sort()]
+  }, [crops, stateFilter, districtFilter])
+
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { All: crops.length }
+    COMMODITY_CATEGORIES.forEach((cat) => {
+      counts[cat] = crops.filter(
+        (c) => c.category && c.category.toLowerCase() === cat.toLowerCase()
+      ).length
+    })
+    return counts
+  }, [crops])
+
+  // Active filters count
+  const activeFiltersCount = useMemo(() => {
+    let count = 0
+    if (categoryFilter !== "All") count++
+    if (stateFilter !== "All") count++
+    if (districtFilter !== "All") count++
+    if (mandiFilter !== "All") count++
+    if (dateFilter !== "All") count++
+    if (searchQuery.trim()) count++
+    if (priceSort !== "date") count++
+    return count
+  }, [categoryFilter, stateFilter, districtFilter, mandiFilter, dateFilter, searchQuery, priceSort])
+
+  const handleResetFilters = () => {
+    setCategoryFilter("All")
+    setStateFilter("All")
+    setDistrictFilter("All")
+    setMandiFilter("All")
+    setDateFilter("All")
+    setSearchQuery("")
+    setPriceSort("date")
+  }
 
   // Filtered Buyers list for Tab 2
   const filteredBuy = useMemo(() => {
@@ -621,12 +749,6 @@ export default function MandiPage() {
     }
     return result
   }, [sellOffers, sellSearch, sellState])
-
-  // Distinct states
-  const statesList = useMemo(() => {
-    const set = new Set(crops.map((c) => c.state).filter(Boolean))
-    return ["All", ...Array.from(set).sort()]
-  }, [crops])
 
   // Create Smart Alert Handler
   const handleCreateAlert = async (e: React.FormEvent) => {
@@ -720,7 +842,7 @@ export default function MandiPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 md:pb-16">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-background text-foreground pb-24 md:pb-16">
       {/* Toast notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -736,566 +858,485 @@ export default function MandiPage() {
         )}
       </AnimatePresence>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 space-y-6">
+      {/* FULL-SCREEN CONTAINER (Utilizes 100% viewport with consistent 24-40px padding) */}
+      <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-5 pt-2">
 
         {/* ============================================================ */}
-        {/*  TOP BAR: 4 PRIMARY CONTROLS (FARMER ACTION FIRST)           */}
+        {/*  1. REDESIGNED COMPACT MANDI HEADER (FINTECH TERMINAL STYLE) */}
         {/* ============================================================ */}
-        <section
-          aria-label="Primary Mandi Controls"
-          className="rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-card to-card p-4 sm:p-6 shadow-sm"
-        >
-          <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-            
-            {/* Control 1 & 2: Quick Crop & Location Selector */}
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-1.5">
-                  <Wheat className="h-3.5 w-3.5 text-primary" />
-                  <span>1. Select Crop / फसल चुनें</span>
-                </label>
-                <select
-                  value={activeCrop.id}
-                  onChange={(e) => {
-                    const id = Number(e.target.value)
-                    const target = crops.find((c) => c.id === id)
-                    if (target) {
-                      setSelectedCrop(target)
-                      trackEvent({ type: "mandi_search", crop: target.name, state: target.state, lang: plang })
-                    }
-                  }}
-                  className="w-full text-xs sm:text-sm font-bold text-foreground bg-card border border-border rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
-                >
-                  {crops.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {translateData(c.name, plang)} — ₹{(c.modal_price || c.price).toLocaleString()}/qtl ({c.mandi})
-                    </option>
-                  ))}
-                </select>
+        <header className="rounded-2xl border border-border bg-card p-4 sm:px-6 shadow-xs flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4">
+          {/* Brand & Live Data Telemetry Indicator */}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                <Store className="h-5 w-5" />
               </div>
-
               <div>
-                <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 mb-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-primary" />
-                  <span>2. State / राज्य चुनें</span>
-                </label>
-                <select
-                  value={stateFilter}
-                  onChange={(e) => setStateFilter(e.target.value)}
-                  className="w-full text-xs sm:text-sm font-bold text-foreground bg-card border border-border rounded-xl px-3.5 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary shadow-xs"
-                >
-                  {statesList.map((s) => (
-                    <option key={s} value={s}>
-                      {s === "All" ? "All States (सभी राज्य)" : s}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg sm:text-xl font-black text-foreground font-display tracking-tight leading-none">
+                    Mandi Rates & Market Terminal
+                  </h1>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                    मंडी भाव
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 hidden sm:block">
+                  Official daily APMC trading rates, arrival volumes, and national MSP benchmarks.
+                </p>
               </div>
             </div>
 
-            {/* Control 3 & 4: Action Buttons */}
-            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-              <Button
-                onClick={() => setActiveTab("calculator")}
-                className="flex-1 sm:flex-initial bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm rounded-xl px-4 py-2.5 h-11 flex items-center justify-center gap-2 shadow-xs transition-all"
-              >
-                <Calculator className="h-4 w-4" />
-                <span>Find Best Mandi (मुनाफा कैलकुलेटर)</span>
-              </Button>
-
-              <Button
+            {/* Live Data Telemetry Indicator */}
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 border border-border text-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold text-foreground">AGMARKNET & eNAM Live</span>
+              <span className="text-muted-foreground">•</span>
+              <span className="text-[11px] text-muted-foreground">Govt. of India Open Data</span>
+              <button
                 onClick={() => {
-                  setActiveTab("sell")
-                  setShowPostProduceModal(true)
+                  setRefreshingPrices(true)
+                  fetchCrops().finally(() => setRefreshingPrices(false))
                 }}
-                className="flex-1 sm:flex-initial bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm rounded-xl px-4 py-2.5 h-11 flex items-center justify-center gap-2 shadow-xs transition-all"
+                disabled={refreshingPrices}
+                className="ml-1 p-1 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                title="Refresh rates"
               >
-                <Plus className="h-4 w-4" />
-                <span>Sell My Crop (फसल बेचें)</span>
-              </Button>
+                <RefreshCw className={`h-3 w-3 ${refreshingPrices ? "animate-spin" : ""}`} />
+              </button>
             </div>
           </div>
 
-          {/* Quick Commodity Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pt-4 mt-3 border-t border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0 pr-1">Popular:</span>
-            {["Wheat (गेहूं)", "Paddy (चावल)", "Soybean (सोयाबीन)", "Mustard (सरसों)", "Cotton (कपास)", "Chana (चना)", "Onion (प्याज)", "Potato (आलू)"].map((cropChip) => {
-              const matched = crops.find((c) => c.name.toLowerCase().includes(cropChip.split(" ")[0].toLowerCase()))
-              const isSelected = matched && matched.id === activeCrop.id
-              return (
-                <button
-                  key={cropChip}
-                  onClick={() => {
-                    if (matched) setSelectedCrop(matched)
-                    else setSearchQuery(cropChip.split(" ")[0])
-                  }}
-                  className={`text-[11px] font-bold px-3 py-1 rounded-full shrink-0 border transition-all ${
-                    isSelected
-                      ? "bg-primary text-white border-primary shadow-xs"
-                      : "bg-card hover:bg-muted text-foreground border-border"
-                  }`}
-                >
-                  {cropChip}
-                </button>
-              )
-            })}
+          {/* Navigation Tabs (Horizontal Header Alignment) */}
+          <nav className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden py-1">
+            <button
+              onClick={() => setActiveTab("prices")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "prices"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <Store className="h-3.5 w-3.5" />
+              <span>Mandi Rates</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
+                {crops.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("intelligence")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "intelligence"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <BarChart3 className="h-3.5 w-3.5 text-purple-500" />
+              <span>Mandi Intelligence</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("calculator")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "calculator"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <Calculator className="h-3.5 w-3.5 text-amber-500" />
+              <span>Net Profit Calculator</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("buy")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "buy"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <ShoppingCart className="h-3.5 w-3.5 text-blue-500" />
+              <span>Buyer Demands</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
+                {buyerReqs.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("sell")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "sell"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <Wheat className="h-3.5 w-3.5 text-emerald-500" />
+              <span>Farmer Sell Lots</span>
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
+                {sellOffers.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("alerts")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "alerts"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <BellRing className="h-3.5 w-3.5 text-amber-500" />
+              <span>Price Alerts</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("ledger")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "ledger"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>Mandi Ledger</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("gov")}
+              className={`h-9 px-3.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                activeTab === "gov"
+                  ? "bg-primary text-white shadow-xs font-extrabold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70"
+              }`}
+            >
+              <Building2 className="h-3.5 w-3.5" />
+              <span>MSP Centres</span>
+            </button>
+          </nav>
+
+          {/* Quick Header Farmer Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              size="sm"
+              onClick={() => setShowPostRequirementModal(true)}
+              variant="outline"
+              className="text-xs font-bold rounded-xl border-border h-9 text-foreground flex items-center gap-1.5"
+            >
+              <Plus className="h-3.5 w-3.5 text-blue-600" />
+              <span>Post Requirement</span>
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => {
+                setActiveTab("sell")
+                setShowPostProduceModal(true)
+              }}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 flex items-center gap-1.5 shadow-xs"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Sell My Crop</span>
+            </Button>
           </div>
-        </section>
+        </header>
 
         {/* ============================================================ */}
-        {/*  NAVIGATION TABS (7 DEDICATED SECTIONS)                      */}
-        {/* ============================================================ */}
-        <div
-          className="flex gap-1.5 overflow-x-auto rounded-2xl border border-border bg-card p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden shadow-xs"
-          role="tablist"
-        >
-          {/* Tab 1: Live Prices */}
-          <button
-            onClick={() => setActiveTab("prices")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "prices"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <Store className="h-4 w-4 shrink-0" />
-            <span>Mandi Bhav (लाइव भाव)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
-              {crops.length}
-            </span>
-          </button>
-
-          {/* Tab 2: Best Mandi Calculator */}
-          <button
-            onClick={() => setActiveTab("calculator")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "calculator"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <Calculator className="h-4 w-4 shrink-0 text-amber-400" />
-            <span>Best Mandi (मुनाफा)</span>
-          </button>
-
-          {/* Tab 3: Verified Buyers */}
-          <button
-            onClick={() => setActiveTab("buy")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "buy"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <ShoppingCart className="h-4 w-4 shrink-0" />
-            <span>Verified Buyers (खरीदार फोन)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
-              {buyerReqs.length}
-            </span>
-          </button>
-
-          {/* Tab 4: Sell Offers / Farmer Lots */}
-          <button
-            onClick={() => setActiveTab("sell")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "sell"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <Wheat className="h-4 w-4 shrink-0" />
-            <span>Farmer Sell Lots (विक्रेता फोन)</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-black/10 dark:bg-white/20">
-              {sellOffers.length}
-            </span>
-          </button>
-
-          {/* Tab 5: Smart Alerts */}
-          <button
-            onClick={() => setActiveTab("alerts")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "alerts"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <BellRing className="h-4 w-4 shrink-0 text-amber-500" />
-            <span>Smart Alerts (अलर्ट)</span>
-          </button>
-
-          {/* Tab 6: Ledger */}
-          <button
-            onClick={() => setActiveTab("ledger")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "ledger"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <FileText className="h-4 w-4 shrink-0" />
-            <span>Mandi Ledger (खाता बही)</span>
-          </button>
-
-          {/* Tab 7: MSP */}
-          <button
-            onClick={() => setActiveTab("gov")}
-            className={`min-h-[42px] min-w-max flex-1 flex items-center justify-center gap-1.5 py-2 px-3.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
-              activeTab === "gov"
-                ? "bg-primary text-white shadow-xs font-extrabold"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-            }`}
-          >
-            <Building2 className="h-4 w-4 shrink-0" />
-            <span>MSP Centers (एमएसपी)</span>
-          </button>
-        </div>
-
-        {/* ============================================================ */}
-        {/*  TAB 1: LIVE MANDI BHAV (PRICES & HERO & TRADER CONTACTS)     */}
+        {/*  TAB 1: LIVE MANDI RATES (THE PRIMARY INTERFACE)            */}
         {/* ============================================================ */}
         {activeTab === "prices" && (
-          <div className="flex flex-col gap-6">
-
-            {/* Price Hero Section */}
+          <div className="space-y-5">
+            {/* 2. PRODUCT DISCOVERY & MULTI-FIELD FILTER TOOLBAR */}
             <section
-              aria-label="Current Mandi Price Hero"
-              className="rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-xs relative overflow-hidden"
+              aria-label="Product Discovery & Filter Bar"
+              className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-xs space-y-4"
             >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border/70">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                    <ShieldCheck className="h-4 w-4" />
-                    AGMARKNET Verified Official Price
-                  </span>
-                  {activeCrop.arrival_date && (
-                    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground font-medium px-2 py-1">
-                      <Calendar className="h-3.5 w-3.5 text-muted-foreground/70" />
-                      Reporting Date: {activeCrop.arrival_date}
-                    </span>
-                  )}
-                  {activeCrop.is_stale && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                      <AlertTriangle className="h-3.5 w-3.5" />
-                      Reported Benchmark
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setRefreshingPrices(true)
-                      fetchCrops().finally(() => setRefreshingPrices(false))
-                    }}
-                    disabled={refreshingPrices}
-                    className="text-xs h-9 rounded-xl border-border hover:bg-muted"
+              {/* Category Pills Bar with Catalog Explorer Button */}
+              <div className="flex items-center justify-between gap-3 border-b border-border/70 pb-3">
+                <div className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <button
+                    onClick={() => setCategoryFilter("All")}
+                    className={`text-xs font-bold px-3.5 py-1.5 rounded-xl shrink-0 transition-all ${
+                      categoryFilter === "All"
+                        ? "bg-primary text-white shadow-xs font-extrabold"
+                        : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
                   >
-                    <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${refreshingPrices ? "animate-spin" : ""}`} />
-                    Refresh Rates
-                  </Button>
+                    All Commodities ({categoryCounts.All || 0})
+                  </button>
+                  {COMMODITY_CATEGORIES.map((cat) => {
+                    const count = categoryCounts[cat] || 0
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => setCategoryFilter(cat)}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-xl shrink-0 transition-all ${
+                          categoryFilter === cat
+                            ? "bg-primary text-white shadow-xs font-extrabold"
+                            : "bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {cat} ({count})
+                      </button>
+                    )
+                  })}
                 </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowCatalogModal(true)}
+                  className="text-xs font-bold rounded-xl border-border text-foreground hover:bg-muted shrink-0 h-8 flex items-center gap-1.5"
+                >
+                  <Layers className="h-3.5 w-3.5 text-primary" />
+                  <span>Browse Full 46+ Catalog</span>
+                </Button>
               </div>
 
-              {/* Main Price Display */}
-              <div className="pt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-8 space-y-4">
-                  <div>
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground font-display">
-                      {translateData(activeCrop.name, plang).toUpperCase()}
-                    </h2>
-                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1 text-sm sm:text-base text-muted-foreground font-medium">
-                      <span className="text-foreground font-bold">{translateData(activeCrop.variety, plang)} Variety</span>
-                      <span>•</span>
-                      <span className="inline-flex items-center gap-1">
-                        <MapPin className="h-4 w-4 text-primary shrink-0" />
-                        {translateData(activeCrop.mandi, plang)}, {translateData(activeCrop.state, plang)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Prominent Modal Price */}
-                  <div className="pt-2">
-                    <div className="flex flex-wrap items-baseline gap-3">
-                      <span className="text-5xl sm:text-6xl font-black text-foreground font-display tracking-tight leading-none">
-                        ₹{(activeCrop.modal_price || activeCrop.price).toLocaleString()}
-                      </span>
-                      <span className="text-base sm:text-lg font-bold text-muted-foreground">
-                        /{translateData(activeCrop.unit, plang)}
-                      </span>
-                      <TrendBadge trend={activeCrop.trend} change={activeCrop.change_percent} size="lg" />
-                    </div>
-                    <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground mt-2">
-                      <span>Min: <strong className="text-foreground">{activeCrop.min_price ? `₹${activeCrop.min_price.toLocaleString()}` : `₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()} (Modal)`}</strong></span>
-                      <span>•</span>
-                      <span>Max: <strong className="text-foreground">{activeCrop.max_price ? `₹${activeCrop.max_price.toLocaleString()}` : `₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()} (Modal)`}</strong></span>
-                      <span>•</span>
-                      <span>Daily Arrival: <strong className="text-foreground">{activeCrop.arrival_tonnes.toLocaleString()} MT</strong></span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Hero Action Card */}
-                <div className="lg:col-span-4 bg-muted/40 border border-border p-5 rounded-2xl flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">Direct Farmer Actions</h3>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">Verified</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Connect directly with verified buyers wanting this crop or calculate your exact net realization profit.
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col gap-2 pt-1">
-                    <Button
-                      onClick={() => setActiveTab("calculator")}
-                      className="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl h-10 flex items-center justify-center gap-2 shadow-xs"
-                    >
-                      <Calculator className="h-4 w-4" />
-                      <span>Calculate Net Profit (मुनाफा)</span>
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setActiveTab("sell")
-                        setShowPostProduceModal(true)
-                      }}
-                      className="w-full bg-primary hover:bg-primary/90 text-white font-black text-xs rounded-xl h-10 flex items-center justify-center gap-2 shadow-xs"
-                    >
-                      <Wheat className="h-4 w-4" />
-                      <span>Sell {activeCrop.name.split("(")[0].trim()}</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* ============================================================ */}
-            {/*  NEW: DIRECT BUYER & SELLER CONTACT NUMBERS FOR ACTIVE CROP  */}
-            {/* ============================================================ */}
-            <section
-              aria-label="Direct Mandi Traders & Contacts"
-              className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-5 sm:p-6 shadow-xs space-y-4"
-            >
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-emerald-500/20 pb-3">
-                <div>
-                  <h3 className="text-base font-extrabold text-foreground flex items-center gap-2">
-                    <PhoneCall className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                    <span>Direct Buyer & Seller Contacts for {activeCrop.name}</span>
-                  </h3>
-                  <p className="text-xs text-muted-foreground">
-                    APMC licensed commission agents, corporate millers, and local verified farmers with direct Call & WhatsApp numbers.
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setActiveTab("buy")}
-                    className="text-xs font-bold border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10 h-8 rounded-lg"
-                  >
-                    View All Buyers
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setActiveTab("sell")}
-                    className="text-xs font-bold border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10 h-8 rounded-lg"
-                  >
-                    View All Sellers
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* 1. Matched Buyers for this Crop */}
-                <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
-                      <ShoppingCart className="h-3.5 w-3.5 text-blue-500" />
-                      <span>Verified Institutional Buyer</span>
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 border border-blue-500/20">
-                      Buying Requirement
-                    </span>
-                  </div>
-
-                  {matchedBuyers.length > 0 ? (
-                    (() => {
-                      const b = matchedBuyers[0]
-                      return (
-                        <div className="space-y-2">
-                          <h4 className="text-base font-black text-foreground">{b.buyer_name}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            Commodity: <strong className="text-foreground">{b.commodity}</strong> ({b.variety || "Standard Grade"})
-                          </p>
-                          <div className="grid grid-cols-2 gap-2 bg-muted/40 p-2.5 rounded-xl text-xs">
-                            <div>
-                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Requirement</span>
-                              <p className="font-bold text-foreground">{b.required_quantity.toLocaleString()} {b.quantity_unit}</p>
-                            </div>
-                            <div>
-                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Target Rate</span>
-                              <p className="font-bold text-emerald-600 dark:text-emerald-400">
-                                {b.expected_price_min && b.expected_price_max
-                                  ? `₹${b.expected_price_min} - ₹${b.expected_price_max}`
-                                  : "Market Benchmark"}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>Destination: {b.delivery_destination || `${b.district}, ${b.state}`}</span>
-                          </div>
-                          {b.contact_person && (
-                            <div className="text-xs font-semibold text-foreground">
-                              Contact: {b.contact_person}
-                            </div>
-                          )}
-                          <DirectContactBar
-                            phone={b.contact_phone}
-                            maskedPhone={b.contact_phone_masked}
-                            name={b.contact_person || b.buyer_name}
-                            role="buyer"
-                            itemTitle={b.commodity}
-                            price={b.expected_price_min}
-                            unit={b.price_unit}
-                          />
-                        </div>
-                      )
-                    })()
-                  ) : (
-                    <div className="text-center py-6 text-xs text-muted-foreground">
-                      No corporate buyer specifically registered for this exact commodity.
-                    </div>
-                  )}
-                </div>
-
-                {/* 2. Matched Farmer Seller for this Crop */}
-                <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1.5">
-                      <Wheat className="h-3.5 w-3.5 text-emerald-500" />
-                      <span>Verified Farmer Harvest Lot</span>
-                    </span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
-                      Direct Seller
-                    </span>
-                  </div>
-
-                  {matchedSellers.length > 0 ? (
-                    (() => {
-                      const s = matchedSellers[0]
-                      return (
-                        <div className="space-y-2">
-                          <h4 className="text-base font-black text-foreground">{s.farmer_name}</h4>
-                          <p className="text-xs text-muted-foreground">
-                            Crop Lot: <strong className="text-foreground">{s.crop_name}</strong> ({s.variety || "Standard"})
-                          </p>
-                          <div className="grid grid-cols-2 gap-2 bg-muted/40 p-2.5 rounded-xl text-xs">
-                            <div>
-                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Lot Volume</span>
-                              <p className="font-bold text-foreground">{s.quantity.toLocaleString()} {s.quantity_unit}</p>
-                            </div>
-                            <div>
-                              <span className="text-[10px] text-muted-foreground uppercase font-bold">Asking Price</span>
-                              <p className="font-bold text-emerald-600 dark:text-emerald-400">
-                                ₹{s.asking_price.toLocaleString()}/{s.price_unit}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span>Origin: {s.mandi_nearby ? `${s.mandi_nearby}, ` : ""}{s.district}, {s.state}</span>
-                          </div>
-                          <DirectContactBar
-                            phone={s.farmer_phone}
-                            maskedPhone={s.farmer_phone_masked}
-                            name={s.farmer_name}
-                            role="seller"
-                            itemTitle={s.crop_name}
-                            price={s.asking_price}
-                            unit={s.price_unit}
-                          />
-                        </div>
-                      )
-                    })()
-                  ) : (
-                    <div className="text-center py-6 text-xs text-muted-foreground">
-                      No current farmer sell lot posted for this specific commodity.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </section>
-
-            {/* Historical Price Chart */}
-            <section aria-label="Historical Price Analysis">
-              <HistoricalPriceChart crop={activeCrop} />
-            </section>
-
-            {/* All Commodities Grid */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-lg font-bold text-foreground font-display">All Mandi Commodities</h3>
-                  <p className="text-xs text-muted-foreground">Click any crop card to inspect price telemetry and trader contacts.</p>
-                </div>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              {/* Multi-Field Discovery Filter Controls */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                {/* Search Input (English & Hindi) */}
+                <div className="lg:col-span-2 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search crop or mandi..."
-                    className="w-full pl-9 pr-3 py-2 rounded-xl border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Search crop (e.g. Wheat / गेहूं, Tomato / टमाटर), mandi..."
+                    className="w-full pl-9 pr-7 py-2 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* State Selector */}
+                <div>
+                  <select
+                    value={stateFilter}
+                    onChange={(e) => {
+                      setStateFilter(e.target.value)
+                      setDistrictFilter("All")
+                      setMandiFilter("All")
+                    }}
+                    className="w-full text-xs font-bold text-foreground bg-card border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
+                  >
+                    <option value="All">All States (सभी राज्य)</option>
+                    {statesList.filter((s) => s !== "All").map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* District Selector */}
+                <div>
+                  <select
+                    value={districtFilter}
+                    onChange={(e) => {
+                      setDistrictFilter(e.target.value)
+                      setMandiFilter("All")
+                    }}
+                    className="w-full text-xs font-bold text-foreground bg-card border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
+                  >
+                    <option value="All">All Districts (सभी जिले)</option>
+                    {districtsList.filter((d) => d !== "All").map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Mandi Selector */}
+                <div>
+                  <select
+                    value={mandiFilter}
+                    onChange={(e) => setMandiFilter(e.target.value)}
+                    className="w-full text-xs font-bold text-foreground bg-card border border-border rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
+                  >
+                    <option value="All">All Mandis (सभी मंडियां)</option>
+                    {mandisList.filter((m) => m !== "All").map((m) => (
+                      <option key={m} value={m}>{m}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Sort Selector & Reset */}
+                <div className="flex items-center gap-1.5">
+                  <select
+                    value={priceSort}
+                    onChange={(e: any) => setPriceSort(e.target.value)}
+                    className="flex-1 text-xs font-bold text-foreground bg-card border border-border rounded-xl px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-primary shadow-xs"
+                  >
+                    <option value="date">Sort: Date (Recent)</option>
+                    <option value="price_desc">Modal: High to Low</option>
+                    <option value="price_asc">Modal: Low to High</option>
+                    <option value="arrival_desc">Arrivals: High to Low</option>
+                    <option value="name_asc">Crop Name (A-Z)</option>
+                  </select>
+
+                  {activeFiltersCount > 0 && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={handleResetFilters}
+                      className="text-[11px] font-bold text-muted-foreground hover:text-foreground px-2 h-9"
+                      title="Clear all filters"
+                    >
+                      Clear ({activeFiltersCount})
+                    </Button>
+                  )}
                 </div>
               </div>
 
-              {filteredCrops.length === 0 ? (
-                <div className="p-12 text-center bg-card rounded-3xl border border-dashed border-border space-y-4">
-                  <Store className="w-12 h-12 mx-auto text-muted-foreground/40" />
-                  <div className="space-y-1">
-                    <h3 className="text-base font-bold text-foreground">Verified mandi data is currently unavailable for this market.</h3>
-                    <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
-                      No official APMC daily auction records match your current filter parameters from AGMARKNET. Try clearing your search or selecting another state/commodity.
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      setCategoryFilter("All")
-                      setStateFilter("All")
-                      setSearchQuery("")
-                    }}
-                    className="text-xs font-bold"
-                  >
-                    Reset Filters
-                  </Button>
+              {/* Popular Commodity Quick-Pill Chips */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pt-2 border-t border-border/60 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <span className="text-[10px] font-bold uppercase text-muted-foreground shrink-0 pr-1">
+                  Popular Commodities:
+                </span>
+                {[
+                  { name: "Wheat", hindi: "गेहूं" },
+                  { name: "Paddy", hindi: "चावल" },
+                  { name: "Soybean", hindi: "सोयाबीन" },
+                  { name: "Mustard", hindi: "सरसों" },
+                  { name: "Cotton", hindi: "कपास" },
+                  { name: "Chana", hindi: "चना" },
+                  { name: "Onion", hindi: "प्याज" },
+                  { name: "Potato", hindi: "आलू" },
+                  { name: "Maize", hindi: "मक्का" },
+                  { name: "Tomato", hindi: "टमाटर" },
+                  { name: "Garlic", hindi: "लहसुन" },
+                  { name: "Cumin", hindi: "जीरा" },
+                ].map((chip) => {
+                  const isFiltered = searchQuery.toLowerCase() === chip.name.toLowerCase()
+                  return (
+                    <button
+                      key={chip.name}
+                      onClick={() => {
+                        if (isFiltered) setSearchQuery("")
+                        else setSearchQuery(chip.name)
+                      }}
+                      className={`text-[11px] font-bold px-3 py-1 rounded-full shrink-0 border transition-all ${
+                        isFiltered
+                          ? "bg-primary text-white border-primary shadow-xs"
+                          : "bg-card hover:bg-muted text-foreground border-border"
+                      }`}
+                    >
+                      {chip.name} ({chip.hindi})
+                    </button>
+                  )
+                })}
+              </div>
+            </section>
+
+            {/* ============================================================ */}
+            {/*  3. PRIMARY COMPONENT: MAIN MANDI PRICE TABLE                */}
+            {/* ============================================================ */}
+            <section aria-label="Main Mandi Price Table" className="w-full">
+              {loadingPrices ? (
+                <div className="w-full py-16 text-center bg-card rounded-2xl border border-border space-y-3">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+                  <p className="text-xs font-bold text-muted-foreground">
+                    Ingesting verified daily observations from AGMARKNET & eNAM...
+                  </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {filteredCrops.map((crop, i) => (
-                    <CropCard
-                      key={crop.id}
-                      crop={crop}
-                      index={i}
-                      isSelected={crop.id === activeCrop.id}
-                      onClick={() => {
-                        setSelectedCrop(crop)
-                        if (typeof window !== "undefined") {
-                          window.scrollTo({ top: 0, behavior: "smooth" })
-                        }
-                      }}
-                      lang={plang}
-                    />
-                  ))}
-                </div>
+                <MandiPriceTable
+                  crops={filteredCrops}
+                  activeCrop={activeCrop}
+                  onSelectCrop={(crop) => {
+                    setSelectedCrop(crop)
+                    trackEvent({ type: "mandi_search", crop: crop.name, state: crop.state, lang: plang })
+                  }}
+                  onOpenAlert={(crop) => {
+                    setSelectedCrop(crop)
+                    setActiveTab("alerts")
+                  }}
+                  onOpenCalculator={(crop) => {
+                    setSelectedCrop(crop)
+                    setActiveTab("calculator")
+                  }}
+                  onOpenSell={(crop) => {
+                    setSelectedCrop(crop)
+                    setActiveTab("sell")
+                    setShowPostProduceModal(true)
+                  }}
+                  lang={plang}
+                  matchedBuyers={matchedBuyers}
+                  matchedSellers={matchedSellers}
+                  searchQuery={searchQuery}
+                  onResetFilters={handleResetFilters}
+                />
               )}
+            </section>
+
+            {/* ============================================================ */}
+            {/*  4. MANDI INTELLIGENCE SECTION                              */}
+            {/* ============================================================ */}
+            <section aria-label="Mandi Market Intelligence" className="space-y-4 pt-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-black text-foreground font-display flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5 text-purple-600" />
+                    <span>Mandi Market Intelligence & Analytics</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Best selling markets, liquidity arrival hubs, and historical APMC observations derived from authentic AGMARKNET records.
+                  </p>
+                </div>
+              </div>
+
+              <MandiIntelligencePanels
+                crops={crops}
+                activeCrop={activeCrop}
+                onSelectCrop={(c) => setSelectedCrop(c)}
+                onOpenCalculator={(c) => {
+                  setSelectedCrop(c)
+                  setActiveTab("calculator")
+                }}
+              />
+            </section>
+          </div>
+        )}
+
+        {/* ============================================================ */}
+        {/*  TAB: MANDI INTELLIGENCE (DEDICATED VIEW)                   */}
+        {/* ============================================================ */}
+        {activeTab === "intelligence" && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-border bg-card p-5 shadow-xs flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-black text-foreground font-display flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-purple-600" />
+                  <span>Full Mandi Market Intelligence Dashboard</span>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Cross-market price realization, liquidity arrival tracking, and verified historical trends.
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setActiveTab("prices")}
+                className="text-xs font-bold rounded-xl"
+              >
+                Back to Price Index
+              </Button>
             </div>
+
+            <MandiIntelligencePanels
+              crops={crops}
+              activeCrop={activeCrop}
+              onSelectCrop={(c) => setSelectedCrop(c)}
+              onOpenCalculator={(c) => {
+                setSelectedCrop(c)
+                setActiveTab("calculator")
+              }}
+            />
           </div>
         )}
 
@@ -1304,10 +1345,10 @@ export default function MandiPage() {
         {/* ============================================================ */}
         {activeTab === "calculator" && (
           <div className="space-y-6">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-4">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
                 <div>
-                  <h2 className="text-xl font-black text-foreground font-display flex items-center gap-2">
+                  <h2 className="text-lg sm:text-xl font-black text-foreground font-display flex items-center gap-2">
                     <Calculator className="h-5 w-5 text-amber-500" />
                     <span>Smart Mandi Comparison & Net Realization Engine</span>
                   </h2>
@@ -1316,7 +1357,7 @@ export default function MandiPage() {
                   </p>
                 </div>
                 <div className="text-xs font-bold px-3 py-1.5 rounded-xl bg-amber-500/10 text-amber-600 border border-amber-500/20">
-                  Target Crop: {activeCrop.name}
+                  Target Crop: {activeCrop.name} ({activeCrop.variety})
                 </div>
               </div>
 
@@ -1369,15 +1410,14 @@ export default function MandiPage() {
               <h3 className="text-base font-bold text-foreground">Ranked Mandis by Total In-Hand Realization</h3>
 
               {(() => {
-                // Calculate realization for current mandis offering this crop
                 const matchedMandiList = crops.filter(
                   (c) => c.name.split("(")[0].trim().toLowerCase() === activeCrop.name.split("(")[0].trim().toLowerCase()
                 )
-                const listToCompare = matchedMandiList.length > 0 ? matchedMandiList : crops.slice(0, 5)
+                const listToCompare = matchedMandiList.length > 0 ? matchedMandiList : crops.slice(0, 6)
 
                 const comparisons = listToCompare.map((c, idx) => {
-                  const estDistance = 15 + idx * 28 // Realistic distance gradient from farmer origin
-                  const grossRevenue = calcQuantity * c.modal_price
+                  const estDistance = 15 + idx * 28
+                  const grossRevenue = calcQuantity * (c.modal_price || c.price)
                   const transportCost = Math.round(estDistance * calcTransportRate)
                   const apmcCess = Math.round(grossRevenue * (calcCessPct / 100))
                   const laborCost = Math.round(calcQuantity * calcLaborRate)
@@ -1427,7 +1467,7 @@ export default function MandiPage() {
                               </span>
                               <h4 className="text-lg font-black text-foreground font-display">{item.crop.mandi}</h4>
                               <p className="text-xs text-muted-foreground font-medium">
-                                Benchmark Modal: <strong className="text-foreground">₹{item.crop.modal_price.toLocaleString()}/qtl</strong>
+                                Benchmark Modal: <strong className="text-foreground">₹{(item.crop.modal_price || item.crop.price).toLocaleString()}/qtl</strong>
                               </p>
                             </div>
 
@@ -1655,7 +1695,7 @@ export default function MandiPage() {
 
                     <div className="grid grid-cols-2 gap-2 bg-muted/30 border border-border/60 p-3 rounded-xl text-xs">
                       <div>
-                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Lot Size</span>
+                        <span className="text-[10px] text-muted-foreground uppercase font-bold">Lot Volume</span>
                         <p className="font-bold text-foreground text-sm">{s.quantity.toLocaleString()} {s.quantity_unit}</p>
                       </div>
                       <div>
@@ -1668,20 +1708,14 @@ export default function MandiPage() {
 
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="font-bold text-foreground">{s.farmer_name}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span>Origin: {s.mandi_nearby ? `${s.mandi_nearby}, ` : ""}{s.district}, {s.state}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] pt-1">
-                        <span>Quality: <strong className="text-foreground">{s.grade_or_quality}</strong></span>
-                        {s.moisture_pct !== null && s.moisture_pct !== undefined && (
-                          <span>Moisture: <strong className="text-foreground">{s.moisture_pct}%</strong></span>
-                        )}
-                        <span>Delivery: <strong className="text-foreground">{s.delivery_option}</strong></span>
-                      </div>
+                      {s.grade_or_quality && (
+                        <div className="text-xs font-medium">
+                          Quality Grade: <strong className="text-foreground">{s.grade_or_quality}</strong>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1704,476 +1738,267 @@ export default function MandiPage() {
         )}
 
         {/* ============================================================ */}
-        {/*  TAB 5: REAL SMART ALERTS (WHATSAPP & SMS CLOUD GATEWAY)     */}
+        {/*  TAB 5: SMART PRICE ALERTS (WHATSAPP & SMS)                  */}
         {/* ============================================================ */}
         {activeTab === "alerts" && (
           <div className="space-y-6">
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-6">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
                 <div>
-                  <h2 className="text-xl font-black text-foreground font-display flex items-center gap-2">
+                  <h2 className="text-lg sm:text-xl font-black text-foreground font-display flex items-center gap-2">
                     <BellRing className="h-5 w-5 text-amber-500" />
-                    <span>Real Smart Alert Notification System</span>
+                    <span>Real-Time Mandi Price Alerts</span>
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    Automated background monitoring connected with Meta WhatsApp Cloud API and MSG91 DLT Gateway.
+                    Get automated WhatsApp and SMS notifications when APMC auction prices cross your target rate.
                   </p>
                 </div>
-                {providerStatus && (
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                      providerStatus.whatsapp.configured
-                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                    }`}>
-                      WhatsApp: {providerStatus.whatsapp.configured ? "Ready" : "Standby"}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                      providerStatus.sms.configured
-                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                    }`}>
-                      SMS: {providerStatus.sms.configured ? "Ready" : "Standby"}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Create Alert Form */}
-              <form onSubmit={handleCreateAlert} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-foreground block mb-1">Target Crop</label>
-                  <input
-                    type="text"
-                    disabled
-                    value={`${activeCrop.name} (${activeCrop.mandi})`}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-muted text-xs font-bold text-foreground"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-foreground block mb-1">Target Price (₹ / quintal)</label>
-                  <input
-                    type="number"
-                    required
-                    placeholder="e.g. 2950"
-                    value={alertTargetPrice}
-                    onChange={(e) => setAlertTargetPrice(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-foreground block mb-1">Trigger Condition</label>
-                  <select
-                    value={alertCondition}
-                    onChange={(e) => setAlertCondition(e.target.value as "above" | "below" | "exact")}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground"
-                  >
-                    <option value="above">When price rises to or above (≥)</option>
-                    <option value="below">When price drops to or below (≤)</option>
-                    <option value="exact">When price matches exact (=)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-foreground block mb-1">Notification Channel</label>
-                  <select
-                    value={alertChannel}
-                    onChange={(e) => setAlertChannel(e.target.value as "whatsapp" | "sms" | "both")}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground"
-                  >
-                    <option value="whatsapp">WhatsApp Message</option>
-                    <option value="sms">DLT SMS Alert</option>
-                    <option value="both">Both (WhatsApp + SMS)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-foreground block mb-1">Registered Farmer Mobile</label>
-                  <input
-                    type="text"
-                    placeholder="+91 98263 12456"
-                    value={alertPhoneInput}
-                    onChange={(e) => setAlertPhoneInput(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-
-                <div className="flex flex-col justify-end">
-                  <Button
-                    type="submit"
-                    disabled={alertSubmitting}
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-black text-xs rounded-xl h-10 shadow-xs"
-                  >
-                    {alertSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Set Smart Price Alert"}
-                  </Button>
-                </div>
-
-                {/* Explicit Consent Checkboxes */}
-                <div className="md:col-span-3 pt-2 space-y-1.5 text-xs text-muted-foreground border-t border-border/60">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={alertWhatsappConsent}
-                      onChange={(e) => setAlertWhatsappConsent(e.target.checked)}
-                      className="rounded text-primary focus:ring-primary h-4 w-4"
-                    />
-                    <span>I explicitly consent to receive real-time Mandi price notifications on WhatsApp.</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={alertSmsConsent}
-                      onChange={(e) => setAlertSmsConsent(e.target.checked)}
-                      className="rounded text-primary focus:ring-primary h-4 w-4"
-                    />
-                    <span>I consent to receive official price alerts on registered mobile via SMS.</span>
-                  </label>
-                </div>
-              </form>
-            </div>
-
-            {/* Live Active Alerts Table */}
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-base font-bold text-foreground">Your Registered Mandi Monitors ({activeAlerts.length})</h3>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleTriggerRunCheck}
-                  className="text-xs font-bold h-8 rounded-lg"
+                  className="text-xs font-bold rounded-xl h-9"
                 >
-                  <RefreshCw className="h-3.5 w-3.5 mr-1" /> Run Check Now
+                  <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                  Test Price Check Cycle
                 </Button>
               </div>
 
-              {activeAlerts.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
-                      <tr>
-                        <th className="p-3">Crop / Mandi</th>
-                        <th className="p-3">Target Condition</th>
-                        <th className="p-3">Channel</th>
-                        <th className="p-3">Status</th>
-                        <th className="p-3">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {activeAlerts.map((al) => (
-                        <tr key={al.id} className="hover:bg-muted/20">
-                          <td className="p-3 font-bold text-foreground">{al.crop_name} ({al.market_center || "All Mandis"})</td>
-                          <td className="p-3 font-semibold text-emerald-600 dark:text-emerald-400">
-                            {al.condition === "above" ? "≥" : al.condition === "below" ? "≤" : "="} ₹{al.target_price.toLocaleString()}
-                          </td>
-                          <td className="p-3 uppercase font-bold text-[10px]">{al.channel}</td>
-                          <td className="p-3">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              al.is_active ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
-                            }`}>
-                              {al.is_active ? "ACTIVE" : "PAUSED"}
-                            </span>
-                          </td>
-                          <td className="p-3">
-                            <button
-                              onClick={async () => {
-                                await mandiAlertsApi.delete(al.id)
-                                fetchAlertsData()
-                              }}
-                              className="text-muted-foreground hover:text-red-500 transition-colors"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              {/* Create Alert Form */}
+              <form onSubmit={handleCreateAlert} className="space-y-4 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-foreground block mb-1">Target Mandi & Crop</label>
+                    <div className="p-2.5 rounded-xl bg-muted/40 border border-border text-xs font-bold text-foreground">
+                      {activeCrop.name} ({activeCrop.mandi})
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-foreground block mb-1">Target Price (₹ / Quintal) *</label>
+                    <input
+                      required
+                      type="number"
+                      placeholder={`Current: ₹${(activeCrop.modal_price || activeCrop.price).toLocaleString()}`}
+                      value={alertTargetPrice}
+                      onChange={(e) => setAlertTargetPrice(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-foreground block mb-1">Condition</label>
+                    <select
+                      value={alertCondition}
+                      onChange={(e: any) => setAlertCondition(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="above">When price rises ABOVE target</option>
+                      <option value="below">When price drops BELOW target</option>
+                      <option value="exact">When price equals target</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-foreground block mb-1">Delivery Channel</label>
+                    <select
+                      value={alertChannel}
+                      onChange={(e: any) => setAlertChannel(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="whatsapp">WhatsApp Message</option>
+                      <option value="sms">SMS Text</option>
+                      <option value="both">Both (WhatsApp + SMS)</option>
+                    </select>
+                  </div>
                 </div>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center py-6">
-                  No active price alerts set. Use the form above to register automated WhatsApp/SMS monitoring.
-                </p>
-              )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-foreground block mb-1">Notification Mobile Number *</label>
+                    <input
+                      required
+                      type="tel"
+                      placeholder="10-digit mobile number"
+                      value={alertPhoneInput}
+                      onChange={(e) => setAlertPhoneInput(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-border bg-card text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      type="submit"
+                      disabled={alertSubmitting}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs h-10 shadow-xs"
+                    >
+                      {alertSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Set Free Mandi Price Alert"}
+                    </Button>
+                  </div>
+                </div>
+              </form>
             </div>
 
-            {/* Notification History Audit Log */}
-            {alertHistory.length > 0 && (
-              <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-3">
-                <h3 className="text-base font-bold text-foreground">Delivery History Log</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
-                      <tr>
-                        <th className="p-2.5">Date</th>
-                        <th className="p-2.5">Channel</th>
-                        <th className="p-2.5">Observed Rate</th>
-                        <th className="p-2.5">Target</th>
-                        <th className="p-2.5">Delivery Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {alertHistory.map((h) => (
-                        <tr key={h.id}>
-                          <td className="p-2.5 text-muted-foreground">{new Date(h.created_at).toLocaleDateString()}</td>
-                          <td className="p-2.5 font-bold uppercase">{h.channel}</td>
-                          <td className="p-2.5 font-bold text-foreground">₹{h.triggered_price.toLocaleString()}</td>
-                          <td className="p-2.5 text-muted-foreground">₹{h.target_price.toLocaleString()}</td>
-                          <td className="p-2.5">
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
-                              {h.delivery_status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* Active Alerts List */}
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-4">
+              <h3 className="text-base font-bold text-foreground">Your Active Price Triggers</h3>
+              {activeAlerts.length === 0 ? (
+                <div className="p-8 text-center text-xs text-muted-foreground border border-dashed border-border rounded-xl">
+                  No active price alerts registered for this session. Use the form above to monitor market peaks.
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="divide-y divide-border">
+                  {activeAlerts.map((al) => (
+                    <div key={al.id} className="py-3 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-bold text-foreground">{al.crop_name}</span> ({al.market_center})
+                        <div className="text-[11px] text-muted-foreground">
+                          Trigger when price is {al.condition} ₹{al.target_price.toLocaleString()}/qtl via {al.channel}
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600">
+                        {al.is_active ? "ACTIVE" : "PAUSED"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {/* ============================================================ */}
-        {/*  TAB 6: MANDI LEDGER (KHATA BHI - SALES & PAYMENTS)          */}
+        {/*  TAB 6: MANDI SALES LEDGER (KHATA BAHI)                      */}
         {/* ============================================================ */}
         {activeTab === "ledger" && (
           <div className="space-y-6">
-            {/* KPI Cards */}
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg sm:text-xl font-black text-foreground font-display flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-emerald-600" />
+                  <span>Digital Mandi Sales Ledger (खाता बही)</span>
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Track commission agent sales slips, weighment deductions, and pending payments in one secure record.
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowAddSaleModal(true)}
+                className="bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl shadow-xs"
+              >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                Record New Sale
+              </Button>
+            </div>
+
+            {/* Sales Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="rounded-2xl border border-border bg-card p-5 shadow-xs">
-                <span className="text-xs font-bold text-muted-foreground uppercase">Total Mandi Sales</span>
-                <p className="text-2xl font-black text-foreground font-display mt-1">
-                  ₹{salesSummary.total_sales_value.toLocaleString()}
-                </p>
+              <div className="p-4 rounded-xl border border-border bg-card">
+                <span className="text-xs font-bold text-muted-foreground uppercase">Total Sales Value</span>
+                <p className="text-xl font-black text-foreground font-display mt-1">₹{salesSummary.total_sales_value.toLocaleString()}</p>
               </div>
-              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-5 shadow-xs">
-                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase">Amount Received</span>
-                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-display mt-1">
-                  ₹{salesSummary.total_received.toLocaleString()}
-                </p>
+              <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+                <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase">Received In Bank / Cash</span>
+                <p className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-display mt-1">₹{salesSummary.total_received.toLocaleString()}</p>
               </div>
-              <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5 shadow-xs">
-                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase">Payment Pending</span>
-                <p className="text-2xl font-black text-amber-600 dark:text-amber-400 font-display mt-1">
-                  ₹{salesSummary.total_pending.toLocaleString()}
-                </p>
+              <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                <span className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase">Pending From Arthiya / Buyer</span>
+                <p className="text-xl font-black text-amber-600 dark:text-amber-400 font-display mt-1">₹{salesSummary.total_pending.toLocaleString()}</p>
               </div>
             </div>
 
-            {/* Action Bar & Table */}
-            <div className="rounded-3xl border border-border bg-card p-6 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border pb-4">
-                <div>
-                  <h3 className="text-lg font-black text-foreground font-display">Farmer Mandi Ledger (मंडी खाता बhi)</h3>
-                  <p className="text-xs text-muted-foreground">Keep authentic records of harvest sales, APMC weighments, cess deductions, and payment status.</p>
+            {/* Ledger Records Table */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+              {salesRecords.length === 0 ? (
+                <div className="p-12 text-center text-xs text-muted-foreground space-y-2">
+                  <FileText className="h-8 w-8 mx-auto text-muted-foreground/50" />
+                  <p className="font-bold">No sales recorded yet.</p>
+                  <p>Click "Record New Sale" to add your first mandi receipt.</p>
                 </div>
-                <Button
-                  onClick={() => setShowAddSaleModal(true)}
-                  className="bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 shadow-xs"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>+ Record Mandi Sale</span>
-                </Button>
-              </div>
-
-              {salesRecords.length > 0 ? (
+              ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-muted/50 text-muted-foreground uppercase text-[10px] font-bold">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-muted/40 border-b border-border text-[11px] font-bold uppercase text-muted-foreground">
                       <tr>
                         <th className="p-3">Date</th>
-                        <th className="p-3">Mandi / Trader</th>
-                        <th className="p-3">Commodity</th>
-                        <th className="p-3">Volume & Rate</th>
-                        <th className="p-3">Net Due</th>
-                        <th className="p-3">Received</th>
-                        <th className="p-3">Status</th>
+                        <th className="p-3">Mandi</th>
+                        <th className="p-3">Buyer / Arthiya</th>
+                        <th className="p-3">Crop</th>
+                        <th className="p-3 text-right">Quantity</th>
+                        <th className="p-3 text-right">Rate</th>
+                        <th className="p-3 text-right">Total Net</th>
+                        <th className="p-3 text-right">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
                       {salesRecords.map((r) => (
-                        <tr key={r.id} className="hover:bg-muted/20">
-                          <td className="p-3 text-muted-foreground">{r.sale_date}</td>
-                          <td className="p-3 font-bold text-foreground">
-                            {r.mandi_name}
-                            <span className="block text-[10px] font-normal text-muted-foreground">{r.buyer_name}</span>
-                          </td>
-                          <td className="p-3 font-semibold">{r.commodity}</td>
-                          <td className="p-3">
-                            <span className="font-bold text-foreground">{r.quantity_quintals} qtl</span> @ ₹{r.rate_per_quintal}/qtl
-                          </td>
-                          <td className="p-3 font-bold text-foreground">₹{r.net_amount.toLocaleString()}</td>
-                          <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">₹{r.amount_received.toLocaleString()}</td>
-                          <td className="p-3">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              r.payment_status === "paid"
-                                ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
-                                : "bg-amber-500/10 text-amber-600 border border-amber-500/20"
-                            }`}>
-                              {r.payment_status.toUpperCase()}
-                            </span>
-                          </td>
+                        <tr key={r.id} className="hover:bg-muted/30">
+                          <td className="p-3">{r.sale_date}</td>
+                          <td className="p-3 font-semibold">{r.mandi_name}</td>
+                          <td className="p-3">{r.buyer_name}</td>
+                          <td className="p-3 font-bold">{r.commodity}</td>
+                          <td className="p-3 text-right font-mono">{r.quantity_quintals} Qtl</td>
+                          <td className="p-3 text-right font-mono">₹{r.rate_per_quintal}</td>
+                          <td className="p-3 text-right font-mono font-bold text-foreground">₹{r.net_amount.toLocaleString()}</td>
+                          <td className="p-3 text-right font-bold text-emerald-600">{r.payment_status.toUpperCase()}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center py-8">
-                  No sales recorded yet. Click <strong>+ Record Mandi Sale</strong> above to log your weighment and payment details.
-                </p>
               )}
             </div>
-
-            {/* Add Sale Modal */}
-            {showAddSaleModal && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-                <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl relative space-y-4">
-                  <button onClick={() => setShowAddSaleModal(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
-                    <X className="h-5 w-5" />
-                  </button>
-                  <h3 className="text-lg font-black text-foreground font-display flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-primary" />
-                    <span>Record Mandi Sale Transaction</span>
-                  </h3>
-                  <form onSubmit={handleCreateSaleRecord} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <label className="font-bold text-foreground block mb-1">Mandi Name</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Sehore Krishi Upaj Mandi"
-                        value={newSaleMandi}
-                        onChange={(e) => setNewSaleMandi(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-foreground block mb-1">Buyer / Trader / Commission Agent</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. ITC Choupal / Sharma Traders"
-                        value={newSaleBuyer}
-                        onChange={(e) => setNewSaleBuyer(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-foreground block mb-1">Crop / Commodity</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Wheat (गेहूं)"
-                        value={newSaleCrop}
-                        onChange={(e) => setNewSaleCrop(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-foreground block mb-1">Quantity (Quintals)</label>
-                      <input
-                        type="number"
-                        step="0.1"
-                        required
-                        placeholder="e.g. 50"
-                        value={newSaleQty}
-                        onChange={(e) => setNewSaleQty(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-foreground block mb-1">Agreed Rate (₹ / Quintal)</label>
-                      <input
-                        type="number"
-                        required
-                        placeholder="e.g. 2850"
-                        value={newSaleRate}
-                        onChange={(e) => setNewSaleRate(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-                    <div>
-                      <label className="font-bold text-foreground block mb-1">Total Deductions (Cess, Labor) ₹</label>
-                      <input
-                        type="number"
-                        placeholder="e.g. 850"
-                        value={newSaleDeductions}
-                        onChange={(e) => setNewSaleDeductions(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-                    <div className="sm:col-span-2">
-                      <label className="font-bold text-foreground block mb-1">Amount Received in Cash/NEFT (₹)</label>
-                      <input
-                        type="number"
-                        placeholder="e.g. 100000"
-                        value={newSaleReceived}
-                        onChange={(e) => setNewSaleReceived(e.target.value)}
-                        className="w-full px-3 py-2 rounded-xl border border-border bg-card"
-                      />
-                    </div>
-
-                    <div className="sm:col-span-2 flex gap-2 pt-2">
-                      <Button type="button" variant="ghost" onClick={() => setShowAddSaleModal(false)} className="flex-1 rounded-xl">
-                        Cancel
-                      </Button>
-                      <Button type="submit" disabled={newSaleSubmitting} className="flex-1 bg-primary text-white font-bold rounded-xl">
-                        {newSaleSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save to Ledger"}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
         {/* ============================================================ */}
-        {/*  TAB 7: GOVERNMENT PROCUREMENT & MSP CENTERS                 */}
+        {/*  TAB 7: GOVERNMENT MSP CENTRES                              */}
         {/* ============================================================ */}
         {activeTab === "gov" && (
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5 rounded-2xl bg-card border border-border">
-              <div>
-                <h2 className="text-base font-bold text-foreground">Official Government Procurement (MSP) Centres</h2>
-                <p className="text-xs text-muted-foreground">
-                  Official FCI, NAFED, and state civil supplies procurement guidelines and direct registration links.
-                </p>
-              </div>
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-2">
+              <h2 className="text-lg sm:text-xl font-black text-foreground font-display flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-primary" />
+                <span>Government Minimum Support Price (MSP) Procurement Centers</span>
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Official FCI, NAFED, and State Food Supplies procurement centers buying crops at notified statutory MSP benchmarks.
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {govItems.map((g) => (
-                <div key={g.id} className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-xs">
+              {govItems.map((item) => (
+                <div key={item.id} className="rounded-2xl border border-border bg-card p-5 space-y-3 shadow-xs">
                   <div className="flex items-start justify-between">
                     <div>
-                      <span className="text-[10px] font-bold text-primary uppercase">{g.procurement_season || "Kharif / Rabi"}</span>
-                      <h3 className="text-lg font-black text-foreground font-display">{g.crop_name}</h3>
+                      <h3 className="text-base font-black text-foreground">
+                        {item.procurement_centre_name || item.procurement_center}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">{item.nodal_agency} • {item.district}, {item.state}</p>
                     </div>
-                    <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20">
-                      MSP: {g.effective_procurement_rate || g.msp_rate_per_quintal ? `₹${(g.effective_procurement_rate || g.msp_rate_per_quintal).toLocaleString()}/qtl` : "MSP Announcement Pending"}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
+                      {item.is_active ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </div>
 
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <p>Center: <strong className="text-foreground">{g.procurement_center || g.procurement_centre_name || "Official APMC Center"}</strong></p>
-                    <p>Agency: <strong className="text-foreground">{g.nodal_agency || "NAFED / FCI"}</strong></p>
-                    <p>Location: <strong className="text-foreground">{g.district}, {g.state}</strong></p>
+                  <div className="p-3 rounded-xl bg-muted/40 border border-border/70 space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Crop:</span>
+                      <strong className="text-foreground">{item.crop_name}</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Govt. MSP Rate:</span>
+                      <strong className="text-emerald-600 dark:text-emerald-400 font-mono text-sm">
+                        ₹{(item.effective_procurement_rate || item.msp_rate_per_quintal).toLocaleString()}/Quintal
+                      </strong>
+                    </div>
                   </div>
 
-                  {g.official_portal_url && (
-                    <div className="pt-2">
-                      <a
-                        href={g.official_portal_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline"
-                      >
-                        <ExternalLink className="h-3.5 w-3.5" />
-                        <span>Official Farmer Registration Portal</span>
+                  {item.contact_helpline && (
+                    <div className="pt-2 border-t border-border flex items-center gap-2 text-xs">
+                      <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-semibold text-foreground">Helpline: {item.contact_helpline}</span>
+                      <a href={`tel:${item.contact_helpline}`} className="ml-auto font-bold text-primary hover:underline">
+                        Call Desk
                       </a>
                     </div>
                   )}
@@ -2185,13 +2010,33 @@ export default function MandiPage() {
 
       </div>
 
+      {/* ============================================================ */}
+      {/*  MODALS                                                      */}
+      {/* ============================================================ */}
+
+      {/* Comprehensive 46+ Commodity Catalog Explorer Modal */}
+      {showCatalogModal && (
+        <CommodityCatalogModal
+          onClose={() => setShowCatalogModal(false)}
+          onSelectCommodity={(commodity) => {
+            setSearchQuery(commodity.name)
+            setCategoryFilter(commodity.category)
+            setActiveTab("prices")
+            if (typeof window !== "undefined") {
+              window.scrollTo({ top: 0, behavior: "smooth" })
+            }
+          }}
+          activeCrops={crops}
+        />
+      )}
+
       {/* Post Produce Listing Modal */}
       {showPostProduceModal && (
         <PostProduceListingModal
           onClose={() => setShowPostProduceModal(false)}
           onSuccess={() => {
             setShowPostProduceModal(false)
-            setToastMessage("Your harvest listing has been submitted successfully!")
+            setToastMessage("Your crop lot has been published successfully!")
             fetchSellOffers()
           }}
         />
@@ -2207,6 +2052,114 @@ export default function MandiPage() {
             fetchBuyRequirements()
           }}
         />
+      )}
+
+      {/* Record Mandi Sale Modal */}
+      {showAddSaleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl relative my-8">
+            <button onClick={() => setShowAddSaleModal(false)} className="absolute right-4 top-4 text-muted-foreground hover:text-foreground">
+              <X className="h-5 w-5" />
+            </button>
+            <h3 className="text-lg font-bold text-foreground font-display">Record Mandi Sale</h3>
+            <p className="text-xs text-muted-foreground mb-4">Add your APMC auction slip details to your digital ledger.</p>
+
+            <form onSubmit={handleCreateSaleRecord} className="space-y-3 text-xs">
+              <div>
+                <label className="font-bold text-foreground block mb-1">Mandi Name *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. Sehore APMC"
+                  value={newSaleMandi}
+                  onChange={(e) => setNewSaleMandi(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1">Buyer / Arthiya Name *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. Radheshyam Traders"
+                  value={newSaleBuyer}
+                  onChange={(e) => setNewSaleBuyer(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                />
+              </div>
+
+              <div>
+                <label className="font-bold text-foreground block mb-1">Crop Sold *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. Wheat"
+                  value={newSaleCrop}
+                  onChange={(e) => setNewSaleCrop(e.target.value)}
+                  className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-foreground block mb-1">Quantity (Quintals) *</label>
+                  <input
+                    required
+                    type="number"
+                    placeholder="e.g. 45"
+                    value={newSaleQty}
+                    onChange={(e) => setNewSaleQty(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-foreground block mb-1">Rate (₹/Quintal) *</label>
+                  <input
+                    required
+                    type="number"
+                    placeholder="e.g. 2650"
+                    value={newSaleRate}
+                    onChange={(e) => setNewSaleRate(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="font-bold text-foreground block mb-1">Deductions (Labor/Cess)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 850"
+                    value={newSaleDeductions}
+                    onChange={(e) => setNewSaleDeductions(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="font-bold text-foreground block mb-1">Amount Received (₹)</label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 50000"
+                    value={newSaleReceived}
+                    onChange={(e) => setNewSaleReceived(e.target.value)}
+                    className="w-full rounded-xl border border-border bg-card px-3 py-2 text-foreground"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-3">
+                <Button type="button" variant="ghost" onClick={() => setShowAddSaleModal(false)} className="flex-1 rounded-xl text-xs">
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={newSaleSubmitting} className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs">
+                  {newSaleSubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save To Ledger"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* Inquiry Modal */}
@@ -2236,243 +2189,8 @@ export default function MandiPage() {
   )
 }
 
-function CropCard({
-  crop,
-  index,
-  onClick,
-  lang,
-  isSelected,
-}: {
-  crop: MandiCrop
-  index: number
-  onClick: () => void
-  lang: Lang
-  isSelected?: boolean
-}) {
-  const { t } = useLanguage()
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ delay: Math.min(index * 0.03, 0.25), duration: 0.25 }}
-      whileHover={{ y: -2 }}
-    >
-      <GlassCard
-        className={`cursor-pointer group overflow-hidden relative border shadow-xs hover:shadow-md transition-all duration-200 bg-card h-full flex flex-col justify-between rounded-2xl ${
-          isSelected ? "border-primary ring-1 ring-primary/40 bg-primary/5" : "border-border hover:border-primary/40"
-        }`}
-        onClick={onClick}
-      >
-        <div>
-          <div className={`h-1.5 ${isSelected ? "bg-primary" : "bg-primary/50"}`} />
-
-          <CardHeader className="pb-2">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <CardTitle className={`text-base font-extrabold truncate font-display ${isSelected ? "text-primary" : "text-foreground group-hover:text-primary"} transition-colors`}>
-                  {translateData(crop.name, lang)}
-                </CardTitle>
-                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{translateData(crop.variety, lang)}</p>
-              </div>
-              <TrendBadge trend={crop.trend} change={crop.change_percent} />
-            </div>
-          </CardHeader>
-
-          <CardContent className="space-y-3">
-            <div className="flex items-baseline gap-1 bg-muted/30 border border-border/80 p-3 rounded-xl justify-between">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{t("mandi.modal_price") || "Modal Price"}</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl font-black text-foreground font-display">
-                  ₹{(crop.modal_price || crop.price).toLocaleString()}
-                </span>
-                <span className="text-xs text-muted-foreground font-medium">/{translateData(crop.unit, lang)}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
-              <span className="truncate">{translateData(crop.mandi, lang)}, {translateData(crop.state, lang)}</span>
-            </div>
-
-            {crop.is_stale && (
-              <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
-                <AlertTriangle className="h-3 w-3" />
-                <span>Daily Reported (Historical)</span>
-              </div>
-            )}
-          </CardContent>
-        </div>
-
-        <div className="px-5 pb-5">
-          <Button
-            size="sm"
-            variant={isSelected ? "default" : "outline"}
-            className={`w-full text-xs font-bold rounded-lg shadow-xs ${isSelected ? "bg-primary text-white" : ""}`}
-          >
-            <span>{isSelected ? "Viewing Price" : (t("mandi.view_details") || "View Details")}</span>
-          </Button>
-        </div>
-      </GlassCard>
-    </motion.div>
-  )
-}
-
-function TrendBadge({ trend, change, size = "sm" }: { trend: string; change: number; size?: "sm" | "lg" }) {
-  const Icon = trend === "up" ? TrendingUp : trend === "down" ? TrendingDown : Minus
-  const color = trend === "up" ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : trend === "down" ? "text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20" : "text-muted-foreground bg-muted border border-border"
-  const sizeClass = size === "lg" ? "px-3 py-1.5 text-xs gap-1.5 rounded-xl" : "px-2 py-0.5 text-[9px] gap-1 rounded-lg"
-  return (
-    <span className={`inline-flex items-center font-bold ${color} ${sizeClass}`}>
-      <Icon className={size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"} />
-      {change > 0 ? "+" : ""}{change}%
-    </span>
-  )
-}
-
-function InfoTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="p-3 rounded-xl bg-muted/40 border border-border">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-0.5">
-        {icon} 
-        <span>{label}</span>
-      </div>
-      <p className="text-sm font-bold text-foreground truncate">{value}</p>
-    </div>
-  )
-}
-
-/* ---- Buy/Sell Drilldown Panel with eNAM (Compact secondary feature) ---- */
-function BuySellPanel({
-  crop,
-  mode,
-  connectionStatus,
-  onConnect,
-  onReset,
-  lang,
-  onLangChange,
-}: {
-  crop: MandiCrop
-  mode: "buy" | "sell" | null
-  connectionStatus: "idle" | "connecting" | "connected"
-  onConnect: (m: "buy" | "sell") => void
-  onReset: () => void
-  lang: string
-  onLangChange: (l: Lang) => void
-}) {
-  const enam = ENAM_LANG[lang as Lang] || ENAM_LANG.en
-  return (
-    <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-xs space-y-4">
-      <div className="flex items-center justify-between border-b border-border/70 pb-3">
-        <h3 className="text-sm font-bold text-foreground font-display flex items-center gap-2">
-          <Phone className="h-4 w-4 text-primary" />
-          e-NAM Support Desk
-        </h3>
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-          Toll-Free 24x7
-        </span>
-      </div>
-
-      {connectionStatus === "idle" && (
-        <div className="space-y-3.5">
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            Assistance for trading <span className="font-bold text-foreground">{crop.name}</span> across registered APMC mandis.
-          </p>
-
-          {/* Quick contact details next to e-NAM actions */}
-          <div className="rounded-xl border border-border bg-muted/25 p-3 space-y-1.5 text-xs">
-            <a
-              href="tel:18002700224"
-              className="flex items-center justify-between font-bold text-primary hover:underline"
-            >
-              <span className="flex items-center gap-1.5">
-                <Phone className="h-3.5 w-3.5 text-emerald-600" />
-                1800-270-0224
-              </span>
-              <span className="text-[10px] font-semibold text-muted-foreground uppercase">Toll-Free</span>
-            </a>
-            <a
-              href="mailto:enam.helpdesk@gmail.com"
-              className="flex items-center justify-between font-medium text-foreground hover:text-primary hover:underline text-[11px]"
-            >
-              <span className="flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5 text-emerald-600" />
-                enam.helpdesk@gmail.com
-              </span>
-              <span className="text-[10px] text-muted-foreground">Email Help</span>
-            </a>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <Button
-              onClick={() => onConnect("buy")}
-              className="bg-primary hover:bg-primary/90 text-white font-bold text-xs rounded-xl h-10 shadow-xs"
-            >
-              <ShoppingCart className="h-3.5 w-3.5 mr-1.5" /> Buying Help
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => onConnect("sell")}
-              className="border-border text-foreground hover:bg-muted font-bold text-xs rounded-xl h-10"
-            >
-              <Wheat className="h-3.5 w-3.5 mr-1.5 text-amber-600" /> Selling Help
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {connectionStatus === "connecting" && (
-        <div className="py-6 text-center space-y-2">
-          <Loader2 className="h-5 w-5 animate-spin text-primary mx-auto" />
-          <p className="text-xs text-muted-foreground font-semibold">Loading e-NAM support details...</p>
-        </div>
-      )}
-
-      {connectionStatus === "connected" && (
-        <div className="space-y-3 pt-1">
-          <div className="rounded-xl p-3.5 space-y-2 border border-primary/20 bg-primary/5 text-xs">
-            <p className="font-bold text-primary flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5" /> {mode === "buy" ? "e-NAM Buying Support" : "e-NAM Selling Support"}
-              </span>
-              <span className="text-[10px] font-normal uppercase text-muted-foreground">{crop.mandi}</span>
-            </p>
-            <div className="grid grid-cols-2 gap-y-1 pt-1 text-muted-foreground border-t border-primary/10">
-              <span>{enam.state}:</span>
-              <span className="font-bold text-foreground text-right">{crop.state}</span>
-              <span>{enam.commodity}:</span>
-              <span className="font-bold text-foreground text-right">{crop.name.split("(")[0].trim()}</span>
-              <span>{enam.price}:</span>
-              <span className="font-bold text-primary text-right">₹{(crop.modal_price || crop.price).toLocaleString()}</span>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <a
-              href="tel:18002700224"
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl h-10 flex items-center justify-center gap-2 text-xs shadow-xs transition-colors"
-            >
-              <Phone className="h-3.5 w-3.5" />
-              <span>Call e-NAM Helpline (1800 270 0224)</span>
-            </a>
-            <a
-              href="mailto:enam.helpdesk@gmail.com"
-              className="w-full border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-xl h-10 flex items-center justify-center gap-2 text-xs transition-colors"
-            >
-              <Mail className="h-3.5 w-3.5 text-primary" />
-              <span>Email Support (enam.helpdesk@gmail.com)</span>
-            </a>
-            <Button variant="ghost" onClick={onReset} className="w-full text-xs text-muted-foreground h-8 font-semibold">
-              {enam.cancel || "Back"}
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
-
 /* ================================================================== */
-/*  MODAL COMPONENTS                                                  */
+/*  MODAL COMPONENTS (PRODUCE / REQUIREMENTS / INQUIRY / REPORT)     */
 /* ================================================================== */
 
 function PostProduceListingModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: () => void }) {
@@ -2515,9 +2233,6 @@ function PostProduceListingModal({ onClose, onSuccess }: { onClose: () => void; 
         moisture_pct: moisture ? parseFloat(moisture) : undefined,
         farmer_name: farmerName,
         farmer_phone: farmerPhone,
-        // Publishing a listing is not an identity or stock verification step.
-        // The contact endpoint remains masked until the platform's consent flow
-        // grants access.
         contact_consent_verified: false,
         state,
         district: district || "Bhopal",

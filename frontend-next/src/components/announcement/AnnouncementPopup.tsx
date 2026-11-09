@@ -16,6 +16,10 @@ import {
   Paperclip,
   Smile,
   Mic,
+  Wifi,
+  ChevronLeft,
+  Plus,
+  Camera,
 } from "lucide-react";
 import { useLanguage } from "@/lib/language";
 
@@ -404,108 +408,163 @@ export function AnnouncementPopup() {
 
               </div>
 
-              {/* RIGHT COLUMN: Realistic Phone Mockup with WhatsApp Conversation UI Preview */}
+              {/* RIGHT COLUMN: Realistic Apple iPhone Mockup with WhatsApp UI Preview */}
               <div className="lg:col-span-5 flex justify-center items-center">
-                <div className="w-[270px] sm:w-[290px] lg:w-[305px] bg-[#0F172A] rounded-[36px] p-2.5 shadow-2xl shadow-emerald-950/25 border-4 border-slate-700/60 ring-1 ring-slate-900/40 relative select-none">
-                  
-                  {/* Phone Speaker & Dynamic Island Camera */}
-                  <div className="w-20 h-4 bg-slate-950 rounded-full mx-auto mb-1.5 flex items-center justify-end px-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                  </div>
+                {/* iPhone Outer Hardware Chassis with Side Buttons */}
+                <div className="relative w-[280px] sm:w-[295px] lg:w-[310px] select-none">
+                  {/* Left Side Buttons (Action button, Volume Up, Volume Down) */}
+                  <div className="absolute -left-[3px] top-[70px] w-[3px] h-5 bg-slate-500 rounded-l-xs" />
+                  <div className="absolute -left-[3px] top-[100px] w-[3px] h-9 bg-slate-500 rounded-l-xs" />
+                  <div className="absolute -left-[3px] top-[144px] w-[3px] h-9 bg-slate-500 rounded-l-xs" />
+                  {/* Right Side Button (Power / Siri) */}
+                  <div className="absolute -right-[3px] top-[108px] w-[3px] h-14 bg-slate-500 rounded-r-xs" />
 
-                  {/* Phone Screen Glass */}
-                  <div className="bg-[#EFEAE2] rounded-[26px] overflow-hidden flex flex-col border border-slate-800/10 shadow-inner">
-                    
-                    {/* WhatsApp Top Header Bar */}
-                    <div className="bg-[#075E54] text-white px-2.5 py-2 flex items-center justify-between shadow-xs">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-white text-xs font-bold">←</span>
-                        <div className="relative">
-                          <img
-                            src="/logo.webp"
-                            alt="KisaanBuddy Logo"
-                            width={28}
-                            height={28}
-                            className="w-7 h-7 rounded-full bg-white object-contain p-0.5"
-                          />
-                          <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#25D366] border border-white" />
-                        </div>
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-bold text-white truncate max-w-[110px]">
-                            KisaanBuddy
+                  {/* Titanium Curved Perimeter Border */}
+                  <div className="rounded-[46px] p-[2.5px] bg-gradient-to-b from-slate-400 via-slate-600 to-slate-800 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.15)] ring-1 ring-slate-900/60">
+                    {/* Ultra-slim Matte Black Bezel */}
+                    <div className="rounded-[43.5px] p-[6.5px] bg-slate-950">
+                      {/* iPhone Screen Glass */}
+                      <div className="relative rounded-[37px] overflow-hidden bg-[#EFEAE2] flex flex-col border border-slate-900/20 shadow-inner">
+                        
+                        {/* iOS Status Bar with Dynamic Island */}
+                        <div className="relative bg-[#075E54] text-white pt-2 px-3.5 pb-1 flex items-center justify-between z-20">
+                          {/* Time */}
+                          <span className="font-semibold text-[11px] tracking-tight pl-1 font-sans">
+                            9:41
                           </span>
-                          <span className="text-[9px] text-emerald-200 truncate">
-                            Online • WhatsApp Service
-                          </span>
-                        </div>
-                      </div>
 
-                      <div className="flex items-center gap-2 text-white/90 shrink-0">
-                        <Video className="w-3.5 h-3.5" />
-                        <PhoneCall className="w-3.5 h-3.5" />
-                        <MoreVertical className="w-3.5 h-3.5" />
+                          {/* Dynamic Island Pill */}
+                          <div className="absolute left-1/2 -translate-x-1/2 top-1.5 w-[76px] h-[18px] bg-black rounded-full flex items-center justify-end px-2 gap-1 shadow-xs border border-white/5">
+                            {/* Camera Sensor Dots */}
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#1c2a38]/90 border border-slate-800" />
+                            <div className="w-1 h-1 rounded-full bg-[#0d2238]" />
+                          </div>
+
+                          {/* Cellular, Wi-Fi & Battery */}
+                          <div className="flex items-center gap-1.5 text-white/95 pr-1">
+                            {/* Cellular Signal (4 bars) */}
+                            <div className="flex items-end gap-[1.5px] h-2.5">
+                              <span className="w-[2px] h-1 bg-white rounded-2xs" />
+                              <span className="w-[2px] h-1.5 bg-white rounded-2xs" />
+                              <span className="w-[2px] h-2 bg-white rounded-2xs" />
+                              <span className="w-[2px] h-2.5 bg-white rounded-2xs" />
+                            </div>
+                            <Wifi className="w-3 h-3 text-white" />
+                            {/* Battery */}
+                            <div className="flex items-center">
+                              <div className="w-3.5 h-2 rounded-[2px] border border-white p-[0.8px] flex items-center">
+                                <div className="h-full w-full bg-white rounded-[1px]" />
+                              </div>
+                              <div className="w-[1px] h-1 bg-white rounded-r-xs -ml-[0.5px]" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* WhatsApp iOS Top Header Bar */}
+                        <div className="bg-[#075E54] text-white px-2.5 py-1.5 flex items-center justify-between border-t border-[#065047] shadow-xs">
+                          <div className="flex items-center gap-1 min-w-0">
+                            <ChevronLeft className="w-4 h-4 text-emerald-200 stroke-[2.5] -ml-1 shrink-0" />
+                            <div className="relative shrink-0">
+                              <img
+                                src="/logo.webp"
+                                alt="KisaanBuddy"
+                                width={28}
+                                height={28}
+                                className="w-7 h-7 rounded-full bg-white object-contain p-0.5 border border-white/20"
+                              />
+                              <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#25D366] border border-[#075E54]" />
+                            </div>
+                            <div className="flex flex-col min-w-0 text-left pl-0.5">
+                              <div className="flex items-center gap-1 leading-tight">
+                                <span className="text-[11.5px] font-bold text-white truncate max-w-[105px]">
+                                  KisaanBuddy
+                                </span>
+                                <span className="w-3 h-3 rounded-full bg-[#25D366] text-slate-950 flex items-center justify-center text-[7px] font-black shrink-0">
+                                  ✓
+                                </span>
+                              </div>
+                              <span className="text-[9px] text-emerald-200 truncate">
+                                Online • WhatsApp Service
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2.5 text-white/90 shrink-0 pr-1">
+                            <Video className="w-3.5 h-3.5" />
+                            <PhoneCall className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+
+                        {/* WhatsApp Chat Conversation UI Preview */}
+                        <div className="p-2.5 space-y-2 text-[10.5px] leading-tight min-h-[220px] flex flex-col justify-between">
+                          
+                          {/* UI Preview Disclaimer Tag */}
+                          <div className="flex justify-center">
+                            <span className="px-2 py-0.5 rounded-full bg-[#E1DCD3] text-stone-600 text-[8.5px] font-semibold shadow-2xs">
+                              UI Preview • WhatsApp
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            {/* 1. Official Welcome Message Bubble in Hindi */}
+                            <div className="bg-white rounded-xl rounded-tl-none p-2.5 shadow-2xs text-stone-800 max-w-[92%] border border-stone-200/50 space-y-1 text-left">
+                              <p className="font-bold text-[#075E54] text-[10px]">
+                                KisaanBuddy 🌱
+                              </p>
+                              <p className="text-stone-700 leading-snug">
+                                नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?
+                              </p>
+                              <div className="pt-1 border-t border-stone-100 text-[9px] text-stone-600 space-y-0.5 font-medium">
+                                <div>🌱 1. Farming Assistance</div>
+                                <div>🛒 2. Farm Marketplace</div>
+                                <div>📊 3. Mandi Price Information</div>
+                              </div>
+                              <div className="text-[8.5px] text-stone-400 text-right mt-1">
+                                10:30 AM
+                              </div>
+                            </div>
+
+                            {/* 2. Outgoing Farmer Inquiry Bubble */}
+                            <div className="bg-[#DCF8C6] rounded-xl rounded-tr-none p-2 shadow-2xs text-stone-900 ml-auto max-w-[85%] border border-[#c4eab0] text-left">
+                              <p className="text-stone-900 leading-snug font-medium">
+                                {PREFILLED_WHATSAPP_MESSAGE}
+                              </p>
+                              <div className="flex items-center justify-end gap-1 text-[8.5px] text-stone-500 mt-1">
+                                <span>10:31 AM</span>
+                                <CheckCheck className="w-3.5 h-3.5 text-sky-500 stroke-[2.5]" />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* WhatsApp iOS Bottom Input Bar */}
+                          <div className="pt-1 flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-stone-200/80 flex items-center justify-center shrink-0">
+                              <Plus className="w-3 h-3 text-[#007AFF] stroke-[2.5]" />
+                            </div>
+                            <div className="flex-1 bg-white rounded-full px-2.5 py-1.5 flex items-center justify-between shadow-2xs border border-stone-200/70 text-stone-400 text-[10px]">
+                              <span className="flex-1 text-stone-500 truncate text-left">
+                                Type a message...
+                              </span>
+                              <div className="flex items-center gap-1.5 shrink-0 text-stone-400">
+                                <Smile className="w-3 h-3 text-stone-400" />
+                                <Paperclip className="w-3 h-3 text-stone-400" />
+                              </div>
+                            </div>
+                            <div className="w-7 h-7 rounded-full bg-[#128C7E] flex items-center justify-center text-white shadow-2xs shrink-0">
+                              <Mic className="w-3.5 h-3.5" />
+                            </div>
+                          </div>
+
+                        </div>
+
+                        {/* iPhone Home Indicator Swipe Bar */}
+                        <div className="bg-[#EFEAE2] pb-1.5 pt-0.5 flex justify-center">
+                          <div className="w-24 h-1 bg-stone-400/80 rounded-full" />
+                        </div>
+
                       </div>
                     </div>
-
-                    {/* WhatsApp Chat Conversation UI Preview */}
-                    <div className="p-2.5 space-y-2 text-[10.5px] leading-tight min-h-[220px] flex flex-col justify-between">
-                      
-                      {/* UI Preview Disclaimer Tag */}
-                      <div className="flex justify-center">
-                        <span className="px-2 py-0.5 rounded-full bg-[#E1DCD3] text-stone-600 text-[8.5px] font-semibold shadow-2xs">
-                          UI Preview • WhatsApp
-                        </span>
-                      </div>
-
-                      <div className="space-y-2">
-                        {/* 1. Official Welcome Message Bubble in Hindi */}
-                        <div className="bg-white rounded-xl rounded-tl-none p-2.5 shadow-2xs text-stone-800 max-w-[92%] border border-stone-200/50 space-y-1">
-                          <p className="font-bold text-[#075E54] text-[10px]">
-                            KisaanBuddy 🌱
-                          </p>
-                          <p className="text-stone-700 leading-snug">
-                            नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?
-                          </p>
-                          <div className="pt-1 border-t border-stone-100 text-[9px] text-stone-600 space-y-0.5 font-medium">
-                            <div>🌱 1. Farming Assistance</div>
-                            <div>🛒 2. Farm Marketplace</div>
-                            <div>📊 3. Mandi Price Information</div>
-                          </div>
-                          <div className="text-[8.5px] text-stone-400 text-right mt-1">
-                            10:30 AM
-                          </div>
-                        </div>
-
-                        {/* 2. Outgoing Farmer Inquiry Bubble */}
-                        <div className="bg-[#DCF8C6] rounded-xl rounded-tr-none p-2 shadow-2xs text-stone-900 ml-auto max-w-[85%] border border-[#c4eab0]">
-                          <p className="text-stone-900 leading-snug font-medium">
-                            {PREFILLED_WHATSAPP_MESSAGE}
-                          </p>
-                          <div className="flex items-center justify-end gap-1 text-[8.5px] text-stone-500 mt-1">
-                            <span>10:31 AM</span>
-                            <CheckCheck className="w-3.5 h-3.5 text-sky-500 stroke-[2.5]" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* WhatsApp Bottom Simple Message Input Area */}
-                      <div className="pt-2 flex items-center gap-1.5">
-                        <div className="flex-1 bg-white rounded-full px-2.5 py-1.5 flex items-center gap-1.5 shadow-2xs border border-stone-200/70 text-stone-400 text-[10px]">
-                          <Smile className="w-3.5 h-3.5 text-stone-400 shrink-0" />
-                          <span className="flex-1 text-stone-500 truncate">
-                            Type a message...
-                          </span>
-                          <Paperclip className="w-3 h-3 text-stone-400 shrink-0" />
-                        </div>
-                        <div className="w-7 h-7 rounded-full bg-[#128C7E] flex items-center justify-center text-white shadow-2xs shrink-0">
-                          <Mic className="w-3.5 h-3.5" />
-                        </div>
-                      </div>
-
-                    </div>
-
                   </div>
-
                 </div>
               </div>
 

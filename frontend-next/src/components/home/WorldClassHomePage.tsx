@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import {
   Mic,
@@ -10,12 +10,12 @@ import {
   Tractor,
   Users,
   Search,
-  MapPin,
   ArrowRight,
   ShieldCheck,
   MessageCircle,
   Sparkles,
   ChevronRight,
+  MapPin,
   Maximize2,
   Minimize2,
 } from "lucide-react";
@@ -24,12 +24,7 @@ import { useLanguage, type Lang } from "@/lib/language";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import { SpeakHeroControlHub } from "@/components/voice/SpeakHeroControlHub";
 import { HeroWhatsAppShowcase } from "@/components/home/HeroWhatsAppShowcase";
-import {
-  resolveUserLocation,
-  getCurrentByCoords,
-  type UnifiedWeather,
-} from "@/lib/weather-api";
-import { translateCondition } from "@/lib/weather-translations";
+import { WhatsAppShowcaseSection } from "@/components/home/WhatsAppShowcaseSection";
 import { HOME_I18N } from "@/lib/homepage-i18n";
 
 export function WorldClassHomePage() {
@@ -38,50 +33,6 @@ export function WorldClassHomePage() {
 
   // Load language dictionary dynamically based on selected language
   const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
-
-  // Location & Weather state
-  const [weather, setWeather] = useState<UnifiedWeather | null>(null);
-  const [locationName, setLocationName] = useState<string>("");
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
-    };
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    if (typeof document === "undefined") return;
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen().catch(() => {});
-    }
-  };
-
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchWeather() {
-      try {
-        const loc = await resolveUserLocation();
-        if (loc && isMounted) {
-          setLocationName(loc.city || "");
-          const w = await getCurrentByCoords(loc.lat, loc.lon);
-          if (w && isMounted) setWeather(w);
-        }
-      } catch {
-        // Fallback silently if offline or blocked
-      }
-    }
-    fetchWeather();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(dict.whatsapp.messageText)}`;
 
@@ -100,42 +51,6 @@ export function WorldClassHomePage() {
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
               <span>Intelligent Agriculture Platform for India</span>
-            </div>
-
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Live Weather Indicator Chip */}
-              {weather?.current && (
-                <div className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-2xs">
-                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                  <span className="font-bold text-stone-900 dark:text-white">
-                    {weather.location?.name || locationName || "Local Farm"}:
-                  </span>
-                  <span>{Math.round(weather.current.temp_c)}°C</span>
-                  <span className="text-stone-400">•</span>
-                  <span className="capitalize">{translateCondition(weather.current.condition, lang as Lang)}</span>
-                </div>
-              )}
-
-              {/* Full Screen Native Browser Mode Toggle */}
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-stone-900 hover:bg-emerald-50 dark:hover:bg-stone-800 border border-stone-200 dark:border-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-300 shadow-2xs transition-all active:scale-95 cursor-pointer"
-                title={isFullscreen ? (lang === "hi" ? "फुल स्क्रीन बंद करें" : "Exit Full Screen") : (lang === "hi" ? "फुल स्क्रीन चालू करें" : "Full Screen")}
-                aria-label="Toggle Full Screen"
-              >
-                {isFullscreen ? (
-                  <>
-                    <Minimize2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="font-medium">{lang === "hi" ? "स्क्रीन सामान्य करें" : "Exit Full Screen"}</span>
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="font-medium">{lang === "hi" ? "फुल स्क्रीन" : "Full Screen"}</span>
-                  </>
-                )}
-              </button>
             </div>
           </div>
 
@@ -610,33 +525,9 @@ export function WorldClassHomePage() {
         </section>
 
         {/* ─────────────────────────────────────────────────────────────
-            5. WHATSAPP DIRECT ASSISTANCE BAR (With Phone Mockup)
+            5. WHATSAPP AI COMPANION SHOWCASE (PREMIUM SAAS TWO-COLUMN)
         ───────────────────────────────────────────────────────────── */}
-        <section className="rounded-3xl bg-[#25D366]/10 border-2 border-[#25D366]/30 p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-14 h-14 rounded-2xl bg-[#25D366] text-white flex items-center justify-center shrink-0 shadow-md">
-              <MessageCircle className="w-7 h-7 fill-current" />
-            </div>
-            <div>
-              <strong className="block text-base sm:text-lg font-bold text-stone-900 dark:text-white">
-                {dict.whatsapp.title}
-              </strong>
-              <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 mt-0.5">
-                {dict.whatsapp.desc}
-              </p>
-            </div>
-          </div>
-
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-sm shadow-md transition-all shrink-0 cursor-pointer"
-          >
-            <MessageCircle className="w-5 h-5 fill-current" />
-            <span>{dict.whatsapp.cta}</span>
-          </a>
-        </section>
+        <WhatsAppShowcaseSection />
 
         {/* ─────────────────────────────────────────────────────────────
             6. SIMPLE 3-STEP GUIDE (उपयोग कैसे करें?)

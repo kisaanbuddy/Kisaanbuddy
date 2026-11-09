@@ -11,16 +11,31 @@ const BACKEND_URL =
     : "http://127.0.0.1:8000")
 
 const CATEGORY_MAP: Record<string, string> = {
-  wheat: "Cereal", rice: "Cereal", paddy: "Cereal", maize: "Cereal",
-  jowar: "Cereal", bajra: "Cereal", barley: "Cereal",
-  soyabean: "Oilseed", soybean: "Oilseed", mustard: "Oilseed", groundnut: "Oilseed",
-  sunflower: "Oilseed", sesame: "Oilseed",
-  chana: "Pulse", gram: "Pulse", tur: "Pulse", arhar: "Pulse",
-  urad: "Pulse", moong: "Pulse", masur: "Pulse",
-  cotton: "Fiber", jute: "Fiber",
-  onion: "Vegetable", potato: "Vegetable", tomato: "Vegetable",
-  cabbage: "Vegetable", cauliflower: "Vegetable", brinjal: "Vegetable",
-  sugarcane: "Cash Crop", tobacco: "Cash Crop", ginger: "Cash Crop",
+  wheat: "Cereals", rice: "Cereals", paddy: "Cereals", maize: "Cereals",
+  jowar: "Cereals", bajra: "Cereals", barley: "Cereals", ragi: "Cereals",
+  
+  chana: "Pulses", gram: "Pulses", tur: "Pulses", arhar: "Pulses",
+  urad: "Pulses", moong: "Pulses", masur: "Pulses", masoor: "Pulses", peas: "Pulses",
+  
+  mustard: "Oilseeds", sarson: "Oilseeds", soyabean: "Oilseeds", soybean: "Oilseeds",
+  groundnut: "Oilseeds", sunflower: "Oilseeds", sesame: "Oilseeds", til: "Oilseeds",
+  castor: "Oilseeds", linseed: "Oilseeds", alsi: "Oilseeds",
+  
+  tomato: "Vegetables", potato: "Vegetables", onion: "Vegetables",
+  cauliflower: "Vegetables", cabbage: "Vegetables", brinjal: "Vegetables",
+  chilli: "Vegetables", okra: "Vegetables", bhindi: "Vegetables",
+  cucumber: "Vegetables", garlic: "Vegetables", ginger: "Vegetables",
+  carrot: "Vegetables", capsicum: "Vegetables", spinach: "Vegetables",
+  
+  mango: "Fruits", banana: "Fruits", apple: "Fruits", grapes: "Fruits",
+  orange: "Fruits", papaya: "Fruits", guava: "Fruits", pomegranate: "Fruits",
+  watermelon: "Fruits", litchi: "Fruits",
+  
+  turmeric: "Spices", haldi: "Spices", coriander: "Spices", cumin: "Spices",
+  jeera: "Spices", cardamom: "Spices", pepper: "Spices", fenugreek: "Spices", methi: "Spices",
+  
+  cotton: "Commercial Crops", sugarcane: "Commercial Crops", jute: "Commercial Crops",
+  tobacco: "Commercial Crops",
 }
 
 function getCategory(commodity: string): string {
