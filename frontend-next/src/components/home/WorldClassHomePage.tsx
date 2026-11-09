@@ -61,41 +61,10 @@ export function WorldClassHomePage() {
     };
   }, []);
 
-  const displayLocation = locationName || dict.liveBar.yourRegion;
-  const whatsappUrl = `https://wa.me/919429693427?text=${encodeURIComponent(dict.whatsapp.messageText)}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(dict.whatsapp.messageText)}`;
 
   return (
     <div className="edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
-      {/* ─────────────────────────────────────────────────────────────
-          1. TOP LIVE FARM BAR (Location + Weather + Helpline)
-      ───────────────────────────────────────────────────────────── */}
-      <div className="w-full bg-[#EBF3EC] dark:bg-stone-900 border-b border-emerald-900/10 dark:border-stone-800 py-2.5 px-4">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs sm:text-sm">
-          {/* Location & Today's Temperature */}
-          <div className="flex items-center gap-2 font-semibold text-emerald-950 dark:text-emerald-300">
-            <MapPin className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
-            <span>{displayLocation}</span>
-            {weather?.current && (
-              <>
-                <span className="text-stone-400">•</span>
-                <span className="font-bold text-stone-900 dark:text-white">
-                  {Math.round(weather.current.temp_c)}°C
-                </span>
-                <span className="text-stone-600 dark:text-stone-300 capitalize">
-                  ({translateCondition(weather.current.condition, lang as Lang)})
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Official Verification Note */}
-          <div className="flex items-center gap-1.5 text-xs text-emerald-900 dark:text-emerald-300 font-medium">
-            <ShieldCheck className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
-            <span>{dict.liveBar.officialData}</span>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 sm:space-y-12">
         {/* ─────────────────────────────────────────────────────────────
             2. HERO SECTION (EXACT REFERENCE FROM SCREENSHOT)

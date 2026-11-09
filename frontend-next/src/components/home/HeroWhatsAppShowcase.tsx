@@ -3,22 +3,18 @@
 import React from "react";
 import {
   MessageCircle,
-  Sparkles,
-  ArrowRight,
-  PhoneCall,
   ArrowLeft,
   Video,
   Phone,
   MoreVertical,
   Smile,
   Paperclip,
-  Camera,
   Mic,
   CheckCheck,
   Wifi,
   Battery,
 } from "lucide-react";
-import { useLanguage, type Lang } from "@/lib/language";
+import { useLanguage } from "@/lib/language";
 
 export function HeroWhatsAppShowcase() {
   const { lang } = useLanguage();
@@ -28,7 +24,7 @@ export function HeroWhatsAppShowcase() {
     ? "नमस्ते KisaanBuddy! मुझे मेरी फसल और मंडी भाव के बारे में सलाह चाहिए।"
     : "Hello KisaanBuddy! I need advice regarding my crop and live mandi rates.";
 
-  const whatsappUrl = `https://wa.me/919429693427?text=${encodeURIComponent(whatsappMessage)}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
@@ -219,11 +215,11 @@ export function HeroWhatsAppShowcase() {
           <span>{isHi ? "व्हाट्सएप पर चैट शुरू करें →" : "Chat on WhatsApp Now →"}</span>
         </a>
 
-        {/* Provenance and Helpline Assurance Footer */}
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-stone-500 dark:text-stone-400 font-medium pt-1">
-          <span className="flex items-center gap-1 font-semibold text-stone-700 dark:text-stone-300">
-            <PhoneCall className="w-3 h-3 text-[#25D366]" />
-            <span>+91 94296 93427</span>
+        {/* Provenance and Helpline Assurance Footer - Zero Phone Numbers */}
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-stone-500 dark:text-stone-400 font-medium pt-1">
+          <span className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 font-semibold">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#25D366]" />
+            <span>{isHi ? "24/7 सक्रिय AI सेवा" : "24/7 Active AI Service"}</span>
           </span>
           <span>•</span>
           <span>{isHi ? "100% निःशुल्क" : "100% Free"}</span>
