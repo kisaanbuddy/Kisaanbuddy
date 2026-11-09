@@ -48,6 +48,7 @@ ml/crop_doctor/data/extracted/
 ml/crop_doctor/data/curated/
 ml/crop_doctor/data/quarantine/
 ml/crop_doctor/data/staging/
+ml/crop_doctor/artifacts/
 backend/data/uploads/
 backend/data/field_pilot_images/
 ml/crop_doctor/data/field_pilot_images/
@@ -99,3 +100,8 @@ scratch/
 
 adityarajishwarportfolio/
 
+
+# --- WhatsApp and runtime uploads ---
+backend/data/uploads/
+*.db-shm
+*.db-wal

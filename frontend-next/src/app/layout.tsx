@@ -10,7 +10,7 @@ import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { MobileMenuDrawer } from '@/components/navigation/MobileMenuDrawer';
 import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
-
+import { WhatsAppFloatingButton } from '@/components/WhatsAppFloatingButton';
 
 /* ---------- System font stacks ----------
  * Replaced next/font/google to avoid build-time downloads from
@@ -185,6 +185,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Analytics />
           <MobileMenuDrawer />
           <MobileBottomNav />
+          <WhatsAppFloatingButton />
           <DeferredAdSense />
         </Providers>
       </body>
