@@ -202,6 +202,7 @@ class WhatsAppHealthResponse(BaseModel):
     status: str
     configured: bool
     phone_number_id_set: bool
+    test_phone_number_id_set: bool = False
     access_token_set: bool
     app_secret_set: bool
     verify_token_set: bool
@@ -213,3 +214,4 @@ class WhatsAppTestSendRequest(BaseModel):
     recipient_phone: str
     message: str
     message_type: Literal["text", "menu", "crop_doctor_prompt"] = "text"
+    sender_phone_number_id: Optional[str] = None

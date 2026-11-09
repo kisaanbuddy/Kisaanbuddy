@@ -77,3 +77,7 @@ services:
         value: "v21.0"
       - key: WHATSAPP_SIGNATURE_VERIFICATION
         value: "true"
+      - key: WHATSAPP_TEST_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_TEST_ACCESS_TOKEN
+        sync: false

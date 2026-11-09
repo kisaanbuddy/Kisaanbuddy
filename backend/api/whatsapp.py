@@ -126,6 +126,7 @@ async def check_health(db: Session = Depends(get_db)):
     configured = is_whatsapp_configured()
     token = (settings.WHATSAPP_ACCESS_TOKEN or "").strip()
     phone_id = (settings.WHATSAPP_PHONE_NUMBER_ID or "").strip()
+    test_phone_id = (settings.WHATSAPP_TEST_PHONE_NUMBER_ID or "").strip()
     secret = (settings.WHATSAPP_APP_SECRET or "").strip()
     vtoken = (settings.WHATSAPP_VERIFY_TOKEN or "").strip()
 
@@ -142,6 +143,7 @@ async def check_health(db: Session = Depends(get_db)):
         status="configured" if configured else "unconfigured",
         configured=configured,
         phone_number_id_set=bool(phone_id),
+        test_phone_number_id_set=bool(test_phone_id),
         access_token_set=bool(token),
         app_secret_set=bool(secret),
         verify_token_set=bool(vtoken),
@@ -253,7 +255,11 @@ async def send_test_message(
         raise HTTPException(status_code=400, detail="Invalid phone number format.")
 
     try:
-        resp = await whatsapp_client.send_text_message(target_phone, payload.message)
+        resp = await whatsapp_client.send_text_message(
+            target_phone,
+            payload.message,
+            sender_phone_number_id=payload.sender_phone_number_id,
+        )
         wamid = resp.get("messages", [{}])[0].get("id")
         return {
             "success": True,

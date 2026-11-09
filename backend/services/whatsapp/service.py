@@ -42,12 +42,17 @@ class WhatsAppService:
         """Entry point for incoming Meta webhooks.
 
         Acknowledges webhooks promptly and delegates processing to background tasks.
+        Extracts incoming phone_number_id from metadata to ensure strict sender routing.
         """
         entries = payload.get("entry", [])
         for entry in entries:
             for change in entry.get("changes", []):
                 value = change.get("value", {})
                 
+                # Extract incoming phone_number_id from Meta webhook metadata
+                metadata = value.get("metadata", {})
+                incoming_phone_number_id = metadata.get("phone_number_id")
+
                 # 1. Process delivery & message status updates
                 statuses = value.get("statuses", [])
                 for status in statuses:
@@ -73,8 +78,12 @@ class WhatsAppService:
                     phone_number = normalize_phone_number(raw_from)
                     contact_name = contact_map.get(raw_from) or contact_map.get(phone_number.lstrip("+"))
 
-                    # Mark message as read asynchronously
-                    background_tasks.add_task(whatsapp_client.mark_message_as_read, msg_id)
+                    # Mark message as read asynchronously using matching incoming phone_number_id
+                    background_tasks.add_task(
+                        whatsapp_client.mark_message_as_read,
+                        msg_id,
+                        sender_phone_number_id=incoming_phone_number_id,
+                    )
 
                     # Persist inbound message audit record
                     self._record_inbound_message(msg, phone_number, db)
@@ -85,6 +94,7 @@ class WhatsAppService:
                         msg=msg,
                         phone_number=phone_number,
                         contact_name=contact_name,
+                        sender_phone_number_id=incoming_phone_number_id,
                     )
 
         return {"status": "accepted"}
@@ -167,6 +177,7 @@ class WhatsAppService:
         msg: Dict[str, Any],
         phone_number: str,
         contact_name: Optional[str] = None,
+        sender_phone_number_id: Optional[str] = None,
     ) -> None:
         """Executes complete conversation logic in an isolated background database session."""
         if not SessionLocal:
@@ -175,7 +186,13 @@ class WhatsAppService:
 
         with SessionLocal() as db:
             try:
-                await self.process_message_turn(msg, phone_number, contact_name, db)
+                await self.process_message_turn(
+                    msg=msg,
+                    phone_number=phone_number,
+                    contact_name=contact_name,
+                    db=db,
+                    sender_phone_number_id=sender_phone_number_id,
+                )
             except Exception as e:
                 log.exception("Unhandled error processing WhatsApp message turn for %s: %s", phone_number, e)
 
@@ -185,6 +202,7 @@ class WhatsAppService:
         phone_number: str,
         contact_name: Optional[str],
         db: Session,
+        sender_phone_number_id: Optional[str] = None,
     ) -> None:
         """Handles state transitions, executes actions, and sends reply."""
         # 1. Fetch user record and language preference
@@ -234,28 +252,28 @@ class WhatsAppService:
         # 4. Universal Commands
         if clean_input in ("menu", "main menu", "home", "0", "मेनू", "ಮೆನು"):
             await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU)
-            await self._send_menu(phone_number, language, db)
+            await self._send_menu(phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         if clean_input in ("language", "lang", "भाषा", "ಭಾಷೆ"):
             await state_manager.set_state(phone_number, WhatsAppState.LANGUAGE_SELECTION)
             prompt = get_text("language_selection_prompt", language)
-            await self._send_text(phone_number, prompt, db)
+            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         # 5. Handle Session Expiration
         if is_expired:
             await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU)
             expired_notice = get_text("session_expired", language)
-            await self._send_text(phone_number, expired_notice, db)
-            await self._send_menu(phone_number, language, db)
+            await self._send_text(phone_number, expired_notice, db, sender_phone_number_id=sender_phone_number_id)
+            await self._send_menu(phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         # 6. State Machine Processing
         if current_state == WhatsAppState.NEW_USER:
             # First-time user: send welcome and main menu
             await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU)
-            await self._send_menu(phone_number, language, db)
+            await self._send_menu(phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         if current_state == WhatsAppState.LANGUAGE_SELECTION:
@@ -267,23 +285,26 @@ class WhatsAppService:
                 language = selected_lang
                 await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, {"language": selected_lang})
                 conf_msg = get_text("language_updated", selected_lang)
-                await self._send_text(phone_number, conf_msg, db)
-                await self._send_menu(phone_number, selected_lang, db)
+                await self._send_text(phone_number, conf_msg, db, sender_phone_number_id=sender_phone_number_id)
+                await self._send_menu(phone_number, selected_lang, db, sender_phone_number_id=sender_phone_number_id)
                 return
             else:
                 prompt = get_text("language_selection_prompt", language)
-                await self._send_text(phone_number, prompt, db)
+                await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
                 return
 
         if current_state == WhatsAppState.CROP_DOCTOR_WAITING_FOR_IMAGE:
             if msg_type == "image" and image_id:
                 # Analyzing feedback
                 analyzing_text = get_text("crop_doctor_analyzing", language)
-                await self._send_text(phone_number, analyzing_text, db)
+                await self._send_text(phone_number, analyzing_text, db, sender_phone_number_id=sender_phone_number_id)
 
-                # Download media binary securely
+                # Download media binary securely using matching sender phone_number_id
                 try:
-                    img_bytes, downloaded_mime = await whatsapp_client.download_media(image_id)
+                    img_bytes, downloaded_mime = await whatsapp_client.download_media(
+                        image_id,
+                        sender_phone_number_id=sender_phone_number_id,
+                    )
                     res = await process_crop_doctor_image(
                         image_bytes=img_bytes,
                         mime_type=downloaded_mime or mime_type,
@@ -291,29 +312,29 @@ class WhatsAppService:
                         db=db,
                         language=language,
                     )
-                    await self._send_text(phone_number, res["message"], db)
+                    await self._send_text(phone_number, res["message"], db, sender_phone_number_id=sender_phone_number_id)
                     await state_manager.set_state(phone_number, WhatsAppState.CROP_DOCTOR_RESULT, {"last_diagnosis_id": res.get("diagnosis_id")})
                 except Exception as exc:
                     log.exception("Crop Doctor processing exception: %s", exc)
                     err_msg = get_text("crop_doctor_inference_error", language)
-                    await self._send_text(phone_number, err_msg, db)
+                    await self._send_text(phone_number, err_msg, db, sender_phone_number_id=sender_phone_number_id)
                 return
             else:
                 # Text received instead of image
                 menu_choice = parse_menu_selection(user_text)
                 if menu_choice:
-                    await self._handle_menu_choice(menu_choice, phone_number, language, db)
+                    await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
                     return
                 # Remind farmer to upload photo
                 prompt = get_text("crop_doctor_prompt", language)
-                await self._send_text(phone_number, prompt, db)
+                await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
                 return
 
         if current_state == WhatsAppState.AGRICULTURAL_QUESTION:
             # Check if user selected a menu option instead
             menu_choice = parse_menu_selection(user_text)
             if menu_choice and menu_choice != "guidance":
-                await self._handle_menu_choice(menu_choice, phone_number, language, db)
+                await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
                 return
 
             # Answer question
@@ -322,14 +343,14 @@ class WhatsAppService:
                 phone_number=phone_number,
                 language=language,
             )
-            await self._send_text(phone_number, answer, db)
+            await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         if current_state == WhatsAppState.HUMAN_SUPPORT:
             # Check for menu command
             menu_choice = parse_menu_selection(user_text)
             if menu_choice and menu_choice != "support":
-                await self._handle_menu_choice(menu_choice, phone_number, language, db)
+                await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
                 return
 
             ticket_id = create_support_ticket(
@@ -340,21 +361,24 @@ class WhatsAppService:
                 language=language,
             )
             resp = get_text("support_created", language, ticket_id=ticket_id)
-            await self._send_text(phone_number, resp, db)
+            await self._send_text(phone_number, resp, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         # Default / MAIN_MENU state
         menu_choice = parse_menu_selection(user_text)
         if menu_choice:
-            await self._handle_menu_choice(menu_choice, phone_number, language, db)
+            await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         # Check if user sent an image directly from main menu
         if msg_type == "image" and image_id:
             analyzing_text = get_text("crop_doctor_analyzing", language)
-            await self._send_text(phone_number, analyzing_text, db)
+            await self._send_text(phone_number, analyzing_text, db, sender_phone_number_id=sender_phone_number_id)
             try:
-                img_bytes, downloaded_mime = await whatsapp_client.download_media(image_id)
+                img_bytes, downloaded_mime = await whatsapp_client.download_media(
+                    image_id,
+                    sender_phone_number_id=sender_phone_number_id,
+                )
                 res = await process_crop_doctor_image(
                     image_bytes=img_bytes,
                     mime_type=downloaded_mime or mime_type,
@@ -362,12 +386,12 @@ class WhatsAppService:
                     db=db,
                     language=language,
                 )
-                await self._send_text(phone_number, res["message"], db)
+                await self._send_text(phone_number, res["message"], db, sender_phone_number_id=sender_phone_number_id)
                 await state_manager.set_state(phone_number, WhatsAppState.CROP_DOCTOR_RESULT)
             except Exception as exc:
                 log.exception("Crop Doctor processing error: %s", exc)
                 err_msg = get_text("crop_doctor_inference_error", language)
-                await self._send_text(phone_number, err_msg, db)
+                await self._send_text(phone_number, err_msg, db, sender_phone_number_id=sender_phone_number_id)
             return
 
         # If natural language question asked on main menu, answer directly
@@ -377,13 +401,13 @@ class WhatsAppService:
                 phone_number=phone_number,
                 language=language,
             )
-            await self._send_text(phone_number, answer, db)
+            await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
             await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION)
             return
 
         # Unknown message fallback
         fallback = get_text("unknown_input", language)
-        await self._send_text(phone_number, fallback, db)
+        await self._send_text(phone_number, fallback, db, sender_phone_number_id=sender_phone_number_id)
 
     async def _handle_menu_choice(
         self,
@@ -391,6 +415,7 @@ class WhatsAppService:
         phone_number: str,
         language: str,
         db: Session,
+        sender_phone_number_id: Optional[str] = None,
     ) -> None:
         """Dispatches action for selected menu option."""
         frontend_base = settings.FRONTEND_BASE_URL.rstrip("/")
@@ -398,30 +423,30 @@ class WhatsAppService:
         if choice == "crop_doctor":
             await state_manager.set_state(phone_number, WhatsAppState.CROP_DOCTOR_WAITING_FOR_IMAGE)
             prompt = get_text("crop_doctor_prompt", language)
-            await self._send_text(phone_number, prompt, db)
+            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice == "weather":
             token = generate_secure_link_token(phone_number, action="weather")
             weather_url = f"{frontend_base}/weather?token={token}"
             msg = get_text("weather_info", language, url=weather_url)
-            await self._send_text(phone_number, msg, db)
+            await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice == "guidance":
             await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION)
             prompt = get_text("agri_question_prompt", language)
-            await self._send_text(phone_number, prompt, db)
+            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice == "mandi":
             token = generate_secure_link_token(phone_number, action="mandi")
             mandi_url = f"{frontend_base}/mandi?token={token}"
             msg = get_text("mandi_info", language, url=mandi_url)
-            await self._send_text(phone_number, msg, db)
+            await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice == "schemes":
             token = generate_secure_link_token(phone_number, action="schemes")
             schemes_url = f"{frontend_base}/schemes?token={token}"
             msg = get_text("schemes_info", language, url=schemes_url)
-            await self._send_text(phone_number, msg, db)
+            await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice == "support":
             await state_manager.set_state(phone_number, WhatsAppState.HUMAN_SUPPORT)
@@ -432,16 +457,21 @@ class WhatsAppService:
                 language=language,
             )
             msg = get_text("support_created", language, ticket_id=ticket_id)
-            await self._send_text(phone_number, msg, db)
+            await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice == "language":
             await state_manager.set_state(phone_number, WhatsAppState.LANGUAGE_SELECTION)
             prompt = get_text("language_selection_prompt", language)
-            await self._send_text(phone_number, prompt, db)
+            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
-    async def _send_menu(self, phone_number: str, language: str, db: Session) -> None:
+    async def _send_menu(
+        self,
+        phone_number: str,
+        language: str,
+        db: Session,
+        sender_phone_number_id: Optional[str] = None,
+    ) -> None:
         """Sends interactive list menu or clean fallback text menu."""
-        # 1. Format interactive list rows
         sections = [
             {
                 "title": get_text("menu_header", language),
@@ -466,18 +496,34 @@ class WhatsAppService:
                 sections=sections,
                 header_text="KisaanBuddy",
                 footer_text=get_text("menu_footer", language),
+                sender_phone_number_id=sender_phone_number_id,
             )
             wamid = res.get("messages", [{}])[0].get("id")
             self._record_outbound_message(phone_number, body_text, "interactive", wamid, db)
         except Exception as e:
             log.warning("Interactive list delivery failed (%s); falling back to text menu.", e)
             fallback_text = build_text_menu(language)
-            await self._send_text(phone_number, fallback_text, db)
+            await self._send_text(
+                phone_number,
+                fallback_text,
+                db,
+                sender_phone_number_id=sender_phone_number_id,
+            )
 
-    async def _send_text(self, phone_number: str, text: str, db: Session) -> None:
+    async def _send_text(
+        self,
+        phone_number: str,
+        text: str,
+        db: Session,
+        sender_phone_number_id: Optional[str] = None,
+    ) -> None:
         """Sends outbound text message and records in audit database."""
         try:
-            res = await whatsapp_client.send_text_message(phone_number, text)
+            res = await whatsapp_client.send_text_message(
+                recipient_phone=phone_number,
+                body=text,
+                sender_phone_number_id=sender_phone_number_id,
+            )
             wamid = res.get("messages", [{}])[0].get("id")
             self._record_outbound_message(phone_number, text, "text", wamid, db)
         except Exception as e:
