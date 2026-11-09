@@ -16,7 +16,9 @@ import numpy as np
 from PIL import Image, ImageOps
 
 # Ensure root in path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent))
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from ml.crop_doctor.models.factory import create_model
 from ml.crop_doctor.training.dataset import (
@@ -60,18 +62,33 @@ class CropDoctorInferenceService:
     def __init__(self, checkpoint_path: Optional[str] = None, device_name: str = "cpu"):
         self.device = torch.device(device_name)
 
+        def _resolve_candidate(candidate: Optional[str]) -> Optional[str]:
+            if not candidate:
+                return None
+            p = Path(candidate)
+            if p.is_absolute() and p.exists():
+                return str(p)
+            if p.exists():
+                return str(p.resolve())
+            repo_p = REPO_ROOT / p
+            if repo_p.exists():
+                return str(repo_p.resolve())
+            return None
+
         # Determine active model path from env or prioritized defaults
-        env_ckpt = os.getenv("CROP_DOCTOR_MODEL_PATH")
-        if checkpoint_path:
-            self.checkpoint_path = checkpoint_path
-        elif env_ckpt and Path(env_ckpt).exists():
+        env_ckpt = _resolve_candidate(os.getenv("CROP_DOCTOR_MODEL_PATH"))
+        explicit_ckpt = _resolve_candidate(checkpoint_path)
+
+        if explicit_ckpt:
+            self.checkpoint_path = explicit_ckpt
+        elif env_ckpt:
             self.checkpoint_path = env_ckpt
-        elif Path(EFFICIENTNET_CKPT).exists():
-            self.checkpoint_path = EFFICIENTNET_CKPT
-        elif Path(MOBILENET_TRANSFER_CKPT).exists():
-            self.checkpoint_path = MOBILENET_TRANSFER_CKPT
+        elif _resolve_candidate(EFFICIENTNET_CKPT):
+            self.checkpoint_path = _resolve_candidate(EFFICIENTNET_CKPT)
+        elif _resolve_candidate(MOBILENET_TRANSFER_CKPT):
+            self.checkpoint_path = _resolve_candidate(MOBILENET_TRANSFER_CKPT)
         else:
-            self.checkpoint_path = BASELINE_CKPT
+            self.checkpoint_path = _resolve_candidate(BASELINE_CKPT) or BASELINE_CKPT
 
         self.model = None
         self.calibrated_model = None
@@ -118,7 +135,10 @@ class CropDoctorInferenceService:
             self.model_version = "crop-doctor-v1.0.0-mobilenet-scratch"
             self.temperature = 0.9472
 
-        base_model = create_model(arch, num_classes=len(CANONICAL_CLASSES), pretrained=pretrained)
+        # Instantiate architecture skeleton with pretrained=False so startup
+        # never issues network requests to download external ImageNet weights.
+        # ckpt["model_state_dict"] contains 100% of all trained layer parameters.
+        base_model = create_model(arch, num_classes=len(CANONICAL_CLASSES), pretrained=False)
         base_model.load_state_dict(ckpt["model_state_dict"])
         base_model.to(self.device)
         base_model.eval()

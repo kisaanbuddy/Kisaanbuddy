@@ -15,7 +15,7 @@ services:
     region: oregon
     branch: main
     rootDir: backend
-    buildCommand: "pip install --no-cache-dir -r requirements.txt"
+    buildCommand: "pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && pip install --no-cache-dir -r requirements.txt"
     preDeployCommand: "alembic upgrade head"
     startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
     healthCheckPath: /health
@@ -61,3 +61,19 @@ services:
         value: "2factor"
       - key: TWOFACTOR_API_KEY
         value: "3dee1f51-ace8-11f1-90d7-0200cd936042"
+      - key: WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_BUSINESS_ACCOUNT_ID
+        sync: false
+      - key: WHATSAPP_APP_ID
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_API_VERSION
+        value: "v21.0"
+      - key: WHATSAPP_SIGNATURE_VERIFICATION
+        value: "true"

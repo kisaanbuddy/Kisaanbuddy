@@ -42,6 +42,11 @@ pandas>=2.1.0
 numpy>=1.26.0
 joblib>=1.3.0
 
+# Crop Doctor Vision ML Engine (CPU-only PyTorch runtime)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.2.0
+torchvision>=0.17.0
+
 # Chatbot / Voice Assistant
 # - openai: LLM (gpt-4o-mini) + Whisper STT + OpenAI TTS fallback
 # - langdetect: Latin-script Hindi/Kannada ("Hinglish") detection fallback.
