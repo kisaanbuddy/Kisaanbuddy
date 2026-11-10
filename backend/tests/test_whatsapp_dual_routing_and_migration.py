@@ -36,6 +36,18 @@ class TestWhatsAppDualNumberRouting(unittest.IsolatedAsyncioTestCase):
     """Validates dynamic routing and isolation between Meta test and production numbers."""
 
     def setUp(self):
+        self._orig_settings = {
+            "WHATSAPP_PHONE_NUMBER_ID": settings.WHATSAPP_PHONE_NUMBER_ID,
+            "WHATSAPP_ACCESS_TOKEN": settings.WHATSAPP_ACCESS_TOKEN,
+            "WHATSAPP_TEST_PHONE_NUMBER_ID": settings.WHATSAPP_TEST_PHONE_NUMBER_ID,
+            "WHATSAPP_TEST_ACCESS_TOKEN": settings.WHATSAPP_TEST_ACCESS_TOKEN,
+            "WHATSAPP_API_VERSION": settings.WHATSAPP_API_VERSION,
+            "WHATSAPP_APP_SECRET": settings.WHATSAPP_APP_SECRET,
+            "WHATSAPP_VERIFY_TOKEN": settings.WHATSAPP_VERIFY_TOKEN,
+            "WHATSAPP_SIGNATURE_VERIFICATION": settings.WHATSAPP_SIGNATURE_VERIFICATION,
+        }
+        self.addCleanup(self._restore_settings)
+
         self.prod_id = "prod_num_111111"
         self.prod_token = "prod_access_token_alpha"
         self.test_id = "test_num_222222"
@@ -47,6 +59,13 @@ class TestWhatsAppDualNumberRouting(unittest.IsolatedAsyncioTestCase):
         settings.WHATSAPP_TEST_PHONE_NUMBER_ID = self.test_id
         settings.WHATSAPP_TEST_ACCESS_TOKEN = self.test_token
         settings.WHATSAPP_API_VERSION = "v21.0"
+
+    def _restore_settings(self):
+        for k, v in self._orig_settings.items():
+            setattr(settings, k, v)
+
+    def tearDown(self):
+        self._restore_settings()
 
     def test_routing_to_production_number(self):
         """Routing with production phone number ID resolves to production credentials."""
@@ -131,6 +150,18 @@ class TestWhatsAppWebhookEndToEndRouting(unittest.TestCase):
     """Verifies full end-to-end webhook routing, signature checks, and cross-number isolation."""
 
     def setUp(self):
+        self._orig_settings = {
+            "WHATSAPP_PHONE_NUMBER_ID": settings.WHATSAPP_PHONE_NUMBER_ID,
+            "WHATSAPP_ACCESS_TOKEN": settings.WHATSAPP_ACCESS_TOKEN,
+            "WHATSAPP_TEST_PHONE_NUMBER_ID": settings.WHATSAPP_TEST_PHONE_NUMBER_ID,
+            "WHATSAPP_TEST_ACCESS_TOKEN": settings.WHATSAPP_TEST_ACCESS_TOKEN,
+            "WHATSAPP_API_VERSION": settings.WHATSAPP_API_VERSION,
+            "WHATSAPP_APP_SECRET": settings.WHATSAPP_APP_SECRET,
+            "WHATSAPP_VERIFY_TOKEN": settings.WHATSAPP_VERIFY_TOKEN,
+            "WHATSAPP_SIGNATURE_VERIFICATION": settings.WHATSAPP_SIGNATURE_VERIFICATION,
+        }
+        self.addCleanup(self._restore_settings)
+
         if engine:
             Base.metadata.create_all(bind=engine)
         self.client = TestClient(app)
@@ -147,6 +178,13 @@ class TestWhatsAppWebhookEndToEndRouting(unittest.TestCase):
         settings.WHATSAPP_ACCESS_TOKEN = self.prod_token
         settings.WHATSAPP_TEST_PHONE_NUMBER_ID = self.test_id
         settings.WHATSAPP_TEST_ACCESS_TOKEN = self.test_token
+
+    def _restore_settings(self):
+        for k, v in self._orig_settings.items():
+            setattr(settings, k, v)
+
+    def tearDown(self):
+        self._restore_settings()
 
     def _sign_payload(self, payload_dict: dict) -> tuple[bytes, dict]:
         body_bytes = json.dumps(payload_dict).encode("utf-8")

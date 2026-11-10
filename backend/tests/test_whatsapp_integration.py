@@ -24,6 +24,18 @@ from services.whatsapp.security import generate_secure_link_token
 
 class TestWhatsAppAPIIntegration(unittest.TestCase):
     def setUp(self):
+        self._orig_settings = {
+            "WHATSAPP_PHONE_NUMBER_ID": settings.WHATSAPP_PHONE_NUMBER_ID,
+            "WHATSAPP_ACCESS_TOKEN": settings.WHATSAPP_ACCESS_TOKEN,
+            "WHATSAPP_TEST_PHONE_NUMBER_ID": settings.WHATSAPP_TEST_PHONE_NUMBER_ID,
+            "WHATSAPP_TEST_ACCESS_TOKEN": settings.WHATSAPP_TEST_ACCESS_TOKEN,
+            "WHATSAPP_API_VERSION": settings.WHATSAPP_API_VERSION,
+            "WHATSAPP_APP_SECRET": settings.WHATSAPP_APP_SECRET,
+            "WHATSAPP_VERIFY_TOKEN": settings.WHATSAPP_VERIFY_TOKEN,
+            "WHATSAPP_SIGNATURE_VERIFICATION": settings.WHATSAPP_SIGNATURE_VERIFICATION,
+        }
+        self.addCleanup(self._restore_settings)
+
         if engine:
             Base.metadata.create_all(bind=engine)
         self.client = TestClient(app)
@@ -32,6 +44,13 @@ class TestWhatsAppAPIIntegration(unittest.TestCase):
         settings.WHATSAPP_VERIFY_TOKEN = self.verify_token
         settings.WHATSAPP_APP_SECRET = self.app_secret
         settings.WHATSAPP_SIGNATURE_VERIFICATION = True
+
+    def _restore_settings(self):
+        for k, v in self._orig_settings.items():
+            setattr(settings, k, v)
+
+    def tearDown(self):
+        self._restore_settings()
 
     def test_webhook_get_verification_success(self):
         """GET /api/whatsapp/webhook returns hub.challenge when token matches."""
