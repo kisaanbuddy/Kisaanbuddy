@@ -74,10 +74,12 @@ export function WorldClassHomePage() {
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl 2xl:text-[68px] font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.12]">
                 <CinematicWordReveal
+                  key={`t1-${lang}-${heroDict.title1}`}
                   text={heroDict.title1}
                   className="block"
                 />{" "}
                 <CinematicWordReveal
+                  key={`t2-${lang}-${heroDict.title2}`}
                   text={heroDict.title2}
                   className="block mt-1"
                 />

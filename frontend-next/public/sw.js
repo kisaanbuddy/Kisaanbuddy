@@ -1,8 +1,7 @@
 /**
- * KisaanBuddy Service Worker — offline-first cache strategy
- * Caches static pages + assets; falls back gracefully.
+ * KisaanBuddy Service Worker — network-first for navigation, cache-first for static assets
  */
-const CACHE = "KisaanBuddy-v3"
+const CACHE = "KisaanBuddy-v5"
 const OFFLINE_URL = "/"
 
 // Pages to pre-cache
@@ -41,19 +40,34 @@ self.addEventListener("fetch", (event) => {
   // API calls → network-only (never cache live data)
   if (url.pathname.startsWith("/api/")) return
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
+  // Navigation requests (HTML pages) → Network-First so users always see latest deployments
+  if (event.request.mode === "navigate") {
+    event.respondWith(
+      fetch(event.request)
         .then((response) => {
-          // Cache fresh responses
           if (response.ok) {
             const clone = response.clone()
             caches.open(CACHE).then((c) => c.put(event.request, clone))
           }
           return response
         })
-        .catch(() => cached || caches.match(OFFLINE_URL))
-      // Return cache immediately if available, update in background
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match(OFFLINE_URL)))
+    )
+    return
+  }
+
+  // Static assets (CSS, JS, images, fonts) → Cache first, fallback to network
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      const networkFetch = fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone()
+            caches.open(CACHE).then((c) => c.put(event.request, clone))
+          }
+          return response
+        })
+        .catch(() => cached)
       return cached || networkFetch
     })
   )

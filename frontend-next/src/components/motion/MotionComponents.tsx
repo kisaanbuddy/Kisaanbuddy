@@ -82,6 +82,7 @@ export function CinematicWordReveal({
 
   return (
     <motion.span
+      key={text}
       variants={textStaggerContainer}
       initial="initial"
       animate="animate"

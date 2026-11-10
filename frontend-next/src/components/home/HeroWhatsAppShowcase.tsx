@@ -99,7 +99,7 @@ export function HeroWhatsAppShowcase() {
   const { url: whatsappUrl } = getWhatsAppBusinessUrl(wDict.sampleMsg);
 
   return (
-    <div className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
+    <div key={`wa-showcase-${lang}`} className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
       {/* Decorative ambient radial glows */}
       <div
         className="absolute -top-14 -right-14 w-48 h-48 bg-[#25D366]/15 rounded-full blur-3xl pointer-events-none"
