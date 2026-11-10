@@ -69,14 +69,144 @@ export function getWhatsAppBusinessUrl(customMessage: string = PREFILLED_WHATSAP
  * the general WhatsApp brand launch.
  */
 export function AnnouncementPopup() {
-  const { isReady, isLanguageModalOpen } = useLanguage();
+  const { isReady, isLanguageModalOpen, lang } = useLanguage();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const prefersReducedMotion = useReducedMotion();
   const modalRef = useRef<HTMLDivElement>(null);
   const ctaButtonRef = useRef<HTMLAnchorElement>(null);
 
-  const { url: waUrl, isConfigured, phoneNumber } = getWhatsAppBusinessUrl();
+  const ANNOUNCEMENT_I18N: Record<string, {
+    badge: string;
+    headingPrefix: string;
+    headingSuffix: string;
+    desc: string;
+    card1Title: string;
+    card1Desc: string;
+    card2Title: string;
+    card2Desc: string;
+    card3Title: string;
+    card3Desc: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    trustFree: string;
+    trustOfficial: string;
+    botGreeting: string;
+    farmerMsg: string;
+  }> = {
+    hi: {
+      badge: "KISAANBUDDY व्हाट्सएप लॉन्च",
+      headingPrefix: "KisaanBuddy अब",
+      headingSuffix: "व्हाट्सएप पर भी!",
+      desc: "आपका कृषि साथी अब बस एक व्हाट्सएप संदेश की दूरी पर है। खेती की सलाह, फसल मार्गदर्शन, मंडी भाव और जरूरी सूचनाएं सीधे व्हाट्सएप पर प्राप्त करें।",
+      card1Title: "खेती सलाह व मार्गदर्शन",
+      card1Desc: "फसल के सवालों पर विशेषज्ञों व AI से तुरंत मार्गदर्शन पाएं।",
+      card2Title: "कृषि मार्केटप्लेस",
+      card2Desc: "उपकरण, बीज और उपज के लिए सत्यापित विक्रेताओं से जुड़ें।",
+      card3Title: "दैनिक मंडी भाव जानकारी",
+      card3Desc: "सरकारी AGMARKNET मंडियों के ताज़ा भावों से अपडेट रहें।",
+      ctaPrimary: "KisaanBuddy से व्हाट्सएप पर चैट करें",
+      ctaSecondary: "वेबसाइट देखना जारी रखें",
+      trustFree: "मुफ्त कृषि सहायता",
+      trustOfficial: "आधिकारिक व्हाट्सएप चैनल",
+      botGreeting: "नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?",
+      farmerMsg: "नमस्ते KisaanBuddy! मुझे खेती से जुड़ी जानकारी चाहिए।",
+    },
+    kn: {
+      badge: "ಕಿಸಾನ್‌ಬಡ್ಡಿ ವಾಟ್ಸಾಪ್ ಬಿಡುಗಡೆ",
+      headingPrefix: "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಈಗ",
+      headingSuffix: "ವಾಟ್ಸಾಪ್‌ನಲ್ಲೂ ಲಭ್ಯ!",
+      desc: "ನಿಮ್ಮ ಕೃಷಿ ಸಂಗಾತಿ ಈಗ ಕೇವಲ ಒಂದು ವಾಟ್ಸಾಪ್ ಸಂದೇಶದ ದೂರದಲ್ಲಿದ್ದಾರೆ. ಕೃಷಿ ಮಾಹಿತಿ, ಬೆಳೆ ಮಾರ್ಗದರ್ಶನ, ಮಂಡಿ ದರಗಳು ಮತ್ತು ಪ್ರಮುಖ ಸೂಚನೆಗಳನ್ನು ನೇರವಾಗಿ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಪಡೆಯಿರಿ.",
+      card1Title: "ಕೃಷಿ ನೆರವು ಮತ್ತು ಮಾರ್ಗದರ್ಶನ",
+      card1Desc: "ಬೆಳೆಯ ಪ್ರಶ್ನೆಗಳಿಗೆ ತ್ವರಿತ ಮಾರ್ಗದರ್ಶನ ಮತ್ತು ಪರಿಹಾರ ಪಡೆಯಿರಿ.",
+      card2Title: "ಕೃಷಿ ಮಾರುಕಟ್ಟೆ",
+      card2Desc: "ಉಪಕರಣಗಳು, ಬೀಜಗಳು ಮತ್ತು ಉತ್ಪನ್ನಗಳಿಗಾಗಿ ಮಾರಾಟಗಾರರನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+      card3Title: "ದೈನಂದಿನ ಮಂಡಿ ದರ ಮಾಹಿತಿ",
+      card3Desc: "ಸರ್ಕಾರಿ AGMARKNET ಮಂಡಿ ದರಗಳ ಬಗ್ಗೆ ಮಾಹಿತಿ ಪಡೆಯಿರಿ.",
+      ctaPrimary: "ಕಿಸಾನ್‌ಬಡ್ಡಿಯೊಂದಿಗೆ ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಚಾಟ್ ಮಾಡಿ",
+      ctaSecondary: "ವೆಬ್‌ಸೈಟ್ ನೋಡುವುದನ್ನು ಮುಂದುವರಿಸಿ",
+      trustFree: "ಉಚಿತ ಕೃಷಿ ನೆರವು",
+      trustOfficial: "ಅಧಿಕೃತ ವಾಟ್ಸಾಪ್ ಚಾನೆಲ್",
+      botGreeting: "ನಮಸ್ಕಾರ ರೈತ ಮಿತ್ರರೇ! ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ ಸುಸ್ವಾಗತ. ಇಂದು ನಿಮ್ಮ ಕೃಷಿಯಲ್ಲಿ ನಾವು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?",
+      farmerMsg: "ನಮಸ್ಕಾರ ಕಿಸಾನ್‌ಬಡ್ಡಿ! ನನಗೆ ಕೃಷಿ ಸಂಬಂಧಿತ ಮಾಹಿತಿ ಬೇಕು.",
+    },
+    te: {
+      badge: "కిసాన్‌బడ్డీ వాట్సాప్ ప్రారంభం",
+      headingPrefix: "కిసాన్‌బడ్డీ ఇప్పుడు",
+      headingSuffix: "వాట్సాప్‌లో కూడా!",
+      desc: "మీ వ్యవసాయ సహచరుడు ఇప్పుడు ఒక్క వాట్సాప్ సందేశం దూరంలో ఉన్నారు. వ్యవసాయ సమాచారం, పంట మార్గదర్శకత్వం, మార్కెట్ ధరలు నేరుగా వాట్సాప్‌లో పొందండి.",
+      card1Title: "వ్యవసాయ సహాయం & మార్గదర్శకత్వం",
+      card1Desc: "మీ పంట ప్రశ్నలకు వేగవంతమైన మార్గదర్శకత్వం పొందండి.",
+      card2Title: "వ్యవసాయ మార్కెట్‌ప్లేస్",
+      card2Desc: "పరికరాలు, విత్తనాల కోసం ధృవీకరించబడిన విక్రేతలతో కనెక్ట్ అవ్వండి.",
+      card3Title: "రోజువారీ మార్కెట్ ధరల సమాచారం",
+      card3Desc: "తాజా మార్కెట్ ధరల సమాచారాన్ని నిరంతరం తెలుసుకోండి.",
+      ctaPrimary: "కిసాన్‌బడ్డీతో వాట్సాప్‌లో చాట్ చేయండి",
+      ctaSecondary: "వెబ్‌సైట్‌ను చూడటం కొనసాగించండి",
+      trustFree: "ఉచిత వ్యవసాయ సహాయం",
+      trustOfficial: "అధికారిక వాట్సాప్ ఛానెల్",
+      botGreeting: "నమస్కారం రైతు మిత్రమా! కిసాన్‌బడ్డీకి స్వాగతం. ఈరోజు మీ వ్యవసాయంలో మేము ఎలా సహాయపడగలం?",
+      farmerMsg: "నమస్కారం కిసాన్‌బడ్డీ! నాకు వ్యవసాయ సమాచారం కావాలి.",
+    },
+    ta: {
+      badge: "கிசான்பட்டி வாட்ஸ்அப் அறிமுகம்",
+      headingPrefix: "கிசான்பட்டி இப்போது",
+      headingSuffix: "வாட்ஸ்அப்பிலும்!",
+      desc: "உங்கள் விவசாய தோழன் இப்போது ஒரு வாட்ஸ்அப் செய்தி தூரத்தில். வேளாண் தகவல், பயிர் வழிகாட்டுதல், மண்டி விலைகளை நேரடியாக வாட்ஸ்அப்பில் பெறுங்கள்.",
+      card1Title: "விவசாய உதவி & வழிகாட்டுதல்",
+      card1Desc: "பயிர் கேள்விகளுக்கு உடனடி வழிகாட்டுதல் பெறுங்கள்.",
+      card2Title: "வேளாண் சந்தை",
+      card2Desc: "கருவிகள், விதைகளுக்காக சரிபார்க்கப்பட்ட விற்பனையாளர்களைத் தொடர்பு கொள்ளுங்கள்.",
+      card3Title: "தினசரி மண்டி விலை தகவல்",
+      card3Desc: "அரசு அக்மார்க்நெட் மண்டி விலைகளை உடனுக்குடன் தெரிந்து கொள்ளுங்கள்.",
+      ctaPrimary: "கிசான்பட்டியுடன் வாட்ஸ்அப்பில் உரையாடுங்கள்",
+      ctaSecondary: "வலைத்தளத்தை தொடர்ந்து பார்க்கவும்",
+      trustFree: "இலவச வேளாண் உதவி",
+      trustOfficial: "அதிகாரப்பூர்வ வாட்ஸ்அப் சேனல்",
+      botGreeting: "வணக்கம் உழவர் தோழரே! கிசான்பட்டிக்கு நல்வரவு. இன்று உங்கள் விவசாயத்தில் எவ்வாறு உதவலாம்?",
+      farmerMsg: "வணக்கம் கிசான்பட்டி! எனக்கு விவசாய தகவல் தேவை.",
+    },
+    mr: {
+      badge: "किसानबडी व्हॉट्सॲप लाँच",
+      headingPrefix: "किसानबडी आता",
+      headingSuffix: "व्हॉट्सॲपवर देखील!",
+      desc: "तुमचा शेती मित्र आता फक्त एका व्हॉट्सॲप मेसेजच्या अंतरावर आहे. शेतीची माहिती, पीक मार्गदर्शन, बाजार भाव आणि महत्त्वाच्या सूचना थेट व्हॉट्सॲपवर मिळवा.",
+      card1Title: "शेती सल्ला व मार्गदर्शन",
+      card1Desc: "शेतीच्या प्रश्नांवर त्वरित मार्गदर्शन मिळवा.",
+      card2Title: "कृषी मार्केटप्लेस",
+      card2Desc: "उपकरणे, बियाणे आणि उत्पादनांसाठी पडताळणी केलेल्या विक्रेत्यांशी जोडा.",
+      card3Title: "दैनिक बाजार भाव माहिती",
+      card3Desc: "सरकारी AGMARKNET बाजार भावांची ताजी माहिती मिळवा.",
+      ctaPrimary: "किसानबडीशी व्हॉट्सॲपवर चॅट करा",
+      ctaSecondary: "वेबसाईट पाहणे सुरू ठेवा",
+      trustFree: "मोफत शेती मदत",
+      trustOfficial: "अधिकृत व्हॉट्सॲप चॅनल",
+      botGreeting: "नमस्कार शेतकरी मित्र! किसानबडी मध्ये आपले स्वागत आहे. आज आम्ही आपल्या शेतीमध्ये कशी मदत करू शकतो?",
+      farmerMsg: "नमस्कार किसानबडी! मला शेतीविषयक माहिती हवी आहे.",
+    },
+    en: {
+      badge: "KISAANBUDDY WHATSAPP LAUNCH",
+      headingPrefix: "KisaanBuddy is Now on",
+      headingSuffix: "WhatsApp!",
+      desc: "Your farming companion is now just one WhatsApp message away. Get agricultural information, farming guidance, market updates and important notifications directly on WhatsApp.",
+      card1Title: "Farming Assistance",
+      card1Desc: "Get guidance and answers to your farming questions.",
+      card2Title: "Farm Marketplace",
+      card2Desc: "Connect with verified sellers for equipment, seeds, and produce.",
+      card3Title: "Mandi Price Information",
+      card3Desc: "Stay informed about agricultural market prices.",
+      ctaPrimary: "Chat with KisaanBuddy on WhatsApp",
+      ctaSecondary: "Continue Exploring Website",
+      trustFree: "Free Farming Assistance",
+      trustOfficial: "Official WhatsApp Channel",
+      botGreeting: "Hello farmer friend! Welcome to KisaanBuddy. How can we assist with your farm today?",
+      farmerMsg: "Hello KisaanBuddy! I need information regarding farming.",
+    },
+  };
+
+  const aDict = ANNOUNCEMENT_I18N[lang] || ANNOUNCEMENT_I18N.hi;
+
+  const { url: waUrl, isConfigured, phoneNumber } = getWhatsAppBusinessUrl(aDict.farmerMsg);
 
   // Dismiss popup and persist in sessionStorage
   const handleDismiss = useCallback(() => {
@@ -283,7 +413,7 @@ export function AnnouncementPopup() {
                     >
                       <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                     </svg>
-                    <span>KISAANBUDDY WHATSAPP LAUNCH</span>
+                    <span>{aDict.badge}</span>
                   </span>
                 </div>
 
@@ -293,16 +423,16 @@ export function AnnouncementPopup() {
                     id="whatsapp-announcement-title"
                     className="text-2xl sm:text-3xl lg:text-[34px] font-black text-stone-900 leading-[1.22] tracking-tight"
                   >
-                    KisaanBuddy is Now on{" "}
+                    {aDict.headingPrefix}{" "}
                     <span className="text-[#075E54] underline decoration-[#25D366] decoration-4 underline-offset-4">
-                      WhatsApp!
+                      {aDict.headingSuffix}
                     </span>
                   </h2>
                   <p
                     id="whatsapp-announcement-desc"
                     className="text-stone-600 text-xs sm:text-sm lg:text-[15px] leading-relaxed pt-1"
                   >
-                    Your farming companion is now just one WhatsApp message away. Get agricultural information, farming guidance, market updates and important notifications directly on WhatsApp.
+                    {aDict.desc}
                   </p>
                 </div>
 
@@ -316,10 +446,10 @@ export function AnnouncementPopup() {
                     <div className="flex-1 min-w-0">
                       <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
                         <span>🌱</span>
-                        <span>Farming Assistance</span>
+                        <span>{aDict.card1Title}</span>
                       </div>
                       <div className="text-[11px] text-stone-500 truncate">
-                        Get guidance and answers to your farming questions.
+                        {aDict.card1Desc}
                       </div>
                     </div>
                   </div>
@@ -332,10 +462,10 @@ export function AnnouncementPopup() {
                     <div className="flex-1 min-w-0">
                       <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
                         <span>🛒</span>
-                        <span>Farm Marketplace</span>
+                        <span>{aDict.card2Title}</span>
                       </div>
                       <div className="text-[11px] text-stone-500 truncate">
-                        Connect with verified sellers for equipment, seeds, and produce.
+                        {aDict.card2Desc}
                       </div>
                     </div>
                   </div>
@@ -348,10 +478,10 @@ export function AnnouncementPopup() {
                     <div className="flex-1 min-w-0">
                       <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
                         <span>📊</span>
-                        <span>Mandi Price Information</span>
+                        <span>{aDict.card3Title}</span>
                       </div>
                       <div className="text-[11px] text-stone-500 truncate">
-                        Stay informed about agricultural market prices.
+                        {aDict.card3Desc}
                       </div>
                     </div>
                   </div>
@@ -375,7 +505,7 @@ export function AnnouncementPopup() {
                       >
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                       </svg>
-                      <span>Chat with KisaanBuddy on WhatsApp</span>
+                      <span>{aDict.ctaPrimary}</span>
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </a>
 
@@ -385,7 +515,7 @@ export function AnnouncementPopup() {
                       onClick={handleDismiss}
                       className="inline-flex items-center justify-center px-5 py-3.5 rounded-2xl bg-white/90 hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-bold text-xs sm:text-sm border border-stone-200/90 transition-all cursor-pointer"
                     >
-                      <span>Continue Exploring Website</span>
+                      <span>{aDict.ctaSecondary}</span>
                     </button>
                   </div>
 
@@ -393,14 +523,14 @@ export function AnnouncementPopup() {
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-stone-500 pt-0.5">
                     <span className="inline-flex items-center gap-1 font-semibold text-emerald-800">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Free Farming Assistance</span>
+                      <span>{aDict.trustFree}</span>
                     </span>
                     <span>•</span>
                     <span>
                       {isConfigured && phoneNumber ? (
                         <span>Official Helpline: +{phoneNumber}</span>
                       ) : (
-                        <span>Official WhatsApp Channel</span>
+                        <span>{aDict.trustOfficial}</span>
                       )}
                     </span>
                   </div>
@@ -506,18 +636,18 @@ export function AnnouncementPopup() {
                           </div>
 
                           <div className="space-y-2">
-                            {/* 1. Official Welcome Message Bubble in Hindi */}
+                            {/* 1. Official Welcome Message Bubble */}
                             <div className="bg-white rounded-xl rounded-tl-none p-2.5 shadow-2xs text-stone-800 max-w-[92%] border border-stone-200/50 space-y-1 text-left">
                               <p className="font-bold text-[#075E54] text-[10px]">
                                 KisaanBuddy 🌱
                               </p>
                               <p className="text-stone-700 leading-snug">
-                                नमस्ते किसान मित्र! KisaanBuddy में आपका स्वागत है। आज हम आपकी खेती में कैसे मदद कर सकते हैं?
+                                {aDict.botGreeting}
                               </p>
                               <div className="pt-1 border-t border-stone-100 text-[9px] text-stone-600 space-y-0.5 font-medium">
-                                <div>🌱 1. Farming Assistance</div>
-                                <div>🛒 2. Farm Marketplace</div>
-                                <div>📊 3. Mandi Price Information</div>
+                                <div>🌱 1. {aDict.card1Title}</div>
+                                <div>🛒 2. {aDict.card2Title}</div>
+                                <div>📊 3. {aDict.card3Title}</div>
                               </div>
                               <div className="text-[8.5px] text-stone-400 text-right mt-1">
                                 10:30 AM
@@ -527,7 +657,7 @@ export function AnnouncementPopup() {
                             {/* 2. Outgoing Farmer Inquiry Bubble */}
                             <div className="bg-[#DCF8C6] rounded-xl rounded-tr-none p-2 shadow-2xs text-stone-900 ml-auto max-w-[85%] border border-[#c4eab0] text-left">
                               <p className="text-stone-900 leading-snug font-medium">
-                                {PREFILLED_WHATSAPP_MESSAGE}
+                                {aDict.farmerMsg}
                               </p>
                               <div className="flex items-center justify-end gap-1 text-[8.5px] text-stone-500 mt-1">
                                 <span>10:31 AM</span>
