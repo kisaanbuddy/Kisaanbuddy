@@ -28,10 +28,13 @@ def create_support_ticket(
     farmer_name: Optional[str] = None,
     language: str = "en",
 ) -> str:
-    """Creates and persists a support ticket in WhatsAppSupportTicket table."""
+    """Creates and persists a support ticket in WhatsAppSupportTicket table.
+
+    Does not fabricate notifications; honestly registers the farmer query for review.
+    """
     ticket_id = generate_ticket_id()
 
-    # Look up user if exists
+    # Look up linked user account if exists
     user = db.query(User).filter(User.phone_number == phone_number).first()
     user_id = user.id if user else None
     name = farmer_name or (user.name if user else None)
@@ -41,7 +44,7 @@ def create_support_ticket(
         phone_number=phone_number,
         farmer_name=name,
         user_id=user_id,
-        query_summary=query_summary or "Farmer requested human agent support via WhatsApp menu.",
+        query_summary=query_summary or "Farmer requested agricultural assistance via WhatsApp.",
         status="OPEN",
         created_at=datetime.utcnow(),
     )

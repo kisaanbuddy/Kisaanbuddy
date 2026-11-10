@@ -107,7 +107,7 @@ class Settings(BaseSettings):
     WHATSAPP_TEST_RECIPIENT: Optional[str] = None
     WHATSAPP_SIGNATURE_VERIFICATION: bool = True
     WHATSAPP_MONTHLY_BUDGET_INR: float = 5000.0
-    FRONTEND_BASE_URL: str = "http://localhost:3000"
+    FRONTEND_BASE_URL: str = "https://www.kisaanbuddy.com"
 
     # Multi-number isolation: Meta test sandbox vs Production credentials
     WHATSAPP_TEST_PHONE_NUMBER_ID: Optional[str] = None

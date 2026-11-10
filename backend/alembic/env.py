@@ -22,13 +22,13 @@ if BASE_DIR not in sys.path:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from db.session import Base
+from db.session import Base, DATABASE_URL as SESSION_DB_URL
 from db.models import *
 
 target_metadata = Base.metadata
 
-# Set sqlalchemy.url: prefer explicit config url, fallback to env
-database_url = config.get_main_option("sqlalchemy.url") or os.environ.get("DATABASE_URL", "sqlite:///./krishiai.db")
+# Set sqlalchemy.url: prefer explicit config url, fallback to env or session URL
+database_url = config.get_main_option("sqlalchemy.url") or os.environ.get("DATABASE_URL") or SESSION_DB_URL
 config.set_main_option("sqlalchemy.url", database_url)
 
 def run_migrations_offline() -> None:

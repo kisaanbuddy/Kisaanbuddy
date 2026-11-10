@@ -1267,6 +1267,10 @@ if Column is not None:
         current_state = Column(String(50), default="NEW_USER", nullable=False)
         last_active_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         opted_in = Column(Boolean, default=True, nullable=False)
+        opted_in_at = Column(DateTime, nullable=True)
+        opted_out_at = Column(DateTime, nullable=True)
+        consent_source = Column(String(50), nullable=True)
+        context_data_json = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
