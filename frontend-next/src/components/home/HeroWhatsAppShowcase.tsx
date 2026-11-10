@@ -21,12 +21,82 @@ import { getWhatsAppBusinessUrl } from "@/components/announcement/AnnouncementPo
 export function HeroWhatsAppShowcase() {
   const { lang } = useLanguage();
   const isHi = lang === "hi";
+  
+  const WHATSAPP_I18N: Record<string, {
+    badge: string;
+    titlePrefix: string;
+    titleSuffix: string;
+    subtitle: string;
+    farmerMsg: string;
+    botMsg: string;
+    ctaBtn: string;
+    sampleMsg: string;
+  }> = {
+    hi: {
+      badge: "24/7 AI व्हाट्सएप साथी",
+      titlePrefix: "KisaanBuddy",
+      titleSuffix: "पर भी!",
+      subtitle: "पत्ती की फोटो भेजें या बोलकर पूछें — रोग निदान, आज का मंडी भाव व मौसम सलाह सीधे WhatsApp पर पाएं।",
+      farmerMsg: "मेरी गेहूं की फसल में पत्तियां पीली हो रही हैं।",
+      botMsg: "नमस्ते! कृपया फसल की पत्तियों की एक साफ फोटो भेजें। मैं समस्या पहचानने में आपकी मदद करूंगा।",
+      ctaBtn: "व्हाट्सएप पर चैट शुरू करें →",
+      sampleMsg: "नमस्ते KisaanBuddy! मुझे मेरी फसल और मंडी भाव के बारे में सलाह चाहिए।",
+    },
+    kn: {
+      badge: "24/7 AI ವಾಟ್ಸಾಪ್ ಸಹಾಯಕ",
+      titlePrefix: "ಕಿಸಾನ್‌ಬಡ್ಡಿ",
+      titleSuffix: "ನಲ್ಲೂ ಲಭ್ಯ!",
+      subtitle: "ಎಲೆಯ ಫೋಟೋ ಕಳುಹಿಸಿ ಅಥವಾ ಧ್ವನಿ ಸಂದೇಶ ಕಳುಹಿಸಿ — ರೋಗ ಪತ್ತೆ, ಮಂಡಿ ದರ ಮತ್ತು ಹವಾಮಾನ ಸಲಹೆ ವಾಟ್ಸಾಪ್‌ನಲ್ಲೇ ಪಡೆಯಿರಿ.",
+      farmerMsg: "ನನ್ನ ಗೋಧಿ ಬೆಳೆಯಲ್ಲಿ ಎಲೆಗಳು ಹಳದಿಯಾಗುತ್ತಿವೆ.",
+      botMsg: "ನಮಸ್ಕಾರ! ದಯವಿಟ್ಟು ಬೆಳೆಯ ಎಲೆಯ ಸ್ಪಷ್ಟ ಫೋಟೋ ಕಳುಹಿಸಿ. ರೋಗ ಪತ್ತೆಹಚ್ಚಲು ನಾನು ನಿಮಗೆ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ.",
+      ctaBtn: "ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಚಾಟ್ ಪ್ರಾರಂಭಿಸಿ →",
+      sampleMsg: "ನಮಸ್ಕಾರ ಕಿಸಾನ್‌ಬಡ್ಡಿ! ನನ್ನ ಬೆಳೆ ಮತ್ತು ಮಂಡಿ ದರದ ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕು.",
+    },
+    te: {
+      badge: "24/7 AI వాట్సాప్ సహాయకుడు",
+      titlePrefix: "కిసాన్‌బడ్డీ",
+      titleSuffix: "లో కూడా!",
+      subtitle: "ఆకుల ఫోటో పంపండి లేదా మాట్లాడి అడగండి — తెగులు నిర్ధారణ, మార్కెట్ ధరలు మరియు వాతావరణ సలహాలు వాట్సాప్‌లో పొందండి.",
+      farmerMsg: "నా గోధుమ పంటలో ఆకులు పసుపు రంగులోకి మారుతున్నాయి.",
+      botMsg: "నమస్కారం! దయచేసి పంట ఆకుల స్పష్టమైన ఫోటో పంపండి. సమస్యను గుర్తించడంలో మీకు సహాయం చేస్తాను.",
+      ctaBtn: "వాట్సాప్‌లో చాట్ ప్రారంభించండి →",
+      sampleMsg: "నమస్కారం కిసాన్‌బడ్డీ! నా పంట మరియు మార్కెట్ ధరల గురించి సలహా కావాలి.",
+    },
+    ta: {
+      badge: "24/7 AI வாட்ஸ்அப் தோழன்",
+      titlePrefix: "கிசான்பட்டி",
+      titleSuffix: "விலும் உண்டு!",
+      subtitle: "இலை புகைப்படத்தை அனுப்புங்கள் அல்லது குரல் செய்தி அனுப்புங்கள் — நோய் கண்டறிதல், மண்டி விலைகள் வாட்ஸ்அப்பில் பெறுங்கள்.",
+      farmerMsg: "என் கோதுமை பயிரில் இலைகள் மஞ்சளாக மாறுகின்றன.",
+      botMsg: "வணக்கம்! பயிர் இலையின் தெளிவான புகைப்படத்தை அனுப்பவும். நோய் கண்டறிய உதவுகிறேன்.",
+      ctaBtn: "வாட்ஸ்அப்பில் உரையாடுங்கள் →",
+      sampleMsg: "வணக்கம் கிசான்பட்டி! எனது பயிர் மற்றும் மண்டி விலைகள் குறித்து ஆலோசனை வேண்டும்.",
+    },
+    mr: {
+      badge: "24/7 AI व्हॉट्सॲप साथी",
+      titlePrefix: "किसानबडी",
+      titleSuffix: "वर देखील!",
+      subtitle: "पानाचा फोटो पाठवा किंवा बोलून विचारा — रोग निदान, आजचे बाजार भाव आणि हवामान सल्ला थेट WhatsApp वर मिळवा.",
+      farmerMsg: "माझ्या गव्हाच्या पिकावर पाने पिवळी पडत आहेत.",
+      botMsg: "नमस्कार! कृपया पिकाच्या पानाचा स्पष्ट फोटो पाठवा. समस्या ओळखण्यात मी मदत करेन.",
+      ctaBtn: "व्हॉट्सॲपवर चॅट सुरू करा →",
+      sampleMsg: "नमस्कार किसानबडी! मला माझ्या पिकाबद्दल आणि बाजारभावाबद्दल सल्ला हवा आहे.",
+    },
+    en: {
+      badge: "24/7 AI WhatsApp Companion",
+      titlePrefix: "KisaanBuddy on",
+      titleSuffix: "Too!",
+      subtitle: "Send crop leaf photos or voice notes — get instant diagnosis, mandi rates & weather advisory directly on WhatsApp.",
+      farmerMsg: "Yellowing leaves observed in my wheat crop.",
+      botMsg: "Hello! Please send a clear photo of the crop leaves. I will assist you in identifying the issue.",
+      ctaBtn: "Chat on WhatsApp Now →",
+      sampleMsg: "Hello KisaanBuddy! I need advice regarding my crop and live mandi rates.",
+    },
+  };
 
-  const whatsappMessage = isHi
-    ? "नमस्ते KisaanBuddy! मुझे मेरी फसल और मंडी भाव के बारे में सलाह चाहिए।"
-    : "Hello KisaanBuddy! I need advice regarding my crop and live mandi rates.";
+  const wDict = WHATSAPP_I18N[lang] || WHATSAPP_I18N.hi;
 
-  const { url: whatsappUrl } = getWhatsAppBusinessUrl(whatsappMessage);
+  const { url: whatsappUrl } = getWhatsAppBusinessUrl(wDict.sampleMsg);
 
   return (
     <div className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
@@ -44,25 +114,15 @@ export function HeroWhatsAppShowcase() {
       <div className="relative z-10 w-full space-y-1.5 mb-3">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#25D366]/15 dark:bg-[#25D366]/20 border border-[#25D366]/30 text-emerald-950 dark:text-emerald-300 text-xs font-bold uppercase tracking-wide">
           <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse" />
-          <span>{isHi ? "24/7 AI व्हाट्सएप साथी" : "24/7 AI WhatsApp Companion"}</span>
+          <span>{wDict.badge}</span>
         </div>
 
         <h3 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-white tracking-tight">
-          {isHi ? (
-            <>
-              KisaanBuddy <span className="text-[#25D366]">WhatsApp</span> पर भी!
-            </>
-          ) : (
-            <>
-              KisaanBuddy on <span className="text-[#25D366]">WhatsApp</span> Too!
-            </>
-          )}
+          {wDict.titlePrefix} <span className="text-[#25D366]">WhatsApp</span> {wDict.titleSuffix}
         </h3>
 
         <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 max-w-sm mx-auto leading-relaxed">
-          {isHi
-            ? "पत्ती की फोटो भेजें या बोलकर पूछें — रोग निदान, आज का मंडी भाव व मौसम सलाह सीधे WhatsApp पर पाएं।"
-            : "Send crop leaf photos or voice notes — get instant diagnosis, mandi rates & weather advisory directly on WhatsApp."}
+          {wDict.subtitle}
         </p>
       </div>
 
@@ -73,7 +133,7 @@ export function HeroWhatsAppShowcase() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        title={isHi ? "व्हाट्सएप पर चैट करने के लिए क्लिक करें" : "Click to chat on WhatsApp"}
+        title={wDict.ctaBtn}
         animate={{ y: [-4, 4, -4] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         className="group relative z-10 my-2 sm:my-3 block w-[290px] sm:w-[315px] md:w-[325px] lg:w-[335px] xl:w-[345px] cursor-pointer will-change-transform"
@@ -135,7 +195,7 @@ export function HeroWhatsAppShowcase() {
                 {/* Date Pill */}
                 <div className="flex justify-center mb-1">
                   <span className="px-2.5 py-0.5 rounded-md bg-white/85 dark:bg-stone-800/80 text-[10px] font-medium text-stone-600 dark:text-stone-300 shadow-2xs">
-                    {isHi ? "UI Preview • WhatsApp" : "UI Preview • WhatsApp"}
+                    UI Preview • WhatsApp
                   </span>
                 </div>
 
@@ -143,9 +203,7 @@ export function HeroWhatsAppShowcase() {
                 <div className="flex justify-end">
                   <div className="max-w-[86%] bg-[#D9FDD3] dark:bg-[#005c4b] p-2.5 rounded-2xl rounded-tr-xs shadow-xs text-stone-900 dark:text-stone-100">
                     <p className="text-[11.5px] leading-snug">
-                      {isHi
-                        ? "मेरी गेहूं की फसल में पत्तियां पीली हो रही हैं।"
-                        : "Yellowing leaves observed in my wheat crop."}
+                      {wDict.farmerMsg}
                     </p>
                     <div className="flex items-center justify-end gap-1 mt-0.5">
                       <span className="text-[9px] text-stone-500 dark:text-stone-300">
@@ -163,9 +221,7 @@ export function HeroWhatsAppShowcase() {
                       KisaanBuddy 🌱
                     </p>
                     <p className="text-stone-900 dark:text-stone-100 text-[11.5px] leading-relaxed">
-                      {isHi
-                        ? "नमस्ते! कृपया फसल की पत्तियों की एक साफ फोटो भेजें। मैं समस्या पहचानने में आपकी मदद करूंगा।"
-                        : "Hello! Please send a clear photo of the crop leaves. I will assist you in identifying the issue."}
+                      {wDict.botMsg}
                     </p>
                     <span className="block text-right text-[9px] text-stone-400 pt-0.5">
                       10:14 AM
@@ -180,7 +236,7 @@ export function HeroWhatsAppShowcase() {
                   <div className="flex items-center gap-1.5">
                     <Smile className="w-3.5 h-3.5 text-stone-400" />
                     <span className="text-[10px] text-stone-500">
-                      {isHi ? "Type a message..." : "Type a message..."}
+                      Type a message...
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 text-stone-400">
@@ -211,7 +267,7 @@ export function HeroWhatsAppShowcase() {
           className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-[#25D366]/25 hover:shadow-xl transition-all active:scale-95 cursor-pointer"
         >
           <MessageCircle className="w-5 h-5 fill-current" />
-          <span>{isHi ? "व्हाट्सएप पर चैट शुरू करें →" : "Chat on WhatsApp Now →"}</span>
+          <span>{wDict.ctaBtn}</span>
         </a>
 
         {/* Provenance and Helpline Assurance Footer - Zero Phone Numbers */}

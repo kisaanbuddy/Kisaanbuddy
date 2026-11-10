@@ -545,6 +545,154 @@ export interface HomePageTranslations {
   };
 }
 
+export interface HeroTranslations {
+  badge: string;
+  title1: string;
+  title2: string;
+  subtitle: string;
+  ctaExplore: string;
+  ctaAdvisor: string;
+  trustAgmarknet: string;
+  trustImd: string;
+  trustIcar: string;
+  trustFree: string;
+}
+
+export const HERO_I18N: Record<Lang, HeroTranslations> = {
+  hi: {
+    badge: "भारत का बुद्धिमान कृषि मंच",
+    title1: "आपका खेत। आपके फैसले।",
+    title2: "AI के साथ और समझदार।",
+    subtitle: "फसल रोग पहचान और सटीक मौसम से लेकर लाइव मंडी भाव और कृषि सेवाओं तक — KisaanBuddy भारतीय किसानों को आत्मविश्वास और सटीक डेटा के साथ खेती के फैसले लेने में मदद करता है।",
+    ctaExplore: "KisaanBuddy एक्सप्लोर करें",
+    ctaAdvisor: "AI सलाहकार से बात करें",
+    trustAgmarknet: "AGMARKNET मंडी भाव",
+    trustImd: "IMD मौसम प्रमाणित",
+    trustIcar: "ICAR कृषि मानक",
+    trustFree: "किसानों के लिए 100% मुफ्त",
+  },
+  en: {
+    badge: "Intelligent Agriculture Platform for India",
+    title1: "Your Farm. Your Decisions.",
+    title2: "Smarter with AI.",
+    subtitle: "From crop health diagnosis and hyperlocal weather intelligence to live mandi rates and agricultural services, KisaanBuddy helps Indian farmers make confident, data-driven farming decisions.",
+    ctaExplore: "Explore KisaanBuddy",
+    ctaAdvisor: "Talk to AI Advisor",
+    trustAgmarknet: "AGMARKNET Mandi Data",
+    trustImd: "IMD Weather Verified",
+    trustIcar: "ICAR Agronomic Standards",
+    trustFree: "100% Free for Farmers",
+  },
+  hi_en: {
+    badge: "Intelligent Agriculture Platform for India",
+    title1: "Aapka Khet. Aapke Faisle.",
+    title2: "AI ke saath Smarter.",
+    subtitle: "Crop disease diagnosis aur local weather se lekar live mandi bhav aur farming services tak — KisaanBuddy Indian farmers ko sahi decision lene mein help karta hai.",
+    ctaExplore: "Explore KisaanBuddy",
+    ctaAdvisor: "Talk to AI Advisor",
+    trustAgmarknet: "AGMARKNET Mandi Data",
+    trustImd: "IMD Weather Verified",
+    trustIcar: "ICAR Agronomic Standards",
+    trustFree: "100% Free for Farmers",
+  },
+  kn: {
+    badge: "ಭಾರತದ ಬುದ್ಧಿವಂತ ಕೃಷಿ ವೇದಿಕೆ",
+    title1: "ನಿಮ್ಮ ಜಮೀನು. ನಿಮ್ಮ ನಿರ್ಧಾರಗಳು.",
+    title2: "AI ನೊಂದಿಗೆ ಇನ್ನಷ್ಟು ಚುರುಕು.",
+    subtitle: "ಬೆಳೆ ರೋಗ ಪತ್ತೆ ಮತ್ತು ಹವಾಮಾನ ಮಾಹಿತಿಯಿಂದ ಹಿಡಿದು ನೇರ ಮಂಡಿ ದರಗಳು ಮತ್ತು ಕೃಷಿ ಸೇವೆಗಳವರೆಗೆ — ಕಿಸಾನ್‌ಬಡ್ಡಿ ರೈತರಿಗೆ ಆತ್ಮವಿಶ್ವಾಸದಿಂದ ಕೃಷಿ ನಿರ್ಧಾರಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.",
+    ctaExplore: "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಪರಿಶೀಲಿಸಿ",
+    ctaAdvisor: "AI ಸಲಹೆಗಾರರೊಂದಿಗೆ ಮಾತನಾಡಿ",
+    trustAgmarknet: "AGMARKNET ಮಂಡಿ ದರಗಳು",
+    trustImd: "IMD ಹವಾಮಾನ ಪ್ರಮಾಣೀಕೃತ",
+    trustIcar: "ICAR ಕೃಷಿ ಮಾನದಂಡಗಳು",
+    trustFree: "ರೈತರಿಗೆ 100% ಉಚಿತ",
+  },
+  te: {
+    badge: "భారతదేశ ఇంటెలిజెంట్ వ్యవసాయ వేదిక",
+    title1: "మీ పొలం. మీ నిర్ణయాలు.",
+    title2: "AI తో మరింత తెలివిగా.",
+    subtitle: "పంట వ్యాధి నిర్ధారణ, వాతావరణ సమాచారం నుండి ప్రత్యక్ష మార్కెట్ ధరలు మరియు వ్యవసాయ సేవల వరకు — కిసాన్‌బడ్డీ రైతులకు ఖచ్చితమైన సమాచారంతో వ్యవసాయ నిర్ణయాలు తీసుకోవడానికి సహాయపడుతుంది.",
+    ctaExplore: "కిసాన్‌బడ్డీని అన్వేషించండి",
+    ctaAdvisor: "AI సలహాదారుతో మాట్లాడండి",
+    trustAgmarknet: "AGMARKNET మార్కెట్ ధరలు",
+    trustImd: "IMD వాతావరణ నివేదికలు",
+    trustIcar: "ICAR వ్యవసాయ ప్రమాణాలు",
+    trustFree: "రైతులకు 100% ఉచితం",
+  },
+  ta: {
+    badge: "இந்தியாவின் நவீன விவசாய தளம்",
+    title1: "உங்கள் பண்ணை. உங்கள் முடிவுகள்.",
+    title2: "AI உடன் அதிக திறன்.",
+    subtitle: "பயிர் நோய் கண்டறிதல், வானிலை முன்னறிவிப்பு முதல் நேரடி மண்டி விலைகள் மற்றும் விவசாய சேவைகள் வரை — கிசான்பட்டி விவசாயிகளுக்கு உறுதியான முடிவுகளை எடுக்க உதவுகிறது.",
+    ctaExplore: "கிசான்பட்டி ஆராய்க",
+    ctaAdvisor: "AI ஆலோசகருடன் பேசுங்கள்",
+    trustAgmarknet: "AGMARKNET அரசு மண்டி விலைகள்",
+    trustImd: "IMD வானிலை சரிபார்க்கப்பட்டது",
+    trustIcar: "ICAR வேளாண் தரநிலைகள்",
+    trustFree: "விவசாயிகளுக்கு 100% இலவசம்",
+  },
+  mr: {
+    badge: "भारताचे प्रगत कृषी व्यासपीठ",
+    title1: "तुमची शेती. तुमचे निर्णय.",
+    title2: "AI सह अधिक हुशार.",
+    subtitle: "पीक रोग निदान, हवामान अंदाज ते थेट बाजार भाव आणि कृषी सेवांपर्यंत — किसानबडी शेतकऱ्यांना आत्मविश्वासाने शेतीचे निर्णय घेण्यास मदत करते.",
+    ctaExplore: "किसानबडी एक्सप्लोर करा",
+    ctaAdvisor: "AI सल्लागाराशी बोला",
+    trustAgmarknet: "AGMARKNET थेट बाजार भाव",
+    trustImd: "IMD हवामान प्रमाणित",
+    trustIcar: "ICAR कृषी मानके",
+    trustFree: "शेतकऱ्यांसाठी 100% मोफत",
+  },
+  pa: {
+    badge: "ਭਾਰਤ ਦਾ ਬੁੱਧੀਮਾਨ ਖੇਤੀ ਪਲੇਟਫਾਰਮ",
+    title1: "ਤੁਹਾਡਾ ਖੇਤ। ਤੁਹਾਡੇ ਫੈਸਲੇ।",
+    title2: "AI ਨਾਲ ਹੋਰ ਵੀ ਸਮਝਦਾਰ।",
+    subtitle: "ਫਸਲੀ ਬਿਮਾਰੀਆਂ ਦੀ ਪਛਾਣ ਅਤੇ ਮੌਸਮ ਜਾਣਕਾਰੀ ਤੋਂ ਲੈ ਕੇ ਲਾਈਵ ਮੰਡੀ ਭਾਅ ਅਤੇ ਖੇਤੀ ਸੇਵਾਵਾਂ ਤੱਕ — ਕਿਸਾਨਬੱਡੀ ਕਿਸਾਨਾਂ ਨੂੰ ਭਰੋਸੇਮੰਦ ਫੈਸਲੇ ਲੈਣ ਵਿੱਚ ਮਦਦ ਕਰਦਾ ਹੈ।",
+    ctaExplore: "ਕਿਸਾਨਬੱਡੀ ਦੇਖੋ",
+    ctaAdvisor: "AI ਸਲਾਹਕਾਰ ਨਾਲ ਗੱਲ ਕਰੋ",
+    trustAgmarknet: "AGMARKNET ਮੰਡੀ ਭਾਅ",
+    trustImd: "IMD ਮੌਸਮ ਤਸਦੀਕਸ਼ੁਦਾ",
+    trustIcar: "ICAR ਖੇਤੀ ਮਾਪਦੰਡ",
+    trustFree: "ਕਿਸਾਨਾਂ ਲਈ 100% ਮੁਫ਼ਤ",
+  },
+  gu: {
+    badge: "ભારતનું આધુનિક કૃષિ પ્લેટફોર્મ",
+    title1: "તમારું ખેતર. તમારા નિર્ણયો.",
+    title2: "AI સાથે વધુ સમજદાર.",
+    subtitle: "પાક રોગ નિદાન ਅਤੇ હવામાન આગાહીથી લઈને લાઈવ માર્કેટ યાર્ડ ભાવો સુધી — કિસાનબડી ખેડૂતોને સચોટ નિર્ણયો લેવામાં મદદ કરે છે.",
+    ctaExplore: "કિસાનબડી એક્સપ્લોર કરો",
+    ctaAdvisor: "AI સલાહકાર સાથે વાત કરો",
+    trustAgmarknet: "AGMARKNET માર્કેટ યાર્ડ ભાવો",
+    trustImd: "IMD હવામાન પ્રમાણિત",
+    trustIcar: "ICAR કૃષિ ધોરણો",
+    trustFree: "ખેડૂતો માટે 100% મફત",
+  },
+  bn: {
+    badge: "ভারতের আধুনিক কৃষি প্ল্যাটফর্ম",
+    title1: "আপনার খামার। আপনার সিদ্ধান্ত।",
+    title2: "AI-এর সাথে আরও বুদ্ধিমান।",
+    subtitle: "ফসলের রোগ নির্ণয় ও আবহাওয়ার পূর্বাভাস থেকে শুরু করে লাইভ মান্ডি দর — কিসানবাডি কৃষকদের সঠিক সিদ্ধান্ত নিতে সাহায্য করে।",
+    ctaExplore: "কিসানবাডি অন্বেষণ করুন",
+    ctaAdvisor: "AI পরামর্শদাতার সাথে কথা বলুন",
+    trustAgmarknet: "AGMARKNET মান্ডি দর",
+    trustImd: "IMD আবহাওয়া যাচাইকৃত",
+    trustIcar: "ICAR কৃষি মান",
+    trustFree: "কৃষকদের জন্য 100% বিনামূল্যে",
+  },
+  ml: {
+    badge: "ഭാരതത്തിന്റെ ആധുനിക കാർഷിക പ്ലാറ്റ്‌ഫോം",
+    title1: "നിങ്ങളുടെ കൃഷി. നിങ്ങളുടെ തീരുമാനങ്ങൾ.",
+    title2: "AI ഉപയോഗിച്ച് കൂടുതൽ മികച്ചതാക്കൂ.",
+    subtitle: "വിള രോഗ നിർണയം, കാലാവസ്ഥ വിവരങ്ങൾ മുതൽ തത്സമയ മാർക്കറ്റ് വിലകൾ വരെ — കിസാൻബഡി കർഷകരെ സഹായിക്കുന്നു.",
+    ctaExplore: "കിസാൻബഡി കാണുക",
+    ctaAdvisor: "AI ഉപദേശകനുമായി സംസാരിക്കൂ",
+    trustAgmarknet: "AGMARKNET മാർക്കറ്റ് നിരക്കുകൾ",
+    trustImd: "IMD കാലാവസ്ഥ സ്ഥിരീകരിച്ചു",
+    trustIcar: "ICAR കാർഷിക മാനദണ്ഡങ്ങൾ",
+    trustFree: "കർഷകർക്ക് 100% സൗജന്യം",
+  },
+};
+
 export const HOME_I18N: Record<Lang, HomePageTranslations> = {
   hi: {
     liveBar: {

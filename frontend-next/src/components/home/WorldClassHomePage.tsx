@@ -26,7 +26,7 @@ import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import { SpeakHeroControlHub } from "@/components/voice/SpeakHeroControlHub";
 import { HeroWhatsAppShowcase } from "@/components/home/HeroWhatsAppShowcase";
 import { WhatsAppShowcaseSection } from "@/components/home/WhatsAppShowcaseSection";
-import { HOME_I18N } from "@/lib/homepage-i18n";
+import { HOME_I18N, HERO_I18N } from "@/lib/homepage-i18n";
 import {
   CinematicWordReveal,
   MotionSection,
@@ -41,6 +41,7 @@ export function WorldClassHomePage() {
 
   // Load language dictionary dynamically based on selected language
   const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
+  const heroDict = HERO_I18N[lang as Lang] || HERO_I18N.hi;
 
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(dict.whatsapp.messageText)}`;
 
@@ -58,7 +59,7 @@ export function WorldClassHomePage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-600/20 text-emerald-900 dark:text-emerald-300 text-xs font-bold tracking-wide uppercase shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-              <span>Intelligent Agriculture Platform for India</span>
+              <span>{heroDict.badge}</span>
             </div>
           </div>
 
@@ -73,12 +74,11 @@ export function WorldClassHomePage() {
             >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl 2xl:text-[68px] font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.12]">
                 <CinematicWordReveal
-                  text="Your Farm. Your Decisions."
+                  text={heroDict.title1}
                   className="block"
                 />{" "}
                 <CinematicWordReveal
-                  text="Smarter with AI."
-                  highlightWords={["Smarter", "with", "AI."]}
+                  text={heroDict.title2}
                   className="block mt-1"
                 />
               </h1>
@@ -87,7 +87,7 @@ export function WorldClassHomePage() {
                 variants={fadeUp}
                 className="text-base sm:text-lg md:text-xl text-stone-600 dark:text-stone-300 font-normal leading-relaxed max-w-2xl xl:max-w-3xl"
               >
-                From crop health diagnosis and hyperlocal weather intelligence to live mandi rates and agricultural services, KisaanBuddy helps Indian farmers make confident, data-driven farming decisions.
+                {heroDict.subtitle}
               </motion.p>
 
               {/* Call to Actions - Including Central Speak Control Hub Anchor */}
@@ -101,7 +101,7 @@ export function WorldClassHomePage() {
                   href="#capabilities"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all cursor-pointer will-change-transform"
                 >
-                  <span>Explore KisaanBuddy</span>
+                  <span>{heroDict.ctaExplore}</span>
                   <ArrowRight className="w-4 h-4" />
                 </motion.a>
 
@@ -115,7 +115,7 @@ export function WorldClassHomePage() {
                     className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-emerald-50/60 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 font-bold text-sm sm:text-base shadow-2xs hover:border-emerald-600/40 transition-all cursor-pointer"
                   >
                     <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>Talk to AI Advisor</span>
+                    <span>{heroDict.ctaAdvisor}</span>
                   </Link>
                 </motion.div>
 
@@ -130,19 +130,19 @@ export function WorldClassHomePage() {
               >
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>AGMARKNET Mandi Data</span>
+                  <span>{heroDict.trustAgmarknet}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>IMD Weather Verified</span>
+                  <span>{heroDict.trustImd}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>ICAR Agronomic Standards</span>
+                  <span>{heroDict.trustIcar}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>100% Free for Farmers</span>
+                  <span>{heroDict.trustFree}</span>
                 </span>
               </motion.div>
             </motion.div>
