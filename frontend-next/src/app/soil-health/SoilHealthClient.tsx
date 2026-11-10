@@ -342,8 +342,8 @@ export default function SoilHealthPage() {
   }, [lang])
 
   useEffect(() => {
-    const crop = searchParams.get("crop")
-    if (searchParams.get("voice") === "1" && crop) setForm((f) => ({ ...f, crop }))
+    const crop = searchParams?.get("crop")
+    if (searchParams?.get("voice") === "1" && crop) setForm((f) => ({ ...f, crop }))
   }, [searchParams])
 
   const [response, setResponse] = useState("")
@@ -408,7 +408,7 @@ export default function SoilHealthPage() {
         body: fd,
       })
       if (!res.ok) {
-        throw new Error("Failed to scan document with Sarvam AI.")
+        throw new Error("Failed to scan soil card document.")
       }
       const data: ExtractedSoilData = await res.json()
       setExtractedCard(data)
@@ -445,7 +445,7 @@ export default function SoilHealthPage() {
     try {
       const payload = {
         test_date: extractedCard.test_date || new Date().toISOString().split("T")[0],
-        lab_name: extractedCard.lab_name || "Soil Testing Lab (Sarvam Scan)",
+        lab_name: extractedCard.lab_name || "Soil Testing Lab (Document Scan)",
         soil_type: extractedCard.soil_type || "Standard",
         soil_ph: extractedCard.soil_ph,
         nitrogen_kg_ha: extractedCard.nitrogen_kg_ha,
@@ -454,7 +454,7 @@ export default function SoilHealthPage() {
         organic_carbon_pct: extractedCard.organic_carbon_pct,
         ec_ds_m: extractedCard.ec_ds_m,
         is_verified: true,
-        notes: extractedCard.health_summary || "Scanned via Sarvam AI Doc Intelligence",
+        notes: extractedCard.health_summary || "Scanned via Soil Card Intelligence",
       }
       const res = await fetch("/api/farmer/soil-tests", {
         method: "POST",
@@ -502,13 +502,12 @@ export default function SoilHealthPage() {
         hi_en: "hi-IN",
         en: "en-IN",
       }
-      const res = await fetch("/api/sarvam/tts", {
+      const res = await fetch("/api/chat/tts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text: plainText,
-          language: bcpMap[form.language] || "en-IN",
-          speaker: "priya",
+          language: form.language || "hi",
         }),
       })
       if (!res.ok) throw new Error("TTS synthesis failed")
@@ -524,7 +523,7 @@ export default function SoilHealthPage() {
       await audio.play()
       setTtsPlaying(true)
     } catch (err) {
-      console.warn("Sarvam audio playback failed:", err)
+      console.warn("Audio playback failed:", err)
     } finally {
       setTtsLoading(false)
     }
@@ -671,13 +670,13 @@ export default function SoilHealthPage() {
               </div>
             </div>
 
-            {/* Sarvam AI Soil Card Scanner */}
+            {/* Smart Soil Card Scanner */}
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-emerald-500" />
                   <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                    Sarvam AI Card Scanner
+                    Smart Soil Card Scanner
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground">
@@ -703,7 +702,7 @@ export default function SoilHealthPage() {
                   {scanningCard ? (
                     <>
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      Scanning with Sarvam...
+                      Scanning Soil Card...
                     </>
                   ) : (
                     <>
@@ -1039,7 +1038,7 @@ export default function SoilHealthPage() {
                           ) : (
                             <>
                               <Volume2 className="h-3.5 w-3.5" />
-                              <span className="text-[11px]">Listen (Sarvam Voice)</span>
+                              <span className="text-[11px]">Listen (Voice)</span>
                             </>
                           )}
                         </Button>

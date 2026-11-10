@@ -961,7 +961,7 @@ export const ALL_SERVICES: ServiceItem[] = [
       "speak",
       "listen",
       "audio",
-      "sarvam",
+      "indictrans2",
       "बोलकर",
       "माइक",
       "आवाज",

@@ -37,7 +37,8 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: Optional[str] = None
     OPENAI_BASE_URL: Optional[str] = None  # e.g. https://openrouter.ai/api/v1
     OPENAI_CHAT_MODEL: str = "gpt-4o-mini"
-    # Optional premium TTS providers (scaffolded — activate by setting the key).
+    # IndicTrans2 dedicated inference engine
+    INDICTRANS2_SERVICE_URL: str = "http://127.0.0.1:8001"
     SARVAM_API_KEY: Optional[str] = None
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None  # path to GCP service-account JSON
     # Per-IP rate limit for /api/chat/* endpoints. Separate from weather limit.

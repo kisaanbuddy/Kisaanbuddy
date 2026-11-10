@@ -266,7 +266,7 @@ export default function CropPredictorClient() {
 
   // Voice navigation trigger
   useEffect(() => {
-    if (searchParams.get("voice") !== "1") return
+    if (searchParams?.get("voice") !== "1") return
     void handleAnalyzeFarm()
   }, [])
 

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
+import { translateText, translateBatch } from "./translation-client"
 
 // Dynamic loaders for non-default languages to eliminate ~900 KB of unused JSON from initial bundle
 const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
@@ -278,6 +279,8 @@ export interface LanguageContextType {
   openLanguageModal: () => void
   closeLanguageModal: () => void
   resetLanguagePreference: () => void
+  translateDynamic: (text: string) => Promise<string>
+  translateDynamicBatch: (texts: string[]) => Promise<string[]>
 }
 
 const LanguageContext = createContext<LanguageContextType>({
@@ -290,6 +293,8 @@ const LanguageContext = createContext<LanguageContextType>({
   openLanguageModal: () => {},
   closeLanguageModal: () => {},
   resetLanguagePreference: () => {},
+  translateDynamic: async (text) => text,
+  translateDynamicBatch: async (texts) => texts,
 })
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -445,6 +450,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     return current ?? key
   }
 
+  const translateDynamic = async (text: string): Promise<string> => {
+    if (!text || !text.trim() || lang === "en") return text
+    return translateText({ text, targetLang: lang, sourceLang: "en" })
+  }
+
+  const translateDynamicBatch = async (texts: string[]): Promise<string[]> => {
+    if (!texts || texts.length === 0 || lang === "en") return texts
+    return translateBatch(texts, lang, "en")
+  }
+
   return (
     <LanguageContext.Provider
       value={{
@@ -457,6 +472,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
         openLanguageModal,
         closeLanguageModal,
         resetLanguagePreference,
+        translateDynamic,
+        translateDynamicBatch,
       }}
     >
       {children}
@@ -466,4 +483,17 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
 export function useLanguage() {
   return useContext(LanguageContext)
+}
+
+/**
+ * Convenient hook for translating dynamic asynchronous data (Mandi, Weather,
+ * Crop details, Tractor specs, AI Advisor) into active user language.
+ */
+export function useDynamicTranslation() {
+  const { lang, translateDynamic, translateDynamicBatch } = useLanguage()
+  return {
+    lang,
+    translate: translateDynamic,
+    translateBatch: translateDynamicBatch,
+  }
 }

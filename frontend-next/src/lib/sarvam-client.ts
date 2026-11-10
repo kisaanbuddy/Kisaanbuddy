@@ -1,9 +1,8 @@
 /**
- * Sarvam AI Client for Dynamic Translations and Services.
- *
- * Provides typed, fault-tolerant translation utilities connected to
- * the /api/sarvam/translate backend proxy.
+ * Multilingual Dynamic Translation Client.
+ * Powered 100% by AI4Bharat IndicTrans2 (/api/translate).
  */
+import { translateText, translateBatch } from "./translation-client";
 
 export interface TranslateOptions {
   text: string;
@@ -19,29 +18,19 @@ export interface TranslateResponse {
 }
 
 export async function translateWithSarvam(opts: TranslateOptions): Promise<string> {
-  const { text, targetLang, sourceLang = "en", mode = "formal" } = opts;
+  const { text, targetLang, sourceLang = "en" } = opts;
   if (!text || !text.trim()) return "";
   if (targetLang === sourceLang) return text;
 
   try {
-    const res = await fetch("/api/sarvam/translate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text,
-        target_lang: targetLang,
-        source_lang: sourceLang,
-        mode,
-      }),
+    const res = await translateText({
+      text,
+      targetLang,
+      sourceLang,
     });
-    if (!res.ok) {
-      console.warn("Sarvam translation returned error status:", res.status);
-      return text;
-    }
-    const data: TranslateResponse = await res.json();
-    return data.translated_text || text;
+    return res || text;
   } catch (err) {
-    console.warn("Sarvam translation fetch failed, falling back to original:", err);
+    console.warn("Translation failed, returning original:", err);
     return text;
   }
 }
@@ -55,23 +44,10 @@ export async function translateBatchWithSarvam(
   if (targetLang === sourceLang) return texts;
 
   try {
-    const res = await fetch("/api/sarvam/translate-batch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        texts,
-        target_lang: targetLang,
-        source_lang: sourceLang,
-      }),
-    });
-    if (!res.ok) {
-      console.warn("Sarvam batch translation returned error status:", res.status);
-      return texts;
-    }
-    const data = await res.json();
-    return data.translations || texts;
+    const res = await translateBatch(texts, targetLang, sourceLang);
+    return res || texts;
   } catch (err) {
-    console.warn("Sarvam batch translation fetch failed, falling back to original:", err);
+    console.warn("Batch translation failed, returning original texts:", err);
     return texts;
   }
 }

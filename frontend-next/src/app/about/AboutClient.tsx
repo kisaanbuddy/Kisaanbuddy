@@ -74,12 +74,12 @@ const FOUNDERS: Founder[] = [
     verifiedDetails: [
       'Founder and principal architect of KisaanBuddy',
       'Oversees end-to-end cloud infrastructure, Next.js frontend, and FastAPI backend',
-      'Designs voice-first interaction layers and Sarvam AI multilingual workflows',
+      'Designs voice-first interaction layers and AI4Bharat IndicTrans2 multilingual workflows',
       'Focuses on lightweight, low-latency mobile experiences for rural connectivity',
     ],
     responsibilities: [
       'Core Platform Architecture & System Engineering',
-      'Conversational AI Workflows & Sarvam AI Integration',
+      'Conversational AI Workflows & IndicTrans2 Integration',
       'Production Deployment & Performance Optimization',
       'Technical Product Strategy & Code Quality',
     ],
@@ -327,7 +327,7 @@ const JOURNEY_STAGES = [
     step: 'Phase 4',
     title: 'Conversational AI Integration',
     description:
-      'Integrating Sarvam AI capabilities to enable vernacular Hindi and Hinglish conversational assistance, making agricultural knowledge conversational.',
+      'Integrating AI4Bharat IndicTrans2 capabilities to enable vernacular Indian languages and conversational assistance, making agricultural knowledge conversational.',
   },
   {
     step: 'Phase 5',
@@ -364,7 +364,7 @@ const FAQS = [
   {
     question: 'How is conversational AI used in KisaanBuddy?',
     answer:
-      'KisaanBuddy integrates conversational AI (including Sarvam AI when API configurations are active) to allow farmers to ask questions naturally in conversational language, including Hindi and Hinglish, without having to navigate complex search menus or technical filters.',
+      'KisaanBuddy integrates conversational AI powered by AI4Bharat IndicTrans2 to allow farmers to ask questions naturally in conversational language, including Hindi, Kannada, Tamil, Telugu, and Hinglish, without having to navigate complex search menus or technical filters.',
   },
   {
     question: 'Who is building KisaanBuddy?',
@@ -470,7 +470,7 @@ export function AboutClient() {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span>Sarvam AI Vernacular</span>
+                  <span>AI4Bharat IndicTrans2 Vernacular</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -755,7 +755,7 @@ export function AboutClient() {
                 <ul className="space-y-2 text-xs text-foreground/90">
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-teal-600 shrink-0 mt-0.5" />
-                    <span>Sarvam AI integration for Hindi and Hinglish conversational comprehension</span>
+                    <span>AI4Bharat IndicTrans2 integration for multi-regional Indic language comprehension</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="h-4 w-4 text-teal-600 shrink-0 mt-0.5" />
@@ -768,7 +768,7 @@ export function AboutClient() {
                 </ul>
               </div>
               <div className="mt-6 pt-4 border-t border-border/30 text-[11px] text-teal-700 dark:text-teal-400 font-semibold">
-                Status: Active with Sarvam AI API endpoints & fallback
+                Status: Active with AI4Bharat IndicTrans2 Neural Engine
               </div>
             </div>
 
@@ -1226,10 +1226,10 @@ export function AboutClient() {
                   <Cpu className="h-5 w-5" />
                 </div>
                 <h3 className="text-lg font-bold font-display text-foreground mb-2">
-                  Sarvam AI & Vernacular NLP
+                  AI4Bharat IndicTrans2 & Vernacular NLP
                 </h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  English-centric LLMs fail to comprehend agricultural dialect subtleties. We integrate Sarvam AI models trained natively on Indian linguistic structures to parse Hindi and Hinglish queries naturally without robotic translation artifacts.
+                  English-centric LLMs fail to comprehend agricultural dialect subtleties. We integrate AI4Bharat IndicTrans2 models trained natively on Indian linguistic structures across 22 regional languages to parse farmer queries naturally without robotic translation artifacts.
                 </p>
               </div>
               <div className="mt-6 pt-3 border-t border-border/40 text-[11px] text-emerald-700 dark:text-emerald-400 font-semibold">

@@ -1315,3 +1315,17 @@ if Column is not None:
         expires_at = Column(DateTime, nullable=False)
         used = Column(Boolean, default=False, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    class TranslationCacheEntry(Base):  # type: ignore[misc]
+        """Persistent cache for machine translations using content hashes."""
+        __tablename__ = "translation_cache"
+        id = Column(Integer, primary_key=True, index=True)
+        content_hash = Column(String(64), index=True, nullable=False)
+        source_language = Column(String(20), nullable=False)
+        target_language = Column(String(20), index=True, nullable=False)
+        source_text = Column(Text, nullable=False)
+        translated_text = Column(Text, nullable=False)
+        provider = Column(String(50), default="indictrans2", nullable=False)
+        hit_count = Column(Integer, default=1, nullable=False)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

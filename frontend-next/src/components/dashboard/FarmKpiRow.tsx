@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Layers,
   Sprout,
@@ -14,6 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { FarmerField, SoilTest, FarmTaskSummary } from "@/lib/farmer-api";
+import { StaggerList, StaggerItem } from "@/components/motion/MotionComponents";
 
 interface FarmKpiRowProps {
   totalAcres: number;
@@ -32,6 +34,8 @@ export function FarmKpiRow({
   weatherTemp = 28,
   weatherCondition = "Clear Sky",
 }: FarmKpiRowProps) {
+  const prefersReduced = useReducedMotion();
+
   // Count distinct active crops
   const activeCrops = React.useMemo(() => {
     const crops = new Set<string>();
@@ -145,45 +149,52 @@ export function FarmKpiRow({
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
+    <StaggerList className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 sm:gap-4">
       {kpis.map((kpi, idx) => {
         const Icon = kpi.icon;
         return (
-          <Link
-            key={idx}
-            href={kpi.href}
-            className="group relative bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between hover:shadow-md hover:border-emerald-500/50 transition duration-200"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
-                {kpi.title}
-              </span>
-              <div className={`p-1.5 rounded-lg ${kpi.bgAccent} ${kpi.accent}`}>
-                <Icon className="w-4 h-4" />
-              </div>
-            </div>
+          <StaggerItem key={idx}>
+            <motion.div
+              whileHover={prefersReduced ? undefined : { y: -3 }}
+              transition={{ duration: 0.2 }}
+              className="h-full will-change-transform"
+            >
+              <Link
+                href={kpi.href}
+                className="group relative bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between hover:shadow-md hover:border-emerald-500/50 transition duration-200 h-full"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
+                    {kpi.title}
+                  </span>
+                  <div className={`p-1.5 rounded-lg ${kpi.bgAccent} ${kpi.accent}`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                </div>
 
-            <div>
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                  {kpi.value}
-                </span>
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                  {kpi.unit}
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
-                {kpi.sub}
-              </p>
-            </div>
+                <div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                      {kpi.value}
+                    </span>
+                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                      {kpi.unit}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
+                    {kpi.sub}
+                  </p>
+                </div>
 
-            <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-emerald-600 dark:text-emerald-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              <span>View details</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-          </Link>
+                <div className="mt-3 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] text-emerald-600 dark:text-emerald-400 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span>View details</span>
+                  <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </Link>
+            </motion.div>
+          </StaggerItem>
         );
       })}
-    </div>
+    </StaggerList>
   );
 }

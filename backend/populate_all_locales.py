@@ -1,6 +1,4 @@
-"""Populate all missing keys in frontend locale JSON files using Sarvam AI.
-
-Optimized with asyncio.Semaphore(3) for fast concurrent translation with zero rate-limit errors.
+"""Populate all missing keys in frontend locale JSON files using IndicTrans2.
 """
 from __future__ import annotations
 
@@ -13,7 +11,7 @@ import sys
 sys.stdout.reconfigure(encoding="utf-8")
 sys.path.insert(0, ".")
 
-from services.sarvam_service import translate_text
+from services.translation.service import translation_service
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -53,9 +51,10 @@ async def translate_single_safe(
     async with sem:
         for attempt in range(retries):
             try:
-                res = await translate_text(text, target_lang=target_lang, source_lang="en")
+                res_dict = await translation_service.translate(text, target_language=target_lang, source_language="eng_Latn")
+                res = res_dict.get("translated_text", "")
                 if res and res.strip():
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(0.1)
                     return text, res.strip()
             except Exception as e:
                 if "429" in str(e) or "rate" in str(e).lower():

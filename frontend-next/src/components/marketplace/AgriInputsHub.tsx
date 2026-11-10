@@ -480,11 +480,11 @@ export function AgriInputsHub({
 
   // Load URL query params on mount (from Crop Doctor / Soil Health)
   useEffect(() => {
-    const qCrop = searchParams.get("crop");
-    const qDisease = searchParams.get("disease");
-    const qCategory = searchParams.get("category");
-    const qDeficiency = searchParams.get("deficiency");
-    const qConfidence = searchParams.get("confidence");
+    const qCrop = searchParams?.get("crop");
+    const qDisease = searchParams?.get("disease");
+    const qCategory = searchParams?.get("category");
+    const qDeficiency = searchParams?.get("deficiency");
+    const qConfidence = searchParams?.get("confidence");
 
     if (qCrop) setSelectedCrop(qCrop);
     if (qDisease) setSelectedDisease(qDisease);
@@ -522,7 +522,7 @@ export function AgriInputsHub({
         category: selectedCategory !== "all" ? selectedCategory : undefined,
         crop: selectedCrop !== "All" ? selectedCrop : undefined,
         disease: selectedDisease !== "All" ? selectedDisease : undefined,
-        deficiency: searchParams.get("deficiency") || undefined,
+        deficiency: searchParams?.get("deficiency") || undefined,
         brand: selectedBrand !== "All" ? selectedBrand : undefined,
         availability: selectedAvailability !== "all" ? selectedAvailability : undefined,
         min_price: minPrice ? parseFloat(minPrice) : undefined,

@@ -86,55 +86,7 @@ def _clean_text_for_speech(text: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# 1. Sarvam.ai — Indian-languages-first
-# ---------------------------------------------------------------------------
-async def _sarvam_tts(text: str, lang: str) -> TTSResult:
-    key = settings.SARVAM_API_KEY
-    if not key or len(key) < 20:
-        raise TTSError("SARVAM_API_KEY not set")
-
-    if lang == "auto":
-        from services.chat.language_detect import detect_language
-        lang = detect_language(text)
-    target = _SARVAM_LANG.get(lang, "en-IN")
-    model, speaker = _SARVAM_PROFILE.get(lang, _SARVAM_DEFAULT_PROFILE)
-    url = "https://api.sarvam.ai/text-to-speech"
-    headers = {"api-subscription-key": key, "Content-Type": "application/json"}
-    
-    clean_text = _clean_text_for_speech(text)[:2500]
-    body = {
-        "text": clean_text,
-        "language_code": target,
-        "speaker": speaker,
-        "pace": 0.96,
-        "speech_sample_rate": 24000,
-        "output_audio_codec": "mp3",
-        "model": model,
-    }
-    used_model = model
-    async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
-        r = await client.post(url, json=body, headers=headers)
-        if r.status_code >= 400 and model == "bulbul:v4-flash":
-            fallback = dict(body)
-            fallback.update({
-                "model": "bulbul:v3",
-                "speaker": _SARVAM_V3_SPEAKER.get(lang, "priya"),
-            })
-            r = await client.post(url, json=fallback, headers=headers)
-            used_model = "bulbul:v3"
-
-    if r.status_code >= 400:
-        raise TTSError(f"Sarvam TTS {r.status_code}: {r.text[:200]}")
-    data = r.json()
-    audios = data.get("audios", [])
-    if not audios:
-        raise TTSError("Sarvam returned empty audio")
-    audio = base64.b64decode("".join(audios))
-    return TTSResult(audio, "audio/mpeg", f"sarvam-{used_model}")
-
-
-# ---------------------------------------------------------------------------
-# 2. Indian Neural TTS (Edge TTS) — High-fidelity natural voice
+# 1. Indian Neural TTS (Edge TTS) — High-fidelity natural voice
 # ---------------------------------------------------------------------------
 async def _edge_tts(text: str, lang: str) -> TTSResult:
     try:
@@ -262,19 +214,16 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
 
 def _configured_providers(language: str) -> list[Tuple[str, callable]]:  # type: ignore[type-arg]
     out: list[Tuple[str, callable]] = []
-    # 1. Sarvam AI (Primary)
-    if settings.SARVAM_API_KEY:
-        out.append(("sarvam", _sarvam_tts))
-    # 2. Indian Neural Edge TTS (High-quality Indian accent audio)
+    # 1. Indian Neural Edge TTS (High-quality Indian accent audio)
     try:
         import edge_tts  # type: ignore
         out.append(("edge-neural", _edge_tts))
     except ImportError:
         pass
-    # 3. Google Cloud TTS
+    # 2. Google Cloud TTS
     if settings.GOOGLE_APPLICATION_CREDENTIALS:
         out.append(("google", _google_tts))
-    # 4. OpenAI TTS (English fallback only)
+    # 3. OpenAI TTS (English fallback only)
     if language == "en" and ((settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20)):
         out.append(("openai", _openai_tts))
     return out
@@ -289,7 +238,6 @@ def health() -> dict:
         pass
 
     return {
-        "sarvam": bool(settings.SARVAM_API_KEY),
         "edge_neural": has_edge,
         "google": bool(settings.GOOGLE_APPLICATION_CREDENTIALS),
         "openai": bool((settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) and len(settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) > 20),

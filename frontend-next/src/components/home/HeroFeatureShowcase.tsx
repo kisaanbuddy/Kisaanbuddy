@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Mic,
   Sparkles,
@@ -29,6 +30,7 @@ import {
 } from "lucide-react";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import { useLanguage, type Lang } from "@/lib/language";
+import { ActivePillIndicator } from "@/components/motion/MotionComponents";
 
 type FilterTab = "all" | "ai" | "market" | "agronomy";
 
@@ -110,52 +112,35 @@ export function HeroFeatureShowcase() {
           </span>
         </div>
 
-        {/* Interactive Filter Pills */}
+        {/* Interactive Filter Pills with Animated Sliding Pill */}
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-semibold text-stone-600 dark:text-stone-400">
-          <button
-            type="button"
-            onClick={() => setActiveTab("all")}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
-              activeTab === "all"
-                ? "bg-emerald-800 text-white shadow-2xs font-bold"
-                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
-            }`}
-          >
-            {isHi ? "सभी सेवाएं" : "All Services"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("ai")}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
-              activeTab === "ai"
-                ? "bg-emerald-800 text-white shadow-2xs font-bold"
-                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
-            }`}
-          >
-            AI & Disease
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("market")}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
-              activeTab === "market"
-                ? "bg-emerald-800 text-white shadow-2xs font-bold"
-                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
-            }`}
-          >
-            Mandi & Labour
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("agronomy")}
-            className={`px-2.5 py-1 rounded-lg transition-all ${
-              activeTab === "agronomy"
-                ? "bg-emerald-800 text-white shadow-2xs font-bold"
-                : "hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-600 dark:text-stone-300"
-            }`}
-          >
-            Weather & Soil
-          </button>
+          {(
+            [
+              { id: "all", label: isHi ? "सभी सेवाएं" : "All Services" },
+              { id: "ai", label: "AI & Disease" },
+              { id: "market", label: "Mandi & Labour" },
+              { id: "agronomy", label: "Weather & Soil" },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`relative px-3 py-1.5 rounded-lg transition-colors cursor-pointer select-none ${
+                activeTab === tab.id
+                  ? "text-white font-bold"
+                  : "hover:text-stone-900 dark:hover:text-stone-200 text-stone-600 dark:text-stone-400"
+              }`}
+            >
+              {activeTab === tab.id && (
+                <ActivePillIndicator
+                  layoutId="heroFeatureTabPill"
+                  className="absolute inset-0 bg-emerald-800 dark:bg-emerald-700 rounded-lg -z-10 shadow-xs"
+                />
+              )}
+              <span className="relative z-10">{tab.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 

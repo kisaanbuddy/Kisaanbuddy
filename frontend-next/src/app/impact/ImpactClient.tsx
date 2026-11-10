@@ -288,7 +288,7 @@ export default function ImpactPage() {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Live telemetry for AI plant disease diagnostic scans and Sarvam AI soil card OCR extractions is currently in baseline data collection across initial farmer cohorts. Under our Reality-First policy, KisaanBuddy does not display simulated or artificial counter counts. Genuine aggregated volume figures will be published following our third-party data audit.
+                    Live telemetry for AI plant disease diagnostic scans and computer vision soil card extractions is currently in baseline data collection across initial farmer cohorts. Under our Reality-First policy, KisaanBuddy does not display simulated or artificial counter counts. Genuine aggregated volume figures will be published following our third-party data audit.
                   </p>
                   <div className="text-[11px] font-medium text-stone-500 pt-1 border-t border-stone-200 dark:border-stone-800">
                     Status: <strong className="text-foreground">In active deployment across 14 agro-climatic zones</strong>
@@ -446,7 +446,7 @@ export default function ImpactPage() {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground max-w-3xl leading-relaxed">
-                Agricultural workforce marketplace with automated contract expiry management, official Labour Bureau wage intelligence benchmarks, and Sarvam AI voice copilot in regional dialects.
+                Agricultural workforce marketplace with automated contract expiry management, official Labour Bureau wage intelligence benchmarks, and voice copilot in regional dialects.
               </p>
             </div>
           </div>

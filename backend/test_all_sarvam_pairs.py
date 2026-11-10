@@ -10,6 +10,10 @@ os.environ.setdefault("DEBUG", "1")
 
 from fastapi.testclient import TestClient
 from main import app
+from db.session import engine
+from db.models import Base
+
+Base.metadata.create_all(bind=engine)
 
 client = TestClient(app)
 
@@ -22,7 +26,7 @@ pairs = [
     ("hi-IN", "en-IN", "फसल बीमा से किसानों को जोखिम से सुरक्षा मिलती है।"),
 ]
 
-print("=== TESTING SARVAM TRANSLATION ACROSS ALL 6 PAIRS ===")
+print("=== TESTING TRANSLATION COMPATIBILITY (INDICTRANS2) ACROSS ALL 6 PAIRS ===")
 all_passed = True
 for src, tgt, text in pairs:
     payload = {
@@ -43,6 +47,6 @@ for src, tgt, text in pairs:
         all_passed = False
 
 if all_passed:
-    print("\n>>> ALL 6 SARVAM TRANSLATION PAIRS PASSED SUCCESSFULLY!")
+    print("\n>>> ALL 6 TRANSLATION PAIRS PASSED SUCCESSFULLY VIA INDICTRANS2!")
 else:
     print("\n>>> SOME TRANSLATIONS FAILED!")

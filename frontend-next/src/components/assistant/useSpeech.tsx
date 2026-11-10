@@ -5,10 +5,10 @@
  * Capabilities:
  *   - Real microphone recording with Web Audio API (16kHz 16-bit PCM WAV)
  *   - Dual capture pipeline: Web Speech API for instantaneous interim transcription
- *     paired with high-fidelity server STT (Sarvam AI / Google SR)
+ *     paired with high-fidelity server STT (Google SR / Whisper)
  *   - Live audio analyser node & real-time volume/frequency data for genuine waveforms
  *   - Voice Activity Detection (VAD) / Silence detection for hands-free auto-commit
- *   - Human-like AI voice playback (Sarvam Bulbul & Indian Neural TTS) with play,
+ *   - Human-like AI voice playback (Indian Neural TTS / OpenAI) with play,
  *     pause, resume, and instant barge-in / interruption controls
  */
 
@@ -302,7 +302,7 @@ export function useSpeech(opts: UseSpeechOptions): UseSpeechReturn {
 
       void (async () => {
         try {
-          // Request real audio bytes from Sarvam / Indian Neural backend
+          // Request real audio bytes from Indian Neural / server backend
           const response = await synthesizeSpeech(text, spokenLang)
           if (generation !== speakGenerationRef.current) return
 

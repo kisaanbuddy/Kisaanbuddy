@@ -3,10 +3,14 @@
 Integrates the authentic, randomly initialized, temperature-calibrated
 CropDoctorInferenceService vision model without heuristic or hardcoded fallbacks.
 """
+from __future__ import annotations
 import sys
 from pathlib import Path
 from typing import Dict, Any, Union, Optional
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 # Ensure repo root is accessible
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent

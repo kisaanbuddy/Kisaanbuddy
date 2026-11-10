@@ -146,7 +146,7 @@ export function SmartSoilAnalysis({ params, onChange, dict }: Props) {
     })
   }, [method, estSoilType, estLastCrop, estIrrigation, estDrainage])
 
-  // Handle Soil Report Upload & Extraction (uses /api/sarvam/extract-soil-report)
+  // Handle Soil Report Upload & Extraction
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return

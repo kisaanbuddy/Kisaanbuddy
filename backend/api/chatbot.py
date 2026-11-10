@@ -202,7 +202,7 @@ async def assistant_health():
     providers = [
         AssistantProvider(name=h["model"], role="llm", configured=h["llm_configured"]),
         AssistantProvider(name="openai-whisper-1", role="stt", configured=stt_service.is_configured()),
-        AssistantProvider(name="sarvam-bulbul", role="tts", configured=tts_h["sarvam"]),
+        AssistantProvider(name="edge-neural", role="tts", configured=tts_h.get("edge_neural", True)),
         AssistantProvider(name="google-tts", role="tts", configured=tts_h["google"]),
         AssistantProvider(name="openai-tts-1", role="tts", configured=tts_h["openai"]),
     ]

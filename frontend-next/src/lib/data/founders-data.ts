@@ -44,7 +44,7 @@ export const FOUNDERS_DATA: FounderProfile[] = [
     verifiedContributions: [
       'Architected KisaanBuddy from inception as an authentic, reality-first agricultural platform.',
       'Designed end-to-end cloud infrastructure using Next.js, FastAPI, PostgreSQL, and edge caching.',
-      'Engineered vernacular voice assistant pipeline integrating Sarvam AI STT/TTS across 11 regional Indian languages.',
+      'Engineered vernacular multilingual assistant pipeline integrating AI4Bharat IndicTrans2 across 22 regional Indian languages.',
       'Pioneered sub-second API routing for live APMC mandi prices and hyper-local meteorological forecasts.',
     ],
     responsibilities: [

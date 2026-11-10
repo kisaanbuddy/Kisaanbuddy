@@ -146,6 +146,19 @@ const nextConfig = {
         source: '/api/sarvam/:path*',
         destination: `${backendUrl}/api/sarvam/:path*`
       },
+      // IndicTrans2 & Unified Translation Engine
+      {
+        source: '/api/translate/:path*/',
+        destination: `${backendUrl}/api/translate/:path*/`
+      },
+      {
+        source: '/api/translate/:path*',
+        destination: `${backendUrl}/api/translate/:path*`
+      },
+      {
+        source: '/api/translate',
+        destination: `${backendUrl}/api/translate`
+      },
       // Voice Operating System
       {
         source: '/api/voice/:path*/',

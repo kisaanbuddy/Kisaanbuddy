@@ -220,8 +220,8 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     },
   };
 
-  // Play real Sarvam TTS audio with browser speech synthesis fallback (never blocks site control)
-  const playSarvamAudio = useCallback(
+  // Play real TTS audio with browser speech synthesis fallback (never blocks site control)
+  const playVoiceAudio = useCallback(
     async (base64Audio?: string | null, textFallback?: string) => {
       if (audioMuted) return;
 
@@ -260,13 +260,12 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       // Fallback: try fetching from server TTS route, else Web Speech API
       if (textFallback) {
         try {
-          const res = await fetch("/api/sarvam/tts", {
+          const res = await fetch("/api/chat/tts", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               text: textFallback,
-              language: voiceLanguage === "kn" ? "kn-IN" : "hi-IN",
-              speaker: voiceLanguage === "kn" ? "ishita" : "priya",
+              language: voiceLanguage || "hi",
             }),
           });
           if (res.ok) {
@@ -354,7 +353,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
 
         // Optional non-blocking audio output
         if (!audioMuted) {
-          void playSarvamAudio(null, localResult.reply_text);
+          void playVoiceAudio(null, localResult.reply_text);
         }
         return;
       }
@@ -394,7 +393,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
 
         // Play real audio reply non-blockingly
         if (!audioMuted && data.reply_text) {
-          void playSarvamAudio(data.reply_audio_base64, data.reply_text);
+          void playVoiceAudio(data.reply_audio_base64, data.reply_text);
         }
       } catch (err: any) {
         console.warn("Voice command server interpretation error:", err);
@@ -419,7 +418,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       voiceLanguage,
       audioMuted,
       executionContext,
-      playSarvamAudio,
+      playVoiceAudio,
     ]
   );
 
@@ -619,9 +618,9 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       audio.onended = () => setIsSpeaking(false);
       audio.play().catch(() => {});
     } else if (lastReply) {
-      void playSarvamAudio(null, lastReply);
+      void playVoiceAudio(null, lastReply);
     }
-  }, [killOngoingSpeech, lastReply, playSarvamAudio]);
+  }, [killOngoingSpeech, lastReply, playVoiceAudio]);
 
   // Global event bridge: listen for 'kisaanbuddy:open-voice' from any button or chip on the website
   useEffect(() => {

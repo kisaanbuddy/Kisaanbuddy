@@ -37,9 +37,9 @@ function KhetDiaryContent() {
   // reviews the real form and explicitly submits, preserving confirmation for
   // a record-writing operation.
   useEffect(() => {
-    if (searchParams.get('voice') !== '1') return
-    const requestedCrop = searchParams.get('crop')
-    const requestedActivity = searchParams.get('activity')
+    if (searchParams?.get('voice') !== '1') return
+    const requestedCrop = searchParams?.get('crop')
+    const requestedActivity = searchParams?.get('activity')
     if (requestedCrop) setCrop(requestedCrop)
     if (requestedActivity) setActivity(requestedActivity)
   }, [searchParams])

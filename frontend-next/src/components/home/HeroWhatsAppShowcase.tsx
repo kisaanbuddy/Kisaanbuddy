@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 import {
   MessageCircle,
   ArrowLeft,
@@ -68,12 +69,14 @@ export function HeroWhatsAppShowcase() {
       {/* ─────────────────────────────────────────────────────────────
           MODERN IPHONE / FLAGSHIP SMARTPHONE UI MOCKUP
       ───────────────────────────────────────────────────────────── */}
-      <a
+      <motion.a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
         title={isHi ? "व्हाट्सएप पर चैट करने के लिए क्लिक करें" : "Click to chat on WhatsApp"}
-        className="group relative z-10 my-2 sm:my-3 block w-[290px] sm:w-[315px] md:w-[325px] lg:w-[335px] xl:w-[345px] cursor-pointer"
+        animate={{ y: [-4, 4, -4] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="group relative z-10 my-2 sm:my-3 block w-[290px] sm:w-[315px] md:w-[325px] lg:w-[335px] xl:w-[345px] cursor-pointer will-change-transform"
       >
         {/* Outer Phone Border & Realistic Metallic Ring */}
         <div className="relative rounded-[46px] p-[3px] bg-gradient-to-b from-stone-400 via-stone-300 to-stone-500 dark:from-stone-600 dark:via-stone-700 dark:to-stone-900 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.4)] group-hover:shadow-[0_30px_70px_-15px_rgba(37,211,102,0.3)] group-hover:scale-[1.02] transition-all duration-300">
@@ -197,7 +200,7 @@ export function HeroWhatsAppShowcase() {
             </div>
           </div>
         </div>
-      </a>
+      </motion.a>
 
       {/* Direct WhatsApp Action Button */}
       <div className="relative z-10 w-full space-y-2 mt-2">

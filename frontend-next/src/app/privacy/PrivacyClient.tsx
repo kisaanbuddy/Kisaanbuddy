@@ -142,7 +142,7 @@ export function PrivacyClient() {
               <span>Voice Recordings &amp; Audio Transcripts</span>
             </h3>
             <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-              To support non-English rural farmers, KisaanBuddy supports spoken voice queries in regional Indian languages. When you tap the microphone, audio data is streamed to our speech recognition model (such as Sarvam AI) to generate text transcripts. Raw audio buffers are deleted immediately following transcript synthesis and are never used to train commercial voice advertising profiles.
+              To support non-English rural farmers, KisaanBuddy supports spoken voice queries and multilingual translation in regional Indian languages. When you tap the microphone, audio data is processed by our speech recognition engine to generate text transcripts and translated using our self-hosted AI4Bharat IndicTrans2 engine. Raw audio buffers are deleted immediately following transcript synthesis and are never used to train commercial voice advertising profiles.
             </p>
           </div>
         </div>
@@ -320,7 +320,7 @@ export function PrivacyClient() {
             <strong>Agmarknet &amp; Mandi Portals:</strong> Modal market prices are synchronized from official agricultural produce market committee records.
           </li>
           <li>
-            <strong>Sarvam AI:</strong> Used strictly for low-latency Indian speech recognition and localized translation without persisting voice profiles.
+            <strong>AI4Bharat IndicTrans2:</strong> Self-hosted neural engine used for low-latency Indian language translation and multilingual comprehension without persisting personal profiles.
           </li>
         </ul>
       </section>

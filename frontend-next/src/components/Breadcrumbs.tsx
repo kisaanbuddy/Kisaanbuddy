@@ -33,7 +33,7 @@ const hiddenRoutes = new Set([
 export default function Breadcrumbs() {
   const pathname = usePathname();
   const { t } = useLanguage();
-  if (hiddenRoutes.has(pathname) || pathname?.startsWith("/marketplace")) return null;
+  if (!pathname || hiddenRoutes.has(pathname) || pathname.startsWith("/marketplace")) return null;
 
   const segments = pathname.split("/").filter(Boolean);
   const format = (segment: string) => {

@@ -1,79 +1,85 @@
-"use client"
+"use client";
 /**
- * A single chat bubble (user or assistant).
+ * World-Class Animated Chat Bubble (user or assistant).
  *
  * Renders:
+ *   - Staggered spring entrance
  *   - Role-coloured bubble with avatar glyph
  *   - Tool-call chips above assistant messages that used tools
  *   - A typing cursor while still streaming
  */
-import { Bot, Loader2, User, Volume2, VolumeX, Wrench } from "lucide-react"
-import { useState, useRef } from "react"
+import React, { useState, useRef } from "react";
+import { Bot, Loader2, User, Volume2, VolumeX, Wrench } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 
-import type { AssistantMessage } from "./useAssistant"
-import { synthesizeSpeech } from "@/lib/assistant-api"
+import type { AssistantMessage } from "./useAssistant";
+import { synthesizeSpeech } from "@/lib/assistant-api";
 
 const TOOL_LABEL: Record<string, string> = {
   get_weather: "Weather Diagnostics",
   get_forecast: "Mausam Forecast",
   recommend_crop: "Crop Advisory",
   list_schemes: "Government Schemes",
-}
+};
 
 export function ChatMessage({ msg }: { msg: AssistantMessage }) {
-  const isUser = msg.role === "user"
-  const isSystem = msg.role === "system" || msg.role === "tool"
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const isUser = msg.role === "user";
+  const isSystem = msg.role === "system" || msg.role === "tool";
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const prefersReduced = useReducedMotion();
 
-  if (isSystem) return null
+  if (isSystem) return null;
 
   const handleSpeak = async () => {
     if (isPlaying) {
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
       }
-      setIsPlaying(false)
-      return
+      setIsPlaying(false);
+      return;
     }
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const textToSpeak = msg.content
         .replace(/[#*`_-]/g, " ")
         .replace(/\s+/g, " ")
-        .slice(0, 1500)
-      const result = await synthesizeSpeech(textToSpeak, msg.language ?? "auto")
-      // Do not fall back to browser synthesis here: a browser English voice
-      // mispronounces Hindi/Kannada and masks a real TTS configuration issue.
-      if (result.kind !== "audio" || !result.blob.size) throw new Error("Neural TTS unavailable")
-      const blob = result.blob
-      const url = URL.createObjectURL(blob)
-      if (audioRef.current) audioRef.current.pause()
-      const audio = new Audio(url)
-      audioRef.current = audio
-      audio.onended = () => setIsPlaying(false)
-      audio.onerror = () => setIsPlaying(false)
-      await audio.play()
-      setIsPlaying(true)
+        .slice(0, 1500);
+      const result = await synthesizeSpeech(textToSpeak, msg.language ?? "auto");
+      if (result.kind !== "audio" || !result.blob.size) throw new Error("Neural TTS unavailable");
+      const blob = result.blob;
+      const url = URL.createObjectURL(blob);
+      if (audioRef.current) audioRef.current.pause();
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => setIsPlaying(false);
+      await audio.play();
+      setIsPlaying(true);
     } catch (e) {
-      console.warn("Sarvam TTS error:", e)
+      console.warn("TTS error:", e);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div
-      className={`flex w-full gap-2.5 ${isUser ? "justify-end flex-row-reverse" : "justify-start"}`}
+    <motion.div
+      initial={prefersReduced ? false : { opacity: 0, y: 12, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+      className={`flex w-full gap-2.5 will-change-transform ${isUser ? "justify-end flex-row-reverse" : "justify-start"}`}
     >
       {/* Avatar Icon */}
-      <div className={`flex-shrink-0 h-8 w-8 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0 border relative ${
-        isUser
-          ? "bg-teal-500/10 border-teal-500/20 text-teal-400"
-          : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-      }`}>
+      <div
+        className={`flex-shrink-0 h-8 w-8 rounded-xl flex items-center justify-center text-white shadow-sm shrink-0 border relative ${
+          isUser
+            ? "bg-teal-500/10 border-teal-500/20 text-teal-400"
+            : "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+        }`}
+      >
         {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
         {!isUser && (
           <span className="absolute bottom-0 right-0 h-2 w-2 rounded-full bg-emerald-400 border border-slate-950 animate-pulse" />
@@ -102,27 +108,30 @@ export function ChatMessage({ msg }: { msg: AssistantMessage }) {
             ))}
           </div>
         )}
-        
-        {/* Content text */}
-        <span>{msg.content}</span>
-        
-        {/* Streaming Blink Cursor */}
-        {msg.streaming && (
-          <span className="ml-1 inline-block h-3.5 w-1.5 animate-pulse bg-emerald-400 align-middle rounded font-bold" />
-        )}
 
-        {/* Sarvam TTS voice playback action */}
-        {!isUser && !msg.streaming && msg.content && (
-          <div className="mt-2 flex items-center justify-end border-t border-border/30 pt-1.5">
+        {/* Message Content */}
+        <div className="prose prose-sm dark:prose-invert max-w-none text-current">
+          {msg.content}
+          {msg.streaming && (
+            <span className="inline-block h-3.5 w-1.5 ml-1 bg-emerald-500 animate-pulse align-middle rounded-full" />
+          )}
+        </div>
+
+        {/* Footer Actions (Assistant Only) */}
+        {!isUser && !msg.streaming && msg.content.length > 0 && (
+          <div className="mt-2.5 flex items-center justify-between border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
+            <span className="opacity-60">{((msg as any).timestamp ?? (msg as any).created_at) ?? "Just now"}</span>
             <button
               type="button"
               onClick={handleSpeak}
               disabled={isLoading}
-              title="Listen with Sarvam AI Voice"
-              className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-emerald-500 transition-colors py-0.5 px-1.5 rounded hover:bg-emerald-500/10"
+              className="flex items-center gap-1.5 rounded-lg bg-muted/60 hover:bg-muted px-2 py-1 transition-colors text-foreground font-medium disabled:opacity-50"
             >
               {isLoading ? (
-                <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
+                  <span>Loading voice...</span>
+                </>
               ) : isPlaying ? (
                 <>
                   <VolumeX className="h-3 w-3 text-rose-500" />
@@ -131,13 +140,13 @@ export function ChatMessage({ msg }: { msg: AssistantMessage }) {
               ) : (
                 <>
                   <Volume2 className="h-3 w-3" />
-                  <span>Listen (Sarvam Voice)</span>
+                  <span>Listen</span>
                 </>
               )}
             </button>
           </div>
         )}
       </div>
-    </div>
-  )
+    </motion.div>
+  );
 }

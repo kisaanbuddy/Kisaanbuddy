@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Mic,
   Bug,
@@ -26,6 +27,13 @@ import { SpeakHeroControlHub } from "@/components/voice/SpeakHeroControlHub";
 import { HeroWhatsAppShowcase } from "@/components/home/HeroWhatsAppShowcase";
 import { WhatsAppShowcaseSection } from "@/components/home/WhatsAppShowcaseSection";
 import { HOME_I18N } from "@/lib/homepage-i18n";
+import {
+  CinematicWordReveal,
+  MotionSection,
+  StaggerList,
+  StaggerItem,
+} from "@/components/motion/MotionComponents";
+import { fadeUp, fadeIn, pressFeedback } from "@/lib/motion";
 
 export function WorldClassHomePage() {
   const { user } = useAuth();
@@ -56,43 +64,70 @@ export function WorldClassHomePage() {
 
           {/* Hero Grid: Typography on Left, Visual Telemetry on Right */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 xl:gap-16 items-center flex-1 my-auto py-4">
-            {/* Left Content Column (7 cols) */}
-            <div className="lg:col-span-7 space-y-6 lg:space-y-8 pt-1">
+            {/* Left Content Column (7 cols) with Cinematic Apple-grade entrance */}
+            <motion.div
+              initial="initial"
+              animate="animate"
+              variants={fadeIn}
+              className="lg:col-span-7 space-y-6 lg:space-y-8 pt-1"
+            >
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[52px] xl:text-6xl 2xl:text-[68px] font-extrabold tracking-tight text-stone-900 dark:text-white leading-[1.12]">
-                Your Farm. Your Decisions.{" "}
-                <span className="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent">
-                  Smarter with AI.
-                </span>
+                <CinematicWordReveal
+                  text="Your Farm. Your Decisions."
+                  className="block"
+                />{" "}
+                <CinematicWordReveal
+                  text="Smarter with AI."
+                  highlightWords={["Smarter", "with", "AI."]}
+                  className="block mt-1"
+                />
               </h1>
 
-              <p className="text-base sm:text-lg md:text-xl text-stone-600 dark:text-stone-300 font-normal leading-relaxed max-w-2xl xl:max-w-3xl">
+              <motion.p
+                variants={fadeUp}
+                className="text-base sm:text-lg md:text-xl text-stone-600 dark:text-stone-300 font-normal leading-relaxed max-w-2xl xl:max-w-3xl"
+              >
                 From crop health diagnosis and hyperlocal weather intelligence to live mandi rates and agricultural services, KisaanBuddy helps Indian farmers make confident, data-driven farming decisions.
-              </p>
+              </motion.p>
 
               {/* Call to Actions - Including Central Speak Control Hub Anchor */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-1">
-                <a
+              <motion.div
+                variants={fadeUp}
+                className="flex flex-wrap items-center gap-3.5 pt-1"
+              >
+                <motion.a
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={pressFeedback}
                   href="#capabilities"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-sm sm:text-base shadow-sm hover:shadow-md transition-all cursor-pointer will-change-transform"
                 >
                   <span>Explore KisaanBuddy</span>
                   <ArrowRight className="w-4 h-4" />
-                </a>
+                </motion.a>
 
-                <Link
-                  href="/chatbot"
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-emerald-50/60 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 font-bold text-sm sm:text-base shadow-2xs hover:border-emerald-600/40 transition-all active:scale-[0.98]"
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={pressFeedback}
+                  className="will-change-transform"
                 >
-                  <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Talk to AI Advisor</span>
-                </Link>
+                  <Link
+                    href="/chatbot"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-white dark:bg-stone-900 hover:bg-emerald-50/60 dark:hover:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-800 dark:text-stone-100 font-bold text-sm sm:text-base shadow-2xs hover:border-emerald-600/40 transition-all cursor-pointer"
+                  >
+                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <span>Talk to AI Advisor</span>
+                  </Link>
+                </motion.div>
 
                 {/* THE CENTRAL SPEAK / बोलें CONTROL HUB WITH 6 FLOATING SERVICES */}
                 <SpeakHeroControlHub />
-              </div>
+              </motion.div>
 
               {/* Trust & Source Assurance Markers */}
-              <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-stone-500 dark:text-stone-400 font-medium">
+              <motion.div
+                variants={fadeUp}
+                className="pt-4 border-t border-stone-200/80 dark:border-stone-800/80 flex flex-wrap items-center gap-y-2 gap-x-6 text-xs sm:text-sm text-stone-500 dark:text-stone-400 font-medium"
+              >
                 <span className="flex items-center gap-1.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>AGMARKNET Mandi Data</span>
@@ -109,8 +144,8 @@ export function WorldClassHomePage() {
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
                   <span>100% Free for Farmers</span>
                 </span>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
             {/* Right Visual Showcase: KisaanBuddy on WhatsApp Phone Mockup Showcase (5 cols) */}
             <div className="lg:col-span-5 relative w-full flex justify-center">
@@ -124,7 +159,7 @@ export function WorldClassHomePage() {
         {/* ─────────────────────────────────────────────────────────────
             3. BIG, SIMPLE PRIMARY TASK CARDS WITH AUTHENTIC THUMBNAILS
         ───────────────────────────────────────────────────────────── */}
-        <section className="space-y-4">
+        <MotionSection className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-white">
               {dict.cardsHeading}
@@ -135,7 +170,11 @@ export function WorldClassHomePage() {
           </div>
 
           {/* KisaanBuddy AI Voice Hub interactive launcher banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 text-white border border-emerald-500/30 shadow-lg">
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 text-white border border-emerald-500/30 shadow-lg will-change-transform"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-600/30 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
                 <Mic className="w-5 h-5 animate-pulse" />
@@ -159,18 +198,19 @@ export function WorldClassHomePage() {
             <button
               type="button"
               onClick={() => openVoiceAssistant()}
-              className="self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 shrink-0"
+              className="self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
             >
               <Sparkles className="w-4 h-4 text-emerald-200" />
               <span>{lang === "kn" ? "ಧ್ವನಿ ಹಬ್ ತೆರೆಯಿರಿ" : lang === "hi" ? "वॉइस हब खोलें" : "Open Voice Hub"}</span>
             </button>
-          </div>
+          </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <StaggerList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Card 1: Crop Doctor (पत्ती की फोटो खींचें) */}
+            <StaggerItem>
             <Link
               href="/disease"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-rose-200 dark:border-rose-950/60 hover:border-rose-500 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden active:scale-[0.99]"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-rose-200 dark:border-rose-950/60 hover:border-rose-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
               {/* Authentic Leaf Pathology Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
@@ -218,11 +258,13 @@ export function WorldClassHomePage() {
                 </span>
               </div>
             </Link>
+            </StaggerItem>
 
             {/* Card 2: Mandi Rates (आज का मंडी भाव) */}
+            <StaggerItem>
             <Link
               href="/mandi"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-amber-200 dark:border-amber-950/60 hover:border-amber-500 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden active:scale-[0.99]"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-amber-200 dark:border-amber-950/60 hover:border-amber-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
               {/* Authentic Mandi Grain Market Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
@@ -270,11 +312,13 @@ export function WorldClassHomePage() {
                 </span>
               </div>
             </Link>
+            </StaggerItem>
 
             {/* Card 3: Weather (मौसम व स्प्रे समय) */}
+            <StaggerItem>
             <Link
               href="/weather"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-sky-200 dark:border-sky-950/60 hover:border-sky-500 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden active:scale-[0.99]"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-sky-200 dark:border-sky-950/60 hover:border-sky-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
               {/* Authentic Monsoon Weather Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
@@ -322,11 +366,13 @@ export function WorldClassHomePage() {
                 </span>
               </div>
             </Link>
+            </StaggerItem>
 
             {/* Card 4: Tractor & Machinery (ट्रैक्टर व उपकरण) */}
+            <StaggerItem>
             <Link
               href="/marketplace"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-emerald-200 dark:border-emerald-950/60 hover:border-emerald-600 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden active:scale-[0.99]"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-emerald-200 dark:border-emerald-950/60 hover:border-emerald-600 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
               {/* Authentic Tractor Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden flex items-center justify-center p-2">
@@ -374,11 +420,13 @@ export function WorldClassHomePage() {
                 </span>
               </div>
             </Link>
+            </StaggerItem>
 
             {/* Card 5: AgriLabour (खेत मजदूर) */}
+            <StaggerItem>
             <Link
               href="/worker-connect"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-indigo-200 dark:border-indigo-950/60 hover:border-indigo-500 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden active:scale-[0.99]"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-indigo-200 dark:border-indigo-950/60 hover:border-indigo-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
               {/* Authentic Farm Workers Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden flex items-center justify-center p-2">
@@ -426,11 +474,13 @@ export function WorldClassHomePage() {
                 </span>
               </div>
             </Link>
+            </StaggerItem>
 
             {/* Card 6: AI Chatbot (24x7 सलाह) */}
+            <StaggerItem>
             <Link
               href="/chatbot"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-teal-200 dark:border-teal-950/60 hover:border-teal-500 shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden active:scale-[0.99]"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-teal-200 dark:border-teal-950/60 hover:border-teal-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
               {/* Authentic Lush Green Crop Field Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
@@ -478,13 +528,14 @@ export function WorldClassHomePage() {
                 </span>
               </div>
             </Link>
-          </div>
-        </section>
+            </StaggerItem>
+          </StaggerList>
+        </MotionSection>
 
         {/* ─────────────────────────────────────────────────────────────
             4. TODAY'S FIELD ADVISORY (आज की मुख्य सलाह)
         ───────────────────────────────────────────────────────────── */}
-        <section className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
+        <MotionSection className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -497,7 +548,11 @@ export function WorldClassHomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Weather & Spray Safety */}
-            <div className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3">
+            <motion.div
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+              className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3 will-change-transform"
+            >
               <CloudSun className="w-6 h-6 text-emerald-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-sm font-bold text-emerald-950 dark:text-emerald-200">
@@ -507,10 +562,14 @@ export function WorldClassHomePage() {
                   {dict.advisory.weatherStatusDesc}
                 </p>
               </div>
-            </div>
+            </motion.div>
 
             {/* Mandi Selling Tip */}
-            <div className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3">
+            <motion.div
+              whileHover={{ y: -2 }}
+              transition={{ duration: 0.2 }}
+              className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3 will-change-transform"
+            >
               <TrendingUp className="w-6 h-6 text-amber-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-sm font-bold text-amber-950 dark:text-amber-200">
@@ -520,9 +579,9 @@ export function WorldClassHomePage() {
                   {dict.advisory.mandiTipDesc}
                 </p>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </section>
+        </MotionSection>
 
         {/* ─────────────────────────────────────────────────────────────
             5. WHATSAPP AI COMPANION SHOWCASE (PREMIUM SAAS TWO-COLUMN)
@@ -532,38 +591,50 @@ export function WorldClassHomePage() {
         {/* ─────────────────────────────────────────────────────────────
             6. SIMPLE 3-STEP GUIDE (उपयोग कैसे करें?)
         ───────────────────────────────────────────────────────────── */}
-        <section className="text-center space-y-4 pt-4">
+        <MotionSection className="text-center space-y-4 pt-4">
           <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white">
             {dict.howItWorks.heading}
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs">
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.2 }}
+              className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs will-change-transform"
+            >
               <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step1Title}</span>
               <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
                 {dict.howItWorks.step1Desc}
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs">
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.2 }}
+              className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs will-change-transform"
+            >
               <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step2Title}</span>
               <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
                 {dict.howItWorks.step2Desc}
               </p>
-            </div>
+            </motion.div>
 
-            <div className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs">
+            <motion.div
+              whileHover={{ y: -3 }}
+              transition={{ duration: 0.2 }}
+              className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs will-change-transform"
+            >
               <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step3Title}</span>
               <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
                 {dict.howItWorks.step3Desc}
               </p>
-            </div>
+            </motion.div>
           </div>
 
           <div className="pt-4 text-xs text-stone-500 font-medium">
             <span>{dict.howItWorks.footerNote}</span>
           </div>
-        </section>
+        </MotionSection>
       </div>
     </div>
   );

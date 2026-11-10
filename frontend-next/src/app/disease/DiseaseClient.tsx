@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { ViewfinderScanner } from "@/components/motion/MotionComponents";
 import {
   Camera,
   ImagePlus,
@@ -156,7 +157,7 @@ export default function DiseaseClient() {
 
   // Load crop from query / voice parameter
   useEffect(() => {
-    const requestedCrop = searchParams.get("crop");
+    const requestedCrop = searchParams?.get("crop");
     if (requestedCrop) setCrop(requestedCrop);
 
     // Also check saved farm profile
@@ -452,8 +453,10 @@ export default function DiseaseClient() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={imageDataUrl}
+
               alt="Crop leaf preview"
-              className="aspect-video w-full object-contain"
+              className="aspect-video w-full object-contain" />
+            <ViewfinderScanner isScanning={mlLoading || isStreaming}
             />
             <button
               type="button"

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 interface VoiceWaveformProps {
   active: boolean;
@@ -13,32 +14,47 @@ export function VoiceWaveform({
   className = "",
   color = "bg-emerald-600 dark:bg-emerald-400",
 }: VoiceWaveformProps) {
+  const prefersReduced = useReducedMotion();
+
   if (!active) return null;
 
-  // 7 balanced waveform bars with subtle, varied heights
-  const bars = [
-    { height: "h-3", delay: "0.1s", dur: "1.1s" },
-    { height: "h-5", delay: "0.25s", dur: "0.95s" },
-    { height: "h-7", delay: "0.15s", dur: "1.2s" },
-    { height: "h-9", delay: "0.3s", dur: "1.05s" },
-    { height: "h-7", delay: "0.2s", dur: "1.15s" },
-    { height: "h-5", delay: "0.35s", dur: "0.9s" },
-    { height: "h-3", delay: "0.12s", dur: "1.25s" },
+  // 9 organic audio frequency spectrum bars
+  const barConfigs = [
+    { minH: 8, maxH: 20, dur: 0.9, delay: 0 },
+    { minH: 10, maxH: 28, dur: 1.1, delay: 0.12 },
+    { minH: 14, maxH: 36, dur: 0.85, delay: 0.2 },
+    { minH: 12, maxH: 42, dur: 1.05, delay: 0.05 },
+    { minH: 16, maxH: 46, dur: 0.75, delay: 0.25 },
+    { minH: 12, maxH: 40, dur: 1.15, delay: 0.08 },
+    { minH: 14, maxH: 32, dur: 0.95, delay: 0.18 },
+    { minH: 10, maxH: 26, dur: 1.0, delay: 0.28 },
+    { minH: 8, maxH: 18, dur: 0.8, delay: 0.15 },
   ];
 
   return (
     <div
       aria-label="Sound wave listening visualizer"
-      className={`flex items-center justify-center gap-1.5 h-10 px-3 ${className}`}
+      className={`flex items-center justify-center gap-1.5 h-12 px-3 ${className}`}
     >
-      {bars.map((bar, i) => (
-        <span
+      {barConfigs.map((bar, i) => (
+        <motion.span
           key={i}
-          style={{
-            animationDelay: bar.delay,
-            animationDuration: bar.dur,
+          initial={{ height: bar.minH }}
+          animate={
+            prefersReduced
+              ? { height: 16 }
+              : {
+                  height: [bar.minH, bar.maxH, bar.minH * 1.3, bar.maxH * 0.8, bar.minH],
+                }
+          }
+          transition={{
+            duration: bar.dur,
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+            delay: bar.delay,
           }}
-          className={`w-1 rounded-full ${bar.height} ${color} voice-wave-bar motion-reduce:animate-none`}
+          className={`w-1 rounded-full ${color} shadow-xs will-change-transform`}
         />
       ))}
     </div>

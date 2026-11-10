@@ -19,12 +19,14 @@ import {
   cardHover,
   MOTION_DURATIONS,
   MOTION_EASINGS,
+  textStaggerContainer,
+  wordReveal,
 } from '@/lib/motion';
 
 /**
  * PageTransition:
- * Provides a gentle fade/slide entrance when navigating between routes.
- * Gracefully disables if user prefers reduced motion.
+ * Provides an Apple/Vercel-grade smooth entrance between route changes.
+ * Gracefully respects prefers-reduced-motion.
  */
 export function PageTransition({
   children,
@@ -41,9 +43,9 @@ export function PageTransition({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -6 }}
+      exit={{ opacity: 0, y: -8 }}
       transition={{
         duration: MOTION_DURATIONS.page,
         ease: MOTION_EASINGS.gentle,
@@ -56,8 +58,60 @@ export function PageTransition({
 }
 
 /**
+ * CinematicWordReveal:
+ * Apple-grade headline reveal that splits text into individual words
+ * and staggers them with subtle blur deceleration.
+ */
+export function CinematicWordReveal({
+  text,
+  className = '',
+  highlightWords = [],
+  highlightClassName = 'bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 dark:from-emerald-400 dark:to-teal-300 bg-clip-text text-transparent',
+}: {
+  text: string;
+  className?: string;
+  highlightWords?: string[];
+  highlightClassName?: string;
+}) {
+  const prefersReduced = useReducedMotion();
+  const words = text.split(' ');
+
+  if (prefersReduced) {
+    return <span className={className}>{text}</span>;
+  }
+
+  return (
+    <motion.span
+      variants={textStaggerContainer}
+      initial="initial"
+      animate="animate"
+      className={`inline-block ${className}`}
+    >
+      {words.map((word, i) => {
+        const cleanWord = word.replace(/[^a-zA-Z0-9\u0900-\u097F]/g, '');
+        const isHighlight = highlightWords.some(
+          (hw) => hw.toLowerCase() === cleanWord.toLowerCase()
+        );
+
+        return (
+          <motion.span
+            key={`${word}-${i}`}
+            variants={wordReveal}
+            className={`inline-block mr-[0.28em] ${
+              isHighlight ? highlightClassName : ''
+            }`}
+          >
+            {word}
+          </motion.span>
+        );
+      })}
+    </motion.span>
+  );
+}
+
+/**
  * MotionSection:
- * Reveals full sections as they scroll into view.
+ * Reveals full sections as they scroll into view using native passive IntersectionObserver.
  */
 interface MotionSectionProps extends HTMLMotionProps<'section'> {
   children: React.ReactNode;
@@ -83,7 +137,7 @@ export function MotionSection({
 
   return (
     <motion.section
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{
@@ -101,7 +155,7 @@ export function MotionSection({
 
 /**
  * StaggerList & StaggerItem:
- * Ideal for card grids, lists of recommendations, mandi prices, workers.
+ * For card grids, recommendations, mandi prices, and worker directories.
  */
 export function StaggerList({
   children,
@@ -155,7 +209,7 @@ export function StaggerItem({
 
 /**
  * MotionCard:
- * Premium interactive surface with restrained elevation on hover and press feedback.
+ * Premium interactive surface with restrained elevation on hover and tactile press feedback.
  */
 export function MotionCard({
   children,
@@ -181,7 +235,7 @@ export function MotionCard({
       whileHover={cardHover}
       whileTap={pressFeedback}
       onClick={onClick}
-      className={className}
+      className={`will-change-transform ${className}`}
     >
       {children}
     </motion.div>
@@ -189,9 +243,84 @@ export function MotionCard({
 }
 
 /**
+ * MagneticButton / TactileButton:
+ * High-precision tactile button with physical spring feedback.
+ */
+export function TactileButton({
+  children,
+  className = '',
+  onClick,
+  disabled = false,
+  type = 'button',
+}: {
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: 'button' | 'submit' | 'reset';
+}) {
+  const prefersReduced = useReducedMotion();
+
+  if (prefersReduced || disabled) {
+    return (
+      <button
+        type={type}
+        onClick={onClick}
+        disabled={disabled}
+        className={className}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  return (
+    <motion.button
+      type={type}
+      whileHover={{ scale: 1.02 }}
+      whileTap={pressFeedback}
+      onClick={onClick}
+      className={`will-change-transform ${className}`}
+    >
+      {children}
+    </motion.button>
+  );
+}
+
+/**
+ * ActivePillIndicator:
+ * Framer-motion layoutId animated pill for fluid tab & filter transitions.
+ */
+export function ActivePillIndicator({
+  layoutId = 'activeTabPill',
+  className = 'absolute inset-0 bg-emerald-800 dark:bg-emerald-700 rounded-xl -z-10 shadow-sm',
+}: {
+  layoutId?: string;
+  className?: string;
+}) {
+  const prefersReduced = useReducedMotion();
+
+  if (prefersReduced) {
+    return <div className={className} />;
+  }
+
+  return (
+    <motion.div
+      layoutId={layoutId}
+      className={className}
+      transition={{
+        type: 'spring',
+        stiffness: 450,
+        damping: 32,
+      }}
+    />
+  );
+}
+
+/**
  * AnimatedCounter:
- * Animates a numeric metric from an initial value to target.
- * Never invents numbers — strictly animates actual prop value.
+ * Animates a numeric metric from an initial value to target with zero frame drops.
+ * Strictly displays authentic prop values.
  */
 export function AnimatedCounter({
   value,
@@ -227,7 +356,7 @@ export function AnimatedCounter({
     const tick = (now: number) => {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / durationMs, 1);
-      // Ease out cubic
+      // Apple-grade cubic ease out
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = start + (end - start) * eased;
 
@@ -244,13 +373,16 @@ export function AnimatedCounter({
     return () => cancelAnimationFrame(frameId);
   }, [value, duration, prefersReduced]);
 
-  const formatted = decimals > 0 
-    ? displayValue.toFixed(decimals) 
-    : Math.round(displayValue).toLocaleString();
+  const formatted =
+    decimals > 0
+      ? displayValue.toFixed(decimals)
+      : Math.round(displayValue).toLocaleString('en-IN');
 
   return (
     <span className={className}>
-      {prefix}{formatted}{suffix}
+      {prefix}
+      {formatted}
+      {suffix}
     </span>
   );
 }
@@ -338,6 +470,36 @@ export function ModalWrapper({
         </div>
       )}
     </AnimatePresence>
+  );
+}
+
+/**
+ * ViewfinderScanner:
+ * Laser scanning sweep effect for Crop Disease Leaf Analysis and Satellite diagnostics.
+ */
+export function ViewfinderScanner({
+  isScanning = false,
+  className = 'absolute inset-0 pointer-events-none',
+}: {
+  isScanning: boolean;
+  className?: string;
+}) {
+  if (!isScanning) return null;
+
+  return (
+    <div className={`overflow-hidden ${className}`}>
+      <motion.div
+        initial={{ y: '-10%' }}
+        animate={{ y: '110%' }}
+        transition={{
+          duration: 1.8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          repeatType: 'reverse',
+        }}
+        className="w-full h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent shadow-[0_0_15px_4px_rgba(52,211,153,0.7)]"
+      />
+    </div>
   );
 }
 

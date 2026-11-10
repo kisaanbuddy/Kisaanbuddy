@@ -2,7 +2,10 @@ from fastapi.responses import FileResponse, Response
 import uuid
 import hashlib
 import json
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 import io
 import os
 import sys

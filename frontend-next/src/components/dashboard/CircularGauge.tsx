@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { LucideIcon } from 'lucide-react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatedCounter } from '@/components/motion/MotionComponents';
 
 interface CircularGaugeProps {
   value: number;
@@ -29,6 +31,7 @@ export function CircularGauge({
   advice,
   adviceClass = "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
 }: CircularGaugeProps) {
+  const prefersReduced = useReducedMotion();
   const radius = 48;
   const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
@@ -38,7 +41,11 @@ export function CircularGauge({
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 flex flex-col justify-between h-full shadow-xs transition-all duration-200 hover:border-border/80 w-full">
+    <motion.div
+      whileHover={prefersReduced ? undefined : { y: -3 }}
+      transition={{ duration: 0.2 }}
+      className="rounded-xl border border-border bg-card p-5 flex flex-col justify-between h-full shadow-xs transition-colors hover:border-emerald-600/30 w-full will-change-transform"
+    >
       {/* Header */}
       <div className="flex justify-between items-center mb-3">
         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
@@ -63,22 +70,28 @@ export function CircularGauge({
               fill="transparent"
             />
             {/* Active progress track circle */}
-            <circle
+            <motion.circle
               cx="64"
               cy="64"
               r={radius}
-              className={`transition-all duration-700 ease-out ${strokeColor}`}
               strokeWidth={strokeWidth}
               strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
+              initial={prefersReduced ? { strokeDashoffset } : { strokeDashoffset: circumference }}
+              animate={{ strokeDashoffset }}
+              transition={{
+                duration: 1.1,
+                ease: [0.16, 1, 0.3, 1],
+                delay: 0.1,
+              }}
               strokeLinecap="round"
               fill="transparent"
+              className={strokeColor}
             />
           </svg>
           {/* Central Value */}
           <div className="absolute flex flex-col items-center justify-center text-center">
             <span className="text-2xl font-bold font-display text-foreground tracking-tight">
-              {value}
+              <AnimatedCounter value={value} duration={1.1} />
               <span className="text-xs font-semibold text-muted-foreground ml-0.5">{unit}</span>
             </span>
           </div>
@@ -91,6 +104,6 @@ export function CircularGauge({
           {advice}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }

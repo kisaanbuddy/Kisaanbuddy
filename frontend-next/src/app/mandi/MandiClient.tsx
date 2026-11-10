@@ -68,6 +68,7 @@ import { HistoricalPriceChart } from "@/components/mandi/HistoricalPriceChart"
 import { MandiPriceTable } from "@/components/mandi/MandiPriceTable"
 import { MandiIntelligencePanels } from "@/components/mandi/MandiIntelligencePanels"
 import { CommodityCatalogModal } from "@/components/mandi/CommodityCatalogModal"
+import { MandiFullScreenDetail } from "@/components/mandi/MandiFullScreenDetail"
 
 import { Lang, LANG_NAMES } from "@/lib/language"
 import {
@@ -226,7 +227,7 @@ export default function MandiPage() {
   const tabT = MANDI_TABS_LANG[plang] || MANDI_TABS_LANG.en
 
   // Tabs state
-  const tabParam = searchParams.get("tab")
+  const tabParam = searchParams?.get("tab")
   const initialTab: ActiveTab =
     tabParam === "buy" ||
     tabParam === "sell" ||
@@ -240,7 +241,7 @@ export default function MandiPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>(initialTab)
 
   useEffect(() => {
-    const currentTab = searchParams.get("tab")
+    const currentTab = searchParams?.get("tab")
     if (
       currentTab === "buy" ||
       currentTab === "sell" ||
@@ -260,6 +261,7 @@ export default function MandiPage() {
   const [loadingPrices, setLoadingPrices] = useState(true)
   const [errorPrices, setErrorPrices] = useState<string | null>(null)
   const [selectedCrop, setSelectedCrop] = useState<MandiCrop | null>(null)
+  const [fullScreenCrop, setFullScreenCrop] = useState<MandiCrop | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [categoryFilter, setCategoryFilter] = useState<string>("All")
   const [stateFilter, setStateFilter] = useState<string>("All")
@@ -274,7 +276,7 @@ export default function MandiPage() {
 
   // Voice search query detection from URL
   useEffect(() => {
-    const urlQ = searchParams.get("q")
+    const urlQ = searchParams?.get("q")
     if (urlQ && urlQ !== searchQuery) {
       setSearchQuery(urlQ)
     }
@@ -378,9 +380,9 @@ export default function MandiPage() {
     title: string
   } | null>(null)
 
-  const requestedCrop = searchParams.get("crop") || ""
-  const requestedState = searchParams.get("state") || ""
-  const requestedDistrict = searchParams.get("district") || ""
+  const requestedCrop = searchParams?.get("crop") || ""
+  const requestedState = searchParams?.get("state") || ""
+  const requestedDistrict = searchParams?.get("district") || ""
 
   // User session initialization
   useEffect(() => {
@@ -859,7 +861,33 @@ export default function MandiPage() {
       </AnimatePresence>
 
       {/* FULL-SCREEN CONTAINER (Utilizes 100% viewport with consistent 24-40px padding) */}
-      <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-5 pt-2">
+      {/* FULL-SCREEN MANDI DETAIL VIEW */}
+      {fullScreenCrop && (
+        <MandiFullScreenDetail
+          crop={fullScreenCrop}
+          onClose={() => setFullScreenCrop(null)}
+          allBuyers={buyerReqs}
+          onOpenCalculator={(crop) => {
+            setSelectedCrop(crop)
+            setActiveTab("calculator")
+            setFullScreenCrop(null)
+          }}
+          onOpenSell={(crop) => {
+            setSelectedCrop(crop)
+            setActiveTab("sell")
+            setShowPostProduceModal(true)
+            setFullScreenCrop(null)
+          }}
+          onOpenAlert={(crop) => {
+            setSelectedCrop(crop)
+            setActiveTab("alerts")
+            setFullScreenCrop(null)
+          }}
+          lang={plang}
+        />
+      )}
+
+      <div className={`w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 space-y-5 pt-2 ${fullScreenCrop ? "hidden" : "block"}`}>
 
         {/* ============================================================ */}
         {/*  1. REDESIGNED COMPACT MANDI HEADER (FINTECH TERMINAL STYLE) */}
@@ -1270,6 +1298,10 @@ export default function MandiPage() {
                   matchedSellers={matchedSellers}
                   searchQuery={searchQuery}
                   onResetFilters={handleResetFilters}
+                  onViewDetails={(crop) => {
+                    setSelectedCrop(crop)
+                    setFullScreenCrop(crop)
+                  }}
                 />
               )}
             </section>

@@ -44,6 +44,8 @@ services:
       - STORAGE_BACKEND=mounted
       - PILOT_STORAGE_PATH=/app/backend/uploads/pilot_images
       - RATE_LIMIT_PER_MINUTE=60
+      - INDICTRANS2_SERVICE_URL=http://indictrans2:8001
+      - TRANSLATION_PRIMARY_PROVIDER=indictrans2
     volumes:
       - pilot_image_uploads:/app/backend/uploads/pilot_images
     healthcheck:
@@ -51,6 +53,30 @@ services:
       interval: 20s
       timeout: 5s
       retries: 3
+
+  indictrans2:
+    build:
+      context: ./ml/indictrans2_service
+      dockerfile: Dockerfile
+    container_name: kisaanbuddy-indictrans2
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - HOST=0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
 volumes:
   postgres_data:

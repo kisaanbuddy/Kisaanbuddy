@@ -5,7 +5,7 @@
  *
  * Core capabilities:
  *   - Genuine microphone capture with real-time Web Audio FFT waveform visualizer
- *   - Real AI audio playback (Sarvam Bulbul & Indian Neural TTS)
+ *   - Real AI audio playback (Indian Neural TTS / OpenAI)
  *   - Genuine state engine: IDLE -> LISTENING -> PROCESSING -> GENERATING -> SPEAKING -> LISTENING AGAIN
  *   - Instant barge-in / voice interruption: Tapping mic or speaking stops AI speech immediately
  *   - Play, pause, resume, replay, and stop audio controls
@@ -521,7 +521,7 @@ export function VoiceAssistantModal() {
           ]
         })
 
-        // Speak aloud using Sarvam / Indian Neural voice
+        // Speak aloud using Indian Neural voice
         const spokenLang = (last.language ?? currentLang) as Language
         speech.speak(last.content, spokenLang)
       }

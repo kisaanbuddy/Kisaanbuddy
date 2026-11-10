@@ -45,53 +45,7 @@ class STTError(Exception):
 
 
 # ---------------------------------------------------------------------------
-# 1. Sarvam.ai STT (saaras:v4 / saaras:v3)
-# ---------------------------------------------------------------------------
-async def _sarvam_stt(
-    audio_bytes: bytes,
-    filename: str = "audio.wav",
-    content_type: str = "audio/wav",
-    language: Optional[str] = None,
-) -> STTResult:
-    key = settings.SARVAM_API_KEY
-    if not key or len(key) < 20:
-        raise STTError("SARVAM_API_KEY not configured.")
-
-    url = "https://api.sarvam.ai/speech-to-text"
-    headers = {"api-subscription-key": key}
-    data: dict[str, str] = {
-        "model": "saaras:v4",
-        "mode": "transcribe",
-    }
-    if language and language in _LANG_BCP47:
-        data["language_code"] = _LANG_BCP47[language]
-    else:
-        data["language_code"] = "unknown"
-
-    files = {"file": (filename or "audio.wav", audio_bytes, content_type or "audio/wav")}
-
-    async with httpx.AsyncClient(timeout=settings.API_TIMEOUT * 6) as client:
-        r = await client.post(url, headers=headers, data=data, files=files)
-        if r.status_code >= 400 and "model" in r.text.lower():
-            data["model"] = "saaras:v3"
-            r = await client.post(url, headers=headers, data=data, files=files)
-
-    if r.status_code >= 400:
-        raise STTError(f"Sarvam STT failed with {r.status_code}: {r.text[:200]}")
-
-    result_json = r.json()
-    transcript = (result_json.get("transcript") or "").strip()
-    detected = result_json.get("language_code", "") or language or "hi"
-    return STTResult(
-        transcript=transcript,
-        language=_normalise_lang(detected),
-        confidence=None,
-        provider="sarvam-saaras",
-    )
-
-
-# ---------------------------------------------------------------------------
-# 2. Google Speech Recognition (via speech_recognition)
+# 1. Google Speech Recognition (via speech_recognition)
 # ---------------------------------------------------------------------------
 async def _google_sr_stt(
     audio_bytes: bytes,
@@ -193,20 +147,7 @@ async def transcribe(
 
     errors: list[str] = []
 
-    # 1. Primary: Sarvam AI STT
-    if settings.SARVAM_API_KEY:
-        try:
-            return await _sarvam_stt(
-                audio_bytes,
-                filename=filename,
-                content_type=content_type,
-                language=language,
-            )
-        except Exception as e:
-            log.warning("Sarvam STT failed (%s), attempting secondary STT providers", e)
-            errors.append(f"Sarvam STT: {e}")
-
-    # 2. Resilient fallback: Google Speech Recognition (handles standard WAV from browser)
+    # 1. Primary: Google Speech Recognition (handles standard WAV from browser)
     try:
         return await _google_sr_stt(
             audio_bytes,

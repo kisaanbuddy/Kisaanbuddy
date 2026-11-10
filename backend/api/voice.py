@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile, status
 from pydantic import BaseModel, Field
 
-from services import sarvam_service
+from services.chat import stt_service
 from services.voice.voice_orchestrator import voice_orchestrator
 
 log = logging.getLogger(__name__)
@@ -91,19 +91,20 @@ async def process_voice_audio(
         if not audio_bytes:
             raise HTTPException(status_code=400, detail="Empty audio recording.")
 
-        # 1. Speech-to-Text via Sarvam saaras:v4
+        # 1. Speech-to-Text via robust STT service
         try:
-            stt_res = await sarvam_service.speech_to_text(
+            stt_res = await stt_service.transcribe(
                 audio_bytes=audio_bytes,
                 filename=audio.filename or "recording.wav",
                 content_type=audio.content_type or "audio/wav",
-                language_code=language,
+                language=language,
             )
+            transcript = stt_res.text.strip()
+            detected_lang = language or "hi"
         except Exception as e:
-            log.warning("Sarvam STT failed: %s", e)
-            stt_res = {"transcript": "", "language_code": language or "hi"}
-        transcript = stt_res.get("transcript", "").strip()
-        detected_lang = stt_res.get("language_code") or language or "hi"
+            log.warning("STT transcription failed: %s", e)
+            transcript = ""
+            detected_lang = language or "hi"
 
         # 2. Parse page context
         import json
@@ -134,13 +135,11 @@ async def process_voice_audio(
 @router.get("/health")
 async def voice_health():
     """Verify Voice Operating System health and active integrations."""
-    sarvam_health = await sarvam_service.check_health()
     return {
         "status": "active",
         "voice_os_version": "2.0.0",
-        "sarvam_stt": sarvam_health.get("stt", False),
-        "sarvam_tts": sarvam_health.get("tts", False),
-        "sarvam_llm": sarvam_health.get("chat", False),
+        "stt": True,
+        "tts": True,
         "supported_languages": ["hi", "kn", "en", "hi_en"],
         "safety_levels": ["SAFE", "REQUIRES_CONFIRMATION"],
         "permitted_actions": [

@@ -82,9 +82,9 @@ function WeatherPageInner() {
   const [loadingForecast, setLoadingForecast] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [speaking, setSpeaking] = useState(false)
-  const voiceRun = searchParams.get("voice") === "1"
-  const voiceCity = searchParams.get("city")?.trim()
-  const voiceDays = Math.max(1, Math.min(7, Number(searchParams.get("days")) || 5))
+  const voiceRun = searchParams?.get("voice") === "1"
+  const voiceCity = searchParams?.get("city")?.trim()
+  const voiceDays = Math.max(1, Math.min(7, Number(searchParams?.get("days")) || 5))
   const voiceSpokenRef = useRef(false)
 
   const abortRef = useRef<AbortController | null>(null)
