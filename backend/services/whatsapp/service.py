@@ -19,11 +19,12 @@ from __future__ import annotations
 import logging
 import time
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
-from fastapi import BackgroundTasks
+from fastapi import BackgroundTasks, HTTPException, status
 from sqlalchemy import desc, func, or_
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DBAPIError, IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from core.config import settings
@@ -65,6 +66,13 @@ from services.whatsapp.support_handler import create_support_ticket
 log = logging.getLogger(__name__)
 
 
+class InboundRecordResult(str, Enum):
+    """Result of attempting to persist an inbound WhatsApp message."""
+    RECORDED = "RECORDED"
+    DUPLICATE = "DUPLICATE"
+    FAILED = "FAILED"
+
+
 class WhatsAppService:
     """Coordinates incoming webhooks, conversation state machine, background tasks, and outbound replies."""
 
@@ -99,8 +107,8 @@ class WhatsAppService:
 
                     statuses = value.get("statuses", [])
                     if session:
-                        for status in statuses:
-                            self._handle_status_update(status, session)
+                        for status_update in statuses:
+                            self._handle_status_update(status_update, session)
 
                     messages = value.get("messages", [])
                     contacts = value.get("contacts", [])
@@ -121,11 +129,30 @@ class WhatsAppService:
                         phone_number = normalize_phone_number(raw_from)
                         contact_name = contact_map.get(raw_from) or contact_map.get(phone_number.lstrip("+"))
 
-                        if session:
-                            recorded = self._record_inbound_message(msg, phone_number, session)
-                            if not recorded:
-                                log.info("Duplicate inbound message blocked by DB for message ID %s", msg_id)
-                                continue
+                        if session is None:
+                            log.error("Database session unavailable to persist inbound message ID %s", msg_id)
+                            await deduplicator.release(msg_id)
+                            raise HTTPException(
+                                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                                detail="Database session unavailable to persist inbound message.",
+                            )
+
+                        rec_result = self._record_inbound_message(msg, phone_number, session)
+                        if rec_result == InboundRecordResult.DUPLICATE:
+                            log.info("Duplicate inbound message blocked by DB for message ID %s", msg_id)
+                            continue
+                        elif rec_result == InboundRecordResult.FAILED:
+                            log.error(
+                                "Database persistence failed for message ID %s; releasing dedup lock and returning 503",
+                                msg_id,
+                            )
+                            await deduplicator.release(msg_id)
+                            raise HTTPException(
+                                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                                detail="Database persistence failed for inbound message.",
+                            )
+
+                        await deduplicator.mark_processed(msg_id)
 
                         if background_tasks is not None:
                             background_tasks.add_task(
@@ -181,18 +208,27 @@ class WhatsAppService:
                 db.commit()
                 log.debug("Updated message %s status to %s", wamid, new_status)
         except Exception as e:
+            db.rollback()
             log.warning("Failed updating message status for %s: %s", wamid, e)
 
-    def _record_inbound_message(self, msg: Dict[str, Any], phone_number: str, db: Session) -> bool:
-        """Stores incoming message audit record. Returns False if duplicate message_id detected."""
-        msg_id = msg.get("id")
-        if msg_id:
-            existing = db.query(WhatsAppMessage.id).filter(WhatsAppMessage.message_id == msg_id).first()
-            if existing:
-                log.info("DB dedup check: message_id %s already exists in whatsapp_messages", msg_id)
-                return False
+    def _record_inbound_message(
+        self, msg: Dict[str, Any], phone_number: str, db: Session
+    ) -> InboundRecordResult:
+        """Stores incoming message audit record.
 
+        Returns:
+            InboundRecordResult.RECORDED: Message successfully persisted in DB.
+            InboundRecordResult.DUPLICATE: Duplicate message_id detected via query or IntegrityError.
+            InboundRecordResult.FAILED: Database infrastructure error (connection drop, timeout, etc.).
+        """
+        msg_id = msg.get("id")
         try:
+            if msg_id:
+                existing = db.query(WhatsAppMessage.id).filter(WhatsAppMessage.message_id == msg_id).first()
+                if existing:
+                    log.info("DB dedup check: message_id %s already exists in whatsapp_messages", msg_id)
+                    return InboundRecordResult.DUPLICATE
+
             norm = normalize_incoming_message(msg)
 
             # Upsert WhatsAppUser
@@ -224,15 +260,19 @@ class WhatsAppService:
             )
             db.add(inbound_audit)
             db.commit()
-            return True
+            return InboundRecordResult.RECORDED
         except IntegrityError:
             db.rollback()
             log.info("Concurrent duplicate message_id %s blocked by unique constraint", msg_id)
-            return False
+            return InboundRecordResult.DUPLICATE
+        except (OperationalError, DBAPIError) as e:
+            db.rollback()
+            log.error("Database operational/connection failure recording inbound message %s: %s", msg_id, e)
+            return InboundRecordResult.FAILED
         except Exception as e:
             db.rollback()
-            log.warning("Error recording inbound message: %s", e)
-            return True
+            log.exception("Unexpected error recording inbound message %s: %s", msg_id, e)
+            return InboundRecordResult.FAILED
 
     async def process_message_turn_background(
         self,

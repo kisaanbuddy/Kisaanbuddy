@@ -19,6 +19,7 @@ from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,7 +40,7 @@ from services.whatsapp.normalization import (
 )
 from services.whatsapp.observability import get_whatsapp_metrics, mask_phone_number, record_whatsapp_turn
 from services.whatsapp.security import generate_secure_link_token, verify_secure_link_token
-from services.whatsapp.service import whatsapp_service
+from services.whatsapp.service import InboundRecordResult, whatsapp_service
 from services.whatsapp.state_machine import WhatsAppState, state_manager
 
 
@@ -853,6 +854,69 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
         # Confirm exactly 1 WhatsAppMessage record in DB for this wamid
         db_records = self.db.query(WhatsAppMessage).filter(WhatsAppMessage.message_id == wamid).all()
         self.assertEqual(len(db_records), 1)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_database_persistence_operational_error_returns_503_and_releases_dedup(self, mock_text):
+        """Database connection/operational error returns HTTP 503, releases dedup lock, and allows retry."""
+        self._init_user_at_menu()
+        wamid = f"wamid.db_failure_503_{int(time.time()*1000)}"
+        msg_obj = {"type": "text", "text": {"body": "4. Mandi Prices"}}
+
+        # Inject OperationalError during persistence
+        with patch.object(
+            whatsapp_service,
+            "_record_inbound_message",
+            return_value=InboundRecordResult.FAILED,
+        ):
+            resp = self._send_signed_webhook(msg_obj, wamid=wamid)
+            self.assertEqual(resp.status_code, 503)
+            self.assertIn("Database persistence failed", resp.text)
+            # Must NOT have sent any reply to farmer
+            mock_text.assert_not_called()
+            # Deduplicator must NOT have locked this message (lock released for retry)
+            self.assertNotIn(wamid, deduplicator._lru_cache)
+
+        # Meta retries after receiving 503; now database is healthy
+        resp_retry = self._send_signed_webhook(msg_obj, wamid=wamid)
+        self.assertEqual(resp_retry.status_code, 200)
+        self.assertEqual(resp_retry.json().get("count"), 1)
+        # Processed exactly once upon retry
+        mock_text.assert_called_once()
+        self.assertIn("Mandi", self._get_sent_body(mock_text))
+
+        # DB has exactly 1 inbound audit record
+        db_records = self.db.query(WhatsAppMessage).filter(WhatsAppMessage.message_id == wamid).all()
+        self.assertEqual(len(db_records), 1)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_database_operational_error_exception_in_record_inbound_message(self, mock_text):
+        """Direct verification that OperationalError in db.commit() returns FAILED and triggers 503."""
+        self._init_user_at_menu()
+        wamid = f"wamid.db_oper_err_{int(time.time()*1000)}"
+        msg_obj = {"type": "text", "text": {"body": "3. Weather"}}
+
+        with patch.object(Session, "commit", side_effect=OperationalError("connection closed", None, Exception("drop"))):
+            resp = self._send_signed_webhook(msg_obj, wamid=wamid)
+            self.assertEqual(resp.status_code, 503)
+            mock_text.assert_not_called()
+            self.assertNotIn(wamid, deduplicator._lru_cache)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_concurrent_integrity_error_handled_as_duplicate(self, mock_text):
+        """Simulate concurrent delivery race where another worker committed first, raising IntegrityError."""
+        self._init_user_at_menu()
+        wamid = f"wamid.concurrent_race_{int(time.time()*1000)}"
+        msg_obj = {"type": "text", "text": {"body": "2. Ask Agri Question"}}
+
+        with patch.object(
+            whatsapp_service,
+            "_record_inbound_message",
+            return_value=InboundRecordResult.DUPLICATE,
+        ):
+            resp = self._send_signed_webhook(msg_obj, wamid=wamid)
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.json().get("count"), 0)
+            mock_text.assert_not_called()
 
     def test_strict_production_domain_validation(self):
         """Verifies that all generated links strictly use https://www.kisaanbuddy.com and zero localhost."""

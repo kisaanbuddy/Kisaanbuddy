@@ -118,6 +118,18 @@ class Deduplicator:
                 pass
         _IN_MEMORY_DEDUP_CACHE[event_id] = time.time() + ttl_seconds
 
+    async def release(self, event_id: str) -> None:
+        """Removes event_id from deduplication cache so it can be retried if persistence failed."""
+        if not event_id:
+            return
+        _IN_MEMORY_DEDUP_CACHE.pop(event_id, None)
+        r = await self._get_redis()
+        if r:
+            try:
+                await r.delete(f"wa_dedup:{event_id}")
+            except Exception:
+                pass
+
     @property
     def _lru_cache(self) -> dict:
         return _IN_MEMORY_DEDUP_CACHE
