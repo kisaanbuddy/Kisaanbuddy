@@ -6,7 +6,6 @@ import { AssistantGate } from '@/components/AssistantGate';
 import { Analytics } from '@vercel/analytics/react';
 import { SwRegister } from '@/components/SwRegister';
 import Breadcrumbs from '@/components/Breadcrumbs';
-import { DeferredAdSense } from '@/components/DeferredAdSense';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { MobileMenuDrawer } from '@/components/navigation/MobileMenuDrawer';
 import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
@@ -62,7 +61,7 @@ export const metadata: Metadata = {
     images: ['/logo.png'],
   },
   other: {
-    'google-adsense-account': 'ca-pub-3770486100255800',
+    'google-adsense-account': 'ca-pub-7054228358838096',
   },
 };
 
@@ -84,6 +83,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ '--font-sans': FONT_SANS, '--font-display': FONT_DISPLAY } as React.CSSProperties}
     >
       <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7054228358838096"
+          crossOrigin="anonymous"
+        />
         <link
           rel="preload"
           as="image"
@@ -188,7 +192,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <MobileMenuDrawer />
           <MobileBottomNav />
           <WhatsAppFloatingButton />
-          <DeferredAdSense />
         </Providers>
       </body>
     </html>
