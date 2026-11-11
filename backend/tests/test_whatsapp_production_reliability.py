@@ -8,6 +8,8 @@ and observability.
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import hmac
 import json
 import os
 import sys
@@ -16,6 +18,7 @@ import unittest
 from typing import Any, Dict
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,8 +28,9 @@ if BASE_DIR not in sys.path:
 from core.config import settings
 from db.models import DiseaseDetection, MarketPriceRecord, WhatsAppMessage, WhatsAppSupportTicket, WhatsAppUser
 from db.session import Base, SessionLocal, engine
+from main import app
 from services.whatsapp.client import resolve_whatsapp_credentials, WhatsAppRoutingError
-from services.whatsapp.deduplication import Deduplicator, WhatsAppDeduplicator
+from services.whatsapp.deduplication import Deduplicator, WhatsAppDeduplicator, deduplicator
 from services.whatsapp.localization import MENU_ITEMS, get_text, parse_menu_selection
 from services.whatsapp.normalization import (
     NormalizedMessage,
@@ -540,6 +544,336 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
         # Confirm no support tickets were created
         tickets = self.db.query(WhatsAppSupportTicket).filter(WhatsAppSupportTicket.phone_number == phone).all()
         self.assertEqual(len(tickets), 0)
+
+
+class TestFastAPIWebhookExecution(unittest.TestCase):
+    """End-to-end FastAPI webhook endpoint verification with real Meta JSON payloads."""
+
+    def setUp(self):
+        self._orig_settings = {
+            "WHATSAPP_PHONE_NUMBER_ID": settings.WHATSAPP_PHONE_NUMBER_ID,
+            "WHATSAPP_ACCESS_TOKEN": settings.WHATSAPP_ACCESS_TOKEN,
+            "WHATSAPP_APP_SECRET": settings.WHATSAPP_APP_SECRET,
+            "WHATSAPP_SIGNATURE_VERIFICATION": settings.WHATSAPP_SIGNATURE_VERIFICATION,
+            "FRONTEND_BASE_URL": settings.FRONTEND_BASE_URL,
+            "DEBUG": settings.DEBUG,
+        }
+        self.addCleanup(self._restore_settings)
+
+        settings.WHATSAPP_PHONE_NUMBER_ID = "1451545484689306"
+        settings.WHATSAPP_ACCESS_TOKEN = "test_meta_prod_token"
+        settings.WHATSAPP_APP_SECRET = "test_prod_app_secret_abc123"
+        settings.WHATSAPP_SIGNATURE_VERIFICATION = True
+        settings.FRONTEND_BASE_URL = "https://www.kisaanbuddy.com"
+        settings.DEBUG = False
+
+        if engine:
+            Base.metadata.create_all(bind=engine)
+        self.client = TestClient(app)
+        self.db = SessionLocal()
+        self.phone = "+919876543299"
+        self._clean_db()
+
+    def _restore_settings(self):
+        for k, v in self._orig_settings.items():
+            setattr(settings, k, v)
+
+    def _clean_db(self):
+        state_manager.clear_cache(self.phone)
+        if self.db:
+            self.db.query(WhatsAppMessage).filter(WhatsAppMessage.phone_number == self.phone).delete()
+            self.db.query(WhatsAppSupportTicket).filter(WhatsAppSupportTicket.phone_number == self.phone).delete()
+            self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).delete()
+            self.db.commit()
+
+    def tearDown(self):
+        self._clean_db()
+        if self.db:
+            self.db.close()
+        self._restore_settings()
+
+    def _init_user_at_menu(self):
+        state_manager.clear_cache(self.phone)
+        user = WhatsAppUser(
+            phone_number=self.phone,
+            language="en",
+            opted_in=True,
+            current_state=WhatsAppState.MAIN_MENU.value,
+        )
+        self.db.add(user)
+        self.db.commit()
+
+    def _send_signed_webhook(self, message_obj: Dict[str, Any], wamid: str) -> Any:
+        payload = {
+            "object": "whatsapp_business_account",
+            "entry": [
+                {
+                    "id": "2180741169197298",
+                    "changes": [
+                        {
+                            "field": "messages",
+                            "value": {
+                                "messaging_product": "whatsapp",
+                                "metadata": {
+                                    "display_phone_number": "911451545484689",
+                                    "phone_number_id": "1451545484689306",
+                                },
+                                "contacts": [
+                                    {
+                                        "profile": {"name": "Test Farmer"},
+                                        "wa_id": "919876543299",
+                                    }
+                                ],
+                                "messages": [
+                                    {
+                                        "from": "919876543299",
+                                        "id": wamid,
+                                        "timestamp": str(int(time.time())),
+                                        **message_obj,
+                                    }
+                                ],
+                            },
+                        }
+                    ],
+                }
+            ],
+        }
+        body_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
+        sig = hmac.new(settings.WHATSAPP_APP_SECRET.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
+        return self.client.post(
+            "/api/whatsapp/webhook",
+            data=body_bytes,
+            headers={
+                "Content-Type": "application/json",
+                "X-Hub-Signature-256": f"sha256={sig}",
+            },
+        )
+
+    def _get_sent_body(self, mock_text) -> str:
+        if not mock_text.call_args:
+            return ""
+        if "body" in mock_text.call_args.kwargs:
+            return mock_text.call_args.kwargs["body"]
+        args = mock_text.call_args[0]
+        if len(args) > 1:
+            return args[1]
+        return ""
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_1_crop_doctor_interactive_list(self, mock_text):
+        """Option 1 via Meta interactive list_reply."""
+        self._init_user_at_menu()
+        msg_obj = {
+            "type": "interactive",
+            "interactive": {
+                "type": "list_reply",
+                "list_reply": {
+                    "id": "crop_doctor",
+                    "title": "1. Crop Doctor 🌿",
+                    "description": "Upload crop leaf photo",
+                },
+            },
+        }
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt1_list_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue(resp.json().get("processed"))
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.CROP_DOCTOR_WAITING_FOR_IMAGE.value)
+        mock_text.assert_called_once()
+        self.assertIn("Crop Doctor", self._get_sent_body(mock_text))
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_1_crop_doctor_interactive_button(self, mock_text):
+        """Option 1 via Meta interactive button_reply."""
+        self._init_user_at_menu()
+        msg_obj = {
+            "type": "interactive",
+            "interactive": {
+                "type": "button_reply",
+                "button_reply": {
+                    "id": "crop_doctor",
+                    "title": "Crop Doctor",
+                },
+            },
+        }
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt1_btn_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.CROP_DOCTOR_WAITING_FOR_IMAGE.value)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_2_guidance_ordinary_text(self, mock_text):
+        """Option 2 via ordinary text '2. Ask Agri Question'."""
+        self._init_user_at_menu()
+        msg_obj = {"type": "text", "text": {"body": "2. Ask Agri Question"}}
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt2_text_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.AGRICULTURAL_QUESTION.value)
+        mock_text.assert_called_once()
+        self.assertIn("crop", self._get_sent_body(mock_text).lower())
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_3_weather_ordinary_text_and_link(self, mock_text):
+        """Option 3 via ordinary text '3'."""
+        self._init_user_at_menu()
+        msg_obj = {"type": "text", "text": {"body": "3"}}
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt3_text_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.WEATHER_WAITING_FOR_LOCATION.value)
+        mock_text.assert_called_once()
+        reply_text = self._get_sent_body(mock_text)
+        self.assertIn("https://www.kisaanbuddy.com/weather?token=", reply_text)
+        self.assertNotIn("localhost", reply_text)
+        self.assertNotIn("kisaanbuddy.co/", reply_text)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_4_mandi_interactive_list_and_link(self, mock_text):
+        """Option 4 via Meta interactive list_reply."""
+        self._init_user_at_menu()
+        msg_obj = {
+            "type": "interactive",
+            "interactive": {
+                "type": "list_reply",
+                "list_reply": {
+                    "id": "mandi",
+                    "title": "4. Mandi Prices 📊",
+                },
+            },
+        }
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt4_list_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.MANDI_WAITING_FOR_COMMODITY.value)
+        mock_text.assert_called_once()
+        reply_text = self._get_sent_body(mock_text)
+        self.assertIn("https://www.kisaanbuddy.com/mandi?token=", reply_text)
+        self.assertNotIn("localhost", reply_text)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_5_schemes_ordinary_text_and_link(self, mock_text):
+        """Option 5 via ordinary text '5'."""
+        self._init_user_at_menu()
+        msg_obj = {"type": "text", "text": {"body": "5. Govt Schemes"}}
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt5_text_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.MAIN_MENU.value)
+        mock_text.assert_called_once()
+        reply_text = self._get_sent_body(mock_text)
+        self.assertIn("https://www.kisaanbuddy.com/schemes?token=", reply_text)
+        self.assertNotIn("localhost", reply_text)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_6_support_ordinary_text(self, mock_text):
+        """Option 6 via text '6'."""
+        self._init_user_at_menu()
+        msg_obj = {"type": "text", "text": {"body": "6"}}
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt6_text_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.HUMAN_SUPPORT.value)
+        mock_text.assert_called_once()
+        self.assertIn("support", self._get_sent_body(mock_text).lower())
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_option_7_website_template_button_and_link(self, mock_text):
+        """Option 7 via template quick reply button."""
+        self._init_user_at_menu()
+        msg_obj = {
+            "type": "button",
+            "button": {
+                "payload": "website",
+                "text": "Visit Website",
+            },
+        }
+        resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt7_btn_{int(time.time()*1000)}")
+        self.assertEqual(resp.status_code, 200)
+
+        self.db.close()
+        self.db = SessionLocal()
+        user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
+        self.assertEqual(user_db.current_state, WhatsAppState.MAIN_MENU.value)
+        mock_text.assert_called_once()
+        reply_text = self._get_sent_body(mock_text)
+        self.assertIn("https://www.kisaanbuddy.com/?token=", reply_text)
+        self.assertNotIn("localhost", reply_text)
+
+    @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
+    def test_concurrent_duplicate_webhook_deduplication(self, mock_text):
+        """Duplicate message IDs are caught by multi-tier deduplication and DB unique constraint."""
+        self._init_user_at_menu()
+        wamid = f"wamid.concurrent_dup_{int(time.time()*1000)}"
+        msg_obj = {"type": "text", "text": {"body": "6. Support"}}
+
+        # First delivery: accepted and processed
+        resp1 = self._send_signed_webhook(msg_obj, wamid=wamid)
+        self.assertEqual(resp1.status_code, 200)
+        self.assertEqual(resp1.json().get("count"), 1)
+        self.assertEqual(mock_text.call_count, 1)
+
+        # Immediate second delivery: caught by tier 1/2 deduplicator
+        resp2 = self._send_signed_webhook(msg_obj, wamid=wamid)
+        self.assertEqual(resp2.status_code, 200)
+        self.assertEqual(resp2.json().get("count"), 0)
+        # No additional outbound message sent
+        self.assertEqual(mock_text.call_count, 1)
+
+        # Clear in-memory deduplication cache to simulate a completely different worker process
+        deduplicator._lru_cache.clear()
+
+        # Third delivery across new worker: caught by DB unique constraint / DB check
+        resp3 = self._send_signed_webhook(msg_obj, wamid=wamid)
+        self.assertEqual(resp3.status_code, 200)
+        self.assertEqual(resp3.json().get("count"), 0)
+        self.assertEqual(mock_text.call_count, 1)
+
+        # Confirm exactly 1 WhatsAppMessage record in DB for this wamid
+        db_records = self.db.query(WhatsAppMessage).filter(WhatsAppMessage.message_id == wamid).all()
+        self.assertEqual(len(db_records), 1)
+
+    def test_strict_production_domain_validation(self):
+        """Verifies that all generated links strictly use https://www.kisaanbuddy.com and zero localhost."""
+        token_weather = generate_secure_link_token(self.phone, action="weather")
+        token_mandi = generate_secure_link_token(self.phone, action="mandi")
+        token_schemes = generate_secure_link_token(self.phone, action="schemes")
+        token_web = generate_secure_link_token(self.phone, action="website")
+
+        urls = [
+            f"{settings.FRONTEND_BASE_URL}/weather?token={token_weather}",
+            f"{settings.FRONTEND_BASE_URL}/mandi?token={token_mandi}",
+            f"{settings.FRONTEND_BASE_URL}/schemes?token={token_schemes}",
+            f"{settings.FRONTEND_BASE_URL}/?token={token_web}",
+        ]
+
+        for url in urls:
+            self.assertTrue(url.startswith("https://www.kisaanbuddy.com"), f"URL {url} must start with canonical domain")
+            self.assertNotIn("localhost", url)
+            self.assertNotIn("127.0.0.1", url)
+            self.assertNotIn(".co/", url)
+            self.assertNotIn("http://", url)
 
 
 if __name__ == "__main__":

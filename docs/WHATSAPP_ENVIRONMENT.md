@@ -18,7 +18,7 @@ All environment variables used by the WhatsApp integration are managed through P
 | `WHATSAPP_TEST_RECIPIENT` | String | Optional | `None` | Verified recipient number in Sandbox mode (E.164 e.g. `+919876543210`). |
 | `WHATSAPP_SIGNATURE_VERIFICATION` | Boolean | No | `True` | Enforces HMAC-SHA256 signature check. |
 | `WHATSAPP_MONTHLY_BUDGET_INR` | Float | No | `5000.0` | Internal monthly spend alert threshold in INR. |
-| `FRONTEND_BASE_URL` | String | No | `http://localhost:3000` | Web application base URL for generating contextual links. |
+| `FRONTEND_BASE_URL` | String | No | `https://www.kisaanbuddy.com` | Web application base URL for generating contextual links. |
 | `REDIS_URL` | String | No | `None` | Redis connection URL for state machine and deduplication. |
 
 ---

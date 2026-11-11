@@ -249,11 +249,11 @@ def resolve_language_selection(text: Optional[str]) -> Optional[str]:
     if not text:
         return None
     norm = normalize_indic_numerals(text.strip().lower())
-    if norm in {"1", "en", "english", "angrezi", "इंग्लिश"}:
+    if norm in {"1", "en", "english", "angrezi", "इंग्लिश", "lang_en"}:
         return "en"
-    if norm in {"2", "hi", "hindi", "हिन्दी", "हिंदी"}:
+    if norm in {"2", "hi", "hindi", "हिन्दी", "हिंदी", "lang_hi"}:
         return "hi"
-    if norm in {"3", "kn", "kannada", "ಕನ್ನಡ"}:
+    if norm in {"3", "kn", "kannada", "ಕನ್ನಡ", "lang_kn"}:
         return "kn"
     return None
 
@@ -328,8 +328,8 @@ def normalize_incoming_message(raw_msg: Dict[str, Any]) -> NormalizedMessage:
 
     # Parse potential actions
     menu_action = resolve_menu_action(selected_id) or resolve_menu_action(selected_title) or resolve_menu_action(unified_text)
-    global_cmd = resolve_global_command(unified_text)
-    lang_choice = resolve_language_selection(unified_text) or resolve_language_selection(selected_id)
+    global_cmd = resolve_global_command(selected_id) or resolve_global_command(selected_title) or resolve_global_command(unified_text)
+    lang_choice = resolve_language_selection(selected_id) or resolve_language_selection(selected_title) or resolve_language_selection(unified_text)
 
     return NormalizedMessage(
         raw_message=raw_msg,
