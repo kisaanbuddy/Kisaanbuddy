@@ -535,22 +535,37 @@ MESSAGES: Dict[str, Dict[str, str]] = {
     },
     "unknown_input": {
         "en": (
-            "I didn't quite catch that. Please reply with a number (1-7) or type 'menu' to view options.\n\n"
-            "• Type '1' for Crop Doctor\n"
-            "• Type 'help' for full guide\n"
-            "• Type '6' for support"
+            "I didn't quite catch that. Please reply with a number (1–7) or type 'menu' to view options.\n\n"
+            "1. Crop Doctor 🌿\n"
+            "2. Ask Agri Question 🌱\n"
+            "3. Weather Updates 🌤️\n"
+            "4. Mandi Prices 📊\n"
+            "5. Govt Schemes 🏛️\n"
+            "6. Talk to Support 👨‍🌾\n"
+            "7. Visit KisaanBuddy 🌐\n\n"
+            "• Type 'help' for full guide."
         ),
         "hi": (
-            "माफ़ कीजिए, हम समझ नहीं पाए। कृपया संख्या (1-7) लिखकर भेजें या मेनू देखने के लिए 'menu' लिखें।\n\n"
-            "• क्रॉप डॉक्टर के लिए '1' लिखें\n"
-            "• सहायता मार्गदर्शिका के लिए 'help' लिखें\n"
-            "• विशेषज्ञ सहायता के लिए '6' लिखें"
+            "माफ़ कीजिए, हम समझ नहीं पाए। कृपया संख्या (1–7) लिखकर भेजें या मेनू देखने के लिए 'menu' लिखें।\n\n"
+            "1. क्रॉप डॉक्टर 🌿\n"
+            "2. कृषि प्रश्न पूछें 🌱\n"
+            "3. मौसम पूर्वानुमान 🌤️\n"
+            "4. मंडी भाव 📊\n"
+            "5. सरकारी योजनाएं 🏛️\n"
+            "6. विशेषज्ञ सहायता 👨‍🌾\n"
+            "7. किसानबडी पोर्टल 🌐\n\n"
+            "• सहायता के लिए 'help' लिखें।"
         ),
         "kn": (
-            "ಕ್ಷಮಿಸಿ, ಅರ್ಥವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಸಂಖ್ಯೆ (1-7) ಕಳುಹಿಸಿ ಅಥವಾ ಆಯ್ಕೆಗಳನ್ನು ನೋಡಲು 'menu' ಎಂದು ಟೈಪ್ ಮಾಡಿ.\n\n"
-            "• ಕ್ರಾಪ್ ಡಾಕ್ಟರ್‌ಗಾಗಿ '1' ಕಳುಹಿಸಿ\n"
-            "• ಸಂಪೂರ್ಣ ಮಾಹಿತಿಗಾಗಿ 'help' ಟೈಪ್ ಮಾಡಿ\n"
-            "• ಬೆಂಬಲಕ್ಕಾಗಿ '6' ಎಂದು ಕಳುಹಿಸಿ"
+            "ಕ್ಷಮಿಸಿ, ಅರ್ಥವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಸಂಖ್ಯೆ (1–7) ಕಳುಹಿಸಿ ಅಥವಾ ಆಯ್ಕೆಗಳನ್ನು ನೋಡಲು 'menu' ಎಂದು ಟೈಪ್ ಮಾಡಿ.\n\n"
+            "1. ಕ್ರಾಪ್ ಡಾಕ್ಟರ್ 🌿\n"
+            "2. ಕೃಷಿ ಪ್ರಶ್ನೆ ಕೇಳಿ 🌱\n"
+            "3. ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ 🌤️\n"
+            "4. ಮಾರುಕಟ್ಟೆ ದರ 📊\n"
+            "5. ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು 🏛️\n"
+            "6. ಬೆಂಬಲ ಪಡೆಯಿರಿ 👨‍🌾\n"
+            "7. ಕಿಸಾನ್‌ಬಡ್ಡಿ ವೆಬ್ 🌐\n\n"
+            "• ಮಾಹಿತಿಗಾಗಿ 'help' ಎಂದು ಟೈಪ್ ಮಾಡಿ."
         ),
     },
     "session_expired": {
@@ -637,8 +652,8 @@ MENU_ITEMS = [
         "num": "6",
         "title": {
             "en": "6. Talk to Support 👨‍🌾",
-            "hi": "6. सहायता से बात करें 👨‍🌾",
-            "kn": "6. ತಜ್ಞರ ನೆರವು 👨‍🌾",
+            "hi": "6. विशेषज्ञ सहायता 👨‍🌾",
+            "kn": "6. ಬೆಂಬಲ ಪಡೆಯಿರಿ 👨‍🌾",
         },
         "desc": {
             "en": "Create a support request for agricultural specialists",
@@ -652,7 +667,7 @@ MENU_ITEMS = [
         "title": {
             "en": "7. Visit KisaanBuddy 🌐",
             "hi": "7. किसानबडी पोर्टल 🌐",
-            "kn": "7. ಕಿಸಾನ್‌ಬಡ್ಡಿ ವೆಬ್‌ಸೈಟ್ 🌐",
+            "kn": "7. ಕಿಸಾನ್‌ಬಡ್ಡಿ ವೆಬ್ 🌐",
         },
         "desc": {
             "en": "Explore web tools at www.kisaanbuddy.com",

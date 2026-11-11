@@ -198,7 +198,9 @@ async def process_crop_doctor_image(
         target_id=diagnosis_id,
         expires_seconds=86400 * 7,  # 7 days validity
     )
-    frontend_base = settings.FRONTEND_BASE_URL.rstrip("/")
+    frontend_base = (settings.FRONTEND_BASE_URL or "https://www.kisaanbuddy.com").rstrip("/")
+    if "localhost" in frontend_base and not settings.DEBUG:
+        frontend_base = "https://www.kisaanbuddy.com"
     diagnosis_web_url = f"{frontend_base}/disease?diagnosis_id={diagnosis_id}&token={link_token}"
 
     # 7. Format WhatsApp message
