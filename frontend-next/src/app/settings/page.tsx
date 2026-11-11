@@ -228,7 +228,7 @@ export default function SettingsPage() {
 
         <div className="flex flex-wrap gap-3">
           <a
-            href="https://wa.me/919999999999?text=Hello%20KisaanBuddy%20Support"
+            href="https://wa.me/916209856252"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition"

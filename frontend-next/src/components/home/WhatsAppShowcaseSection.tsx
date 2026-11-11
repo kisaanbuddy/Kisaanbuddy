@@ -24,19 +24,20 @@ export function WhatsAppShowcaseSection() {
   const isHi = lang === "hi";
   const isKn = lang === "kn";
 
-  const prefilledMessage = isHi
-    ? "नमस्ते KisaanBuddy! मुझे मेरी फसल और मंडी भाव के बारे में सलाह चाहिए।"
-    : isKn
-    ? "ನಮಸ್ಕಾರ KisaanBuddy! ನನಗೆ ಬೆಳೆ ಮತ್ತು ಮಂಡಿ ದರಗಳ ಕುರಿತು ಮಾಹಿತಿ ಬೇಕು."
-    : "Hello KisaanBuddy! I need agricultural advice for my crop and mandi prices.";
-
-  const { url: whatsappUrl } = getWhatsAppBusinessUrl(prefilledMessage);
+  const { url: whatsappUrl } = getWhatsAppBusinessUrl();
 
   return (
     <section
       aria-label="KisaanBuddy on WhatsApp"
-      className="relative w-full rounded-3xl bg-white dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 p-6 sm:p-10 lg:p-14 shadow-sm overflow-hidden"
+      className="w-full"
     >
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with KisaanBuddy on WhatsApp (+91 62098 56252)"
+        className="relative block w-full rounded-3xl bg-white dark:bg-stone-900/90 border border-stone-200/90 dark:border-stone-800 p-6 sm:p-10 lg:p-14 shadow-sm overflow-hidden cursor-pointer hover:border-[#25D366]/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
+      >
       {/* Subtle background ambient glow (SaaS style - minimal, not overwhelming) */}
       <div
         className="absolute -top-32 -right-32 w-96 h-96 bg-[#25D366]/[0.06] dark:bg-[#25D366]/[0.03] rounded-full blur-3xl pointer-events-none"
@@ -164,10 +165,7 @@ export function WhatsAppShowcaseSection() {
           {/* CTA & Trust Indicator */}
           <div className="pt-2 space-y-3">
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <div
                 className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-sm sm:text-base shadow-[0_4px_16px_rgba(37,211,102,0.32)] hover:shadow-[0_6px_22px_rgba(37,211,102,0.45)] transition-all hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
               >
                 {/* Official WhatsApp SVG Icon */}
@@ -185,7 +183,7 @@ export function WhatsAppShowcaseSection() {
                     ? "WhatsApp ನಲ್ಲಿ ಚಾಟ್ ಪ್ರಾರಂಭಿಸಿ →"
                     : "Start Chat on WhatsApp →"}
                 </span>
-              </a>
+              </div>
             </div>
 
             {/* Small Trust Indicator */}
@@ -340,6 +338,7 @@ export function WhatsAppShowcaseSection() {
           </div>
         </div>
       </div>
+      </a>
     </section>
   );
 }

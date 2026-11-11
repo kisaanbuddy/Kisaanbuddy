@@ -43,8 +43,6 @@ export function WorldClassHomePage() {
   const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
   const heroDict = HERO_I18N[lang as Lang] || HERO_I18N.hi;
 
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(dict.whatsapp.messageText)}`;
-
   return (
     <div className="edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
       <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-4 sm:py-8 space-y-10 sm:space-y-16">

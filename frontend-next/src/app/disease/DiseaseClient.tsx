@@ -352,7 +352,7 @@ export default function DiseaseClient() {
 
           <div className="flex items-center gap-2">
             <a
-              href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER || '919876543210').replace(/\D/g, '')}?text=${encodeURIComponent('Crop Doctor')}`}
+              href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER || '916209856252').replace(/\D/g, '')}?text=${encodeURIComponent('Crop Doctor')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="min-h-[44px] px-3.5 py-2 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-xs"

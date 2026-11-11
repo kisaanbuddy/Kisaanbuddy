@@ -96,10 +96,18 @@ export function HeroWhatsAppShowcase() {
 
   const wDict = WHATSAPP_I18N[lang] || WHATSAPP_I18N.hi;
 
-  const { url: whatsappUrl } = getWhatsAppBusinessUrl(wDict.sampleMsg);
+  const { url: whatsappUrl } = getWhatsAppBusinessUrl();
 
   return (
-    <div key={`wa-showcase-${lang}`} className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden">
+    <a
+      key={`wa-showcase-${lang}`}
+      href={whatsappUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={wDict.ctaBtn}
+      title={wDict.ctaBtn}
+      className="relative w-full rounded-3xl bg-gradient-to-br from-emerald-500/[0.08] via-white to-teal-500/[0.06] dark:from-emerald-950/50 dark:via-stone-900 dark:to-teal-950/30 border-2 border-emerald-600/30 dark:border-emerald-500/30 shadow-[0_20px_50px_rgba(20,83,45,0.08)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.5)] p-4 sm:p-5 text-center flex flex-col items-center justify-between transition-all overflow-hidden cursor-pointer hover:border-[#25D366]/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366]"
+    >
       {/* Decorative ambient radial glows */}
       <div
         className="absolute -top-14 -right-14 w-48 h-48 bg-[#25D366]/15 rounded-full blur-3xl pointer-events-none"
@@ -129,11 +137,7 @@ export function HeroWhatsAppShowcase() {
       {/* ─────────────────────────────────────────────────────────────
           MODERN IPHONE / FLAGSHIP SMARTPHONE UI MOCKUP
       ───────────────────────────────────────────────────────────── */}
-      <motion.a
-        href={whatsappUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={wDict.ctaBtn}
+      <motion.div
         animate={{ y: [-4, 4, -4] }}
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         className="group relative z-10 my-2 sm:my-3 block w-[290px] sm:w-[315px] md:w-[325px] lg:w-[335px] xl:w-[345px] cursor-pointer will-change-transform"
@@ -256,19 +260,16 @@ export function HeroWhatsAppShowcase() {
             </div>
           </div>
         </div>
-      </motion.a>
+      </motion.div>
 
       {/* Direct WhatsApp Action Button */}
       <div className="relative z-10 w-full space-y-2 mt-2">
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
+        <div
           className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-extrabold text-sm sm:text-base shadow-lg shadow-[#25D366]/25 hover:shadow-xl transition-all active:scale-95 cursor-pointer"
         >
           <MessageCircle className="w-5 h-5 fill-current" />
           <span>{wDict.ctaBtn}</span>
-        </a>
+        </div>
 
         {/* Provenance and Helpline Assurance Footer - Zero Phone Numbers */}
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-stone-500 dark:text-stone-400 font-medium pt-1">
@@ -282,6 +283,6 @@ export function HeroWhatsAppShowcase() {
           <span>{isHi ? "हिंदी, कन्नड़ व अंग्रेजी" : "Hindi, Kannada & English"}</span>
         </div>
       </div>
-    </div>
+    </a>
   );
 }

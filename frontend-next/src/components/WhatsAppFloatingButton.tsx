@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
+import { OFFICIAL_WHATSAPP_NUMBER } from '@/components/announcement/AnnouncementPopup';
 
 interface WhatsAppFloatingButtonProps {
   phoneNumber?: string;
@@ -8,13 +10,22 @@ interface WhatsAppFloatingButtonProps {
 }
 
 export function WhatsAppFloatingButton({
-  phoneNumber = process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER || '919876543210',
-  defaultMessage = 'Namaste KisaanBuddy! I need assistance with my farming.',
+  phoneNumber =
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ||
+    process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER ||
+    OFFICIAL_WHATSAPP_NUMBER,
+  defaultMessage,
 }: WhatsAppFloatingButtonProps) {
+  const pathname = usePathname();
+  if (pathname === '/chatbot' || pathname?.startsWith('/chatbot/')) {
+    return null;
+  }
   // Clean phone number for click-to-chat URL: digits only, no + or spaces
-  const cleanNumber = phoneNumber.replace(/\D/g, '');
-  const encodedText = encodeURIComponent(defaultMessage);
-  const waUrl = `https://wa.me/${cleanNumber}?text=${encodedText}`;
+  const cleanNumber = phoneNumber.replace(/\D/g, '') || OFFICIAL_WHATSAPP_NUMBER;
+  const trimmedMessage = defaultMessage?.trim();
+  const waUrl = trimmedMessage
+    ? `https://wa.me/${cleanNumber}?text=${encodeURIComponent(trimmedMessage)}`
+    : `https://wa.me/${cleanNumber}`;
 
   return (
     <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 group">

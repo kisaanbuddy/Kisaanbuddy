@@ -25,39 +25,38 @@ import { useLanguage } from "@/lib/language";
 
 export const ANNOUNCEMENT_STORAGE_KEY = "kisaanbuddy_whatsapp_brand_announcement_seen";
 export const PREFILLED_WHATSAPP_MESSAGE = "नमस्ते KisaanBuddy! मुझे खेती से जुड़ी जानकारी चाहिए।";
+export const OFFICIAL_WHATSAPP_NUMBER = "916209856252";
+export const OFFICIAL_WHATSAPP_URL = `https://wa.me/${OFFICIAL_WHATSAPP_NUMBER}`;
 
 /**
  * Resolves the official WhatsApp Business URL.
  * Strictly adheres to KisaanBuddy's "Reality First" principle:
- * - If NEXT_PUBLIC_WHATSAPP_NUMBER is configured, generates: https://wa.me/<number>?text=...
- * - If not configured, uses the official universal wa.me link: https://wa.me/?text=...
- * - NEVER fabricates or hardcodes a fake phone number.
+ * - Uses NEXT_PUBLIC_WHATSAPP_NUMBER if configured, otherwise defaults to KisaanBuddy's official +91 62098 56252 account.
+ * - Generates https://wa.me/916209856252 (or with ?text=... when customMessage is explicitly provided).
  */
-export function getWhatsAppBusinessUrl(customMessage: string = PREFILLED_WHATSAPP_MESSAGE) {
+export function getWhatsAppBusinessUrl(customMessage?: string) {
   const envPhone =
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ||
     process.env.NEXT_PUBLIC_KISAANBUDDY_WHATSAPP ||
-    "";
+    OFFICIAL_WHATSAPP_NUMBER;
 
   const cleanPhone = envPhone.replace(/\D/g, "");
-  const encodedText = encodeURIComponent(customMessage);
+  const formatted =
+    cleanPhone.startsWith("91") && cleanPhone.length > 10
+      ? cleanPhone
+      : cleanPhone.length >= 10
+      ? `91${cleanPhone.slice(-10)}`
+      : OFFICIAL_WHATSAPP_NUMBER;
 
-  if (cleanPhone && cleanPhone.length >= 10) {
-    const formatted =
-      cleanPhone.startsWith("91") && cleanPhone.length > 10
-        ? cleanPhone
-        : `91${cleanPhone.slice(-10)}`;
-    return {
-      url: `https://wa.me/${formatted}?text=${encodedText}`,
-      isConfigured: true,
-      phoneNumber: formatted,
-    };
-  }
+  const trimmedMessage = customMessage?.trim();
+  const url = trimmedMessage
+    ? `https://wa.me/${formatted}?text=${encodeURIComponent(trimmedMessage)}`
+    : `https://wa.me/${formatted}`;
 
   return {
-    url: `https://wa.me/?text=${encodedText}`,
-    isConfigured: false,
-    phoneNumber: null,
+    url,
+    isConfigured: true,
+    phoneNumber: formatted,
   };
 }
 
@@ -206,7 +205,7 @@ export function AnnouncementPopup() {
 
   const aDict = ANNOUNCEMENT_I18N[lang] || ANNOUNCEMENT_I18N.hi;
 
-  const { url: waUrl, isConfigured, phoneNumber } = getWhatsAppBusinessUrl(aDict.farmerMsg);
+  const { url: waUrl, isConfigured, phoneNumber } = getWhatsAppBusinessUrl();
 
   // Dismiss popup and persist in sessionStorage
   const handleDismiss = useCallback(() => {
@@ -391,7 +390,14 @@ export function AnnouncementPopup() {
               <div className="lg:col-span-7 flex flex-col justify-center space-y-4 sm:space-y-5">
                 
                 {/* Brand Header & Top Badge */}
-                <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleCtaClick}
+                  aria-label="Chat with KisaanBuddy on WhatsApp (+91 62098 56252)"
+                  className="inline-flex flex-wrap items-center gap-2.5 sm:gap-3 w-fit cursor-pointer hover:opacity-95 transition-opacity"
+                >
                   <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/90 border border-emerald-900/10 shadow-2xs">
                     <img
                       src="/logo.webp"
@@ -415,7 +421,7 @@ export function AnnouncementPopup() {
                     </svg>
                     <span>{aDict.badge}</span>
                   </span>
-                </div>
+                </a>
 
                 {/* Main Heading & Description */}
                 <div className="space-y-1.5">
@@ -528,7 +534,15 @@ export function AnnouncementPopup() {
                     <span>•</span>
                     <span>
                       {isConfigured && phoneNumber ? (
-                        <span>Official Helpline: +{phoneNumber}</span>
+                        <a
+                          href={waUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={handleCtaClick}
+                          className="font-semibold hover:text-[#075E54] hover:underline transition-colors cursor-pointer"
+                        >
+                          Official Helpline: +{phoneNumber.length === 12 && phoneNumber.startsWith("91") ? `${phoneNumber.slice(0, 2)} ${phoneNumber.slice(2, 7)} ${phoneNumber.slice(7)}` : phoneNumber}
+                        </a>
                       ) : (
                         <span>{aDict.trustOfficial}</span>
                       )}
@@ -541,7 +555,14 @@ export function AnnouncementPopup() {
               {/* RIGHT COLUMN: Realistic Apple iPhone Mockup with WhatsApp UI Preview */}
               <div className="lg:col-span-5 flex justify-center items-center">
                 {/* iPhone Outer Hardware Chassis with Side Buttons */}
-                <div className="relative w-[280px] sm:w-[295px] lg:w-[310px] select-none">
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={handleCtaClick}
+                  aria-label="Chat with KisaanBuddy on WhatsApp (+91 62098 56252)"
+                  className="relative block w-[280px] sm:w-[295px] lg:w-[310px] select-none cursor-pointer transition-transform hover:scale-[1.01] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] rounded-[46px]"
+                >
                   {/* Left Side Buttons (Action button, Volume Up, Volume Down) */}
                   <div className="absolute -left-[3px] top-[70px] w-[3px] h-5 bg-slate-500 rounded-l-xs" />
                   <div className="absolute -left-[3px] top-[100px] w-[3px] h-9 bg-slate-500 rounded-l-xs" />
@@ -695,7 +716,7 @@ export function AnnouncementPopup() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </div>
 
             </div>
