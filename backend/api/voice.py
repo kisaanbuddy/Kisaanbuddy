@@ -85,7 +85,7 @@ async def process_voice_audio(
     cart_total: float = Form(0.0),
     page_context_json: Optional[str] = Form(None),
 ):
-    """Full voice round-trip: raw microphone audio -> Sarvam STT -> Intent Recognition -> Action -> Sarvam TTS."""
+    """Full voice round-trip: raw microphone audio -> STT -> Gemini Intent Recognition -> Action -> Neural TTS."""
     try:
         audio_bytes = await audio.read()
         if not audio_bytes:
@@ -99,8 +99,8 @@ async def process_voice_audio(
                 content_type=audio.content_type or "audio/wav",
                 language=language,
             )
-            transcript = stt_res.text.strip()
-            detected_lang = language or "hi"
+            transcript = stt_res.transcript.strip()
+            detected_lang = stt_res.language or language or "hi"
         except Exception as e:
             log.warning("STT transcription failed: %s", e)
             transcript = ""

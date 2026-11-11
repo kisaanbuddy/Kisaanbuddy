@@ -1,22 +1,22 @@
-"""Compatibility Router forwarding legacy endpoints to the new IndicTrans2 & Local engines."""
+"""Compatibility Router forwarding legacy `/api/sarvam/*` endpoints to Gemini, IndicTrans2, and local audio engines."""
 from __future__ import annotations
 
 import logging
 from typing import List, Optional
 
-from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile, status
+from fastapi import APIRouter, File, Form, HTTPException, Response, UploadFile
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
-from services.translation.service import translation_service
+from services import sarvam_service
 from services.chat import stt_service, tts_service
+from services.chat.gemini_service import GeminiError, extract_soil_report_with_gemini
+from services.translation.service import translation_service
 
 log = logging.getLogger(__name__)
 router = APIRouter()
 
 
-# ---------------------------------------------------------------------------
-# Schemas
-# ---------------------------------------------------------------------------
 class TranslateRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=5000, description="Text to translate")
     target_lang: str = Field(..., min_length=2, max_length=10, description="Target language code (e.g. hi, kn, bn, en)")
@@ -64,12 +64,9 @@ class SoilReportExtractionResponse(BaseModel):
     raw_extracted_text: Optional[str] = None
 
 
-# ---------------------------------------------------------------------------
-# Endpoints (Re-routed to IndicTrans2 & Open-Source Pipeline)
-# ---------------------------------------------------------------------------
 @router.post("/translate", response_model=TranslateResponse)
 async def translate_endpoint(body: TranslateRequest):
-    """Translate text dynamically using the new AI4Bharat IndicTrans2 engine."""
+    """Translate text dynamically using the AI4Bharat IndicTrans2 engine."""
     try:
         res = await translation_service.translate(
             text=body.text,
@@ -82,7 +79,7 @@ async def translate_endpoint(body: TranslateRequest):
             source_lang=body.source_lang or "en-IN",
         )
     except Exception as e:
-        log.exception("Translation error in legacy route: %s", e)
+        log.exception("Translation error in compatibility route: %s", e)
         raise HTTPException(status_code=500, detail="Translation failed.") from e
 
 
@@ -100,7 +97,7 @@ async def translate_batch_endpoint(body: TranslateBatchRequest):
             target_lang=body.target_lang,
         )
     except Exception as e:
-        log.exception("Batch translation failed in legacy route: %s", e)
+        log.exception("Batch translation failed in compatibility route: %s", e)
         raise HTTPException(status_code=500, detail="Batch translation failed.") from e
 
 
@@ -110,9 +107,11 @@ async def tts_endpoint(body: SarvamTTSRequest):
     try:
         lang_code = (body.language or "hi").split("-")[0]
         res = await tts_service.synthesize(text=body.text, language=lang_code)
+        if hasattr(res, "browser"):
+            return JSONResponse(res.model_dump())
         return Response(
-            content=res.audio_bytes,
-            media_type=res.media_type,
+            content=res.audio,
+            media_type=res.mime,
             headers={
                 "Cache-Control": "public, max-age=86400",
                 "X-TTS-Provider": res.provider,
@@ -128,7 +127,7 @@ async def stt_endpoint(
     audio: UploadFile = File(..., description="Audio recording file (wav/mp3/m4a/webm)"),
     language: Optional[str] = Form("hi"),
 ):
-    """Transcribe spoken audio with Google Speech Recognition / Whisper."""
+    """Transcribe spoken audio with Google Speech Recognition / Gemini Audio."""
     try:
         contents = await audio.read()
         res = await stt_service.transcribe(
@@ -138,7 +137,7 @@ async def stt_endpoint(
             language=language or "hi",
         )
         return {
-            "transcript": res.text,
+            "transcript": res.transcript,
             "language_code": res.language,
             "provider": res.provider,
         }
@@ -147,30 +146,49 @@ async def stt_endpoint(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+async def _handle_soil_extraction(file: UploadFile) -> SoilReportExtractionResponse:
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded soil report file is empty.")
+    if len(file_bytes) > 15 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="File too large (max 15 MB).")
+    try:
+        parsed = await extract_soil_report_with_gemini(
+            file_bytes=file_bytes,
+            filename=file.filename or "soil_report.pdf",
+            content_type=file.content_type or "application/pdf",
+        )
+        return SoilReportExtractionResponse(**parsed)
+    except GeminiError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.user_message) from e
+
+
+@router.post("/extract-soil-report", response_model=SoilReportExtractionResponse)
+async def extract_soil_report_endpoint(
+    file: UploadFile = File(..., description="Soil Health Card document (PNG, JPEG, WebP, PDF)"),
+):
+    """Extract authentic chemical metrics from a Soil Health Card document using Google Gemini."""
+    return await _handle_soil_extraction(file)
+
+
 @router.post("/ocr-soil", response_model=SoilReportExtractionResponse)
 async def ocr_soil_endpoint(
-    file: UploadFile = File(..., description="Soil Health Card image (PNG, JPEG, PDF)"),
+    file: UploadFile = File(..., description="Soil Health Card image (PNG, JPEG, WebP, PDF)"),
 ):
-    """Extract chemical metrics from Soil Health Card document."""
-    return SoilReportExtractionResponse(
-        soil_ph=7.2,
-        nitrogen_kg_ha=245.0,
-        phosphorus_kg_ha=18.5,
-        potassium_kg_ha=290.0,
-        organic_carbon_pct=0.55,
-        soil_type="Alluvial Loam",
-        health_summary="Optimal NPK and pH balance detected.",
-        source_file=file.filename,
-    )
+    """Alias for Soil Health Card extraction using Google Gemini (never returns fabricated values)."""
+    return await _handle_soil_extraction(file)
 
 
 @router.get("/health")
 async def sarvam_health_check():
     """Returns engine health."""
     is_ok = await translation_service.provider.is_healthy()
+    h = await sarvam_service.check_health()
     return {
         "status": "healthy" if is_ok else "degraded",
         "engine": "indictrans2",
+        "llm": h.get("model"),
         "stt": True,
         "tts": True,
+        "doc_ai": h.get("doc_ai", False),
     }

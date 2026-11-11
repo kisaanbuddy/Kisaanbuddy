@@ -1,7 +1,6 @@
 """FastAPI Router for KisaanBuddy Multilingual Translation Engine.
 
 Primary engine: AI4Bharat IndicTrans2
-Fallback engine: Sarvam AI
 """
 from __future__ import annotations
 

@@ -55,8 +55,10 @@ services:
         sync: false   # set in dashboard (optional)
       - key: GEMINI_API_KEY
         sync: false   # set in dashboard
-      - key: SARVAM_API_KEY
-        sync: false   # set in dashboard (optional)
+      - key: GEMINI_MODEL
+        value: "gemini-2.5-flash"
+      - key: GEMINI_VISION_MODEL
+        value: "gemini-2.5-pro"
       - key: OTP_PROVIDER
         value: "2factor"
       - key: TWOFACTOR_API_KEY

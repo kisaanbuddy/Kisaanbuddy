@@ -353,28 +353,30 @@ export function CompactInternalHeader() {
         </div>
 
         {/* ── Mobile Contextual Strip (on small screens < 768px) ── */}
-        <div className="md:hidden border-t border-stone-100 dark:border-stone-800/80 bg-stone-50/60 dark:bg-stone-900/60 px-3 py-1.5 overflow-x-auto scrollbar-none flex items-center gap-2">
-          {controls.map((item) => {
-            const currentTab = searchParams?.get("tab");
-            const isTabMatch = item.queryTab && currentTab === item.queryTab;
-            const isExactHrefMatch = !item.queryTab && pathname === item.href;
-            const isActive = Boolean(isTabMatch || isExactHrefMatch);
+        {!pathname?.startsWith("/chatbot") && (
+          <div className="md:hidden border-t border-stone-100 dark:border-stone-800/80 bg-stone-50/60 dark:bg-stone-900/60 px-3 py-1.5 overflow-x-auto scrollbar-none flex items-center gap-2">
+            {controls.map((item) => {
+              const currentTab = searchParams?.get("tab");
+              const isTabMatch = item.queryTab && currentTab === item.queryTab;
+              const isExactHrefMatch = !item.queryTab && pathname === item.href;
+              const isActive = Boolean(isTabMatch || isExactHrefMatch);
 
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold whitespace-nowrap transition ${
-                  isActive
-                    ? "bg-emerald-700 text-white shadow-xs font-bold"
-                    : "text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-stone-800"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold whitespace-nowrap transition ${
+                    isActive
+                      ? "bg-emerald-700 text-white shadow-xs font-bold"
+                      : "text-stone-600 dark:text-stone-300 hover:bg-stone-200/60 dark:hover:bg-stone-800"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </header>
 
       {/* Global Search Modal */}

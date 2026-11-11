@@ -48,18 +48,20 @@ torch>=2.2.0
 torchvision>=0.17.0
 
 # Chatbot / Voice Assistant & Translation
-# - openai: LLM (gpt-4o-mini) + Whisper STT + OpenAI TTS fallback
+# - google-genai: Official Google Gen AI SDK (Gemini 2.5 Flash/Pro multimodal + streaming + tools)
+# - edge-tts / SpeechRecognition: Indian-accent neural TTS & speech recognition
 # - langdetect: Latin-script Hindi/Kannada ("Hinglish") detection fallback.
+google-genai>=1.0.0
 openai>=1.12.0
+edge-tts>=6.1.0
+SpeechRecognition>=3.10.0
 transformers>=4.40.0
 sentencepiece>=0.2.0
 sacremoses>=0.1.0
 langdetect>=1.0.9
 user-agents>=2.2.0
 
-# Optional premium TTS providers — activate by setting the matching env var.
-#   SARVAM_API_KEY               -> services/chat/tts_service.py hits Sarvam Bulbul (REST, no extra dep).
-#   GOOGLE_APPLICATION_CREDENTIALS -> uncomment the line below to enable Google Cloud TTS.
+# Optional Google Cloud TTS — activate by setting GOOGLE_APPLICATION_CREDENTIALS.
 # google-cloud-texttospeech>=2.16.0
 
 alembic>=1.13.0

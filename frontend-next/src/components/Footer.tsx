@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   Heart,
   Store,
@@ -31,8 +32,13 @@ import { useLanguage, LANG_NAMES } from '@/lib/language';
 import { useFarmerFeedback } from '@/components/farmer/FarmerFeedbackContext';
 
 export function Footer() {
+  const pathname = usePathname();
   const { lang, openLanguageModal } = useLanguage();
   const { openFeedback } = useFarmerFeedback();
+
+  if (pathname === '/chatbot' || pathname?.startsWith('/chatbot/')) {
+    return null;
+  }
 
   return (
     <footer

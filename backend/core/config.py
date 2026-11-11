@@ -33,16 +33,25 @@ class Settings(BaseSettings):
     WEATHER_API_KEY: Optional[str] = None
 
     # --- Chatbot / Voice assistant ---
-    OPENAI_API_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_VISION_MODEL: str = "gemini-2.5-pro"
+    GEMINI_FALLBACK_MODELS: str = "gemini-2.5-flash,gemini-2.5-flash-lite"
+    GEMINI_TIMEOUT_SECONDS: float = 30.0
+    GEMINI_MAX_RETRIES: int = 2
+    GEMINI_MAX_OUTPUT_TOKENS: int = 900
+    GEMINI_VISION_MAX_OUTPUT_TOKENS: int = 1500
+    GEMINI_MAX_HISTORY_TURNS: int = 8
+    GEMINI_CACHE_TTL_SECONDS: int = 3600
+    OPENAI_API_KEY: Optional[str] = None
     OPENAI_BASE_URL: Optional[str] = None  # e.g. https://openrouter.ai/api/v1
     OPENAI_CHAT_MODEL: str = "gpt-4o-mini"
     # IndicTrans2 dedicated inference engine
     INDICTRANS2_SERVICE_URL: str = "http://127.0.0.1:8001"
-    SARVAM_API_KEY: Optional[str] = None
     GOOGLE_APPLICATION_CREDENTIALS: Optional[str] = None  # path to GCP service-account JSON
     # Per-IP rate limit for /api/chat/* endpoints. Separate from weather limit.
     CHAT_RATE_LIMIT_PER_MINUTE: int = 30
+    CHAT_VISION_RATE_LIMIT_PER_MINUTE: int = 12
 
     # --- CORS ---
     ALLOWED_ORIGINS: List[str] = [

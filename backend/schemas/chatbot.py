@@ -65,7 +65,9 @@ class AssistantReply(BaseModel):
     content: str
     language: Language
     used_tools: List[str] = []
-    provider: str = "openai"
+    provider: str = "google-genai"
+    model: Optional[str] = None
+    usage: Optional[Dict[str, int]] = None
     cached: bool = False
     finish_reason: Optional[str] = None
 
@@ -77,6 +79,7 @@ class SessionCreateRequest(BaseModel):
 
 class SessionState(BaseModel):
     id: str
+    user_id: Optional[int] = None
     language: Language
     location: Optional[LocationHint] = None
     messages: List[Message] = []

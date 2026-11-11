@@ -150,12 +150,16 @@ class SessionStore:
         return self._backend.name
 
     async def create(
-        self, language: str = "auto", location: Optional[LocationHint] = None
+        self,
+        language: str = "auto",
+        location: Optional[LocationHint] = None,
+        user_id: Optional[int] = None,
     ) -> SessionState:
         now = datetime.now(timezone.utc)
         sid = uuid.uuid4().hex
         state = SessionState(
             id=sid,
+            user_id=user_id,
             language=language,  # type: ignore[arg-type]
             location=location,
             messages=[],

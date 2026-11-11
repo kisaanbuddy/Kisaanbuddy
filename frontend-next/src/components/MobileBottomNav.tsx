@@ -11,6 +11,10 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const { lang } = useLanguage();
 
+  if (pathname === "/chatbot" || pathname?.startsWith("/chatbot/")) {
+    return null;
+  }
+
   const labels = BOTTOM_NAV_I18N[lang as Lang] || BOTTOM_NAV_I18N.en;
 
   const NAV_ITEMS = [

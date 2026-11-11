@@ -35,6 +35,13 @@ export interface AssistantReply {
   language: Language
   used_tools: string[]
   provider: string
+  model?: string | null
+  usage?: {
+    prompt_tokens?: number
+    output_tokens?: number
+    thoughts_tokens?: number
+    total_tokens?: number
+  } | null
   cached: boolean
   finish_reason?: string | null
 }
@@ -91,15 +98,25 @@ export type StreamEvent =
       language: Language
       used_tools: string[]
       finish_reason?: string | null
+      cached?: boolean
+      model?: string
+      usage?: {
+        prompt_tokens?: number
+        output_tokens?: number
+        thoughts_tokens?: number
+        total_tokens?: number
+      }
     }
-  | { type: "error"; message: string }
+  | { type: "error"; message: string; code?: string; status_code?: number }
 
 class AssistantAPIError extends Error {
   status: number
-  constructor(message: string, status: number) {
+  code?: string
+  constructor(message: string, status: number, code?: string) {
     super(message)
     this.name = "AssistantAPIError"
     this.status = status
+    this.code = code
   }
 }
 
@@ -129,6 +146,7 @@ export async function createSession(
   const r = await fetch("/api/chat/session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ language, location: location ?? null }),
     signal,
   })
@@ -156,6 +174,7 @@ export async function sendMessageOnce(
   const r = await fetch("/api/chat/message", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ ...req, stream: false }),
     signal,
   })
@@ -235,6 +254,7 @@ export async function* streamMessage(
   const r = await fetch("/api/chat/message", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+    credentials: "include",
     body: JSON.stringify({ ...req, stream: true }),
     signal,
   })
@@ -250,7 +270,7 @@ export async function* streamMessage(
     while (true) {
       const { value, done } = await reader.read()
       if (done) break
-      buffer += decoder.decode(value, { stream: true })
+      buffer += decoder.decode(value, { stream: true }).replace(/\r\n/g, "\n")
       let idx: number
       while ((idx = buffer.indexOf("\n\n")) !== -1) {
         const frame = buffer.slice(0, idx)
@@ -258,6 +278,11 @@ export async function* streamMessage(
         const evt = parseFrame(frame)
         if (evt) yield evt
       }
+    }
+    const tail = buffer.trim()
+    if (tail) {
+      const evt = parseFrame(tail)
+      if (evt) yield evt
     }
   } finally {
     reader.releaseLock()
@@ -297,9 +322,17 @@ function parseFrame(frame: string): StreamEvent | null {
         language: data.language,
         used_tools: data.used_tools ?? [],
         finish_reason: data.finish_reason,
+        cached: data.cached,
+        model: data.model,
+        usage: data.usage,
       }
     case "error":
-      return { type: "error", message: data.message ?? "Unknown error" }
+      return {
+        type: "error",
+        message: data.message ?? "Unknown error",
+        code: data.code,
+        status_code: data.status_code,
+      }
     default:
       return null
   }

@@ -9,7 +9,7 @@
  *   - A typing cursor while still streaming
  */
 import React, { useState, useRef } from "react";
-import { Bot, Loader2, User, Volume2, VolumeX, Wrench } from "lucide-react";
+import { Bot, Check, Copy, Loader2, User, Volume2, VolumeX, Wrench } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import type { AssistantMessage } from "./useAssistant";
@@ -27,6 +27,7 @@ export function ChatMessage({ msg }: { msg: AssistantMessage }) {
   const isSystem = msg.role === "system" || msg.role === "tool";
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const prefersReduced = useReducedMotion();
 
@@ -119,31 +120,46 @@ export function ChatMessage({ msg }: { msg: AssistantMessage }) {
 
         {/* Footer Actions (Assistant Only) */}
         {!isUser && !msg.streaming && msg.content.length > 0 && (
-          <div className="mt-2.5 flex items-center justify-between border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
+          <div className="mt-2.5 flex items-center justify-between gap-2 border-t border-border/40 pt-2 text-[10px] text-muted-foreground">
             <span className="opacity-60">{((msg as any).timestamp ?? (msg as any).created_at) ?? "Just now"}</span>
-            <button
-              type="button"
-              onClick={handleSpeak}
-              disabled={isLoading}
-              className="flex items-center gap-1.5 rounded-lg bg-muted/60 hover:bg-muted px-2 py-1 transition-colors text-foreground font-medium disabled:opacity-50"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
-                  <span>Loading voice...</span>
-                </>
-              ) : isPlaying ? (
-                <>
-                  <VolumeX className="h-3 w-3 text-rose-500" />
-                  <span className="text-rose-500">Stop</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="h-3 w-3" />
-                  <span>Listen</span>
-                </>
-              )}
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  void navigator.clipboard?.writeText(msg.content);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1800);
+                }}
+                className="flex items-center gap-1 rounded-lg bg-muted/60 hover:bg-muted px-2 py-1 transition-colors text-foreground font-medium"
+                title="Copy response"
+              >
+                {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                <span>{copied ? "Copied" : "Copy"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSpeak}
+                disabled={isLoading}
+                className="flex items-center gap-1.5 rounded-lg bg-muted/60 hover:bg-muted px-2 py-1 transition-colors text-foreground font-medium disabled:opacity-50"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin text-emerald-500" />
+                    <span>Loading voice...</span>
+                  </>
+                ) : isPlaying ? (
+                  <>
+                    <VolumeX className="h-3 w-3 text-rose-500" />
+                    <span className="text-rose-500">Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-3 w-3" />
+                    <span>Listen</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
       </div>

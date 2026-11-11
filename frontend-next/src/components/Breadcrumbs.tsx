@@ -17,6 +17,7 @@ const labels: Record<string, string> = {
 
 const hiddenRoutes = new Set([
   "/",
+  "/chatbot",
   "/login",
   "/signup",
   "/forgot-password",

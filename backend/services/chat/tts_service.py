@@ -1,39 +1,33 @@
 """Text-to-Speech service for KisaanBuddy.
 
 Provider chain:
-  1. Sarvam.ai (bulbul:v3 / bulbul:v4-flash) — best for Indian regional languages
-  2. Edge Neural TTS (Indian neural voices) — reliable, realistic Indian accent audio
-  3. Google Cloud TTS — WaveNet / Neural2 voices
-  4. OpenAI TTS — English fallback
-  5. Browser hint (window.speechSynthesis) — last resort if all server audio fails
+  1. Edge Neural TTS (Indian neural voices) — reliable, realistic Indian accent audio
+  2. Google Cloud TTS — WaveNet / Neural2 voices (if GOOGLE_APPLICATION_CREDENTIALS is set)
+  3. OpenAI TTS — English fallback (only if OPENAI_API_KEY is set)
+  4. Browser hint (window.speechSynthesis) — last resort if server audio fails
 
-Returns raw bytes + MIME type so the API layer can stream/send directly to the client.
+Returns raw bytes + MIME type so the API layer can send directly to the client.
 """
 from __future__ import annotations
 
 import asyncio
-import base64
 import logging
 import re
-from typing import Optional, Tuple
-
-import httpx
+from typing import Tuple
 
 from core.config import settings
 from schemas.chatbot import TTSBrowserHint
 
 log = logging.getLogger(__name__)
 
-# Locale choices are a routing hint, not proof of a provider voice's quality.
 _BCP47 = {
     "en": "en-IN", "hi": "hi-IN", "hi_en": "hi-IN", "kn": "kn-IN", "bn": "bn-IN", "mr": "mr-IN",
-    "te": "te-IN", "ta": "ta-IN", "gu": "gu-IN", "pa": "pa-IN", "bho": "hi-IN", "mai": "hi-IN",
+    "te": "te-IN", "ta": "ta-IN", "gu": "gu-IN", "pa": "pa-IN", "ml": "ml-IN", "bho": "hi-IN", "mai": "hi-IN",
 }
-_SARVAM_LANG = _BCP47
 _GOOGLE_LANG = _BCP47
 _GOOGLE_VOICE = {"hi": "hi-IN-Neural2-A", "kn": "kn-IN-Standard-A", "en": "en-IN-Neural2-A"}
 
-# High-fidelity Indian neural voices for realistic, authentic conversational delivery
+# High-fidelity Indian neural voices for authentic conversational delivery
 _EDGE_NEURAL_VOICES = {
     "hi": "hi-IN-SwaraNeural",
     "hi_en": "hi-IN-MadhurNeural",
@@ -49,15 +43,6 @@ _EDGE_NEURAL_VOICES = {
     "bho": "hi-IN-SwaraNeural",
     "mai": "hi-IN-SwaraNeural",
 }
-
-_SARVAM_PROFILE = {
-    "en": ("bulbul:v4-flash", "aparna_en_companion"),
-    "hi": ("bulbul:v4-flash", "aparna_hi_customer"),
-    "hi_en": ("bulbul:v4-flash", "simran_enhi_customer"),
-    "kn": ("bulbul:v3", "ishita"),
-}
-_SARVAM_DEFAULT_PROFILE = ("bulbul:v3", "priya")
-_SARVAM_V3_SPEAKER = {"en": "ishita", "hi": "priya", "hi_en": "priya", "kn": "ishita"}
 
 
 class TTSError(Exception):
@@ -76,12 +61,12 @@ class TTSResult:
 def _clean_text_for_speech(text: str) -> str:
     """Strip markdown, asterisks, brackets, and URLs for natural spoken speech."""
     t = text or ""
-    t = re.sub(r'[*#_~`>]', '', t)
-    t = re.sub(r'https?://\S+', '', t)
-    t = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', t)
-    t = re.sub(r'•\s*', ', ', t)
-    t = re.sub(r'[-–—]\s*', ' ', t)
-    t = re.sub(r'\s+', ' ', t).strip()
+    t = re.sub(r"[*#_~`>]", "", t)
+    t = re.sub(r"https?://\S+", "", t)
+    t = re.sub(r"\[(.*?)\]\(.*?\)", r"\1", t)
+    t = re.sub(r"•\s*", ", ", t)
+    t = re.sub(r"[-–—]\s*", " ", t)
+    t = re.sub(r"\s+", " ", t).strip()
     return t
 
 
@@ -123,7 +108,7 @@ async def _edge_tts(text: str, lang: str) -> TTSResult:
 
 
 # ---------------------------------------------------------------------------
-# 3. Google Cloud TTS — WaveNet / Neural2 voices
+# 2. Google Cloud TTS — WaveNet / Neural2 voices
 # ---------------------------------------------------------------------------
 async def _google_tts(text: str, lang: str) -> TTSResult:
     try:
@@ -152,12 +137,12 @@ async def _google_tts(text: str, lang: str) -> TTSResult:
 
 
 # ---------------------------------------------------------------------------
-# 4. OpenAI TTS — English fallback
+# 3. OpenAI TTS — Optional English fallback (OPENAI_API_KEY only)
 # ---------------------------------------------------------------------------
 async def _openai_tts(text: str, lang: str) -> TTSResult:
-    key = settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
-    if not key:
-        raise TTSError("GEMINI_API_KEY or OPENAI_API_KEY not set")
+    key = (settings.OPENAI_API_KEY or "").strip()
+    if not key or len(key) < 20:
+        raise TTSError("OPENAI_API_KEY not set")
     try:
         from openai import AsyncOpenAI  # type: ignore
     except Exception as e:
@@ -214,17 +199,14 @@ async def synthesize(text: str, language: str = "en") -> TTSResult | TTSBrowserH
 
 def _configured_providers(language: str) -> list[Tuple[str, callable]]:  # type: ignore[type-arg]
     out: list[Tuple[str, callable]] = []
-    # 1. Indian Neural Edge TTS (High-quality Indian accent audio)
     try:
-        import edge_tts  # type: ignore
+        import edge_tts  # noqa: F401
         out.append(("edge-neural", _edge_tts))
     except ImportError:
         pass
-    # 2. Google Cloud TTS
     if settings.GOOGLE_APPLICATION_CREDENTIALS:
         out.append(("google", _google_tts))
-    # 3. OpenAI TTS (English fallback only)
-    if language == "en" and ((settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20)):
+    if language == "en" and settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY.strip()) >= 20:
         out.append(("openai", _openai_tts))
     return out
 
@@ -232,7 +214,7 @@ def _configured_providers(language: str) -> list[Tuple[str, callable]]:  # type:
 def health() -> dict:
     has_edge = False
     try:
-        import edge_tts
+        import edge_tts  # noqa: F401
         has_edge = True
     except ImportError:
         pass
@@ -240,5 +222,5 @@ def health() -> dict:
     return {
         "edge_neural": has_edge,
         "google": bool(settings.GOOGLE_APPLICATION_CREDENTIALS),
-        "openai": bool((settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) and len(settings.GEMINI_API_KEY or settings.OPENAI_API_KEY) > 20),
+        "openai": bool(settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY.strip()) >= 20),
     }
