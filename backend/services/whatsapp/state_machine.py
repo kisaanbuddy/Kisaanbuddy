@@ -60,6 +60,13 @@ class ConversationStateManager:
         self._redis = None
         self._redis_checked = False
 
+    def clear_cache(self, phone_number: Optional[str] = None) -> None:
+        """Clears local in-memory state cache for a phone number or all users."""
+        if phone_number:
+            _LOCAL_SESSION_STORE.pop(phone_number, None)
+        else:
+            _LOCAL_SESSION_STORE.clear()
+
     async def _get_redis(self):
         if not self._redis_checked:
             self._redis_checked = True
