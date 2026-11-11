@@ -1,11 +1,12 @@
 """Speech-to-Text service for KisaanBuddy.
 
 Provider cascade:
-  1. Sarvam.ai (saaras:v4 / saaras:v3) — Primary Indian language STT
-  2. Google Speech Recognition (sr.recognize_google) — High accuracy Hindi, Kannada, English fallback
-  3. OpenAI Whisper (whisper-1) — If OpenAI / Gemini API key is configured
+  1. Google Speech Recognition (sr.recognize_google) — Fast free recognition for WAV PCM
+  2. Google Gemini Multimodal Audio (gemini-2.5-flash) — High-accuracy Indian language STT
+     for WebM/MP4/OGG/MP3/WAV browser recordings (Hindi, Hinglish, Kannada, etc.)
+  3. OpenAI Whisper (whisper-1) — Optional fallback only if OPENAI_API_KEY is set
 
-Supports live microphone recordings in WAV, WebM, MP4, OGG with automatic
+Supports live microphone recordings in WAV, WebM, MP4, OGG, MP3 with automatic
 language identification and silence tolerance.
 """
 from __future__ import annotations
@@ -15,10 +16,13 @@ import io
 import logging
 from typing import Optional
 
-import httpx
-
 from core.config import settings
 from schemas.chatbot import STTResult
+from services.chat.gemini_service import (
+    is_gemini_configured,
+    redact_secrets,
+    transcribe_audio_with_gemini,
+)
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +67,6 @@ async def _google_sr_stt(
 
     lang_code = _LANG_BCP47.get(language or "hi", "hi-IN")
     if language == "auto" or not language:
-        # Default to Hindi for Indian farm context when unspecified
         lang_code = "hi-IN"
 
     def _sync_recognize() -> str:
@@ -85,7 +88,7 @@ async def _google_sr_stt(
             raise STTError("No speech detected in audio segment.")
         return STTResult(
             transcript=transcript.strip(),
-            language=_normalise_lang(lang_code),
+            language=_normalise_lang(lang_code),  # type: ignore[arg-type]
             confidence=None,
             provider="google-speech-recognition",
         )
@@ -94,16 +97,49 @@ async def _google_sr_stt(
 
 
 # ---------------------------------------------------------------------------
-# 3. OpenAI Whisper (fallback if API key set)
+# 2. Google Gemini Multimodal Audio STT (handles webm/mp4/ogg/mp3/wav)
+# ---------------------------------------------------------------------------
+async def _gemini_stt(
+    audio_bytes: bytes,
+    content_type: str = "audio/webm",
+    language: Optional[str] = None,
+) -> STTResult:
+    if not is_gemini_configured():
+        raise STTError("GEMINI_API_KEY not configured for audio STT.")
+
+    mime = (content_type or "audio/webm").split(";")[0].strip().lower()
+    if mime == "video/webm":
+        mime = "audio/webm"
+    if not mime.startswith("audio/"):
+        mime = "audio/webm"
+
+    transcript, detected_lang = await transcribe_audio_with_gemini(
+        audio_bytes=audio_bytes,
+        mime_type=mime,
+        language=language,
+    )
+    if not transcript:
+        raise STTError("Gemini STT returned empty transcript.")
+
+    return STTResult(
+        transcript=transcript,
+        language=_normalise_lang(detected_lang),  # type: ignore[arg-type]
+        confidence=None,
+        provider="gemini-audio-stt",
+    )
+
+
+# ---------------------------------------------------------------------------
+# 3. OpenAI Whisper (optional fallback if OPENAI_API_KEY is explicitly set)
 # ---------------------------------------------------------------------------
 async def _whisper_stt(
     audio_bytes: bytes,
     filename: str = "audio.webm",
     language: Optional[str] = None,
 ) -> STTResult:
-    key = settings.GEMINI_API_KEY or settings.OPENAI_API_KEY
+    key = (settings.OPENAI_API_KEY or "").strip()
     if not key or len(key) < 20:
-        raise STTError("No Whisper API key configured.")
+        raise STTError("OPENAI_API_KEY not configured for Whisper fallback.")
 
     try:
         from openai import AsyncOpenAI  # type: ignore
@@ -115,7 +151,7 @@ async def _whisper_stt(
     fileobj.name = filename
 
     kwargs: dict = {"model": "whisper-1", "file": fileobj, "response_format": "verbose_json"}
-    if language in ("en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa"):
+    if language in ("en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml"):
         kwargs["language"] = language
 
     resp = await client.audio.transcriptions.create(**kwargs)
@@ -124,7 +160,7 @@ async def _whisper_stt(
 
     return STTResult(
         transcript=text.strip(),
-        language=_normalise_lang(detected_lang),
+        language=_normalise_lang(detected_lang),  # type: ignore[arg-type]
         confidence=None,
         provider="openai-whisper-1",
     )
@@ -139,7 +175,7 @@ async def transcribe(
     content_type: str = "audio/wav",
     language: Optional[str] = None,
 ) -> STTResult:
-    """Transcribe audio to text. `language` is an ISO hint (en/hi/kn), may be None."""
+    """Transcribe audio to text. `language` is an ISO hint (en/hi/kn/...), may be None."""
     if not audio_bytes:
         raise STTError("Empty audio payload.")
     if len(audio_bytes) > MAX_BYTES:
@@ -147,7 +183,7 @@ async def transcribe(
 
     errors: list[str] = []
 
-    # 1. Primary: Google Speech Recognition (handles standard WAV from browser)
+    # 1. Google Speech Recognition (fast path for WAV PCM from browser)
     try:
         return await _google_sr_stt(
             audio_bytes,
@@ -157,8 +193,19 @@ async def transcribe(
     except Exception as e:
         errors.append(f"Google SR: {e}")
 
-    # 3. Whisper (if OpenAI or Gemini API key set)
-    if (settings.GEMINI_API_KEY and len(settings.GEMINI_API_KEY) > 20) or (settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY) > 20):
+    # 2. Gemini Multimodal Audio STT (handles WebM/MP4/OGG/MP3/WAV in Indian languages)
+    if is_gemini_configured():
+        try:
+            return await _gemini_stt(
+                audio_bytes,
+                content_type=content_type,
+                language=language,
+            )
+        except Exception as e:
+            errors.append(f"Gemini STT: {redact_secrets(str(e))}")
+
+    # 3. Optional OpenAI Whisper fallback (only if OPENAI_API_KEY is explicitly set)
+    if settings.OPENAI_API_KEY and len(settings.OPENAI_API_KEY.strip()) >= 20:
         try:
             return await _whisper_stt(
                 audio_bytes,
@@ -166,14 +213,17 @@ async def transcribe(
                 language=language,
             )
         except Exception as e:
-            errors.append(f"Whisper STT: {e}")
+            errors.append(f"Whisper STT: {redact_secrets(str(e))}")
 
     raise STTError(f"All STT providers failed: {' | '.join(errors)}")
 
 
 def _normalise_lang(code: str) -> str:
-    c = (code or "").lower().split("-")[0]
-    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"):
+    raw = (code or "").lower()
+    if raw == "hi_en":
+        return "hi_en"
+    c = raw.split("-")[0]
+    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "bho", "mai"):
         return c
     return "en"
 

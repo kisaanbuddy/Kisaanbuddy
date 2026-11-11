@@ -1,94 +1,136 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  Sparkles,
-  Bot,
-  User,
-  Volume2,
-  VolumeX,
-  Copy,
-  Check,
-  RotateCcw,
-  Bookmark,
-  Share2,
+  ArrowDown,
+  Building2,
+  History,
+  MessageSquarePlus,
+  PhoneCall,
+  SlidersHorizontal,
+  Sprout,
   Stethoscope,
-  ShieldCheck,
-  AlertCircle,
-  Menu,
-  MapPin,
-  ExternalLink,
-  ChevronDown,
-  Info,
-  Layers,
-  ArrowRight
+  Trash2,
 } from "lucide-react";
 import {
   ChatMessage,
   ConversationSession,
-  SavedAnswer,
   CropDiagnosisRecord,
-  loadAllSessions,
-  saveAllSessions,
-  getActiveSessionId,
-  setActiveSessionId,
+  SavedAnswer,
+  clearSessionMessages,
   createNewSession,
-  updateSession,
-  deleteSession,
-  loadSavedAnswers,
-  toggleSavedAnswer,
+  deleteSession as deleteLocalSession,
+  getActiveSessionId,
   isAnswerSaved,
+  loadAllSessions,
   loadDiagnosisHistory,
-  recordCropDiagnosis
+  loadSavedAnswers,
+  recordCropDiagnosis,
+  setActiveSessionId,
+  toggleSavedAnswer,
+  updateSession,
 } from "@/lib/conversation-store";
 import {
+  DEFAULT_FARMER_PROFILE,
   FarmerProfileData,
+  formatFarmContextForAI,
   loadFarmerProfile,
   saveFarmerProfile,
-  formatFarmContextForAI
 } from "@/lib/farm-profile-store";
 import {
-  VoiceLanguage,
   SUPPORTED_VOICE_LANGUAGES,
-  voiceService
+  VoiceLanguage,
+  voiceService,
 } from "@/lib/voice-speech";
-import { FarmerWorkspaceSidebar } from "@/components/chatbot/FarmerWorkspaceSidebar";
+import {
+  AssistantAPIError,
+  deleteSession as deleteServerSession,
+  streamMessage,
+  transcribeAudio,
+  type Language,
+} from "@/lib/assistant-api";
+import { useAuth } from "@/lib/auth";
+import { useLanguage } from "@/lib/language";
+import {
+  AdvisorWelcomeScreen,
+  type WelcomeTopicId,
+} from "@/components/chatbot/AdvisorWelcomeScreen";
+import { ChatMessageBubble } from "@/components/chatbot/ChatMessageBubble";
+import {
+  MultiInputComposer,
+  type ComposerSubmitPayload,
+  type MultiInputComposerHandle,
+} from "@/components/chatbot/MultiInputComposer";
+import { ConversationHistoryDrawer } from "@/components/chatbot/ConversationHistoryDrawer";
 import { AgriIntelligenceSidebar } from "@/components/chatbot/AgriIntelligenceSidebar";
-import { MultiInputComposer } from "@/components/chatbot/MultiInputComposer";
 import { FarmProfileModal } from "@/components/chatbot/FarmProfileModal";
 import { SavedAnswersModal } from "@/components/chatbot/SavedAnswersModal";
 import { CropDiagnosisModal } from "@/components/chatbot/CropDiagnosisModal";
 
+const CHATBOT_LANG_KEY = "kisaanbuddy_chatbot_voice_lang";
+const CHATBOT_AUTOSPEAK_KEY = "kisaanbuddy_chatbot_autospeak";
+
+function dataUrlToBlob(dataUrl: string): Blob | null {
+  try {
+    const [header, base64] = dataUrl.split(",");
+    if (!header || !base64) return null;
+    const mimeMatch = /data:(.*?);base64/.exec(header);
+    const mime = mimeMatch ? mimeMatch[1] : "image/jpeg";
+    const binary = atob(base64);
+    const arr = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      arr[i] = binary.charCodeAt(i);
+    }
+    return new Blob([arr], { type: mime });
+  } catch {
+    return null;
+  }
+}
+
 export default function ChatbotClient() {
   const searchParams = useSearchParams();
+  const { user } = useAuth();
+  const { lang: platformLang } = useLanguage();
 
-  // Sessions & Messages State
+  // Sessions & Persisted State (initialized safely to avoid SSR hydration mismatch)
   const [sessions, setSessions] = useState<ConversationSession[]>([]);
   const [activeSession, setActiveSession] = useState<ConversationSession | null>(null);
   const [savedAnswers, setSavedAnswers] = useState<SavedAnswer[]>([]);
   const [diagnosisHistory, setDiagnosisHistory] = useState<CropDiagnosisRecord[]>([]);
-  const [farmProfile, setFarmProfile] = useState<FarmerProfileData>(loadFarmerProfile);
+  const [farmProfile, setFarmProfile] = useState<FarmerProfileData>(DEFAULT_FARMER_PROFILE);
 
-  // Assistant Configuration
+  // Voice & Streaming State
   const [selectedLanguage, setSelectedLanguage] = useState<VoiceLanguage>("auto");
+  const [autoSpeak, setAutoSpeak] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
+  const [activeTool, setActiveTool] = useState<string | null>(null);
   const [assistantStatus, setAssistantStatus] = useState<"ready" | "thinking" | "speaking">("ready");
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
+  const [isAudioPaused, setIsAudioPaused] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showScrollDown, setShowScrollDown] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
 
-  // Modals & Mobile Drawers
+  // Collapsible Drawers & Modals (Both sidebars collapsed by default!)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isDirectoryOpen, setIsDirectoryOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSavedAnswersModalOpen, setIsSavedAnswersModalOpen] = useState(false);
   const [isDiagnosisModalOpen, setIsDiagnosisModalOpen] = useState(false);
-  const [isMobileLeftOpen, setIsMobileLeftOpen] = useState(false);
-  const [isMobileRightOpen, setIsMobileRightOpen] = useState(false);
 
+  const messagesScrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const composerRef = useRef<MultiInputComposerHandle>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const initialQueryHandledRef = useRef(false);
 
-  // Initialize data on mount
+  // Sync ref for latest sessions/activeSession inside async handlers
+  const activeSessionRef = useRef<ConversationSession | null>(null);
+  activeSessionRef.current = activeSession;
+
+  // Hydrate persisted client stores after mount
   useEffect(() => {
     const loadedSessions = loadAllSessions();
     const loadedAnswers = loadSavedAnswers();
@@ -99,13 +141,24 @@ export default function ChatbotClient() {
     setDiagnosisHistory(loadedDiags);
     setFarmProfile(loadedProfile);
 
+    try {
+      const savedLang = localStorage.getItem(CHATBOT_LANG_KEY) as VoiceLanguage | null;
+      if (savedLang && SUPPORTED_VOICE_LANGUAGES[savedLang]) {
+        setSelectedLanguage(savedLang);
+      } else if (platformLang && SUPPORTED_VOICE_LANGUAGES[platformLang as VoiceLanguage]) {
+        setSelectedLanguage(platformLang as VoiceLanguage);
+      }
+      const savedAutoSpeak = localStorage.getItem(CHATBOT_AUTOSPEAK_KEY);
+      if (savedAutoSpeak === "true") setAutoSpeak(true);
+    } catch {
+      // ignore storage errors
+    }
+
     let sessionToActivate: ConversationSession | null = null;
     const activeId = getActiveSessionId();
-
     if (activeId) {
       sessionToActivate = loadedSessions.find((s) => s.id === activeId) || null;
     }
-
     if (!sessionToActivate) {
       if (loadedSessions.length > 0) {
         sessionToActivate = loadedSessions[0];
@@ -117,344 +170,566 @@ export default function ChatbotClient() {
 
     setSessions(loadedSessions);
     setActiveSession(sessionToActivate);
+    activeSessionRef.current = sessionToActivate;
 
-    // Initial query from URL param ?query=
     const initialQuery = searchParams?.get("query");
-    if (initialQuery && sessionToActivate.messages.length === 0) {
-      handleSendMessage({ text: initialQuery });
+    if (initialQuery && !initialQueryHandledRef.current && sessionToActivate.messages.length === 0) {
+      initialQueryHandledRef.current = true;
+      setTimeout(() => {
+        void handleSendMessage({ text: initialQuery }, sessionToActivate!);
+      }, 60);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Scroll to bottom on message update
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeSession?.messages, isTyping, isStreaming]);
+  // Scroll behavior
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, []);
 
-  // Session Switching
+  useEffect(() => {
+    scrollToBottom("smooth");
+  }, [activeSession?.messages?.length, isStreaming, scrollToBottom]);
+
+  const handleMessagesScroll = () => {
+    const el = messagesScrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setShowScrollDown(distanceFromBottom > 240);
+  };
+
+  // Language & AutoSpeak handlers
+  const handleChangeLanguage = (lang: VoiceLanguage) => {
+    setSelectedLanguage(lang);
+    try {
+      localStorage.setItem(CHATBOT_LANG_KEY, lang);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleToggleAutoSpeak = () => {
+    setAutoSpeak((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(CHATBOT_AUTOSPEAK_KEY, String(next));
+      } catch {
+        // ignore
+      }
+      if (!next) {
+        voiceService.stopSpeaking();
+        setSpeakingMessageId(null);
+        setIsAudioPaused(false);
+        setAssistantStatus("ready");
+      }
+      return next;
+    });
+  };
+
+  // Session Management
+  const syncSessionToList = useCallback((updated: ConversationSession) => {
+    setActiveSession(updated);
+    activeSessionRef.current = updated;
+    updateSession(updated);
+    setSessions((prev) => {
+      const idx = prev.findIndex((s) => s.id === updated.id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = updated;
+        return copy;
+      }
+      return [updated, ...prev];
+    });
+  }, []);
+
   const handleSelectSession = (id: string) => {
     voiceService.stopSpeaking();
     setSpeakingMessageId(null);
+    setIsAudioPaused(false);
     const target = sessions.find((s) => s.id === id);
     if (target) {
       setActiveSession(target);
+      activeSessionRef.current = target;
       setActiveSessionId(target.id);
     }
-    setIsMobileLeftOpen(false);
   };
 
   const handleNewSession = () => {
+    if (isStreaming) handleStopStreaming();
     voiceService.stopSpeaking();
     setSpeakingMessageId(null);
+    setIsAudioPaused(false);
     const newSess = createNewSession(selectedLanguage);
     setSessions((prev) => [newSess, ...prev]);
     setActiveSession(newSess);
-    setIsMobileLeftOpen(false);
+    activeSessionRef.current = newSess;
   };
 
   const handleDeleteSession = (id: string) => {
-    deleteSession(id);
+    const target = sessions.find((s) => s.id === id);
+    if (target?.serverSessionId) {
+      void deleteServerSession(target.serverSessionId).catch(() => {});
+    }
+    deleteLocalSession(id);
     const updated = sessions.filter((s) => s.id !== id);
     setSessions(updated);
     if (activeSession?.id === id) {
       if (updated.length > 0) {
         setActiveSession(updated[0]);
+        activeSessionRef.current = updated[0];
       } else {
         const fresh = createNewSession(selectedLanguage);
         setSessions([fresh]);
         setActiveSession(fresh);
+        activeSessionRef.current = fresh;
       }
     }
   };
 
-  // Profile Updates
+  const handleClearConversation = () => {
+    if (!activeSession || activeSession.messages.length === 0) return;
+    if (isStreaming) handleStopStreaming();
+    voiceService.stopSpeaking();
+    setSpeakingMessageId(null);
+    setIsAudioPaused(false);
+    if (activeSession.serverSessionId) {
+      void deleteServerSession(activeSession.serverSessionId).catch(() => {});
+    }
+    const cleared = clearSessionMessages(activeSession);
+    syncSessionToList(cleared);
+  };
+
+  // Profile & Location
   const handleProfileUpdated = (updated: FarmerProfileData) => {
     setFarmProfile(updated);
   };
 
-  // Location update from intelligence sidebar
   const handleUpdateLocation = (state: string, district: string, block?: string) => {
     const updated = saveFarmerProfile({ state, district, block });
     setFarmProfile(updated);
   };
 
-  // Voice Read Aloud
-  const handleToggleSpeak = (msgId: string, text: string, lang: string) => {
-    if (speakingMessageId === msgId) {
+  // Voice Output Playback
+  const playMessageVoice = useCallback(
+    (msgId: string, text: string, lang: string) => {
       voiceService.stopSpeaking();
-      setSpeakingMessageId(null);
-      setAssistantStatus("ready");
-    } else {
-      voiceService.stopSpeaking();
+      setIsAudioPaused(false);
       setSpeakingMessageId(msgId);
       setAssistantStatus("speaking");
       const resolvedLang = (lang as VoiceLanguage) || selectedLanguage || "hi";
 
-      voiceService.speakText(
+      void voiceService.speakText(
         text,
         resolvedLang,
         () => {
           setSpeakingMessageId(msgId);
+          setIsAudioPaused(false);
           setAssistantStatus("speaking");
         },
         () => {
           setSpeakingMessageId(null);
+          setIsAudioPaused(false);
           setAssistantStatus("ready");
         },
         () => {
           setSpeakingMessageId(null);
+          setIsAudioPaused(false);
           setAssistantStatus("ready");
         }
       );
+    },
+    [selectedLanguage]
+  );
+
+  const handleToggleSpeak = (msgId: string, text: string, lang: string) => {
+    if (speakingMessageId === msgId) {
+      voiceService.stopSpeaking();
+      setSpeakingMessageId(null);
+      setIsAudioPaused(false);
+      setAssistantStatus("ready");
+    } else {
+      playMessageVoice(msgId, text, lang);
     }
   };
 
-  // Copy text to clipboard
+  const handlePauseResumeSpeak = () => {
+    if (voiceService.isPausedState()) {
+      voiceService.resumeSpeaking();
+      setIsAudioPaused(false);
+    } else {
+      voiceService.pauseSpeaking();
+      setIsAudioPaused(true);
+    }
+  };
+
+  const handleStopSpeak = () => {
+    voiceService.stopSpeaking();
+    setSpeakingMessageId(null);
+    setIsAudioPaused(false);
+    setAssistantStatus("ready");
+  };
+
+  // Clipboard & Bookmark
   const handleCopy = (id: string, text: string) => {
-    navigator.clipboard.writeText(text);
+    void navigator.clipboard?.writeText(text);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Toggle Save Answer
   const handleToggleBookmark = (question: string, answer: string) => {
     toggleSavedAnswer({
       sessionId: activeSession?.id || "default",
       question,
-      answer
+      answer,
     });
     setSavedAnswers(loadSavedAnswers());
   };
 
-  // Stop Streaming
+  // Stop Generation
   const handleStopStreaming = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
     }
     setIsStreaming(false);
-    setIsTyping(false);
+    setActiveTool(null);
     setAssistantStatus("ready");
   };
 
-  // SEND MESSAGE HANDLER
-  const handleSendMessage = async (payload: {
-    text: string;
-    imageBase64?: string;
-    audioFile?: File;
-    cropHint?: string;
-  }) => {
-    if (!activeSession) return;
+  // Core Message Send & SSE Streaming Pipeline
+  const handleSendMessage = async (
+    payload: ComposerSubmitPayload,
+    sessionOverride?: ConversationSession,
+    regenerateTargetBotId?: string
+  ) => {
+    const currentSession = sessionOverride || activeSessionRef.current;
+    if (!currentSession) return;
 
-    // Interrupt any ongoing audio
+    // Barge-in: stop ongoing voice playback
     voiceService.stopSpeaking();
     setSpeakingMessageId(null);
+    setIsAudioPaused(false);
 
-    const userMessageId = `msg-u-${Date.now()}`;
-    const botMessageId = `msg-b-${Date.now() + 1}`;
-
-    const userMsg: ChatMessage = {
-      id: userMessageId,
-      sender: "user",
-      text: payload.text,
-      language: selectedLanguage,
-      imageUrl: payload.imageBase64,
-      cropHint: payload.cropHint,
-      timestamp: new Date().toISOString()
-    };
-
-    // Placeholder bot message
-    const botMsg: ChatMessage = {
-      id: botMessageId,
-      sender: "bot",
-      text: "",
-      language: selectedLanguage,
-      timestamp: new Date().toISOString(),
-      isStreaming: true,
-      sources: [
-        { name: "ICAR Advisory Directory", date: "2026-10", url: "https://icar.gov.in" },
-        { name: "CIBRC Guidelines", date: "2026-09", url: "http://cibrc.nic.in" }
-      ]
-    };
-
-    const updatedMessages = [...activeSession.messages, userMsg, botMsg];
-    const sessionTitle =
-      activeSession.messages.length === 0
-        ? payload.text.slice(0, 36) + (payload.text.length > 36 ? "..." : "")
-        : activeSession.title;
-
-    const updatedSession: ConversationSession = {
-      ...activeSession,
-      title: sessionTitle,
-      messages: updatedMessages
-    };
-
-    setActiveSession(updatedSession);
-    updateSession(updatedSession);
-
-    setIsStreaming(true);
-    setIsTyping(true);
-    setAssistantStatus("thinking");
-
-    // Build context
-    const farmContext = formatFarmContextForAI(farmProfile);
-    const enrichedMessage = farmContext
-      ? `${farmContext}\n\nFarmer Query: ${payload.text}`
-      : payload.text;
-
-    // Optional parallel disease diagnosis if image uploaded
-    let diagnosisOutcome: any = null;
-    if (payload.imageBase64) {
+    // Handle uploaded audio note via /api/chat/stt first
+    let queryText = payload.text.trim();
+    if (payload.audioFile) {
+      setIsTranscribingAudio(true);
       try {
-        const diagRes = await fetch(
-          `/api/disease/predict?crop_hint=${encodeURIComponent(payload.cropHint || farmProfile.mainCrops[0] || "")}&symptom_notes=${encodeURIComponent(payload.text)}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              crop_hint: payload.cropHint || farmProfile.mainCrops[0] || "",
-              symptom_notes: payload.text
-            })
-          }
-        );
-        if (diagRes.ok) {
-          diagnosisOutcome = await diagRes.json();
-          recordCropDiagnosis({
-            cropName: diagnosisOutcome.crop?.name || payload.cropHint || "Crop",
-            diseaseName: diagnosisOutcome.disease_name || "Diagnostic Review",
-            confidence: diagnosisOutcome.confidence || 0.65,
-            imageUrl: payload.imageBase64,
-            keyRemedy: diagnosisOutcome.immediate_action || "Consult local KVK agronomist."
-          });
-          setDiagnosisHistory(loadDiagnosisHistory());
+        const hint =
+          selectedLanguage !== "auto"
+            ? (selectedLanguage as Exclude<Language, "auto">)
+            : undefined;
+        const sttRes = await transcribeAudio(payload.audioFile, hint);
+        if (sttRes.transcript?.trim()) {
+          queryText =
+            queryText && queryText !== "Voice audio enquiry"
+              ? `${queryText}\n${sttRes.transcript.trim()}`
+              : sttRes.transcript.trim();
         }
       } catch {
-        // Continue chat stream
+        // Proceed with text if any, or warn clearly
+        if (!queryText || queryText === "Voice audio enquiry") {
+          setIsTranscribingAudio(false);
+          const errBot: ChatMessage = {
+            id: `msg-err-${Date.now()}`,
+            sender: "bot",
+            text: "Uploaded audio could not be transcribed right now. Please tap the microphone button to speak directly or type your question.",
+            language: selectedLanguage,
+            timestamp: new Date().toISOString(),
+            isError: true,
+          };
+          syncSessionToList({
+            ...currentSession,
+            messages: [...currentSession.messages, errBot],
+          });
+          return;
+        }
+      } finally {
+        setIsTranscribingAudio(false);
       }
     }
 
-    // Call /api/chat/message with SSE
+    if (!queryText && !payload.imageBase64) return;
+
+    const botMessageId = regenerateTargetBotId || `msg-b-${Date.now() + 1}`;
+    let workingMessages: ChatMessage[];
+
+    if (regenerateTargetBotId) {
+      workingMessages = currentSession.messages.map((m) =>
+        m.id === regenerateTargetBotId
+          ? {
+              ...m,
+              text: "",
+              usedTools: [],
+              followUps: [],
+              isOfflineFallback: false,
+              isError: false,
+              isStreaming: true,
+              timestamp: new Date().toISOString(),
+            }
+          : m
+      );
+    } else {
+      const userMessageId = `msg-u-${Date.now()}`;
+      const userMsg: ChatMessage = {
+        id: userMessageId,
+        sender: "user",
+        text: queryText,
+        language: selectedLanguage,
+        imageUrl: payload.imageBase64,
+        cropHint: payload.cropHint,
+        timestamp: new Date().toISOString(),
+      };
+
+      const botMsg: ChatMessage = {
+        id: botMessageId,
+        sender: "bot",
+        text: "",
+        language: selectedLanguage,
+        timestamp: new Date().toISOString(),
+        isStreaming: true,
+        usedTools: [],
+      };
+
+      workingMessages = [...currentSession.messages, userMsg, botMsg];
+    }
+
+    const sessionTitle =
+      currentSession.messages.length === 0 && !regenerateTargetBotId
+        ? queryText.slice(0, 42) + (queryText.length > 42 ? "..." : "")
+        : currentSession.title;
+
+    const updatedSession: ConversationSession = {
+      ...currentSession,
+      title: sessionTitle,
+      messages: workingMessages,
+    };
+
+    syncSessionToList(updatedSession);
+    setIsStreaming(true);
+    setActiveTool(null);
+    setAssistantStatus("thinking");
+
+    // Optional parallel Crop Doctor vision inference when an image is attached
+    let diagnosisOutcome: any = null;
+    if (payload.imageBase64) {
+      try {
+        const formData = new FormData();
+        const fileToSend =
+          payload.imageFile ||
+          (() => {
+            const blob = dataUrlToBlob(payload.imageBase64!);
+            return blob ? new File([blob], "crop_leaf.jpg", { type: blob.type }) : null;
+          })();
+
+        if (fileToSend) {
+          formData.append("file", fileToSend);
+        }
+        const resolvedCropHint = payload.cropHint || farmProfile.mainCrops[0] || "";
+        if (resolvedCropHint) formData.append("crop_hint", resolvedCropHint);
+        formData.append("symptom_notes", queryText);
+
+        const diagRes = await fetch(
+          `/api/disease/predict?crop_hint=${encodeURIComponent(
+            resolvedCropHint
+          )}&symptom_notes=${encodeURIComponent(queryText)}`,
+          {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          }
+        );
+
+        if (diagRes.ok) {
+          diagnosisOutcome = await diagRes.json();
+          if (diagnosisOutcome?.disease_name) {
+            recordCropDiagnosis({
+              cropName:
+                (typeof diagnosisOutcome.crop === "string"
+                  ? diagnosisOutcome.crop
+                  : diagnosisOutcome.crop?.name) ||
+                payload.cropHint ||
+                "Crop",
+              diseaseName: diagnosisOutcome.disease_name,
+              confidence: diagnosisOutcome.confidence ?? 0,
+              imageUrl: payload.imageBase64,
+              keyRemedy:
+                diagnosisOutcome.immediate_action || "Consult local KVK agronomist.",
+            });
+            setDiagnosisHistory(loadDiagnosisHistory());
+          }
+        }
+      } catch {
+        // Vision service unavailable; continue with chat orchestrator
+      }
+    }
+
+    // Prepare Farm Context for AI
+    const farmContext = formatFarmContextForAI(farmProfile);
+    const enrichedMessage = farmContext
+      ? `${farmContext}\n\nFarmer Query: ${queryText}`
+      : queryText;
+
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
+    const buildDiagnosisData = (d: any) =>
+      d && d.disease_name
+        ? {
+            diseaseName: d.disease_name,
+            crop:
+              (typeof d.crop === "string" ? d.crop : d.crop?.name) ||
+              payload.cropHint ||
+              "Crop",
+            confidence: d.confidence ?? 0,
+            status: d.status || "uncertain",
+            symptoms: d.symptoms || queryText,
+            immediateAction: d.immediate_action,
+            culturalControl: d.cultural_control,
+            biologicalControl: d.biological_control,
+            chemicalControl: d.chemical_control,
+            dosageGuidelines: d.dosage_guidelines,
+            preHarvestIntervalDays: d.phi_days,
+            safetyInstructions: d.safety_instructions,
+            sourceInstitution: d.source_institution,
+            lastVerifiedDate: d.last_verified_date,
+          }
+        : undefined;
+
+    const locationHint =
+      farmProfile.district || farmProfile.state
+        ? { city: farmProfile.district || farmProfile.state }
+        : null;
+
+    let accumulatedText = "";
+    let resolvedLang: VoiceLanguage = selectedLanguage;
+    let serverSessionId = currentSession.serverSessionId;
+    const toolsUsed: string[] = [];
+
     try {
-      const response = await fetch("/api/chat/message", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: abortController.signal,
-        body: JSON.stringify({
-          session_id: activeSession.id,
+      for await (const evt of streamMessage(
+        {
+          session_id: serverSessionId || null,
           message: enrichedMessage,
-          language: selectedLanguage,
-          location: {
-            city: farmProfile.district || "Karnal",
-            lat: 29.6857,
-            lon: 76.9905
-          },
+          language: selectedLanguage as Language,
+          location: locationHint,
           image_base64: payload.imageBase64 || null,
-          stream: true
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
-      }
-
-      setIsTyping(false);
-
-      const contentType = response.headers.get("content-type") || "";
-
-      // Case A: SSE Streaming
-      if (contentType.includes("text/event-stream")) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder("utf-8");
-        let accumulatedText = "";
-
-        if (reader) {
-          let done = false;
-          while (!done) {
-            const { value, done: readerDone } = await reader.read();
-            done = readerDone;
-            if (value) {
-              const chunk = decoder.decode(value, { stream: true });
-              const lines = chunk.split("\n");
-
-              for (const line of lines) {
-                if (line.startsWith("data: ")) {
-                  try {
-                    const dataStr = line.slice(6).trim();
-                    if (dataStr) {
-                      const parsed = JSON.parse(dataStr);
-                      if (parsed.token) {
-                        accumulatedText += parsed.token;
-                      } else if (parsed.content) {
-                        accumulatedText = parsed.content;
-                      }
-                      // Update message in state
-                      setActiveSession((prev) => {
-                        if (!prev) return null;
-                        const msgs = prev.messages.map((m) =>
-                          m.id === botMessageId
-                            ? {
-                                ...m,
-                                text: accumulatedText,
-                                diagnosisData: diagnosisOutcome
-                                  ? {
-                                      diseaseName: diagnosisOutcome.disease_name,
-                                      crop: diagnosisOutcome.crop?.name || payload.cropHint,
-                                      confidence: diagnosisOutcome.confidence,
-                                      status: diagnosisOutcome.status,
-                                      symptoms: diagnosisOutcome.symptoms || payload.text,
-                                      immediateAction: diagnosisOutcome.immediate_action,
-                                      culturalControl: diagnosisOutcome.cultural_control,
-                                      biologicalControl: diagnosisOutcome.biological_control,
-                                      chemicalControl: diagnosisOutcome.chemical_control,
-                                      dosageGuidelines: diagnosisOutcome.dosage_guidelines,
-                                      preHarvestIntervalDays: diagnosisOutcome.phi_days,
-                                      safetyInstructions: diagnosisOutcome.safety_instructions,
-                                      sourceInstitution: diagnosisOutcome.source_institution,
-                                      lastVerifiedDate: diagnosisOutcome.last_verified_date
-                                    }
-                                  : undefined
-                              }
-                            : m
-                        );
-                        return { ...prev, messages: msgs };
-                      });
-                    }
-                  } catch {
-                    // Raw string token fallback
-                    const raw = line.slice(6);
-                    if (raw && !raw.startsWith("{")) {
-                      accumulatedText += raw;
-                    }
+          stream: true,
+        },
+        abortController.signal
+      )) {
+        if (evt.type === "session") {
+          if (evt.session_id) serverSessionId = evt.session_id;
+          if (evt.language && SUPPORTED_VOICE_LANGUAGES[evt.language as VoiceLanguage]) {
+            resolvedLang = evt.language as VoiceLanguage;
+          }
+        } else if (evt.type === "tool_start") {
+          setActiveTool(evt.name);
+          if (!toolsUsed.includes(evt.name)) toolsUsed.push(evt.name);
+        } else if (evt.type === "tool_end") {
+          setActiveTool(null);
+        } else if (evt.type === "token") {
+          accumulatedText += evt.text;
+          setActiveSession((prev) => {
+            if (!prev) return null;
+            const nextMsgs = prev.messages.map((m) =>
+              m.id === botMessageId
+                ? {
+                    ...m,
+                    text: accumulatedText,
+                    usedTools: [...toolsUsed],
+                    diagnosisData: buildDiagnosisData(diagnosisOutcome),
                   }
-                }
-              }
+                : m
+            );
+            const nextSess = { ...prev, serverSessionId, messages: nextMsgs };
+            activeSessionRef.current = nextSess;
+            return nextSess;
+          });
+        } else if (evt.type === "done") {
+          if (evt.session_id) serverSessionId = evt.session_id;
+          if (evt.language && SUPPORTED_VOICE_LANGUAGES[evt.language as VoiceLanguage]) {
+            resolvedLang = evt.language as VoiceLanguage;
+          }
+          if (evt.used_tools?.length) {
+            for (const t of evt.used_tools) {
+              if (!toolsUsed.includes(t)) toolsUsed.push(t);
             }
           }
+        } else if (evt.type === "error") {
+          throw new AssistantAPIError(
+            evt.message || "Assistant error",
+            evt.status_code ?? 503,
+            evt.code
+          );
         }
-
-        // Finalize message
-        finalizeAssistantMessage(botMessageId, accumulatedText, diagnosisOutcome);
-      } else {
-        // Case B: Direct JSON response fallback
-        const data = await response.json();
-        const fullContent = data.content || data.reply || data.response_text || "Agricultural advisory completed.";
-        finalizeAssistantMessage(botMessageId, fullContent, diagnosisOutcome);
       }
+
+      finalizeAssistantMessage(
+        botMessageId,
+        accumulatedText,
+        resolvedLang,
+        toolsUsed,
+        serverSessionId,
+        buildDiagnosisData(diagnosisOutcome),
+        false
+      );
     } catch (err: any) {
-      if (err.name === "AbortError") {
-        finalizeAssistantMessage(botMessageId, "Consultation stopped by farmer.", diagnosisOutcome);
+      if (err?.name === "AbortError") {
+        finalizeAssistantMessage(
+          botMessageId,
+          accumulatedText || "Consultation paused by farmer.",
+          resolvedLang,
+          toolsUsed,
+          serverSessionId,
+          buildDiagnosisData(diagnosisOutcome),
+          false
+        );
         return;
       }
 
-      // Offline / network fallback with grounded agronomic rules
-      const offlineReply = getFallbackAgronomicAdvice(payload.text, selectedLanguage, farmProfile);
-      finalizeAssistantMessage(botMessageId, offlineReply, diagnosisOutcome);
+      const apiErr = err instanceof AssistantAPIError ? err : null;
+      const isStructuredBackendError =
+        apiErr &&
+        (apiErr.status === 400 ||
+          apiErr.status === 402 ||
+          apiErr.status === 413 ||
+          apiErr.status === 422 ||
+          apiErr.status === 429 ||
+          Boolean(apiErr.code));
+
+      if (isStructuredBackendError && apiErr) {
+        const errorText =
+          `### Notice\n${apiErr.message}\n\n` +
+          `### When to Contact an Agricultural Expert\n` +
+          `- For urgent farming assistance, call the toll-free **Kisan Call Centre: 1800-180-1551** or open **Agri Dept & Helplines** in the top bar.`;
+        finalizeAssistantMessage(
+          botMessageId,
+          errorText,
+          selectedLanguage,
+          toolsUsed,
+          serverSessionId,
+          buildDiagnosisData(diagnosisOutcome),
+          false,
+          true
+        );
+      } else {
+        // Honest Reality-First Offline / Server Unreachable Fallback
+        const offlineReply = getOfflineAgronomicReference(queryText, selectedLanguage, farmProfile);
+        finalizeAssistantMessage(
+          botMessageId,
+          offlineReply,
+          selectedLanguage,
+          toolsUsed,
+          serverSessionId,
+          buildDiagnosisData(diagnosisOutcome),
+          true,
+          false
+        );
+      }
     } finally {
       setIsStreaming(false);
-      setIsTyping(false);
-      setAssistantStatus("ready");
+      setActiveTool(null);
       abortControllerRef.current = null;
     }
   };
@@ -462,427 +737,378 @@ export default function ChatbotClient() {
   const finalizeAssistantMessage = (
     botMessageId: string,
     content: string,
-    diagnosisOutcome?: any
+    msgLang: VoiceLanguage,
+    usedTools: string[],
+    serverSessionId?: string,
+    diagnosisData?: ChatMessage["diagnosisData"],
+    isOfflineFallback = false,
+    isError = false
   ) => {
+    const finalContent =
+      content.trim() ||
+      "Unable to generate an answer right now. Please try again or contact Kisan Call Centre at 1800-180-1551.";
+    const followUps = generateFollowUpSuggestions(finalContent, msgLang);
+
     setActiveSession((prev) => {
       if (!prev) return null;
-      const followUps = generateFollowUpSuggestions(content, selectedLanguage);
       const msgs = prev.messages.map((m) =>
         m.id === botMessageId
           ? {
               ...m,
-              text: content || "Consultation response completed.",
+              text: finalContent,
+              language: msgLang,
               isStreaming: false,
+              usedTools,
+              isOfflineFallback,
+              isError,
               followUps,
-              diagnosisData: diagnosisOutcome
-                ? {
-                    diseaseName: diagnosisOutcome.disease_name,
-                    crop: diagnosisOutcome.crop?.name,
-                    confidence: diagnosisOutcome.confidence,
-                    status: diagnosisOutcome.status,
-                    symptoms: diagnosisOutcome.symptoms,
-                    immediateAction: diagnosisOutcome.immediate_action,
-                    culturalControl: diagnosisOutcome.cultural_control,
-                    biologicalControl: diagnosisOutcome.biological_control,
-                    chemicalControl: diagnosisOutcome.chemical_control,
-                    dosageGuidelines: diagnosisOutcome.dosage_guidelines,
-                    preHarvestIntervalDays: diagnosisOutcome.phi_days,
-                    safetyInstructions: diagnosisOutcome.safety_instructions,
-                    sourceInstitution: diagnosisOutcome.source_institution,
-                    lastVerifiedDate: diagnosisOutcome.last_verified_date
-                  }
-                : undefined
+              diagnosisData,
             }
           : m
       );
-      const updatedSess = { ...prev, messages: msgs };
+      const updatedSess: ConversationSession = {
+        ...prev,
+        serverSessionId: serverSessionId || prev.serverSessionId,
+        messages: msgs,
+      };
+      activeSessionRef.current = updatedSess;
       updateSession(updatedSess);
+      setSessions((list) => {
+        const idx = list.findIndex((s) => s.id === updatedSess.id);
+        if (idx >= 0) {
+          const copy = [...list];
+          copy[idx] = updatedSess;
+          return copy;
+        }
+        return [updatedSess, ...list];
+      });
       return updatedSess;
     });
-  };
 
-  // Retry previous prompt
-  const handleRetry = (msgIndex: number) => {
-    if (!activeSession) return;
-    const userMsg = activeSession.messages[msgIndex - 1];
-    if (userMsg && userMsg.sender === "user") {
-      handleSendMessage({
-        text: userMsg.text,
-        imageBase64: userMsg.imageUrl,
-        cropHint: userMsg.cropHint
-      });
+    if (autoSpeak && finalContent && !isOfflineFallback && !isError) {
+      playMessageVoice(botMessageId, finalContent, msgLang);
+    } else {
+      setAssistantStatus("ready");
     }
   };
 
+  // Clean in-place Regenerate Response (no duplicate user bubble)
+  const handleRegenerate = (botMsgIndex: number) => {
+    if (!activeSession || isStreaming) return;
+    // Find nearest preceding user message
+    for (let i = botMsgIndex - 1; i >= 0; i--) {
+      const candidate = activeSession.messages[i];
+      if (candidate.sender === "user") {
+        const targetBot = activeSession.messages[botMsgIndex];
+        void handleSendMessage(
+          {
+            text: candidate.text,
+            imageBase64: candidate.imageUrl,
+            cropHint: candidate.cropHint,
+          },
+          activeSession,
+          targetBot.id
+        );
+        return;
+      }
+    }
+  };
+
+  // Welcome Card Trigger
+  const handleWelcomeCardSelect = (_topic: WelcomeTopicId, prompt: string) => {
+    void handleSendMessage({ text: prompt });
+  };
+
+  // Drag & Drop leaf images into chat
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(true);
+  };
+  const handleDragLeave = () => setIsDraggingFile(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        void handleSendMessage({
+          text: "Please examine this crop photograph for any disease, pest, or nutrient issue.",
+          imageBase64: reader.result as string,
+          imageFile: file,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const messages = activeSession?.messages || [];
+  const hasMessages = messages.length > 0;
+  const lastAssistantIndex = [...messages]
+    .reverse()
+    .findIndex((m) => m.sender === "bot");
+  const latestBotIdx = lastAssistantIndex >= 0 ? messages.length - 1 - lastAssistantIndex : -1;
+
   return (
-    <div className="w-full flex-1 flex flex-col bg-background text-foreground antialiased min-h-[calc(100vh-4.5rem)]">
-      {/* Mobile Top Navigation & Drawer Triggers */}
-      <div className="md:hidden flex items-center justify-between p-3 border-b border-border/60 bg-card">
-        <button
-          onClick={() => setIsMobileLeftOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-border/60 bg-muted/30 text-xs font-semibold"
-        >
-          <Menu className="w-4 h-4 text-emerald-600" />
-          <span>Workspace</span>
-        </button>
-
-        <div className="text-center">
-          <h2 className="text-xs font-black text-foreground">KisaanBuddy AI</h2>
-          <span className="text-[10px] text-emerald-600 font-semibold flex items-center justify-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Command Centre
-          </span>
-        </div>
-
-        <button
-          onClick={() => setIsMobileRightOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-border/60 bg-muted/30 text-xs font-semibold text-emerald-700 dark:text-emerald-400"
-        >
-          <MapPin className="w-3.5 h-3.5" />
-          <span>Officers</span>
-        </button>
-      </div>
-
-      {/* Desktop 3-Column Grid */}
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-hidden h-full">
-        {/* LEFT COLUMN: Farmer Workspace (3 cols on desktop) */}
-        <div className="hidden md:block md:col-span-3 lg:col-span-3 h-full">
-          <FarmerWorkspaceSidebar
-            sessions={sessions}
-            activeSessionId={activeSession?.id || null}
-            onSelectSession={handleSelectSession}
-            onNewSession={handleNewSession}
-            onDeleteSession={handleDeleteSession}
-            savedAnswers={savedAnswers}
-            diagnosisHistory={diagnosisHistory}
-            farmProfile={farmProfile}
-            onOpenProfileModal={() => setIsProfileModalOpen(true)}
-            onOpenSavedAnswersModal={() => setIsSavedAnswersModalOpen(true)}
-            onOpenDiagnosisHistoryModal={() => setIsDiagnosisModalOpen(true)}
-            onQuickQuery={(q) => handleSendMessage({ text: q })}
-          />
-        </div>
-
-        {/* CENTER COLUMN: AI Assistant Primary Stage (6 cols on desktop, 12 on mobile) */}
-        <div className="col-span-1 md:col-span-6 lg:col-span-6 flex flex-col h-full bg-background border-r border-border/40 overflow-hidden relative">
-          {/* Centre Header */}
-          <header className="p-3.5 md:p-4 border-b border-border/50 bg-card/70 backdrop-blur-xs flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-emerald-600/10 border border-emerald-600/25 flex items-center justify-center text-emerald-600 shadow-xs">
-                <Bot className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h1 className="text-base font-black tracking-tight text-foreground font-display">
-                    KisaanBuddy AI
-                  </h1>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    {assistantStatus === "speaking"
-                      ? "Speaking Aloud"
-                      : assistantStatus === "thinking"
-                      ? "Synthesizing ICAR Data"
-                      : "Ready"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground font-medium">
-                  Your Intelligent Farming Companion • Verified Agricultural Guidance
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Actions in Header */}
-            <div className="hidden sm:flex items-center gap-2">
-              <button
-                onClick={() => setIsDiagnosisModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-semibold text-xs transition-colors shadow-xs"
-              >
-                <Stethoscope className="w-3.5 h-3.5" />
-                <span>Crop Doctor</span>
-              </button>
-            </div>
-          </header>
-
-          {/* Messages Stream */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 custom-scrollbar">
-            {activeSession?.messages.length === 0 ? (
-              <WelcomeZeroState
-                onQuickAsk={(q) => handleSendMessage({ text: q })}
-                onOpenDiagnosis={() => setIsDiagnosisModalOpen(true)}
-                farmProfile={farmProfile}
-                selectedLanguage={selectedLanguage}
-              />
-            ) : (
-              activeSession?.messages.map((msg, idx) => {
-                const isUser = msg.sender === "user";
-                const isBookmarked = isAnswerSaved(
-                  activeSession.messages[idx - 1]?.text || "",
-                  msg.text
-                );
-
-                return (
-                  <div
-                    key={msg.id}
-                    className={`flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 ${
-                      isUser ? "flex-row-reverse" : "flex-row"
-                    }`}
-                  >
-                    {/* Identity Avatar */}
-                    <div
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${
-                        isUser
-                          ? "bg-foreground text-background"
-                          : "bg-emerald-600 text-white"
-                      }`}
-                    >
-                      {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                    </div>
-
-                    {/* Message Bubble */}
-                    <div className={`max-w-[85%] md:max-w-[80%] space-y-2`}>
-                      <div
-                        className={`p-3.5 md:p-4 rounded-3xl text-xs md:text-sm leading-relaxed shadow-xs ${
-                          isUser
-                            ? "bg-emerald-600 text-white rounded-tr-xs"
-                            : "bg-card border border-border/80 text-foreground rounded-tl-xs"
-                        }`}
-                      >
-                        {/* Attached Image Preview */}
-                        {msg.imageUrl && (
-                          <div className="mb-2.5 rounded-xl overflow-hidden border border-white/20 max-w-sm">
-                            <img
-                              src={msg.imageUrl}
-                              alt="Crop leaf sample"
-                              className="w-full max-h-52 object-cover"
-                            />
-                            {msg.cropHint && (
-                              <div className="p-1.5 bg-black/60 text-white text-[10px] font-semibold">
-                                Crop: {msg.cropHint}
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Disease Diagnosis Card (when structured diagnostic is available) */}
-                        {msg.diagnosisData && (
-                          <div className="mb-3 p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-foreground space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white uppercase">
-                                Verified Diagnosis
-                              </span>
-                              <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
-                                Confidence: {Math.round(msg.diagnosisData.confidence * 100)}%
-                              </span>
-                            </div>
-                            <h4 className="text-sm font-black text-foreground">
-                              {msg.diagnosisData.diseaseName}
-                            </h4>
-                            <p className="text-[11px] text-muted-foreground">
-                              <strong>Crop:</strong> {msg.diagnosisData.crop} •{" "}
-                              <strong>Source:</strong> {msg.diagnosisData.sourceInstitution || "ICAR"}
-                            </p>
-                            {msg.diagnosisData.dosageGuidelines && (
-                              <div className="p-2 rounded-xl bg-background border border-border/60 text-[11px] space-y-1">
-                                <span className="font-bold text-emerald-700 dark:text-emerald-400 block">
-                                  Authoritative Dosage:
-                                </span>
-                                <span>{msg.diagnosisData.dosageGuidelines}</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Main Text Content */}
-                        <div className="whitespace-pre-wrap font-normal selection:bg-emerald-500/30">
-                          {msg.text || (
-                            <span className="inline-flex items-center gap-1 text-muted-foreground">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce" />
-                              <span
-                                className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"
-                                style={{ animationDelay: "150ms" }}
-                              />
-                              <span
-                                className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"
-                                style={{ animationDelay: "300ms" }}
-                              />
-                              <span className="ml-1 text-[11px]">Consulting ICAR agronomy database...</span>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Assistant Response Actions & Citations */}
-                      {!isUser && msg.text && (
-                        <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-[11px] text-muted-foreground">
-                          {/* Citations */}
-                          <div className="flex items-center gap-1.5">
-                            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                            <span className="text-[10px] font-medium">ICAR / CIBRC Grounded</span>
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex items-center gap-1">
-                            {/* Read Aloud Button */}
-                            <button
-                              onClick={() => handleToggleSpeak(msg.id, msg.text, msg.language)}
-                              className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 ${
-                                speakingMessageId === msg.id
-                                  ? "bg-emerald-600 text-white"
-                                  : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                              }`}
-                              title={speakingMessageId === msg.id ? "Stop voice" : "Read aloud in your language"}
-                            >
-                              {speakingMessageId === msg.id ? (
-                                <VolumeX className="w-3.5 h-3.5" />
-                              ) : (
-                                <Volume2 className="w-3.5 h-3.5" />
-                              )}
-                              <span className="text-[10px] hidden sm:inline">
-                                {speakingMessageId === msg.id ? "Stop" : "Listen"}
-                              </span>
-                            </button>
-
-                            {/* Copy Button */}
-                            <button
-                              onClick={() => handleCopy(msg.id, msg.text)}
-                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                              title="Copy answer"
-                            >
-                              {copiedId === msg.id ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                              ) : (
-                                <Copy className="w-3.5 h-3.5" />
-                              )}
-                            </button>
-
-                            {/* Bookmark / Save Answer */}
-                            <button
-                              onClick={() =>
-                                handleToggleBookmark(
-                                  activeSession.messages[idx - 1]?.text || "Farming enquiry",
-                                  msg.text
-                                )
-                              }
-                              className={`p-1.5 rounded-lg transition-colors ${
-                                isBookmarked
-                                  ? "text-amber-500 hover:text-amber-600"
-                                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                              }`}
-                              title={isBookmarked ? "Remove bookmark" : "Save answer to My Answers"}
-                            >
-                              <Bookmark
-                                className={`w-3.5 h-3.5 ${isBookmarked ? "fill-amber-500" : ""}`}
-                              />
-                            </button>
-
-                            {/* Retry Button */}
-                            <button
-                              onClick={() => handleRetry(idx)}
-                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                              title="Regenerate answer"
-                            >
-                              <RotateCcw className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Follow-up Suggestion Chips */}
-                      {!isUser && msg.followUps && msg.followUps.length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 pt-1">
-                          {msg.followUps.map((chip, cIdx) => (
-                            <button
-                              key={cIdx}
-                              onClick={() => handleSendMessage({ text: chip })}
-                              className="px-2.5 py-1 rounded-full bg-muted/60 hover:bg-emerald-500/10 hover:border-emerald-500/30 border border-border/60 text-[11px] font-medium text-foreground transition-all flex items-center gap-1 active:scale-95"
-                            >
-                              <span>{chip}</span>
-                              <ArrowRight className="w-3 h-3 text-emerald-600" />
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-            )}
-            <div ref={messagesEndRef} />
+    <div
+      data-fullwidth="true"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className="relative w-full h-[calc(100dvh-3.5rem)] sm:h-[calc(100dvh-4rem)] flex overflow-hidden bg-[#F5F9F5] dark:bg-stone-950 text-foreground antialiased"
+    >
+      {/* Drag & Drop Leaf Overlay */}
+      {isDraggingFile && (
+        <div className="absolute inset-0 z-50 bg-emerald-900/20 backdrop-blur-xs border-2 border-dashed border-emerald-600 flex items-center justify-center pointer-events-none">
+          <div className="px-6 py-4 rounded-3xl bg-white dark:bg-stone-900 shadow-xl border border-emerald-200 text-center space-y-1">
+            <Sprout className="w-8 h-8 text-emerald-600 mx-auto" />
+            <p className="text-sm font-bold text-[#143325] dark:text-emerald-100">
+              Drop crop leaf photograph here for AI diagnosis
+            </p>
           </div>
-
-          {/* BOTTOM MULTI-INPUT COMPOSER */}
-          <MultiInputComposer
-            onSendMessage={handleSendMessage}
-            isStreaming={isStreaming}
-            onStopStreaming={handleStopStreaming}
-            selectedLanguage={selectedLanguage}
-            onChangeLanguage={(l) => setSelectedLanguage(l)}
-          />
-        </div>
-
-        {/* RIGHT COLUMN: Agricultural Intelligence (3 cols on desktop) */}
-        <div className="hidden md:block md:col-span-3 lg:col-span-3 h-full">
-          <AgriIntelligenceSidebar
-            farmerProfile={farmProfile}
-            onUpdateLocation={handleUpdateLocation}
-            onSelectQuery={(q) => handleSendMessage({ text: q })}
-          />
-        </div>
-      </div>
-
-      {/* MOBILE DRAWER: Farmer Workspace */}
-      {isMobileLeftOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-[85%] max-w-sm h-full bg-card shadow-2xl">
-            <FarmerWorkspaceSidebar
-              sessions={sessions}
-              activeSessionId={activeSession?.id || null}
-              onSelectSession={handleSelectSession}
-              onNewSession={handleNewSession}
-              onDeleteSession={handleDeleteSession}
-              savedAnswers={savedAnswers}
-              diagnosisHistory={diagnosisHistory}
-              farmProfile={farmProfile}
-              onOpenProfileModal={() => {
-                setIsMobileLeftOpen(false);
-                setIsProfileModalOpen(true);
-              }}
-              onOpenSavedAnswersModal={() => {
-                setIsMobileLeftOpen(false);
-                setIsSavedAnswersModalOpen(true);
-              }}
-              onOpenDiagnosisHistoryModal={() => {
-                setIsMobileLeftOpen(false);
-                setIsDiagnosisModalOpen(true);
-              }}
-              onQuickQuery={(q) => {
-                setIsMobileLeftOpen(false);
-                handleSendMessage({ text: q });
-              }}
-              onCloseMobile={() => setIsMobileLeftOpen(false)}
-            />
-          </div>
-          <div className="flex-1" onClick={() => setIsMobileLeftOpen(false)} />
         </div>
       )}
 
-      {/* MOBILE DRAWER: Agricultural Intelligence */}
-      {isMobileRightOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden bg-black/60 backdrop-blur-xs animate-in fade-in justify-end">
-          <div className="flex-1" onClick={() => setIsMobileRightOpen(false)} />
-          <div className="w-[85%] max-w-sm h-full bg-card shadow-2xl">
+      {/* MAIN CENTRAL AI CONVERSATION STAGE */}
+      <div className="flex-1 min-w-0 h-full flex flex-col relative">
+        {/* Clean Minimal Workspace Bar */}
+        <div className="shrink-0 h-12 sm:h-13 px-3 sm:px-5 border-b border-emerald-900/10 dark:border-stone-800 bg-white/85 dark:bg-stone-900/85 backdrop-blur-md flex items-center justify-between gap-2 z-20">
+          {/* Left: History Drawer Toggle + New Chat */}
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={() => setIsHistoryOpen(true)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-900/10 dark:border-stone-700 bg-[#F8FBF8] dark:bg-stone-800 hover:border-emerald-600/40 text-xs font-semibold text-[#143325] dark:text-stone-200 transition-colors"
+              title="Open conversation history & farm profile"
+            >
+              <History className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+              <span className="hidden xs:inline">History</span>
+              {sessions.length > 0 && (
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-600/10 text-emerald-800 dark:text-emerald-300 font-bold">
+                  {sessions.length}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNewSession}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-2xs transition-colors"
+              title="Start new conversation"
+            >
+              <MessageSquarePlus className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New Chat</span>
+            </button>
+
+            {/* Live Advisor Status */}
+            <div className="hidden md:flex items-center gap-1.5 ml-2 px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200/70 dark:border-emerald-800/60 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300">
+              <span
+                className={`w-1.5 h-1.5 rounded-full ${
+                  assistantStatus === "thinking" || isStreaming
+                    ? "bg-amber-500 animate-ping"
+                    : assistantStatus === "speaking"
+                    ? "bg-emerald-500 animate-pulse"
+                    : "bg-emerald-600"
+                }`}
+              />
+              <span>
+                {activeTool
+                  ? `Running ${activeTool.replace(/_/g, " ")}...`
+                  : assistantStatus === "speaking"
+                  ? "Speaking Response"
+                  : isStreaming || assistantStatus === "thinking"
+                  ? "Thinking..."
+                  : "KisaanBuddy AI Ready"}
+              </span>
+            </div>
+          </div>
+
+          {/* Right: Clear, Farm Context, Crop Doctor & Collapsible Agriculture Dept Toggle */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {hasMessages && (
+              <button
+                type="button"
+                onClick={handleClearConversation}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-emerald-900/10 dark:border-stone-700 bg-white dark:bg-stone-900 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 dark:hover:bg-rose-950/40 text-xs font-medium text-[#4B5D50] dark:text-stone-300 transition-colors"
+                title="Clear current conversation"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden lg:inline">Clear</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setIsProfileModalOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-900/10 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-emerald-600/40 text-xs font-medium text-[#1D2B22] dark:text-stone-200 transition-colors"
+              title="Edit your farm soil, crop & location details"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+              <span className="max-w-[110px] truncate">{farmProfile.district || "Farm"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsDiagnosisModalOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-emerald-900/10 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-emerald-600/40 text-xs font-semibold text-emerald-800 dark:text-emerald-300 transition-colors"
+              title="Crop Disease Clinic & History"
+            >
+              <Stethoscope className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">Crop Doctor</span>
+            </button>
+
+            {/* Dedicated Collapsible Agriculture Dept & Helplines Button */}
+            <button
+              type="button"
+              onClick={() => setIsDirectoryOpen((prev) => !prev)}
+              aria-expanded={isDirectoryOpen}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shadow-2xs ${
+                isDirectoryOpen
+                  ? "bg-emerald-700 border-emerald-700 text-white"
+                  : "bg-white dark:bg-stone-900 border-emerald-600/30 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
+              }`}
+              title="Toggle verified Agriculture Department Centres & Helplines"
+            >
+              <Building2 className="w-3.5 h-3.5 shrink-0" />
+              <span className="hidden sm:inline">Agri Dept &amp; Helplines</span>
+              <span className="sm:hidden flex items-center gap-1">
+                <PhoneCall className="w-3 h-3" />
+                <span>Help</span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Primary Conversation Area */}
+        <div
+          ref={messagesScrollRef}
+          onScroll={handleMessagesScroll}
+          className="flex-1 overflow-y-auto custom-scrollbar"
+        >
+          {!hasMessages ? (
+            <AdvisorWelcomeScreen
+              onSelectCard={handleWelcomeCardSelect}
+              onStartVoice={() => composerRef.current?.startVoice()}
+              onOpenLeafPhoto={() => composerRef.current?.openGallery()}
+              onOpenProfile={() => setIsProfileModalOpen(true)}
+              farmProfile={farmProfile}
+              selectedLanguage={selectedLanguage}
+              userName={user?.name}
+            />
+          ) : (
+            <div className="max-w-3xl lg:max-w-4xl mx-auto px-3 sm:px-6 py-5 sm:py-7 space-y-5">
+              {messages.map((msg, idx) => (
+                <ChatMessageBubble
+                  key={msg.id}
+                  message={msg}
+                  isLatestAssistant={idx === latestBotIdx}
+                  activeTool={idx === latestBotIdx ? activeTool : null}
+                  isBookmarked={isAnswerSaved(
+                    messages[idx - 1]?.text || "",
+                    msg.text
+                  )}
+                  isSpeakingThis={speakingMessageId === msg.id}
+                  isAudioPaused={speakingMessageId === msg.id && isAudioPaused}
+                  isCopied={copiedId === msg.id}
+                  onToggleSpeak={() => handleToggleSpeak(msg.id, msg.text, msg.language)}
+                  onPauseResumeSpeak={handlePauseResumeSpeak}
+                  onStopSpeak={handleStopSpeak}
+                  onCopy={() => handleCopy(msg.id, msg.text)}
+                  onBookmark={() =>
+                    handleToggleBookmark(
+                      messages[idx - 1]?.text || "Farming enquiry",
+                      msg.text
+                    )
+                  }
+                  onRegenerate={() => handleRegenerate(idx)}
+                  onFollowUpClick={(chip) => void handleSendMessage({ text: chip })}
+                  onOpenDirectory={() => setIsDirectoryOpen(true)}
+                />
+              ))}
+              <div ref={messagesEndRef} className="h-2" />
+            </div>
+          )}
+        </div>
+
+        {/* Scroll to Bottom Floating Pill */}
+        {showScrollDown && hasMessages && (
+          <div className="absolute bottom-32 sm:bottom-36 left-1/2 -translate-x-1/2 z-10 pointer-events-auto">
+            <button
+              type="button"
+              onClick={() => scrollToBottom("smooth")}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-900/15 dark:border-stone-700 shadow-md text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 transition-all"
+            >
+              <ArrowDown className="w-3.5 h-3.5" />
+              <span>Latest</span>
+            </button>
+          </div>
+        )}
+
+        {/* Bottom-Fixed Multimodal & Voice-First Composer */}
+        <MultiInputComposer
+          ref={composerRef}
+          onSendMessage={(payload) => void handleSendMessage(payload)}
+          isStreaming={isStreaming}
+          onStopStreaming={handleStopStreaming}
+          selectedLanguage={selectedLanguage}
+          onChangeLanguage={handleChangeLanguage}
+          autoSpeak={autoSpeak}
+          onToggleAutoSpeak={handleToggleAutoSpeak}
+          isTranscribingAudio={isTranscribingAudio}
+        />
+      </div>
+
+      {/* OPTIONAL COLLAPSIBLE RIGHT-SIDE PANEL: AGRICULTURE DEPARTMENT & HELPLINES */}
+      {isDirectoryOpen && (
+        <>
+          {/* Desktop Docked Collapsible Panel */}
+          <div className="hidden lg:block w-[380px] xl:w-[410px] h-full shrink-0 animate-in slide-in-from-right duration-200">
             <AgriIntelligenceSidebar
               farmerProfile={farmProfile}
               onUpdateLocation={handleUpdateLocation}
-              onSelectQuery={(q) => {
-                setIsMobileRightOpen(false);
-                handleSendMessage({ text: q });
-              }}
-              onCloseMobile={() => setIsMobileRightOpen(false)}
+              onSelectQuery={(q) => void handleSendMessage({ text: q })}
+              onClose={() => setIsDirectoryOpen(false)}
             />
           </div>
-        </div>
+
+          {/* Mobile / Tablet Slide-Over Drawer */}
+          <div className="fixed inset-0 z-50 flex justify-end lg:hidden">
+            <div
+              className="flex-1 bg-black/45 backdrop-blur-xs"
+              onClick={() => setIsDirectoryOpen(false)}
+            />
+            <div className="w-[88%] max-w-sm h-full bg-white dark:bg-stone-900 shadow-2xl animate-in slide-in-from-right duration-200">
+              <AgriIntelligenceSidebar
+                farmerProfile={farmProfile}
+                onUpdateLocation={handleUpdateLocation}
+                onSelectQuery={(q) => {
+                  setIsDirectoryOpen(false);
+                  void handleSendMessage({ text: q });
+                }}
+                onClose={() => setIsDirectoryOpen(false)}
+              />
+            </div>
+          </div>
+        </>
       )}
+
+      {/* COLLAPSIBLE LEFT DRAWER: CONVERSATION HISTORY & FARM CONTEXT */}
+      <ConversationHistoryDrawer
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        sessions={sessions}
+        activeSessionId={activeSession?.id || null}
+        onSelectSession={handleSelectSession}
+        onNewSession={handleNewSession}
+        onDeleteSession={handleDeleteSession}
+        savedAnswers={savedAnswers}
+        diagnosisHistory={diagnosisHistory}
+        farmProfile={farmProfile}
+        authUserName={user?.name}
+        onOpenProfileModal={() => setIsProfileModalOpen(true)}
+        onOpenSavedAnswersModal={() => setIsSavedAnswersModalOpen(true)}
+        onOpenDiagnosisHistoryModal={() => setIsDiagnosisModalOpen(true)}
+      />
 
       {/* MODALS */}
       <FarmProfileModal
@@ -897,14 +1123,15 @@ export default function ChatbotClient() {
         onClose={() => setIsSavedAnswersModalOpen(false)}
         savedAnswers={savedAnswers}
         onRemoveAnswer={(id) => {
+          const target = savedAnswers.find((a) => a.id === id);
           toggleSavedAnswer({
             sessionId: "",
-            question: savedAnswers.find((a) => a.id === id)?.question || "",
-            answer: savedAnswers.find((a) => a.id === id)?.answer || ""
+            question: target?.question || "",
+            answer: target?.answer || "",
           });
           setSavedAnswers(loadSavedAnswers());
         }}
-        onAskQuestion={(q) => handleSendMessage({ text: q })}
+        onAskQuestion={(q) => void handleSendMessage({ text: q })}
       />
 
       <CropDiagnosisModal
@@ -915,17 +1142,18 @@ export default function ChatbotClient() {
           if (file) {
             const reader = new FileReader();
             reader.onload = () => {
-              handleSendMessage({
+              void handleSendMessage({
                 text: sym || `Diagnose crop health for ${crop}`,
                 imageBase64: reader.result as string,
-                cropHint: crop
+                imageFile: file,
+                cropHint: crop,
               });
             };
             reader.readAsDataURL(file);
           } else {
-            handleSendMessage({
+            void handleSendMessage({
               text: `Diagnose symptoms for ${crop}: ${sym}`,
-              cropHint: crop
+              cropHint: crop,
             });
           }
         }}
@@ -934,209 +1162,179 @@ export default function ChatbotClient() {
   );
 }
 
-// Zero-State Welcome Component
-function WelcomeZeroState({
-  onQuickAsk,
-  onOpenDiagnosis,
-  farmProfile,
-  selectedLanguage
-}: {
-  onQuickAsk: (q: string) => void;
-  onOpenDiagnosis: () => void;
-  farmProfile: FarmerProfileData;
-  selectedLanguage: VoiceLanguage;
-}) {
-  const langConfig = SUPPORTED_VOICE_LANGUAGES[selectedLanguage] || SUPPORTED_VOICE_LANGUAGES.auto;
-
-  return (
-    <div className="h-full flex flex-col justify-center max-w-2xl mx-auto py-8 space-y-6 text-center select-none animate-in fade-in">
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>India&apos;s Voice-First Agricultural Intelligence Command Centre</span>
-        </div>
-        <h2 className="text-xl md:text-2xl font-black text-foreground tracking-tight font-display">
-          {farmProfile.farmerName ? `Namaste, ${farmProfile.farmerName} Ji!` : "Namaste Kisan Mitra!"}
-        </h2>
-        <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto">
-          {langConfig.welcome}
-        </p>
-      </div>
-
-      {/* 4 Core Pillars */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-        <button
-          onClick={() =>
-            onQuickAsk(
-              `My ${farmProfile.mainCrops[0] || "wheat"} crop leaves are turning yellow with brown spots. What is the cause and recommended treatment?`
-            )
-          }
-          className="p-3.5 rounded-2xl border border-border/70 bg-card hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all space-y-1.5 group"
-        >
-          <span className="text-lg">🌿</span>
-          <h4 className="text-xs font-bold text-foreground group-hover:text-emerald-600 transition-colors">
-            Plant Disease Diagnosis & Sprays
-          </h4>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Identify leaf blights, rusts, borers and get CIBRC-registered active ingredient dosages.
-          </p>
-        </button>
-
-        <button
-          onClick={() =>
-            onQuickAsk(
-              `What is the recommended fertilizer schedule for ${farmProfile.mainCrops[0] || "paddy"} in ${farmProfile.district}?`
-            )
-          }
-          className="p-3.5 rounded-2xl border border-border/70 bg-card hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all space-y-1.5 group"
-        >
-          <span className="text-lg">🧪</span>
-          <h4 className="text-xs font-bold text-foreground group-hover:text-emerald-600 transition-colors">
-            Soil Health & Nutrient Schedules
-          </h4>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Basal & top-dressing dosages for Urea, DAP, MOP and micronutrient zinc sulphate.
-          </p>
-        </button>
-
-        <button
-          onClick={() =>
-            onQuickAsk(
-              `What are the eligibility conditions and document requirements for PM-Kisan and PM Fasal Bima Yojana in ${farmProfile.state}?`
-            )
-          }
-          className="p-3.5 rounded-2xl border border-border/70 bg-card hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all space-y-1.5 group"
-        >
-          <span className="text-lg">🏛️</span>
-          <h4 className="text-xs font-bold text-foreground group-hover:text-emerald-600 transition-colors">
-            Government Subsidies & Schemes
-          </h4>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Check direct benefit transfers, solar pump subsidies, and crop insurance claim procedures.
-          </p>
-        </button>
-
-        <button
-          onClick={onOpenDiagnosis}
-          className="p-3.5 rounded-2xl border border-border/70 bg-card hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all space-y-1.5 group"
-        >
-          <span className="text-lg">📸</span>
-          <h4 className="text-xs font-bold text-foreground group-hover:text-emerald-600 transition-colors">
-            Camera Leaf Diagnostics
-          </h4>
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Upload or snap a high-resolution leaf photograph for instant computer vision analysis.
-          </p>
-        </button>
-      </div>
-
-      <p className="text-[11px] text-muted-foreground">
-        💡 Tap the microphone below to speak naturally in Hindi, Kannada, Telugu, Tamil, Marathi, Bengali or English.
-      </p>
-    </div>
-  );
-}
-
-// Helper to generate context-sensitive follow-up questions
 function generateFollowUpSuggestions(text: string, lang: VoiceLanguage): string[] {
   const lower = text.toLowerCase();
-  const isHindi = lang === "hi" || lang === "hi_en";
+  const isHindi = lang === "hi" || lang === "auto";
+  const isHinglish = lang === "hi_en";
+  const isKannada = lang === "kn";
 
-  if (lower.includes("rust") || lower.includes("blight") || lower.includes("fungus") || lower.includes("रोग")) {
+  if (
+    lower.includes("rust") ||
+    lower.includes("blight") ||
+    lower.includes("fungus") ||
+    lower.includes("disease") ||
+    lower.includes("रोग") ||
+    lower.includes("झुलसा") ||
+    lower.includes("ರೋಗ")
+  ) {
+    if (isKannada) {
+      return [
+        "ಸಿಂಪಡಣೆ ಮಾಡುವಾಗ ಯಾವ ಸುರಕ್ಷತಾ ಕ್ರಮಗಳನ್ನು ಪಾಲಿಸಬೇಕು?",
+        "ಇದಕ್ಕೆ ಜೈವಿಕ ಅಥವಾ ಸಾವಯವ ಪರಿಹಾರ ಇದೆಯೇ?",
+        "ಸಮೀಪದ ಕೃಷಿ ವಿಜ್ಞಾನ ಕೇಂದ್ರ (KVK) ಸಂಪರ್ಕ ಹೇಗೆ?",
+      ];
+    }
+    if (isHinglish) {
+      return [
+        "Spray karte samay kya savdhani aur safety rakhni chahiye?",
+        "Kya iska jaivik / organic upchar bhi hai?",
+        "Nazdeeki KVK expert se kaise baat karein?",
+      ];
+    }
     return isHindi
       ? [
-          "प्रति एकड़ स्प्रे की सही खुराक क्या है?",
-          "छिड़काव के समय क्या सावधानियां रखनी चाहिए?",
-          "निकटतम कृषि विज्ञान केंद्र (KVK) का फोन नंबर दें"
+          "छिड़काव के समय कौन-सी सावधानियां रखनी चाहिए?",
+          "क्या इसका जैविक उपचार भी संभव है?",
+          "नजदीकी कृषि विज्ञान केंद्र (KVK) से संपर्क कैसे करें?",
         ]
       : [
-          "What is the exact spray dosage per acre?",
-          "What is the safety pre-harvest interval (PHI)?",
-          "Contact number of nearest Krishi Vigyan Kendra"
+          "What safety precautions and pre-harvest interval apply?",
+          "Are there organic or biological control options?",
+          "How can I verify this with my nearest KVK?",
         ];
   }
 
-  if (lower.includes("fertilizer") || lower.includes("urea") || lower.includes("dap") || lower.includes("खाद")) {
+  if (
+    lower.includes("fertilizer") ||
+    lower.includes("urea") ||
+    lower.includes("dap") ||
+    lower.includes("खाद") ||
+    lower.includes("यूरिया") ||
+    lower.includes("ಗೊಬ್ಬರ")
+  ) {
+    if (isKannada) {
+      return [
+        "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಕಾರ್ಡ್ (Soil Health Card) ಆಧಾರದ ಮೇಲೆ ಪ್ರಮಾಣ ಹೇಗೆ ಬದಲಾಗುತ್ತದೆ?",
+        "ಯಾವ ಗೊಬ್ಬರಗಳನ್ನು ಒಟ್ಟಿಗೆ ಬೆರೆಸಬಾರದು?",
+        "ಸಾವಯವ ಗೊಬ್ಬರವನ್ನು ಎಷ್ಟು ಹಾಕಬೇಕು?",
+      ];
+    }
+    if (isHinglish) {
+      return [
+        "Soil Health Card test kahan karwayein?",
+        "Zinc Sulphate aur DAP ko ek saath mila sakte hain?",
+        "Jaivik khad ki matra kitni rakhein?",
+      ];
+    }
     return isHindi
       ? [
-          "जिंक सल्फेट के साथ कौन सी खाद नहीं मिलानी चाहिए?",
-          "मिट्टी परीक्षण प्रयोगशाला का पता बताएं",
-          "जैविक खाद (वर्मीकम्पोस्ट) की मात्रा कितनी रखें?"
+          "मिट्टी परीक्षण (Soil Health Card) कहाँ करवाएं?",
+          "जिंक सल्फेट और DAP को साथ मिला सकते हैं?",
+          "जैविक खाद की मात्रा कितनी रखें?",
         ]
       : [
-          "Which fertilizers should not be mixed with Zinc?",
-          "Where is the nearest Govt Soil Testing Lab?",
-          "Organic bio-fertilizer application schedule"
+          "How do I adjust dosage using a Soil Health Card?",
+          "Which fertilizers should not be mixed together?",
+          "Recommended organic manure supplement",
         ];
   }
 
-  if (lower.includes("pm-kisan") || lower.includes("scheme") || lower.includes("योजना")) {
+  if (
+    lower.includes("pm-kisan") ||
+    lower.includes("scheme") ||
+    lower.includes("pmfby") ||
+    lower.includes("योजना") ||
+    lower.includes("ಯೋಜನೆ")
+  ) {
+    if (isKannada) {
+      return [
+        "ಅರ್ಜಿ ಸಲ್ಲಿಸಲು ಯಾವ ದಾಖಲೆಗಳು ಬೇಕಾಗುತ್ತವೆ?",
+        "ಅಧಿಕೃತ ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ಸ್ಥಿತಿ ಪರಿಶೀಲಿಸುವುದು ಹೇಗೆ?",
+        "ಸಹಾಯವಾಣಿ ಸಂಖ್ಯೆಗಳನ್ನು ತೋರಿಸಿ",
+      ];
+    }
+    if (isHinglish) {
+      return [
+        "Apply karne ke liye kaun-se documents chahiye?",
+        "PM-KISAN status kaise check karein?",
+        "Official helpline numbers batayein",
+      ];
+    }
     return isHindi
       ? [
-          "पीएम किसान ई-केवाईसी (eKYC) कैसे चेक करें?",
-          "आवश्यक दस्तावेजों की पूरी सूची दें",
-          "जिला कृषि अधिकारी (DAO) से संपर्क कैसे करें?"
+          "आवेदन के लिए कौन-से दस्तावेज़ जरूरी हैं?",
+          "पीएम-किसान eKYC की स्थिति कैसे जांचें?",
+          "सरकारी सहायता हेल्पलाइन नंबर बताएं",
         ]
       : [
-          "How to complete PM-Kisan Aadhaar eKYC?",
-          "Full list of mandatory documents",
-          "How to contact District Agriculture Officer"
+          "What documents are required to apply?",
+          "How to verify status on the official portal?",
+          "Official toll-free scheme helpline numbers",
         ];
   }
 
+  if (isKannada) {
+    return [
+      "ಇಂದಿನ ಹವಾಮಾನದಲ್ಲಿ ಸಿಂಪಡಣೆ ಮಾಡುವುದು ಸುರಕ್ಷಿತವೇ?",
+      "ಇತ್ತೀಚಿನ AGMARKNET ಮಂಡಿ ದರಗಳನ್ನು ತೋರಿಸಿ",
+      "ಸಮೀಪದ ಕೃಷಿ ಅಧಿಕಾರಿಗಳ ಸಂಪರ್ಕ ತೋರಿಸಿ",
+    ];
+  }
+  if (isHinglish) {
+    return [
+      "Aaj ke mausam me spray karna safe hai?",
+      "Taaza AGMARKNET mandi bhav batayein",
+      "Nazdeeki Krishi officer ka contact dikhayein",
+    ];
+  }
   return isHindi
     ? [
-        "आज के मौसम में कीटनाशक छिड़कना सुरक्षित है?",
-        "नजदीकी कृषि अधिकारी का संपर्क विवरण दें",
-        "वर्तमान मंडी भाव और एमएसपी (MSP) बताएं"
+        "आज के मौसम में छिड़काव करना सुरक्षित है?",
+        "ताज़ा मंडी भाव की जानकारी दें",
+        "नजदीकी कृषि अधिकारी का संपर्क दिखाएं",
       ]
     : [
-        "Is it safe to spray pesticides in today's weather?",
-        "Show nearby Agriculture Extension Officers",
-        "Latest APMC mandi commodity prices and MSP"
+        "Is today's weather suitable for spraying?",
+        "Check latest AGMARKNET mandi rates",
+        "Show nearby Agriculture Dept contacts",
       ];
 }
 
-// Grounded agricultural fallback engine when server connection is offline
-function getFallbackAgronomicAdvice(
+function getOfflineAgronomicReference(
   query: string,
   lang: VoiceLanguage,
   profile: FarmerProfileData
 ): string {
-  const q = query.toLowerCase();
+  const isHindi = lang === "hi" || lang === "auto";
+  const locationLabel = [profile.district, profile.state].filter(Boolean).join(", ") || "your district";
 
-  if (q.includes("rust") || q.includes("yellow") || q.includes("पीला") || q.includes("गेरूई")) {
+  if (isHindi) {
     return (
-      `🌾 ICAR-IIWBR Crop Health Advisory for ${profile.district}, ${profile.state}:\n\n` +
-      `Symptoms indicate possible Stripe/Yellow Rust (Puccinia striiformis) or Zinc deficiency (Khaira disease):\n\n` +
-      `1. If linear yellow stripes appear with yellow powder on fingers upon touch:\n` +
-      `   • Chemical Treatment: Spray Propiconazole 25% EC @ 1.0 ml per liter of water (200 ml in 200 L water per acre) or Tebuconazole 250 EC @ 1.0 ml/L.\n` +
-      `   • Pre-Harvest Interval (PHI): 30 days.\n` +
-      `   • Safety: Use protective face mask and spray during calm early mornings.\n\n` +
-      `2. If general yellowing appears on new leaves without stripes (Zinc deficiency):\n` +
-      `   • Spray Zinc Sulphate (21%) @ 5 kg + 2.5 kg slaked lime in 200 liters water per acre.\n\n` +
-      `📞 For immediate confirmation, call the national Kisan Call Centre toll-free at 1800-180-1551.`
-    );
-  }
-
-  if (q.includes("pm-kisan") || q.includes("kisan") || q.includes("योजना") || q.includes("scheme")) {
-    return (
-      `🏛️ PM-KISAN Samman Nidhi Official Guidelines:\n\n` +
-      `• Benefit: ₹6,000 per year paid in 3 four-monthly installments of ₹2,000 directly via DBT.\n` +
-      `• Eligibility: Landholding farmer families with cultivable land in computerized state land records (RoR/Khasra).\n` +
-      `• Mandatory Steps:\n` +
-      `  1. Aadhaar eKYC via OTP on https://pmkisan.gov.in or biometric verification at CSC.\n` +
-      `  2. Bank account NPCI Aadhaar-seeding.\n` +
-      `  3. Land demarcation verification by Block Agriculture Officer (BAO).\n\n` +
-      `📞 PM-KISAN National Helpline: 155261 / Toll-Free KCC: 1800-180-1551.`
+      `### समस्या की पहचान\n` +
+      `अभी लाइव AI सर्वर से संपर्क नहीं हो पा रहा है, इसलिए आपका प्रश्न ("${query}") ऑफ़लाइन संदर्भ मोड में देखा गया है।\n\n` +
+      `### अनुशंसित समाधान\n` +
+      `- लाइव मौसम, मंडी भाव, फसल रोग मॉडल और सरकारी योजनाओं की ताज़ा जानकारी के लिए कृपया इंटरनेट कनेक्शन जांचकर **Regenerate** दबाएं।\n` +
+      `- बिना पक्की पहचान के किसी भी रासायनिक कीटनाशक या खाद की मात्रा का उपयोग न करें।\n\n` +
+      `### सावधानियां\n` +
+      `- ⚠️ तेज़ हवा (>12 km/h) या बारिश के आसार में किसी भी दवा का छिड़काव न करें।\n` +
+      `- किसी भी उत्पाद के पैकेट पर लिखे लेबल और सुरक्षा निर्देश (मास्क, दस्ताने) का पालन करें।\n\n` +
+      `### कृषि विशेषज्ञ से कब संपर्क करें\n` +
+      `- 📞 **किसान कॉल सेंटर (निःशुल्क हेल्पलाइन): 1800-180-1551** (सुबह 6:00 से रात 10:00 बजे तक, 22 भाषाओं में)।\n` +
+      `- या ऊपर **"Agri Dept & Helplines"** बटन दबाकर ${locationLabel} के सत्यापित कृषि विज्ञान केंद्र (KVK) से सीधे बात करें।`
     );
   }
 
   return (
-    `Namaste! Your query regarding "${query}" has been recorded for ${profile.district}, ${profile.state}.\n\n` +
-    `Recommended standard agronomic practices from ICAR & State Agriculture Universities:\n` +
-    `• Soil & Fertilizers: Base nutrient application on official Soil Health Card parameters (NPK ratio 4:2:1 for cereals).\n` +
-    `• Weather Precaution: Avoid foliar pesticide applications when wind speed exceeds 12 km/h or rain is forecasted.\n` +
-    `• Expert Verification: Visit your nearest Krishi Vigyan Kendra (KVK) or call the toll-free Kisan Call Centre at 1800-180-1551 (6:00 AM to 10:00 PM, 22 languages).`
+    `### Problem Identified\n` +
+    `The live AI advisor server could not be reached right now, so live weather, mandi rates, and vision diagnostics are temporarily unavailable for your query ("${query}").\n\n` +
+    `### Recommended Solution\n` +
+    `- Please verify your network connection and click **Regenerate** to fetch live ICAR/AGMARKNET-grounded guidance.\n` +
+    `- Do not apply unverified chemical pesticide dosages without confirming the exact crop, growth stage, and product label.\n\n` +
+    `### Precautions\n` +
+    `- ⚠️ Avoid foliar spraying during high winds (>12 km/h) or before expected rainfall.\n` +
+    `- Always wear protective gloves, mask, and full sleeves when handling crop protection inputs.\n\n` +
+    `### When to Contact an Agricultural Expert\n` +
+    `- 📞 Call the official toll-free **Kisan Call Centre: 1800-180-1551** (6:00 AM – 10:00 PM, 22 Indian languages).\n` +
+    `- Open **Agri Dept & Helplines** in the top bar for verified KVK and District Agriculture Officer contacts in ${locationLabel}.`
   );
 }

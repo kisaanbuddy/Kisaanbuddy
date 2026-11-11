@@ -74,6 +74,43 @@ class TestSarvamCompatibilityAPI(unittest.TestCase):
         self.assertEqual(res["target_lang"], "hi")
         mock_batch.assert_called_once()
 
+    @patch("api.sarvam.extract_soil_report_with_gemini", new_callable=AsyncMock)
+    def test_extract_soil_report_uses_gemini(self, mock_extract):
+        """POST /api/sarvam/extract-soil-report routes to Gemini document extractor."""
+        mock_extract.return_value = {
+            "soil_ph": 6.8,
+            "nitrogen_kg_ha": 210.0,
+            "phosphorus_kg_ha": 19.0,
+            "potassium_kg_ha": 240.0,
+            "organic_carbon_pct": 0.62,
+            "ec_ds_m": 0.4,
+            "soil_type": "Alluvial",
+            "lab_name": "Karnal Soil Lab",
+            "test_date": "2026-10-15",
+            "farmer_name": None,
+            "village_or_district": "Karnal",
+            "health_summary": "Balanced neutral pH with moderate nitrogen.",
+            "source_file": "shc.txt",
+            "raw_extracted_text": "pH 6.8",
+        }
+        r = self.client.post(
+            "/api/sarvam/extract-soil-report",
+            files={"file": ("shc.txt", b"Soil pH 6.8, N 210 kg/ha", "text/plain")},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()["soil_ph"], 6.8)
+        mock_extract.assert_called_once()
+
+    @patch("services.chat.tts_service.synthesize", new_callable=AsyncMock)
+    def test_tts_compatibility_endpoint(self, mock_synth):
+        """POST /api/sarvam/tts returns audio bytes from TTSResult cleanly."""
+        from services.chat.tts_service import TTSResult
+        mock_synth.return_value = TTSResult(b"FAKE_MP3_BYTES", "audio/mpeg", "neural-hi-IN-SwaraNeural")
+        r = self.client.post("/api/sarvam/tts", json={"text": "नमस्ते किसान भाई", "language": "hi-IN"})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.content, b"FAKE_MP3_BYTES")
+        self.assertEqual(r.headers.get("x-tts-provider"), "neural-hi-IN-SwaraNeural")
+
 
 if __name__ == "__main__":
     unittest.main()

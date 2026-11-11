@@ -19,7 +19,7 @@ from typing import Literal
 
 log = logging.getLogger(__name__)
 
-Lang = Literal["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"]
+Lang = Literal["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai"]
 
 # Unicode block ranges (inclusive).
 _DEVANAGARI = (0x0900, 0x097F)   # Hindi, Marathi, Sanskrit
@@ -29,6 +29,7 @@ _GUJARATI = (0x0A80, 0x0AFF)
 _GURMUKHI = (0x0A00, 0x0A7F)
 _TAMIL = (0x0B80, 0x0BFF)
 _TELUGU = (0x0C00, 0x0C7F)
+_MALAYALAM = (0x0D00, 0x0D7F)
 
 # Small Hinglish/Kanglish keyword bias so langdetect doesn't misfire on short input.
 _HINDI_LATIN_HINTS = {
@@ -56,7 +57,7 @@ def detect_language(text: str) -> Lang:
     s = text.strip()
 
     # Script-based detection — exact and fast.
-    counts = {"hi": 0, "kn": 0, "bn": 0, "gu": 0, "pa": 0, "ta": 0, "te": 0}
+    counts = {"hi": 0, "kn": 0, "bn": 0, "gu": 0, "pa": 0, "ta": 0, "te": 0, "ml": 0}
     total_letters = 0
     for ch in s:
         cp = ord(ch)
@@ -69,6 +70,7 @@ def detect_language(text: str) -> Lang:
         elif _GURMUKHI[0] <= cp <= _GURMUKHI[1]: counts["pa"] += 1
         elif _TAMIL[0] <= cp <= _TAMIL[1]: counts["ta"] += 1
         elif _TELUGU[0] <= cp <= _TELUGU[1]: counts["te"] += 1
+        elif _MALAYALAM[0] <= cp <= _MALAYALAM[1]: counts["ml"] += 1
 
     if total_letters > 0:
         winner, count = max(counts.items(), key=lambda item: item[1])
@@ -91,7 +93,7 @@ def detect_language(text: str) -> Lang:
 
         DetectorFactory.seed = 0
         code = detect(s)
-        if code in ("hi", "mr", "bn", "kn", "te", "ta", "gu", "pa"):
+        if code in ("hi", "mr", "bn", "kn", "te", "ta", "gu", "pa", "ml"):
             return code  # type: ignore[return-value]
     except Exception as e:  # ImportError or LangDetectException
         log.debug("langdetect unavailable or failed: %s", e)
@@ -102,7 +104,7 @@ def detect_language(text: str) -> Lang:
 def resolve_language(requested: str, text: str) -> Lang:
     """Honour an explicit user choice; else auto-detect."""
     r = (requested or "").lower()
-    if r in ("hi", "kn", "en", "bn", "mr", "te", "ta", "gu", "pa", "bho", "mai"):
+    if r in ("hi", "kn", "en", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai"):
         return r  # type: ignore[return-value]
     # Spoken/text language-change commands are part of the conversation, not
     # merely UI state.  Match them before script detection so e.g. "Hindi mein
@@ -110,6 +112,8 @@ def resolve_language(requested: str, text: str) -> Lang:
     lowered = (text or "").casefold()
     if re.search(r"\b(speak|talk|reply|answer)\s+(in\s+)?english\b|\benglish\s+(mein|me)\s+(baat|bolo|boliye)", lowered):
         return "en"
+    if re.search(r"\b(hinglish)\b|\bhinglish\s+(mein|me)\s+(baat|bolo|boliye|jawab)", lowered):
+        return "hi_en"
     if re.search(r"\b(hindi|hindī)\s+(mein|me)\s+(baat|bolo|boliye|jawab)|\bhindi\s+(mein|me)\s+baat", lowered):
         return "hi"
     if "ಕನ್ನಡದಲ್ಲಿ" in (text or "") or "ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಿ" in (text or ""):

@@ -1,22 +1,24 @@
 """Centralized Voice Operating System Orchestrator for KisaanBuddy.
 
 Pipeline:
-  Microphone -> STT (Sarvam saaras) -> Intent Recognition (Deterministic + Sarvam 105B)
-  -> Context Manager -> Action Registry -> Safe Execution -> AI Response -> TTS (Sarvam bulbul)
+  Microphone -> STT (Google SR / Gemini Audio) -> Intent Recognition (Deterministic + Gemini)
+  -> Context Manager -> Action Registry -> Safe Execution -> AI Response -> TTS (Edge Neural / Google TTS)
 """
 from __future__ import annotations
 
-import asyncio
 import base64
-import json
 import logging
 import re
 import struct
 import uuid
 from typing import Any, Dict, List, Optional, Tuple
 
-from core.config import settings
-from services import sarvam_service
+from services.chat import tts_service
+from services.chat.gemini_service import (
+    interpret_voice_command_with_gemini,
+    is_gemini_configured,
+    redact_secrets,
+)
 
 log = logging.getLogger(__name__)
 
@@ -501,12 +503,12 @@ class VoiceOrchestrator:
             return await self._build_response(action, reply, active_lang, session_id, p_action, want_audio)
 
         # -------------------------------------------------------------------
-        # 3. LLM Conversational Intent Recognition (Sarvam 105B Conversations)
+        # 3. LLM Conversational Intent Recognition (Google Gemini)
         # -------------------------------------------------------------------
         try:
-            return await self._query_sarvam_llm(clean_text, page_context, active_lang, session_id, want_audio)
+            return await self._query_gemini_llm(clean_text, page_context, active_lang, session_id, want_audio)
         except Exception as e:
-            log.warning("Sarvam LLM fallback error: %s", e)
+            log.warning("Gemini voice intent fallback error: %s", redact_secrets(str(e)))
             reply = self._get_localized_string(
                 active_lang,
                 hi="मैंने आपकी बात सुनी। आप वेबसाइट के किसी भी हिस्से जैसे मार्केटप्लेस, मंडी भाव या मौसम पर जाने के लिए बोल सकते हैं।",
@@ -519,7 +521,7 @@ class VoiceOrchestrator:
                 reply, active_lang, session_id, None, want_audio
             )
 
-    async def _query_sarvam_llm(
+    async def _query_gemini_llm(
         self,
         transcript: str,
         page_context: Dict[str, Any],
@@ -527,51 +529,15 @@ class VoiceOrchestrator:
         session_id: Optional[str],
         want_audio: bool,
     ) -> Dict[str, Any]:
-        """Use Sarvam 105B to interpret complex conversational queries into structured website actions."""
-        key = settings.SARVAM_API_KEY
-        if not key or len(key) < 20:
-            raise ValueError("SARVAM_API_KEY unconfigured")
+        """Use Google Gemini to interpret complex conversational queries into structured website actions."""
+        if not is_gemini_configured():
+            raise ValueError("GEMINI_API_KEY unconfigured")
 
-        from sarvamai import SarvamAI
-        s = SarvamAI(api_subscription_key=key)
-
-        route = page_context.get("current_route", "/")
-        visible = page_context.get("visible_items", [])[:5]
-
-        system_prompt = (
-            "You are the voice operating brain of KisaanBuddy agricultural platform. "
-            "You translate spoken farmer requests into secure JSON website actions.\n"
-            "Permitted actions:\n"
-            "- NAVIGATE: path: string ('/', '/dashboard', '/disease', '/marketplace', '/mandi', '/weather', '/worker-connect', '/schemes', '/farmer-profile', '/orders', '/settings')\n"
-            "- SEARCH: query: string, target: 'marketplace' | 'mandi' | 'workers' | 'schemes'\n"
-            "- FILTER_PRICE: maxPrice: float\n"
-            "- SELECT_ITEM: index: int, id: any\n"
-            "- ADD_TO_CART: id: any, name: string\n"
-            "- TOGGLE_THEME: theme: 'dark' | 'light'\n"
-            "- CHANGE_LANGUAGE: language: 'hi' | 'kn' | 'en' | 'hi_en'\n"
-            "- NOOP: (for general agricultural advisory questions)\n"
-            "Return ONLY strict JSON with keys: action_type, payload, reply_text (in user's spoken language: Hindi/Kannada/English/Hinglish)."
+        data = await interpret_voice_command_with_gemini(
+            transcript=transcript,
+            page_context=page_context,
+            language=language,
         )
-
-        user_content = f"Page: {route}. Visible items: {json.dumps(visible)}. User said: '{transcript}' in language '{language}'."
-
-        completion = await asyncio.to_thread(
-            s.chat.completions,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_content},
-            ],
-            model="sarvam-105b-conversations",
-            temperature=0.1,
-            max_tokens=400,
-        )
-
-        content = completion.choices[0].message.content or "{}"
-        match = re.search(r"\{.*\}", content, re.DOTALL)
-        if match:
-            data = json.loads(match.group(0))
-        else:
-            data = json.loads(content)
 
         act_type = data.get("action_type", "NOOP")
         payload = data.get("payload", {})
@@ -594,25 +560,21 @@ class VoiceOrchestrator:
         pending_action: Optional[Dict[str, Any]],
         want_audio: bool,
     ) -> Dict[str, Any]:
-        """Synthesize real Sarvam AI TTS audio and bundle response."""
+        """Synthesize Indian neural TTS audio and bundle response."""
         audio_b64 = None
         audio_mime = None
 
         if want_audio and reply_text:
             try:
-                lang_code = sarvam_service.normalise_lang_code(language, default="hi-IN")
-                speaker = "ishita" if language == "kn" else ("aparna_hi_customer" if language == "hi" else "priya")
-                audio_bytes = await sarvam_service.text_to_speech(
-                    text=reply_text,
-                    language_code=lang_code,
-                    speaker=speaker,
-                )
-                if audio_bytes:
-                    audio_b64 = base64.b64encode(audio_bytes).decode("ascii")
-                    audio_mime = "audio/wav"
+                short_lang = (language or "hi").split("-")[0].lower()
+                if language == "hi_en":
+                    short_lang = "hi_en"
+                tts_out = await tts_service.synthesize(text=reply_text, language=short_lang)
+                if hasattr(tts_out, "audio") and getattr(tts_out, "audio", None):
+                    audio_b64 = base64.b64encode(tts_out.audio).decode("ascii")
+                    audio_mime = getattr(tts_out, "mime", "audio/mpeg")
             except Exception as e:
                 log.warning("Voice TTS synthesis skipped/fallback: %s", e)
-                # Graceful audio container fallback so audio player never crashes
                 fallback_wav = _create_minimal_wav_pcm()
                 audio_b64 = base64.b64encode(fallback_wav).decode("ascii")
                 audio_mime = "audio/wav"

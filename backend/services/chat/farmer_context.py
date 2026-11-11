@@ -13,11 +13,18 @@ from fastapi import Request
 
 
 def get_optional_user_id(request: Request) -> Optional[int]:
-    """Resolve a cookie JWT without turning a public chat request into a 401."""
+    """Resolve a cookie or Bearer JWT without turning a public chat request into a 401."""
     try:
         from api.auth import COOKIE_NAME, decode_access_token
 
-        payload = decode_access_token(request.cookies.get(COOKIE_NAME, ""))
+        token = request.cookies.get(COOKIE_NAME, "")
+        if not token:
+            auth_hdr = request.headers.get("authorization", "")
+            if auth_hdr.lower().startswith("bearer "):
+                token = auth_hdr[7:].strip()
+        if not token:
+            return None
+        payload = decode_access_token(token)
         return int(payload["sub"]) if payload and payload.get("sub") else None
     except Exception:
         return None

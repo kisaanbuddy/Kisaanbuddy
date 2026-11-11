@@ -15,6 +15,7 @@ from typing import Optional
 from core.config import settings
 from schemas.chatbot import AssistantRequest
 from services.chat.chat_service import ChatOrchestrator
+from services.chat.gemini_service import is_gemini_configured
 from services.disease_knowledge_engine import AGRICULTURAL_KNOWLEDGE_BASE
 
 log = logging.getLogger(__name__)
@@ -71,31 +72,18 @@ async def answer_agricultural_question(
             "Type 'menu' to return to the main menu."
         )
 
-    # 2. Try LLM orchestration with grounded prompt if keys are configured
-    has_llm = bool(
-        settings.GEMINI_API_KEY
-        or settings.OPENAI_API_KEY
-        or settings.SARVAM_API_KEY
-    )
+    # 2. Try Gemini LLM orchestration with grounded prompt if configured
+    has_llm = is_gemini_configured()
 
     if has_llm:
         try:
-            grounded_prompt = (
-                f"You are the KisaanBuddy Agricultural Assistant for Indian farmers. Answer in {language}. "
-                "CRITICAL RULES:\n"
-                "1. Use simple, direct, respectful language suitable for Indian farmers.\n"
-                "2. Do not invent chemical dosages or brand names; recommend only standard ICAR/CIBRC approved active ingredients when verified.\n"
-                "3. Emphasize cultural, biological and IPM practices first.\n"
-                "4. When unsure or symptoms are insufficient, say so honestly and advise testing or consulting a local KVK.\n"
-                f"Farmer Question: {clean_q}"
-            )
             req = AssistantRequest(
-                message=grounded_prompt,
+                message=clean_q,
                 session_id=session_id or f"wa_{phone_number}",
                 language=language,
             )
             reply = await _orchestrator.chat_once(req)
-            if reply and reply.reply:
+            if reply and reply.content:
                 disclaimer = (
                     "\n\n_📌 Note: Agricultural advice is advisory. Consult your local KVK or extension officer for field verification._"
                     if language == "en" else
@@ -103,9 +91,9 @@ async def answer_agricultural_question(
                     if language == "hi" else
                     "\n\n_📌 ಸೂಚನೆ: ಈ ಕೃಷಿ ಸಲಹೆಯು ಮಾರ್ಗದರ್ಶನಕ್ಕಾಗಿ ಮಾತ್ರ. ದಯವಿಟ್ಟು ಸ್ಥಳೀಯ KVK ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ._"
                 )
-                return f"{reply.reply}{disclaimer}\n\nType 'menu' to return."
+                return f"{reply.content}{disclaimer}\n\nType 'menu' to return."
         except Exception as exc:
-            log.warning("LLM chat orchestration error: %s; falling back to knowledge engine.", exc)
+            log.warning("Gemini chat orchestration error: %s; falling back to knowledge engine.", exc)
 
     # 3. Authentic ICAR knowledge base matching
     matched_guides = []

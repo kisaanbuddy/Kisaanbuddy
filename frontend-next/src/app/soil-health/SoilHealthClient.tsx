@@ -1026,7 +1026,7 @@ export default function SoilHealthPage() {
                           onClick={handleSpeakRecommendation}
                           disabled={ttsLoading}
                           className="h-8 px-2.5 text-xs gap-1.5 rounded-lg border border-border/40 hover:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium"
-                          title="Listen with Sarvam AI Voice"
+                          title="Listen with KisaanBuddy Voice"
                         >
                           {ttsLoading ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />

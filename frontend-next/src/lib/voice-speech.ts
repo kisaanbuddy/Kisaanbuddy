@@ -18,6 +18,7 @@ export type VoiceLanguage =
   | "bn"
   | "gu"
   | "pa"
+  | "ml"
   | "en"
   | "hi_en";
 
@@ -104,6 +105,14 @@ export const SUPPORTED_VOICE_LANGUAGES: Record<VoiceLanguage, VoiceLangMeta> = {
     welcome: "ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡਾ ਕਿਸਾਨ ਮਿੱਤਰ AI ਸਹਾਇਕ ਹਾਂ। ਆਪਣੀ ਫ਼ਸਲ ਜਾਂ ਖਾਦ ਬਾਰੇ ਪੁੱਛੋ।",
     placeholder: "ਬੋਲਣ ਲਈ ਮਾਈਕ ਦਬਾਓ..."
   },
+  ml: {
+    code: "ml",
+    label: "Malayalam",
+    nativeLabel: "മലയാളം (Malayalam)",
+    bcp47: "ml-IN",
+    welcome: "നമസ്കാരം! ഞാൻ നിങ്ങളുടെ കിസാൻബഡ്ഡി AI കൃഷി സഹായകനാണ്. വിളകളെക്കുറിച്ചോ വളപ്രയോഗത്തെക്കുറിച്ചോ ചോദിക്കൂ.",
+    placeholder: "സംസാരിക്കാൻ മൈക്ക് അമർത്തുക..."
+  },
   en: {
     code: "en",
     label: "English",
@@ -127,6 +136,43 @@ const TTS_CACHE_NAME = "kisaanbuddy-tts-v2-cache";
 class VoiceService {
   private currentAudio: HTMLAudioElement | null = null;
   private isSynthesizing = false;
+  private paused = false;
+
+  public pauseSpeaking(): void {
+    if (this.currentAudio && !this.currentAudio.paused) {
+      try {
+        this.currentAudio.pause();
+        this.paused = true;
+      } catch {
+        // ignore
+      }
+    } else if (typeof window !== "undefined" && "speechSynthesis" in window && window.speechSynthesis.speaking) {
+      try {
+        window.speechSynthesis.pause();
+        this.paused = true;
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  public resumeSpeaking(): void {
+    if (this.currentAudio && this.currentAudio.paused) {
+      void this.currentAudio.play().catch(() => {});
+      this.paused = false;
+    } else if (typeof window !== "undefined" && "speechSynthesis" in window && window.speechSynthesis.paused) {
+      try {
+        window.speechSynthesis.resume();
+        this.paused = false;
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  public isPausedState(): boolean {
+    return this.paused;
+  }
 
   public stopSpeaking(): void {
     if (this.currentAudio) {
@@ -146,6 +192,7 @@ class VoiceService {
       }
     }
     this.isSynthesizing = false;
+    this.paused = false;
   }
 
   public async speakText(
@@ -190,7 +237,7 @@ class VoiceService {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text: cleanedText.slice(0, 1000),
-            language: language === "auto" ? "hi" : language,
+            language: language || "auto",
             prefer_browser: false
           })
         });

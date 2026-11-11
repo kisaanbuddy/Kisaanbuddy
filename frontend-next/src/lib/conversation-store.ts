@@ -37,6 +37,9 @@ export interface ChatMessage {
     url?: string;
     date?: string;
   }[];
+  usedTools?: string[];
+  isOfflineFallback?: boolean;
+  isError?: boolean;
   followUps?: string[];
   timestamp: string;
   isStreaming?: boolean;
@@ -44,6 +47,7 @@ export interface ChatMessage {
 
 export interface ConversationSession {
   id: string;
+  serverSessionId?: string;
   title: string;
   createdAt: string;
   updatedAt: string;
@@ -143,6 +147,18 @@ export function deleteSession(sessionId: string): void {
       localStorage.removeItem(ACTIVE_SESSION_ID_KEY);
     }
   }
+}
+
+export function clearSessionMessages(session: ConversationSession): ConversationSession {
+  const cleared: ConversationSession = {
+    ...session,
+    title: "New Farming Consultation",
+    serverSessionId: undefined,
+    messages: [],
+    updatedAt: new Date().toISOString()
+  };
+  updateSession(cleared);
+  return cleared;
 }
 
 export function loadSavedAnswers(): SavedAnswer[] {
