@@ -45,6 +45,8 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
     async def test_01_new_farmer_welcome_and_language_selection(self):
         """TEST 1: New farmer -> welcome -> language selection -> main menu."""
         phone = "+919100000001"
+        self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == phone).delete()
+        self.db.commit()
         await state_manager.clear_state(phone)
 
         # 1. New farmer sends first message
@@ -56,15 +58,21 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
 
             await whatsapp_service.process_message_turn(msg1, phone, "Farmer Ramesh", self.db)
             state, ctx, _ = await state_manager.get_state(phone)
+            self.assertEqual(state, WhatsAppState.LANGUAGE_SELECTION)
+
+            # 2. New farmer selects English ("1")
+            msg_lang = {"type": "text", "id": "w_l0", "text": {"body": "1"}}
+            await whatsapp_service.process_message_turn(msg_lang, phone, "Farmer Ramesh", self.db)
+            state, ctx, _ = await state_manager.get_state(phone)
             self.assertEqual(state, WhatsAppState.MAIN_MENU)
 
-            # 2. Farmer asks to change language
+            # 3. Farmer asks to change language
             msg2 = {"type": "text", "id": "w2", "text": {"body": "language"}}
             await whatsapp_service.process_message_turn(msg2, phone, "Farmer Ramesh", self.db)
             state, ctx, _ = await state_manager.get_state(phone)
             self.assertEqual(state, WhatsAppState.LANGUAGE_SELECTION)
 
-            # 3. Farmer selects Hindi ("2")
+            # 4. Farmer selects Hindi ("2")
             msg3 = {"type": "text", "id": "w3", "text": {"body": "2"}}
             await whatsapp_service.process_message_turn(msg3, phone, "Farmer Ramesh", self.db)
             state, ctx, _ = await state_manager.get_state(phone)
@@ -117,8 +125,8 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
         phone = "+919100000003"
         await state_manager.set_state(phone, WhatsAppState.MAIN_MENU)
 
-        # 1. Select Guidance ('3')
-        msg1 = {"type": "text", "id": "w_g1", "text": {"body": "3"}}
+        # 1. Select Guidance ('2')
+        msg1 = {"type": "text", "id": "w_g1", "text": {"body": "2"}}
         with patch("services.whatsapp.client.whatsapp_client.send_text_message", new_callable=AsyncMock) as mock_send:
             mock_send.return_value = {"messages": [{"id": "wamid.out.g1"}]}
             await whatsapp_service.process_message_turn(msg1, phone, "Farmer Anita", self.db)
@@ -156,6 +164,8 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
     async def test_05_human_support_request_persisted(self):
         """TEST 5: Farmer -> requests human support -> support request persisted."""
         phone = "+919100000005"
+        self.db.query(WhatsAppSupportTicket).filter(WhatsAppSupportTicket.phone_number == phone).delete()
+        self.db.commit()
         await state_manager.set_state(phone, WhatsAppState.MAIN_MENU)
 
         # 1. Select Talk to Support ('6')
@@ -166,11 +176,16 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
             state, _, _ = await state_manager.get_state(phone)
             self.assertEqual(state, WhatsAppState.HUMAN_SUPPORT)
 
+            # 2. Farmer describes their problem
+            msg2 = {"type": "text", "id": "w_s2", "text": {"body": "Need urgent help with drip irrigation filter blockage."}}
+            await whatsapp_service.process_message_turn(msg2, phone, "Farmer Gopal", self.db)
+
             # Verify ticket created in WhatsAppSupportTicket table
             ticket = self.db.query(WhatsAppSupportTicket).filter(WhatsAppSupportTicket.phone_number == phone).first()
             self.assertIsNotNone(ticket)
             self.assertEqual(ticket.status, "OPEN")
             self.assertTrue(ticket.ticket_id.startswith("KB-SUP-"))
+            self.assertIn("irrigation", ticket.query_summary.lower())
 
     async def test_06_farmer_changes_language_persists(self):
         """TEST 6: Farmer -> changes language -> future messages use selected language."""

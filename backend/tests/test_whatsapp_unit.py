@@ -122,13 +122,14 @@ class TestWhatsAppLocalization(unittest.TestCase):
         self.assertEqual(parse_menu_selection("1"), "crop_doctor")
         self.assertEqual(parse_menu_selection("crop doctor"), "crop_doctor")
         self.assertEqual(parse_menu_selection("डॉक्टर"), "crop_doctor")
-        self.assertEqual(parse_menu_selection("2"), "weather")
+        self.assertEqual(parse_menu_selection("2"), "guidance")
+        self.assertEqual(parse_menu_selection("3"), "weather")
         self.assertEqual(parse_menu_selection("मौसम"), "weather")
-        self.assertEqual(parse_menu_selection("3"), "guidance")
         self.assertEqual(parse_menu_selection("4"), "mandi")
         self.assertEqual(parse_menu_selection("मंडी"), "mandi")
         self.assertEqual(parse_menu_selection("5"), "schemes")
         self.assertEqual(parse_menu_selection("6"), "support")
+        self.assertEqual(parse_menu_selection("7"), "website")
         self.assertEqual(parse_menu_selection("help"), "support")
         self.assertEqual(parse_menu_selection("language"), "language")
         self.assertIsNone(parse_menu_selection("random query"))
@@ -153,7 +154,7 @@ class TestWhatsAppLocalization(unittest.TestCase):
             menu = build_text_menu(lang)
             self.assertTrue(len(menu) > 50)
             self.assertIn("1.", menu)
-            self.assertIn("6.", menu)
+            self.assertIn("7.", menu)
 
 
 class TestWhatsAppPricing(unittest.TestCase):
