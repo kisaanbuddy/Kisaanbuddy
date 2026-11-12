@@ -13,6 +13,8 @@ import {
   Store,
   Volume2,
   ArrowUpRight,
+  Droplets,
+  TrendingUp,
 } from "lucide-react";
 import { FarmerProfileData } from "@/lib/farm-profile-store";
 import { VoiceLanguage, voiceService } from "@/lib/voice-speech";
@@ -23,7 +25,9 @@ export type WelcomeTopicId =
   | "fertilizer"
   | "pest"
   | "mandi"
-  | "schemes";
+  | "schemes"
+  | "irrigation"
+  | "economics";
 
 interface AdvisorWelcomeScreenProps {
   onSelectCard: (topic: WelcomeTopicId, prompt: string) => void;
@@ -147,6 +151,34 @@ export function AdvisorWelcomeScreen({
         `${farmProfile.state || "Mere rajya"} ke kisanon ke liye PM-KISAN, PMFBY fasal bima, KCC aur irrigation subsidy ki jankari dein.`,
         `${farmProfile.state || "ನಮ್ಮ ರಾಜ್ಯದ"} ರೈತರಿಗೆ PM-KISAN, ಬೆಳೆ ವಿಮೆ (PMFBY), KCC ಮತ್ತು ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಯೋಜನೆಗಳ ಅರ್ಹತೆ ತಿಳಿಸಿ.`,
         `Which government agricultural schemes, crop insurance (PMFBY), PM-KISAN, and subsidies are available for farmers in ${farmProfile.state || "India"}?`
+      ),
+    },
+    {
+      id: "irrigation",
+      title: "Irrigation & Soil Health",
+      subtitleHi: isKannadaPref ? "ನೀರಾವರಿ ಮತ್ತು ಮಣ್ಣಿನ ಆರೋಗ್ಯ" : "सिंचाई और मिट्टी स्वास्थ्य",
+      description: `Watering schedules for critical stages and soil pH / carbon restoration in ${primaryCrop}.`,
+      icon: Droplets,
+      iconBg: "bg-blue-50 text-blue-700 border-blue-200/80 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/60",
+      prompt: pickPrompt(
+        `${primaryCrop} की फसल में क्रांतिक अवस्थाओं (CRI, फूल, दाना) पर सिंचाई कब करनी चाहिए? और ${farmProfile.soilType || "दोमट"} मिट्टी के लिए क्या सावधानी रखें?`,
+        `${primaryCrop} ki fasal me critical stages par sinchai kab karein aur ${farmProfile.soilType || "domat"} mitti ke liye kya dhyan rakhein?`,
+        `${primaryCrop} ಬೆಳೆಗೆ ಪ್ರಮುಖ ಹಂತಗಳಲ್ಲಿ ಯಾವಾಗ ನೀರಾವರಿ ಮಾಡಬೇಕು ಮತ್ತು ${farmProfile.soilType || "ಮಣ್ಣಿಗೆ"} ಸೂಕ್ತ ಸಲಹೆ ನೀಡಿ.`,
+        `What are the critical irrigation stages for ${primaryCrop} and how should I manage watering in ${farmProfile.soilType || "loamy"} soil?`
+      ),
+    },
+    {
+      id: "economics",
+      title: "Expense & Profit Analysis",
+      subtitleHi: isKannadaPref ? "ಕೃಷಿ ವೆಚ್ಚ ಮತ್ತು ಲಾಭದ ಲೆಕ್ಕ" : "खेती खर्च और मुनाफे का विश्लेषण",
+      description: "Estimate cultivation cost per acre vs expected yield and mandi net profit.",
+      icon: TrendingUp,
+      iconBg: "bg-emerald-50 text-emerald-800 border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/60",
+      prompt: pickPrompt(
+        `${primaryCrop} की खेती में प्रति एकड़ बीज, खाद, सिंचाई, दवा और कटाई का अनुमानित खर्च और संभावित शुद्ध मुनाफा (Profit) कितना होगा?`,
+        `${primaryCrop} ki kheti me prati acre lagat aur sambhavit munafa (profit) ka hisab batayein.`,
+        `${primaryCrop} ಕೃಷಿಯಲ್ಲಿ ಪ್ರತಿ ಎಕರೆಗೆ ಅಂದಾಜು ವೆಚ್ಚ ಮತ್ತು ನಿರೀಕ್ಷಿತ ಲಾಭದ ಲೆಕ್ಕಾಚಾರ ತಿಳಿಸಿ.`,
+        `Provide an estimated per-acre cultivation cost breakdown and net profit analysis for ${primaryCrop} based on current mandi rates.`
       ),
     },
   ];

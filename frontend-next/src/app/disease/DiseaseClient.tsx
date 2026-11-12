@@ -75,6 +75,10 @@ interface PredictionResult {
   source_institution?: string;
   source_url?: string;
   last_verified_date?: string;
+  visible_symptoms?: string;
+  limitations?: string;
+  preventive_measures?: string;
+  expert_guidance?: string;
 }
 
 function getRecommendedCategory(result?: PredictionResult | null): string {

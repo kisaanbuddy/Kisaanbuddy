@@ -74,6 +74,69 @@ def farm_context(current_user: User = Depends(get_current_user), db: Session = D
     }
 
 
+@router.get("/daily-briefing")
+async def daily_farm_briefing(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Generate personalized daily morning farm briefing powered by Google Gemini."""
+    fields = db.query(FarmerField).filter(FarmerField.user_id == current_user.id).all()
+    crops_summary = [
+        f"Field: {f.field_name}, Crop: {f.current_crop or 'General'}, Variety: {f.crop_variety or 'N/A'}, Soil: {f.soil_type or 'N/A'}, Irrigation: {f.irrigation_type or 'N/A'}"
+        for f in fields
+    ]
+
+    lang = current_user.language or "hi"
+    briefing = {
+        "farmer_name": current_user.name or "Kisaan",
+        "date": date.today().isoformat(),
+        "crop_count": len(fields),
+        "primary_action": "Inspect crop foliage for moisture stress and early pest symptoms.",
+        "growth_stage_note": "Ensure timely weeding and balanced nutrition during vegetative stage.",
+        "weather_watch": "Check today's local weather before planning fertilizer or pesticide sprays.",
+        "ai_powered": False,
+    }
+
+    from services.chat.gemini_service import is_gemini_configured, generate_with_retry, get_model_chain
+    import json
+
+    if is_gemini_configured() and fields:
+        prompt = (
+            f"You are the KisaanBuddy Personal Farm Intelligence Advisor.\n"
+            f"Farmer: {current_user.name or 'Farmer'}\n"
+            f"Language: {lang}\n"
+            f"Farmer Fields & Crops:\n" + "\n".join(crops_summary) + "\n\n"
+            "Generate a concise, encouraging daily morning briefing for the farm dashboard.\n"
+            "Return strict JSON with keys:\n"
+            "{\n"
+            '  "greeting": "Warm greeting with farmer name in requested language",\n'
+            '  "primary_action": "Single most important task to do today",\n'
+            '  "growth_stage_note": "Brief agronomic tip for their current crops",\n'
+            '  "weather_watch": "Safety or spray consideration for today",\n'
+            '  "quote_of_the_day": "Inspiring agricultural proverb / shloka / positive note"\n'
+            "}"
+        )
+        try:
+            resp, model = await generate_with_retry(
+                contents=prompt,
+                feature="daily_briefing",
+                models=get_model_chain(for_vision=False),
+                temperature=0.3,
+                max_output_tokens=500,
+                response_mime_type="application/json",
+            )
+            raw = (getattr(resp, "text", "") or "").strip()
+            data = json.loads(raw)
+            briefing.update(data)
+            briefing["ai_powered"] = True
+            briefing["ai_model"] = model
+        except Exception as e:
+            pass
+
+    return briefing
+
+
+
 @router.get("/activities", response_model=List[FarmActivityResponse])
 def list_activities(
     field_id: Optional[int] = Query(default=None),

@@ -385,6 +385,102 @@ def get_mandi_historical_prices(
     }
 
 
+# ----------------------------------------------------------------------
+# AI MANDI INTELLIGENCE ADVISORY (Powered by Google Gemini)
+# ----------------------------------------------------------------------
+@router.get("/ai-advisory")
+async def get_mandi_ai_advisory(
+    commodity: str = Query(..., description="Crop name e.g. Wheat, Tomato, Onion"),
+    state: Optional[str] = Query(None, description="Optional Indian state"),
+    language: Optional[str] = Query("hi", description="hi, kn, or en"),
+    db: Session = Depends(get_db),
+):
+    """Generate Gemini-powered mandi market intelligence grounded in AGMARKNET data."""
+    clean_comm = commodity.strip().lower()
+    q = db.query(MarketPriceRecord).filter(MarketPriceRecord.commodity.ilike(f"%{clean_comm}%"))
+    if state and state.lower() != "all":
+        q = q.filter(MarketPriceRecord.state.ilike(f"%{state.strip()}%"))
+
+    recent_records = q.order_by(desc(MarketPriceRecord.arrival_date)).limit(10).all()
+
+    if not recent_records:
+        # Fallback query without state
+        recent_records = (
+            db.query(MarketPriceRecord)
+            .filter(MarketPriceRecord.commodity.ilike(f"%{clean_comm}%"))
+            .order_by(desc(MarketPriceRecord.arrival_date))
+            .limit(10)
+            .all()
+        )
+
+    if not recent_records:
+        return {
+            "commodity": commodity,
+            "has_data": False,
+            "message": f"No recent AGMARKNET mandi records found for '{commodity}'. Please verify commodity spelling.",
+        }
+
+    prices = [r.modal_price for r in recent_records if r.modal_price and r.modal_price > 0]
+    avg_modal = round(sum(prices) / len(prices), 1) if prices else 0.0
+    min_observed = min([r.min_price for r in recent_records if r.min_price] or [avg_modal])
+    max_observed = max([r.max_price for r in recent_records if r.max_price] or [avg_modal])
+    mandis_reporting = list({r.market_center for r in recent_records if r.market_center})[:5]
+
+    advisory = {
+        "commodity": commodity,
+        "has_data": True,
+        "average_modal_price": avg_modal,
+        "price_range": f"₹{min_observed} - ₹{max_observed} / quintal",
+        "reporting_mandis": mandis_reporting,
+        "market_sentiment": "Stable",
+        "selling_recommendation": f"Current average rate is ₹{avg_modal}/quintal across {len(mandis_reporting)} markets.",
+        "storage_advisory": "Ensure moisture content is below standard limits if storing for better seasonal rates.",
+        "arbitrage_tip": f"Price spread between lowest (₹{min_observed}) and highest (₹{max_observed}) suggests checking transport costs before selling.",
+        "source": "AGMARKNET (data.gov.in)",
+    }
+
+    from services.chat.gemini_service import is_gemini_configured, generate_with_retry, get_model_chain
+    import json
+
+    if is_gemini_configured():
+        sample_obs = [
+            f"Mandi: {r.market_center} ({r.district}, {r.state}), Modal: ₹{r.modal_price}, Min: ₹{r.min_price}, Max: ₹{r.max_price}, Date: {r.arrival_date}"
+            for r in recent_records[:6]
+        ]
+        prompt = (
+            f"You are an expert Indian agricultural market economist and mandi trading advisor.\n"
+            f"Commodity: {commodity}\n"
+            f"Farmer State: {state or 'India'}\n"
+            f"Language: {language}\n"
+            f"Authentic AGMARKNET arrivals:\n" + "\n".join(sample_obs) + "\n\n"
+            "Provide farmer-friendly market advice. Return strict JSON with keys:\n"
+            "{\n"
+            '  "market_sentiment": "Bullish / Bearish / Stable",\n'
+            '  "selling_recommendation": "Clear actionable advice on whether to sell now or wait (2 sentences)",\n'
+            '  "storage_advisory": "Post-harvest moisture and storage advice for this crop",\n'
+            '  "arbitrage_tip": "Advice on choosing nearby mandis based on transport cost vs rate spread",\n'
+            '  "summary_hindi_or_local": "1-2 sentence warm advice in requested language"\n'
+            "}"
+        )
+        try:
+            resp, model = await generate_with_retry(
+                contents=prompt,
+                feature="mandi_advisory",
+                models=get_model_chain(for_vision=False),
+                temperature=0.2,
+                max_output_tokens=600,
+                response_mime_type="application/json",
+            )
+            raw = (getattr(resp, "text", "") or "").strip()
+            parsed = json.loads(raw)
+            advisory.update(parsed)
+            advisory["ai_model"] = model
+        except Exception as e:
+            log.warning("Gemini mandi advisory failed: %s", e)
+
+    return advisory
+
+
 @router.get("/crops/{crop_id}")
 def get_mandi_crop(crop_id: int, db: Session = Depends(get_db)):
     """Retrieve detailed observation by ID with price spread and trend."""

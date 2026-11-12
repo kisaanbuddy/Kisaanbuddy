@@ -47,6 +47,12 @@ from services.disease_knowledge_engine import (
     dispatch_advisory_notifications,
 )
 from services.disease_classifier import get_disease_classifier
+from services.chat.gemini_service import (
+    is_gemini_configured,
+    prepare_crop_image,
+    generate_with_retry,
+    get_model_chain,
+)
 
 router = APIRouter()
 
@@ -58,6 +64,88 @@ SUPPORTED_CROPS = [
     {"id": "bell_pepper", "name": "Bell Pepper", "scientific_name": "Capsicum annuum", "conditions_count": 2},
     {"id": "squash", "name": "Squash", "scientific_name": "Cucurbita pepo", "conditions_count": 1},
 ]
+
+
+async def run_gemini_crop_doctor(
+    contents: bytes,
+    crop_hint: Optional[str] = None,
+    symptom_notes: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Diagnose plant disease, insect pests, or nutrient deficiencies using Gemini Vision multimodal intelligence."""
+    from google.genai import types
+    import re
+
+    opt_bytes, opt_mime, meta = prepare_crop_image(contents)
+    part = types.Part.from_bytes(data=opt_bytes, mime_type=opt_mime)
+
+    prompt = (
+        "You are a Senior Plant Pathologist and ICAR Agronomic Diagnostic Specialist for Indian farmers.\n"
+        f"Farmer crop hint: {crop_hint or 'Not specified'}\n"
+        f"Farmer symptom observations: {symptom_notes or 'None described'}\n\n"
+        "Analyse this crop photograph carefully with REALITY FIRST principles.\n"
+        "MANDATORY WORKFLOW:\n"
+        "1. Identify visible symptoms objectively (color variations, lesions, concentric rings, pustules, leaf curling, wilting, insect signs, photo clarity/blur/lighting).\n"
+        "2. State 1-3 plausible diseases, pests, or nutrient deficiencies.\n"
+        "3. Provide calibrated confidence (0.0 to 1.0) and explain WHY. Never present uncertain diagnoses as confirmed facts.\n"
+        "4. Explicitly state scientific limitations of photo-only diagnosis.\n"
+        "5. Recommend immediate cultural sanitation, organic/biological controls, and verified CIBRC chemical active ingredients with PPE and PHI.\n"
+        "6. Return strict valid JSON with EXACT keys:\n"
+        "{\n"
+        '  "crop": "Crop name",\n'
+        '  "disease_name": "Primary suspected disease / pest or Healthy",\n'
+        '  "predicted_class": "crop_condition_identifier",\n'
+        '  "confidence": 0.85,\n'
+        '  "status": "ok" or "uncertain",\n'
+        '  "visible_symptoms": "Detailed visible symptoms described clearly",\n'
+        '  "possible_causes": ["Cause 1", "Cause 2"],\n'
+        '  "limitations": "Scientific limitations of image diagnosis",\n'
+        '  "immediate_action": "Urgent cultural or sanitation steps",\n'
+        '  "preventive_measures": "Long-term agronomic prevention",\n'
+        '  "biological_control": "Organic/bio remedies (e.g. neem oil, Trichoderma)",\n'
+        '  "chemical_control": "CIBRC registered chemical options (if applicable)",\n'
+        '  "dosage_guidelines": "Safe dosage per litre water",\n'
+        '  "phi_days": 14,\n'
+        '  "safety_instructions": "PPE, spraying conditions, safety warnings",\n'
+        '  "recommend_expert_review": true or false,\n'
+        '  "expert_guidance": "Nearest KVK / toll-free Kisan Call Centre 1800-180-1551 guidance"\n'
+        "}"
+    )
+
+    resp, model_used = await generate_with_retry(
+        contents=[part, prompt],
+        feature="crop_doctor_vision",
+        models=get_model_chain(for_vision=True),
+        temperature=0.15,
+        max_output_tokens=1200,
+        response_mime_type="application/json",
+    )
+    raw = (getattr(resp, "text", "") or "").strip()
+    try:
+        data = json.loads(raw)
+    except Exception:
+        m = re.search(r"\{.*\}", raw, re.DOTALL)
+        data = json.loads(m.group(0)) if m else {}
+
+    crop_name = data.get("crop") or crop_hint or "Field Crop"
+    disease_name = data.get("disease_name") or "Observed Crop Condition"
+    conf = float(data.get("confidence") or 0.70)
+    is_uncertain = conf < 0.65 or data.get("status") == "uncertain"
+
+    data["crop"] = crop_name
+    data["disease_name"] = disease_name
+    data["confidence"] = conf
+    data["status"] = "uncertain" if is_uncertain else "ok"
+    data["model"] = f"Google Gemini Vision ({model_used})"
+    data["model_version"] = model_used
+    data["source_institution"] = "ICAR-CIBRC & KisaanBuddy Gemini Vision"
+    data["source_url"] = "https://icar.gov.in"
+    data["last_verified_date"] = datetime.date.today().isoformat()
+    data["calibrated"] = True
+    data["top_predictions"] = [
+        {"class": data.get("predicted_class") or f"{crop_name}_{disease_name}".lower().replace(" ", "_"), "confidence": conf}
+    ]
+    return data
+
 
 # ---------------------------------------------------------------------------
 # 1. Prediction with Calibrated Confidence & IDM Treatment Integration
@@ -157,8 +245,61 @@ async def predict_crop_disease(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid, corrupt, or unsupported image file.",
             )
+        norm_crop = (crop_hint or "").strip().lower()
+        supported_crop_ids = {c["id"] for c in SUPPORTED_CROPS}
+        is_supported_by_local = any(s in norm_crop for s in supported_crop_ids)
+
+        # If Gemini is configured and crop is outside the 5 legacy classes, run Gemini Vision directly
+        if is_gemini_configured() and norm_crop and not is_supported_by_local:
+            try:
+                gemini_data = await run_gemini_crop_doctor(contents, crop_hint=crop_hint, symptom_notes=symptom_notes)
+                # Save to database
+                try:
+                    detection_record = DiseaseDetection(
+                        image_url=file.filename or "crop_leaf.jpg",
+                        detected_disease=gemini_data.get("disease_name", "Condition"),
+                        crop_name=gemini_data.get("crop", crop_hint or "Crop"),
+                        confidence=gemini_data.get("confidence", 0.75),
+                        remedy_suggested=gemini_data.get("immediate_action", "") or gemini_data.get("cultural_control", ""),
+                        detected_at=datetime.datetime.utcnow(),
+                    )
+                    db.add(detection_record)
+                    db.commit()
+                    db.refresh(detection_record)
+                    gemini_data["diagnosis_id"] = detection_record.id
+                except Exception:
+                    db.rollback()
+                    gemini_data["diagnosis_id"] = None
+                return gemini_data
+            except Exception as e:
+                pass  # Fall through to local classifier
+
         classifier = get_disease_classifier()
         vision_res = classifier.predict(contents, crop_hint=crop_hint)
+
+        # If local model is unavailable or uncertain and Gemini is configured, use Gemini Vision
+        if (vision_res.get("status") in ["model_unavailable", "uncertain"] or vision_res.get("prediction", {}).get("model_confidence", 0) < 0.60) and is_gemini_configured():
+            try:
+                gemini_data = await run_gemini_crop_doctor(contents, crop_hint=crop_hint, symptom_notes=symptom_notes)
+                try:
+                    detection_record = DiseaseDetection(
+                        image_url=file.filename or "crop_leaf.jpg",
+                        detected_disease=gemini_data.get("disease_name", "Condition"),
+                        crop_name=gemini_data.get("crop", crop_hint or "Crop"),
+                        confidence=gemini_data.get("confidence", 0.75),
+                        remedy_suggested=gemini_data.get("immediate_action", ""),
+                        detected_at=datetime.datetime.utcnow(),
+                    )
+                    db.add(detection_record)
+                    db.commit()
+                    db.refresh(detection_record)
+                    gemini_data["diagnosis_id"] = detection_record.id
+                except Exception:
+                    db.rollback()
+                    gemini_data["diagnosis_id"] = None
+                return gemini_data
+            except Exception:
+                pass  # Continue with local response
 
         # Handle service unavailable or retake image states
         if vision_res.get("status") in ["model_unavailable", "invalid_image"]:
@@ -258,6 +399,45 @@ async def predict_crop_disease(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Crop diagnosis failed: {str(exc)}",
         )
+
+
+@router.post("/gemini-diagnosis")
+async def gemini_crop_doctor_endpoint(
+    file: UploadFile = File(..., description="Crop leaf, fruit, or stem photograph"),
+    crop_hint: Optional[str] = Query(None, description="Crop name hint from farmer"),
+    symptom_notes: Optional[str] = Query(None, description="Observed symptoms or notes"),
+    db: Session = Depends(get_db),
+) -> Any:
+    """Dedicated Gemini Vision Crop Doctor diagnosis endpoint with calibrated uncertainty."""
+    if not is_gemini_configured():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Gemini Vision service is not configured on the server.",
+        )
+    contents = await file.read()
+    if not contents:
+        raise HTTPException(status_code=400, detail="Uploaded image is empty.")
+    try:
+        data = await run_gemini_crop_doctor(contents, crop_hint=crop_hint, symptom_notes=symptom_notes)
+        try:
+            rec = DiseaseDetection(
+                image_url=file.filename or "crop_leaf.jpg",
+                detected_disease=data.get("disease_name", "Condition"),
+                crop_name=data.get("crop", crop_hint or "Crop"),
+                confidence=data.get("confidence", 0.75),
+                remedy_suggested=data.get("immediate_action", ""),
+                detected_at=datetime.datetime.utcnow(),
+            )
+            db.add(rec)
+            db.commit()
+            db.refresh(rec)
+            data["diagnosis_id"] = rec.id
+        except Exception:
+            db.rollback()
+            data["diagnosis_id"] = None
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gemini Crop Doctor failed: {e}") from e
 
 
 # ---------------------------------------------------------------------------

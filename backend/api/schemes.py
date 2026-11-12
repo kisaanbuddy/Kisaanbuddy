@@ -23,6 +23,7 @@ import logging
 from datetime import date, datetime
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from api.auth import get_current_user, require_admin
@@ -199,6 +200,100 @@ def find_schemes_for_farm(
         more_info_needed=more_info_needed,
         unmatched=unmatched
     )
+
+
+class SchemeAIAdvisorRequest(BaseModel):
+    question: str = Field(..., min_length=2, max_length=1000)
+    scheme_id: Optional[str] = None
+    state: Optional[str] = None
+    landholding_acres: Optional[float] = None
+    crop: Optional[str] = None
+    language: Optional[str] = "hi"
+
+
+@router.post("/ai-advisor")
+async def scheme_ai_advisor(
+    body: SchemeAIAdvisorRequest,
+    db: Session = Depends(get_db),
+):
+    """Gemini-powered Government Schemes assistant for Indian farmers."""
+    from services.chat.gemini_service import is_gemini_configured, generate_with_retry, get_model_chain
+    import json
+
+    scheme = None
+    if body.scheme_id:
+        scheme = db.query(Scheme).filter(Scheme.scheme_id == body.scheme_id).first()
+
+    all_schemes = db.query(Scheme).filter(Scheme.is_active == True).limit(20).all()
+    scheme_summaries = [
+        f"{s.name} ({s.category}): {s.benefits_summary or ''}. Eligibility: {s.eligibility_criteria_summary or ''}. Portal: {s.official_portal_url or ''}"
+        for s in all_schemes
+    ]
+
+    context = (
+        f"Specific Scheme: {scheme.name if scheme else 'General'}\n"
+        f"Benefits: {scheme.benefits_summary if scheme else 'Multiple'}\n"
+        f"Official Portal: {scheme.official_portal_url if scheme else 'https://agricoop.nic.in'}\n"
+        f"Eligibility: {scheme.eligibility_criteria_summary if scheme else ''}\n"
+        f"Documentation Required: {scheme.documentation_required if scheme else 'Aadhaar, Land record, Bank Passbook'}\n"
+        f"Farmer Profile: State: {body.state or 'All-India'}, Land: {body.landholding_acres or 'Not specified'} acres, Crop: {body.crop or 'Not specified'}\n"
+    )
+
+    fallback_reply = (
+        f"For government schemes like {scheme.name if scheme else 'PM-KISAN, PMFBY, and KCC'}, "
+        "ensure your Aadhaar is linked to your bank account with NPCI mapping and your land ownership record (7/12, Khasra/Khatauni) is updated. "
+        "Visit your nearest Common Service Centre (CSC) or Block Agriculture Office with these documents."
+    )
+
+    if not is_gemini_configured():
+        return {
+            "advice": fallback_reply,
+            "scheme": scheme.name if scheme else "Sarkari Yojana",
+            "source_portal": scheme.official_portal_url if scheme else "https://agricoop.nic.in",
+        }
+
+    prompt = (
+        f"You are a dedicated Indian Government Agricultural Schemes Counselor.\n"
+        f"Farmer Query: '{body.question}'\n"
+        f"Context & Official Schemes:\n{context}\n"
+        f"Available Scheme Registry:\n" + "\n".join(scheme_summaries[:10]) + "\n\n"
+        f"Language: {body.language}\n"
+        "Explain in warm, clear, simple language suitable for an Indian farmer.\n"
+        "Return strict JSON with keys:\n"
+        "{\n"
+        '  "scheme_name": "Name of relevant scheme",\n'
+        '  "key_benefits": "Direct financial, subsidy, or insurance benefit",\n'
+        '  "eligibility_verdict": "Clear explanation of who qualifies",\n'
+        '  "documents_checklist": ["Aadhaar Card", "Land Record (7/12 or Khatauni)", "Bank Passbook with NPCI Aadhaar seeding"],\n'
+        '  "how_to_apply_steps": ["Step 1: ...", "Step 2: ...", "Step 3: ..."],\n'
+        '  "where_to_go": "Exact offline (CSC / Kisan Seva Kendra) or online portal",\n'
+        '  "caution_note": "Common rejection reasons to avoid (e.g. spelling mismatches)",\n'
+        '  "advice_summary": "Encouraging 2-sentence summary in farmer language"\n'
+        "}"
+    )
+
+    try:
+        resp, model = await generate_with_retry(
+            contents=prompt,
+            feature="schemes_advisor",
+            models=get_model_chain(for_vision=False),
+            temperature=0.2,
+            max_output_tokens=800,
+            response_mime_type="application/json",
+        )
+        raw = (getattr(resp, "text", "") or "").strip()
+        data = json.loads(raw)
+        data["official_portal"] = scheme.official_portal_url if scheme else "https://agricoop.nic.in"
+        data["ai_model"] = model
+        return data
+    except Exception as e:
+        log.warning("Gemini schemes advisor error: %s", e)
+        return {
+            "advice_summary": fallback_reply,
+            "scheme_name": scheme.name if scheme else "Government Scheme Assistance",
+            "official_portal": scheme.official_portal_url if scheme else "https://agricoop.nic.in",
+        }
+
 
 
 @router.get("/dashboard", response_model=Dict[str, Any])

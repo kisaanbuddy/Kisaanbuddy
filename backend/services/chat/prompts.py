@@ -11,16 +11,18 @@ You are KisaanBuddy — an experienced, warm, trustworthy Indian agricultural ad
 INDIAN AGRICULTURAL KNOWLEDGE FRAMEWORK
 ====================================================================
 
-1. SEASONAL CALENDAR (Indian crops & varieties)
-   - KHARIF (monsoon, sowing Jun–Jul, harvest Sep–Oct): paddy/rice (Basmati, Swarna, Sahbhagi, PR-126), maize, bajra, jowar, tur/arhar, moong, urad, soybean, cotton, groundnut, sugarcane.
-   - RABI (winter, sowing Oct–Nov, harvest Mar–Apr): wheat (HD-3226, DBW-187, PBW-725), chana (gram), masoor (lentil), mustard (sarson), barley, peas, rabi potato.
-   - ZAID (summer, Mar–Jun, irrigated): watermelon, muskmelon, cucumber, summer moong, green fodder.
+1. CROP SELECTION, PLANNING, GROWTH STAGES & HARVESTING
+   - Call `recommend_crop` to suggest best crops given soil NPK, pH, rainfall, and climate.
+   - Call `get_crop_calendar` for crop timeline milestones, Days After Sowing (DAS), stage monitoring, and maturity/harvesting indices.
+   - KHARIF (monsoon, Jun–Jul to Sep–Oct): paddy/rice, maize, bajra, jowar, tur, moong, urad, soybean, cotton, groundnut, sugarcane.
+   - RABI (winter, Oct–Nov to Mar–Apr): wheat, chana, masoor, mustard, barley, peas, potato.
+   - ZAID (summer, Mar–Jun): watermelon, muskmelon, cucumber, summer moong, fodder.
 
-2. SOIL HEALTH, FERTILIZERS & IRRIGATION
-   - Ideal soil pH for most field crops is 6.0–7.5 (below 6.0 → lime guidance after soil test; above 8.0 → gypsum + organic matter guidance).
-   - Always recommend verifying field-specific NPK & micronutrients via a Soil Health Card (SHC) or Soil Testing Lab before major fertilizer purchases.
-   - Only state fertilizer quantities when grounded in ICAR/SAU recommendations (via `get_fertilizer_recommendation` or verified farmer soil test context) and always clarify that exact doses depend on crop variety, soil test, and irrigated vs rainfed conditions. NEVER fabricate custom NPK numbers.
-   - Irrigation: drip saves 40–60% water vs flood; mulching reduces evaporation; sandy soils need lighter frequent irrigation while heavy clay needs deeper spaced irrigation; avoid noon sprinkler/flood irrigation during peak summer heat.
+2. SOIL HEALTH, FERTILIZERS, IRRIGATION & FARMING ECONOMICS
+   - Call `get_soil_health_advisory` when analyzing Soil Health Cards or soil pH / Organic Carbon restoration.
+   - Call `get_fertilizer_recommendation` for authentic ICAR/SAU basal & top-dressing doses. NEVER fabricate custom NPK numbers.
+   - Call `get_irrigation_advisory` for critical growth stage water requirements, soil texture management (sand vs clay), and rainfall-based water saving.
+   - Call `analyze_farming_economics` for transparent cultivation expense vs gross revenue and net profit analysis per acre.
 
 3. INTEGRATED PEST & DISEASE MANAGEMENT (IPM — bio/cultural first)
    - Prioritize cultural hygiene (removing infected leaves, drainage, resistant varieties, seed treatment with Trichoderma) and biological/botanical options (neem oil, pheromone traps, yellow sticky traps, Bt) before synthetic chemicals.
@@ -542,6 +544,87 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
                     "growth_stage": {"type": "string", "description": "e.g. 'sowing', 'tillering', 'flowering'."},
                 },
                 "required": ["crop_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_irrigation_advisory",
+            "description": (
+                "Get ICAR-grounded irrigation schedule, critical growth-stage moisture requirements, "
+                "soil water retention management (sandy/loamy/clay), and rainfall adjustments."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string", "description": "Crop name, e.g. 'Wheat', 'Rice/Paddy', 'Maize', 'Cotton', 'Tomato'."},
+                    "soil_type": {"type": "string", "description": "Soil type, e.g. 'Sandy', 'Loamy', 'Black/Clay'."},
+                    "irrigation_type": {"type": "string", "description": "'drip', 'sprinkler', or 'flood'."},
+                    "growth_stage": {"type": "string", "description": "Current growth stage or DAS."},
+                    "rain_forecast_mm": {"type": "number", "description": "Expected rainfall in next 5 days (mm)."},
+                },
+                "required": ["crop_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_crop_calendar",
+            "description": (
+                "Get crop timeline milestones (DAS), critical stages from sowing to harvest, "
+                "growth stage monitoring, and maturity/harvesting indicators."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string", "description": "Crop name, e.g. 'Wheat', 'Rice', 'Cotton'."},
+                    "sowing_date_or_month": {"type": "string", "description": "Sowing date or month."},
+                    "state": {"type": "string", "description": "Indian state name."},
+                },
+                "required": ["crop_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_farming_economics",
+            "description": (
+                "Analyze estimated cultivation costs (land prep, seeds, fertilizers, irrigation, labor, harvesting) "
+                "vs gross revenue and net profit per acre based on CACP agricultural economic benchmarks."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "crop_name": {"type": "string", "description": "Crop name, e.g. 'Wheat', 'Rice', 'Cotton', 'Mustard', 'Tomato'."},
+                    "acreage": {"type": "number", "description": "Farm land area in acres (default 1.0)."},
+                    "yield_expected_quintals": {"type": "number", "description": "Expected yield in quintals per acre (optional)."},
+                    "mandi_price_per_quintal": {"type": "number", "description": "Expected selling price per quintal in INR (optional)."},
+                },
+                "required": ["crop_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_soil_health_advisory",
+            "description": (
+                "Provide scientific soil health analysis and amendment guidance (gypsum, lime, organic carbon restoration) "
+                "based on Soil Health Card metrics."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "soil_ph": {"type": "number", "description": "Soil pH level (e.g. 5.5, 7.2, 8.4)."},
+                    "nitrogen_kg_ha": {"type": "number", "description": "Available Nitrogen in kg/ha."},
+                    "phosphorus_kg_ha": {"type": "number", "description": "Available Phosphorus in kg/ha."},
+                    "potassium_kg_ha": {"type": "number", "description": "Available Potassium in kg/ha."},
+                    "organic_carbon_pct": {"type": "number", "description": "Organic Carbon percentage."},
+                    "crop_name": {"type": "string", "description": "Target crop name."},
+                },
             },
         },
     }

@@ -502,6 +502,224 @@ async def _tool_get_fertilizer_recommendation(
 
 
 # ============================================================================
+# Irrigation Advisory (Critical Stages + Water Saving)
+# ============================================================================
+async def _tool_get_irrigation_advisory(
+    crop_name: str,
+    soil_type: Optional[str] = None,
+    irrigation_type: Optional[str] = "flood",
+    growth_stage: Optional[str] = None,
+    rain_forecast_mm: float = 0.0,
+) -> Dict[str, Any]:
+    """Get ICAR-grounded irrigation recommendations and critical moisture stages."""
+    crop_l = (crop_name or "").lower().strip()
+    critical_stages = {
+        "wheat": ["Crown Root Initiation (CRI) at 21 DAS", "Tillering at 40-45 DAS", "Jointing at 60-65 DAS", "Flowering at 80-85 DAS", "Milking/Dough at 100-105 DAS"],
+        "rice": ["Transplanting establishment", "Active tillering", "Panicle initiation", "Flowering & grain filling (keep 2-3 cm standing water)"],
+        "maize": ["Knee-high vegetative stage", "Tasseling", "Silking (most critical)", "Grain filling"],
+        "cotton": ["Squaring (35-40 DAS)", "Peak flowering (60-70 DAS)", "Boll development"],
+        "tomato": ["Early establishment", "Vegetative branch growth", "Flowering & fruit set", "Fruit expansion"],
+    }
+    matched_crop = next((k for k in critical_stages if k in crop_l), "general_crop")
+    stages = critical_stages.get(matched_crop, ["Active vegetative growth", "Flowering", "Fruit/grain development"])
+
+    soil = (soil_type or "Loamy").lower()
+    interval_days = 7
+    if "sand" in soil:
+        interval_days = 4
+        soil_note = "Sandy soil drains quickly: apply lighter water more frequently to avoid nutrient leaching."
+    elif "clay" in soil or "black" in soil:
+        interval_days = 10
+        soil_note = "Clay/Black soil holds moisture well: avoid waterlogging and ensure good surface drainage."
+    else:
+        soil_note = "Loamy soil has good water retention: maintain moderate soil moisture without standing water."
+
+    rain_action = "Normal irrigation schedule."
+    if rain_forecast_mm >= 15.0:
+        rain_action = f"POSTPONE irrigation: {rain_forecast_mm} mm rainfall forecast over the coming days. Conserve water and prevent root hypoxia."
+    elif rain_forecast_mm >= 5.0:
+        rain_action = f"Reduce irrigation volume: light rain ({rain_forecast_mm} mm) expected."
+
+    return {
+        "crop": crop_name,
+        "soil_type": soil_type or "Loam",
+        "irrigation_type": irrigation_type or "flood",
+        "recommended_interval_days": interval_days,
+        "critical_moisture_stages": stages,
+        "soil_management_note": soil_note,
+        "rain_forecast_adjustment": rain_action,
+        "water_saving_tip": "Switching from flood to Drip/Sprinkler saves 40-60% water and increases fertilizer use efficiency via fertigation.",
+    }
+
+
+# ============================================================================
+# Crop Calendar & Growth Stage Monitoring
+# ============================================================================
+async def _tool_get_crop_calendar(
+    crop_name: str,
+    sowing_date_or_month: Optional[str] = None,
+    state: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Get crop growth timeline, milestone DAS (Days After Sowing), and harvesting indicators."""
+    crop_l = (crop_name or "").lower().strip()
+    data = {
+        "wheat": {
+            "duration_days": 120,
+            "season": "Rabi",
+            "stages": [
+                {"das": "0-7", "stage": "Germination / Emergence"},
+                {"das": "20-25", "stage": "Crown Root Initiation (CRI) - 1st irrigation"},
+                {"das": "40-45", "stage": "Tillering & Weed Management"},
+                {"das": "60-75", "stage": "Jointing & Booting"},
+                {"das": "80-95", "stage": "Flowering & Milking"},
+                {"das": "100-115", "stage": "Dough / Grain Hardening"},
+                {"das": "120-135", "stage": "Physiological Maturity & Harvest"},
+            ],
+            "harvest_indicators": "Golden yellow straw, dry spikes, grain moisture below 14% (cracks between teeth).",
+        },
+        "rice": {
+            "duration_days": 135,
+            "season": "Kharif",
+            "stages": [
+                {"das": "0-25", "stage": "Nursery & Seedling"},
+                {"das": "25-30", "stage": "Transplanting to Main Field"},
+                {"das": "45-55", "stage": "Active Tillering"},
+                {"das": "65-75", "stage": "Panicle Initiation"},
+                {"das": "85-95", "stage": "Flowering / Anthesis"},
+                {"das": "110-125", "stage": "Grain Filling & Ripening"},
+                {"das": "130-140", "stage": "Harvesting"},
+            ],
+            "harvest_indicators": "80-85% panicles turn straw yellow, lower grains hard, drain water 10 days before harvest.",
+        },
+        "cotton": {
+            "duration_days": 160,
+            "season": "Kharif",
+            "stages": [
+                {"das": "0-15", "stage": "Germination & Stand Establishment"},
+                {"das": "35-45", "stage": "Squaring (Square formation)"},
+                {"das": "60-75", "stage": "Flowering"},
+                {"das": "80-110", "stage": "Boll Formation"},
+                {"das": "120-160", "stage": "Boll Bursting & Picking (2-3 pickings)"},
+            ],
+            "harvest_indicators": "Pick fully burst bolls in dry sunny morning hours. Do not pick wet cotton.",
+        },
+    }
+    key = next((k for k in data if k in crop_l), None)
+    if key:
+        return {"crop": crop_name, "calendar": data[key]}
+    return {
+        "crop": crop_name,
+        "calendar": {
+            "duration_days": 110,
+            "season": "General",
+            "stages": [
+                {"das": "0-10", "stage": "Sowing & Germination"},
+                {"das": "20-40", "stage": "Vegetative Growth"},
+                {"das": "45-65", "stage": "Flowering & Fruit/Ear Set"},
+                {"das": "70-95", "stage": "Maturation"},
+                {"das": "100-115", "stage": "Harvesting"},
+            ],
+            "harvest_indicators": "Plant leaves turn yellow/senesce, fruit/seed reaches full size and recommended moisture.",
+        }
+    }
+
+
+# ============================================================================
+# Farming Economics (Expense and Profit Analysis)
+# ============================================================================
+async def _tool_analyze_farming_economics(
+    crop_name: str,
+    acreage: float = 1.0,
+    yield_expected_quintals: Optional[float] = None,
+    mandi_price_per_quintal: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Calculate transparent farming expense breakdown, gross revenue, and net profit per acre."""
+    crop_l = (crop_name or "").lower().strip()
+    ac = max(0.25, float(acreage or 1.0))
+
+    # CACP-based representative cost models per acre in India (approximate ranges)
+    models = {
+        "wheat": {"yield": 18.0, "mandi": 2275, "land_prep": 2500, "seeds": 1600, "fert": 3200, "irrigation": 2000, "pest": 1200, "labor_harvest": 4500},
+        "rice": {"yield": 22.0, "mandi": 2300, "land_prep": 3500, "seeds": 1400, "fert": 3800, "irrigation": 3000, "pest": 1800, "labor_harvest": 6500},
+        "mustard": {"yield": 8.0, "mandi": 5650, "land_prep": 2200, "seeds": 800, "fert": 2500, "irrigation": 1200, "pest": 1000, "labor_harvest": 3500},
+        "cotton": {"yield": 9.0, "mandi": 7121, "land_prep": 3000, "seeds": 2000, "fert": 4500, "irrigation": 2500, "pest": 3500, "labor_harvest": 7500},
+        "tomato": {"yield": 120.0, "mandi": 1200, "land_prep": 4000, "seeds": 3500, "fert": 6000, "irrigation": 3000, "pest": 5000, "labor_harvest": 10000},
+    }
+    match = next((m for k, m in models.items() if k in crop_l), {
+        "yield": 15.0, "mandi": 2500, "land_prep": 2800, "seeds": 1500, "fert": 3200, "irrigation": 2200, "pest": 1500, "labor_harvest": 5000
+    })
+
+    y_per_acre = yield_expected_quintals if yield_expected_quintals and yield_expected_quintals > 0 else match["yield"]
+    rate = mandi_price_per_quintal if mandi_price_per_quintal and mandi_price_per_quintal > 0 else match["mandi"]
+
+    cost_per_acre = sum([match["land_prep"], match["seeds"], match["fert"], match["irrigation"], match["pest"], match["labor_harvest"]])
+    total_cost = round(cost_per_acre * ac)
+    total_yield = round(y_per_acre * ac, 1)
+    gross_revenue = round(total_yield * rate)
+    net_profit = round(gross_revenue - total_cost)
+
+    return {
+        "crop": crop_name,
+        "acreage": ac,
+        "expected_yield_quintals": total_yield,
+        "assumed_mandi_price_per_quintal": rate,
+        "estimated_costs": {
+            "land_preparation": round(match["land_prep"] * ac),
+            "seeds_and_sowing": round(match["seeds"] * ac),
+            "fertilizers_and_nutrients": round(match["fert"] * ac),
+            "irrigation": round(match["irrigation"] * ac),
+            "plant_protection_ipm": round(match["pest"] * ac),
+            "harvesting_and_labor": round(match["labor_harvest"] * ac),
+            "total_estimated_cost_inr": total_cost,
+        },
+        "gross_revenue_inr": gross_revenue,
+        "estimated_net_profit_inr": net_profit,
+        "return_on_investment_pct": round((net_profit / max(1, total_cost)) * 100, 1),
+        "disclaimer": "Cost and profit figures are indicative benchmarks based on CACP/SAU averages. Actual realizations vary with market arrivals, weather, and farm management.",
+    }
+
+
+# ============================================================================
+# Soil Health Analysis & Amendment
+# ============================================================================
+async def _tool_get_soil_health_advisory(
+    soil_ph: Optional[float] = None,
+    nitrogen_kg_ha: Optional[float] = None,
+    phosphorus_kg_ha: Optional[float] = None,
+    potassium_kg_ha: Optional[float] = None,
+    organic_carbon_pct: Optional[float] = None,
+    crop_name: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Provide scientific soil health diagnosis and correction amendments."""
+    amendments = []
+    status = "Normal"
+    if soil_ph is not None:
+        if soil_ph < 6.0:
+            status = "Acidic"
+            amendments.append("Soil is acidic (pH < 6.0): Apply agricultural lime (calcium carbonate) or dolomite @ 200-400 kg/acre 3 weeks before sowing to improve nutrient availability.")
+        elif soil_ph > 8.0:
+            status = "Alkaline / Saline"
+            amendments.append("Soil is alkaline (pH > 8.0): Apply agricultural gypsum @ 300-500 kg/acre and incorporate green manuring (Dhaincha/Sesbania) to lower alkalinity.")
+        else:
+            amendments.append("Soil pH is in the optimal range (6.0-7.5) for nutrient uptake.")
+
+    if organic_carbon_pct is not None:
+        if organic_carbon_pct < 0.5:
+            amendments.append("Organic Carbon is low (< 0.5%): Apply 4-5 tons well-decomposed Farmyard Manure (FYM) or 2 tons Vermicompost per acre to restore soil microbial life.")
+        elif organic_carbon_pct >= 0.75:
+            amendments.append("Organic Carbon is healthy (>= 0.75%): Excellent soil biological activity and moisture retention.")
+
+    return {
+        "crop": crop_name or "General",
+        "soil_ph_status": status,
+        "recorded_ph": soil_ph,
+        "recorded_oc": organic_carbon_pct,
+        "scientific_amendments": amendments,
+        "recommendation": "Maintain crop residue in field (zero burning), practice crop rotation with pulses (gram, moong, cowpea) to fix biological nitrogen naturally.",
+    }
+
+
+# ============================================================================
 # Registry + dispatcher
 # ============================================================================
 ToolFn = Callable[..., Awaitable[Dict[str, Any]]]
@@ -518,6 +736,10 @@ TOOLS: Dict[str, ToolFn] = {
     "diagnose_crop_disease": _tool_diagnose_crop_disease,
     "search_marketplace": _tool_search_marketplace,
     "get_fertilizer_recommendation": _tool_get_fertilizer_recommendation,
+    "get_irrigation_advisory": _tool_get_irrigation_advisory,
+    "get_crop_calendar": _tool_get_crop_calendar,
+    "analyze_farming_economics": _tool_analyze_farming_economics,
+    "get_soil_health_advisory": _tool_get_soil_health_advisory,
 }
 
 

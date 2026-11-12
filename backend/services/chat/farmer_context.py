@@ -136,6 +136,26 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
             except Exception:
                 pass
 
+            # Disease detection history (for personalization & recurrence checks)
+            previous_diseases = []
+            try:
+                from db.models import DiseaseDetection
+                past_detections = (
+                    db.query(DiseaseDetection)
+                    .order_by(DiseaseDetection.detected_at.desc())
+                    .limit(5)
+                    .all()
+                )
+                for dd in past_detections:
+                    previous_diseases.append({
+                        "crop": dd.crop_name,
+                        "disease": dd.detected_disease,
+                        "confidence": dd.confidence,
+                        "date": dd.detected_at.strftime("%Y-%m-%d") if dd.detected_at else None,
+                    })
+            except Exception:
+                pass
+
             return {
                 "language": user.language,
                 "location": {
@@ -195,6 +215,7 @@ def build_farmer_context(request: Request) -> Optional[dict[str, Any]]:
                 ],
                 "soil_tests": latest_soil_tests,
                 "satellite_observations": latest_satellite_obs,
+                "previous_disease_records": previous_diseases,
                 "pending_recommendations": pending_recs,
                 "pending_tasks": [
                     {"title": t.title, "category": t.category, "due_date": t.due_date.isoformat(), "priority": t.priority}
@@ -219,7 +240,9 @@ def format_farmer_context(context: Optional[dict[str, Any]]) -> Optional[str]:
     return (
         "FARMER CONTEXT (private, user-editable; use only when relevant):\n"
         f"{context}\n"
-        "Use this to avoid repeating questions. If more than one field/crop could apply, ask which field. "
+        "Use this context to personalize all agronomic, fertilizer, irrigation, and disease recommendations. "
+        "Consider the farmer's location, landholding size, soil type, current crops, variety, sowing date, irrigation method, and past disease history. "
+        "If more than one field/crop could apply, ask which field. "
         "Never claim a stored fact is current when the farmer corrects it. Do not mention private IDs. "
         "When soil test data is available, use it to give nutrient-specific advice. "
         "When satellite observation records are present, cite the satellite platform and acquisition date. "
