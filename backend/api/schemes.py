@@ -226,16 +226,16 @@ async def scheme_ai_advisor(
 
     all_schemes = db.query(Scheme).filter(Scheme.is_active == True).limit(20).all()
     scheme_summaries = [
-        f"{s.name} ({s.category}): {s.benefits_summary or ''}. Eligibility: {s.eligibility_criteria_summary or ''}. Portal: {s.official_portal_url or ''}"
+        f"{s.name} ({s.category}): {s.benefits_summary or ''}. Eligibility: {s.eligibility_criteria_text or ''}. Portal: {s.source_url or ''}"
         for s in all_schemes
     ]
 
     context = (
         f"Specific Scheme: {scheme.name if scheme else 'General'}\n"
         f"Benefits: {scheme.benefits_summary if scheme else 'Multiple'}\n"
-        f"Official Portal: {scheme.official_portal_url if scheme else 'https://agricoop.nic.in'}\n"
-        f"Eligibility: {scheme.eligibility_criteria_summary if scheme else ''}\n"
-        f"Documentation Required: {scheme.documentation_required if scheme else 'Aadhaar, Land record, Bank Passbook'}\n"
+        f"Official Portal: {scheme.source_url if scheme else 'https://agricoop.nic.in'}\n"
+        f"Eligibility: {scheme.eligibility_criteria_text if scheme else ''}\n"
+        f"Documentation Required: {scheme.required_documents_json if scheme else 'Aadhaar, Land record, Bank Passbook'}\n"
         f"Farmer Profile: State: {body.state or 'All-India'}, Land: {body.landholding_acres or 'Not specified'} acres, Crop: {body.crop or 'Not specified'}\n"
     )
 

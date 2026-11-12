@@ -554,7 +554,7 @@ def get_gemini_client():
         timeout_ms = max(5000, int(float(settings.GEMINI_TIMEOUT_SECONDS) * 1000))
         _client_singleton = genai.Client(
             api_key=key,
-            http_options=types.HttpOptions(timeout=timeout_ms),
+            http_options=types.HttpOptions(timeout=timeout_ms, api_version="v1beta"),
         )
         _client_key_snapshot = key
         return _client_singleton
