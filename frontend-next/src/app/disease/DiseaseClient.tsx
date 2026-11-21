@@ -56,10 +56,10 @@ const COMMON_CROPS = [
 
 interface PredictionResult {
   predicted_class: string;
-  confidence: number;
+  confidence: number | null;
   top_predictions: Array<{ class: string; confidence: number }>;
   model: string;
-  status: "ok" | "uncertain";
+  status: "ok" | "uncertain" | "inconclusive" | "retake_image";
   note?: string;
   crop?: string;
   disease_name?: string;
@@ -178,11 +178,11 @@ export default function DiseaseClient() {
 
   const onPick = useCallback((file: File | null | undefined) => {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
+    if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
       setError(
         isHindi
           ? "कृपया एक फोटो फाइल चुनें।"
-          : "Please pick an image file."
+          : "Please pick an image file no larger than 15 MB."
       );
       return;
     }
@@ -242,6 +242,8 @@ export default function DiseaseClient() {
 
     // 1. Vision & ICAR Advisory API
     setMlLoading(true);
+    const controller = new AbortController();
+    abortRef.current = controller;
     try {
       const url = `/api/disease/predict?crop_hint=${encodeURIComponent(
         crop.trim()
@@ -256,10 +258,12 @@ export default function DiseaseClient() {
         predictRes = await fetch(url, {
           method: "POST",
           body: formData,
+          signal: controller.signal,
         });
       } else {
         predictRes = await fetch(url, {
           method: "POST",
+          signal: controller.signal,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             crop_hint: crop.trim(),
@@ -271,59 +275,25 @@ export default function DiseaseClient() {
       if (predictRes.ok) {
         const data: PredictionResult = await predictRes.json();
         setMlResult(data);
-        if ((data.confidence || 0) >= 0.60 && data.status !== "uncertain") {
+        if (data.cibrc_approved && (data.confidence || 0) >= 0.60 && data.status === "ok") {
           setTimeout(() => {
             setTreatmentPopupOpen(true);
           }, 900);
         }
+      } else {
+        const failure = await predictRes.json().catch(() => ({}));
+        setError(failure.detail || "Crop Doctor could not complete this screening. Please retry.");
       }
     } catch (err) {
-      console.warn("Disease model API request error:", err);
+      if (!controller.signal.aborted) setError("Crop Doctor is unavailable. Please retry shortly.");
     } finally {
       setMlLoading(false);
-    }
-
-    // 2. Stream Agronomy Diagnostic Assistant Advice
-    const composed = [
-      crop.trim() ? `Crop: ${crop.trim()}.` : "",
-      symptom.trim()
-        ? `Symptom: ${symptom.trim()}.`
-        : "Diagnose disease from photo and provide practical farmer advice in 4 clear points: 1. Possible cause, 2. Immediate action, 3. Organic remedies, 4. Safe chemical spray.",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    const req: AssistantRequest = {
-      session_id: null,
-      message: composed,
-      language: activeLang,
-      stream: true,
-      want_audio: false,
-      image_base64: imageDataUrl,
-    };
-
-    const ctl = new AbortController();
-    abortRef.current = ctl;
-    setStreaming(true);
-    let collected = "";
-    try {
-      for await (const evt of streamMessage(req, ctl.signal)) {
-        if (evt.type === "token") {
-          collected += evt.text;
-          setResponse(collected);
-        } else if (evt.type === "error") {
-          setError(evt.message);
-        }
-      }
-    } catch (e: any) {
-      const msg = e?.message || String(e);
-      if (!msg.toLowerCase().includes("abort")) setError(msg);
-    } finally {
-      setStreaming(false);
       abortRef.current = null;
-      // Scroll smoothly to results
-      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
     }
+
+    // Do not run a second independent model which can contradict the screening
+    // or generate chemical instructions without verified treatment evidence.
+    resultsRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [isStreaming, mlLoading, imageDataUrl, symptom, crop, activeLang, isHindi, isKannada]);
 
   const cancel = useCallback(() => {
@@ -347,7 +317,7 @@ export default function DiseaseClient() {
             </h1>
             <p className="mt-1.5 text-base text-stone-600 dark:text-stone-300 leading-relaxed max-w-xl">
               {isHindi
-                ? "पत्ती की फोटो लें या लक्षण बताएं — तुरंत बीमारी की जांच, जैविक उपचार और दवा की मात्रा जानें।"
+                ? "पत्ती की फोटो लें या लक्षण बताएं — संभावित समस्या की शुरुआती जांच करें।"
                 : isKannada
                 ? "ಎಲೆಯ ಫೋಟೋ ತೆಗೆಯಿರಿ ಅಥವಾ ರೋಗದ ಲಕ್ಷಣ ತಿಳಿಸಿ — ಸೂಕ್ತ ಚಿಕಿತ್ಸೆ ಮತ್ತು ಔಷಧಿ ತಿಳಿಯಿರಿ."
                 : "Diagnose crop leaf disease with an image or symptom description, and get practical treatment steps."}
@@ -604,7 +574,7 @@ export default function DiseaseClient() {
               <p className="text-xs text-stone-600 dark:text-stone-300">
                 {isHindi
                   ? "ICAR और कृषि विज्ञान केंद्र डेटाबेस से बीमारी के लक्षण मिलाए जा रहे हैं।"
-                  : "Matching visual symptoms with agricultural advisory guidelines."}
+                  : "Checking the photograph and the symptoms you provided."}
               </p>
             </div>
           </div>
@@ -613,7 +583,7 @@ export default function DiseaseClient() {
         {(mlResult || response) && (
           <div className="space-y-6 pt-2">
             {/* Low Confidence Guidance Card */}
-            {(mlResult?.status === "uncertain" || (mlResult?.confidence !== undefined && mlResult.confidence < 0.60)) && (
+            {(mlResult?.status !== "ok" || mlResult?.confidence == null || mlResult.confidence < 0.60) && (
               <div className="rounded-2xl border-2 border-amber-400 bg-amber-50 dark:bg-amber-950/40 p-5 sm:p-6 space-y-4 shadow-sm">
                 <div className="flex items-center gap-3">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white font-bold shrink-0">

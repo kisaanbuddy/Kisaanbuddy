@@ -15,7 +15,7 @@ from sqlalchemy.pool import StaticPool
 
 from main import app
 from db.session import get_db, Base
-from db.models import User, AdvisoryCase
+from db.models import User, AdvisoryCase, DiseaseDetection
 from services.auth_service import create_access_token
 
 
@@ -129,6 +129,84 @@ class TestPilotSecurityAndHardening(unittest.TestCase):
             headers={"Authorization": f"Bearer {self.expert_token}"},
         )
         self.assertEqual(res.status_code, 200)
+
+    def test_diagnosis_history_requires_authentication_and_is_owner_scoped(self):
+        """A farmer must never see anonymous or another farmer's diagnosis history."""
+        db = self.TestingSessionLocal()
+        detection = DiseaseDetection(
+            user_id=self.farmer_user.id,
+            image_url="private/farmer-leaf.jpg",
+            crop_name="Tomato",
+            detected_disease="Early blight",
+            confidence=0.78,
+            remedy_suggested="Remove affected foliage and request local guidance.",
+        )
+        db.add(detection)
+        db.commit()
+        db.refresh(detection)
+        diagnosis_id = detection.id
+        db.close()
+
+        anonymous_history = self.client.get("/api/disease/history")
+        self.assertEqual(anonymous_history.status_code, 401)
+
+        owner_history = self.client.get(
+            "/api/disease/history",
+            headers={"Authorization": f"Bearer {self.farmer_token}"},
+        )
+        self.assertEqual(owner_history.status_code, 200)
+        self.assertIn(diagnosis_id, [item["id"] for item in owner_history.json()])
+
+        other_history = self.client.get(
+            "/api/disease/history",
+            headers={"Authorization": f"Bearer {self.other_farmer_token}"},
+        )
+        self.assertEqual(other_history.status_code, 200)
+        self.assertEqual(other_history.json(), [])
+
+    def test_diagnosis_detail_and_feedback_are_owner_scoped(self):
+        """Diagnosis IDs must not allow another farmer to read or alter private data."""
+        db = self.TestingSessionLocal()
+        detection = DiseaseDetection(
+            user_id=self.farmer_user.id,
+            image_url="private/farmer-leaf-detail.jpg",
+            crop_name="Tomato",
+            detected_disease="Early blight",
+            confidence=0.78,
+            remedy_suggested="Remove affected foliage and request local guidance.",
+        )
+        db.add(detection)
+        db.commit()
+        db.refresh(detection)
+        diagnosis_id = detection.id
+        db.close()
+
+        other_detail = self.client.get(
+            f"/api/disease/diagnosis/{diagnosis_id}",
+            headers={"Authorization": f"Bearer {self.other_farmer_token}"},
+        )
+        self.assertEqual(other_detail.status_code, 404)
+
+        owner_detail = self.client.get(
+            f"/api/disease/diagnosis/{diagnosis_id}",
+            headers={"Authorization": f"Bearer {self.farmer_token}"},
+        )
+        self.assertEqual(owner_detail.status_code, 200)
+        self.assertEqual(owner_detail.json()["image_url"], "private/farmer-leaf-detail.jpg")
+
+        other_feedback = self.client.post(
+            "/api/disease/feedback",
+            headers={"Authorization": f"Bearer {self.other_farmer_token}"},
+            json={"diagnosis_id": diagnosis_id, "is_accurate": False},
+        )
+        self.assertEqual(other_feedback.status_code, 404)
+
+        owner_feedback = self.client.post(
+            "/api/disease/feedback",
+            headers={"Authorization": f"Bearer {self.farmer_token}"},
+            json={"diagnosis_id": diagnosis_id, "is_accurate": True},
+        )
+        self.assertEqual(owner_feedback.status_code, 200)
 
     def test_consent_withdrawal_and_erasure(self):
         """Farmer can revoke consent and erase data; third-party farmers are blocked."""

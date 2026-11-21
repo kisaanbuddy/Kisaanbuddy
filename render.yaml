@@ -62,7 +62,7 @@ services:
       - key: OTP_PROVIDER
         value: "2factor"
       - key: TWOFACTOR_API_KEY
-        value: "3dee1f51-ace8-11f1-90d7-0200cd936042"
+        sync: false   # set in Render Dashboard; never commit provider credentials
       - key: WHATSAPP_ACCESS_TOKEN
         sync: false
       - key: WHATSAPP_PHONE_NUMBER_ID

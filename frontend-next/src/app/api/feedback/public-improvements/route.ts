@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server"
 
+export const dynamic = "force-dynamic"
+
 function getCandidateBackendUrls(): string[] {
   const envUrl = process.env.NEXT_PUBLIC_API_URL?.trim()
   if (envUrl) {
@@ -24,6 +26,7 @@ export async function GET() {
           "Content-Type": "application/json",
         },
         next: { revalidate: 60 },
+        signal: AbortSignal.timeout(10000),
       })
 
       if (res.ok) {

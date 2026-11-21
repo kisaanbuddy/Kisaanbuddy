@@ -47,6 +47,7 @@ from services.disease_knowledge_engine import (
     dispatch_advisory_notifications,
 )
 from services.disease_classifier import get_disease_classifier
+from services.crop_doctor_safety import ScreeningJSONResponse
 from services.chat.gemini_service import (
     is_gemini_configured,
     prepare_crop_image,
@@ -79,32 +80,32 @@ async def run_gemini_crop_doctor(
     part = types.Part.from_bytes(data=opt_bytes, mime_type=opt_mime)
 
     prompt = (
-        "You are a Senior Plant Pathologist and ICAR Agronomic Diagnostic Specialist for Indian farmers.\n"
+        "You are an automated crop screening assistant. Do not claim institutional affiliation or professional verification.\n"
         f"Farmer crop hint: {crop_hint or 'Not specified'}\n"
         f"Farmer symptom observations: {symptom_notes or 'None described'}\n\n"
         "Analyse this crop photograph carefully with REALITY FIRST principles.\n"
         "MANDATORY WORKFLOW:\n"
         "1. Identify visible symptoms objectively (color variations, lesions, concentric rings, pustules, leaf curling, wilting, insect signs, photo clarity/blur/lighting).\n"
         "2. State 1-3 plausible diseases, pests, or nutrient deficiencies.\n"
-        "3. Provide calibrated confidence (0.0 to 1.0) and explain WHY. Never present uncertain diagnoses as confirmed facts.\n"
+        "3. Explain uncertainty. Never supply confidence percentages or present suspected diagnoses as confirmed facts.\n"
         "4. Explicitly state scientific limitations of photo-only diagnosis.\n"
-        "5. Recommend immediate cultural sanitation, organic/biological controls, and verified CIBRC chemical active ingredients with PPE and PHI.\n"
+        "5. Do not prescribe any chemical or biological product, dose, application frequency or harvest interval. Request expert review.\n"
         "6. Return strict valid JSON with EXACT keys:\n"
         "{\n"
         '  "crop": "Crop name",\n'
         '  "disease_name": "Primary suspected disease / pest or Healthy",\n'
         '  "predicted_class": "crop_condition_identifier",\n'
-        '  "confidence": 0.85,\n'
+        '  "confidence": null,\n'
         '  "status": "ok" or "uncertain",\n'
         '  "visible_symptoms": "Detailed visible symptoms described clearly",\n'
         '  "possible_causes": ["Cause 1", "Cause 2"],\n'
         '  "limitations": "Scientific limitations of image diagnosis",\n'
         '  "immediate_action": "Urgent cultural or sanitation steps",\n'
         '  "preventive_measures": "Long-term agronomic prevention",\n'
-        '  "biological_control": "Organic/bio remedies (e.g. neem oil, Trichoderma)",\n'
-        '  "chemical_control": "CIBRC registered chemical options (if applicable)",\n'
-        '  "dosage_guidelines": "Safe dosage per litre water",\n'
-        '  "phi_days": 14,\n'
+        '  "biological_control": null,\n'
+        '  "chemical_control": null,\n'
+        '  "dosage_guidelines": null,\n'
+        '  "phi_days": null,\n'
         '  "safety_instructions": "PPE, spraying conditions, safety warnings",\n'
         '  "recommend_expert_review": true or false,\n'
         '  "expert_guidance": "Nearest KVK / toll-free Kisan Call Centre 1800-180-1551 guidance"\n'
@@ -128,7 +129,7 @@ async def run_gemini_crop_doctor(
 
     crop_name = data.get("crop") or crop_hint or "Field Crop"
     disease_name = data.get("disease_name") or "Observed Crop Condition"
-    conf = float(data.get("confidence") or 0.70)
+    conf = 0.0  # No calibrated probability is available from generated text.
     is_uncertain = conf < 0.65 or data.get("status") == "uncertain"
 
     data["crop"] = crop_name
@@ -140,7 +141,7 @@ async def run_gemini_crop_doctor(
     data["source_institution"] = "ICAR-CIBRC & KisaanBuddy Gemini Vision"
     data["source_url"] = "https://icar.gov.in"
     data["last_verified_date"] = datetime.date.today().isoformat()
-    data["calibrated"] = True
+    data["calibrated"] = False
     data["top_predictions"] = [
         {"class": data.get("predicted_class") or f"{crop_name}_{disease_name}".lower().replace(" ", "_"), "confidence": conf}
     ]
@@ -150,11 +151,12 @@ async def run_gemini_crop_doctor(
 # ---------------------------------------------------------------------------
 # 1. Prediction with Calibrated Confidence & IDM Treatment Integration
 # ---------------------------------------------------------------------------
-@router.post("/predict")
+@router.post("/predict", response_class=ScreeningJSONResponse)
 async def predict_crop_disease(
     file: Optional[UploadFile] = File(None),
     crop_hint: Optional[str] = Query(None, description="Optional crop hint from farmer"),
     symptom_notes: Optional[str] = Query(None, description="Farmer symptom description"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ) -> Any:
     """
@@ -256,6 +258,7 @@ async def predict_crop_disease(
                 # Save to database
                 try:
                     detection_record = DiseaseDetection(
+                        user_id=current_user.id if current_user else None,
                         image_url=file.filename or "crop_leaf.jpg",
                         detected_disease=gemini_data.get("disease_name", "Condition"),
                         crop_name=gemini_data.get("crop", crop_hint or "Crop"),
@@ -283,6 +286,7 @@ async def predict_crop_disease(
                 gemini_data = await run_gemini_crop_doctor(contents, crop_hint=crop_hint, symptom_notes=symptom_notes)
                 try:
                     detection_record = DiseaseDetection(
+                        user_id=current_user.id if current_user else None,
                         image_url=file.filename or "crop_leaf.jpg",
                         detected_disease=gemini_data.get("disease_name", "Condition"),
                         crop_name=gemini_data.get("crop", crop_hint or "Crop"),
@@ -340,6 +344,7 @@ async def predict_crop_disease(
         # Save to database if table exists
         try:
             detection_record = DiseaseDetection(
+                user_id=current_user.id if current_user else None,
                 image_url=file.filename or "uploaded_leaf.jpg",
                 detected_disease=pred["condition_name"],
                 crop_name=crop_info["name"],
@@ -401,11 +406,12 @@ async def predict_crop_disease(
         )
 
 
-@router.post("/gemini-diagnosis")
+@router.post("/gemini-diagnosis", response_class=ScreeningJSONResponse)
 async def gemini_crop_doctor_endpoint(
     file: UploadFile = File(..., description="Crop leaf, fruit, or stem photograph"),
     crop_hint: Optional[str] = Query(None, description="Crop name hint from farmer"),
     symptom_notes: Optional[str] = Query(None, description="Observed symptoms or notes"),
+    current_user: Optional[User] = Depends(get_current_user_optional),
     db: Session = Depends(get_db),
 ) -> Any:
     """Dedicated Gemini Vision Crop Doctor diagnosis endpoint with calibrated uncertainty."""
@@ -421,6 +427,7 @@ async def gemini_crop_doctor_endpoint(
         data = await run_gemini_crop_doctor(contents, crop_hint=crop_hint, symptom_notes=symptom_notes)
         try:
             rec = DiseaseDetection(
+                user_id=current_user.id if current_user else None,
                 image_url=file.filename or "crop_leaf.jpg",
                 detected_disease=data.get("disease_name", "Condition"),
                 crop_name=data.get("crop", crop_hint or "Crop"),
@@ -586,21 +593,38 @@ def list_agricultural_experts(
 # ---------------------------------------------------------------------------
 @router.get("/history", response_model=List[DiseaseHistoryResponse])
 def get_disease_history(
-    current_user: Optional[User] = Depends(get_current_user_optional),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Any:
-    """Get all disease detections for the current user, or recent global records if guest."""
-    query = db.query(DiseaseDetection).order_by(desc(DiseaseDetection.detected_at))
-    if current_user:
-        query = query.filter(DiseaseDetection.user_id == current_user.id)
+    """Return only the signed-in farmer's diagnosis history."""
+    query = (
+        db.query(DiseaseDetection)
+        .filter(DiseaseDetection.user_id == current_user.id)
+        .order_by(desc(DiseaseDetection.detected_at))
+    )
     return query.limit(50).all()
 
+
+def _require_diagnosis_access(rec: DiseaseDetection, current_user: User) -> None:
+    """Enforce owner-only access, with a narrow expert/admin exception."""
+    privileged_roles = {"admin", "expert", "agronomist"}
+    if rec.user_id == current_user.id or (current_user.role or "").lower() in privileged_roles:
+        return
+    # A 404 prevents diagnosis-ID enumeration from revealing another farmer's data.
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Diagnosis record not found.")
+
+
 @router.get("/diagnosis/{diagnosis_id}")
-def get_single_diagnosis(diagnosis_id: int, db: Session = Depends(get_db)):
-    """Retrieves a single verified diagnosis record by ID."""
+def get_single_diagnosis(
+    diagnosis_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Retrieve one diagnosis only for its owner or an authorized reviewer."""
     rec = db.query(DiseaseDetection).filter(DiseaseDetection.id == diagnosis_id).first()
     if not rec:
         raise HTTPException(status_code=404, detail="Diagnosis record not found.")
+    _require_diagnosis_access(rec, current_user)
     return {
         "id": rec.id,
         "crop_name": rec.crop_name,
@@ -619,11 +643,16 @@ class FarmerFeedbackPayload(BaseModel):
     corrected_condition: Optional[str] = None
 
 @router.post("/feedback")
-def submit_diagnosis_feedback(payload: FarmerFeedbackPayload, db: Session = Depends(get_db)):
+def submit_diagnosis_feedback(
+    payload: FarmerFeedbackPayload,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
     """Allows farmer to submit feedback/correction for continuous quality monitoring."""
     rec = db.query(DiseaseDetection).filter(DiseaseDetection.id == payload.diagnosis_id).first()
     if not rec:
         raise HTTPException(status_code=404, detail="Diagnosis record not found.")
+    _require_diagnosis_access(rec, current_user)
     return {
         "status": "feedback_recorded",
         "diagnosis_id": payload.diagnosis_id,
