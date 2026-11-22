@@ -74,6 +74,10 @@ Unavailable providers must show errors rather than demo answers.
   in the voice panel navigated to weather and switched dark/light themes. No
   console errors were captured during this flow. This does not validate actual
   microphone recognition, mobile audio, production OTP delivery or AI providers.
+- Live advisor smoke request through the local frontend returned HTTP 503 with
+  `AI advisor authentication failed on the server. Please check backend GEMINI_API_KEY.`
+  The backend provider credential must be repaired before real advisor answers can
+  be verified. No credential or fabricated answer was added by this change.
 
 ## Optional self-hosted speech
 
