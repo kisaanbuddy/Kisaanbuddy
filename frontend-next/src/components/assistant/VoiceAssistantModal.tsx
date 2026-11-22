@@ -46,7 +46,7 @@ export function openVoiceAssistant(initialQuery?: string) {
   if (typeof window !== "undefined") {
     window.dispatchEvent(
       new CustomEvent("kisaanbuddy:open-voice", {
-        detail: { initialQuery, autoStart: true },
+        detail: { initialQuery, autoStart: false },
       })
     )
   }

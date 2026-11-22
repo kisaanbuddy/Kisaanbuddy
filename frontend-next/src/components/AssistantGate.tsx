@@ -8,7 +8,7 @@ const GlobalVoiceController = dynamic(
   { ssr: false }
 );
 
-const HIDE_ON = ["/login", "/signup", "/forgot-password", "/reset-password", "/admin"];
+const HIDE_ON = ["/admin"];
 
 /**
  * Mounts the persistent global voice controller across all pages.

@@ -68,11 +68,11 @@ export function interpretLocally(
   // 1. Pending Confirmation Handling
   if (context.pending_action) {
     const isConfirm =
-      /\b(yes|haan|ha|confirm|kardo|kar do|theek hai|thik hai|sahi hai|ho|sari|houthu|proceed|bilkul)\b/i.test(lower) ||
-      /[हाँ|कन्फर्म|हೌದು|ಖಚಿತಪಡಿಸಿ]/.test(clean);
+      /^(yes|haan|ha|confirm|kardo|kar do|theek hai|thik hai|sahi hai|ho|sari|houthu|proceed|bilkul)[.!?]?$/i.test(lower.trim()) ||
+      /^(हाँ|हां|कन्फर्म|ಹೌದು|ಖಚಿತಪಡಿಸಿ)[।.!?]?$/.test(clean.trim());
     const isCancel =
-      /\b(no|nahi|na|cancel|roko|mat karo|beda|bedi|stop|rehne do|hatao|chhod do)\b/i.test(lower) ||
-      /[नहीं|रद्द|ಬೇಡ]/.test(clean);
+      /^(no|nahi|na|cancel|roko|mat karo|beda|bedi|stop|rehne do|hatao|chhod do)[.!?]?$/i.test(lower.trim()) ||
+      /^(नहीं|नही|रद्द|ಬೇಡ)[।.!?]?$/.test(clean.trim());
 
     if (isConfirm) {
       const pType = context.pending_action.type;

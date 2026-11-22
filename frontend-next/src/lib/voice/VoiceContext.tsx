@@ -1,698 +1,786 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useLanguage, type Lang } from "@/lib/language";
+import { useLanguage, LANG_NAMES, type Lang } from "@/lib/language";
 import { useTheme } from "next-themes";
-import { useCart } from "@/lib/cart/CartContext";
-import { ActionRegistry, type VoiceAction, type ActionExecutionContext } from "./ActionRegistry";
-import { interpretLocally } from "./LocalVoiceInterpreter";
+import { parseCommand, VOICE_LANGUAGES } from "./commands";
+import { fillField, findField, readablePage, safeFields } from "./pageAccess";
 
 export interface VisibleItem {
   id: string | number;
   name: string;
-  price?: number;
-  brand?: string;
-  category?: string;
   index: number;
   [key: string]: any;
 }
-
 export interface PendingAction {
   type: string;
   payload: any;
-  items_count?: number;
-  total_amount?: number;
   prompt?: string;
+  total_amount?: number;
 }
+type Phase =
+  | "idle"
+  | "listening"
+  | "processing"
+  | "executing"
+  | "speaking"
+  | "paused"
+  | "error";
+const VoiceContext = createContext<ReturnType<typeof useVoiceEngine> | null>(
+  null,
+);
 
-interface VoiceContextType {
-  isListening: boolean;
-  isProcessing: boolean;
-  isSpeaking: boolean;
-  continuousMode: boolean;
-  audioVolume: number;
-  transcriptLive: string;
-  lastReply: string;
-  currentRoute: string;
-  visibleItems: VisibleItem[];
-  selectedItem: any | null;
-  pendingConfirmation: PendingAction | null;
-  audioMuted: boolean;
-  isHudOpen: boolean;
-  voiceLanguage: string;
-  setVoiceLanguage: (lang: string) => void;
-  startListening: () => Promise<boolean>;
-  stopListening: () => void;
-  cancelListening: () => void;
-  toggleContinuousMode: () => void;
-  pauseAudio: () => void;
-  resumeAudio: () => void;
-  stopAudio: () => void;
-  replayAudio: () => void;
-  setAudioMuted: (muted: boolean) => void;
-  setIsHudOpen: (open: boolean) => void;
-  registerVisibleItems: (items: VisibleItem[]) => void;
-  registerSelectedItem: (item: any | null) => void;
-  sendVoiceCommand: (text: string) => Promise<void>;
-  confirmPendingAction: () => Promise<void>;
-  cancelPendingAction: () => void;
-}
-
-const VoiceContext = createContext<VoiceContextType | null>(null);
-
-export function VoiceProvider({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const { lang, setLang } = useLanguage();
-  const { theme, setTheme } = useTheme();
-  const cartCtx = useCart();
-
-  const [isListening, setIsListening] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
+function useVoiceEngine() {
+  const router = useRouter(),
+    pathname = usePathname();
+  const { lang, setLang, openLanguageModal } = useLanguage();
+  const { setTheme } = useTheme();
+  const [phase, setPhase] = useState<Phase>("idle");
   const [continuousMode, setContinuousMode] = useState(false);
   const [audioVolume, setAudioVolume] = useState(0);
   const [transcriptLive, setTranscriptLive] = useState("");
   const [lastReply, setLastReply] = useState("");
-  const [visibleItems, setVisibleItems] = useState<VisibleItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
-  const [pendingConfirmation, setPendingConfirmation] = useState<PendingAction | null>(null);
-  const [audioMuted, setAudioMuted] = useState(false);
+  const [error, setError] = useState("");
   const [isHudOpen, setIsHudOpen] = useState(false);
-  const [voiceLanguage, setVoiceLanguage] = useState<string>(lang || "hi");
+  const [audioMuted, setAudioMuted] = useState(false);
+  const [voiceLanguage, setVoiceLanguage] = useState<string>(lang);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voiceURI, setVoiceURI] = useState("");
+  const [rate, setRate] = useState(0.95),
+    [volume, setVolume] = useState(1);
+  const [localOnly, setLocalOnly] = useState(false);
+  const [recognitionSupported, setRecognitionSupported] = useState(false);
+  const [localSupported, setLocalSupported] = useState(false);
+  const [visibleItems, registerVisibleItems] = useState<VisibleItem[]>([]);
+  const [selectedItem, registerSelectedItem] = useState<any>(null);
+  const [pendingConfirmation, setPendingConfirmation] =
+    useState<PendingAction | null>(null);
+  const [translationTarget, setTranslationTarget] = useState("hi");
+  const [mode, setMode] = useState<"command" | "translate">("command");
+  const [translatedText, setTranslatedText] = useState("");
+  const rec = useRef<any>(null),
+    stream = useRef<MediaStream | null>(null),
+    audio = useRef<AudioContext | null>(null);
+  const frame = useRef(0),
+    timer = useRef<ReturnType<typeof setTimeout>>();
+  const restart = useRef<ReturnType<typeof setTimeout>>();
+  const operation = useRef(0),
+    request = useRef<AbortController | null>(null),
+    continuous = useRef(false);
+  const alive = useRef(true),
+    starting = useRef(false),
+    busy = useRef(false);
+  const speech = useRef<SpeechSynthesisUtterance | null>(null);
+  const pendingForm = useRef<HTMLFormElement | null>(null);
+  const latest = useRef({
+    start: async () => false,
+    send: async (_text: string) => {},
+    stop: () => {},
+  });
+  const hi = voiceLanguage === "hi" || voiceLanguage === "hi_en";
+  const say = (en: string, hindi: string) => (hi ? hindi : en);
+  const tag =
+    (VOICE_LANGUAGES as Record<string, readonly string[]>)[
+      voiceLanguage
+    ]?.[1] || "hi-IN";
 
-  // Keep voiceLanguage aligned with platform lang
-  useEffect(() => {
-    if (lang) setVoiceLanguage(lang);
-  }, [lang]);
-
-  // Audio References
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const micStreamRef = useRef<MediaStream | null>(null);
-  const animFrameRef = useRef<number | null>(null);
-  const audioPlayerRef = useRef<HTMLAudioElement | null>(null);
-  const lastAudioUrlRef = useRef<string | null>(null);
-  const recognitionRef = useRef<any>(null);
-  const isRecognitionActiveRef = useRef(false);
-  const silenceTimerRef = useRef<any>(null);
-  const hasSpokenInSessionRef = useRef(false);
-  const continuousModeRef = useRef(continuousMode);
-  continuousModeRef.current = continuousMode;
-  const latestTranscriptRef = useRef<string>("");
-
-  // Interruption killer: stops ongoing AI speech instantly
-  const killOngoingSpeech = useCallback(() => {
-    if (audioPlayerRef.current) {
+  function cleanupMic() {
+    clearTimeout(timer.current);
+    cancelAnimationFrame(frame.current);
+    stream.current?.getTracks().forEach((t) => t.stop());
+    stream.current = null;
+    void audio.current?.close().catch(() => {});
+    audio.current = null;
+    if (alive.current) setAudioVolume(0);
+  }
+  function cancelListening() {
+    starting.current = false;
+    const current = rec.current;
+    rec.current = null;
+    if (current) {
+      current.onend = null;
+      current.onresult = null;
+      current.onerror = null;
       try {
-        audioPlayerRef.current.pause();
-        audioPlayerRef.current.currentTime = 0;
-      } catch {
-        /* ignore */
-      }
+        current.abort();
+      } catch {}
     }
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    cleanupMic();
+    if (alive.current) setPhase("idle");
+  }
+  function stopAudio() {
+    clearTimeout(restart.current);
+    if (speech.current) {
+      speech.current.onend = null;
+      speech.current.onerror = null;
     }
-    setIsSpeaking(false);
-  }, []);
-
-  // Web Audio Analyser for real sound wave & volume
-  const stopAudioAnalysis = useCallback(() => {
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
+    speech.current = null;
+    window.speechSynthesis?.cancel();
+    setPhase("idle");
+  }
+  function stopAll() {
+    operation.current++;
+    request.current?.abort();
+    busy.current = false;
+    continuous.current = false;
+    setContinuousMode(false);
+    cancelListening();
+    stopAudio();
+    pendingForm.current = null;
+    setPendingConfirmation(null);
+  }
+  function fail(message: string) {
+    continuous.current = false;
+    setContinuousMode(false);
+    cancelListening();
+    setError(message);
+    setPhase("error");
+  }
+  function resumeListening() {
+    if (continuous.current && !document.hidden)
+      restart.current = setTimeout(() => void latest.current.start(), 700);
+  }
+  function speak(text: string, language = tag) {
+    cancelListening();
+    stopAudio();
+    if (audioMuted || !text) {
+      resumeListening();
+      return;
     }
-    if (micStreamRef.current) {
-      micStreamRef.current.getTracks().forEach((t) => t.stop());
-      micStreamRef.current = null;
+    if (!window.speechSynthesis) {
+      setError(
+        "Speech playback is unavailable; the response is displayed below.",
+      );
+      return;
     }
-    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
-      try {
-        audioContextRef.current.close();
-      } catch {
-        /* ignore */
-      }
-      audioContextRef.current = null;
+    const available = window.speechSynthesis.getVoices();
+    const compatible = available.filter(
+      (v) =>
+        v.lang.toLowerCase().split("-")[0] ===
+        language.toLowerCase().split("-")[0],
+    );
+    const voice =
+      compatible.find((v) => v.voiceURI === voiceURI) ||
+      compatible.find((v) => v.localService) ||
+      compatible[0];
+    if (!voice) {
+      setError(
+        `No ${language} voice is installed on this device. Read the text response or choose another language.`,
+      );
+      return;
     }
-    analyserRef.current = null;
-    setAudioVolume(0);
-  }, []);
-
-  const startAudioAnalysis = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      micStreamRef.current = stream;
-
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      const ctx = new AudioCtx();
-      audioContextRef.current = ctx;
-
-      const source = ctx.createMediaStreamSource(stream);
-      const analyser = ctx.createAnalyser();
-      analyser.fftSize = 256;
-      analyser.smoothingTimeConstant = 0.6;
-      source.connect(analyser);
-      analyserRef.current = analyser;
-
-      const buffer = new Uint8Array(analyser.frequencyBinCount);
-
-      const checkVolume = () => {
-        if (!analyserRef.current) return;
-        analyserRef.current.getByteFrequencyData(buffer);
-        let sum = 0;
-        for (let i = 0; i < buffer.length; i++) {
-          sum += buffer[i];
-        }
-        const avg = sum / buffer.length;
-        // Normalize 0-100
-        const vol = Math.min(100, Math.round((avg / 128) * 100));
-        setAudioVolume(vol);
-
-        // Speech Activity Detection: if user speaks loudly while AI is talking, interrupt AI!
-        if (vol > 20) {
-          hasSpokenInSessionRef.current = true;
-          killOngoingSpeech();
-        }
-
-        animFrameRef.current = requestAnimationFrame(checkVolume);
-      };
-
-      checkVolume();
-      return true;
-    } catch (e) {
-      console.warn("Audio analysis / mic stream error:", e);
-      return false;
-    }
-  }, [killOngoingSpeech]);
-
-  // Context Manager actions
-  const registerVisibleItems = useCallback((items: VisibleItem[]) => {
-    setVisibleItems(items);
-  }, []);
-
-  const registerSelectedItem = useCallback((item: any | null) => {
-    setSelectedItem(item);
-  }, []);
-
-  // Execution context for Action Registry
-  const executionContext: ActionExecutionContext = {
-    navigate: (path) => router.push(path),
-    goBack: () => {
-      if (typeof window !== "undefined") window.history.back();
-    },
-    setLanguage: (newLang) => {
-      setLang(newLang as Lang);
-      setVoiceLanguage(newLang);
-    },
-    setTheme: (newTheme) => setTheme(newTheme),
-    cart: {
-      addToCart: (it) => cartCtx.addToCart(it),
-      removeFromCart: (id) => cartCtx.removeFromCart(id),
-      clearCart: () => cartCtx.clearCart(),
-      placeOrder: () => cartCtx.placeOrder(),
-    },
-    openNotifications: () => {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("kisaanbuddy:open-notifications"));
-      }
-    },
-  };
-
-  // Play real TTS audio with browser speech synthesis fallback (never blocks site control)
-  const playVoiceAudio = useCallback(
-    async (base64Audio?: string | null, textFallback?: string) => {
-      if (audioMuted) return;
-
-      killOngoingSpeech();
-
-      if (base64Audio) {
-        try {
-          const audioUrl = `data:audio/wav;base64,${base64Audio}`;
-          lastAudioUrlRef.current = audioUrl;
-          const audio = new Audio(audioUrl);
-          audioPlayerRef.current = audio;
-
-          audio.onplay = () => setIsSpeaking(true);
-          audio.onpause = () => setIsSpeaking(false);
-          audio.onended = () => {
-            setIsSpeaking(false);
-            // Continuous conversation: auto-listen after AI response finishes
-            if (continuousModeRef.current) {
-              setTimeout(() => {
-                void triggerStartListening();
-              }, 600);
-            }
-          };
-          audio.onerror = () => {
-            setIsSpeaking(false);
-          };
-
-          await audio.play();
-          return;
-        } catch (e) {
-          // Gracefully continue; user doesn't require audio to control site
-          console.warn("Audio base64 playback skipped:", e);
-        }
-      }
-
-      // Fallback: try fetching from server TTS route, else Web Speech API
-      if (textFallback) {
-        try {
-          const res = await fetch("/api/chat/tts", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: textFallback,
-              language: voiceLanguage || "hi",
-            }),
-          });
-          if (res.ok) {
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
-            lastAudioUrlRef.current = url;
-            const audio = new Audio(url);
-            audioPlayerRef.current = audio;
-            audio.onplay = () => setIsSpeaking(true);
-            audio.onended = () => {
-              setIsSpeaking(false);
-              URL.revokeObjectURL(url);
-              if (continuousModeRef.current) {
-                setTimeout(() => void triggerStartListening(), 600);
-              }
-            };
-            audio.onerror = () => setIsSpeaking(false);
-            await audio.play();
-            return;
-          }
-        } catch {
-          // Ignore server TTS error
-        }
-
-        // Web Speech API fallback (silent and graceful if unsupported)
-        try {
-          if (typeof window !== "undefined" && "speechSynthesis" in window) {
-            const utterance = new SpeechSynthesisUtterance(textFallback);
-            utterance.lang = voiceLanguage === "kn" ? "kn-IN" : voiceLanguage === "en" ? "en-IN" : "hi-IN";
-            utterance.onstart = () => setIsSpeaking(true);
-            utterance.onend = () => {
-              setIsSpeaking(false);
-              if (continuousModeRef.current) {
-                setTimeout(() => void triggerStartListening(), 600);
-              }
-            };
-            utterance.onerror = () => setIsSpeaking(false);
-            window.speechSynthesis.speak(utterance);
-          }
-        } catch {
-          setIsSpeaking(false);
-        }
-      }
-    },
-    [audioMuted, killOngoingSpeech, voiceLanguage]
-  );
-
-  // Send command to voice OS: Executes instantaneously via local engine + server fallback
-  const sendVoiceCommand = useCallback(
-    async (transcript: string) => {
-      const clean = transcript.trim();
-      if (!clean) return;
-
-      setIsProcessing(true);
-      setTranscriptLive(clean);
-
-      const pageSnapshot = {
-        current_route: pathname || "/",
-        visible_items: visibleItems.slice(0, 15),
-        selected_item: selectedItem,
-        cart_items: cartCtx.cart,
-        cart_total: cartCtx.totalAmount,
-        pending_action: pendingConfirmation,
-      };
-
-      // ─── 1. INSTANT LOCAL EXECUTION (0ms latency, zero server dependency) ───
-      const localResult = interpretLocally(clean, pageSnapshot, voiceLanguage);
-      if (localResult) {
-        setLastReply(localResult.reply_text);
-
-        if (localResult.action.requires_confirmation) {
-          setPendingConfirmation({
-            type: localResult.action.payload?.action_to_confirm || localResult.action.action_type,
-            payload: localResult.action.payload,
-            total_amount: localResult.action.payload?.total_amount || 0,
-            prompt: localResult.reply_text,
-          });
-        } else {
-          setPendingConfirmation(null);
-          // Execute website action immediately!
-          ActionRegistry.execute(localResult.action, executionContext);
-        }
-
-        setIsProcessing(false);
-
-        // Optional non-blocking audio output
-        if (!audioMuted) {
-          void playVoiceAudio(null, localResult.reply_text);
-        }
+    // Chunk long page readings; some mobile engines stop on long utterances.
+    const chunks = text.match(/.{1,220}(?:\s|$)|.{1,220}/g) || [text];
+    const id = operation.current;
+    const play = (index: number) => {
+      if (id !== operation.current || !alive.current) return;
+      if (index >= chunks.length) {
+        setPhase("idle");
+        resumeListening();
         return;
       }
-
-      // ─── 2. SERVER INTERPRETATION (Complex NLP & conversational queries) ───
-      try {
-        const payload = {
-          transcript: clean,
-          page_context: pageSnapshot,
-          language: voiceLanguage,
-          want_audio: !audioMuted,
-        };
-
-        const res = await fetch("/api/voice/interpret", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) {
-          throw new Error(`Voice server error: HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-        setLastReply(data.reply_text || "");
-
-        // Check if action requires confirmation
-        if (data.action?.requires_confirmation && data.pending_action) {
-          setPendingConfirmation(data.pending_action);
-        } else {
-          setPendingConfirmation(null);
-          // Execute Safe Action immediately
-          if (data.action && data.action.action_type !== "NOOP") {
-            ActionRegistry.execute(data.action as VoiceAction, executionContext);
-          }
-        }
-
-        // Play real audio reply non-blockingly
-        if (!audioMuted && data.reply_text) {
-          void playVoiceAudio(data.reply_audio_base64, data.reply_text);
-        }
-      } catch (err: any) {
-        console.warn("Voice command server interpretation error:", err);
-        const fallbackMsg =
-          voiceLanguage === "kn"
-            ? "ಮಾರುಕಟ್ಟೆ, ಮಂಡಿ ದರ, ಅಥವಾ ಹವಾಮಾನ ನೋಡಲು ನೀವು ಆಜ್ಞೆ ನೀಡಬಹುದು."
-            : voiceLanguage === "en"
-            ? "You can speak to control the site: 'Open marketplace', 'Mandi prices', or 'Weather'."
-            : "वेबसाइट कंट्रोल करने के लिए बोलें: 'मार्केटप्लेस खोलो', 'मंडी भाव', 'मौसम', या 'डार्क मोड'।";
-        setLastReply(fallbackMsg);
-      } finally {
-        setIsProcessing(false);
-      }
-    },
-    [
-      pathname,
-      visibleItems,
-      selectedItem,
-      cartCtx.cart,
-      cartCtx.totalAmount,
-      pendingConfirmation,
-      voiceLanguage,
-      audioMuted,
-      executionContext,
-      playVoiceAudio,
-    ]
-  );
-
-  // Manual Confirmation trigger
-  const confirmPendingAction = useCallback(async () => {
-    if (!pendingConfirmation) return;
-    await sendVoiceCommand("हां, कन्फर्म करो");
-  }, [pendingConfirmation, sendVoiceCommand]);
-
-  const cancelPendingAction = useCallback(() => {
+      const utterance = new SpeechSynthesisUtterance(chunks[index]);
+      speech.current = utterance;
+      utterance.voice = voice;
+      utterance.lang = language;
+      utterance.rate = rate;
+      utterance.volume = volume;
+      utterance.onstart = () => setPhase("speaking");
+      utterance.onend = () => play(index + 1);
+      utterance.onerror = () => {
+        speech.current = null;
+        fail(
+          "Speech playback was interrupted. You can read or replay the response.",
+        );
+      };
+      window.speechSynthesis.speak(utterance);
+    };
+    play(0);
+  }
+  function reply(text: string, language?: string) {
+    setLastReply(text);
+    speak(text, language);
+  }
+  function cancelPendingAction() {
+    pendingForm.current = null;
     setPendingConfirmation(null);
-    setLastReply("कार्य रद्द कर दिया गया है।");
-  }, []);
-
-  // Web Speech API / Browser STT Setup with automatic endpointing
-  const triggerStartListening = useCallback(async (): Promise<boolean> => {
-    killOngoingSpeech();
+    reply(say("Cancelled.", "रद्द कर दिया।"));
+  }
+  async function confirmPendingAction() {
+    const form = pendingForm.current;
+    pendingForm.current = null;
+    setPendingConfirmation(null);
+    if (!form?.isConnected || !form.checkValidity()) {
+      fail(
+        say(
+          "Review the form and complete required fields before saving.",
+          "फॉर्म में जरूरी जानकारी भरें और जांचें।",
+        ),
+      );
+      return;
+    }
+    form.requestSubmit();
+    reply(
+      say(
+        "Save requested. Check the form for its result.",
+        "सेव करने का अनुरोध भेजा। परिणाम फॉर्म पर देखें।",
+      ),
+    );
+  }
+  async function sendVoiceCommand(text: string) {
+    const clean = text.trim().slice(0, 4000);
+    if (!clean) return;
+    const command = parseCommand(clean);
+    if (command?.type === "cancel") {
+      stopAll();
+      setLastReply(say("Stopped.", "बंद कर दिया।"));
+      return;
+    }
+    if (command?.type === "pause") {
+      window.speechSynthesis?.pause();
+      setPhase("paused");
+      return;
+    }
+    if (command?.type === "resume") {
+      window.speechSynthesis?.resume();
+      setPhase("speaking");
+      return;
+    }
+    if (busy.current) return;
+    cancelListening();
+    stopAudio();
+    busy.current = true;
+    const id = ++operation.current;
+    setError("");
     setIsHudOpen(true);
-    setTranscriptLive("");
-    latestTranscriptRef.current = "";
-    hasSpokenInSessionRef.current = false;
-
-    // Start mic volume analysis
-    const micOk = await startAudioAnalysis();
-    if (!micOk) {
-      setIsListening(false);
-      setLastReply(
-        voiceLanguage === "kn"
-          ? "ಮೈಕ್ರೊಫೋನ್ ಅನುಮತಿ ದೊರೆತಿಲ್ಲ. ದಯವಿಟ್ಟು ಬ್ರೌಸರ್ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಮೈಕ್ ಆನ್ ಮಾಡಿ."
-          : voiceLanguage === "en"
-          ? "Microphone access denied. Please enable microphone permissions in your browser."
-          : "माइक्रोफ़ोन की अनुमति नहीं मिली। कृपया ब्राउज़र सेटिंग्स में माइक की अनुमति दें।"
-      );
-      return false;
-    }
-
-    if (typeof window === "undefined") return false;
-
-    const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRec) {
-      console.warn("Web Speech API not supported on this browser.");
-      setIsListening(false);
-      setLastReply(
-        voiceLanguage === "kn"
-          ? "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಬೆಂಬಲಿತವಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು Chrome ಅಥವಾ Edge ಬಳಸಿ."
-          : voiceLanguage === "en"
-          ? "Voice speech recognition is not supported in this browser. Please use Chrome or Edge."
-          : "इस ब्राउज़र में वॉइस स्पीच रिकग्निशन समर्थित नहीं है। कृपया Chrome या Edge का उपयोग करें।"
-      );
-      return false;
-    }
-
+    setTranscriptLive(clean);
+    setPhase("processing");
     try {
-      if (recognitionRef.current && isRecognitionActiveRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch {
-          /* ignore */
+      if (mode === "translate") {
+        if (voiceLanguage === "hi_en")
+          throw Error(
+            "Choose Hindi or English as the translation source; mixed-language translation cannot be guaranteed.",
+          );
+        if (voiceLanguage === translationTarget) {
+          setTranslatedText(clean);
+          reply(clean);
+          return;
         }
+        const result = await api("/api/translate", {
+          text: clean,
+          source_language: voiceLanguage,
+          target_language: translationTarget,
+          protect_glossary: true,
+          use_cache: false,
+        });
+        if (id !== operation.current) return;
+        if (
+          !result.translated_text ||
+          /fallback|unavailable|identity/i.test(result.provider || "")
+        )
+          throw Error("Translation is unavailable for this language pair.");
+        setTranslatedText(result.translated_text);
+        reply(
+          result.translated_text,
+          (VOICE_LANGUAGES as any)[translationTarget]?.[1],
+        );
+        return;
       }
-
-      const rec = new SpeechRec();
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.maxAlternatives = 1;
-
-      // Select BCP-47 language tag
-      const langTag =
-        voiceLanguage === "kn"
-          ? "kn-IN"
-          : voiceLanguage === "en"
-          ? "en-IN"
-          : "hi-IN";
-      rec.lang = langTag;
-
-      rec.onstart = () => {
-        isRecognitionActiveRef.current = true;
-        setIsListening(true);
-      };
-
-      let finalSoFar = "";
-
-      rec.onresult = (ev: any) => {
-        let interim = "";
-        for (let i = ev.resultIndex; i < ev.results.length; i++) {
-          const res = ev.results[i];
-          const text = res[0]?.transcript || "";
-          if (res.isFinal) {
-            finalSoFar += " " + text;
-          } else {
-            interim += " " + text;
+      if (command) {
+        setPhase("executing");
+        switch (command.type) {
+          case "confirm":
+            if (pendingForm.current) await confirmPendingAction();
+            else
+              reply(
+                say(
+                  "There is no pending form to confirm.",
+                  "पुष्टि के लिए कोई फॉर्म नहीं है।",
+                ),
+              );
+            return;
+          case "repeat":
+            speak(lastReply);
+            return;
+          case "navigate":
+            router.push(command.value!);
+            reply(
+              say(
+                "Opening the requested page. Sign in if required.",
+                "पेज खोल रहे हैं। जरूरत हो तो लॉगिन करें।",
+              ),
+            );
+            return;
+          case "back":
+            router.back();
+            reply(say("Going to the previous page.", "पिछले पेज पर जा रहे हैं।"));
+            return;
+          case "theme":
+            setTheme(command.value!);
+            reply(
+              say(
+                `Switching to ${command.value} mode.`,
+                `${command.value === "dark" ? "डार्क" : "लाइट"} मोड लगा रहे हैं।`,
+              ),
+            );
+            return;
+          case "language":
+            if (!command.value) {
+              openLanguageModal();
+              reply(say("Choose a website language.", "वेबसाइट की भाषा चुनें।"));
+              return;
+            }
+            if (!(command.value in LANG_NAMES)) {
+              reply(
+                say(
+                  "This website language is not available. You can use Hindi or select a supported language.",
+                  "यह भाषा अभी उपलब्ध नहीं है। हिन्दी या दूसरी उपलब्ध भाषा चुनें।",
+                ),
+              );
+              return;
+            }
+            setLang(command.value as Lang);
+            setVoiceLanguage(command.value);
+            setLastReply("Language selection updated.");
+            setPhase("idle");
+            return;
+          case "read": {
+            if (
+              /^\/(login|signup|admin|settings|profile|farmer-profile)(\/|$)/.test(
+                pathname || "",
+              )
+            ) {
+              reply(
+                say(
+                  "Page reading is disabled here to protect account information.",
+                  "खाते की जानकारी की सुरक्षा के लिए यहां पेज पढ़ना बंद है।",
+                ),
+              );
+              return;
+            }
+            const content = readablePage();
+            if (!content) throw Error("No readable main content is available.");
+            reply(content);
+            return;
+          }
+          case "fill": {
+            const field = findField(command.field!);
+            if (!field)
+              throw Error(
+                "No matching editable field is visible. Open the appropriate form first.",
+              );
+            fillField(field, command.value!);
+            reply(
+              say(
+                "Field filled. Please check it before saving.",
+                "जानकारी भर दी। सेव करने से पहले जांच लें।",
+              ),
+            );
+            return;
+          }
+          case "next-field": {
+            const fields = safeFields();
+            if (!fields.length)
+              throw Error("No editable field is visible on this page.");
+            const index = fields.indexOf(
+              document.activeElement as HTMLInputElement,
+            );
+            fields[(index + 1) % fields.length]?.focus();
+            reply(
+              say(
+                "Moving to the next available field.",
+                "अगले उपलब्ध फील्ड पर जा रहे हैं।",
+              ),
+            );
+            return;
+          }
+          case "submit": {
+            if (
+              /^\/(login|signup|admin|settings|orders|reset-password)/.test(
+                pathname || "",
+              )
+            )
+              throw Error(
+                "Use the form controls for account, security, and purchase actions.",
+              );
+            const forms = Array.from(
+              document.querySelectorAll<HTMLFormElement>("main form"),
+            ).filter((f) => f.getClientRects().length > 0);
+            if (forms.length !== 1)
+              throw Error(
+                "Select the form and use its save button; multiple or no forms are visible.",
+              );
+            if (
+              forms[0].querySelector(
+                'input[type="password"],input[autocomplete="one-time-code"],input[autocomplete^="cc-"]',
+              )
+            )
+              throw Error(
+                "Use the secure form controls to submit credentials or payment details.",
+              );
+            pendingForm.current = forms[0];
+            setPendingConfirmation({
+              type: "SUBMIT_FORM",
+              payload: {},
+              prompt: say(
+                "Review all fields. Say confirm or cancel before submitting.",
+                "सारी जानकारी जांचें। जमा करने के लिए हाँ या रद्द बोलें।",
+              ),
+            });
+            reply(
+              say(
+                "Review the form. Confirm to submit, or cancel.",
+                "फॉर्म जांचें। जमा करने के लिए हाँ बोलें, या रद्द करें।",
+              ),
+            );
+            return;
           }
         }
-        const currentDisplay = (finalSoFar + " " + interim).trim();
-        latestTranscriptRef.current = currentDisplay;
-        setTranscriptLive(currentDisplay);
-
-        // Natural pause detection: reset timer when user pauses speaking for > 1.4s
-        if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-        if (currentDisplay.length > 2) {
-          silenceTimerRef.current = setTimeout(() => {
-            try {
-              rec.stop();
-            } catch {
-              /* ignore */
+      }
+      if (
+        /^\/(login|signup|reset-password|forgot-password)/.test(pathname || "")
+      )
+        throw Error(
+          "For privacy, use voice navigation here; enter credentials with the secure form controls.",
+        );
+      if (voiceLanguage === "or")
+        throw Error(
+          "Odia advisor output is not enabled here. Select Hindi or another supported advisor language.",
+        );
+      const data = await api("/api/chat/message", {
+        message: clean,
+        language: voiceLanguage,
+        stream: false,
+        session_id: session.current || undefined,
+      });
+      if (id !== operation.current) return;
+      if (typeof data.content !== "string" || !data.content.trim())
+        throw Error("The agricultural advisor did not return an answer.");
+      session.current = data.session_id;
+      reply(data.content);
+    } catch (e) {
+      if (id === operation.current)
+        fail(
+          e instanceof Error
+            ? e.message
+            : "Unable to complete this request. Please try again.",
+        );
+    } finally {
+      if (id === operation.current) {
+        busy.current = false;
+        setPhase((p) => (p === "processing" || p === "executing" ? "idle" : p));
+      }
+    }
+  }
+  const session = useRef<string>();
+  async function api(url: string, body: unknown) {
+    const ctrl = new AbortController();
+    request.current = ctrl;
+    const timeout = setTimeout(() => ctrl.abort(), 30000);
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal: ctrl.signal,
+      });
+      if (!res.ok)
+        throw Error(
+          res.status === 401
+            ? "Please sign in to continue."
+            : `Service unavailable (${res.status}). Please try again; local navigation still works.`,
+        );
+      return await res.json();
+    } finally {
+      clearTimeout(timeout);
+      if (request.current === ctrl) request.current = null;
+    }
+  }
+  async function startListening(): Promise<boolean> {
+    if (starting.current || rec.current || busy.current) return false;
+    const SR =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    setIsHudOpen(true);
+    setError("");
+    if (!window.isSecureContext || !SR) {
+      fail(
+        say(
+          "Voice recognition needs HTTPS and a compatible browser. Type a command below.",
+          "वॉइस के लिए सुरक्षित HTTPS और समर्थित ब्राउज़र चाहिए। नीचे कमांड लिख सकते हैं।",
+        ),
+      );
+      return false;
+    }
+    starting.current = true;
+    stopAudio();
+    const id = ++operation.current;
+    try {
+      const recognition = new SR();
+      rec.current = recognition;
+      recognition.lang = tag;
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      if (localOnly) {
+        if (!SR.available || !("processLocally" in recognition))
+          throw Error("On-device recognition is unavailable in this browser.");
+        if (
+          (await SR.available({ langs: [tag], processLocally: true })) !==
+          "available"
+        )
+          throw Error(
+            "No installed on-device pack for this language. Choose browser recognition or install a language pack in your browser.",
+          );
+        recognition.processLocally = true;
+      }
+      if (id !== operation.current) return false;
+      let finalText = "";
+      let failed = false;
+      recognition.onstart = () => {
+        if (id === operation.current) {
+          starting.current = false;
+          setPhase("listening");
+        }
+      };
+      recognition.onresult = (event: any) => {
+        if (id !== operation.current) return;
+        let interim = "";
+        finalText = "";
+        for (let i = 0; i < event.results.length; i++) {
+          const part = event.results[i][0]?.transcript || "";
+          if (event.results[i].isFinal) finalText += part + " ";
+          else interim += part;
+        }
+        setTranscriptLive((finalText + interim).trim());
+      };
+      recognition.onerror = (event: any) => {
+        if (id !== operation.current) return;
+        failed = true;
+        const messages: Record<string, string> = {
+          "not-allowed":
+            "Microphone permission required. Allow it in browser settings, then press the microphone again.",
+          "audio-capture": "No microphone is available.",
+          network:
+            "Speech recognition network connection failed. Try again or type below.",
+          "no-speech":
+            "No speech detected. Press the microphone and try again.",
+          "language-not-supported":
+            "Recognition for this language is unavailable. Choose another language.",
+        };
+        fail(
+          messages[event.error] ||
+            "Speech recognition was interrupted. Press the microphone to retry.",
+        );
+      };
+      recognition.onend = () => {
+        if (id !== operation.current) return;
+        rec.current = null;
+        starting.current = false;
+        cleanupMic();
+        if (!failed && finalText.trim())
+          void latest.current.send(finalText.trim());
+        else if (!failed) {
+          setPhase("idle");
+          continuous.current = false;
+          setContinuousMode(false);
+          setError("No final speech result. Please try again.");
+        }
+      };
+      setTranscriptLive("");
+      recognition.start();
+      timer.current = setTimeout(() => {
+        if (id === operation.current) {
+          try {
+            recognition.stop();
+          } catch {
+            cancelListening();
+          }
+        }
+      }, 20000);
+      // Meter is optional: recognition must not depend on a second audio stream.
+      if (navigator.mediaDevices?.getUserMedia)
+        void navigator.mediaDevices
+          .getUserMedia({ audio: true })
+          .then((media) => {
+            if (id !== operation.current || rec.current !== recognition) {
+              media.getTracks().forEach((t) => t.stop());
+              return;
             }
-          }, 1400);
-        }
-      };
-
-      rec.onerror = (ev: any) => {
-        if (ev.error !== "no-speech" && ev.error !== "aborted") {
-          console.warn("Speech recognition error:", ev.error);
-        }
-      };
-
-      rec.onend = () => {
-        isRecognitionActiveRef.current = false;
-        setIsListening(false);
-        stopAudioAnalysis();
-        const textToCommit = (finalSoFar.trim() || latestTranscriptRef.current || "").trim();
-        latestTranscriptRef.current = "";
-        if (textToCommit) {
-          void sendVoiceCommand(textToCommit);
-        }
-      };
-
-      recognitionRef.current = rec;
-      rec.start();
+            stream.current = media;
+            const ctx = new AudioContext();
+            audio.current = ctx;
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 256;
+            ctx.createMediaStreamSource(media).connect(analyser);
+            const bytes = new Uint8Array(128);
+            const tick = () => {
+              analyser.getByteTimeDomainData(bytes);
+              let sum = 0;
+              for (let i = 0; i < bytes.length; i++)
+                sum += (bytes[i] - 128) ** 2;
+              setAudioVolume(Math.min(100, Math.sqrt(sum / bytes.length) * 4));
+              frame.current = requestAnimationFrame(tick);
+            };
+            tick();
+          })
+          .catch(() => {});
       return true;
     } catch (e) {
-      console.error("Failed to start speech recognition:", e);
-      setIsListening(false);
-      stopAudioAnalysis();
+      cancelListening();
+      fail(e instanceof Error ? e.message : "Microphone could not start.");
       return false;
     }
-  }, [killOngoingSpeech, startAudioAnalysis, voiceLanguage, stopAudioAnalysis, sendVoiceCommand]);
-
-  const stopListening = useCallback(() => {
-    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-    if (recognitionRef.current && isRecognitionActiveRef.current) {
-      try {
-        recognitionRef.current.stop();
-      } catch {
-        /* ignore */
-      }
-    }
-    setIsListening(false);
-    stopAudioAnalysis();
-  }, [stopAudioAnalysis]);
-
-  const cancelListening = useCallback(() => {
-    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-    if (recognitionRef.current) {
-      try {
-        recognitionRef.current.abort();
-      } catch {
-        /* ignore */
-      }
-    }
-    isRecognitionActiveRef.current = false;
-    setIsListening(false);
-    setTranscriptLive("");
-    stopAudioAnalysis();
-  }, [stopAudioAnalysis]);
-
-  const toggleContinuousMode = useCallback(() => {
-    setContinuousMode((prev) => !prev);
-  }, []);
-
-  // Audio Playback Controls
-  const pauseAudio = useCallback(() => {
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.pause();
-      setIsSpeaking(false);
-    }
-  }, []);
-
-  const resumeAudio = useCallback(() => {
-    if (audioPlayerRef.current) {
-      audioPlayerRef.current.play().catch(() => {});
-      setIsSpeaking(true);
-    }
-  }, []);
-
-  const stopAudio = useCallback(() => {
-    killOngoingSpeech();
-  }, [killOngoingSpeech]);
-
-  const replayAudio = useCallback(() => {
-    if (lastAudioUrlRef.current) {
-      killOngoingSpeech();
-      const audio = new Audio(lastAudioUrlRef.current);
-      audioPlayerRef.current = audio;
-      audio.onplay = () => setIsSpeaking(true);
-      audio.onended = () => setIsSpeaking(false);
-      audio.play().catch(() => {});
-    } else if (lastReply) {
-      void playVoiceAudio(null, lastReply);
-    }
-  }, [killOngoingSpeech, lastReply, playVoiceAudio]);
-
-  // Global event bridge: listen for 'kisaanbuddy:open-voice' from any button or chip on the website
+  }
+  latest.current = {
+    start: startListening,
+    send: sendVoiceCommand,
+    stop: stopAll,
+  };
   useEffect(() => {
-    const handleOpenVoice = (e: Event) => {
-      const customEvent = e as CustomEvent<{ initialQuery?: string; autoStart?: boolean }>;
+    setVoiceLanguage(lang);
+  }, [lang]);
+  useEffect(() => {
+    alive.current = true;
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem("kb_voice_preferences") || "null",
+      );
+      if (saved) {
+        if (typeof saved.voiceURI === "string") setVoiceURI(saved.voiceURI);
+        if (Number.isFinite(saved.rate))
+          setRate(Math.min(1.4, Math.max(0.6, saved.rate)));
+        if (Number.isFinite(saved.volume))
+          setVolume(Math.min(1, Math.max(0, saved.volume)));
+      }
+    } catch {}
+    const SR =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
+    setRecognitionSupported(!!SR);
+    setLocalSupported(!!SR?.available);
+    const update = () => setVoices(window.speechSynthesis?.getVoices() || []);
+    update();
+    window.speechSynthesis?.addEventListener("voiceschanged", update);
+    const open = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
       setIsHudOpen(true);
-      if (customEvent.detail?.initialQuery) {
-        const q = customEvent.detail.initialQuery.trim();
-        latestTranscriptRef.current = q;
-        setTranscriptLive(q);
-        void sendVoiceCommand(q);
-      } else {
-        void triggerStartListening();
-      }
+      if (detail?.initialQuery) void latest.current.send(detail.initialQuery);
+      else if (detail?.autoStart) void latest.current.start();
     };
-
-    window.addEventListener("kisaanbuddy:open-voice", handleOpenVoice);
-    return () => window.removeEventListener("kisaanbuddy:open-voice", handleOpenVoice);
-  }, [sendVoiceCommand, triggerStartListening]);
-
-  // Clean up on unmount
-  useEffect(() => {
+    const hidden = () => {
+      if (document.hidden) latest.current.stop();
+    };
+    window.addEventListener("kisaanbuddy:open-voice", open);
+    document.addEventListener("visibilitychange", hidden);
     return () => {
-      cancelListening();
-      killOngoingSpeech();
+      alive.current = false;
+      latest.current.stop();
+      window.removeEventListener("kisaanbuddy:open-voice", open);
+      document.removeEventListener("visibilitychange", hidden);
+      window.speechSynthesis?.removeEventListener("voiceschanged", update);
     };
-  }, [cancelListening, killOngoingSpeech]);
-
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "kb_voice_preferences",
+        JSON.stringify({ voiceURI, rate, volume }),
+      );
+    } catch {}
+  }, [voiceURI, rate, volume]);
+  useEffect(() => {
+    pendingForm.current = null;
+    setPendingConfirmation(null);
+    registerVisibleItems([]);
+    registerSelectedItem(null);
+  }, [pathname]);
+  return {
+    phase,
+    error,
+    recognitionSupported,
+    localSupported,
+    localOnly,
+    setLocalOnly,
+    voices,
+    voiceURI,
+    setVoiceURI,
+    rate,
+    setRate,
+    volume,
+    setVolume,
+    mode,
+    setMode,
+    translationTarget,
+    setTranslationTarget,
+    translatedText,
+    isListening: phase === "listening",
+    isProcessing: phase === "processing" || phase === "executing",
+    isSpeaking: phase === "speaking",
+    continuousMode,
+    audioVolume,
+    transcriptLive,
+    lastReply,
+    currentRoute: pathname || "/",
+    visibleItems,
+    selectedItem,
+    pendingConfirmation,
+    audioMuted,
+    isHudOpen,
+    voiceLanguage,
+    setVoiceLanguage,
+    setAudioMuted,
+    setIsHudOpen,
+    registerVisibleItems,
+    registerSelectedItem,
+    sendVoiceCommand,
+    startListening,
+    stopListening: () => {
+      try {
+        rec.current?.stop();
+      } catch {
+        cancelListening();
+      }
+    },
+    cancelListening: stopAll,
+    stopAll,
+    toggleContinuousMode: () => {
+      continuous.current = !continuous.current;
+      setContinuousMode(continuous.current);
+      if (continuous.current) void startListening();
+      else stopAll();
+    },
+    pauseAudio: () => {
+      if (!window.speechSynthesis?.speaking) return;
+      window.speechSynthesis?.pause();
+      setPhase("paused");
+    },
+    resumeAudio: () => {
+      if (!window.speechSynthesis?.paused) return;
+      window.speechSynthesis?.resume();
+      setPhase("speaking");
+    },
+    stopAudio,
+    replayAudio: () => speak(lastReply),
+    confirmPendingAction,
+    cancelPendingAction,
+  };
+}
+export function VoiceProvider({ children }: { children: React.ReactNode }) {
+  const value = useVoiceEngine();
   return (
-    <VoiceContext.Provider
-      value={{
-        isListening,
-        isProcessing,
-        isSpeaking,
-        continuousMode,
-        audioVolume,
-        transcriptLive,
-        lastReply,
-        currentRoute: pathname || "/",
-        visibleItems,
-        selectedItem,
-        pendingConfirmation,
-        audioMuted,
-        isHudOpen,
-        voiceLanguage,
-        setVoiceLanguage,
-        startListening: triggerStartListening,
-        stopListening,
-        cancelListening,
-        toggleContinuousMode,
-        pauseAudio,
-        resumeAudio,
-        stopAudio,
-        replayAudio,
-        setAudioMuted,
-        setIsHudOpen,
-        registerVisibleItems,
-        registerSelectedItem,
-        sendVoiceCommand,
-        confirmPendingAction,
-        cancelPendingAction,
-      }}
-    >
-      {children}
-    </VoiceContext.Provider>
+    <VoiceContext.Provider value={value}>{children}</VoiceContext.Provider>
   );
 }
-
 export function useVoice() {
-  const ctx = useContext(VoiceContext);
-  if (!ctx) {
-    throw new Error("useVoice must be used within a VoiceProvider");
-  }
-  return ctx;
+  const value = useContext(VoiceContext);
+  if (!value) throw Error("useVoice must be used within VoiceProvider");
+  return value;
 }
