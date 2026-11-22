@@ -3,7 +3,7 @@
 import { useEffect, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuth, getStoredUser } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 
 const PROTECTED_PATHS = [
   "/dashboard",
@@ -27,10 +27,6 @@ export function AuthGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (protectedRoute && ready && !user) {
-      // If storage still holds a cached user session, restoration may still be resolving
-      const cached = getStoredUser();
-      if (cached) return;
-
       const timer = setTimeout(() => {
         router.replace(`/login?next=${encodeURIComponent(pathname)}`);
       }, 1000);

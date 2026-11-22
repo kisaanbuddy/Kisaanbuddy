@@ -43,7 +43,10 @@ function postLoginPath(role?: string) {
   if (typeof window === "undefined") return "/dashboard";
   const next = new URLSearchParams(window.location.search).get("next");
   // Only permit an in-app relative path; never make login an open redirect.
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  if (!next || !next.startsWith("/") || next.startsWith("//") || next.includes("\\")) return "/dashboard";
+  const target = new URL(next, window.location.origin);
+  if (target.pathname === "/login" || target.pathname.startsWith("/login/")) return "/dashboard";
+  return target.pathname + target.search + target.hash;
 }
 
 export default function LoginClient() {

@@ -138,7 +138,10 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
         }
 
         // Definitive auth failure (401/403) — stop retrying, not a transient error.
-        if (response.status === 401 || response.status === 403) break;
+        if (response.status === 401 || response.status === 403) {
+          lastError = undefined;
+          break;
+        }
 
         // 5xx or other transient error — retry.
         lastError = new Error(`HTTP ${response.status}`);
@@ -148,14 +151,8 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
       }
     }
 
-    // If all attempts failed due to network unreachable (Render waking up), keep cached user
-    if (lastError) {
-      const cached = getStoredUser();
-      if (cached) {
-        restorePromise = null;
-        return cached;
-      }
-    }
+    // A cached profile cannot prove a valid cookie session. Returning it here
+    // sends /login back to a protected route that immediately rejects it.
 
     // All attempts exhausted or definitive auth failure confirmed by server.
     writeSession(null);
@@ -321,8 +318,7 @@ export async function verifyOtp(phone: string, otp: string): Promise<VerifyOtpRe
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return { ok: false, error: data.detail || "Invalid OTP code." };
     if (data.registered) {
-      writeSession(data.user);
-      return { ok: true, registered: true, user: data.user };
+      return await confirmOtpSession();
     }
     return { ok: true, registered: false, registrationToken: data.registration_token };
   } catch {
@@ -335,11 +331,33 @@ export async function completeOtpRegistration(registrationToken: string, name: s
     const response = await sessionRequest("/api/auth/verify-otp", { method: "POST", body: JSON.stringify({ registration_token: registrationToken, name }) });
     const data = await response.json().catch(() => ({}));
     if (!response.ok) return { ok: false, error: data.detail || "Registration failed." };
-    writeSession(data.user);
-    return { ok: true, user: data.user };
+    return await confirmOtpSession();
   } catch {
     return { ok: false, error: "Network error. Please try again later." };
   }
+}
+
+async function confirmOtpSession(): Promise<
+  { ok: true; registered: true; user: AuthUser } | { ok: false; error: string }
+> {
+  // Let any initial anonymous restoration finish before publishing the newly
+  // authenticated user, so its late 401 cannot overwrite a successful login.
+  if (restorePromise) await restorePromise;
+  const response = await sessionRequest("/api/auth/me", { method: "GET" });
+  if (!response.ok) {
+    return {
+      ok: false,
+      error: response.status === 401 || response.status === 403
+        ? "OTP verified, but your sign-in session could not be saved. Please allow cookies for this website and try signing in again."
+        : "OTP verified, but the server could not confirm your session. Please reload this page and try again.",
+    };
+  }
+  const user = await response.json() as AuthUser;
+  if (!user || !Number.isFinite(user.id) || typeof user.role !== "string") {
+    return { ok: false, error: "The server returned an incomplete profile. Please try again." };
+  }
+  writeSession(user);
+  return { ok: true, registered: true, user };
 }
 
 export async function logoutUser() {
