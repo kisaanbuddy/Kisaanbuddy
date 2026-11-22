@@ -805,6 +805,113 @@ async def stream_with_retry(
 # ---------------------------------------------------------------------------
 # Multimodal Domain Helpers (Soil Report OCR, Audio STT, Voice Intent)
 # ---------------------------------------------------------------------------
+async def analyze_crop_image_with_gemini(
+    *,
+    image_bytes: bytes,
+    mime_type: str,
+    crop_hint: Optional[str] = None,
+    symptom_notes: Optional[str] = None,
+    language: str = "hi",
+    farmer_context: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Return a clearly-labelled preliminary crop-image assessment.
+
+    The HTTP route validates and optimizes the image before calling this helper.
+    Keeping the Gemini request here gives the chat route the same resilient model
+    selection, retry, and usage accounting as the other multimodal features.
+    """
+    from google.genai import types
+
+    language_hint = {
+        "hi": "Hindi",
+        "hi_en": "Hinglish",
+        "kn": "Kannada",
+        "ta": "Tamil",
+        "te": "Telugu",
+        "ml": "Malayalam",
+        "mr": "Marathi",
+        "bn": "Bengali",
+        "pa": "Punjabi",
+        "gu": "Gujarati",
+        "en": "English",
+    }.get(language, "the farmer's requested Indian language")
+    context = farmer_context or "No verified farm context is available."
+    prompt = (
+        "You are assisting an Indian farmer with a preliminary visual crop-health assessment. "
+        "Reply in " + language_hint + ".\n\n"
+        "REALITY FIRST RULES:\n"
+        "- Treat a photograph as insufficient to confirm a disease, pest, deficiency, or treatment.\n"
+        "- Describe only visible evidence and label every proposed cause as tentative.\n"
+        "- Do not invent laboratory results, local conditions, registrations, pesticide products, or application doses.\n"
+        "- If the image is unclear, say so and request a clearer image or an agricultural expert review.\n"
+        "- Do not recommend a chemical product or dose. Direct the farmer to the product label and a qualified local expert for any treatment decision.\n\n"
+        f"Crop hint: {crop_hint or 'Not provided'}\n"
+        f"Farmer notes: {symptom_notes or 'Not provided'}\n"
+        f"Verified farm context: {context}\n\n"
+        "Return strict JSON only with these keys: crop, disease_name, predicted_class, confidence, "
+        "visible_symptoms, possible_causes, limitations, immediate_action, preventive_measures, "
+        "biological_control, recommend_expert_review, expert_guidance. "
+        "confidence must be a number from 0 to 1 and must be low when visual evidence is ambiguous."
+    )
+
+    response, model_used = await generate_with_retry(
+        contents=[types.Part.from_bytes(data=image_bytes, mime_type=mime_type), prompt],
+        feature="crop_doctor_vision",
+        models=get_model_chain(for_vision=True),
+        temperature=0.1,
+        max_output_tokens=settings.GEMINI_VISION_MAX_OUTPUT_TOKENS,
+        response_mime_type="application/json",
+    )
+
+    raw = (getattr(response, "text", None) or "").strip()
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        match = re.search(r"\{.*\}", raw, re.DOTALL)
+        try:
+            parsed = json.loads(match.group(0)) if match else {}
+        except json.JSONDecodeError:
+            parsed = {}
+    if not isinstance(parsed, dict):
+        parsed = {}
+
+    try:
+        confidence = float(parsed.get("confidence", 0))
+    except (TypeError, ValueError):
+        confidence = 0.0
+    confidence = max(0.0, min(confidence, 1.0))
+    causes = parsed.get("possible_causes")
+    if not isinstance(causes, list):
+        causes = []
+
+    crop = str(parsed.get("crop") or crop_hint or "Unidentified crop")
+    condition = str(parsed.get("disease_name") or "Inconclusive visual assessment")
+    is_uncertain = confidence < 0.65 or not parsed
+    return {
+        "crop": crop,
+        "disease_name": condition,
+        "predicted_class": str(parsed.get("predicted_class") or "visual_assessment_inconclusive"),
+        "confidence": confidence,
+        "status": "uncertain" if is_uncertain else "preliminary",
+        "visible_symptoms": str(parsed.get("visible_symptoms") or "No conclusive visible symptoms could be established from this image."),
+        "possible_causes": [str(cause) for cause in causes[:3]],
+        "limitations": str(parsed.get("limitations") or "A photograph alone cannot confirm a crop disease or the appropriate treatment."),
+        "immediate_action": str(parsed.get("immediate_action") or "Avoid applying a pesticide solely from this image; inspect more plants and seek local expert guidance if symptoms spread."),
+        "preventive_measures": str(parsed.get("preventive_measures") or "Maintain field hygiene and monitor affected plants while collecting clearer observations."),
+        "biological_control": str(parsed.get("biological_control") or "Use only measures confirmed as suitable by a qualified local agricultural adviser."),
+        "chemical_control": "No chemical recommendation is provided from a photo-only assessment.",
+        "dosage_guidelines": "Follow the product label and advice from a qualified local agricultural expert.",
+        "phi_days": None,
+        "safety_instructions": "Use appropriate personal protective equipment and never apply a crop-protection product without confirming its suitability and label directions.",
+        "recommend_expert_review": bool(parsed.get("recommend_expert_review", True)) or is_uncertain,
+        "expert_guidance": str(parsed.get("expert_guidance") or "For confirmation, consult a local KVK, extension officer, or qualified crop expert with clear photographs and field observations."),
+        "language": language,
+        "model": f"Google Gemini Vision ({model_used})",
+        "model_version": model_used,
+        "confidence_is_model_estimate": True,
+    }
+
+
 async def extract_soil_report_with_gemini(
     file_bytes: bytes,
     filename: str = "soil_report.pdf",

@@ -137,6 +137,13 @@ def test_image_validation_and_cost_resizing():
         pass
 
 
+def test_crop_doctor_route_uses_shared_gemini_service():
+    """Keep the shared service contract required by the registered route."""
+    # `main` is imported above, so this also proves api.chatbot can import the
+    # helper while the application registers its routes.
+    assert callable(gemini_service.analyze_crop_image_with_gemini)
+
+
 def test_secret_redaction_masks_gemini_keys():
     raw = "Error calling API with AQ.FakeTestKey1234567890abcdefghijklmnop and AIzaSyD12345678901234567890"
     masked = gemini_service.redact_secrets(raw)

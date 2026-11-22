@@ -57,7 +57,20 @@ export function getStoredUser(): AuthUser | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = sessionStorage.getItem("kb_user") || localStorage.getItem("kb_user");
-    return raw ? JSON.parse(raw) : null;
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    // This cache only makes the initial UI feel responsive; it must never be
+    // treated as an authoritative session. Reject malformed or stale values
+    // before they can reach protected components during restoration.
+    if (
+      !parsed ||
+      typeof parsed !== "object" ||
+      !Number.isFinite((parsed as AuthUser).id) ||
+      typeof (parsed as AuthUser).role !== "string" ||
+      typeof (parsed as AuthUser).provider !== "string"
+    ) {
+      return null;
+    }
+    return parsed as AuthUser;
   } catch {
     return null;
   }
@@ -154,10 +167,10 @@ export function verifySessionOnLoad(): Promise<AuthUser | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>(() => {
-    const cached = getStoredUser();
-    return { user: cached, ready: !!cached };
-  });
+  // Do not render protected content from web storage alone. The cookie-backed
+  // `/auth/me` check below is the source of truth after every navigation or
+  // refresh, including immediately after a successful login redirect.
+  const [state, setState] = useState<AuthState>({ user: null, ready: false });
 
   useEffect(() => {
     let active = true;
