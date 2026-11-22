@@ -32,7 +32,6 @@ import {
   Radio,
   FileCheck2,
   Building2,
-  CircleDot,
   Clock,
   Sparkle,
 } from 'lucide-react';
@@ -479,56 +478,97 @@ export function AboutClient() {
               </div>
             </div>
 
-            {/* Right Column: Authentic Editorial Imagery & Live Indicator */}
+            {/* Right Column: photo-free product philosophy visual */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-2xl overflow-hidden border border-border/60 bg-card shadow-xl">
-                {/* Real photographic asset */}
-                <div className="relative aspect-[4/3] w-full bg-muted">
-                  <Image
-                    src="/images/hero/hero-indian-farmer.webp"
-                    alt="Indian farmer standing in healthy green agricultural field"
-                    fill
-                    priority
-                    sizes="(max-width: 768px) 100vw, 40vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <motion.div
+                initial={prefersReduced ? false : { opacity: 0, y: 18 }}
+                animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="relative overflow-hidden rounded-[1.75rem] border border-emerald-500/20 bg-card p-4 sm:p-5 shadow-xl"
+              >
+                <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(16,185,129,0.14),_transparent_40%),radial-gradient(circle_at_bottom_left,_rgba(20,184,166,0.10),_transparent_36%)]" />
 
-                  {/* Caption badge */}
-                  <div className="absolute bottom-4 left-4 right-4 text-white">
-                    <p className="text-xs font-semibold tracking-wide uppercase text-emerald-300">
-                      Authentic Agricultural Context
-                    </p>
-                    <p className="text-sm font-medium mt-0.5 leading-snug text-white/95">
-                      Ground reality in Indian agriculture is where technology must perform, not in an abstract laboratory.
-                    </p>
+                <div className="relative rounded-2xl border border-border/70 bg-background/80 p-5 sm:p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-700 dark:text-emerald-400">
+                        KisaanBuddy, in practice
+                      </p>
+                      <h2 className="mt-2 text-xl font-bold font-display leading-tight text-foreground">
+                        Built around a farmer&apos;s next decision.
+                      </h2>
+                    </div>
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-lg shadow-emerald-900/15">
+                      <Sprout className="h-5 w-5" />
+                    </div>
+                  </div>
+
+                  <div className="relative mt-7 space-y-3">
+                    <div aria-hidden="true" className="absolute bottom-7 left-6 top-7 border-l border-dashed border-emerald-500/35" />
+                    {[
+                      {
+                        step: '01',
+                        label: 'Start with the field question',
+                        detail: 'Crop, weather, market or soil — in familiar language.',
+                        icon: HeartHandshake,
+                        tone: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300',
+                      },
+                      {
+                        step: '02',
+                        label: 'Check the available evidence',
+                        detail: 'Use source-aware information and state when it is unavailable.',
+                        icon: FileCheck2,
+                        tone: 'bg-teal-500/10 text-teal-700 dark:text-teal-300',
+                      },
+                      {
+                        step: '03',
+                        label: 'Make the next step clearer',
+                        detail: 'Turn information into an understandable, practical choice.',
+                        icon: Compass,
+                        tone: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+                      },
+                    ].map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <div key={item.step} className="relative flex items-center gap-3 rounded-xl border border-border/60 bg-card p-3.5 shadow-sm">
+                          <span className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-emerald-500/25 bg-background text-[10px] font-black text-emerald-700 dark:text-emerald-400">
+                            {item.step}
+                          </span>
+                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${item.tone}`}>
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-foreground">{item.label}</p>
+                            <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{item.detail}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
-                {/* Floating Telemetry card */}
-                <div className="p-4 sm:p-5 bg-card/95 border-t border-border/40 flex flex-col gap-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold uppercase tracking-wider text-muted-foreground">
-                      PLATFORM ARCHITECTURE
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-semibold text-[11px]">
-                      <CircleDot className="h-2 w-2 animate-pulse text-emerald-600" />
-                      Active Development
-                    </span>
+                <div className="relative mt-4 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <Radio className="h-3.5 w-3.5 text-emerald-600" />
+                      Interaction
+                    </div>
+                    <p className="mt-1 text-xs font-semibold text-foreground">Voice & multilingual</p>
                   </div>
-
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="rounded-lg bg-muted/40 p-2.5 border border-border/30">
-                      <div className="text-[10px] text-muted-foreground uppercase font-bold">Farmer Interaction</div>
-                      <div className="font-semibold text-foreground mt-0.5">Voice & Multilingual</div>
+                  <div className="rounded-xl border border-border/60 bg-background/60 p-3">
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <Database className="h-3.5 w-3.5 text-emerald-600" />
+                      Information
                     </div>
-                    <div className="rounded-lg bg-muted/40 p-2.5 border border-border/30">
-                      <div className="text-[10px] text-muted-foreground uppercase font-bold">Data Transparency</div>
-                      <div className="font-semibold text-foreground mt-0.5">Traceable Sources</div>
-                    </div>
+                    <p className="mt-1 text-xs font-semibold text-foreground">Sources, not guesses</p>
                   </div>
                 </div>
-              </div>
+
+                <div className="relative mt-4 flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.07] px-3 py-2.5 text-[11px] leading-relaxed text-emerald-950 dark:text-emerald-100">
+                  <Shield className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span>No live farm data is being represented in this illustration.</span>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
