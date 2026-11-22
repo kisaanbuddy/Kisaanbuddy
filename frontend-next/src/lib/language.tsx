@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
-import { translateText, translateBatch, translateStructured } from "./translation-client"
+import { translateText, translateBatch } from "./translation-client"
 
 // Dynamic loaders for non-default languages to eliminate ~900 KB of unused JSON from initial bundle
 const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
@@ -16,13 +16,10 @@ const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
   bn: () => import("./locales/bn.json").then((m) => m.default),
   pa: () => import("./locales/pa.json").then((m) => m.default),
   ml: () => import("./locales/ml.json").then((m) => m.default),
-  // Odia is loaded on demand from the authenticated server translator.  This
-  // intentionally remains a machine-translated locale until it is reviewed.
-  or: () => translateStructured(en, "or"),
   hi_en: () => import("./locales/hi_en.json").then((m) => m.default),
 }
 
-export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "or" | "hi_en"
+export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
 
 export const LANG_NAMES: Record<Lang, string> = {
   en: "English",
@@ -35,7 +32,6 @@ export const LANG_NAMES: Record<Lang, string> = {
   bn: "বাংলা",
   pa: "ਪੰਜਾਬੀ",
   gu: "ગુજરાતી",
-  or: "ଓଡ଼ିଆ",
   hi_en: "Hinglish",
 }
 
@@ -50,7 +46,6 @@ export const LANG_DETAILS: Record<Lang, { native: string; en: string }> = {
   bn: { native: "বাংলা", en: "Bengali" },
   pa: { native: "ਪੰਜਾਬੀ", en: "Punjabi" },
   gu: { native: "ગુજરાતી", en: "Gujarati" },
-  or: { native: "ଓଡ଼ିଆ", en: "Odia (machine translated)" },
   hi_en: { native: "Hinglish", en: "Hinglish" },
 }
 
@@ -65,7 +60,6 @@ export const LANG_FLAGS: Record<Lang, string> = {
   bn: "🇮🇳",
   pa: "🇮🇳",
   gu: "🇮🇳",
-  or: "🇮🇳",
   hi_en: "🇮🇳",
 }
 
@@ -136,14 +130,6 @@ export const PRIMARY_FARMER_LANGS: LanguageMeta[] = [
     greeting: "નમસ્તે ખેડૂત મિત્રો!",
   },
   {
-    code: "or",
-    native: "ଓଡ଼ିଆ",
-    en: "Odia (machine translated)",
-    scriptChar: "ଅ",
-    region: "ଓଡ଼ିଶା",
-    greeting: "ନମସ୍କାର କୃଷକ ବନ୍ଧୁ!",
-  },
-  {
     code: "en",
     native: "English",
     en: "English",
@@ -165,7 +151,6 @@ export const SELECTABLE_LANGS: Lang[] = [
   "bn",
   "pa",
   "ml",
-  "or",
   "hi_en",
 ]
 

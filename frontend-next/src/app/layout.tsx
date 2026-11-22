@@ -113,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "name": "KisaanBuddy",
               "url": "https://www.kisaanbuddy.com",
               "description": "A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.",
-              "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu", "or"]
+              "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu"]
             })
           }}
         />
