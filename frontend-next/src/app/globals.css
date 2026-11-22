@@ -96,6 +96,7 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -106,6 +107,32 @@
     @apply bg-background text-foreground min-h-screen selection:bg-primary/20 selection:text-foreground;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     line-height: 1.5;
+  }
+
+  /* Keep focused controls unmistakable for keyboard and switch-device users. */
+  :focus-visible {
+    outline: 3px solid hsl(var(--ring) / 0.55);
+    outline-offset: 3px;
+  }
+
+  /* Sticky navigation should never hide an in-page destination. */
+  :target {
+    scroll-margin-top: 6rem;
+  }
+
+  /* Defensive media sizing prevents isolated content from creating horizontal scroll. */
+  img,
+  svg,
+  video,
+  canvas {
+    max-width: 100%;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -132,6 +159,19 @@
 .surface-card:hover {
   border-color: hsl(var(--card-border-hover));
   box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.12);
+}
+
+/* Reusable loading state for data-driven modules. The motion is deliberately
+   quiet and is disabled below when the visitor requests reduced motion. */
+@keyframes kb-skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.kb-skeleton {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--card)) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: kb-skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
 /* ============================================================

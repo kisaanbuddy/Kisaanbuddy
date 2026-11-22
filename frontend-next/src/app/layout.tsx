@@ -113,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "name": "KisaanBuddy",
               "url": "https://www.kisaanbuddy.com",
               "description": "A practical digital companion for Indian farmers that brings crop advice, live mandi rates, farm labour connections, and useful agricultural services together.",
-              "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu"]
+              "inLanguage": ["en", "hi", "kn", "ta", "te", "ml", "mr", "bn", "pa", "gu", "or"]
             })
           }}
         />
@@ -146,16 +146,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               (function() {
                 try {
-                  localStorage.removeItem('kisaanbuddy_lang');
-                  localStorage.removeItem('KisaanBuddy_lang');
-                  localStorage.removeItem('krishi_lang');
-                  document.cookie = 'kisaanbuddy_lang=; Path=/; Max-Age=0; SameSite=Lax';
-
+                  var preferredLang = localStorage.getItem('kisaanbuddy_preferred_lang');
                   var sessionLang = sessionStorage.getItem('kisaanbuddy_session_lang');
-                  if (!sessionLang) {
+                  var language = preferredLang || sessionLang;
+                  if (!language) {
                     document.documentElement.classList.add('kb-fresh-session');
                   } else {
-                    document.documentElement.lang = sessionLang;
+                    document.documentElement.lang = language;
                   }
                 } catch(e) {}
               })();

@@ -250,20 +250,29 @@ class TranslationService:
             "commodity", "variety", "crop_name", "disease_name", "treatment",
             "recommendation", "category", "status_text"
         ])
+        translate_all_strings = keys_to_translate is not None and "*" in target_keys
+        identifier_keys = {"id", "uuid", "slug", "code", "language_code"}
+
+        def _is_identifier_key(key: Any) -> bool:
+            normalized = str(key).lower()
+            return normalized in identifier_keys or normalized.endswith("_id")
 
         text_pointers: List[Tuple[Any, Union[str, int], str]] = []
 
         def _collect(obj: Any):
             if isinstance(obj, dict):
                 for k, v in obj.items():
-                    if isinstance(v, str) and (keys_to_translate is None or k in target_keys):
+                    if isinstance(v, str) and (
+                        not _is_identifier_key(k)
+                        and (translate_all_strings or keys_to_translate is None or k in target_keys)
+                    ):
                         if v.strip() and not v.startswith("http://") and not v.startswith("https://"):
                             text_pointers.append((obj, k, v))
                     else:
                         _collect(v)
             elif isinstance(obj, list):
                 for idx, item in enumerate(obj):
-                    if isinstance(item, str) and keys_to_translate is None:
+                    if isinstance(item, str) and (keys_to_translate is None or translate_all_strings):
                         text_pointers.append((obj, idx, item))
                     else:
                         _collect(item)

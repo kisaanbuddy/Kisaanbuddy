@@ -32,6 +32,9 @@ export interface BatchTranslateApiResponse {
 // Client-side session LRU cache: (src:tgt:text) -> translated_text
 const CLIENT_TRANSLATION_CACHE = new Map<string, string>();
 const MAX_CLIENT_CACHE = 2000;
+const IN_FLIGHT_TRANSLATIONS = new Map<string, Promise<string>>();
+const STRUCTURED_TRANSLATION_CACHE = new Map<string, unknown>();
+const IN_FLIGHT_STRUCTURED_TRANSLATIONS = new Map<string, Promise<unknown>>();
 
 function getClientCacheKey(text: string, src: string, tgt: string): string {
   return `${src}:${tgt}:${text.trim()}`;
@@ -51,7 +54,11 @@ export async function translateText(opts: TranslateRequestOptions): Promise<stri
     return CLIENT_TRANSLATION_CACHE.get(cacheKey)!;
   }
 
-  try {
+  const existingRequest = IN_FLIGHT_TRANSLATIONS.get(cacheKey);
+  if (existingRequest) return existingRequest;
+
+  const request = (async () => {
+    try {
     const res = await fetch("/api/translate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -80,10 +87,16 @@ export async function translateText(opts: TranslateRequestOptions): Promise<stri
     }
 
     return result;
-  } catch (err) {
-    console.warn("Translation request error:", err);
-    return clean;
-  }
+    } catch (err) {
+      console.warn("Translation request error:", err);
+      return clean;
+    } finally {
+      IN_FLIGHT_TRANSLATIONS.delete(cacheKey);
+    }
+  })();
+
+  IN_FLIGHT_TRANSLATIONS.set(cacheKey, request);
+  return request;
 }
 
 /**
@@ -163,4 +176,54 @@ export async function translateBatch(
     });
     return results as string[];
   }
+}
+
+/**
+ * Translates a trusted application-owned JSON document while preserving its
+ * shape. It is for lazy UI locale packs only; do not pass personal farmer or
+ * account data to this helper.
+ */
+export async function translateStructured<T>(
+  data: T,
+  targetLang: string,
+  sourceLang: string = "en"
+): Promise<T> {
+  if (targetLang === sourceLang || !data) return data;
+
+  const cacheKey = `${sourceLang}:${targetLang}:${JSON.stringify(data)}`;
+  const cached = STRUCTURED_TRANSLATION_CACHE.get(cacheKey);
+  if (cached) return cached as T;
+
+  const existingRequest = IN_FLIGHT_STRUCTURED_TRANSLATIONS.get(cacheKey);
+  if (existingRequest) return existingRequest as Promise<T>;
+
+  const request = (async () => {
+    try {
+      const res = await fetch("/api/translate/structured", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data,
+          source_language: sourceLang,
+          target_language: targetLang,
+          // This client helper is restricted to the app's own locale files,
+          // where every string value is intended for display translation.
+          keys_to_translate: ["*"],
+        }),
+      });
+      if (!res.ok) return data;
+
+      const result = (await res.json()).data as T;
+      STRUCTURED_TRANSLATION_CACHE.set(cacheKey, result);
+      return result;
+    } catch (err) {
+      console.warn("Structured translation request error:", err);
+      return data;
+    } finally {
+      IN_FLIGHT_STRUCTURED_TRANSLATIONS.delete(cacheKey);
+    }
+  })();
+
+  IN_FLIGHT_STRUCTURED_TRANSLATIONS.set(cacheKey, request);
+  return request;
 }

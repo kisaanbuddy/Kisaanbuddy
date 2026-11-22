@@ -174,6 +174,24 @@ class LanguageRouter:
 
         return default
 
+    @classmethod
+    def require_supported(cls, code: Optional[str]) -> str:
+        """Normalize a language code or fail clearly instead of guessing.
+
+        Translation output must never be labelled as a requested language when
+        the configured provider does not support that language.
+        """
+        if not code or not code.strip():
+            raise ValueError("A source and target language code are required")
+
+        normalized = cls.normalize_to_indictrans(code, default="")
+        if normalized not in INDICTRANS2_LANGUAGES:
+            raise ValueError(
+                f"Unsupported translation language '{code}'. "
+                "Choose a language listed by GET /api/translate/languages."
+            )
+        return normalized
+
     @staticmethod
     def to_short_code(indictrans_code: str) -> str:
         """Converts an IndicTrans2 FLORES-200 code to frontend 2-letter code."""
@@ -182,8 +200,8 @@ class LanguageRouter:
     @classmethod
     def resolve_direction(cls, source_code: str, target_code: str) -> Tuple[TranslationDirection, str, str]:
         """Resolves translation direction and normalized language pair."""
-        src = cls.normalize_to_indictrans(source_code, default="eng_Latn")
-        tgt = cls.normalize_to_indictrans(target_code, default="hin_Deva")
+        src = cls.require_supported(source_code)
+        tgt = cls.require_supported(target_code)
 
         if src == tgt:
             return TranslationDirection.IDENTITY, src, tgt

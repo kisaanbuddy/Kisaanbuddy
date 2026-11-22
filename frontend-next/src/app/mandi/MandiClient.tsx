@@ -5,6 +5,7 @@ import { trackEvent } from '@/lib/analytics'
 import { TermTooltip } from '@/components/ui/TermTooltip'
 import { QuickReviewCard } from '@/components/farmer/QuickReviewCard'
 import { useVoice } from '@/lib/voice/VoiceContext'
+import { AskAIButton } from '@/components/ai/AskAIButton'
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react"
 import { useSearchParams } from "next/navigation"

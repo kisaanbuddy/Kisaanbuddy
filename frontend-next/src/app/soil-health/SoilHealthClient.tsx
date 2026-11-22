@@ -37,6 +37,7 @@ import { Card, GlassCard, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { AskAIButton } from "@/components/ai/AskAIButton"
 
 const SOIL_PAGE_I18N: Record<string, { responseLanguageLabel: string; getRecommendationBtn: string }> = {
   en: { responseLanguageLabel: "Response Language", getRecommendationBtn: "Get Soil & Fertilizer Advisory" },
@@ -1001,10 +1002,17 @@ export default function SoilHealthPage() {
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-border/40 text-center">
+                <div className="pt-6 border-t border-border/40 text-center space-y-3">
                   <div className="inline-flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-4 py-2 rounded-xl border border-emerald-500/20 font-medium">
                     <Info className="h-4 w-4 shrink-0" />
                     <span>{t("soil_health.please_enter_values_and")}</span>
+                  </div>
+                  <div>
+                    <AskAIButton
+                      prompt="How do I read and understand my Soil Health Card (मृदा स्वास्थ्य कार्ड) test values? Explain N, P, K, pH and organic carbon in simple words for an Indian farmer."
+                      label="AI से पूछें: सॉइल हेल्थ कार्ड कैसे समझें?"
+                      variant="pill"
+                    />
                   </div>
                 </div>
               </div>
@@ -1155,6 +1163,14 @@ export default function SoilHealthPage() {
                       : "Always calibrate dosage with local soil test results & agricultural university guidance."}
                   </p>
                 </div>
+
+                <AskAIButton
+                  variant="banner"
+                  prompt={`Based on my soil test values (pH: ${form.ph || "normal"}, Nitrogen: ${form.nitrogen || "medium"}, Phosphorus: ${form.phosphorus || "medium"}, Potassium: ${form.potassium || "medium"}, OC: ${form.organicCarbon || "medium"}) for ${form.crop || "my crop"} on ${form.area || 1} acres, what customized fertilizer schedule and soil health improvement steps should I follow?`}
+                  label={lang === "hi" ? "AI कृषि सलाहकार से विस्तृत चर्चा करें" : "Discuss Soil Plan with AI Advisor"}
+                  subtitle={lang === "hi" ? "विस्तृत NPK, जैविक खाद और सूक्ष्म पोषक तत्व मार्गदर्शन" : "Detailed NPK, bio-fertilizer and micro-nutrient guidance"}
+                  className="mt-3"
+                />
 
                 <div className="pt-4 mt-4 border-t border-border/40 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
                   <RefreshCw className="h-3.5 w-3.5" />

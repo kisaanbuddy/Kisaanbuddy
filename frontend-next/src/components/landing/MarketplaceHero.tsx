@@ -504,13 +504,13 @@ export function MarketplaceHero() {
                           </p>
                         </div>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold shrink-0">98% Accuracy</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 font-bold shrink-0">AI-assisted</span>
                     </div>
                   </div>
 
                   {/* Bottom Action */}
                   <Link
-                    href="/crop-doctor"
+                    href="/disease"
                     className="w-full mt-1 py-2.5 px-3 rounded-xl bg-teal-600/10 hover:bg-teal-600/20 text-teal-900 dark:text-teal-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
                   >
                     <span>Launch AI Crop Doctor & Field Diagnosis</span>

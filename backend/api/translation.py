@@ -139,6 +139,8 @@ async def translate_endpoint(body: TranslateRequest):
         )
     except HTTPException:
         raise
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
         log.exception("Translation endpoint error: %s", e)
         raise HTTPException(
@@ -164,6 +166,8 @@ async def translate_batch_endpoint(body: BatchTranslateRequest):
             target_language=result["target_language"],
             provider=result.get("provider", "indictrans2"),
         )
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
         log.exception("Batch translation endpoint error: %s", e)
         raise HTTPException(status_code=500, detail=f"Batch translation failed: {e}") from e
@@ -184,6 +188,8 @@ async def translate_structured_endpoint(body: StructuredTranslateRequest):
             "source_language": body.source_language or "eng_Latn",
             "target_language": body.target_language,
         }
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception as e:
         log.exception("Structured translation endpoint error: %s", e)
         raise HTTPException(status_code=500, detail=f"Structured translation failed: {e}") from e

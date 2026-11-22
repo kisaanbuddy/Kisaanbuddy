@@ -42,9 +42,10 @@ from schemas.chatbot import (
 )
 from services.chat import stt_service, tts_service
 from services.chat.chat_service import ChatError, get_orchestrator, health_info
-from services.chat.farmer_context import build_farmer_context, get_optional_user_id
+from services.chat.farmer_context import build_farmer_context, format_farmer_context, get_optional_user_id
 from services.chat.gemini_service import (
     GeminiBadRequestError,
+    analyze_crop_image_with_gemini,
     is_gemini_configured,
     prepare_crop_image,
     redact_secrets,
@@ -148,6 +149,52 @@ async def assistant_message(request: Request, body: AssistantRequest):
             "Connection": "keep-alive",
         },
     )
+
+
+# --- /crop-doctor (Gemini Vision Multimodal Crop Doctor) ---
+class CropDoctorVisionRequest(BaseModel):
+    image_base64: str = Field(..., description="Base64 encoded crop leaf or plant photograph")
+    crop_hint: Optional[str] = Field(None, max_length=100, description="Optional crop hint from farmer")
+    symptom_notes: Optional[str] = Field(None, max_length=1000, description="Farmer symptom description")
+    language: Optional[str] = Field("hi", max_length=10, description="Preferred language (hi, kn, en, hi_en)")
+
+
+@router.post("/crop-doctor")
+@_rate_limit(_VISION_LIMIT)
+async def crop_doctor_vision_endpoint(request: Request, body: CropDoctorVisionRequest):
+    """Gemini Vision multimodal crop pathology diagnosis."""
+    if not is_gemini_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="Gemini AI vision service is not configured on the server.",
+        )
+
+    try:
+        opt_bytes, opt_mime, img_meta = prepare_crop_image(body.image_base64)
+    except GeminiBadRequestError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.user_message) from e
+
+    farmer_context = build_farmer_context(request)
+    formatted_context = format_farmer_context(farmer_context) if farmer_context else None
+
+    try:
+        result = await analyze_crop_image_with_gemini(
+            image_bytes=opt_bytes,
+            mime_type=opt_mime,
+            crop_hint=body.crop_hint,
+            symptom_notes=body.symptom_notes,
+            language=body.language or "hi",
+            farmer_context=formatted_context,
+        )
+        return result
+    except GeminiBadRequestError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.user_message) from e
+    except Exception as e:
+        log.exception("Crop doctor vision analysis failed: %s", redact_secrets(str(e)))
+        raise HTTPException(
+            status_code=500,
+            detail="Crop Doctor visual analysis encountered an unexpected error. Please retry with a clearer photo.",
+        ) from e
 
 
 # --- /stt ---

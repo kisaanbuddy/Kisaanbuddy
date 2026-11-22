@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useLayoutEffect, useEffect, useState } from "react"
 import en from "./locales/en.json"
-import { translateText, translateBatch } from "./translation-client"
+import { translateText, translateBatch, translateStructured } from "./translation-client"
 
 // Dynamic loaders for non-default languages to eliminate ~900 KB of unused JSON from initial bundle
 const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
@@ -16,10 +16,13 @@ const LOCALE_LOADERS: Record<Lang, () => Promise<any>> = {
   bn: () => import("./locales/bn.json").then((m) => m.default),
   pa: () => import("./locales/pa.json").then((m) => m.default),
   ml: () => import("./locales/ml.json").then((m) => m.default),
+  // Odia is loaded on demand from the authenticated server translator.  This
+  // intentionally remains a machine-translated locale until it is reviewed.
+  or: () => translateStructured(en, "or"),
   hi_en: () => import("./locales/hi_en.json").then((m) => m.default),
 }
 
-export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "hi_en"
+export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "ml" | "mr" | "bn" | "pa" | "gu" | "or" | "hi_en"
 
 export const LANG_NAMES: Record<Lang, string> = {
   en: "English",
@@ -32,6 +35,7 @@ export const LANG_NAMES: Record<Lang, string> = {
   bn: "বাংলা",
   pa: "ਪੰਜਾਬੀ",
   gu: "ગુજરાતી",
+  or: "ଓଡ଼ିଆ",
   hi_en: "Hinglish",
 }
 
@@ -46,6 +50,7 @@ export const LANG_DETAILS: Record<Lang, { native: string; en: string }> = {
   bn: { native: "বাংলা", en: "Bengali" },
   pa: { native: "ਪੰਜਾਬੀ", en: "Punjabi" },
   gu: { native: "ગુજરાતી", en: "Gujarati" },
+  or: { native: "ଓଡ଼ିଆ", en: "Odia (machine translated)" },
   hi_en: { native: "Hinglish", en: "Hinglish" },
 }
 
@@ -60,6 +65,7 @@ export const LANG_FLAGS: Record<Lang, string> = {
   bn: "🇮🇳",
   pa: "🇮🇳",
   gu: "🇮🇳",
+  or: "🇮🇳",
   hi_en: "🇮🇳",
 }
 
@@ -130,6 +136,14 @@ export const PRIMARY_FARMER_LANGS: LanguageMeta[] = [
     greeting: "નમસ્તે ખેડૂત મિત્રો!",
   },
   {
+    code: "or",
+    native: "ଓଡ଼ିଆ",
+    en: "Odia (machine translated)",
+    scriptChar: "ଅ",
+    region: "ଓଡ଼ିଶା",
+    greeting: "ନମସ୍କାର କୃଷକ ବନ୍ଧୁ!",
+  },
+  {
     code: "en",
     native: "English",
     en: "English",
@@ -139,7 +153,7 @@ export const PRIMARY_FARMER_LANGS: LanguageMeta[] = [
   },
 ]
 
-// All 11 supported Indian languages
+// Language packs are loaded only after a language is chosen.
 export const SELECTABLE_LANGS: Lang[] = [
   "en",
   "hi",
@@ -151,11 +165,13 @@ export const SELECTABLE_LANGS: Lang[] = [
   "bn",
   "pa",
   "ml",
+  "or",
   "hi_en",
 ]
 
 export const SESSION_LANG_KEY = "kisaanbuddy_session_lang"
 export const SESSION_CONFIRMED_KEY = "kisaanbuddy_session_confirmed"
+export const PREFERRED_LANG_KEY = "kisaanbuddy_preferred_lang"
 
 // In-memory cache of loaded locales (English bundled statically as instant fallback)
 export const T: Record<string, any> = { en }
@@ -172,6 +188,19 @@ export async function loadLocale(targetLang: Lang): Promise<any> {
     console.error(`Failed to load locale: ${targetLang}`, err)
     return en
   }
+}
+
+function getBrowserLanguage(): Lang | null {
+  if (typeof navigator === "undefined") return null
+  for (const candidate of navigator.languages ?? [navigator.language]) {
+    const normalized = candidate.toLowerCase().replace("_", "-")
+    const exact = normalized as Lang
+    if (SELECTABLE_LANGS.includes(exact)) return exact
+
+    const base = normalized.split("-")[0] as Lang
+    if (SELECTABLE_LANGS.includes(base)) return base
+  }
+  return null
 }
 
 function applyOverrides(base: any, overrides: Record<string, string>) {
@@ -304,44 +333,31 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [isLanguageSelected, setIsLanguageSelected] = useState<boolean>(false)
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState<boolean>(false)
 
-  // Session-scoped language detection:
-  // Shows language selection screen on EVERY fresh visit.
-  // Re-uses selection only within the current active browser tab session.
+  // A deliberate selection persists across visits.  Browser language is used
+  // only for a first visit with no saved preference.
   useLayoutEffect(() => {
-    // 1. Proactively clear any legacy permanent language storage to avoid auto-selection
     try {
-      localStorage.removeItem("kisaanbuddy_farmer_lang_confirmed")
-      localStorage.removeItem("kisaanbuddy_lang_confirmed")
-      localStorage.removeItem("kisaanbuddy_lang")
-      localStorage.removeItem("KisaanBuddy_lang")
-      localStorage.removeItem("krishi_lang")
-      localStorage.removeItem("krishiai_lang")
-      document.cookie = "kisaanbuddy_lang=; Path=/; Max-Age=0"
-      document.cookie = "kisaanbuddy_farmer_lang_confirmed=; Path=/; Max-Age=0"
-    } catch {
-      // Storage might be restricted in some browser privacy modes
-    }
+      const preferred = localStorage.getItem(PREFERRED_LANG_KEY) as Lang | null
+      const sessionLanguage = sessionStorage.getItem(SESSION_LANG_KEY) as Lang | null
+      const candidate =
+        (preferred && SELECTABLE_LANGS.includes(preferred) && preferred) ||
+        (sessionLanguage && SELECTABLE_LANGS.includes(sessionLanguage) && sessionLanguage) ||
+        getBrowserLanguage()
 
-    // 2. Read session-scoped storage
-    try {
-      const isConfirmed = sessionStorage.getItem(SESSION_CONFIRMED_KEY) === "true"
-      const saved = sessionStorage.getItem(SESSION_LANG_KEY) as Lang | null
-
-      if (isConfirmed && saved && SELECTABLE_LANGS.includes(saved)) {
-        setLangState(saved)
+      if (candidate) {
+        setLangState(candidate)
         setIsLanguageSelected(true)
         if (typeof document !== "undefined") {
-          document.documentElement.lang = saved
+          document.documentElement.lang = candidate
         }
-        if (saved === "en") {
+        if (candidate === "en") {
           setTranslations(en)
         } else {
-          void loadLocale(saved).then((data) => {
+          void loadLocale(candidate).then((data) => {
             setTranslations(data)
           })
         }
       } else {
-        // Fresh browsing session: language selection screen MUST be displayed
         setIsLanguageSelected(false)
       }
     } catch {
@@ -374,11 +390,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   }, [lang])
 
-  /**
-   * Session-scoped language change.
-   * Persists to sessionStorage ONLY for the current browsing session.
-   * Never permanently writes to localStorage, cookies, or user database.
-   */
+  /** A user selection is intentionally retained locally until reset. */
   const setLang = (l: Lang) => {
     if (!SELECTABLE_LANGS.includes(l)) return
     setLangState(l)
@@ -387,6 +399,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     try {
       sessionStorage.setItem(SESSION_LANG_KEY, l)
       sessionStorage.setItem(SESSION_CONFIRMED_KEY, "true")
+      localStorage.setItem(PREFERRED_LANG_KEY, l)
       if (typeof document !== "undefined") {
         document.documentElement.lang = l
       }
@@ -410,6 +423,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     try {
       sessionStorage.removeItem(SESSION_LANG_KEY)
       sessionStorage.removeItem(SESSION_CONFIRMED_KEY)
+      localStorage.removeItem(PREFERRED_LANG_KEY)
     } catch {}
     setIsLanguageSelected(false)
   }

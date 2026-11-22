@@ -42,6 +42,39 @@ export function WorldClassHomePage() {
   // Load language dictionary dynamically based on selected language
   const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
   const heroDict = HERO_I18N[lang as Lang] || HERO_I18N.hi;
+  const planningCopy =
+    lang === "hi"
+      ? {
+          title: "कार्रवाई से पहले जांचें",
+          source: "कार्रवाई से पहले लाइव डेटा देखें",
+          weatherTitle: "छिड़काव से पहले मौसम जांचें",
+          weatherDescription: "अपने खेत का पूर्वानुमान खोलें; मौसम डेटा उपलब्ध न होने पर छिड़काव न करें।",
+          mandiTitle: "वर्तमान मंडी भाव की तुलना करें",
+          mandiDescription: "बेचने से पहले स्रोत और अंतिम अपडेट समय देखें।",
+        }
+      : lang === "kn"
+        ? {
+            title: "ಕ್ರಮ ಕೈಗೊಳ್ಳುವ ಮೊದಲು ಪರಿಶೀಲಿಸಿ",
+            source: "ಕ್ರಮ ಕೈಗೊಳ್ಳುವ ಮೊದಲು ನೇರ ದತ್ತಾಂಶವನ್ನು ನೋಡಿ",
+            weatherTitle: "ಸಿಂಪಡಣೆಗೆ ಮೊದಲು ಹವಾಮಾನ ಪರಿಶೀಲಿಸಿ",
+            weatherDescription: "ನಿಮ್ಮ ಜಮೀನಿನ ಮುನ್ಸೂಚನೆಯನ್ನು ತೆರೆಯಿರಿ; ಹವಾಮಾನ ದತ್ತಾಂಶ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ ಸಿಂಪಡಿಸಬೇಡಿ.",
+            mandiTitle: "ಪ್ರಸ್ತುತ ಮಂಡಿ ದರಗಳನ್ನು ಹೋಲಿಸಿ",
+            mandiDescription: "ಮಾರಾಟದ ಮೊದಲು ಮೂಲ ಮತ್ತು ಕೊನೆಯ ನವೀಕರಣ ಸಮಯವನ್ನು ನೋಡಿ.",
+          }
+        : {
+            title: "Check before you act",
+            source: "Open live sources before acting",
+            weatherTitle: "Check weather before spraying",
+            weatherDescription: "Open the forecast for your farm; do not spray when weather data is unavailable.",
+            mandiTitle: "Compare current mandi prices",
+            mandiDescription: "Review the source and last-updated time before deciding to sell.",
+          };
+  const cropDoctorDescription =
+    lang === "hi"
+      ? "फसल की पत्ती की फोटो से संभावित समस्या की जांच शुरू करें। उपचार से पहले उत्पाद लेबल और स्थानीय विशेषज्ञ की सलाह देखें।"
+      : lang === "kn"
+        ? "ಬೆಳೆ ಎಲೆಯ ಫೋಟೋದಿಂದ ಸಾಧ್ಯವಿರುವ ಸಮಸ್ಯೆಯ ಪರಿಶೀಲನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ. ಚಿಕಿತ್ಸೆಗೆ ಮುನ್ನ ಉತ್ಪನ್ನದ ಲೇಬಲ್ ಮತ್ತು ಸ್ಥಳೀಯ ತಜ್ಞರ ಸಲಹೆ ನೋಡಿ."
+        : "Start checking a possible crop issue from a leaf photo. Review the product label and local expert advice before treatment.";
 
   return (
     <div className="edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
@@ -159,7 +192,7 @@ export function WorldClassHomePage() {
         {/* ─────────────────────────────────────────────────────────────
             3. BIG, SIMPLE PRIMARY TASK CARDS WITH AUTHENTIC THUMBNAILS
         ───────────────────────────────────────────────────────────── */}
-        <MotionSection className="space-y-4">
+        <MotionSection id="capabilities" className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-white">
               {dict.cardsHeading}
@@ -234,7 +267,7 @@ export function WorldClassHomePage() {
                     {dict.cards.cropDoctor.title}
                   </h3>
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                    {dict.cards.cropDoctor.desc}
+                    {cropDoctorDescription}
                   </p>
                   {/* Voice Shortcut Trigger */}
                   <button
@@ -539,47 +572,45 @@ export function WorldClassHomePage() {
           <div className="flex items-center justify-between">
             <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{dict.advisory.title}</span>
+              <span>{planningCopy.title}</span>
             </h3>
             <span className="text-xs text-stone-500 font-medium">
-              {dict.advisory.source}
+              {planningCopy.source}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Weather & Spray Safety */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-              className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3 will-change-transform"
+            <Link
+              href="/weather"
+              className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-sm"
             >
               <CloudSun className="w-6 h-6 text-emerald-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-sm font-bold text-emerald-950 dark:text-emerald-200">
-                  {dict.advisory.weatherStatusTitle}
+                  {planningCopy.weatherTitle}
                 </strong>
                 <p className="text-xs text-emerald-900 dark:text-emerald-300 mt-0.5 leading-relaxed">
-                  {dict.advisory.weatherStatusDesc}
+                  {planningCopy.weatherDescription}
                 </p>
               </div>
-            </motion.div>
+            </Link>
 
             {/* Mandi Selling Tip */}
-            <motion.div
-              whileHover={{ y: -2 }}
-              transition={{ duration: 0.2 }}
-              className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3 will-change-transform"
+            <Link
+              href="/mandi"
+              className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-sm"
             >
               <TrendingUp className="w-6 h-6 text-amber-700 shrink-0 mt-0.5" />
               <div>
                 <strong className="block text-sm font-bold text-amber-950 dark:text-amber-200">
-                  {dict.advisory.mandiTipTitle}
+                  {planningCopy.mandiTitle}
                 </strong>
                 <p className="text-xs text-amber-900 dark:text-amber-300 mt-0.5 leading-relaxed">
-                  {dict.advisory.mandiTipDesc}
+                  {planningCopy.mandiDescription}
                 </p>
               </div>
-            </motion.div>
+            </Link>
           </div>
         </MotionSection>
 

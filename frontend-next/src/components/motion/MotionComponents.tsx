@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   motion,
   AnimatePresence,
@@ -36,6 +37,7 @@ export function PageTransition({
   className?: string;
 }) {
   const prefersReduced = useReducedMotion();
+  const pathname = usePathname();
 
   if (prefersReduced) {
     return <div className={className}>{children}</div>;
@@ -43,6 +45,7 @@ export function PageTransition({
 
   return (
     <motion.div
+      key={pathname}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}

@@ -84,6 +84,27 @@ export interface AssistantHealth {
   rate_limit: string
 }
 
+export interface CropDoctorRequest {
+  image_base64: string
+  crop_hint?: string
+  symptom_notes?: string
+  language?: Language
+}
+
+export interface CropDoctorResponse {
+  analysis: string
+  model: string
+  language: string
+  detected_problem?: string
+  confidence_level?: string
+  disclaimer: string
+  usage?: {
+    prompt_tokens?: number
+    output_tokens?: number
+    total_tokens?: number
+  }
+}
+
 // ---------- Streaming events ----------
 
 export type StreamEvent =
@@ -179,6 +200,21 @@ export async function sendMessageOnce(
     signal,
   })
   if (!r.ok) throw new AssistantAPIError(await readDetail(r, "Chat failed"), r.status)
+  return r.json()
+}
+
+export async function analyzeCropImage(
+  req: CropDoctorRequest,
+  signal?: AbortSignal
+): Promise<CropDoctorResponse> {
+  const r = await fetch("/api/chat/crop-doctor", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(req),
+    signal,
+  })
+  if (!r.ok) throw new AssistantAPIError(await readDetail(r, "Crop Doctor analysis failed"), r.status)
   return r.json()
 }
 

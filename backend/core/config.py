@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     # --- Chatbot / Voice assistant ---
     GEMINI_API_KEY: Optional[str] = None
     GEMINI_MODEL: str = "gemini-2.5-flash"
-    GEMINI_VISION_MODEL: str = "gemini-2.5-pro"
+    GEMINI_VISION_MODEL: str = "gemini-2.5-flash"
     GEMINI_FALLBACK_MODELS: str = "gemini-2.5-flash,gemini-2.5-flash-lite"
     GEMINI_TIMEOUT_SECONDS: float = 30.0
     GEMINI_MAX_RETRIES: int = 2

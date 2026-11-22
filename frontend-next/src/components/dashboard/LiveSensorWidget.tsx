@@ -155,7 +155,7 @@ export function LiveSensorWidget({
                 <p>
                   No hardware sensor probe is broadcasting at this moment. You can connect an
                   ESP32 soil node in{" "}
-                  <Link href="/iot" className="text-emerald-600 dark:text-emerald-400 underline font-semibold">
+                  <Link href="/soil-monitor" className="text-emerald-600 dark:text-emerald-400 underline font-semibold">
                     Smart Soil Monitor
                   </Link>
                   .

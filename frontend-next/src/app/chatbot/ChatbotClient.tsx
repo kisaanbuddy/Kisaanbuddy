@@ -172,8 +172,8 @@ export default function ChatbotClient() {
     setActiveSession(sessionToActivate);
     activeSessionRef.current = sessionToActivate;
 
-    const initialQuery = searchParams?.get("query");
-    if (initialQuery && !initialQueryHandledRef.current && sessionToActivate.messages.length === 0) {
+    const initialQuery = searchParams?.get("query") || searchParams?.get("prompt") || searchParams?.get("q");
+    if (initialQuery && !initialQueryHandledRef.current) {
       initialQueryHandledRef.current = true;
       setTimeout(() => {
         void handleSendMessage({ text: initialQuery }, sessionToActivate!);

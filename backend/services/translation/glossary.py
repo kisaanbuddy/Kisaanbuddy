@@ -173,8 +173,8 @@ REGEX_PATTERNS = [
     re.compile(r"https?://[^\s<>\"'{}|\\^`]+", re.IGNORECASE),
     # Email addresses
     re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
-    # Template variables e.g. {var}, {{var}}, {0}
-    re.compile(r"\{\{?[A-Za-z0-9_\-\.]+\}?\}"),
+    # Template variables e.g. {var}, {{var}}, ${var}, {0}
+    re.compile(r"(?:\$?\{\{?[A-Za-z0-9_\-\.]+\}?\})"),
     # Alphanumeric record IDs: e.g. KB-TRAC-1234, CASE-998
     re.compile(r"\b[A-Z]{2,6}-[A-Z0-9_\-]{3,20}\b"),
     # Currency with amounts: e.g. ₹ 5,000, Rs. 2500, INR 10,000

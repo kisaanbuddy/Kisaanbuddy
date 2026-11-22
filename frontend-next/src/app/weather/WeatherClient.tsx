@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button"
 import { WEATHER_T, type Lang, translateCondition, generateFarmingAdvice, getWeatherSpeech } from "@/lib/weather-translations"
 import { WEATHER_GUIDE_I18N } from "@/lib/weather-guide-i18n"
 import { MobileWeatherView } from "@/components/mobile/MobileWeatherView"
+import { AskAIButton } from "@/components/ai/AskAIButton"
 
 interface ActiveLocation {
   lat: number
@@ -503,6 +504,14 @@ function WeatherPageInner() {
                       </motion.div>
                     ))}
                   </AnimatePresence>
+
+                  <AskAIButton
+                    variant="banner"
+                    prompt={`Based on current weather in ${loc?.label || "my area"} (${current.current.temp_c}°C, ${current.current.condition}, humidity ${current.current.humidity}%), what farming activities (irrigation, spraying, harvesting) should I plan for the next 3 days?`}
+                    label={activeLang === "hi" ? "मौसम अनुसार AI से विस्तृत खेती सलाह लें" : "Get Weather-Based Farming Plan from AI"}
+                    subtitle={activeLang === "hi" ? "छिड़काव, सिंचाई और फसल सुरक्षा का सटीक मार्गदर्शन" : "Tailored spray, irrigation, and field protection schedule"}
+                    className="mt-2"
+                  />
                 </CardContent>
               </GlassCard>
             </motion.div>

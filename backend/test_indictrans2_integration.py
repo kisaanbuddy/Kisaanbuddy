@@ -83,6 +83,15 @@ class TestIndicTrans2Integration(unittest.TestCase):
         dir_id, src, tgt = self.router.resolve_direction("hin_Deva", "hin_Deva")
         self.assertEqual(dir_id, TranslationDirection.IDENTITY)
 
+        # Odia is a configured IndicTrans2 language.
+        dir_en_or, src, tgt = self.router.resolve_direction("en", "or-IN")
+        self.assertEqual(dir_en_or, TranslationDirection.EN_INDIC)
+        self.assertEqual(tgt, "ory_Orya")
+
+        # Never silently substitute another language for an unsupported code.
+        with self.assertRaisesRegex(ValueError, "Unsupported translation language"):
+            self.router.resolve_direction("en", "bho")
+
     def test_02_agricultural_glossary_protection(self):
         """Test brand names, tractor models, scientific names and numbers protection."""
         text = (
@@ -132,6 +141,48 @@ class TestIndicTrans2Integration(unittest.TestCase):
         self.assertIsNotNone(hit)
         self.assertEqual(hit[0], "स्वस्थ मिट्टी से बंपर फसल मिलती है।")
         self.assertEqual(hit[1], "indictrans2")
+
+    def test_03b_structured_wildcard_preserves_identifiers_and_templates(self):
+        """A locale-pack translation may translate all display strings, not record identity."""
+        class PrefixProvider(BaseTranslationProvider):
+            @property
+            def name(self) -> str:
+                return "test-prefix"
+
+            async def translate(self, text, source_lang, target_lang):
+                return f"OR:{text}"
+
+            async def translate_batch(self, texts, source_lang, target_lang):
+                return [f"OR:{text}" for text in texts]
+
+            async def is_healthy(self) -> bool:
+                return True
+
+        class NoopCache:
+            def get_batch(self, texts, source_language, target_language):
+                return {}, list(enumerate(texts))
+
+            def set_batch(self, items, source_language, target_language, provider):
+                return None
+
+        service = TranslationService(
+            provider=PrefixProvider(),
+            cache=NoopCache(),
+            glossary_engine=AgriculturalGlossary(),
+        )
+        data = {
+            "id": "KB-CROP-101",
+            "label": "Open dashboard",
+            "message": "Hello ${farmer_name}",
+            "price_inr": 2275,
+        }
+        translated = asyncio.run(
+            service.translate_structured(data, "or", "en", keys_to_translate=["*"])
+        )
+        self.assertEqual(translated["id"], "KB-CROP-101")
+        self.assertEqual(translated["price_inr"], 2275)
+        self.assertEqual(translated["label"], "OR:Open dashboard")
+        self.assertEqual(translated["message"], "OR:Hello ${farmer_name}")
 
     def test_04_api_translate_single_english_to_hindi(self):
         """Test POST /api/translate English to Hindi."""
