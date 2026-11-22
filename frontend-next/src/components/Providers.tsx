@@ -17,8 +17,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <LanguageProvider>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
+          enableSystem={false}
           enableColorScheme
           storageKey="kisaanbuddy-theme"
         >

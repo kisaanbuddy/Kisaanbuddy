@@ -51,7 +51,7 @@
     --badge-text: 155 53% 19%;
   }
 
-  .dark {
+  :root.dark {
     --background: 222 47% 7%;
     --foreground: 210 40% 98%;
     --card: 222 47% 10%;
@@ -360,7 +360,8 @@ html.dark ::-webkit-scrollbar-thumb:hover {
     --card-border: 120 12% 89%; --card-border-hover: 143 54% 33%;
     --badge-bg: 100 35% 94%; --badge-text: 155 53% 19%;
   }
-  .dark {
+  /* Outrank the later :root shell defaults so every dark token stays active. */
+  :root.dark {
     --background: 156 20% 8%; --foreground: 40 33% 96%;
     --card: 156 18% 12%; --card-foreground: 40 33% 96%;
     --popover: 156 18% 12%; --popover-foreground: 40 33% 96%;
@@ -410,7 +411,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
    -------------------------------------------------------------------------- */
 @layer base {
   :root {
-    --background: 90 18% 98%;
+    --background: 0 0% 100%;
     --foreground: 150 15% 13%;
     --card: 0 0% 100%;
     --card-foreground: 150 15% 13%;

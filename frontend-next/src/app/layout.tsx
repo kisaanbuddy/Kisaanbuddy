@@ -66,10 +66,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f7f9f4' },
-    { media: '(prefers-color-scheme: dark)',  color: '#101914' },
-  ],
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
 };
@@ -88,9 +85,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               (function() {
                 try {
                   var preference = localStorage.getItem('kisaanbuddy-theme');
-                  var isDark = preference === 'dark' || (!preference || preference === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (preference && preference !== 'light' && preference !== 'dark') {
+                    localStorage.setItem('kisaanbuddy-theme', 'light');
+                  }
+                  var isDark = preference === 'dark';
                   document.documentElement.classList.toggle('dark', isDark);
                   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+                  var themeColor = document.querySelector('meta[name="theme-color"]');
+                  if (themeColor) themeColor.setAttribute('content', isDark ? '#101814' : '#ffffff');
                 } catch (e) {}
               })();
             `,
