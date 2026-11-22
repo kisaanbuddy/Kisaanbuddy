@@ -39,6 +39,7 @@ export function LanguageGate({ children }: { children: React.ReactNode }) {
   if (!isLanguageSelected) {
     return (
       <FarmerLanguageWelcomeScreen
+        initialLang={lang}
         onSelect={(selectedLang) => {
           setLang(selectedLang);
         }}

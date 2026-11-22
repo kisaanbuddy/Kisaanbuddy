@@ -318,20 +318,21 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [isLanguageSelected, setIsLanguageSelected] = useState<boolean>(false)
   const [isLanguageModalOpen, setIsLanguageModalOpen] = useState<boolean>(false)
 
-  // A deliberate selection persists across visits.  Browser language is used
-  // only for a first visit with no saved preference.
+  // A deliberate selection persists across visits. On a first visit, browser
+  // language only preselects the welcome screen; it never skips consent.
   useLayoutEffect(() => {
     try {
       const preferred = localStorage.getItem(PREFERRED_LANG_KEY) as Lang | null
       const sessionLanguage = sessionStorage.getItem(SESSION_LANG_KEY) as Lang | null
-      const candidate =
+      const savedLanguage =
         (preferred && SELECTABLE_LANGS.includes(preferred) && preferred) ||
-        (sessionLanguage && SELECTABLE_LANGS.includes(sessionLanguage) && sessionLanguage) ||
-        getBrowserLanguage()
+        (sessionLanguage && SELECTABLE_LANGS.includes(sessionLanguage) && sessionLanguage)
+      const browserLanguage = getBrowserLanguage()
+      const candidate = savedLanguage || browserLanguage
 
       if (candidate) {
         setLangState(candidate)
-        setIsLanguageSelected(true)
+        setIsLanguageSelected(Boolean(savedLanguage))
         if (typeof document !== "undefined") {
           document.documentElement.lang = candidate
         }

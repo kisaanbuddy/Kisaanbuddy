@@ -6,10 +6,11 @@ import { Check, Sparkles, ShieldCheck, ArrowRight } from 'lucide-react';
 
 interface FarmerLanguageWelcomeScreenProps {
   onSelect: (lang: Lang) => void;
+  initialLang?: Lang;
 }
 
-export function FarmerLanguageWelcomeScreen({ onSelect }: FarmerLanguageWelcomeScreenProps) {
-  const [selectedCode, setSelectedCode] = useState<Lang | null>(null);
+export function FarmerLanguageWelcomeScreen({ onSelect, initialLang }: FarmerLanguageWelcomeScreenProps) {
+  const [selectedCode, setSelectedCode] = useState<Lang | null>(initialLang ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCardClick = (langCode: Lang) => {
