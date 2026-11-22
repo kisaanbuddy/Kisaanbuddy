@@ -7,7 +7,7 @@ import { useTheme } from "next-themes"
 
 export function ThemeToggle() {
   const { t } = useLanguage()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = React.useState(false)
 
   React.useEffect(() => {
@@ -20,9 +20,10 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="p-1.5 rounded-lg bg-card/60 border border-border/70 hover:bg-muted/60 hover:text-foreground active:scale-95 transition-all duration-200 relative h-8 w-8 flex items-center justify-center cursor-pointer"
-      title={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      className="p-1.5 rounded-lg bg-card/80 border border-border/70 hover:bg-muted/80 hover:text-foreground active:scale-95 transition-all duration-200 relative h-8 w-8 flex items-center justify-center cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
+      title={resolvedTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+      aria-pressed={resolvedTheme === "dark"}
       aria-label={t("theme_toggle.toggle_theme")}
     >
       <Sun className="h-4 w-4 text-amber-500 transition-all duration-300 scale-100 rotate-0 dark:-rotate-90 dark:scale-0" />

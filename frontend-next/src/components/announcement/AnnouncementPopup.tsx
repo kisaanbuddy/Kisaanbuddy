@@ -328,7 +328,7 @@ export function AnnouncementPopup() {
             aria-modal="true"
             aria-labelledby="whatsapp-announcement-title"
             aria-describedby="whatsapp-announcement-desc"
-            className="relative w-full max-w-4xl my-auto bg-gradient-to-br from-[#FEFDF9] via-[#F7FAF4] to-[#EEF7EC] text-stone-900 rounded-3xl border border-emerald-900/10 dark:border-emerald-700/20 shadow-2xl shadow-emerald-950/25 overflow-hidden"
+            className="relative w-full max-w-4xl my-auto bg-gradient-to-br from-[#FEFDF9] via-[#F7FAF4] to-[#EEF7EC] dark:from-stone-950 dark:via-emerald-950/55 dark:to-stone-900 text-stone-900 dark:text-stone-100 rounded-3xl border border-emerald-900/10 dark:border-emerald-500/25 shadow-2xl shadow-emerald-950/25 dark:shadow-black/50 overflow-hidden"
             initial={{ opacity: 0, scale: prefersReducedMotion ? 1 : 0.95, y: prefersReducedMotion ? 0 : 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: prefersReducedMotion ? 1 : 0.95, y: prefersReducedMotion ? 0 : 16 }}
@@ -345,7 +345,7 @@ export function AnnouncementPopup() {
               type="button"
               onClick={handleDismiss}
               aria-label="Close WhatsApp announcement"
-              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-30 p-2 sm:p-2.5 rounded-full bg-white/90 hover:bg-emerald-50 text-stone-600 hover:text-emerald-800 border border-emerald-900/10 shadow-xs transition-all active:scale-95 cursor-pointer"
+              className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 z-30 p-2 sm:p-2.5 rounded-full bg-white/90 dark:bg-stone-800/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/80 text-stone-600 dark:text-stone-300 hover:text-emerald-800 dark:hover:text-emerald-300 border border-emerald-900/10 dark:border-emerald-500/20 shadow-xs transition-all active:scale-95 cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -398,7 +398,7 @@ export function AnnouncementPopup() {
                   aria-label="Chat with KisaanBuddy on WhatsApp (+91 62098 56252)"
                   className="inline-flex flex-wrap items-center gap-2.5 sm:gap-3 w-fit cursor-pointer hover:opacity-95 transition-opacity"
                 >
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/90 border border-emerald-900/10 shadow-2xs">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/90 dark:bg-stone-900/80 border border-emerald-900/10 dark:border-emerald-500/20 shadow-2xs">
                     <img
                       src="/logo.webp"
                       alt="KisaanBuddy Logo"
@@ -406,12 +406,12 @@ export function AnnouncementPopup() {
                       height={28}
                       className="w-7 h-7 object-contain"
                     />
-                    <span className="font-display font-black text-base sm:text-lg text-stone-900 tracking-tight">
-                      Kisaan<span className="text-[#0f5132]">Buddy</span>
+                    <span className="font-display font-black text-base sm:text-lg text-stone-900 dark:text-stone-100 tracking-tight">
+                      Kisaan<span className="text-[#0f5132] dark:text-emerald-400">Buddy</span>
                     </span>
                   </div>
 
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#25D366]/15 border border-[#25D366]/30 text-[#075E54] font-extrabold text-xs tracking-wide">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#25D366]/15 dark:bg-emerald-400/15 border border-[#25D366]/30 dark:border-emerald-400/30 text-[#075E54] dark:text-emerald-300 font-extrabold text-xs tracking-wide">
                     {/* WhatsApp Icon */}
                     <svg
                       className="w-3.5 h-3.5 fill-[#25D366]"
@@ -427,10 +427,10 @@ export function AnnouncementPopup() {
                 <div className="space-y-1.5">
                   <h2
                     id="whatsapp-announcement-title"
-                    className="text-2xl sm:text-3xl lg:text-[34px] font-black text-stone-900 leading-[1.22] tracking-tight"
+                    className="text-2xl sm:text-3xl lg:text-[34px] font-black text-stone-900 dark:text-stone-50 leading-[1.22] tracking-tight"
                   >
                     {aDict.headingPrefix}{" "}
-                    <span className="text-[#075E54] underline decoration-[#25D366] decoration-4 underline-offset-4">
+                    <span className="text-[#075E54] dark:text-emerald-300 underline decoration-[#25D366] decoration-4 underline-offset-4">
                       {aDict.headingSuffix}
                     </span>
                   </h2>
@@ -445,12 +445,12 @@ export function AnnouncementPopup() {
                 {/* 3 Feature Cards */}
                 <div className="space-y-2 pt-1 sm:pt-2">
                   {/* Card 1: Farming Assistance */}
-                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 dark:bg-stone-900/70 border border-emerald-900/10 dark:border-emerald-500/20 shadow-2xs hover:bg-white dark:hover:bg-stone-800/90 transition-colors">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100/90 text-emerald-800 shrink-0">
                       <Sprout className="w-5 h-5 text-emerald-700" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                      <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                         <span>🌱</span>
                         <span>{aDict.card1Title}</span>
                       </div>
@@ -461,12 +461,12 @@ export function AnnouncementPopup() {
                   </div>
 
                   {/* Card 2: Farm Marketplace */}
-                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 dark:bg-stone-900/70 border border-emerald-900/10 dark:border-emerald-500/20 shadow-2xs hover:bg-white dark:hover:bg-stone-800/90 transition-colors">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100/90 text-sky-800 shrink-0">
                       <Store className="w-5 h-5 text-sky-700" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                      <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                         <span>🛒</span>
                         <span>{aDict.card2Title}</span>
                       </div>
@@ -477,12 +477,12 @@ export function AnnouncementPopup() {
                   </div>
 
                   {/* Card 3: Mandi Price Information */}
-                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 border border-emerald-900/10 shadow-2xs hover:bg-white transition-colors">
+                  <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-white/80 dark:bg-stone-900/70 border border-emerald-900/10 dark:border-emerald-500/20 shadow-2xs hover:bg-white dark:hover:bg-stone-800/90 transition-colors">
                     <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100/90 text-amber-800 shrink-0">
                       <TrendingUp className="w-5 h-5 text-amber-700" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-xs sm:text-sm font-bold text-stone-900 flex items-center gap-1.5">
+                      <div className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                         <span>📊</span>
                         <span>{aDict.card3Title}</span>
                       </div>
@@ -519,7 +519,7 @@ export function AnnouncementPopup() {
                     <button
                       type="button"
                       onClick={handleDismiss}
-                      className="inline-flex items-center justify-center px-5 py-3.5 rounded-2xl bg-white/90 hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-bold text-xs sm:text-sm border border-stone-200/90 transition-all cursor-pointer"
+                      className="inline-flex items-center justify-center px-5 py-3.5 rounded-2xl bg-white/90 dark:bg-stone-800/90 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-200 hover:text-stone-900 dark:hover:text-white font-bold text-xs sm:text-sm border border-stone-200/90 dark:border-stone-700 transition-all cursor-pointer"
                     >
                       <span>{aDict.ctaSecondary}</span>
                     </button>

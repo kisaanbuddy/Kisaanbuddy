@@ -17,8 +17,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <LanguageProvider>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem
+          enableColorScheme
           storageKey="kisaanbuddy-theme"
         >
           {/* LanguageGate: First-time visitors see welcome if fresh session */}

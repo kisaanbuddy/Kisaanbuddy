@@ -67,8 +67,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)',  color: '#ffffff' },
+    { media: '(prefers-color-scheme: light)', color: '#f7f9f4' },
+    { media: '(prefers-color-scheme: dark)',  color: '#101914' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -78,11 +78,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className="light"
       suppressHydrationWarning
       style={{ '--font-sans': FONT_SANS, '--font-display': FONT_DISPLAY } as React.CSSProperties}
     >
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var preference = localStorage.getItem('kisaanbuddy-theme');
+                  var isDark = preference === 'dark' || (!preference || preference === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  document.documentElement.classList.toggle('dark', isDark);
+                  document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
         <script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7054228358838096"
