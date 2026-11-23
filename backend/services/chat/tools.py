@@ -43,16 +43,9 @@ async def _tool_get_weather(
             res = await orchestrator.get_current(lat=lat, lon=lon)
             data = res.payload if hasattr(res, "payload") else res
         else:
-            return {"error": f"Could not determine coordinates for '{city or 'unknown'}'."}
-        return {
-            "location": data.get("location"),
-            "temperature_c": data.get("temperature_c"),
-            "feels_like_c": data.get("feels_like_c"),
-            "humidity_pct": data.get("humidity_pct"),
-            "wind_kph": data.get("wind_kph"),
-            "condition": data.get("condition"),
-            "rain_mm": data.get("rain_mm"),
-        }
+            return {"error": "Please provide a location for weather."}
+        from services.chat.live_evidence import weather_evidence
+        return weather_evidence(data)
     except Exception as e:
         log.warning("tool get_weather failed: %s", e)
         return {"error": f"Weather service unavailable: {e}"}
@@ -82,21 +75,8 @@ async def _tool_get_forecast(
             data = res.payload if hasattr(res, "payload") else res
         else:
             return {"error": f"Could not determine coordinates for '{city or 'unknown'}'."}
-        # Compact: keep daily summary only — keeps response small for the model.
-        daily = data.get("daily") or []
-        return {
-            "location": data.get("location"),
-            "daily": [
-                {
-                    "date": d.get("date"),
-                    "min_c": d.get("min_c"),
-                    "max_c": d.get("max_c"),
-                    "rain_mm": d.get("rain_mm"),
-                    "condition": d.get("condition"),
-                }
-                for d in daily[:days]
-            ],
-        }
+        from services.chat.live_evidence import weather_evidence
+        return weather_evidence(data, forecast=True)
     except Exception as e:
         log.warning("tool get_forecast failed: %s", e)
         return {"error": f"Forecast service unavailable: {e}"}
@@ -137,7 +117,9 @@ async def _tool_list_schemes(
     try:
         from services.providers.schemes_provider import list_schemes
 
-        schemes = list_schemes(state=state, category=category)
+        from services.chat.live_evidence import official_source, fresh_timestamp
+        schemes = [s for s in list_schemes(state=state, category=category)
+                   if official_source(s.get("url")) and fresh_timestamp(s.get("last_verified"), 24 * 30)]
         return {
             "count": len(schemes),
             "schemes": [
@@ -156,7 +138,7 @@ async def _tool_list_schemes(
                 }
                 for s in schemes[:15]
             ],
-            "disclaimer": "All schemes are grounded in official government gazettes. KisaanBuddy does not guarantee scheme approval.",
+            "disclaimer": "Only records with an official source URL and a review timestamp within 30 days are included. Eligibility must be checked against the linked source; approval is not guaranteed.",
         }
     except Exception as e:
         log.warning("tool list_schemes failed: %s", e)
@@ -172,41 +154,8 @@ async def _tool_get_mandi_prices(
     market: Optional[str] = None,
 ) -> Dict[str, Any]:
     try:
-        # Reuse the same AGMARKNET-backed source exposed by the API route.
-        # Its explicit source label prevents the assistant from presenting a
-        # fallback record as a live market quotation.
-        from api.mandi import fetch_live_crops
-
-        crops, source = await fetch_live_crops()
-        if crop:
-            crops = [c for c in crops if crop.casefold() in c["name"].casefold()]
-        if state:
-            crops = [c for c in crops if state.casefold() in c["state"].casefold()]
-        if market:
-            crops = [c for c in crops if market.casefold() in c["mandi"].casefold()]
-        return {
-            "count": len(crops),
-            "source": source,
-            "observation_note": (
-                "Live AGMARKNET data" if source == "live"
-                else "Fallback reference data; it is not a live market quote."
-            ),
-            "crops": [
-                {
-                    "name": c.get("name"),
-                    "market": c.get("market"),
-                    "state": c.get("state"),
-                    "price": c.get("price"),
-                    "unit": c.get("unit"),
-                    "category": c.get("category"),
-                    "trend": c.get("trend"),
-                    "change_percent": c.get("change_percent"),
-                    "min_price": c.get("min_price"),
-                    "max_price": c.get("max_price"),
-                }
-                for c in crops
-            ],
-        }
+        from services.whatsapp.market_data import get_market_observations
+        return await get_market_observations(crop=crop, state=state, market=market)
     except Exception as e:
         log.warning("tool get_mandi_prices failed: %s", e)
         return {"error": f"Mandi service unavailable: {e}"}

@@ -23,7 +23,7 @@ META_MEDIA_ALLOWED_DOMAINS = {
 
 def verify_webhook_signature(raw_payload: bytes, signature_header: Optional[str]) -> bool:
     """Verifies the X-Hub-Signature-256 header sent by Meta Cloud API using SHA-256 HMAC."""
-    if not settings.WHATSAPP_SIGNATURE_VERIFICATION:
+    if not settings.WHATSAPP_SIGNATURE_VERIFICATION and settings.DEBUG:
         return True
 
     app_secret = (settings.WHATSAPP_APP_SECRET or "").strip()
@@ -118,7 +118,7 @@ def is_safe_media_url(url: str) -> bool:
         return False
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in ("https", "http"):
+        if parsed.scheme != "https" or parsed.username or parsed.password or parsed.port not in (None, 443):
             return False
         hostname = (parsed.hostname or "").lower()
         if hostname in META_MEDIA_ALLOWED_DOMAINS:

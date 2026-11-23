@@ -31,6 +31,12 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
         if engine:
             Base.metadata.create_all(bind=engine)
         self.db = SessionLocal()
+        # Returning-user journeys require durable subscriber records, not cache-only state.
+        for i in range(2, 9):
+            phone = f"+91910000000{i}"
+            if not self.db.query(WhatsAppUser).filter_by(phone_number=phone).first():
+                self.db.add(WhatsAppUser(phone_number=phone, language="en", current_state="MAIN_MENU"))
+        self.db.commit()
 
     async def asyncTearDown(self):
         self.db.close()
@@ -104,21 +110,13 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
             msg2 = {"type": "image", "id": "w_cd_2", "image": {"id": "media_foliage_998", "mime_type": "image/jpeg"}}
             await whatsapp_service.process_message_turn(msg2, phone, "Farmer Suresh", self.db)
 
-            # Verify actual diagnosis saved in DiseaseDetection model
-            latest_diag = self.db.query(DiseaseDetection).order_by(DiseaseDetection.id.desc()).first()
-            self.assertIsNotNone(latest_diag)
-            self.assertTrue(latest_diag.confidence > 0.0)
-            self.assertIsNotNone(latest_diag.detected_disease)
-            self.assertIn("crop_doctor", latest_diag.image_url)
-
-            # Verify outbound message contains diagnosis and website link
+            # Unavailable AI must not manufacture a diagnosis from a synthetic test image.
+            self.assertIsNone(self.db.query(DiseaseDetection).order_by(DiseaseDetection.id.desc()).first())
             outbound_msg = self.db.query(WhatsAppMessage).filter(
-                WhatsAppMessage.phone_number == phone,
-                WhatsAppMessage.direction == "outbound"
+                WhatsAppMessage.phone_number == phone, WhatsAppMessage.direction == "outbound"
             ).order_by(WhatsAppMessage.id.desc()).first()
             self.assertIsNotNone(outbound_msg)
-            self.assertIn("disease?diagnosis_id=", outbound_msg.body)
-            self.assertIn(str(latest_diag.id), outbound_msg.body)
+            self.assertIn("unavailable", outbound_msg.body)
 
     async def test_03_agricultural_question_answering(self):
         """TEST 3: Farmer -> agricultural question -> knowledge engine -> answer."""
@@ -142,7 +140,7 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
                 WhatsAppMessage.direction == "outbound"
             ).order_by(WhatsAppMessage.id.desc()).first()
             self.assertIsNotNone(outbound)
-            self.assertIn("Rice", outbound.body)
+            self.assertIn("unavailable", outbound.body)
 
     async def test_04_market_prices_redirection(self):
         """TEST 4: Farmer -> market prices -> verified website redirection link."""
@@ -252,8 +250,11 @@ class TestWhatsAppEndToEndJourneys(unittest.IsolatedAsyncioTestCase):
 
         bg1 = BackgroundTasks()
         await whatsapp_service.handle_webhook_payload(payload, bg1, self.db)
-        # 2 tasks queued: mark_read and process_turn
-        self.assertEqual(len(bg1.tasks), 2)
+        # Work is durably queued with the inbound audit, not held in process memory.
+        from db.models import WhatsAppInboxJob
+        self.assertEqual(len(bg1.tasks), 0)
+        mid = payload['entry'][0]['changes'][0]['value']['messages'][0]['id']
+        self.assertEqual(self.db.query(WhatsAppInboxJob).filter_by(message_id=mid).count(), 1)
 
         # Send duplicate payload
         bg2 = BackgroundTasks()

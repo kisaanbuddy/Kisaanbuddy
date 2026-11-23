@@ -60,6 +60,8 @@ def validate_crop_image(image_bytes: bytes, mime_type: Optional[str] = None) -> 
 
     try:
         img = Image.open(io.BytesIO(image_bytes))
+        if img.width * img.height > 20_000_000:
+            return False, "Image dimensions exceed the 20 megapixel limit."
         img.verify()  # Verifies file integrity
     except Exception as e:
         log.warning("Image verification failed: %s", e)
@@ -155,7 +157,7 @@ async def process_crop_doctor_image(
         crop_name = predicted_class.split("_")[0].capitalize() if "_" in predicted_class else "Crop"
 
     knowledge_matches = query_knowledge_base(crop_name, predicted_class)
-    best_guide = knowledge_matches[0] if knowledge_matches else AGRICULTURAL_KNOWLEDGE_BASE[0]
+    best_guide = {}  # Legacy profiles lack document-level reviewed provenance.
 
     confidence_val = float(raw_result.get("confidence", 0.0))
     is_uncertain = (
@@ -165,11 +167,8 @@ async def process_crop_doctor_image(
     )
 
     disease_display = best_guide.get("disease_or_pest", predicted_class.replace("_", " ").title())
-    remedy_text = (
-        best_guide.get("cultural_preventive", "") + " " +
-        best_guide.get("biological_organic", "") + " " +
-        best_guide.get("chemical_control", "")
-    ).strip()
+    remedy_text = "Verified treatment guidance is unavailable; field assessment is required."
+    is_uncertain = True  # A classifier score is not a validated field diagnosis.
 
     # 5. Persist to existing DiseaseDetection database model
     # Link to existing user if phone number matches
@@ -203,76 +202,20 @@ async def process_crop_doctor_image(
         frontend_base = "https://www.kisaanbuddy.com"
     diagnosis_web_url = f"{frontend_base}/disease?diagnosis_id={diagnosis_id}&token={link_token}"
 
-    # 7. Format WhatsApp message
-    confidence_pct = int(round(confidence_val * 100))
-    
+    # Scores remain internal; do not present them as calibrated field certainty.
     if language == "hi":
-        status_line = "⚠️ *अनिश्चित परिणाम:* फोटो अस्पष्ट लग रही है। विशेषज्ञ की सलाह लें।" if is_uncertain else "✅ *सटीक परिणाम*"
-        msg_lines = [
-            f"🌿 *क्रॉप डॉक्टर जांच परिणाम* (आईडी: #{diagnosis_id})",
-            "",
-            f"• *फसल:* {crop_name}",
-            f"• *पहचाना गया रोग:* {disease_display}",
-            f"• *मॉडल विश्वास:* {confidence_pct}% ({status_line})",
-            "",
-            "📋 *लक्षण व प्राथमिक उपचार:*",
-            f"• {best_guide.get('symptoms', 'पत्तियों पर धब्बे या सिकुड़न।')[:180]}",
-            "",
-            "🛡️ *सिफारिश:*",
-            f"• {best_guide.get('cultural_preventive', 'संक्रमित पत्तियों को हटाएँ।')[:180]}",
-        ]
-        if not is_uncertain and best_guide.get("cibrc_registered_compounds"):
-            msg_lines.append(f"• स्वीकृत उपचार: {best_guide.get('cibrc_registered_compounds')[:120]}")
-        msg_lines.extend([
-            "",
-            f"🔍 *पूरी रिपोर्ट व फोटो देखें:*\n{diagnosis_web_url}",
-            "",
-            "मेनू पर लौटने के लिए 'menu' लिखें।"
-        ])
+        text = (f"फोटो मॉडल ने यह संभावना सुझाई: {disease_display}। यह पक्का निदान नहीं है। "
+                "कृपया फसल का नाम, उम्र, जिला और लक्षण कब शुरू हुए बताएं। "
+                "सत्यापित उपचार उपलब्ध नहीं है। दवा छिड़कने से पहले स्थानीय KVK से पुष्टि कराएं।")
     elif language == "kn":
-        status_line = "⚠️ *ಅನಿಶ್ಚಿತ ಫಲಿತಾಂಶ:* ಫೋಟೋ ಅಸ್ಪಷ್ಟವಾಗಿದೆ. ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ." if is_uncertain else "✅ *ನಿಖರ ಫಲಿತಾಂಶ*"
-        msg_lines = [
-            f"🌿 *ಕ್ರಾಪ್ ಡಾಕ್ಟರ್ ರೋಗ ಪತ್ತೆ ವರದಿ* (ID: #{diagnosis_id})",
-            "",
-            f"• *ಬೆಳೆ:* {crop_name}",
-            f"• *ಕಂಡುಬಂದ ರೋಗ:* {disease_display}",
-            f"• *ವಿಶ್ವಾಸಾರ್ಹತೆ:* {confidence_pct}% ({status_line})",
-            "",
-            "📋 *ಪ್ರಮುಖ ಲಕ್ಷಣಗಳು ಮತ್ತು ನಿರ್ವಹಣೆ:*",
-            f"• {best_guide.get('symptoms', 'ಎಲೆಗಳ ಮೇಲೆ ಚುಕ್ಕೆಗಳು ಕಂಡುಬಂದಿವೆ.')[:180]}",
-            "",
-            "🛡️ *ತಕ್ಷಣದ ಕ್ರಮ:*",
-            f"• {best_guide.get('cultural_preventive', 'ಬಾಧಿತ ಎಲೆಗಳನ್ನು ತಕ್ಷಣ ತೆಗೆದುಹಾಕಿ.')[:180]}",
-            "",
-            f"🔍 *ಸಂಪೂರ್ಣ ವರದಿ ನೋಡಲು ಲಿಂಕ್ ತೆರೆಯಿರಿ:*\n{diagnosis_web_url}",
-            "",
-            "ಮುಖ್ಯ ಮೆನುಗೆ ಮರಳಲು 'menu' ಎಂದು ಟೈಪ್ ಮಾಡಿ."
-        ]
+        text = (f"ಚಿತ್ರ ಮಾದರಿಯ ಸಾಧ್ಯತೆ: {disease_display}. ಇದು ಖಚಿತ ರೋಗನಿರ್ಣಯವಲ್ಲ. "
+                "ಬೆಳೆ, ವಯಸ್ಸು, ಜಿಲ್ಲೆ ಮತ್ತು ಲಕ್ಷಣಗಳು ಪ್ರಾರಂಭವಾದ ಸಮಯ ತಿಳಿಸಿ. "
+                "ದೃಢೀಕೃತ ಚಿಕಿತ್ಸೆ ಲಭ್ಯವಿಲ್ಲ. ಸ್ಥಳೀಯ KVK ತಜ್ಞರನ್ನು ಸಂಪರ್ಕಿಸಿ.")
     else:
-        status_line = "⚠️ *Uncertain:* Image ambiguous. Extension expert review advised." if is_uncertain else "✅ *High Confidence*"
-        msg_lines = [
-            f"🌿 *Crop Doctor Diagnosis* (Case #{diagnosis_id})",
-            "",
-            f"• *Crop:* {crop_name}",
-            f"• *Condition:* {disease_display}",
-            f"• *Confidence:* {confidence_pct}% ({status_line})",
-            "",
-            "📋 *Key Symptoms:*",
-            f"• {best_guide.get('symptoms', 'Foliage discoloration or spotting.')[:180]}",
-            "",
-            "🛡️ *Recommended Management (ICAR/CIBRC):*",
-            f"• {best_guide.get('cultural_preventive', 'Isolate or prune visibly infected lower foliage.')[:180]}",
-        ]
-        if not is_uncertain and best_guide.get("cibrc_registered_compounds"):
-            msg_lines.append(f"• CIBRC Registered Option: {best_guide.get('cibrc_registered_compounds')[:120]}")
-        msg_lines.extend([
-            "",
-            f"🔍 *View Complete Diagnosis & High-Res Image:*\n{diagnosis_web_url}",
-            "",
-            "Type 'menu' to return to the main menu."
-        ])
-
-    formatted_message = "\n".join(msg_lines)
+        text = (f"The image model suggests a possibility: {disease_display}. This is not a confirmed diagnosis. "
+                "What crop is this, how old is it, which district, and when did symptoms begin? "
+                "Reviewed treatment guidance is unavailable. Consult your local KVK before applying chemicals.")
+    formatted_message = text + f"\n\nCase report: {diagnosis_web_url}"
 
     return {
         "success": True,

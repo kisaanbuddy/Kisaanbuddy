@@ -220,6 +220,8 @@ class TestWhatsAppWebhookEndToEndRouting(unittest.TestCase):
     @patch("services.whatsapp.client.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_incoming_test_number_routes_to_test_sender(self, mock_text, mock_list):
         """Inbound webhook on test number triggers outbound turn with test sender_phone_number_id."""
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         mock_list.return_value = {"messages": [{"id": "wamid.list.1"}]}
         mock_text.return_value = {"messages": [{"id": "wamid.text.1"}]}
 
@@ -265,6 +267,8 @@ class TestWhatsAppWebhookEndToEndRouting(unittest.TestCase):
     @patch("services.whatsapp.client.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_incoming_production_number_routes_to_prod_sender(self, mock_text, mock_list):
         """Inbound webhook on production number triggers outbound turn with prod sender_phone_number_id."""
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         mock_list.return_value = {"messages": [{"id": "wamid.list.2"}]}
         mock_text.return_value = {"messages": [{"id": "wamid.text.2"}]}
 

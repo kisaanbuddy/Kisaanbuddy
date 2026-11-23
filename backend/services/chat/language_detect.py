@@ -2,7 +2,7 @@
 
 Strategy:
   1. Unicode script check — Devanagari => hi, Kannada block => kn.
-     This is O(n) and 100% reliable for Hindi/Kannada native script.
+     Script is a heuristic: Devanagari is shared by Hindi, Marathi and others.
   2. For Latin-script input, fall back to `langdetect` (if installed) with an
      en/hi/kn constraint list. This catches Hinglish transliterations like
      "barish kab hogi".
@@ -19,7 +19,7 @@ from typing import Literal
 
 log = logging.getLogger(__name__)
 
-Lang = Literal["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai"]
+Lang = Literal["en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai", "or"]
 
 # Unicode block ranges (inclusive).
 _DEVANAGARI = (0x0900, 0x097F)   # Hindi, Marathi, Sanskrit
@@ -57,7 +57,7 @@ def detect_language(text: str) -> Lang:
     s = text.strip()
 
     # Script-based detection — exact and fast.
-    counts = {"hi": 0, "kn": 0, "bn": 0, "gu": 0, "pa": 0, "ta": 0, "te": 0, "ml": 0}
+    counts = {"hi": 0, "kn": 0, "bn": 0, "gu": 0, "pa": 0, "ta": 0, "te": 0, "ml": 0, "or": 0}
     total_letters = 0
     for ch in s:
         cp = ord(ch)
@@ -70,6 +70,7 @@ def detect_language(text: str) -> Lang:
         elif _GURMUKHI[0] <= cp <= _GURMUKHI[1]: counts["pa"] += 1
         elif _TAMIL[0] <= cp <= _TAMIL[1]: counts["ta"] += 1
         elif _TELUGU[0] <= cp <= _TELUGU[1]: counts["te"] += 1
+        elif 0x0B00 <= cp <= 0x0B7F: counts["or"] += 1
         elif _MALAYALAM[0] <= cp <= _MALAYALAM[1]: counts["ml"] += 1
 
     if total_letters > 0:
@@ -104,7 +105,7 @@ def detect_language(text: str) -> Lang:
 def resolve_language(requested: str, text: str) -> Lang:
     """Honour an explicit user choice; else auto-detect."""
     r = (requested or "").lower()
-    if r in ("hi", "kn", "en", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai"):
+    if r in ("hi", "kn", "en", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai", "or"):
         return r  # type: ignore[return-value]
     # Spoken/text language-change commands are part of the conversation, not
     # merely UI state.  Match them before script detection so e.g. "Hindi mein

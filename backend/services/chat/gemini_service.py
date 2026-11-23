@@ -1002,7 +1002,7 @@ async def transcribe_audio_with_gemini(
     prompt = (
         f"Transcribe the farmer's spoken audio accurately in its original language/script "
         f"(language hint: {lang_hint}). Return ONLY strict JSON: "
-        '{"transcript": "...", "language": "hi|kn|en|hi_en|bn|mr|te|ta|gu|pa|ml"}'
+        '{"transcript": "...", "language": "hi|kn|en|hi_en|bn|mr|te|ta|gu|pa|ml|or|bho|mai"}'
     )
     resp, _ = await generate_with_retry(
         contents=[types.Part.from_bytes(data=audio_bytes, mime_type=mime_type), prompt],

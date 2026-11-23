@@ -1292,6 +1292,20 @@ if Column is not None:
         error_message = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
+    class WhatsAppInboxJob(Base):  # type: ignore[misc]
+        """Durable webhook work; ambiguous delivery is held for operator review."""
+        __tablename__ = "whatsapp_inbox_jobs"
+        id = Column(Integer, primary_key=True)
+        message_id = Column(String(100), unique=True, nullable=False)
+        phone_number = Column(String(50), index=True, nullable=False)
+        payload_json = Column(Text, nullable=False)
+        status = Column(String(30), default="pending", index=True, nullable=False)
+        lease_token = Column(String(64), nullable=True)
+        lease_until = Column(DateTime, nullable=True)
+        error_code = Column(String(100), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+        updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
     class WhatsAppSupportTicket(Base):  # type: ignore[misc]
         """Farmer escalation ticket originating from WhatsApp conversation."""
         __tablename__ = "whatsapp_support_tickets"

@@ -1,0 +1,23 @@
+{
+  "source_url": "https://agritech.tnau.ac.in/agriculture/agri_nutrientmgt_integrntrientmgt.html",
+  "publisher": "Tamil Nadu Agricultural University",
+  "title": "Integrated Nutrient Management",
+  "publication_date": null,
+  "publication_date_status": "not_reported",
+  "geography": [
+    "Tamil Nadu",
+    "India: general principles only"
+  ],
+  "version": "1",
+  "reviewed_by": "Codex source-text comparison, not field/agronomist validation",
+  "review_status": "approved",
+  "review_scope": "Paraphrased general principles checked against retrieved official page; no doses or field diagnosis.",
+  "reviewed_at": "2026-11-23T03:06:10.866729+00:00",
+  "review_expires_at": "2027-02-21T03:06:10.866729+00:00",
+  "sha256": "8e148f38afbb1d2a5ad1b599b455274eccfde425d8daddf64136fc7be5483bb4",
+  "topics": [
+    "soil_health",
+    "fertilizer_management",
+    "sustainable_farming"
+  ]
+}

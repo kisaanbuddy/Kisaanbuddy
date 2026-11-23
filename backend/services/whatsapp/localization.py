@@ -9,7 +9,7 @@ import re
 from typing import Any, Dict, List, Optional
 
 # Supported language codes
-SUPPORTED_LANGUAGES = ["en", "hi", "kn"]
+SUPPORTED_LANGUAGES = ["en", "hi", "hi_en", "bho", "mai", "bn", "mr", "gu", "pa", "ta", "te", "kn", "or"]
 DEFAULT_LANGUAGE = "en"
 
 # Multilingual strings
@@ -419,54 +419,11 @@ MESSAGES: Dict[str, Dict[str, str]] = {
         ),
     },
     "schemes_info": {
-        "en": (
-            "🏛️ *Verified Government Agricultural Schemes*\n\n"
-            "1. *PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)*\n"
-            "• Benefit: ₹6,000/year (3 installments of ₹2,000 directly to bank accounts)\n"
-            "• Eligibility: Landholding farmer families with cultivable land\n"
-            "• Official Portal: https://pmkisan.gov.in\n\n"
-            "2. *PMFBY (Pradhan Mantri Fasal Bima Yojana)*\n"
-            "• Benefit: Low-cost crop insurance against non-preventable natural risks\n"
-            "• Farmer Premium: Capped at 1.5% - 2% for food/oilseed crops\n"
-            "• Official Portal: https://pmfby.gov.in\n\n"
-            "3. *PM-KMY (Pradhan Mantri Kisan Maandhan Yojana)*\n"
-            "• Benefit: ₹3,000/month assured old-age pension after 60 years\n"
-            "• Eligibility: Small & marginal farmers (18-40 years) with up to 2 ha land\n\n"
-            "🔍 *Check your eligibility for 15+ central & state schemes on KisaanBuddy:*\n{url}\n\n"
-            "Type 'menu' to return to the main menu."
-        ),
-        "hi": (
-            "🏛️ *सत्यापित सरकारी कृषि योजनाएं*\n\n"
-            "1. *पीएम-किसान (PM-KISAN)*\n"
-            "• लाभ: ₹6,000 प्रति वर्ष (₹2,000 की 3 किस्तों में सीधे बैंक खाते में)\n"
-            "• पात्रता: खेती योग्य भूमि वाले सभी भूमिधारक किसान परिवार\n"
-            "• आधिकारिक पोर्टल: https://pmkisan.gov.in\n\n"
-            "2. *प्रधानमंत्री फसल बीमा योजना (PMFBY)*\n"
-            "• लाभ: प्राकृतिक आपदाओं से फसल नुकसान पर व्यापक बीमा कवर\n"
-            "• किसान प्रीमियम: केवल 1.5% - 2% (खाद्य व तिलहन फसलें)\n"
-            "• आधिकारिक पोर्टल: https://pmfby.gov.in\n\n"
-            "3. *पीएम किसान मानधन योजना (PM-KMY)*\n"
-            "• लाभ: 60 वर्ष की आयु के बाद ₹3,000 प्रति माह सुनिश्चित पेंशन\n"
-            "• पात्रता: 18-40 वर्ष के छोटे और सीमांत किसान (2 हेक्टेयर तक भूमि)\n\n"
-            "🔍 *अपनी पात्रता जांचने और आवेदन करने के लिए लिंक खोलें:*\n{url}\n\n"
-            "मुख्य मेनू के लिए 'menu' लिखें।"
-        ),
-        "kn": (
-            "🏛️ *ದೃಢೀಕೃತ ಸರ್ಕಾರಿ ಕೃಷಿ ಯೋಜನೆಗಳು*\n\n"
-            "1. *ಪಿಎಂ-ಕಿಸಾನ್ (PM-KISAN)*\n"
-            "• ಸೌಲಭ್ಯ: ವಾರ್ಷಿಕ ₹6,000 ನೇರ ನಗದು ವರ್ಗಾವಣೆ (3 ಕಂತುಗಳಲ್ಲಿ)\n"
-            "• ಅರ್ಹತೆ: ಸಾಗುವಳಿ ಭೂಮಿ ಹೊಂದಿರುವ ಎಲ್ಲಾ ರೈತ ಕುಟುಂಬಗಳು\n"
-            "• ಅಧಿಕೃತ ತಾಣ: https://pmkisan.gov.in\n\n"
-            "2. *ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY)*\n"
-            "• ಸೌಲಭ್ಯ: ಅನಿರೀಕ್ಷಿತ ನೈಸರ್ಗಿಕ ವಿಕೋಪಗಳಿಂದ ಬೆಳೆ ನಷ್ಟಕ್ಕೆ ಸಮಗ್ರ ವಿಮೆ\n"
-            "• ಅಧಿಕೃತ ತಾಣ: https://pmfby.gov.in\n\n"
-            "3. *ಪಿಎಂ ಕಿಸಾನ್ ಮಾನ್‌ಧನ್ ಯೋಜನೆ (PM-KMY)*\n"
-            "• ಸೌಲಭ್ಯ: 60 ವರ್ಷ ತುಂಬಿದ ನಂತರ ಮಾಸಿಕ ₹3,000 ನಿಶ್ಚಿತ ಪಿಂಚಣಿ\n"
-            "• ಅರ್ಹತೆ: 18-40 ವಯಸ್ಸಿನ ಸಣ್ಣ ಮತ್ತು ಅಂಚಿನ ರೈತರು\n\n"
-            "🔍 *ನಿಮ್ಮ ಅರ್ಹತೆಯನ್ನು ಪರಿಶೀಲಿಸಲು ಈ ಲಿಂಕ್ ತೆರೆಯಿರಿ:*\n{url}\n\n"
-            "ಮುಖ್ಯ ಮೆನುಗೆ ಮರಳಲು 'menu' ಎಂದು ಟೈಪ್ ಮಾಡಿ."
-        ),
+        "en": "Which state are you in, and which scheme or type of support do you want to check? Current eligibility and benefits require a recent official source.\n{url}",
+        "hi": "आप किस राज्य में हैं और किस योजना या सहायता की जानकारी चाहिए? पात्रता और लाभ के लिए ताज़ा आधिकारिक स्रोत ज़रूरी है।\n{url}",
+        "kn": "ನೀವು ಯಾವ ರಾಜ್ಯದಲ್ಲಿದ್ದೀರಿ? ಯಾವ ಯೋಜನೆ ಅಥವಾ ನೆರವಿನ ಮಾಹಿತಿ ಬೇಕು? ಅರ್ಹತೆ ಮತ್ತು ಸೌಲಭ್ಯಗಳಿಗೆ ಇತ್ತೀಚಿನ ಅಧಿಕೃತ ಮಾಹಿತಿ ಬೇಕು.\n{url}",
     },
+
     "support_prompt": {
         "en": (
             "👨‍🌾 *KisaanBuddy Agricultural Support*\n\n"
@@ -682,6 +639,10 @@ def get_text(key: str, lang: str = DEFAULT_LANGUAGE, **kwargs: Any) -> str:
     """Retrieves localized text with keyword formatting."""
     lang_code = lang if lang in SUPPORTED_LANGUAGES else DEFAULT_LANGUAGE
     template = MESSAGES.get(key, {}).get(lang_code) or MESSAGES.get(key, {}).get(DEFAULT_LANGUAGE, "")
+    if lang not in ("en", "hi", "kn") and key in ("welcome", "language_updated", "language_selection_prompt"):
+        template = "Menu translations are currently available in Hindi, English and Kannada. AI conversation will use your selected language where supported.\n\n" + template
+    if key == "language_selection_prompt":
+        template += "\nYou can also type: Hinglish, Bhojpuri, Maithili, Bengali, Marathi, Gujarati, Punjabi, Tamil, Telugu or Odia."
     if kwargs:
         try:
             return template.format(**kwargs)
@@ -767,6 +728,15 @@ def detect_language_choice(text: str) -> Optional[str]:
     if not text:
         return None
     normalized = text.strip().lower()
+    choices = {
+        "hinglish": "hi_en", "hi_en": "hi_en", "bhojpuri": "bho", "भोजपुरी": "bho", "bho": "bho",
+        "maithili": "mai", "मैथिली": "mai", "mai": "mai", "bengali": "bn", "বাংলা": "bn", "bn": "bn",
+        "marathi": "mr", "मराठी": "mr", "mr": "mr", "gujarati": "gu", "ગુજરાતી": "gu", "gu": "gu",
+        "punjabi": "pa", "ਪੰਜਾਬੀ": "pa", "pa": "pa", "tamil": "ta", "தமிழ்": "ta", "ta": "ta",
+        "telugu": "te", "తెలుగు": "te", "te": "te", "odia": "or", "ଓଡ଼ିଆ": "or", "or": "or",
+    }
+    if normalized in choices:
+        return choices[normalized]
     if normalized in ("1", "en", "english", "angrezi", "ಇಂಗ್ಲಿಷ್"):
         return "en"
     if normalized in ("2", "hi", "hindi", "हिन्दी", "हिंदी", "हಿಂದಿ"):

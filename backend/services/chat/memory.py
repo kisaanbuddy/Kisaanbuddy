@@ -142,8 +142,8 @@ def _build_backend():
 # Public facade — what callers use
 # ---------------------------------------------------------------------------
 class SessionStore:
-    def __init__(self) -> None:
-        self._backend = _build_backend()
+    def __init__(self, backend=None) -> None:
+        self._backend = backend if backend is not None else _build_backend()
 
     @property
     def backend_name(self) -> str:
@@ -154,9 +154,10 @@ class SessionStore:
         language: str = "auto",
         location: Optional[LocationHint] = None,
         user_id: Optional[int] = None,
+        session_id: Optional[str] = None,
     ) -> SessionState:
         now = datetime.now(timezone.utc)
-        sid = uuid.uuid4().hex
+        sid = session_id or uuid.uuid4().hex
         state = SessionState(
             id=sid,
             user_id=user_id,
@@ -178,6 +179,9 @@ class SessionStore:
         except Exception as e:  # pragma: no cover
             log.warning("Failed to parse session %s: %s", sid, e)
             return None
+
+    async def save(self, state: SessionState) -> None:
+        await self._backend.set(state.id, state.model_dump(mode="json"))
 
     async def append(self, sid: str, message: Message) -> SessionState:
         state = await self.get(sid)

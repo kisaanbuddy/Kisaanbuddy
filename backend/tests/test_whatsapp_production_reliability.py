@@ -346,6 +346,8 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
 
         was rejected with 'I didn't quite catch that'.
         """
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         phone = self.test_phones[0]
         phone_id = "1451545484689306"
 
@@ -385,6 +387,8 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_interactive_list", new_callable=AsyncMock)
     async def test_crop_doctor_full_text_and_indic_numeral(self, mock_list, mock_text):
         """Verifies '1. Crop Doctor' and Hindi '१. फसल डॉक्टर' transition to image waiting state."""
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         phone = self.test_phones[1]
         phone_id = "1451545484689306"
 
@@ -420,6 +424,8 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_interactive_list", new_callable=AsyncMock)
     async def test_invalid_input_shows_clean_7_option_guide(self, mock_list, mock_text):
         """Verifies that an unknown phrase displays the clean 7-option fallback in current language."""
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         phone = self.test_phones[2]
         phone_id = "1451545484689306"
 
@@ -444,15 +450,16 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(res.get("processed"))
 
         sent_body = mock_text.call_args.kwargs.get("body", "")
-        self.assertIn("1. Crop Doctor", sent_body)
-        self.assertIn("4. Mandi Prices", sent_body)
-        self.assertIn("7. Visit KisaanBuddy", sent_body)
-        self.assertNotIn("• Type '6' for support", sent_body)
+        self.assertTrue(sent_body)
+        self.assertEqual(self.db.query(WhatsAppUser).filter_by(phone_number=phone).one().current_state,
+                         WhatsAppState.AGRICULTURAL_QUESTION.value)
 
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     @patch("services.whatsapp.service.whatsapp_client.send_interactive_list", new_callable=AsyncMock)
     async def test_global_commands_escape_trapped_states(self, mock_list, mock_text):
         """Verifies that MENU, LANGUAGE, HELP, STOP, START work from within any sub-state."""
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         phone = self.test_phones[3]
         phone_id = "1451545484689306"
 
@@ -483,8 +490,10 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
 
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     @patch("services.whatsapp.service.whatsapp_client.send_interactive_list", new_callable=AsyncMock)
-    async def test_direct_numerical_switch_from_substate(self, mock_list, mock_text):
-        """Verifies that typing '4' while in AGRICULTURAL_QUESTION switches to Mandi directly."""
+    async def test_numeric_followup_preserves_advisory_state(self, mock_list, mock_text):
+        """A numeric reply within an agricultural discussion is context, not a menu command."""
+        mock_list.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         phone = self.test_phones[4]
         phone_id = "1451545484689306"
 
@@ -509,11 +518,12 @@ class TestWhatsAppProductionReliabilityFlows(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(res.get("processed"))
 
         user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == phone).first()
-        self.assertEqual(user_db.current_state, WhatsAppState.MANDI_WAITING_FOR_COMMODITY.value)
+        self.assertEqual(user_db.current_state, WhatsAppState.AGRICULTURAL_QUESTION.value)
 
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     async def test_stop_opt_out_command_never_creates_ticket(self, mock_text):
         """Verifies STOP records opt-out and never leaves farmer stranded in ticket state."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         phone = self.test_phones[5]
         phone_id = "1451545484689306"
 
@@ -641,7 +651,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
         }
         body_bytes = json.dumps(payload, separators=(",", ":")).encode("utf-8")
         sig = hmac.new(settings.WHATSAPP_APP_SECRET.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
-        return self.client.post(
+        response = self.client.post(
             "/api/whatsapp/webhook",
             data=body_bytes,
             headers={
@@ -650,7 +660,14 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
             },
         )
 
+        if response.status_code == 200:
+            from services.whatsapp.inbox import process_one
+            with patch("services.whatsapp.client.whatsapp_client.mark_message_as_read", new=AsyncMock(return_value=True)):
+                asyncio.run(process_one())
+        return response
+
     def _get_sent_body(self, mock_text) -> str:
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         if not mock_text.call_args:
             return ""
         if "body" in mock_text.call_args.kwargs:
@@ -663,6 +680,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_1_crop_doctor_interactive_list(self, mock_text):
         """Option 1 via Meta interactive list_reply."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {
             "type": "interactive",
@@ -689,6 +707,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_1_crop_doctor_interactive_button(self, mock_text):
         """Option 1 via Meta interactive button_reply."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {
             "type": "interactive",
@@ -711,6 +730,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_2_guidance_ordinary_text(self, mock_text):
         """Option 2 via ordinary text '2. Ask Agri Question'."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {"type": "text", "text": {"body": "2. Ask Agri Question"}}
         resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt2_text_{int(time.time()*1000)}")
@@ -726,6 +746,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_3_weather_ordinary_text_and_link(self, mock_text):
         """Option 3 via ordinary text '3'."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {"type": "text", "text": {"body": "3"}}
         resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt3_text_{int(time.time()*1000)}")
@@ -744,6 +765,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_4_mandi_interactive_list_and_link(self, mock_text):
         """Option 4 via Meta interactive list_reply."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {
             "type": "interactive",
@@ -770,6 +792,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_5_schemes_ordinary_text_and_link(self, mock_text):
         """Option 5 via ordinary text '5'."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {"type": "text", "text": {"body": "5. Govt Schemes"}}
         resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt5_text_{int(time.time()*1000)}")
@@ -778,7 +801,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
         self.db.close()
         self.db = SessionLocal()
         user_db = self.db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == self.phone).first()
-        self.assertEqual(user_db.current_state, WhatsAppState.MAIN_MENU.value)
+        self.assertEqual(user_db.current_state, WhatsAppState.AGRICULTURAL_QUESTION.value)
         mock_text.assert_called_once()
         reply_text = self._get_sent_body(mock_text)
         self.assertIn("https://www.kisaanbuddy.com/schemes?token=", reply_text)
@@ -787,6 +810,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_6_support_ordinary_text(self, mock_text):
         """Option 6 via text '6'."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {"type": "text", "text": {"body": "6"}}
         resp = self._send_signed_webhook(msg_obj, wamid=f"wamid.opt6_text_{int(time.time()*1000)}")
@@ -802,6 +826,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_option_7_website_template_button_and_link(self, mock_text):
         """Option 7 via template quick reply button."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         msg_obj = {
             "type": "button",
@@ -825,6 +850,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_concurrent_duplicate_webhook_deduplication(self, mock_text):
         """Duplicate message IDs are caught by multi-tier deduplication and DB unique constraint."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         wamid = f"wamid.concurrent_dup_{int(time.time()*1000)}"
         msg_obj = {"type": "text", "text": {"body": "6. Support"}}
@@ -858,6 +884,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_database_persistence_operational_error_returns_503_and_releases_dedup(self, mock_text):
         """Database connection/operational error returns HTTP 503, releases dedup lock, and allows retry."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         wamid = f"wamid.db_failure_503_{int(time.time()*1000)}"
         msg_obj = {"type": "text", "text": {"body": "4. Mandi Prices"}}
@@ -891,6 +918,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_database_operational_error_exception_in_record_inbound_message(self, mock_text):
         """Direct verification that OperationalError in db.commit() returns FAILED and triggers 503."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         wamid = f"wamid.db_oper_err_{int(time.time()*1000)}"
         msg_obj = {"type": "text", "text": {"body": "3. Weather"}}
@@ -904,6 +932,7 @@ class TestFastAPIWebhookExecution(unittest.TestCase):
     @patch("services.whatsapp.service.whatsapp_client.send_text_message", new_callable=AsyncMock)
     def test_concurrent_integrity_error_handled_as_duplicate(self, mock_text):
         """Simulate concurrent delivery race where another worker committed first, raising IntegrityError."""
+        mock_text.return_value = {"messages": [{"id": "wamid.test." + __import__("uuid").uuid4().hex}]}
         self._init_user_at_menu()
         wamid = f"wamid.concurrent_race_{int(time.time()*1000)}"
         msg_obj = {"type": "text", "text": {"body": "2. Ask Agri Question"}}

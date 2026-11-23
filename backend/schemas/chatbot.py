@@ -25,7 +25,7 @@ class ChatResponse(BaseModel):
 # provider has passed production quality testing for every language. Providers
 # report their own health/capability separately.
 Language = Literal[
-    "auto", "en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai"
+    "auto", "en", "hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "hi_en", "bho", "mai", "or"
 ]
 Role = Literal["user", "assistant", "system", "tool"]
 
@@ -83,6 +83,7 @@ class SessionState(BaseModel):
     language: Language
     location: Optional[LocationHint] = None
     messages: List[Message] = []
+    summary: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

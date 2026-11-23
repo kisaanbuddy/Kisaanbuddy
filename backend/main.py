@@ -110,7 +110,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         log.error("DB init error: %s", e)
 
-    yield
+    import asyncio
+    from services.whatsapp.inbox import run_worker
+    from core.config import is_whatsapp_configured
+    inbox_worker = asyncio.create_task(run_worker()) if is_whatsapp_configured() else None
+    try:
+        yield
+    finally:
+        if inbox_worker:
+            inbox_worker.cancel()
+            try:
+                await inbox_worker
+            except asyncio.CancelledError:
+                pass
 
     log.info("KrishiAI shutting down...")
     await orchestrator.shutdown()

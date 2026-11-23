@@ -41,6 +41,7 @@ _LANG_BCP47 = {
     "ml": "ml-IN",
     "bho": "hi-IN",
     "mai": "hi-IN",
+    "or": "or-IN",
 }
 
 
@@ -223,7 +224,7 @@ def _normalise_lang(code: str) -> str:
     if raw == "hi_en":
         return "hi_en"
     c = raw.split("-")[0]
-    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "bho", "mai"):
+    if c in ("hi", "kn", "bn", "mr", "te", "ta", "gu", "pa", "ml", "bho", "mai", "or"):
         return c
     return "en"
 

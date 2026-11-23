@@ -148,31 +148,35 @@ class TestWhatsAppAPIIntegration(unittest.TestCase):
         self.assertIn("message_count_24h", data)
 
     def test_admin_stats_and_tickets(self):
-        """GET /api/whatsapp/admin/stats and tickets."""
-        stats_resp = self.client.get("/api/whatsapp/admin/stats")
-        self.assertEqual(stats_resp.status_code, 200)
-        stats = stats_resp.json()
-        self.assertIn("total_messages_received", stats)
-        self.assertIn("total_messages_sent", stats)
-        self.assertIn("estimated_cost_inr", stats)
-        self.assertIn("monthly_budget_inr", stats)
-
-        tickets_resp = self.client.get("/api/whatsapp/admin/tickets")
-        self.assertEqual(tickets_resp.status_code, 200)
-        self.assertIsInstance(tickets_resp.json(), list)
+        from api.auth import require_admin
+        self.assertEqual(self.client.get("/api/whatsapp/admin/stats").status_code, 401)
+        app.dependency_overrides[require_admin] = lambda: object()
+        try:
+            response = self.client.get("/api/whatsapp/admin/stats")
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("total_messages_received", response.json())
+            self.assertEqual(self.client.get("/api/whatsapp/admin/tickets").status_code, 200)
+        finally:
+            app.dependency_overrides.pop(require_admin, None)
 
     def test_dpdp_privacy_erasure(self):
-        """POST /api/whatsapp/privacy/request-erasure removes farmer data on request."""
+        from api.auth import get_current_user
+        from types import SimpleNamespace
         phone = "+919777700001"
         with SessionLocal() as db:
-            u = WhatsAppUser(phone_number=phone, language="hi")
-            db.add(u)
+            db.add(WhatsAppUser(phone_number=phone, language="hi"))
             db.commit()
-
-        resp = self.client.post(f"/api/whatsapp/privacy/request-erasure?phone_number={phone}")
-        self.assertEqual(resp.status_code, 200)
-        data = resp.json()
-        self.assertEqual(data.get("status"), "erased")
+        url = "/api/whatsapp/privacy/request-erasure"
+        self.assertEqual(self.client.post(url, params={"phone_number": phone}).status_code, 401)
+        app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(phone_number="+919777700002", role="farmer")
+        try:
+            self.assertEqual(self.client.post(url, params={"phone_number": phone}).status_code, 403)
+            app.dependency_overrides[get_current_user] = lambda: SimpleNamespace(phone_number=phone, role="farmer")
+            response = self.client.post(url, params={"phone_number": phone})
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()['status'], 'erased')
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
 
 
 if __name__ == "__main__":

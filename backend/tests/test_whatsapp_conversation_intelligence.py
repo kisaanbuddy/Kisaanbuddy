@@ -115,11 +115,10 @@ class TestWhatsAppConversationIntelligence(unittest.IsolatedAsyncioTestCase):
     async def test_02_language_persistence_in_database(self):
         """Selecting language stores it in the WhatsAppUser database table."""
         phone = self.test_phones[1]
-        # First turn: triggers language selection
-        await whatsapp_service.process_message_turn(
-            {"type": "text", "id": "m2_1", "text": {"body": "Hello"}},
-            phone, "Ramesh", self.db
-        )
+        # Transport is explicitly mocked; unconfigured production clients must fail closed.
+        with patch("services.whatsapp.client.whatsapp_client.send_text_message", new=AsyncMock(return_value={"messages": [{"id": "test-greeting"}]})):
+            await whatsapp_service.process_message_turn(
+                {"type": "text", "id": "m2_1", "text": {"body": "Hello"}}, phone, "Ramesh", self.db)
         # Second turn: select Hindi ("2")
         with patch("services.whatsapp.client.whatsapp_client.send_text_message", new_callable=AsyncMock) as mock_send, \
              patch("services.whatsapp.client.whatsapp_client.send_interactive_list", new_callable=AsyncMock) as mock_list:
@@ -232,7 +231,7 @@ class TestWhatsAppConversationIntelligence(unittest.IsolatedAsyncioTestCase):
             m_send.return_value = {"messages": [{"id": "o5"}]}
             await whatsapp_service.process_message_turn({"type": "text", "id": "m_5", "text": {"body": "5"}}, phone, None, self.db)
             state, _, _ = await state_manager.get_state(phone)
-            self.assertEqual(state, WhatsAppState.MAIN_MENU)
+            self.assertEqual(state, WhatsAppState.AGRICULTURAL_QUESTION)
 
         # Option 6: Talk to Support
         await reset_menu()
@@ -454,9 +453,8 @@ class TestWhatsAppConversationIntelligence(unittest.IsolatedAsyncioTestCase):
                 WhatsAppMessage.direction == "outbound"
             ).order_by(WhatsAppMessage.id.desc()).first()
             self.assertIsNotNone(outbound)
-            self.assertIn("Wheat", outbound.body)
-            self.assertIn("Modal Price", outbound.body)
-            self.assertIn("AGMARKNET", outbound.body)
+            self.assertIn("unavailable", outbound.body)
+            self.assertNotIn("₹", outbound.body)
 
         # 2. Schemes query
         await state_manager.set_state(phone, WhatsAppState.MAIN_MENU, db=self.db)
@@ -472,8 +470,8 @@ class TestWhatsAppConversationIntelligence(unittest.IsolatedAsyncioTestCase):
                 WhatsAppMessage.direction == "outbound"
             ).order_by(WhatsAppMessage.id.desc()).first()
             self.assertIsNotNone(outbound)
-            self.assertIn("PM-KISAN", outbound.body)
-            self.assertIn("PMFBY", outbound.body)
+            self.assertIn("state", outbound.body)
+            self.assertNotIn("₹", outbound.body)
 
     # -------------------------------------------------------------------------
     # 13. Crop Doctor image diagnosis flow
@@ -495,18 +493,15 @@ class TestWhatsAppConversationIntelligence(unittest.IsolatedAsyncioTestCase):
             msg = {"type": "image", "id": "leaf_img_1", "image": {"id": "meta_img_8877", "mime_type": "image/jpeg"}}
             await whatsapp_service.process_message_turn(msg, phone, "Dharwad Farmer", self.db)
 
-            # Check that DiseaseDetection was created
+            # Without a validated classifier no diagnosis or invented confidence is stored.
             diag = self.db.query(DiseaseDetection).order_by(DiseaseDetection.id.desc()).first()
-            self.assertIsNotNone(diag)
-            self.assertTrue(diag.confidence > 0.0)
-
-            # Check outbound message links to diagnosis
+            self.assertIsNone(diag)
             outbound = self.db.query(WhatsAppMessage).filter(
-                WhatsAppMessage.phone_number == phone,
-                WhatsAppMessage.direction == "outbound"
+                WhatsAppMessage.phone_number == phone, WhatsAppMessage.direction == "outbound"
             ).order_by(WhatsAppMessage.id.desc()).first()
             self.assertIsNotNone(outbound)
-            self.assertIn("disease?diagnosis_id=", outbound.body)
+            self.assertIn("unavailable", outbound.body)
+            self.assertNotIn("%", outbound.body)
 
     # -------------------------------------------------------------------------
     # 14. Support ticket creation (exactly 1 ticket, truthful notification)

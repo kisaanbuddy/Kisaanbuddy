@@ -19,6 +19,7 @@ from fastapi import (
 from sqlalchemy import desc, func
 from sqlalchemy.orm import Session
 
+from api.auth import require_admin, get_current_user
 from core.config import is_whatsapp_configured, settings
 from db.models import DiseaseDetection, WhatsAppMessage, WhatsAppSupportTicket, WhatsAppUser
 from db.session import get_db
@@ -41,6 +42,65 @@ from services.whatsapp.service import whatsapp_service
 
 log = logging.getLogger(__name__)
 router = APIRouter()
+
+
+@router.get("/admin/assistant-status", dependencies=[Depends(require_admin)])
+async def assistant_status(db: Session = Depends(get_db)):
+    """Configuration and evidence coverage, explicitly not an end-to-end health certificate."""
+    from db.models import WhatsAppInboxJob
+    from services.chat.gemini_service import is_gemini_configured
+    from services.chat.knowledge import KnowledgeBase
+    kb = KnowledgeBase()
+    kb.load()
+    topics = {t for c in kb.chunks for t in c.provenance.get("topics", [])}
+    required_topics = {"crop_cultivation", "crop_diseases", "pest_management", "irrigation",
+                       "soil_health", "fertilizer_management", "seasonal_crop_selection",
+                       "government_schemes", "market_information", "sustainable_farming"}
+    return {
+        "readiness_type": "configuration_and_reference_coverage_only",
+        "whatsapp_configured": is_whatsapp_configured(),
+        "ai_configured": is_gemini_configured(),
+        "agmarknet_configured": bool(settings.DATA_GOV_API_KEY),
+        "reference_documents": len({c.source for c in kb.chunks}),
+        "covered_topics": sorted(topics), "missing_topics": sorted(required_topics - topics),
+        "validated_disease_classifier": False,
+        "photo_mode": "AI visual symptom discussion; no certified diagnosis",
+        "language_quality_validated": False,
+        "inbox": {status: count for status, count in db.query(
+            WhatsAppInboxJob.status, func.count(WhatsAppInboxJob.id)
+        ).group_by(WhatsAppInboxJob.status).all()},
+    }
+
+
+@router.get("/admin/inbox", dependencies=[Depends(require_admin)])
+async def inbox_review(db: Session = Depends(get_db)):
+    from db.models import WhatsAppInboxJob
+    return [{"id": job.id, "message_id": job.message_id, "status": job.status,
+             "error_code": job.error_code, "created_at": job.created_at}
+            for job in db.query(WhatsAppInboxJob).filter(
+                WhatsAppInboxJob.status == "needs_review"
+            ).order_by(WhatsAppInboxJob.id).limit(100).all()]
+
+
+@router.post("/admin/inbox/{job_id}/resolve", dependencies=[Depends(require_admin)])
+async def resolve_inbox_job(
+    job_id: int, action: str = Query(..., pattern="^(delivered|discard|retry)$"),
+    confirmed_not_delivered: bool = False, db: Session = Depends(get_db),
+):
+    """Operator reconciles an uncertain send before explicitly releasing the farmer queue."""
+    from db.models import WhatsAppInboxJob
+    if action == "retry" and not confirmed_not_delivered:
+        raise HTTPException(400, "Confirm from delivery logs that no reply was delivered before retrying.")
+    state = {"delivered": "completed", "discard": "discarded", "retry": "pending"}[action]
+    count = db.query(WhatsAppInboxJob).filter(
+        WhatsAppInboxJob.id == job_id, WhatsAppInboxJob.status == "needs_review",
+    ).update({"status": state, "lease_token": None, "lease_until": None,
+              "error_code": "operator_" + action, "updated_at": datetime.utcnow()})
+    if not count:
+        db.rollback()
+        raise HTTPException(409, "Job is not awaiting review or does not exist.")
+    db.commit()
+    return {"id": job_id, "status": state}
 
 
 # ---------------------------------------------------------------------------
@@ -72,7 +132,12 @@ async def receive_webhook(
     db: Session = Depends(get_db),
 ):
     """Meta webhook event ingestion. Verifies HMAC-SHA256 signature and schedules async message turn."""
-    raw_body = await request.body()
+    raw_body = bytearray()
+    async for chunk in request.stream():
+        raw_body.extend(chunk)
+        if len(raw_body) > 1024 * 1024:
+            raise HTTPException(status_code=413, detail="Webhook payload exceeds 1 MB.")
+    raw_body = bytes(raw_body)
 
     # Validate HMAC signature from Meta
     if not verify_webhook_signature(raw_body, x_hub_signature_256):
@@ -82,7 +147,10 @@ async def receive_webhook(
         )
 
     try:
-        payload = await request.json()
+        import json
+        payload = json.loads(raw_body)
+        if not isinstance(payload, dict):
+            raise ValueError("Expected an object")
     except Exception as e:
         log.warning("Malformed JSON received on WhatsApp webhook: %s", e)
         raise HTTPException(
@@ -155,7 +223,7 @@ async def check_health(db: Session = Depends(get_db)):
 # ---------------------------------------------------------------------------
 # 4. Administration & Usage Monitoring
 # ---------------------------------------------------------------------------
-@router.get("/admin/stats", response_model=WhatsAppIntegrationStats)
+@router.get("/admin/stats", dependencies=[Depends(require_admin)], response_model=WhatsAppIntegrationStats)
 async def get_integration_stats(db: Session = Depends(get_db)):
     """Administrative usage statistics, estimated costs, and delivery metrics."""
     total_inbound = (
@@ -207,7 +275,7 @@ async def get_integration_stats(db: Session = Depends(get_db)):
     )
 
 
-@router.get("/admin/tickets", response_model=List[WhatsAppSupportTicketResponse])
+@router.get("/admin/tickets", dependencies=[Depends(require_admin)], response_model=List[WhatsAppSupportTicketResponse])
 async def list_support_tickets(
     status_filter: Optional[str] = Query(None, alias="status"),
     db: Session = Depends(get_db),
@@ -219,7 +287,7 @@ async def list_support_tickets(
     return q.limit(100).all()
 
 
-@router.patch("/admin/tickets/{ticket_id}", response_model=WhatsAppSupportTicketResponse)
+@router.patch("/admin/tickets/{ticket_id}", dependencies=[Depends(require_admin)], response_model=WhatsAppSupportTicketResponse)
 async def update_support_ticket(
     ticket_id: str,
     payload: WhatsAppSupportTicketUpdate,
@@ -244,7 +312,7 @@ async def update_support_ticket(
     return ticket
 
 
-@router.post("/admin/send-test")
+@router.post("/admin/send-test", dependencies=[Depends(require_admin)])
 async def send_test_message(
     payload: WhatsAppTestSendRequest,
     db: Session = Depends(get_db),
@@ -279,9 +347,15 @@ async def send_test_message(
 async def request_data_erasure(
     phone_number: str = Query(..., description="Farmer phone number requesting erasure"),
     db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
 ):
-    """DPDP-compliant data erasure request for farmer's WhatsApp interaction history."""
+    """Authenticated erasure of the requesting farmer's WhatsApp interaction history."""
     normalized = normalize_phone_number(phone_number)
+    if normalize_phone_number(current_user.phone_number or "") != normalized and (current_user.role or "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="You may erase only your own WhatsApp history.")
+    from db.models import WhatsAppInboxJob
+    if db.query(WhatsAppInboxJob).filter(WhatsAppInboxJob.phone_number == normalized, WhatsAppInboxJob.status == "processing").first():
+        raise HTTPException(status_code=409, detail="A message is being processed. Retry erasure shortly.")
     user = db.query(WhatsAppUser).filter(WhatsAppUser.phone_number == normalized).first()
     if not user:
         return {"status": "not_found", "message": "No records found for specified phone number."}
@@ -289,9 +363,14 @@ async def request_data_erasure(
     # Delete messages and support tickets
     msgs_deleted = db.query(WhatsAppMessage).filter(WhatsAppMessage.phone_number == normalized).delete()
     tickets_deleted = db.query(WhatsAppSupportTicket).filter(WhatsAppSupportTicket.phone_number == normalized).delete()
+    db.query(WhatsAppInboxJob).filter(WhatsAppInboxJob.phone_number == normalized).delete()
     db.delete(user)
     db.commit()
 
+    from services.whatsapp.state_machine import state_manager
+    from services.whatsapp.conversation import session_key, sessions
+    await state_manager.clear_state(normalized, db=db)
+    await sessions.delete(session_key(normalized))
     log.info("DPDP Erasure executed for %s: deleted %d msgs, %d tickets", normalized, msgs_deleted, tickets_deleted)
     return {
         "status": "erased",

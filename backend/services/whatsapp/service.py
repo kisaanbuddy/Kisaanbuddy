@@ -16,6 +16,8 @@ Coordinates:
 """
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import time
 from datetime import datetime
@@ -33,7 +35,7 @@ from db.session import SessionLocal
 from services.marketplace_import.initial_catalog_data import INITIAL_MARKET_PRICES
 from services.weather_service import orchestrator as weather_orchestrator
 from services.whatsapp.advisory_handler import answer_agricultural_question
-from services.whatsapp.client import whatsapp_client
+from services.whatsapp.client import whatsapp_client, WhatsAppAPIError
 from services.whatsapp.crop_doctor_handler import process_crop_doctor_image
 from services.whatsapp.deduplication import deduplicator
 from services.whatsapp.localization import (
@@ -120,7 +122,9 @@ class WhatsAppService:
                             continue
 
                         # Idempotency check: discard duplicate webhook retries
-                        is_dup = await deduplicator.is_duplicate(msg_id, db=session)
+                        # HTTP acknowledgements rely on committed DB uniqueness. A cache
+                        # claim made before commit must never hide a lost webhook retry.
+                        is_dup = await deduplicator.is_duplicate(msg_id, db=session) if background_tasks is None else False
                         if is_dup:
                             log.info("Discarding duplicate webhook message ID %s", msg_id)
                             continue
@@ -137,7 +141,10 @@ class WhatsAppService:
                                 detail="Database session unavailable to persist inbound message.",
                             )
 
-                        rec_result = self._record_inbound_message(msg, phone_number, session)
+                        rec_result = self._record_inbound_message(msg, phone_number, session, queue_payload={
+                            "msg": msg, "phone_number": phone_number, "contact_name": contact_name,
+                            "sender_phone_number_id": incoming_phone_number_id,
+                        } if background_tasks is not None else None)
                         if rec_result == InboundRecordResult.DUPLICATE:
                             log.info("Duplicate inbound message blocked by DB for message ID %s", msg_id)
                             continue
@@ -154,35 +161,11 @@ class WhatsAppService:
 
                         await deduplicator.mark_processed(msg_id)
 
-                        if background_tasks is not None:
-                            background_tasks.add_task(
-                                whatsapp_client.mark_message_as_read,
-                                msg_id,
-                                sender_phone_number_id=incoming_phone_number_id,
+                        if background_tasks is None:
+                            await self.process_message_turn(
+                                msg=msg, phone_number=phone_number, contact_name=contact_name,
+                                db=session, sender_phone_number_id=incoming_phone_number_id,
                             )
-                            background_tasks.add_task(
-                                self.process_message_turn_background,
-                                msg=msg,
-                                phone_number=phone_number,
-                                contact_name=contact_name,
-                                sender_phone_number_id=incoming_phone_number_id,
-                            )
-                        else:
-                            try:
-                                await whatsapp_client.mark_message_as_read(
-                                    msg_id,
-                                    sender_phone_number_id=incoming_phone_number_id,
-                                )
-                            except Exception:
-                                pass
-                            if session:
-                                await self.process_message_turn(
-                                    msg=msg,
-                                    phone_number=phone_number,
-                                    contact_name=contact_name,
-                                    db=session,
-                                    sender_phone_number_id=incoming_phone_number_id,
-                                )
 
                         processed_count += 1
         finally:
@@ -195,12 +178,15 @@ class WhatsAppService:
         """Updates delivery status in WhatsAppMessage table."""
         wamid = status_payload.get("id")
         new_status = status_payload.get("status")  # sent, delivered, read, failed
-        if not wamid or not new_status:
+        if not wamid or new_status not in {"sent", "delivered", "read", "failed"}:
             return
 
         try:
             msg_rec = db.query(WhatsAppMessage).filter(WhatsAppMessage.message_id == wamid).first()
             if msg_rec:
+                rank = {"failed": 0, "sent": 1, "delivered": 2, "read": 3}
+                if rank.get(msg_rec.status, -1) >= 2 and rank[new_status] < rank[msg_rec.status]:
+                    return
                 msg_rec.status = new_status
                 errors = status_payload.get("errors")
                 if errors:
@@ -212,7 +198,7 @@ class WhatsAppService:
             log.warning("Failed updating message status for %s: %s", wamid, e)
 
     def _record_inbound_message(
-        self, msg: Dict[str, Any], phone_number: str, db: Session
+        self, msg: Dict[str, Any], phone_number: str, db: Session, queue_payload=None
     ) -> InboundRecordResult:
         """Stores incoming message audit record.
 
@@ -259,12 +245,20 @@ class WhatsAppService:
                 created_at=datetime.utcnow(),
             )
             db.add(inbound_audit)
+            if queue_payload is not None:
+                from db.models import WhatsAppInboxJob
+                db.add(WhatsAppInboxJob(
+                    message_id=norm.message_id, phone_number=phone_number,
+                    payload_json=json.dumps(queue_payload, ensure_ascii=False), status="pending",
+                ))
             db.commit()
             return InboundRecordResult.RECORDED
         except IntegrityError:
             db.rollback()
-            log.info("Concurrent duplicate message_id %s blocked by unique constraint", msg_id)
-            return InboundRecordResult.DUPLICATE
+            if msg_id and db.query(WhatsAppMessage.id).filter(WhatsAppMessage.message_id == msg_id).first():
+                return InboundRecordResult.DUPLICATE
+            # A concurrent subscriber insert is not proof this message was saved.
+            return InboundRecordResult.FAILED
         except (OperationalError, DBAPIError) as e:
             db.rollback()
             log.error("Database operational/connection failure recording inbound message %s: %s", msg_id, e)
@@ -343,9 +337,50 @@ class WhatsAppService:
             image_id = norm.image_id
             mime_type = norm.mime_type or "image/jpeg"
 
+            # Voice notes use the same routing and conversation history as text.
+            if msg_type == "audio" and norm.media_id:
+                from services.chat.stt_service import transcribe
+                try:
+                    audio, audio_mime = await whatsapp_client.download_media(
+                        norm.media_id, sender_phone_number_id=sender_phone_number_id,
+                    )
+                    if audio_mime.split(";")[0].strip() not in {
+                        "audio/ogg", "audio/mpeg", "audio/mp4", "audio/aac",
+                        "audio/amr", "audio/wav", "audio/webm",
+                    }:
+                        raise ValueError("Unsupported voice media type")
+                    result = await asyncio.wait_for(transcribe(
+                        audio, filename="voice.ogg", content_type=audio_mime,
+                        language=language if not is_first_time_user else "auto",
+                    ), timeout=45)
+                    if not result.transcript.strip():
+                        raise ValueError("Empty transcript")
+                    norm = normalize_incoming_message({
+                        "id": norm.message_id, "type": "text",
+                        "text": {"body": result.transcript},
+                    })
+                    user_text = norm.text
+                    msg_type = "text"
+                except Exception:
+                    log.warning("WhatsApp voice transcription unavailable")
+                    notice = ("आवाज़ समझ नहीं आई या वॉइस सेवा उपलब्ध नहीं है। कृपया दोबारा रिकॉर्ड करें या लिखकर भेजें।"
+                              if language == "hi" else
+                              "I could not transcribe that voice note. Please record it again or send your question as text.")
+                    await self._send_text(phone_number, notice, db, sender_phone_number_id=sender_phone_number_id)
+                    return
+
             # 2. Retrieve conversation state from multi-tier state manager
             current_state, ctx, is_expired = await state_manager.get_state(phone_number, db=db)
             state_before = current_state.value if hasattr(current_state, "value") else str(current_state)
+
+            # Script detection is a hint; an explicit preference takes precedence.
+            if user_text and not norm.menu_selection and not norm.global_command and not ctx.get("language_explicit") and len(user_text.strip()) >= 8:
+                from services.chat.language_detect import detect_language
+                detected = detect_language(user_text)
+                if detected != "en":
+                    language = detected
+                    wa_user.language = language
+                    db.commit()
 
             # 3. Universal Global Commands (bypass current state)
             global_cmd = norm.global_command
@@ -483,25 +518,22 @@ class WhatsAppService:
                     )
                     return
 
-            # 4. Handle Session Expiration
+            # Expired navigation state must not discard a farmer's actual message.
             if is_expired:
-                handler_invoked = "session_expired"
-                await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
-                expired_notice = get_text("session_expired", language)
-                await self._send_text(phone_number, expired_notice, db, sender_phone_number_id=sender_phone_number_id)
-                await self._send_menu(phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
-                record_whatsapp_turn(
-                    message_id=norm.message_id,
-                    phone_number=phone_number,
-                    phone_number_id=sender_phone_number_id,
-                    message_type=msg_type,
-                    normalized_action="expired",
-                    state_before=state_before,
-                    state_after=WhatsAppState.MAIN_MENU.value,
-                    handler_invoked=handler_invoked,
-                    duration_ms=(time.time() - turn_start) * 1000,
-                )
-                return
+                current_state = WhatsAppState.MAIN_MENU
+                await state_manager.set_state(phone_number, current_state, db=db)
+
+            if current_state == WhatsAppState.NEW_USER and msg_type == "image":
+                current_state = WhatsAppState.MAIN_MENU
+                await state_manager.set_state(phone_number, current_state, db=db)
+
+            if current_state == WhatsAppState.NEW_USER and user_text.strip() and not norm.menu_selection and not detect_language_choice(user_text):
+                from services.chat.language_detect import detect_language
+                language = detect_language(user_text)
+                wa_user.language = language
+                db.commit()
+                current_state = WhatsAppState.AGRICULTURAL_QUESTION
+                await state_manager.set_state(phone_number, current_state, db=db)
 
             # 5. Language Selection State
             if current_state in (WhatsAppState.NEW_USER, WhatsAppState.LANGUAGE_SELECTION):
@@ -516,7 +548,7 @@ class WhatsAppService:
                     await state_manager.set_state(
                         phone_number,
                         WhatsAppState.MAIN_MENU,
-                        {"language": selected_lang},
+                        {"language": selected_lang, "language_explicit": True},
                         db=db,
                     )
                     conf_msg = get_text("language_updated", selected_lang)
@@ -553,6 +585,8 @@ class WhatsAppService:
 
             # Check if input resolves to any menu selection regardless of current state
             menu_choice = norm.menu_selection
+            if current_state in (WhatsAppState.AGRICULTURAL_QUESTION, WhatsAppState.CROP_DOCTOR_RESULT) and norm.message_type == "text":
+                menu_choice = None
 
             # 6. Specific State Handlers
 
@@ -613,7 +647,7 @@ class WhatsAppService:
                     return
 
             # 6.2 AGRICULTURAL QUESTION
-            if current_state == WhatsAppState.AGRICULTURAL_QUESTION:
+            if current_state in (WhatsAppState.AGRICULTURAL_QUESTION, WhatsAppState.CROP_DOCTOR_RESULT) and msg_type != "image":
                 if menu_choice and menu_choice not in ("guidance", "agriculture_question"):
                     handler_invoked = f"switch_to_{menu_choice}"
                     await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
@@ -624,6 +658,7 @@ class WhatsAppService:
                     question=user_text,
                     phone_number=phone_number,
                     language=language,
+                    db=db,
                 )
                 await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
                 record_whatsapp_turn(
@@ -770,12 +805,13 @@ class WhatsAppService:
                 return
 
             # Natural language farming question asked on main menu
-            if len(user_text.split()) >= 3 or "?" in user_text:
+            if user_text.strip():
                 handler_invoked = "main_menu_agri_question"
                 answer = await answer_agricultural_question(
                     question=user_text,
                     phone_number=phone_number,
                     language=language,
+                    db=db,
                 )
                 await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
                 await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
@@ -862,7 +898,7 @@ class WhatsAppService:
             await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice in ("schemes", "5"):
-            await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
+            await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
             token = generate_secure_link_token(phone_number, action="schemes")
             schemes_url = f"{frontend_base}/schemes?token={token}"
             msg = get_text("schemes_info", language, url=schemes_url)
@@ -903,20 +939,22 @@ class WhatsAppService:
                 image_id,
                 sender_phone_number_id=sender_phone_number_id,
             )
-            res = await process_crop_doctor_image(
-                image_bytes=img_bytes,
-                mime_type=downloaded_mime or mime_type,
-                phone_number=phone_number,
-                db=db,
-                language=language,
+            from services.whatsapp.crop_doctor_handler import validate_crop_image
+            import base64
+            valid, _ = validate_crop_image(img_bytes, downloaded_mime)
+            if not valid:
+                await self._send_text(phone_number, get_text("crop_doctor_invalid_image", language), db,
+                                      sender_phone_number_id=sender_phone_number_id)
+                return
+            # Gemini describes visible symptoms; it is not a validated disease classifier.
+            # No checkpoint is certified for field diagnosis by this integration.
+            answer = await answer_agricultural_question(
+                question="Describe only visible crop symptoms, explain uncertainty, and ask for missing crop, age, district and symptom timing.",
+                phone_number=phone_number, language=language, db=db,
+                image_base64="data:" + downloaded_mime.split(";")[0] + ";base64," + base64.b64encode(img_bytes).decode("ascii"),
             )
-            await self._send_text(phone_number, res["message"], db, sender_phone_number_id=sender_phone_number_id)
-            await state_manager.set_state(
-                phone_number,
-                WhatsAppState.CROP_DOCTOR_RESULT,
-                {"last_diagnosis_id": res.get("diagnosis_id")},
-                db=db,
-            )
+            await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
+            await state_manager.set_state(phone_number, WhatsAppState.CROP_DOCTOR_RESULT, db=db)
         except Exception as exc:
             log.exception("Crop Doctor processing error for %s: %s", phone_number, exc)
             err_msg = get_text("crop_doctor_inference_error", language)
@@ -933,185 +971,33 @@ class WhatsAppService:
         lon: Optional[float] = None,
     ) -> None:
         """Processes location string or coordinates and provides real weather and farming advisory."""
-        frontend_base = (settings.FRONTEND_BASE_URL or "https://www.kisaanbuddy.com").rstrip("/")
-        if "localhost" in frontend_base and not settings.DEBUG:
-            frontend_base = "https://www.kisaanbuddy.com"
-
-        token = generate_secure_link_token(phone_number, action="weather")
-        clean_loc = query_location.strip()
-
-        try:
-            if not weather_orchestrator.providers:
-                await weather_orchestrator.startup()
-
-            loc_name = clean_loc
-            current = None
-
-            if lat is not None and lon is not None:
-                try:
-                    current = await weather_orchestrator.get_current(lat, lon)
-                    loc_name = f"Location ({lat:.2f}, {lon:.2f})"
-                except Exception as loc_err:
-                    log.warning("Direct coordinate weather lookup failed for (%s, %s): %s", lat, lon, loc_err)
-
-            if current is None and clean_loc:
-                hits = await weather_orchestrator.search(clean_loc, limit=1)
-                if hits:
-                    hit = hits[0]
-                    lat, lon = hit.latitude, hit.longitude
-                    loc_name = f"{hit.name}, {hit.region or hit.country}"
-                    current = await weather_orchestrator.get_current(lat, lon)
-
-            if current:
-                data = current.payload
-                temp = data.get("temp_c", 25)
-                humidity = data.get("humidity", 60)
-                wind = data.get("wind_kph", 10)
-                condition = data.get("condition", {}).get("text", "Clear / Part-cloudy")
-                rain_prob = data.get("rain_prob", 10)
-
-                # Practical agronomic advisory
-                if rain_prob > 50:
-                    advisory = (
-                        "🌧️ Heavy rain expected: Postpone chemical spraying and foliar applications. "
-                        "Clear drainage channels in low-lying crop beds to prevent waterlogging."
-                        if language == "en" else
-                        "🌧️ बारिश की संभावना: कीटनाशक और खाद का छिड़काव अभी रोकें। खेतों में जल निकासी की व्यवस्था सुनिश्चित करें।"
-                        if language == "hi" else
-                        "🌧️ ಮಳೆಯ ಸಾಧ್ಯತೆ: ಕೀಟನಾಶಕ ಸಿಂಪಡಣೆಯನ್ನು ಮುಂದೂಡಿ. ನೀರು ನಿಲ್ಲದಂತೆ ಕಾಲುವೆಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ."
-                    )
-                elif temp > 35:
-                    advisory = (
-                        "☀️ High temperature alert: Schedule light irrigation in early morning or evening. "
-                        "Mulch around sensitive vegetable crops to preserve soil moisture."
-                        if language == "en" else
-                        "☀️ तेज धूप व गर्मी: सुबह या शाम के समय हल्की सिंचाई करें। मिट्टी की नमी बनाए रखने के लिए मल्चिंग करें।"
-                        if language == "hi" else
-                        "☀️ ತೀವ್ರ ತಾಪಮಾನ: ಮುಂಜಾನೆ ಅಥವಾ ಸಂಜೆ ವೇಳೆ ನೀರಾವರಿ ಮಾಡಿ. ಮಣ್ಣಿನ ತೇವಾಂಶ ಕಾಪಾಡಲು ಕ್ರಮ ವಹಿಸಿ."
-                    )
-                elif wind > 25:
-                    advisory = (
-                        "💨 Strong winds alert: Avoid aerial or foliar spraying to prevent spray drift. "
-                        "Provide support stakes for tall crops like banana or tomato."
-                        if language == "en" else
-                        "💨 तेज हवाएं: स्प्रे का बहाव रोकने के लिए छिड़काव न करें। टमाटर, केले आदि फसलों को सहारा दें।"
-                        if language == "hi" else
-                        "💨 ಬಲವಾದ ಗಾಳಿ: ಸಿಂಪಡಣೆ ಕಾರ್ಯವನ್ನು ತಪ್ಪಿಸಿ. ಬಾಳೆ ಮತ್ತು ಟೊಮೆಟೊ ಬೆಳೆಗಳಿಗೆ ಆಧಾರ ನೀಡಿ."
-                    )
-                else:
-                    advisory = (
-                        "✅ Favorable conditions for normal farm operations, weeding, and nutrient applications."
-                        if language == "en" else
-                        "✅ खेत के सामान्य कार्यों, निराई-गुड़ाई और पोषण प्रबंधन के लिए मौसम अनुकूल है।"
-                        if language == "hi" else
-                        "✅ ಸಾಮಾನ್ಯ ಕೃಷಿ ಕಾರ್ಯಗಳು, ಕಳೆ ಕೀಳುವುದು ಮತ್ತು ರಸಗೊಬ್ಬರ ಹಾಕಲು ಹವಾಮಾನ ಅನುಕೂಲಕರವಾಗಿದೆ."
-                    )
-
-                weather_url = f"{frontend_base}/weather?token={token}&lat={lat}&lon={lon}"
-                reply = get_text(
-                    "weather_info",
-                    language,
-                    location=loc_name,
-                    condition=condition,
-                    temp=temp,
-                    rain_prob=rain_prob,
-                    humidity=humidity,
-                    wind_kph=wind,
-                    advisory=advisory,
-                    url=weather_url,
-                )
-                await self._send_text(phone_number, reply, db, sender_phone_number_id=sender_phone_number_id)
-                await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
-                return
-
-        except Exception as exc:
-            log.warning("Weather search failed for %s: %s", clean_loc, exc)
-
-        weather_url = f"{frontend_base}/weather?token={token}"
-        msg = get_text("weather_fallback", language, url=weather_url)
-        await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
+        from services.chat.tools import _tool_get_weather
+        data = await _tool_get_weather(lat=lat, lon=lon, city=query_location.strip() or None)
+        if data.get("error"):
+            reply = ("ताज़ा मौसम जानकारी उपलब्ध नहीं है। कृपया जिला/शहर बताएं या बाद में कोशिश करें।"
+                     if language == "hi" else "Fresh weather information is unavailable. Please check your location or try again later.")
+        else:
+            location = data.get("location") or {}
+            lines = [f"{location.get('name', '')}, {location.get('region') or location.get('country') or ''}"]
+            for key, label, unit in (("temp_c", "Temperature", "°C"), ("humidity", "Humidity", "%"), ("wind_kph", "Wind", "km/h")):
+                if data.get(key) is not None:
+                    lines.append(f"{label}: {data[key]} {unit}")
+            if data.get("condition"):
+                lines.append(str(data["condition"]))
+            lines.extend([f"Source: {data['provider']} {data.get('source_url') or ''}", f"Observed: {data['observed_at']}",
+                          f"Retrieved: {data['fetched_at']}",
+                          "Rainfall forecast and field-specific agricultural advisory are unavailable in this observation."])
+            reply = "\n".join(lines)
+        await self._send_text(phone_number, reply, db, sender_phone_number_id=sender_phone_number_id)
         await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
 
-    async def _process_mandi_query(
-        self,
-        query_text: str,
-        phone_number: str,
-        language: str,
-        db: Session,
-        sender_phone_number_id: Optional[str] = None,
-    ) -> None:
-        """Searches real AGMARKNET records for matching commodity or market."""
-        frontend_base = (settings.FRONTEND_BASE_URL or "https://www.kisaanbuddy.com").rstrip("/")
-        if "localhost" in frontend_base and not settings.DEBUG:
-            frontend_base = "https://www.kisaanbuddy.com"
-
-        token = generate_secure_link_token(phone_number, action="mandi")
-        clean_q = query_text.strip().lower()
-
-        # 1. Search database records
-        records = (
-            db.query(MarketPriceRecord)
-            .filter(
-                or_(
-                    func.lower(MarketPriceRecord.commodity).contains(clean_q),
-                    func.lower(MarketPriceRecord.market_center).contains(clean_q),
-                    func.lower(MarketPriceRecord.district).contains(clean_q),
-                )
-            )
-            .order_by(desc(MarketPriceRecord.arrival_date), desc(MarketPriceRecord.id))
-            .limit(3)
-            .all()
+    async def _process_mandi_query(self, query_text, phone_number, language, db, sender_phone_number_id=None):
+        # Natural language resolves commodity/location and invokes the real read-only tool.
+        answer = await answer_agricultural_question(
+            question=query_text, phone_number=phone_number, language=language, db=db,
         )
-
-        # 2. Fallback to INITIAL_MARKET_PRICES verified catalog if DB has no matches
-        matched_catalog: List[Dict[str, Any]] = []
-        if not records:
-            for item in INITIAL_MARKET_PRICES:
-                comm = item.get("commodity", "").lower()
-                mkt = item.get("market", "").lower()
-                dist = item.get("district", "").lower()
-                if clean_q in comm or clean_q in mkt or clean_q in dist:
-                    matched_catalog.append(item)
-                    if len(matched_catalog) >= 3:
-                        break
-
-        if records:
-            lines = []
-            for r in records:
-                p_date = r.arrival_date.strftime("%d-%m-%Y") if r.arrival_date else "Recent"
-                lines.append(
-                    f"• *{r.commodity}* ({r.market_center}, {r.district})\n"
-                    f"  Modal Price: ₹{int(r.modal_price):,} / Quintal\n"
-                    f"  Range: ₹{int(r.min_price):,} – ₹{int(r.max_price):,}\n"
-                    f"  Date: {p_date} (AGMARKNET verified)"
-                )
-            records_text = "\n\n".join(lines)
-            mandi_url = f"{frontend_base}/mandi?token={token}"
-            reply = get_text("mandi_info", language, records_text=records_text, url=mandi_url)
-            await self._send_text(phone_number, reply, db, sender_phone_number_id=sender_phone_number_id)
-            await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
-            return
-        elif matched_catalog:
-            lines = []
-            for m in matched_catalog:
-                lines.append(
-                    f"• *{m.get('commodity')}* ({m.get('market')}, {m.get('district')})\n"
-                    f"  Modal Price: ₹{int(m.get('modal_price', 0)):,} / Quintal\n"
-                    f"  Range: ₹{int(m.get('min_price', 0)):,} – ₹{int(m.get('max_price', 0)):,}\n"
-                    f"  Date: {m.get('price_date', 'Recent')} (AGMARKNET verified)"
-                )
-            records_text = "\n\n".join(lines)
-            mandi_url = f"{frontend_base}/mandi?token={token}"
-            reply = get_text("mandi_info", language, records_text=records_text, url=mandi_url)
-            await self._send_text(phone_number, reply, db, sender_phone_number_id=sender_phone_number_id)
-            await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
-            return
-
-        # No records found
-        mandi_url = f"{frontend_base}/mandi?token={token}"
-        msg = get_text("mandi_fallback", language, url=mandi_url)
-        await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
-        await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
+        await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
+        await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
 
     async def _send_menu(
         self,
@@ -1154,6 +1040,8 @@ class WhatsAppService:
                     wamid = messages_list[0].get("id")
             self._record_outbound_message(phone_number, body_text, "interactive", wamid, db)
         except Exception as e:
+            if isinstance(e, WhatsAppAPIError) and e.status_code != 400:
+                raise
             log.warning("Interactive list delivery failed (%s); falling back to numbered text menu.", e)
             fallback_text = build_text_menu(language)
             await self._send_text(
@@ -1171,6 +1059,11 @@ class WhatsAppService:
         sender_phone_number_id: Optional[str] = None,
     ) -> None:
         """Sends outbound text message and records in audit database."""
+        if len(text) > 3500:
+            for offset in range(0, len(text), 3500):
+                await self._send_text(phone_number, text[offset:offset + 3500], db,
+                                      sender_phone_number_id=sender_phone_number_id)
+            return
         try:
             res = await whatsapp_client.send_text_message(
                 recipient_phone=phone_number,
@@ -1182,10 +1075,13 @@ class WhatsAppService:
                 messages_list = res.get("messages")
                 if messages_list and isinstance(messages_list, list) and len(messages_list) > 0:
                     wamid = messages_list[0].get("id")
+            if not wamid:
+                raise WhatsAppAPIError("Meta did not return a message ID", details={"delivery_uncertain": True})
             self._record_outbound_message(phone_number, text, "text", wamid, db)
         except Exception as e:
             log.warning("Failed sending outbound text to %s: %s", phone_number, e)
             self._record_outbound_message(phone_number, text, "text", None, db, error=str(e))
+            raise
 
     def _record_outbound_message(
         self,
@@ -1198,7 +1094,7 @@ class WhatsAppService:
     ) -> None:
         """Records outbound message and tracks estimated pricing."""
         cost_eval = evaluate_message_cost(direction="outbound", category="service")
-        status = "failed" if error else "sent"
+        status = "failed" if error or not wamid else "sent"
 
         unique_wamid = wamid
         if unique_wamid:

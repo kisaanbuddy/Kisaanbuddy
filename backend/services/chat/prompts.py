@@ -226,6 +226,7 @@ def _looks_like_worker_query(text: str | None) -> bool:
 
 
 _LANG_CONTRACT = {
+    "or": "Reply in simple Odia where confident; otherwise explain the limitation and offer Hindi or English. Preserve agricultural terms and units.",
     "hi": (
         "IMPORTANT LANGUAGE RULE: The user wrote in Hindi. Reply ENTIRELY in natural, conversational "
         "Hindi (Devanagari script). Use simple, rural-friendly vocabulary — avoid heavy Sanskritised "
@@ -262,18 +263,23 @@ def build_system_messages(
     user_message: str | None = None,
     has_image: bool = False,
     farmer_context: str | None = None,
+    grounded_only: bool = False,
 ) -> List[Dict[str, str]]:
-    msgs: List[Dict[str, str]] = [{"role": "system", "content": BASE_SYSTEM_PROMPT}]
+    msgs: List[Dict[str, str]] = [{"role": "system", "content": (
+        "You are KisaanBuddy, a helpful agricultural AI assistant for Indian farmers. "
+        "Use reviewed reference excerpts and live tools; ask for missing context. "
+        "You are not a field examiner and cannot certify diagnoses or scheme eligibility."
+        if grounded_only else BASE_SYSTEM_PROMPT)}]
     msgs.append({"role": "system", "content": SAFETY_FIRST_PROMPT})
     if farmer_context:
         msgs.append({"role": "system", "content": farmer_context})
 
     # Activate disease-diagnosis specialist mode for symptom/image queries.
-    if has_image or _looks_like_disease_query(user_message):
+    if not grounded_only and (has_image or _looks_like_disease_query(user_message)):
         msgs.append({"role": "system", "content": DISEASE_DIAGNOSIS_PROMPT})
 
     # Activate worker-connect specialist mode for hiring / job-search queries.
-    if _looks_like_worker_query(user_message):
+    if not grounded_only and _looks_like_worker_query(user_message):
         msgs.append({"role": "system", "content": WORKER_ASSISTANT_PROMPT})
 
     lang_rule = _LANG_CONTRACT.get(language, _LANG_CONTRACT["en"])

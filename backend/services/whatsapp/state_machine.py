@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, Optional, Tuple
 
@@ -95,7 +95,7 @@ class ConversationStateManager:
 
         # 1. Check Redis
         r = await self._get_redis()
-        if r:
+        if r and db is None:
             try:
                 raw_data = await r.get(self._make_key(phone_number))
                 if raw_data:
@@ -113,7 +113,7 @@ class ConversationStateManager:
                 log.warning("Error reading state from Redis for %s: %s", phone_number, e)
 
         # 2. Check local in-memory store
-        entry = _LOCAL_SESSION_STORE.get(phone_number)
+        entry = _LOCAL_SESSION_STORE.get(phone_number) if db is None else None
         if entry:
             exp_at, ctx = entry
             if now > exp_at:
@@ -147,7 +147,7 @@ class ConversationStateManager:
                     ctx["opted_in"] = wa_user.opted_in
 
                     last_active = wa_user.last_active_at
-                    last_ts = last_active.timestamp() if last_active else now
+                    last_ts = last_active.replace(tzinfo=timezone.utc).timestamp() if last_active else now
                     is_expired = (now - last_ts) > SESSION_TTL_SECONDS
 
                     try:

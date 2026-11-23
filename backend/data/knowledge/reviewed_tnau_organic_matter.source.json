@@ -1,0 +1,23 @@
+{
+  "source_url": "https://agritech.tnau.ac.in/agriculture/agri_nutrientmgt_roleoforganicmatter.html",
+  "publisher": "Tamil Nadu Agricultural University",
+  "title": "Role of Organic Matter in Soil Fertility",
+  "publication_date": null,
+  "publication_date_status": "not_reported",
+  "geography": [
+    "Tamil Nadu",
+    "India: general principles only"
+  ],
+  "version": "1",
+  "reviewed_by": "Codex source-text comparison, not field/agronomist validation",
+  "review_status": "approved",
+  "review_scope": "Paraphrased general principles checked against retrieved official page; no doses or field diagnosis.",
+  "reviewed_at": "2026-11-23T03:06:10.866729+00:00",
+  "review_expires_at": "2027-02-21T03:06:10.866729+00:00",
+  "sha256": "bc6f4b35f7ea133f99869ce1a6b0db325b2409f1062bfe91639fa9ba67cd371d",
+  "topics": [
+    "soil_health",
+    "irrigation",
+    "sustainable_farming"
+  ]
+}

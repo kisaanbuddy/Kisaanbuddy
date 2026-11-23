@@ -40,10 +40,10 @@ def list_schemes(
                             "benefits": s.benefits_summary,
                             "summary": s.overview,
                             "eligibility": s.eligibility_criteria_text,
-                            "deadline": s.deadline_text or "Open All Year",
+                            "deadline": s.deadline_text,
                             "url": s.source_url,
                             "application_url": s.application_url or s.source_url,
-                            "last_verified": s.last_verified_at.strftime("%Y-%m-%d") if s.last_verified_at else "Verified"
+                            "last_verified": s.last_verified_at.isoformat() + ("Z" if s.last_verified_at.tzinfo is None else "") if s.last_verified_at else None
                         }
                         for s in schemes
                     ]
@@ -70,10 +70,10 @@ def list_schemes(
             "benefits": s.get("benefits_summary"),
             "summary": s.get("overview"),
             "eligibility": s.get("eligibility_criteria_text"),
-            "deadline": s.get("deadline_text", "Open All Year"),
+            "deadline": s.get("deadline_text"),
             "url": s.get("source_url"),
             "application_url": s.get("application_url", s.get("source_url")),
-            "last_verified": "Verified Official"
+            "last_verified": None
         })
 
     return results

@@ -1,0 +1,23 @@
+{
+  "source_url": "https://agritech.tnau.ac.in/agriculture/agri_cropselect.html",
+  "publisher": "Tamil Nadu Agricultural University",
+  "title": "Crop Production: Crop Selection",
+  "publication_date": null,
+  "publication_date_status": "not_reported",
+  "geography": [
+    "Tamil Nadu",
+    "India: general principles only"
+  ],
+  "version": "1",
+  "reviewed_by": "Codex source-text comparison, not field/agronomist validation",
+  "review_status": "approved",
+  "review_scope": "Paraphrased general principles checked against retrieved official page; no doses or field diagnosis.",
+  "reviewed_at": "2026-11-23T03:06:10.866729+00:00",
+  "review_expires_at": "2027-02-21T03:06:10.866729+00:00",
+  "sha256": "7a4081ce92293c044bc6cf52a6b7c64cea92e7f0618fcf4c632d87fee3ed3144",
+  "topics": [
+    "crop_cultivation",
+    "seasonal_crop_selection",
+    "sustainable_farming"
+  ]
+}

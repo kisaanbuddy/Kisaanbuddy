@@ -274,3 +274,67 @@ test("Hidden tab cancels active microphone", async () => {
   assert.equal(h.recognizers[0].aborted, true);
   assert.equal(h.state.isListening, false);
 });
+
+for (const [spoken, route] of [
+  ['mosam kholo', '/weather'], ['weather kholo', '/weather'],
+  ['बारिश वाला पेज दिखाओ', '/weather'], ['open wether', '/weather'],
+  ['schems kholo', '/schemes'], ['sarkari madad dikhao', '/schemes'],
+  ['yojna dikhao', '/schemes'], ['majdoor chahiye', '/worker-connect'],
+  ['mitti ki janch', '/soil-health'], ['open markeplace', '/marketplace'],
+  ['meri profile dikha do', '/profile'], ['open dashbord', '/dashboard'],
+]) test('Similar navigation: ' + spoken, () => {
+  assert.equal(commands.parseCommand(spoken)?.value, route);
+});
+for (const spoken of ['do not open weather', 'mausam mat kholo', 'मंडी मत खोलो',
+  'open weather and mandi', 'how does weather affect wheat', 'barish kab hogi',
+  'homeopathy', 'confrm']) {
+  test('No accidental action: ' + spoken, () => assert.equal(commands.parseCommand(spoken), null));
+}
+const local = load('src/lib/voice/LocalVoiceInterpreter.ts', { './commands': commands });
+test('API interpreter shares flexible navigation', () => {
+  assert.equal(local.interpretLocally('open wether', {}).action.payload.path, '/weather');
+  assert.equal(local.interpretLocally('बारिश कब होगी?', {}), null);
+  assert.equal(local.interpretLocally('open weather and mandi', {}), null);
+});
+
+for (const [spoken, route] of [
+  ['कौन सी फसल लगाऊँ वाला पेज', '/crop-predictor'],
+  ['kaun si fasal lagau page kholo', '/crop-predictor'],
+  ['मिट्टी चेक करनी है', '/soil-health'], ['mitti test karna hai', '/soil-health'],
+  ['ट्रैक्टर किराये पर चाहिए', '/marketplace'], ['kheti ke auzar dikhao', '/marketplace'],
+  ['खेती का हिसाब खोलो', '/khet-diary'], ['kharcha diary kholiye', '/khet-diary'],
+  ['खेत में काम करने वाले चाहिए', '/worker-connect'], ['farm workers dikhao', '/worker-connect'],
+  ['मंडी के रेट दिखाइए', '/mandi'], ['crop prices page open', '/mandi'],
+  ['सरकारी सहायता वाला पेज', '/schemes'], ['government benefits dikhao', '/schemes'],
+  ['पत्ते की जांच वाला पेज', '/disease'], ['crop scan kholo', '/disease'],
+  ['नया खाता खोलना है', '/signup'], ['naya account banana hai', '/signup'],
+  ['मेरी जानकारी दिखाओ', '/profile'], ['mera account kholiye', '/profile'],
+  ['टीम से बात करनी है', '/contact'], ['customer support', '/contact'],
+  ['कृषि विशेषज्ञ वाला पेज', '/chatbot'], ['krishi salahkar dikhao', '/chatbot'],
+  ['खेती सीखना है', '/crops'], ['cultivation guide', '/crops'],
+  ['मदद केंद्र', '/madad'], ['help centre', '/madad'],
+  ['किसानबडी के बारे में', '/about'], ['about kisaanbuddy', '/about'],
+  ['open waether', '/weather'], ['open prof ile', undefined],
+  ['dashbaord kholiye', '/dashboard'], ['मौसम वाला पेज', '/weather'],
+]) test('Expanded phrase: ' + spoken, () => {
+  assert.equal(commands.parseCommand(spoken)?.value, route);
+  if (route) assert.equal(local.interpretLocally(spoken, {}).action.payload.path, route);
+});
+for (const spoken of ["don't open weather", 'मौसम खोलो मत', 'कौन सी फसल लगाऊँ',
+  'kaun si fasal lagau', 'मिट्टी टेस्ट कैसे करें', 'crop prices kab badhenge']) {
+  test('Expanded phrases preserve questions and refusals: ' + spoken, () => {
+    assert.equal(commands.parseCommand(spoken), null);
+  });
+}
+
+for (const [spoken, type] of [
+  ['vaapas chalo', 'back'], ['पिछली स्क्रीन पर जाओ', 'back'],
+  ['फिर से सुनाओ', 'repeat'], ['phir se sunao', 'repeat'], ['say that again', 'repeat'],
+  ['थोड़ा रुको', 'pause'], ['padhna roko', 'pause'],
+  ['पढ़ना जारी रखो', 'resume'], ['aage padho', 'resume'],
+  ['ye page padho', 'read'], ['पढ़ कर सुनाओ', 'read'],
+  ['bas karo', 'cancel'], ['रहने दो', 'cancel'],
+]) test('Natural control: ' + spoken, () => assert.equal(commands.parseCommand(spoken)?.type, type));
+for (const spoken of ['open government benefits and weather', 'मौसम और सरकारी सहायता खोलो',
+  'mandi ya soil test dikhao', 'canfirm', 'submt form', 'phir se sunao mat'])
+  test('Ambiguity and sensitive actions stay strict: ' + spoken, () => assert.equal(commands.parseCommand(spoken), null));

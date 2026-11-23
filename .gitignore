@@ -16,6 +16,7 @@ __pycache__/
 venv/
 env/
 .venv/
+.venv-whatsapp/
 .venv_cuda/
 backend/venv/
 *.egg-info/

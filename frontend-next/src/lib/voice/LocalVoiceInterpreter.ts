@@ -5,6 +5,7 @@
  * across Hindi, Hinglish, English, and Kannada.
  */
 
+import { parseNavigation } from "./commands";
 import type { VoiceAction } from "./ActionRegistry";
 
 export interface InterpretationResult {
@@ -112,187 +113,12 @@ export function interpretLocally(
     }
   }
 
-  // 2. Navigation: Go Back
-  if (
-    /\b(go back|wapas|piche|peeche|hindakke|back)\b/i.test(lower) ||
-    clean.includes("वापस") ||
-    clean.includes("पीछे") ||
-    clean.includes("ಹಿಂದಕ್ಕೆ")
-  ) {
+  // Use the same synonym and typo handling as the global microphone.
+  const navigation = parseNavigation(clean);
+  if (navigation) {
     return {
-      action: { action_type: "GO_BACK", payload: {}, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "पीछे जा रहे हैं।", "ಹಿಂದಕ್ಕೆ ಹೋಗುತ್ತಿದ್ದೇವೆ.", "Going back."),
-      handledLocally: true,
-    };
-  }
-
-  // 3. Navigation: Home
-  if (
-    /\b(home|home page|mukhya prishth|maneyige|shuruat|main page|start)\b/i.test(lower) ||
-    clean.includes("होम") ||
-    clean.includes("मुख्य पृष्ठ") ||
-    clean.includes("ಮುಖಪುಟ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "होम पेज खोल रहे हैं।", "ಮುಖಪುಟಕ್ಕೆ ಹೋಗುತ್ತಿದ್ದೇವೆ.", "Opening home page."),
-      handledLocally: true,
-    };
-  }
-
-  // 4. Navigation: Marketplace (High Priority)
-  // Check marketplace before generic mandi words when "marketplace", "bazaar", "dukaan" are spoken
-  const isMarketplace =
-    /\b(marketplace|market place|bazaar|bazar|dukaan|equipment|upkaran|tractor|trakter|machinery|rotavator|rent|kiraya|bhaada)\b/i.test(lower) ||
-    clean.includes("मार्केटप्लेस") ||
-    clean.includes("बाज़ार") ||
-    clean.includes("ट्रैक्टर") ||
-    clean.includes("उपकरण") ||
-    clean.includes("ಮಾರುಕಟ್ಟೆ") ||
-    clean.includes("ಮಾರ್ಕೆಟ್‌ಪ್ಲೇಸ್");
-
-  const hasMandiBhav =
-    /\b(mandi bhav|mandi price|mandi rate|bhav|rates|dharagalu)\b/i.test(lower) ||
-    clean.includes("मंडी भाव") ||
-    clean.includes("भाव") ||
-    clean.includes("ದರ");
-
-  if (isMarketplace && !hasMandiBhav) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/marketplace" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(
-        lang,
-        "कृषि उपकरण व ट्रैक्टर मार्केटप्लेस खोल रहे हैं।",
-        "ಕೃಷಿ ಮಾರುಕಟ್ಟೆ ಮತ್ತು ಟ್ರ್ಯಾಕ್ಟರ್ ವಿಭಾಗ ತೆರೆಯುತ್ತಿದ್ದೇವೆ.",
-        "Opening marketplace and machinery."
-      ),
-      handledLocally: true,
-    };
-  }
-
-  // 5. Navigation: Mandi Prices
-  if (
-    /\b(mandi|mandi bhav|mandi price|mandi dar|bhav|rates|mandi rates)\b/i.test(lower) ||
-    clean.includes("मंडी") ||
-    clean.includes("मंडी भाव") ||
-    clean.includes("ದರ") ||
-    clean.includes("ಮಂಡಿ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/mandi" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "लाइव मंडी भाव खोल रहे हैं।", "ಲೈವ್ ಮಂಡಿ ದರಗಳನ್ನು ತೆರೆಯುತ್ತಿದ್ದೇವೆ.", "Opening live mandi prices."),
-      handledLocally: true,
-    };
-  }
-
-  // 6. Navigation: Weather / Mausam
-  if (
-    /\b(weather|mausam|barish|baarish|havamana|rain|rainfall|forecast|barsaat|tapman)\b/i.test(lower) ||
-    clean.includes("मौसम") ||
-    clean.includes("बारिश") ||
-    clean.includes("हवामान") ||
-    clean.includes("ಹವಾಮಾನ") ||
-    clean.includes("ಮಳೆ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/weather" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "मौसम पूर्वानुमान व बारिश अलर्ट खोल रहे हैं।", "ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ತೆರೆಯುತ್ತಿದ್ದೇವೆ.", "Opening weather forecast and rain alerts."),
-      handledLocally: true,
-    };
-  }
-
-  // 7. Navigation: Crop Doctor / Disease Diagnosis
-  if (
-    /\b(crop doctor|disease|fasal rog|bimari|beemari|doctor|kisan doctor|beley roga|dhabbe|keeda|keede|rog|tamatar|fungus|blight)\b/i.test(lower) ||
-    clean.includes("क्रॉप डॉक्टर") ||
-    clean.includes("फसल रोग") ||
-    clean.includes("बीमारी") ||
-    clean.includes("रोग") ||
-    clean.includes("कीड़ा") ||
-    clean.includes("टमाटर") ||
-    clean.includes("ಕ್ರಾಪ್ ಡಾಕ್ಟರ್") ||
-    clean.includes("ಬೆಳೆ ರೋಗ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/disease" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(
-        lang,
-        "क्रॉप डॉक्टर खोल रहे हैं। यहां पत्ती स्कैन कर रोग का उपचार पाएं।",
-        "ಕ್ರಾಪ್ ಡಾಕ್ಟರ್ ತೆರೆಯುತ್ತಿದ್ದೇವೆ. ಬೆಳೆ ರೋಗ ತಪಾಸಣೆ ಮಾಡಬಹುದು.",
-        "Opening Crop Doctor for disease diagnosis."
-      ),
-      handledLocally: true,
-    };
-  }
-
-  // 8. Navigation: Agricultural Labour / Worker Connect
-  if (
-    /\b(labour|labor|workers|worker|majdoor|mazdoor|kamdar|karmikaru|shramik|mazduri)\b/i.test(lower) ||
-    clean.includes("मजदूर") ||
-    clean.includes("श्रमिक") ||
-    clean.includes("कामदार") ||
-    clean.includes("मजदूरी") ||
-    clean.includes("ಕಾರ್ಮಿಕ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/worker-connect" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "कृषि मजदूर सेवा खोल रहे हैं।", "ಕೃಷಿ ಕಾರ್ಮಿಕರ ವಿಭಾಗ ತೆರೆಯುತ್ತಿದ್ದೇವೆ.", "Opening agricultural labour connect."),
-      handledLocally: true,
-    };
-  }
-
-  // 8.5 Navigation: AI Agriculture Advisor (Fertilizer, Seeds, Agronomy)
-  if (
-    /\b(fertilizer|fertilizers|khad|khaad|urea|dap|potash|pesticide|keetnashak|dawa|davai|beej|seed|seeds|salha|salah|advisor|krishi salah|agronomist|crop advice|poshan|dosage|spray|chhidkaw)\b/i.test(lower) ||
-    clean.includes("खाद") ||
-    clean.includes("उर्वरक") ||
-    clean.includes("कीटनाशक") ||
-    clean.includes("दवाई") ||
-    clean.includes("बीज") ||
-    clean.includes("सलाह") ||
-    clean.includes("गೊಬ್ಬರ") ||
-    clean.includes("ಗೊಬ್ಬರ") ||
-    clean.includes("ಔಷಧಿ") ||
-    clean.includes("ಬೀಜ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/chatbot" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(
-        lang,
-        "कृषि सलाहकार खोल रहे हैं। यहां खाद, बीज और फसलों की सही जानकारी पाएं।",
-        "ಕೃಷಿ ಸಲಹೆಗಾರರನ್ನು ತೆರೆಯುತ್ತಿದ್ದೇವೆ. ರಸಗೊಬ್ಬರ, ಬೀಜ ಮತ್ತು ಕೀಟನಾಶಕಗಳ ಮಾಹಿತಿ ಪಡೆಯಿರಿ.",
-        "Opening AI Agriculture Advisor for fertilizer and crop guidance."
-      ),
-      handledLocally: true,
-    };
-  }
-
-  // 9. Navigation: Government Schemes
-  if (
-    /\b(schemes|scheme|yojana|sarkari yojana|pm kisan|subsidy|anudan|bima)\b/i.test(lower) ||
-    clean.includes("योजना") ||
-    clean.includes("सरकारी योजना") ||
-    clean.includes("सब्सिडी") ||
-    clean.includes("ಯೋಜನೆ") ||
-    clean.includes("ಸರ್ಕಾರಿ ಯೋಜನೆ")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/schemes" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "सरकारी कृषि योजनाएं खोल रहे हैं।", "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳನ್ನು ತೆರೆಯುತ್ತಿದ್ದೇವೆ.", "Opening government schemes."),
-      handledLocally: true,
-    };
-  }
-
-  // 10. Navigation: Farm Profile
-  if (
-    /\b(profile|my profile|farm profile|khet profile|kisan profile|zameen)\b/i.test(lower) ||
-    clean.includes("प्रोफाइल") ||
-    clean.includes("किसान प्रोफाइल") ||
-    clean.includes("ಪ್ರೊಫೈಲ್")
-  ) {
-    return {
-      action: { action_type: "NAVIGATE", payload: { path: "/farmer-profile" }, safety_level: "SAFE", requires_confirmation: false },
-      reply_text: getLocalizedReply(lang, "फार्म प्रोफाइल खोल रहे हैं।", "ನಿಮ್ಮ ಕೃಷಿ ಪ್ರೊಫೈಲ್ ತೆರೆಯುತ್ತಿದ್ದೇವೆ.", "Opening farm profile."),
+      action: { action_type: navigation.type === "back" ? "GO_BACK" : "NAVIGATE", payload: navigation.value ? { path: navigation.value } : {}, safety_level: "SAFE", requires_confirmation: false },
+      reply_text: getLocalizedReply(lang, "पेज खोल रहे हैं।", "ಪುಟ ತೆರೆಯುತ್ತಿದ್ದೇವೆ.", "Opening the page."),
       handledLocally: true,
     };
   }
