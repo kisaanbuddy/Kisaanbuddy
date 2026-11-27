@@ -5,7 +5,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const pages = [
     { url: '', changeScore: 1.0, changefreq: 'daily' as const },
-    { url: '/weather', changeScore: 0.9, changefreq: 'daily' as const },
     { url: '/mandi', changeScore: 0.9, changefreq: 'daily' as const },
     { url: '/marketplace', changeScore: 0.8, changefreq: 'daily' as const },
     { url: '/worker-connect', changeScore: 0.8, changefreq: 'daily' as const },

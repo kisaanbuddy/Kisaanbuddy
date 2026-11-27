@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
+import { ContextualWeatherNotice } from "@/components/contextual/ContextualWeatherNotice";
 import machineryAuditData from "@/lib/data/machinery-image-mapping.json";
 import {
   Menu,
@@ -1466,7 +1467,7 @@ export default function MarketplaceClient() {
                         ? "ट्रैक्टर, कंबाइन, रोटावेटर या ब्रांड खोजें (उदा. Mahindra 575)..."
                         : "Search tractors, harvesters, equipment, brands..."
                     }
-                    className="w-full pl-10 pr-24 py-2 text-sm rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 text-stone-900 dark:text-white placeholder:text-stone-400 transition"
+                    className="w-full pl-10 pr-24 py-2 text-sm rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800 focus:bg-white dark:focus:bg-stone-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-700/20 focus:border-emerald-700 text-stone-900 dark:text-white placeholder:text-stone-400 transition"
                   />
                   {searchQuery && (
                     <button
@@ -1863,7 +1864,7 @@ export default function MarketplaceClient() {
                       value={locationSearchInput}
                       onChange={(e) => setLocationSearchInput(e.target.value)}
                       placeholder="Search State, District or City..."
-                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-md border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+                      className="w-full pl-8 pr-2.5 py-1.5 text-xs rounded-md border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-white focus:bg-white dark:focus:bg-stone-800 focus:outline-none focus:ring-1 focus:ring-emerald-600"
                     />
                   </div>
 
@@ -3096,6 +3097,16 @@ export default function MarketplaceClient() {
             )}
 
             {/* Scenario A: Direct Contact (When phone number exists) */}
+            {contactTarget && (
+              <ContextualWeatherNotice
+                domain="equipment_booking"
+                activity={contactTarget.title}
+                cityQuery={contactTarget.location || undefined}
+                compact
+                onlyWhenActionable
+                className="mb-3"
+              />
+            )}
             {contactTab === "direct" && contactTarget.phone && (
               <div className="space-y-2.5 text-xs">
                 <div className="p-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 space-y-1">

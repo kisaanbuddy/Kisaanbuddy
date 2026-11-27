@@ -28,7 +28,7 @@ export function WhatsAppFloatingButton({
     : `https://wa.me/${cleanNumber}`;
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 group">
+    <div className="kb-whatsapp-float fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40 group">
       <a
         href={waUrl}
         target="_blank"

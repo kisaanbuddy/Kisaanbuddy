@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './mobile-clean.css';
+import { MobileLayoutState } from '@/components/mobile/MobileLayoutState';
 import { Providers } from '@/components/Providers';
 import { Footer } from '@/components/Footer';
 import { AssistantGate } from '@/components/AssistantGate';
@@ -9,7 +11,7 @@ import Breadcrumbs from '@/components/Breadcrumbs';
 import { MobileBottomNav } from '@/components/MobileBottomNav';
 import { MobileMenuDrawer } from '@/components/navigation/MobileMenuDrawer';
 import { AppNavigationShell } from '@/components/navigation/AppNavigationShell';
-import { AnnouncementPopup } from '@/components/announcement/AnnouncementPopup';
+import { ResponsiveWelcome } from '@/components/mobile/MobileWelcome';
 import { WhatsAppFloatingButton } from '@/components/WhatsAppFloatingButton';
 
 /* ---------- System font stacks ----------
@@ -180,6 +182,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans min-h-screen antialiased">
         <Providers>
+          <MobileLayoutState />
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-emerald-600 text-white px-4 py-2 rounded-xl z-50 font-bold shadow-lg transition-all"
@@ -197,7 +200,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </main>
             <Footer />
           </div>
-          <AnnouncementPopup />
+          <ResponsiveWelcome />
           <AssistantGate />
           <SwRegister />
           <Analytics />

@@ -244,17 +244,19 @@ def list_equipment_listings(
     brand: Optional[str] = Query(default=None),
     state: Optional[str] = Query(default=None),
     district: Optional[str] = Query(default=None),
-    status: Optional[str] = Query(default="available"),
+    status: Optional[str] = Query(default="all"),
     search: Optional[str] = Query(default=None),
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=20, ge=1, le=100),
     db: Session = Depends(get_db),
 ) -> Any:
     """Browse live machinery actively offered for rent or sale by farmers and CHCs."""
-    query = db.query(EquipmentListing)
+    query = db.query(EquipmentListing).filter(EquipmentListing.is_archived == False)
 
     if status and status != "all":
         query = query.filter(EquipmentListing.availability_status == status)
+    else:
+        query = query.filter(EquipmentListing.availability_status.in_(["available", "contact_provider"]))
     if listing_type:
         query = query.filter(EquipmentListing.listing_type == listing_type)
     if category and category != "all":
@@ -295,7 +297,7 @@ def list_equipment_listings(
 @router.get("/equipment-listings/{item_id}", response_model=EquipmentListingResponse)
 def get_equipment_listing(item_id: int, db: Session = Depends(get_db)) -> Any:
     """Retrieve details for an equipment listing."""
-    item = db.query(EquipmentListing).filter(EquipmentListing.id == item_id).first()
+    item = db.query(EquipmentListing).filter(EquipmentListing.id == item_id, EquipmentListing.is_archived == False).first()
     if not item:
         raise HTTPException(status_code=404, detail="Equipment listing not found")
     return EquipmentListingResponse.model_validate(item)
@@ -331,7 +333,7 @@ def update_equipment_listing_status(
     db: Session = Depends(get_db),
 ) -> Any:
     """Update availability status of an equipment listing."""
-    item = db.query(EquipmentListing).filter(EquipmentListing.id == item_id).first()
+    item = db.query(EquipmentListing).filter(EquipmentListing.id == item_id, EquipmentListing.is_archived == False).first()
     if not item:
         raise HTTPException(status_code=404, detail="Equipment listing not found")
     item.availability_status = status_value
@@ -366,7 +368,7 @@ def list_produce_listings(
             db.add(ProduceListing(**pr))
         db.commit()
 
-    query = db.query(ProduceListing)
+    query = db.query(ProduceListing).filter(ProduceListing.is_archived == False)
 
     if status and status != "all":
         query = query.filter(ProduceListing.availability_status == status)
@@ -529,7 +531,7 @@ def list_buyer_requirements(
             db.add(BuyerRequirement(**br))
         db.commit()
 
-    query = db.query(BuyerRequirement)
+    query = db.query(BuyerRequirement).filter(BuyerRequirement.is_archived == False)
     today = date.today()
 
     if status and status != "all":
@@ -1069,7 +1071,7 @@ def list_dealers(
     db: Session = Depends(get_db),
 ) -> Any:
     """Discover authentic machinery sellers, Custom Hiring Centers (CHCs), and suppliers."""
-    query = db.query(EquipmentListing)
+    query = db.query(EquipmentListing).filter(EquipmentListing.is_archived == False)
     if state and state.lower() != "all":
         query = query.filter(func.lower(EquipmentListing.state) == state.lower())
     if district and district.lower() != "all":
@@ -1257,7 +1259,7 @@ def list_legacy_listings(
 ) -> Any:
     """Legacy marketplace listings endpoint (preserved for backward compatibility)."""
     _seed_legacy_listings_if_empty(db)
-    query = db.query(MarketplaceListing).filter(MarketplaceListing.is_active == True)
+    query = db.query(MarketplaceListing).filter(MarketplaceListing.is_active == True, MarketplaceListing.is_archived == False)
 
     if listing_type:
         query = query.filter(MarketplaceListing.listing_type == listing_type)

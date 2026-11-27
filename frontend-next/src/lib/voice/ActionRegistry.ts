@@ -57,7 +57,6 @@ export const PERMITTED_ROUTES: Record<string, string> = {
   "/disease": "Crop Doctor",
   "/marketplace": "Marketplace",
   "/mandi": "Mandi Prices",
-  "/weather": "Weather",
   "/worker-connect": "Agricultural Labour",
   "/schemes": "Government Schemes",
   "/farmer-profile": "Farm Profile",

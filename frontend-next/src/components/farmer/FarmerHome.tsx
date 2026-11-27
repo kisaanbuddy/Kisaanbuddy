@@ -27,7 +27,6 @@ import {
   type UnifiedWeather,
   type ForecastBundle,
 } from "@/lib/weather-api";
-import { translateCondition } from "@/lib/weather-translations";
 import { MobileHomeScreen } from "@/components/mobile/MobileHomeScreen";
 import { FarmerFeatureCard } from "./FarmerFeatureCard";
 import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
@@ -562,72 +561,6 @@ export function FarmerHome() {
                   badge={service.badge?.[currentLang]}
                 />
               ))}
-            </div>
-          </section>
-
-          {/* ────────────────────────────────────────────────────────────────── */}
-          {/* WEATHER & HYPERLOCAL ADVISORY ALERT                                */}
-          {/* ────────────────────────────────────────────────────────────────── */}
-          <section aria-label="Weather Alert">
-            <div className="rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white dark:bg-stone-900/95 p-5 shadow-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-start gap-3.5">
-                  <div
-                    className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${
-                      isRainLikely
-                        ? "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800"
-                        : "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800"
-                    }`}
-                  >
-                    <CloudSun className="h-6 w-6 stroke-[2.2]" aria-hidden="true" />
-                  </div>
-
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-base sm:text-lg font-extrabold text-stone-900 dark:text-stone-100">
-                        {weather
-                          ? `${weather.location.name} — ${Math.round(
-                              weather.current.temp_c
-                            )}°C`
-                          : text.weather}
-                      </span>
-                      {weather && (
-                        <span className="text-xs font-semibold text-stone-600 dark:text-stone-300">
-                          (
-                          {translateCondition(
-                            weather.current.condition,
-                            (lang as any) || "hi"
-                          )}
-                          )
-                        </span>
-                      )}
-                      {isRainLikely ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-950/60 px-2.5 py-0.5 text-[11px] font-bold text-amber-800 dark:text-amber-300">
-                          <Droplets className="h-3 w-3" />
-                          {rainChance}% बारिश
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
-                          <ShieldCheck className="h-3 w-3" />
-                          मौसम साफ
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="mt-1.5 text-xs sm:text-sm text-stone-700 dark:text-stone-200 leading-snug">
-                      {isRainLikely ? text.rainAlert : text.safeSpray}
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href="/weather"
-                  className="shrink-0 min-h-[44px] px-4 py-2 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-emerald-700 hover:text-white dark:hover:bg-emerald-700 text-xs sm:text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <span>{text.checkWeatherLink}</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
             </div>
           </section>
 

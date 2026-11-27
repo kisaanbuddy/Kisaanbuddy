@@ -156,13 +156,6 @@ export function MobileMenuDrawer() {
           color: "text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/60",
         },
         {
-          href: "/weather",
-          icon: CloudSun,
-          title: dict.items.weather.title,
-          desc: dict.items.weather.desc,
-          color: "text-sky-700 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60",
-        },
-        {
           href: "/satellite",
           icon: Layers,
           title: dict.items.satellite.title,

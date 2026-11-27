@@ -43,5 +43,6 @@ export function AppNavigationShell() {
   }
 
   // 3. All other internal pages: Clean, compact, module-specific contextual header
-  return <CompactInternalHeader />;
+  return <><div className="hidden md:contents"><CompactInternalHeader /></div><MobileAppHeader /></>;
 }
+

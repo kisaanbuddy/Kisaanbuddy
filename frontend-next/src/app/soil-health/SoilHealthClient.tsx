@@ -1,6 +1,7 @@
 "use client"
 import { useLanguage } from '@/lib/language'
 import { MobileSoilView } from '@/components/mobile/MobileSoilView'
+import { ContextualWeatherNotice } from '@/components/contextual/ContextualWeatherNotice'
 import { SOIL_HEALTH_GUIDE_I18N } from '@/lib/soil-health-guide-i18n'
 /**
  * KisaanBuddy — Soil Health & Fertilizer Recommendation
@@ -651,6 +652,9 @@ export default function SoilHealthPage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Contextual Fertilizer & Rainfall Leaching Notice */}
+      <ContextualWeatherNotice domain="fertilizer" />
 
       {/* Main UI Layout */}
       <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] items-start">

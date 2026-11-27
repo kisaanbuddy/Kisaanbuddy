@@ -1910,3 +1910,25 @@ AUTHENTIC_AGRI_PRODUCTS: List[Dict[str, Any]] = [
         'target_deficiencies': [],
         'target_pests_diseases': ['Semi-Dwarf Lodging Resistant']}
 ]
+
+
+def _merge_expanded_products() -> None:
+    """Append verified expanded products while preventing duplicate IDs or (brand, name) entries."""
+    from data.expanded_agri_products import EXPANDED_AGRI_PRODUCTS
+
+    seen_ids = {p["id"] for p in AUTHENTIC_AGRI_PRODUCTS}
+    seen_sigs = {
+        (p.get("brand", "").strip().lower(), p.get("name", "").strip().lower())
+        for p in AUTHENTIC_AGRI_PRODUCTS
+    }
+    for item in EXPANDED_AGRI_PRODUCTS:
+        sig = (item.get("brand", "").strip().lower(), item.get("name", "").strip().lower())
+        if item["id"] in seen_ids or sig in seen_sigs:
+            continue
+        seen_ids.add(item["id"])
+        seen_sigs.add(sig)
+        AUTHENTIC_AGRI_PRODUCTS.append(item)
+
+
+_merge_expanded_products()
+

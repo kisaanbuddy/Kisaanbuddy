@@ -297,41 +297,7 @@ const ALL_FEATURES: FeatureCard[] = [
     },
     badgeColor: 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20',
   },
-  {
-    key: 'weather',
-    icon: CloudSun,
-    title: {
-      en: 'Agro-Weather & Spray Radar',
-      hi: 'मौसम रडार व छिड़काव परामर्श',
-      kn: 'ಕೃಷಿ ಹವಾಮಾನ ಮತ್ತು ಸಿಂಪಡಣೆ ಸಲಹೆ',
-    },
-    subtitle: {
-      en: 'Hyperlocal rainfall & temperature alerts',
-      hi: 'स्थानीय बारिश, पाला व तेज धूप की चेतावनी',
-      kn: 'ನಿಖರ ಮಳೆ ಮತ್ತು ತಾಪಮಾನ ಮುನ್ಸೂಚನೆ',
-    },
-    desc: {
-      en: 'Hyperlocal hourly forecasts paired with agricultural operational advice: ideal spray windows, rain alerts, and heat stress mitigation.',
-      hi: 'दैनिक व साप्ताहिक मौसम पूर्वानुमान के साथ कीटनाशक छिड़काव की सही खिड़की और बारिश से फसल सुरक्षा के निर्देश।',
-      kn: 'ಕೃಷಿ ಕಾರ್ಯಾಚರಣೆಗಳಿಗೆ ತಕ್ಕಂತೆ ಸಿಂಪಡಣೆ ಸಮಯ, ಮಳೆ ಎಚ್ಚರಿಕೆ ಮತ್ತು ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ ತಿಳಿಯಿರಿ.',
-    },
-    category: {
-      en: 'Agro-Climate',
-      hi: 'कृषि मौसम',
-      kn: 'ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ',
-    },
-    categoryType: 'farm',
-    image: '/images/weather/monsoon-farmland.jpg',
-    imageAlt: 'Monsoon clouds rolling over lush green agricultural farmland in rural India',
-    href: '/weather',
-    badge: {
-      en: 'Operational Radar',
-      hi: 'छिड़काव अलर्ट',
-      kn: 'ಹವಾಮಾನ ರೇಡಾರ್',
-    },
-    badgeColor: 'bg-sky-500/10 text-sky-800 dark:text-sky-300 border-sky-500/20',
-  },
-  {
+    {
     key: 'khet_diary',
     icon: BookOpen,
     title: {

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import {
   Menu, X, LogOut, User as UserIcon,
-  LayoutDashboard, CloudSun, Sprout, Bug,
+  LayoutDashboard, Sprout, Bug,
   TrendingUp, Users, Mic, Star, ChevronDown,
   FlaskConical, Landmark, Search, Sparkles, Globe, Shield,
   Store, BarChart3, Settings, HeartHandshake, BookOpen, Maximize2, Minimize2
@@ -44,10 +44,6 @@ const NAV_LINK_LABELS: Record<string, Record<string, string>> = {
   '/mandi': {
     en: 'Mandi Rates', hi: 'मंडी भाव', kn: 'ಮಂಡಿ ದರಗಳು', ta: 'மண்டி விலைகள்', te: 'మండి ధరలు',
     ml: 'മണ്ടി നിരക്കുകൾ', mr: 'मंडी दर', bn: 'মান্ডি দর', pa: 'ਮੰਡੀ ਰੇਟ', gu: 'મંડી દર', hi_en: 'Mandi Rates',
-  },
-  '/weather': {
-    en: 'Weather', hi: 'मौसम', kn: 'ಹವಾಮಾನ', ta: 'வானிலை', te: 'వాతావరణం',
-    ml: 'കാലാവസ്ഥ', mr: 'हवामान', bn: 'আবহাওয়া', pa: 'ਮੌਸਮ', gu: 'હવામાન', hi_en: 'Mausam',
   },
   '/soil-health': {
     en: 'Soil Health', hi: 'मिट्टी स्वास्थ्य', kn: 'ಮಣ್ಣಿನ ಆರೋಗ್ಯ', ta: 'மண் ஆரோக்கியம்', te: 'నేల ఆరోగ్యం',
@@ -156,7 +152,6 @@ const NAV_LINK_DEFS = [
   { href: '/marketplace',    icon: Store           },
   { href: '/worker-connect', icon: Users           },
   { href: '/mandi',          icon: TrendingUp      },
-  { href: '/weather',        icon: CloudSun        },
   { href: '/soil-health',    icon: FlaskConical },
   { href: '/reports',        icon: BarChart3       },
   { href: '/schemes',        icon: Landmark        },
@@ -173,7 +168,6 @@ const PUBLIC_ROUTES = [
   '/worker-connect',
   '/schemes',
   '/features',
-  '/weather',
   '/login',
   '/signup',
   '/onboarding',

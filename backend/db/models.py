@@ -467,6 +467,9 @@ if Column is not None:
         delivery_terms = Column(String(150), nullable=True)  # "Farm Gate Pickup", "Mandi Delivery", "Direct Dispatch"
         notes = Column(Text, nullable=True)
         is_active = Column(Boolean, default=True, nullable=False, index=True)
+        is_archived = Column(Boolean, default=False, nullable=False, index=True)
+        archive_reason = Column(Text, nullable=True)
+        verification_category = Column(String(50), default="unverified", nullable=False, index=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -532,7 +535,15 @@ if Column is not None:
         tehsil_or_block = Column(String(100), nullable=True)
         village = Column(String(150), nullable=True)
         pincode = Column(String(10), nullable=True)
-        availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, booked, under_maintenance, sold, inactive
+        availability_status = Column(String(50), default="contact_provider", nullable=False, index=True)  # available, booked, under_maintenance, sold, inactive, contact_provider
+        availability_confirmed = Column(Boolean, default=False, nullable=False)
+        availability_label = Column(String(120), default="Contact Provider for Availability", nullable=True)
+        provider_type = Column(String(60), nullable=True)  # chc, fpo, cooperative, authorized_dealer, individual_owner, govt_directory
+        source_name = Column(String(255), nullable=True)
+        source_url = Column(String(500), nullable=True)
+        verification_category = Column(String(50), default="unverified", nullable=False, index=True)
+        is_archived = Column(Boolean, default=False, nullable=False, index=True)
+        archive_reason = Column(Text, nullable=True)
         image_url = Column(String(500), nullable=True)
         images_json = Column(Text, nullable=True)
         notes = Column(Text, nullable=True)
@@ -570,6 +581,9 @@ if Column is not None:
         source_origin = Column(String(100), default="kisaanbuddy_farmer", nullable=False)  # kisaanbuddy_farmer, fpo_partner, external_partner
         availability_status = Column(String(50), default="available", nullable=False, index=True)  # available, under_negotiation, sold_out, inactive, flagged
         verification_status = Column(String(50), default="verified", nullable=False)  # verified, fpo_member, self_declared
+        verification_category = Column(String(50), default="unverified", nullable=False, index=True)
+        is_archived = Column(Boolean, default=False, nullable=False, index=True)
+        archive_reason = Column(Text, nullable=True)
         notes = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -624,6 +638,9 @@ if Column is not None:
         contact_phone = Column(String(30), nullable=True)
         contact_consent_verified = Column(Boolean, default=True, nullable=False)
         status = Column(String(30), default="active", nullable=False, index=True)  # active, expired, fulfilled, cancelled
+        verification_category = Column(String(50), default="unverified", nullable=False, index=True)
+        is_archived = Column(Boolean, default=False, nullable=False, index=True)
+        archive_reason = Column(Text, nullable=True)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
         updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
@@ -1333,6 +1350,46 @@ if Column is not None:
         expires_at = Column(DateTime, nullable=False)
         used = Column(Boolean, default=False, nullable=False)
         created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    class WhatsAppUnansweredQuestion(Base):  # type: ignore[misc]
+        """Logs unanswered or low-confidence WhatsApp queries for admin KB improvement."""
+        __tablename__ = "whatsapp_unanswered_questions"
+        id = Column(Integer, primary_key=True, index=True)
+        phone_number = Column(String(50), index=True, nullable=False)
+        language = Column(String(10), default="en", nullable=False)
+        question_text = Column(Text, nullable=False)
+        reason = Column(String(100), default="no_verified_source", nullable=False)
+        resolved = Column(Boolean, default=False, nullable=False, index=True)
+        resolution_note = Column(Text, nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    class WhatsAppFeedback(Base):  # type: ignore[misc]
+        """Farmer feedback submitted through WhatsApp."""
+        __tablename__ = "whatsapp_feedback"
+        id = Column(Integer, primary_key=True, index=True)
+        phone_number = Column(String(50), index=True, nullable=False)
+        rating = Column(Integer, nullable=True)  # 1-5 or 1/0 helpfulness
+        helpful = Column(Boolean, nullable=True)
+        comment = Column(Text, nullable=True)
+        context_state = Column(String(50), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    class WhatsAppTurnMetric(Base):  # type: ignore[misc]
+        """Durable per-turn telemetry for WhatsApp Admin Dashboard (zero-PII)."""
+        __tablename__ = "whatsapp_turn_metrics"
+        id = Column(Integer, primary_key=True, index=True)
+        message_id = Column(String(100), index=True, nullable=True)
+        phone_hash = Column(String(32), index=True, nullable=False)
+        language = Column(String(10), default="en", nullable=False, index=True)
+        message_type = Column(String(30), default="text", nullable=False)
+        intent = Column(String(60), nullable=True, index=True)
+        handler = Column(String(60), nullable=True)
+        latency_ms = Column(Float, default=0.0, nullable=False)
+        ai_tokens = Column(Integer, default=0, nullable=False)
+        estimated_cost_inr = Column(Float, default=0.0, nullable=False)
+        success = Column(Boolean, default=True, nullable=False, index=True)
+        error_code = Column(String(100), nullable=True)
+        created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
     class TranslationCacheEntry(Base):  # type: ignore[misc]
         """Persistent cache for machine translations using content hashes."""

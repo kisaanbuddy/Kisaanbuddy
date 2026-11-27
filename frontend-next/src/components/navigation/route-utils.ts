@@ -192,29 +192,6 @@ export const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       { label: lang === "hi" ? "विशेषज्ञ सलाह" : "Ask Expert", href: "/chatbot", icon: Mic },
     ],
   },
-  weather: {
-    key: "weather",
-    title: {
-      en: "Weather Intelligence",
-      hi: "मौसम पूर्वानुमान",
-      kn: "ಹವಾಮಾನ ಮಾಹಿತಿ",
-      ta: "வானிலை தகவல்",
-      te: "వాతావరణం",
-      mr: "हवामान अंदाज",
-    },
-    subtitle: {
-      en: "Hyperlocal Agro-Meteorology & Spray Advisory",
-      hi: "खेत स्तर पर मौसम व कीटनाशक स्प्रे सलाह",
-      kn: "ಕೃಷಿ ಹವಾಮಾನ ಸಲಹೆ",
-    },
-    badge: "Hyperlocal",
-    icon: CloudSun,
-    controls: (lang) => [
-      { label: lang === "hi" ? "आज का मौसम" : "Today's Forecast", href: "/weather#current-weather", icon: CloudSun },
-      { label: lang === "hi" ? "स्प्रे विंडो" : "Spray Window", href: "/weather#spray-advisory", icon: Sprout },
-      { label: lang === "hi" ? "मानसून रडार" : "Monsoon Radar", href: "/satellite", icon: Layers },
-    ],
-  },
   "soil-health": {
     key: "soil-health",
     title: {

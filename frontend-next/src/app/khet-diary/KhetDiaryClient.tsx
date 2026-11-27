@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { BookOpen, Sparkles, Plus, Trash2, IndianRupee, TrendingUp, FileSpreadsheet, ShieldCheck, HelpCircle, Loader2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { useLanguage, type Lang } from '@/lib/language'
+import { ContextualWeatherNotice } from '@/components/contextual/ContextualWeatherNotice'
 import { KHET_DIARY_I18N } from '@/lib/khet-diary-i18n'
 import { KHET_DIARY_GUIDE_I18N } from '@/lib/khet-diary-guide-i18n'
 import { useAuth } from '@/lib/auth'
@@ -251,6 +252,9 @@ function KhetDiaryContent() {
           {dict.description}
         </p>
       </motion.div>
+
+      {/* Contextual Field & Harvest Weather Alert (only shown when actionable) */}
+      <ContextualWeatherNotice domain="harvesting" onlyWhenActionable className="mb-4" />
 
       {/* Interactive Logbook Section */}
       <div className="grid gap-6 lg:grid-cols-3">

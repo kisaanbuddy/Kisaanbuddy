@@ -378,3 +378,178 @@ async def request_data_erasure(
         "messages_deleted": msgs_deleted,
         "tickets_deleted": tickets_deleted,
     }
+
+
+# ---------------------------------------------------------------------------
+# 6. Enterprise WhatsApp Admin Dashboard Endpoints (Zero-PII Analytics)
+# ---------------------------------------------------------------------------
+@router.get("/admin/dashboard", dependencies=[Depends(require_admin)])
+async def whatsapp_admin_dashboard(db: Session = Depends(get_db)):
+    """Privacy-conscious enterprise analytics for the WhatsApp AI Assistant."""
+    from db.models import WhatsAppFeedback, WhatsAppTurnMetric, WhatsAppUnansweredQuestion
+    from services.whatsapp.observability import mask_phone_number
+
+    total_users = db.query(func.count(WhatsAppUser.id)).scalar() or 0
+    linked_users = db.query(func.count(WhatsAppUser.id)).filter(WhatsAppUser.user_id.isnot(None)).scalar() or 0
+    lang_rows = db.query(WhatsAppUser.language, func.count(WhatsAppUser.id)).group_by(WhatsAppUser.language).all()
+    language_usage = {lang or "en": cnt for lang, cnt in lang_rows}
+
+    status_rows = db.query(WhatsAppMessage.status, func.count(WhatsAppMessage.id)).group_by(WhatsAppMessage.status).all()
+    delivery_status = {st or "unknown": cnt for st, cnt in status_rows}
+
+    avg_latency = db.query(func.avg(WhatsAppTurnMetric.latency_ms)).scalar() or 0.0
+    total_turns = db.query(func.count(WhatsAppTurnMetric.id)).scalar() or 0
+    failed_turns = db.query(func.count(WhatsAppTurnMetric.id)).filter(WhatsAppTurnMetric.success == False).scalar() or 0  # noqa: E712
+    unanswered_open = db.query(func.count(WhatsAppUnansweredQuestion.id)).filter(WhatsAppUnansweredQuestion.resolved == False).scalar() or 0  # noqa: E712
+
+    feedback_total = db.query(func.count(WhatsAppFeedback.id)).scalar() or 0
+    feedback_helpful = db.query(func.count(WhatsAppFeedback.id)).filter(WhatsAppFeedback.helpful == True).scalar() or 0  # noqa: E712
+
+    cost_rows = db.query(WhatsAppMessage.estimated_cost_inr).all()
+    total_spent_inr = sum(c[0] or 0.0 for c in cost_rows)
+    budget_eval = check_budget_limit(total_spent_inr)
+
+    recent_convos = (
+        db.query(WhatsAppUser)
+        .order_by(desc(WhatsAppUser.last_active_at))
+        .limit(20)
+        .all()
+    )
+    conversations = [
+        {
+            "id": u.id,
+            "masked_phone": mask_phone_number(u.phone_number),
+            "language": u.language,
+            "current_state": u.current_state,
+            "account_linked": bool(u.user_id),
+            "opted_in": bool(u.opted_in),
+            "last_active_at": u.last_active_at.isoformat() if u.last_active_at else None,
+        }
+        for u in recent_convos
+    ]
+
+    return {
+        "total_subscribers": total_users,
+        "linked_accounts": linked_users,
+        "language_usage": language_usage,
+        "delivery_status": delivery_status,
+        "total_turns": total_turns,
+        "failed_turns": failed_turns,
+        "avg_latency_ms": round(float(avg_latency), 1),
+        "unanswered_open": unanswered_open,
+        "feedback": {
+            "total": feedback_total,
+            "helpful": feedback_helpful,
+        },
+        "costs": {
+            "estimated_cost_inr": round(total_spent_inr, 2),
+            "monthly_budget_inr": budget_eval["monthly_budget_inr"],
+            "budget_exceeded": budget_eval["is_exceeded"],
+        },
+        "conversations": conversations,
+    }
+
+
+@router.get("/admin/unanswered", dependencies=[Depends(require_admin)])
+async def list_unanswered_questions(
+    resolved: Optional[bool] = Query(None),
+    db: Session = Depends(get_db),
+):
+    from db.models import WhatsAppUnansweredQuestion
+    from services.whatsapp.observability import mask_phone_number
+
+    q = db.query(WhatsAppUnansweredQuestion).order_by(desc(WhatsAppUnansweredQuestion.created_at))
+    if resolved is not None:
+        q = q.filter(WhatsAppUnansweredQuestion.resolved == resolved)
+    rows = q.limit(100).all()
+    return [
+        {
+            "id": r.id,
+            "masked_phone": mask_phone_number(r.phone_number),
+            "language": r.language,
+            "question_text": r.question_text,
+            "reason": r.reason,
+            "resolved": r.resolved,
+            "resolution_note": r.resolution_note,
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        }
+        for r in rows
+    ]
+
+
+@router.patch("/admin/unanswered/{question_id}", dependencies=[Depends(require_admin)])
+async def resolve_unanswered_question(
+    question_id: int,
+    resolution_note: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+):
+    from db.models import WhatsAppUnansweredQuestion
+    row = db.query(WhatsAppUnansweredQuestion).filter(WhatsAppUnansweredQuestion.id == question_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Question not found.")
+    row.resolved = True
+    if resolution_note:
+        row.resolution_note = resolution_note
+    db.commit()
+    return {"id": row.id, "resolved": True}
+
+
+@router.get("/admin/errors", dependencies=[Depends(require_admin)])
+async def list_whatsapp_errors(db: Session = Depends(get_db)):
+    from db.models import WhatsAppTurnMetric
+    from services.whatsapp.observability import mask_phone_number
+
+    failed_msgs = (
+        db.query(WhatsAppMessage)
+        .filter(WhatsAppMessage.status == "failed")
+        .order_by(desc(WhatsAppMessage.created_at))
+        .limit(50)
+        .all()
+    )
+    failed_turns = (
+        db.query(WhatsAppTurnMetric)
+        .filter(WhatsAppTurnMetric.success == False)  # noqa: E712
+        .order_by(desc(WhatsAppTurnMetric.created_at))
+        .limit(50)
+        .all()
+    )
+    return {
+        "failed_messages": [
+            {
+                "id": m.id,
+                "masked_phone": mask_phone_number(m.phone_number),
+                "message_type": m.message_type,
+                "error_message": m.error_message,
+                "created_at": m.created_at.isoformat() if m.created_at else None,
+            }
+            for m in failed_msgs
+        ],
+        "failed_turns": [
+            {
+                "id": t.id,
+                "language": t.language,
+                "intent": t.intent,
+                "error_code": t.error_code,
+                "latency_ms": t.latency_ms,
+                "created_at": t.created_at.isoformat() if t.created_at else None,
+            }
+            for t in failed_turns
+        ],
+    }
+
+
+@router.get("/admin/knowledge", dependencies=[Depends(require_admin)])
+async def list_knowledge_sources():
+    from services.chat.knowledge import KnowledgeBase
+    kb = KnowledgeBase()
+    kb.load()
+    docs: Dict[str, Dict[str, Any]] = {}
+    for c in kb.chunks:
+        entry = docs.setdefault(c.source, {"source": c.source, "chunks": 0, "topics": set()})
+        entry["chunks"] += 1
+        for t in c.provenance.get("topics", []):
+            entry["topics"].add(t)
+    return [
+        {"source": v["source"], "chunks": v["chunks"], "topics": sorted(v["topics"])}
+        for v in docs.values()
+    ]

@@ -113,8 +113,8 @@ export function SprayWeatherAdvisory({ diseaseName, language = 'en' }: SprayWeat
       )}
 
       <div className="pt-1 border-t border-border/30 flex items-center justify-between text-[10px] text-muted-foreground">
-        <span>* Verified IMD / meteorological observation for your area. Advisory only.</span>
-        <span>Observed: {weather.current.observed_at ? new Date(weather.current.observed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Live'}</span>
+        <span>Source: {weather.provider || 'Meteorological Feed'} • Advisory only; forecasts carry uncertainty.</span>
+        <span>Observed: {weather.current.observed_at ? new Date(weather.current.observed_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date(weather.fetched_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
       </div>
     </div>
   );

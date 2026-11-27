@@ -67,6 +67,92 @@ from services.whatsapp.support_handler import create_support_ticket
 
 log = logging.getLogger(__name__)
 
+_INJECTION_PATTERNS = (
+    "ignore previous instructions",
+    "ignore all previous",
+    "system prompt",
+    "you are now",
+    "developer mode",
+)
+
+
+def _sanitize_user_text(text: str) -> str:
+    """Neutralizes common prompt-injection control phrases without altering normal queries."""
+    if not text:
+        return ""
+    import re
+    cleaned = text.strip()
+    for pat in _INJECTION_PATTERNS:
+        cleaned = re.sub(re.escape(pat), "[filtered]", cleaned, flags=re.IGNORECASE)
+    return cleaned[:4000]
+
+
+def _build_farmer_context(wa_user: WhatsAppUser, ctx: Dict[str, Any], db: Session) -> Dict[str, Any]:
+    """Builds consented farmer context without ever exposing another user's data."""
+    fctx: Dict[str, Any] = {
+        "whatsapp_phone": wa_user.phone_number,
+        "account_linked": bool(wa_user.user_id),
+    }
+    if ctx.get("location_coords"):
+        fctx["location_coords"] = ctx["location_coords"]
+    if ctx.get("preferred_district"):
+        fctx["district"] = ctx["preferred_district"]
+    if wa_user.user_id:
+        from db.models import FarmerField, Farm
+        user_rec = db.query(User).filter(User.id == wa_user.user_id).first()
+        if user_rec:
+            fctx["farmer_name"] = user_rec.name
+            if user_rec.lat and user_rec.lon:
+                fctx["lat"] = user_rec.lat
+                fctx["lon"] = user_rec.lon
+        farms = db.query(Farm).filter(Farm.user_id == wa_user.user_id).limit(3).all()
+        if farms:
+            fctx["farms"] = [
+                {"name": f.name, "district": f.district_name, "state": f.state_name}
+                for f in farms
+            ]
+        fields = db.query(FarmerField).filter(FarmerField.user_id == wa_user.user_id).limit(5).all()
+        if fields:
+            fctx["fields"] = [
+                {"field_name": fd.field_name, "crop": fd.current_crop, "acreage": fd.acreage, "soil_type": fd.soil_type}
+                for fd in fields
+            ]
+    return fctx
+
+
+def _persist_turn_metric(
+    db: Optional[Session],
+    phone_number: str,
+    language: str,
+    message_type: str,
+    intent: Optional[str],
+    handler: Optional[str],
+    duration_ms: float,
+    success: bool = True,
+    error_code: Optional[str] = None,
+    message_id: Optional[str] = None,
+) -> None:
+    if db is None:
+        return
+    try:
+        import hashlib
+        from db.models import WhatsAppTurnMetric
+        phone_hash = hashlib.sha256(phone_number.encode()).hexdigest()[:16]
+        db.add(WhatsAppTurnMetric(
+            message_id=message_id,
+            phone_hash=phone_hash,
+            language=language or "en",
+            message_type=message_type or "text",
+            intent=intent,
+            handler=handler,
+            latency_ms=round(duration_ms, 2),
+            success=success,
+            error_code=error_code[:100] if error_code else None,
+        ))
+        db.commit()
+    except Exception:
+        log.debug("Failed to persist WhatsAppTurnMetric", exc_info=True)
+
 
 class InboundRecordResult(str, Enum):
     """Result of attempting to persist an inbound WhatsApp message."""
@@ -369,9 +455,69 @@ class WhatsAppService:
                     await self._send_text(phone_number, notice, db, sender_phone_number_id=sender_phone_number_id)
                     return
 
+            user_text = _sanitize_user_text(user_text)
+
             # 2. Retrieve conversation state from multi-tier state manager
             current_state, ctx, is_expired = await state_manager.get_state(phone_number, db=db)
             state_before = current_state.value if hasattr(current_state, "value") else str(current_state)
+            farmer_ctx = _build_farmer_context(wa_user, ctx, db)
+
+            # Handle shared GPS location (for equipment rental or farm advisory)
+            if msg_type == "location" and norm.latitude is not None and norm.longitude is not None:
+                await state_manager.set_state(
+                    phone_number,
+                    current_state if current_state != WhatsAppState.NEW_USER else WhatsAppState.MAIN_MENU,
+                    {"location_coords": {"lat": norm.latitude, "lon": norm.longitude, "name": norm.location_name}},
+                    db=db,
+                )
+                loc_ack = (
+                    f"लोकेशन प्राप्त हुई ({norm.location_name or f'{norm.latitude:.4f}, {norm.longitude:.4f}'})। अब आप अपना प्रश्न या उपकरण खोज लिख सकते हैं।"
+                    if language == "hi" else
+                    f"Location received ({norm.location_name or f'{norm.latitude:.4f}, {norm.longitude:.4f}'}). You can now search nearby equipment or ask your farming question."
+                )
+                await self._send_text(phone_number, loc_ack, db, sender_phone_number_id=sender_phone_number_id)
+                _persist_turn_metric(db, phone_number, language, msg_type, "location_saved", "location_handler", (time.time() - turn_start) * 1000, message_id=norm.message_id)
+                return
+
+            # Handle uploaded document (e.g. Soil Health Card / agri document)
+            if msg_type == "document" and norm.media_id:
+                try:
+                    doc_bytes, doc_mime = await whatsapp_client.download_media(
+                        norm.media_id, sender_phone_number_id=sender_phone_number_id,
+                    )
+                    if len(doc_bytes) > 10 * 1024 * 1024:
+                        raise ValueError("Document exceeds 10 MB limit")
+                    clean_mime = doc_mime.split(";")[0].strip().lower()
+                    if clean_mime.startswith("image/"):
+                        import base64
+                        b64 = base64.b64encode(doc_bytes).decode("ascii")
+                        doc_prompt = norm.caption or "Please analyze this agricultural document or soil report and explain the key details clearly."
+                        answer = await answer_agricultural_question(
+                            question=doc_prompt, phone_number=phone_number, language=language,
+                            db=db, image_base64=b64, farmer_context=farmer_ctx, user_id=wa_user.user_id,
+                        )
+                    else:
+                        doc_prompt = (
+                            f"The farmer uploaded a document ({clean_mime}). Caption: {norm.caption or 'None'}. "
+                            "Explain what documents KisaanBuddy can analyze (clear photo of Soil Health Card, fertilizer label, or leaf) "
+                            "and invite them to send a clear image or type the soil test values."
+                        )
+                        answer = await answer_agricultural_question(
+                            question=doc_prompt, phone_number=phone_number, language=language,
+                            db=db, farmer_context=farmer_ctx, user_id=wa_user.user_id,
+                        )
+                    await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
+                    _persist_turn_metric(db, phone_number, language, msg_type, "document_analysis", "document_handler", (time.time() - turn_start) * 1000, message_id=norm.message_id)
+                    return
+                except Exception:
+                    log.warning("WhatsApp document processing failed")
+                    err_doc = (
+                        "दस्तावेज़ पढ़ा नहीं जा सका। कृपया स्पष्ट फोटो भेजें या मान लिखकर भेजें।"
+                        if language == "hi" else
+                        "Could not process that document. Please send a clear photo of the Soil Health Card or type the values."
+                    )
+                    await self._send_text(phone_number, err_doc, db, sender_phone_number_id=sender_phone_number_id)
+                    return
 
             # Script detection is a hint; an explicit preference takes precedence.
             if user_text and not norm.menu_selection and not norm.global_command and not ctx.get("language_explicit") and len(user_text.strip()) >= 8:
@@ -646,11 +792,17 @@ class WhatsAppService:
                     )
                     return
 
-            # 6.2 AGRICULTURAL QUESTION
-            if current_state in (WhatsAppState.AGRICULTURAL_QUESTION, WhatsAppState.CROP_DOCTOR_RESULT) and msg_type != "image":
+            # 6.2 AGRICULTURAL QUESTION / MARKETPLACE / RENTAL / BOOKINGS
+            if current_state in (
+                WhatsAppState.AGRICULTURAL_QUESTION,
+                WhatsAppState.CROP_DOCTOR_RESULT,
+                WhatsAppState.MARKETPLACE_SEARCH,
+                WhatsAppState.EQUIPMENT_RENTAL,
+                WhatsAppState.MY_BOOKINGS,
+            ) and msg_type != "image":
                 if menu_choice and menu_choice not in ("guidance", "agriculture_question"):
                     handler_invoked = f"switch_to_{menu_choice}"
-                    await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
+                    await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id, wa_user=wa_user)
                     return
 
                 handler_invoked = "agri_question_answered"
@@ -659,8 +811,11 @@ class WhatsAppService:
                     phone_number=phone_number,
                     language=language,
                     db=db,
+                    farmer_context=farmer_ctx,
+                    user_id=wa_user.user_id,
                 )
                 await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
+                _persist_turn_metric(db, phone_number, language, msg_type, current_state.value.lower(), handler_invoked, (time.time() - turn_start) * 1000, message_id=norm.message_id)
                 record_whatsapp_turn(
                     message_id=norm.message_id,
                     phone_number=phone_number,
@@ -668,11 +823,51 @@ class WhatsAppService:
                     message_type=msg_type,
                     normalized_action="agri_question_answered",
                     state_before=state_before,
-                    state_after=WhatsAppState.AGRICULTURAL_QUESTION.value,
+                    state_after=current_state.value,
                     handler_invoked=handler_invoked,
                     duration_ms=(time.time() - turn_start) * 1000,
                 )
                 return
+
+            # 6.2b SECURE ACCOUNT LINKING (OTP Verification — never auto-link by phone number)
+            if current_state == WhatsAppState.ACCOUNT_LINKING:
+                if menu_choice:
+                    await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id, wa_user=wa_user)
+                    return
+                raw_val = user_text.strip()
+                pending_uid = ctx.get("link_pending_user_id")
+                pending_otp = ctx.get("link_otp_code")
+                if pending_uid and pending_otp and raw_val.isdigit() and len(raw_val) == 6:
+                    if raw_val == str(pending_otp):
+                        wa_user.user_id = int(pending_uid)
+                        db.commit()
+                        await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, {"link_pending_user_id": None, "link_otp_code": None}, db=db)
+                        ok_msg = "आपका KisaanBuddy वेबसाइट अकाउंट सफलतापूर्वक लिंक हो गया है।" if language == "hi" else "Your KisaanBuddy website account has been securely linked."
+                        await self._send_text(phone_number, ok_msg, db, sender_phone_number_id=sender_phone_number_id)
+                    else:
+                        bad_msg = "गलत OTP। कृपया सही 6-अंकों का कोड भेजें या 'menu' लिखें।" if language == "hi" else "Incorrect code. Please enter the 6-digit verification code or type 'menu'."
+                        await self._send_text(phone_number, bad_msg, db, sender_phone_number_id=sender_phone_number_id)
+                    return
+                else:
+                    target_user = db.query(User).filter(User.email == raw_val.lower()).first()
+                    if not target_user:
+                        not_found = "इस ईमेल से कोई KisaanBuddy अकाउंट नहीं मिला। कृपया अपना पंजीकृत ईमेल भेजें या 'menu' लिखें।" if language == "hi" else "No KisaanBuddy account found for that email. Please send your registered email address or type 'menu'."
+                        await self._send_text(phone_number, not_found, db, sender_phone_number_id=sender_phone_number_id)
+                        return
+                    import secrets
+                    from db.models import Notification
+                    code = f"{secrets.randbelow(900000) + 100000}"
+                    db.add(Notification(
+                        user_id=target_user.id,
+                        title="WhatsApp Account Link Verification Code",
+                        message=f"Your KisaanBuddy WhatsApp verification code is {code}. Share this only if you requested linking.",
+                        category="security",
+                    ))
+                    db.commit()
+                    await state_manager.set_state(phone_number, WhatsAppState.ACCOUNT_LINKING, {"link_pending_user_id": target_user.id, "link_otp_code": code}, db=db)
+                    sent_msg = "आपके KisaanBuddy वेबसाइट नोटिफिकेशन में 6-अंकों का सत्यापन कोड भेजा गया है। कृपया वह कोड यहाँ भेजें।" if language == "hi" else "A 6-digit verification code has been sent to your KisaanBuddy website notifications. Please reply with that code to complete linking."
+                    await self._send_text(phone_number, sent_msg, db, sender_phone_number_id=sender_phone_number_id)
+                    return
 
             # 6.3 WEATHER — WAITING FOR LOCATION
             if current_state == WhatsAppState.WEATHER_WAITING_FOR_LOCATION:
@@ -763,10 +958,22 @@ class WhatsAppService:
                 )
                 return
 
+            # 6.5b Account linking trigger
+            if user_text and user_text.strip().lower() in ("link", "link account", "account link", "अकाउंट लिंक"):
+                await state_manager.set_state(phone_number, WhatsAppState.ACCOUNT_LINKING, db=db)
+                link_prompt = (
+                    "अपने KisaanBuddy वेबसाइट अकाउंट को सुरक्षित रूप से लिंक करने के लिए कृपया अपना पंजीकृत ईमेल पता भेजें।"
+                    if language == "hi" else
+                    "To securely link your KisaanBuddy website account, please reply with your registered email address."
+                )
+                await self._send_text(phone_number, link_prompt, db, sender_phone_number_id=sender_phone_number_id)
+                return
+
             # 6.6 MAIN MENU / GENERAL DISPATCH
             if menu_choice:
                 handler_invoked = f"handle_menu_{menu_choice}"
-                await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id)
+                await self._handle_menu_choice(menu_choice, phone_number, language, db, sender_phone_number_id=sender_phone_number_id, wa_user=wa_user)
+                _persist_turn_metric(db, phone_number, language, msg_type, f"menu_{menu_choice}", handler_invoked, (time.time() - turn_start) * 1000, message_id=norm.message_id)
                 record_whatsapp_turn(
                     message_id=norm.message_id,
                     phone_number=phone_number,
@@ -791,6 +998,7 @@ class WhatsAppService:
                     db=db,
                     sender_phone_number_id=sender_phone_number_id,
                 )
+                _persist_turn_metric(db, phone_number, language, msg_type, "crop_doctor_image", handler_invoked, (time.time() - turn_start) * 1000, message_id=norm.message_id)
                 record_whatsapp_turn(
                     message_id=norm.message_id,
                     phone_number=phone_number,
@@ -812,9 +1020,12 @@ class WhatsAppService:
                     phone_number=phone_number,
                     language=language,
                     db=db,
+                    farmer_context=farmer_ctx,
+                    user_id=wa_user.user_id,
                 )
                 await self._send_text(phone_number, answer, db, sender_phone_number_id=sender_phone_number_id)
                 await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
+                _persist_turn_metric(db, phone_number, language, msg_type, "natural_language_ai", handler_invoked, (time.time() - turn_start) * 1000, message_id=norm.message_id)
                 record_whatsapp_turn(
                     message_id=norm.message_id,
                     phone_number=phone_number,
@@ -867,49 +1078,81 @@ class WhatsAppService:
         language: str,
         db: Session,
         sender_phone_number_id: Optional[str] = None,
+        wa_user: Optional[WhatsAppUser] = None,
     ) -> None:
-        """Dispatches action for selected menu option (1 to 7)."""
-        frontend_base = (settings.FRONTEND_BASE_URL or "https://www.kisaanbuddy.com").rstrip("/")
+        """Dispatches action for selected menu option (1 to 6)."""
+        frontend_base = (settings.FRONTEND_BASE_URL or "https://kisaanbuddy.in").rstrip("/")
         if "localhost" in frontend_base and not settings.DEBUG:
-            frontend_base = "https://www.kisaanbuddy.com"
+            frontend_base = "https://kisaanbuddy.in"
 
-        if choice in ("crop_doctor", "1"):
-            await state_manager.set_state(phone_number, WhatsAppState.CROP_DOCTOR_WAITING_FOR_IMAGE, db=db)
-            prompt = get_text("crop_doctor_prompt", language)
-            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
-
-        elif choice in ("guidance", "agriculture_question", "2"):
+        if choice in ("guidance", "agriculture_question", "1"):
             await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
             prompt = get_text("agri_question_prompt", language)
             await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
-        elif choice in ("weather", "3"):
-            await state_manager.set_state(phone_number, WhatsAppState.WEATHER_WAITING_FOR_LOCATION, db=db)
-            token = generate_secure_link_token(phone_number, action="weather")
-            weather_url = f"{frontend_base}/weather?token={token}"
-            prompt = get_text("weather_prompt", language, url=weather_url)
+        elif choice in ("marketplace", "buy_products", "2"):
+            await state_manager.set_state(phone_number, WhatsAppState.MARKETPLACE_SEARCH, db=db)
+            token = generate_secure_link_token(phone_number, action="marketplace")
+            mp_url = f"{frontend_base}/marketplace?token={token}"
+            prompt = get_text("marketplace_prompt", language, url=mp_url)
             await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
-        elif choice in ("mandi", "4"):
-            await state_manager.set_state(phone_number, WhatsAppState.MANDI_WAITING_FOR_COMMODITY, db=db)
-            token = generate_secure_link_token(phone_number, action="mandi")
-            mandi_url = f"{frontend_base}/mandi?token={token}"
-            prompt = get_text("mandi_prompt", language, url=mandi_url)
+        elif choice in ("rental", "rent_equipment", "3"):
+            await state_manager.set_state(phone_number, WhatsAppState.EQUIPMENT_RENTAL, db=db)
+            token = generate_secure_link_token(phone_number, action="rental")
+            rent_url = f"{frontend_base}/marketplace?tab=equipment&token={token}"
+            prompt = get_text("rental_prompt", language, url=rent_url)
             await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
-        elif choice in ("schemes", "5"):
-            await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
-            token = generate_secure_link_token(phone_number, action="schemes")
-            schemes_url = f"{frontend_base}/schemes?token={token}"
-            msg = get_text("schemes_info", language, url=schemes_url)
-            await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
+        elif choice in ("crop_doctor", "4"):
+            await state_manager.set_state(phone_number, WhatsAppState.CROP_DOCTOR_WAITING_FOR_IMAGE, db=db)
+            prompt = get_text("crop_doctor_prompt", language)
+            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
+
+        elif choice in ("bookings", "my_bookings", "5"):
+            await state_manager.set_state(phone_number, WhatsAppState.MY_BOOKINGS, db=db)
+            from services.chat.tools import _tool_get_my_bookings
+            uid = wa_user.user_id if wa_user else None
+            res = await _tool_get_my_bookings(phone_number=phone_number, user_id=uid)
+            bookings = res.get("bookings", [])
+            if not bookings:
+                empty_msg = (
+                    "आपकी अभी कोई सक्रिय बुकिंग नहीं है। उपकरण किराए पर लेने के लिए '3' चुनें या लिखकर बताएं।"
+                    if language == "hi" else
+                    "You have no active bookings yet. Reply with '3' or tell me what equipment you'd like to rent."
+                )
+                await self._send_text(phone_number, empty_msg, db, sender_phone_number_id=sender_phone_number_id)
+            else:
+                lines = ["Your recent booking requests:" if language != "hi" else "आपकी हाल की बुकिंग:"]
+                for b in bookings[:5]:
+                    lines.append(f"- {b['booking_reference']}: {b['title']} ({b['status']})")
+                lines.append(
+                    "\nTo cancel a pending request, reply with e.g. 'Cancel #INQ-<id>'."
+                    if language != "hi" else
+                    "\nपेंडिंग बुकिंग रद्द करने के लिए लिखें: 'Cancel #INQ-<id>'।"
+                )
+                await self._send_text(phone_number, "\n".join(lines), db, sender_phone_number_id=sender_phone_number_id)
 
         elif choice in ("support", "6"):
             await state_manager.set_state(phone_number, WhatsAppState.HUMAN_SUPPORT, db=db)
             prompt = get_text("support_prompt", language)
             await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
 
-        elif choice in ("website", "7"):
+        elif choice == "mandi":
+            await state_manager.set_state(phone_number, WhatsAppState.MANDI_WAITING_FOR_COMMODITY, db=db)
+            token = generate_secure_link_token(phone_number, action="mandi")
+            mandi_url = f"{frontend_base}/mandi?token={token}"
+            prompt = get_text("mandi_prompt", language, url=mandi_url)
+            await self._send_text(phone_number, prompt, db, sender_phone_number_id=sender_phone_number_id)
+
+        elif choice == "schemes":
+            await state_manager.set_state(phone_number, WhatsAppState.AGRICULTURAL_QUESTION, db=db)
+            token = generate_secure_link_token(phone_number, action="schemes")
+            schemes_url = f"{frontend_base}/schemes?token={token}"
+            msg = get_text("schemes_info", language, url=schemes_url)
+            await self._send_text(phone_number, msg, db, sender_phone_number_id=sender_phone_number_id)
+
+        elif choice == "website":
             await state_manager.set_state(phone_number, WhatsAppState.MAIN_MENU, db=db)
             token = generate_secure_link_token(phone_number, action="website")
             web_url = f"{frontend_base}/?token={token}"

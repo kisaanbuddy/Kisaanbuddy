@@ -114,16 +114,16 @@ export function MobileSoilView() {
   const { user } = useAuth()
 
   const [values, setValues] = useState<Record<string, number | null>>({
-    N: 240,
-    P: 38,
-    K: 180,
-    ph: 6.8,
-    moisture: 26,
-    oc: 0.62,
+    N: null,
+    P: null,
+    K: null,
+    ph: null,
+    moisture: null,
+    oc: null,
   })
 
-  const [dataSource, setDataSource] = useState<string>("मृदा स्वास्थ्य कार्ड (Soil Health Card)")
-  const [lastTestedDate, setLastTestedDate] = useState<string>("12 अक्टूबर 2026")
+  const [dataSource, setDataSource] = useState<string>("")
+  const [lastTestedDate, setLastTestedDate] = useState<string>("")
   const [editingParam, setEditingParam] = useState<string | null>(null)
 
   // Load from farmer profile if available
@@ -153,40 +153,7 @@ export function MobileSoilView() {
     loadProfileSoil()
   }, [user])
 
-  const getStatusBadge = (key: string, val: number | null) => {
-    if (val == null) {
-      return {
-        label: lang === "kn" ? "ಮಾಹಿತಿ ಇಲ್ಲ" : lang === "en" ? "Not Tested" : "परीक्षण शेष",
-        bg: "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300",
-      }
-    }
-    if (key === "N") {
-      if (val < 280) return { label: lang === "kn" ? "ಕಡಿಮೆ" : lang === "en" ? "Low" : "कम", bg: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" }
-      if (val > 560) return { label: lang === "kn" ? "ಹೆಚ್ಚು" : lang === "en" ? "High" : "अधिक", bg: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300" }
-      return { label: lang === "kn" ? "ಉತ್ತಮ" : lang === "en" ? "Optimal" : "संतुलित", bg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" }
-    }
-    if (key === "P") {
-      if (val < 23) return { label: lang === "kn" ? "ಕಡಿಮೆ" : lang === "en" ? "Low" : "कम", bg: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" }
-      if (val > 56) return { label: lang === "kn" ? "ಹೆಚ್ಚು" : lang === "en" ? "High" : "अधिक", bg: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300" }
-      return { label: lang === "kn" ? "ಉತ್ತಮ" : lang === "en" ? "Optimal" : "संतुलित", bg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" }
-    }
-    if (key === "K") {
-      if (val < 145) return { label: lang === "kn" ? "ಕಡಿಮೆ" : lang === "en" ? "Low" : "कम", bg: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" }
-      if (val > 336) return { label: lang === "kn" ? "ಹೆಚ್ಚು" : lang === "en" ? "High" : "अधिक", bg: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300" }
-      return { label: lang === "kn" ? "ಉತ್ತಮ" : lang === "en" ? "Optimal" : "संतुलित", bg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" }
-    }
-    if (key === "ph") {
-      if (val < 6.5) return { label: lang === "kn" ? "ಆಮ್ಲೀಯ" : lang === "en" ? "Acidic" : "अम्लीय", bg: "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300" }
-      if (val > 7.5) return { label: lang === "kn" ? "ಕ್ಷಾರೀಯ" : lang === "en" ? "Alkaline" : "क्षारीय", bg: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300" }
-      return { label: lang === "kn" ? "ತಟಸ್ಥ (ಸೂಕ್ತ)" : lang === "en" ? "Neutral (Ideal)" : "उदासीन (उत्तम)", bg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" }
-    }
-    if (key === "oc") {
-      if (val < 0.5) return { label: lang === "kn" ? "ಕಡಿಮೆ" : lang === "en" ? "Low" : "कम", bg: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300" }
-      if (val < 0.75) return { label: lang === "kn" ? "ಮಧ್ಯಮ" : lang === "en" ? "Medium" : "मध्यम", bg: "bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300" }
-      return { label: lang === "kn" ? "ಸಮೃದ್ಧ" : lang === "en" ? "Rich" : "उत्तम", bg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" }
-    }
-    return { label: "सामान्य", bg: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" }
-  }
+  const getStatusBadge = (_key: string, val: number | null) => ({ label: val == null ? (lang === "hi" ? "जानकारी नहीं" : "No data") : (lang === "hi" ? "दर्ज किया गया मान" : "Entered value"), bg: "bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300" });
 
   return (
     <div className="w-full space-y-4 pb-20 select-none">
@@ -202,22 +169,23 @@ export function MobileSoilView() {
                 {lang === "kn" ? "ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಕಾರ್ಡ್" : lang === "en" ? "Soil Health Card" : "मृदा स्वास्थ्य कार्ड"}
               </h2>
               <p className="text-[10px] text-emerald-200">
-                {lang === "kn" ? "ರೈತರ ನೈಜ ಪರೀಕ್ಷಾ ವರದಿ" : lang === "en" ? "Authentic Laboratory Soil Test Data" : "प्रयोगशाला परीक्षण रिपोर्ट"}
+                {lang === "kn" ? "ರೈತರ ನೈಜ ಪರೀಕ್ಷಾ ವರದಿ" : lang === "en" ? "Your recorded soil measurements" : "आपके दर्ज किए हुए मिट्टी के माप"}
               </p>
             </div>
           </div>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-600/50">
-            ICAR Standards
+            Soil records
           </span>
         </div>
 
         {/* Source and Timestamps */}
         <div className="pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-emerald-100">
-          <span className="truncate max-w-[200px]">📍 {dataSource}</span>
-          <span className="shrink-0">📅 {lastTestedDate}</span>
+          <span className="truncate max-w-[200px]">📍 {dataSource || (lang === "hi" ? "स्रोत उपलब्ध नहीं" : "Source not provided")}</span>
+          <span className="shrink-0">📅 {lastTestedDate || "—"}</span>
         </div>
       </div>
 
+      <p className="rounded-xl border border-border p-3 text-sm">{lang === "hi" ? "अपनी असली जाँच रिपोर्ट से मान दर्ज करें। यहाँ किए बदलाव अस्थायी हैं; सेव करने के लिए प्रोफाइल खोलें।" : "Use values from your actual test report. Edits here are temporary; open your profile to save records."} <a href="/profile" className="underline font-semibold">{lang === "hi" ? "प्रोफाइल" : "Profile"}</a></p>
       {/* 2. Parameters List */}
       <div className="space-y-3">
         <div className="flex items-center justify-between px-1">
@@ -287,16 +255,17 @@ export function MobileSoilView() {
                     <span className="text-emerald-700 dark:text-emerald-400">{val ?? 0} {param.unit}</span>
                   </div>
                   <input
-                    type="range"
+                    type="number"
+                    aria-label={name}
                     min={param.key === "ph" ? 3 : param.key === "oc" ? 0.1 : 0}
                     max={param.key === "ph" ? 10 : param.key === "oc" ? 2 : param.key === "N" ? 600 : param.key === "P" ? 120 : param.key === "K" ? 500 : 100}
                     step={param.key === "ph" || param.key === "oc" ? 0.1 : 1}
-                    value={val ?? 0}
+                    value={val ?? ""}
                     onChange={(e) => {
-                      const num = parseFloat(e.target.value)
-                      setValues((prev) => ({ ...prev, [param.key]: num }))
+                      const num = e.target.value === "" ? null : Number(e.target.value)
+                      setValues((prev) => ({ ...prev, [param.key]: num })); setDataSource("User entry · इस स्क्रीन पर अस्थायी बदलाव"); setLastTestedDate("")
                     }}
-                    className="w-full accent-emerald-700 cursor-pointer"
+                    className="w-full rounded-xl border border-input bg-card p-3"
                   />
                 </div>
               )}
@@ -317,7 +286,7 @@ export function MobileSoilView() {
         className="w-full min-h-[48px] rounded-2xl bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs active:scale-95 transition-all"
       >
         <Sparkles className="h-4 w-4 text-emerald-300" />
-        <span>इस मिट्टी के आधार पर सही फसल व खाद सलाह लें</span>
+        <span>फसल चयन खोलें — वहाँ अपनी रिपोर्ट के मान दर्ज करें</span>
         <ArrowRight className="h-4 w-4" />
       </a>
 

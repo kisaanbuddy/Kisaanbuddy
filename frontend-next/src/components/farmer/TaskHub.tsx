@@ -72,27 +72,7 @@ const HUBS_DATA: Record<
         icon: Stethoscope,
         color: "bg-rose-50 text-rose-800 border-rose-200",
       },
-      {
-        href: "/weather",
-        title: {
-          en: "Weather & Rain Alerts",
-          hi: "मौसम व बारिश अलर्ट",
-          kn: "ಹವಾಮಾನ & ಮಳೆ ಎಚ್ಚರಿಕೆ",
-        },
-        description: {
-          en: "Today's forecast, next 3 days, rain timing, and pesticide spraying advice.",
-          hi: "आज और अगले 3 दिनों का मौसम, बारिश की संभावना और कीटनाशक छिड़काव सलाह।",
-          kn: "ಇಂದಿನ ಮತ್ತು ಮುಂದಿನ 3 ದಿನಗಳ ಮಳೆ ಮುನ್ಸೂಚನೆ, ಔಷಧ ಸಿಂಪಡಣೆ ಸಲಹೆ.",
-        },
-        badge: {
-          en: "Hyper-local",
-          hi: "स्थानीय मौसम",
-          kn: "ಸ್ಥಳೀಯ",
-        },
-        icon: CloudSun,
-        color: "bg-sky-50 text-sky-800 border-sky-200",
-      },
-      {
+            {
         href: "/crop-predictor",
         title: {
           en: "Crop Guidance",

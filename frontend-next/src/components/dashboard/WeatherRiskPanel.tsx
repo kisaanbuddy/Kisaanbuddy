@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import {
   CloudSun,
   Droplets,
@@ -10,65 +9,79 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  ChevronRight,
   ShieldAlert,
+  Info,
 } from "lucide-react";
+import type { ContextualWeatherAlert } from "@/lib/weather-api";
 
 interface WeatherRiskPanelProps {
+  available?: boolean;
   locationName?: string;
-  temperature?: number;
-  humidity?: number;
-  windSpeedKmH?: number;
-  rainChancePct?: number;
-  condition?: string;
+  temperature?: number | null;
+  humidity?: number | null;
+  windSpeedKmH?: number | null;
+  rainChancePct?: number | null;
+  condition?: string | null;
   soilMoisturePct?: number;
+  provider?: string | null;
+  fetchedAt?: string | null;
+  alerts?: ContextualWeatherAlert[];
 }
 
 export function WeatherRiskPanel({
+  available = false,
   locationName = "Your District",
-  temperature = 28,
-  humidity = 62,
-  windSpeedKmH = 8,
-  rainChancePct = 15,
-  condition = "Partly Cloudy",
+  temperature,
+  humidity,
+  windSpeedKmH,
+  rainChancePct,
+  condition,
   soilMoisturePct,
+  provider,
+  fetchedAt,
+  alerts = [],
 }: WeatherRiskPanelProps) {
-  // Agricultural operational risk calculations
   const sprayingRisk = React.useMemo(() => {
+    if (!available || rainChancePct == null || windSpeedKmH == null) {
+      return null;
+    }
     if (rainChancePct > 40) {
       return {
         status: "Unsafe to Spray",
         level: "danger",
-        reason: "Rain expected within 24h will wash off agrochemicals.",
+        reason: "Rain expected within 24–48h may wash off agrochemicals.",
       };
     }
     if (windSpeedKmH > 15) {
       return {
         status: "High Drift Risk",
         level: "warning",
-        reason: `Wind at ${windSpeedKmH} km/h causes chemical drift to neighbouring plots.`,
+        reason: `Wind at ${Math.round(windSpeedKmH)} km/h causes chemical drift to neighbouring plots.`,
       };
     }
     return {
       status: "Favorable for Spraying",
       level: "safe",
-      reason: "Calm winds and low rain probability provide optimal spray window.",
+      reason: "Calm winds and low rain probability provide a suitable spray window.",
     };
-  }, [rainChancePct, windSpeedKmH]);
+  }, [available, rainChancePct, windSpeedKmH]);
 
   const irrigationAdvice = React.useMemo(() => {
-    if (rainChancePct > 50) {
-      return {
-        status: "Postpone Irrigation",
-        level: "info",
-        reason: "Substantial rainfall predicted; save energy and conserve water.",
-      };
-    }
     if (soilMoisturePct !== undefined && soilMoisturePct < 30) {
       return {
         status: "Irrigation Critical",
         level: "danger",
-        reason: "Soil moisture is under 30%. Root zone experiencing water stress.",
+        reason: "Measured soil moisture is under 30%. Root zone experiencing water stress.",
+      };
+    }
+    if (!available || rainChancePct == null) {
+      return null;
+    }
+    if (rainChancePct > 50) {
+      return {
+        status: "Postpone Irrigation",
+        level: "info",
+        reason: "Substantial rainfall predicted; save energy and avoid waterlogging.",
       };
     }
     return {
@@ -76,10 +89,13 @@ export function WeatherRiskPanel({
       level: "safe",
       reason: "Moisture balance and weather conditions are within standard limits.",
     };
-  }, [rainChancePct, soilMoisturePct]);
+  }, [available, rainChancePct, soilMoisturePct]);
 
   const pestRisk = React.useMemo(() => {
-    if (humidity > 75 && temperature >= 22 && temperature <= 32) {
+    if (!available || humidity == null || temperature == null) {
+      return null;
+    }
+    if (humidity >= 75 && temperature >= 20 && temperature <= 32) {
       return {
         status: "High Fungal Risk",
         level: "warning",
@@ -91,7 +107,7 @@ export function WeatherRiskPanel({
       level: "safe",
       reason: "Current atmospheric humidity does not favor rapid spore proliferation.",
     };
-  }, [humidity, temperature]);
+  }, [available, humidity, temperature]);
 
   const getStatusBadge = (level: string) => {
     switch (level) {
@@ -119,149 +135,151 @@ export function WeatherRiskPanel({
     }
   };
 
+  if (!available && !irrigationAdvice) {
+    return (
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div className="flex items-center gap-2 mb-2">
+          <Info className="w-4 h-4 text-slate-500" />
+          <h2 className="text-base font-bold text-slate-900 dark:text-white">
+            Agro-Risk &amp; Field Operations Advisory
+          </h2>
+        </div>
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Live meteorological telemetry is currently unavailable for {locationName}. Rely on local field observations before spraying or irrigation.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm">
-      <div className="flex items-center justify-between gap-3 mb-5">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-5 md:p-6 shadow-sm space-y-4">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-              Weather & Agro-Risk Advisory
+              Agro-Risk &amp; Smart Farming Alerts
             </h2>
             <span className="text-xs px-2.5 py-0.5 rounded-full bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-medium">
               {locationName}
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Operational decisions for spraying, sowing, and irrigation suitability
+            Contextual operational guidance for spraying, irrigation, and disease risk
           </p>
         </div>
-
-        <Link
-          href="/weather"
-          className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1"
-        >
-          <span>7-Day Detailed</span>
-          <ChevronRight className="w-3.5 h-3.5" />
-        </Link>
       </div>
 
-      {/* Atmospheric Metrics Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5 p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
-            <CloudSun className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-base font-bold text-slate-900 dark:text-white">
-              {temperature}°C
+      {/* Significant Smart Farming Alerts */}
+      {alerts.length > 0 && (
+        <div className="space-y-2">
+          {alerts.slice(0, 3).map((alert) => (
+            <div
+              key={alert.type}
+              className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 ${
+                alert.severity === "high"
+                  ? "bg-rose-50/80 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200"
+                  : "bg-amber-50/80 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200"
+              }`}
+            >
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold">
+                  {alert.title}{" "}
+                  <span className="font-normal opacity-75">({alert.forecast_window})</span>
+                </div>
+                <p className="mt-0.5 opacity-90 leading-relaxed">{alert.message}</p>
+              </div>
             </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-              {condition}
+          ))}
+        </div>
+      )}
+
+      {/* Compact Atmospheric Context Strip (only when real data is available) */}
+      {available && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/70 dark:border-slate-700/60">
+          <div className="flex items-center gap-2.5">
+            <CloudSun className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">
+                {temperature != null ? `${Math.round(temperature)}°C` : "—"}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                {condition || "Observed"}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Droplets className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">
+                {humidity != null ? `${humidity}%` : "—"}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">Humidity</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <CloudRain className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">
+                {rainChancePct != null ? `${Math.round(rainChancePct)}%` : "—"}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">48h Rain Prob</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Wind className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+            <div>
+              <div className="text-sm font-bold text-slate-900 dark:text-white">
+                {windSpeedKmH != null ? `${Math.round(windSpeedKmH)} km/h` : "—"}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400">Wind</div>
             </div>
           </div>
         </div>
+      )}
 
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
-            <Droplets className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-base font-bold text-slate-900 dark:text-white">
-              {humidity}%
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              Air Humidity
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
-            <CloudRain className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-base font-bold text-slate-900 dark:text-white">
-              {rainChancePct}%
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              Rain Chance
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400">
-            <Wind className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-base font-bold text-slate-900 dark:text-white">
-              {windSpeedKmH} <span className="text-xs font-normal">km/h</span>
-            </div>
-            <div className="text-[11px] text-slate-500 dark:text-slate-400">
-              Wind Velocity
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 3 Operational Decision Cards */}
+      {/* Operational Decision Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {/* Spraying Suitability */}
-        <div
-          className={`p-3.5 rounded-xl border flex flex-col justify-between ${getStatusBadge(
-            sprayingRisk.level
-          )}`}
-        >
-          <div>
+        {sprayingRisk && (
+          <div className={`p-3.5 rounded-xl border ${getStatusBadge(sprayingRisk.level)}`}>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider">
-                Pesticide / Foliar Spray
-              </span>
+              <span className="text-xs font-bold uppercase tracking-wider">Spraying</span>
               {getStatusIcon(sprayingRisk.level)}
             </div>
             <div className="text-sm font-bold mb-1">{sprayingRisk.status}</div>
             <p className="text-xs opacity-90 leading-relaxed">{sprayingRisk.reason}</p>
           </div>
-        </div>
+        )}
 
-        {/* Irrigation Advice */}
-        <div
-          className={`p-3.5 rounded-xl border flex flex-col justify-between ${getStatusBadge(
-            irrigationAdvice.level
-          )}`}
-        >
-          <div>
+        {irrigationAdvice && (
+          <div className={`p-3.5 rounded-xl border ${getStatusBadge(irrigationAdvice.level)}`}>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider">
-                Irrigation Suitability
-              </span>
+              <span className="text-xs font-bold uppercase tracking-wider">Irrigation</span>
               {getStatusIcon(irrigationAdvice.level)}
             </div>
             <div className="text-sm font-bold mb-1">{irrigationAdvice.status}</div>
-            <p className="text-xs opacity-90 leading-relaxed">
-              {irrigationAdvice.reason}
-            </p>
+            <p className="text-xs opacity-90 leading-relaxed">{irrigationAdvice.reason}</p>
           </div>
-        </div>
+        )}
 
-        {/* Pest & Disease Pressure */}
-        <div
-          className={`p-3.5 rounded-xl border flex flex-col justify-between ${getStatusBadge(
-            pestRisk.level
-          )}`}
-        >
-          <div>
+        {pestRisk && (
+          <div className={`p-3.5 rounded-xl border ${getStatusBadge(pestRisk.level)}`}>
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold uppercase tracking-wider">
-                Disease & Fungal Pressure
-              </span>
+              <span className="text-xs font-bold uppercase tracking-wider">Disease Risk</span>
               {getStatusIcon(pestRisk.level)}
             </div>
             <div className="text-sm font-bold mb-1">{pestRisk.status}</div>
             <p className="text-xs opacity-90 leading-relaxed">{pestRisk.reason}</p>
           </div>
-        </div>
+        )}
       </div>
+
+      {available && (
+        <p className="text-[11px] text-slate-500 dark:text-slate-400">
+          Source: {provider || "Live Meteorological Feed"}
+          {fetchedAt ? ` • Updated ${new Date(fetchedAt).toLocaleString()}` : ""} • Forecasts beyond 24h carry meteorological uncertainty.
+        </p>
+      )}
     </div>
   );
 }

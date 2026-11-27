@@ -1,11 +1,12 @@
 "use client";
 
 import React from "react";
+import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, TrendingUp, Store, Users, Wrench } from "lucide-react";
+import { Home, TrendingUp, MessagesSquare, UserRound, Wrench } from "lucide-react";
 import { useLanguage, type Lang } from "@/lib/language";
-import { BOTTOM_NAV_I18N } from "@/lib/mobile-nav-i18n";
+import { BOTTOM_NAV_I18N, DRAWER_I18N } from "@/lib/mobile-nav-i18n";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -30,26 +31,12 @@ export function MobileBottomNav() {
       label: labels.mandi,
       isActive: Boolean(pathname === "/mandi" || pathname?.startsWith("/mandi/")),
     },
-    {
-      href: "/marketplace",
-      icon: Store,
-      label: labels.marketplace,
-      isActive: Boolean(
-        pathname === "/marketplace" || pathname?.startsWith("/marketplace/")
-      ),
-    },
-    {
-      href: "/worker-connect",
-      icon: Users,
-      label: labels.workers,
-      isActive: Boolean(
-        pathname === "/worker-connect" || pathname?.startsWith("/worker-connect/")
-      ),
-    },
+    { href: "/chatbot", icon: MessagesSquare, label: lang === "hi" ? "पूछें" : "Ask AI", isActive: pathname === "/chatbot" },
+    { href: "/profile", icon: UserRound, label: lang === "hi" ? "खाता" : (lang === "en" ? "Account" : (DRAWER_I18N[lang] || DRAWER_I18N.en).items.profile.title), isActive: pathname === "/profile" || pathname === "/login" || pathname === "/settings" },
     {
       href: "/features",
       icon: Wrench,
-      label: labels.tools,
+      label: lang === "hi" ? "सेवाएँ" : labels.tools,
       isActive: Boolean(
         pathname === "/features" ||
           pathname?.startsWith("/features/") ||
@@ -59,8 +46,6 @@ export function MobileBottomNav() {
           pathname?.startsWith("/crop-predictor/") ||
           pathname === "/soil-health" ||
           pathname?.startsWith("/soil-health/") ||
-          pathname === "/weather" ||
-          pathname?.startsWith("/weather/") ||
           pathname === "/satellite" ||
           pathname?.startsWith("/satellite/") ||
           pathname === "/khet-diary" ||
@@ -71,7 +56,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-900/10 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(23,75,53,0.08)] backdrop-blur-md md:hidden select-none"
+      className="kb-bottom-nav fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-900/10 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_20px_rgba(23,75,53,0.08)] backdrop-blur-md md:hidden select-none"
       aria-label="Primary mobile navigation"
     >
       <div className="grid grid-cols-5 w-full max-w-lg mx-auto px-1 py-1">
@@ -80,6 +65,7 @@ export function MobileBottomNav() {
             <Link
               key={href}
               href={href}
+              onClick={href === "/chatbot" ? (event) => { event.preventDefault(); openVoiceAssistant(); } : undefined}
               aria-label={label}
               aria-current={isActive ? "page" : undefined}
               className={`relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-xl py-1 px-0.5 transition-all active:scale-95 touch-manipulation ${
@@ -103,7 +89,7 @@ export function MobileBottomNav() {
                 />
               </span>
               <span
-                className={`text-[10px] sm:text-[11px] leading-tight tracking-tight text-center truncate max-w-full px-0.5 ${
+                className={`text-[11px] leading-snug text-center break-words max-w-full px-0.5 ${
                   isActive
                     ? "font-extrabold text-emerald-800 dark:text-emerald-300"
                     : "font-semibold"

@@ -16,63 +16,66 @@ DEFAULT_LANGUAGE = "en"
 MESSAGES: Dict[str, Dict[str, str]] = {
     "first_time_welcome": {
         "en": (
-            "Namaste! Welcome to KisaanBuddy 🌾\n\n"
-            "Your authentic agricultural assistant is here to support you.\n\n"
-            "Please select your language to get started:"
+            "Welcome to KisaanBuddy!\n\n"
+            "Your AI-powered farming assistant.\n\n"
+            "Please select your preferred language to get started:"
         ),
         "hi": (
-            "नमस्ते! किसानबडी (KisaanBuddy) 🌾 में आपका स्वागत है।\n\n"
-            "आपका प्रामाणिक कृषि सहायक आपकी सहायता के लिए तैयार है।\n\n"
-            "कृपया शुरू करने के लिए अपनी भाषा चुनें:"
+            "किसानबडी (KisaanBuddy) में आपका स्वागत है।\n\n"
+            "आपका AI-संचालित कृषि सहायक।\n\n"
+            "शुरू करने के लिए कृपया अपनी पसंदीदा भाषा चुनें:"
         ),
         "kn": (
-            "ನಮಸ್ಕಾರ! ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ (KisaanBuddy) 🌾 ಸುಸ್ವಾಗತ.\n\n"
-            "ನಿಮ್ಮ ಪ್ರಾಮಾಣಿಕ ಕೃಷಿ ಸಹಾಯಕ ನಿಮಗೆ ನೆರವಾಗಲು ಸಿದ್ಧರಾಗಿದ್ದಾರೆ.\n\n"
-            "ದಯವಿಟ್ಟು ಪ್ರಾರಂಭಿಸಲು ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ:"
+            "ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ (KisaanBuddy) ಸುಸ್ವಾಗತ.\n\n"
+            "ನಿಮ್ಮ AI-ಆಧಾರಿತ ಕೃಷಿ ಸಹಾಯಕ.\n\n"
+            "ಪ್ರಾರಂಭಿಸಲು ದಯವಿಟ್ಟು ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ:"
         ),
     },
     "returning_welcome": {
         "en": (
-            "Namaste! Welcome back to KisaanBuddy 🌾\n\n"
-            "How can we help your farm today?"
+            "Welcome back to KisaanBuddy!\n\n"
+            "How can we help you today?"
         ),
         "hi": (
-            "नमस्ते! किसानबडी (KisaanBuddy) 🌾 में पुनः स्वागत है।\n\n"
-            "आज हम आपकी खेती के लिए क्या सहायता कर सकते हैं?"
+            "किसानबडी (KisaanBuddy) में पुनः स्वागत है।\n\n"
+            "आज हम आपकी क्या सहायता कर सकते हैं?"
         ),
         "kn": (
-            "ನಮಸ್ಕಾರ! ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ (KisaanBuddy) 🌾 ಮರಳಿ ಸುಸ್ವಾಗತ.\n\n"
-            "ಇಂದು ನಿಮ್ಮ ಕೃಷಿಗೆ ನಾವು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?"
+            "ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ (KisaanBuddy) ಮರಳಿ ಸುಸ್ವಾಗತ.\n\n"
+            "ಇಂದು ನಾವು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?"
         ),
     },
     "welcome": {
         "en": (
-            "Namaste! Welcome to KisaanBuddy 🌾\n\n"
-            "Choose a service from below:"
+            "Welcome to KisaanBuddy!\n\n"
+            "Your AI-powered farming assistant.\n\n"
+            "How can we help you today?"
         ),
         "hi": (
-            "नमस्ते! किसानबडी (KisaanBuddy) 🌾\n\n"
-            "कृपया नीचे दिए गए विकल्पों में से चुनें:"
+            "किसानबडी (KisaanBuddy) में आपका स्वागत है।\n\n"
+            "आपका AI-संचालित कृषि सहायक।\n\n"
+            "आज हम आपकी क्या सहायता कर सकते हैं?"
         ),
         "kn": (
-            "ನಮಸ್ಕಾರ! ಕಿಸಾನ್‌ಬಡ್ಡಿ (KisaanBuddy) 🌾\n\n"
-            "ದಯವಿಟ್ಟು ಕೆಳಗಿನ ಆಯ್ಕೆಗಳಲ್ಲಿ ಒಂದನ್ನು ಆರಿಸಿ:"
+            "ಕಿಸಾನ್‌ಬಡ್ಡಿಗೆ (KisaanBuddy) ಸುಸ್ವಾಗತ.\n\n"
+            "ನಿಮ್ಮ AI-ಆಧಾರಿತ ಕೃಷಿ ಸಹಾಯಕ.\n\n"
+            "ಇಂದು ನಾವು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು?"
         ),
     },
     "menu_header": {
         "en": "KisaanBuddy Menu",
-        "hi": "किसानबडी मुख्य मेनू",
-        "kn": "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಮುಖ್ಯ ಮೆನು",
+        "hi": "किसानबडी मेनू",
+        "kn": "ಕಿಸಾನ್‌ಬಡ್ಡಿ ಮೆನು",
     },
     "menu_footer": {
-        "en": "Reply with 1-7 or type 'menu' anytime.",
-        "hi": "1-7 लिखकर उत्तर दें या कभी भी 'menu' लिखें।",
-        "kn": "1-7 ಎಂದು ಉತ್ತರಿಸಿ ಅಥವಾ ಯಾವಾಗ ಬೇಕಾದರೂ 'menu' ಟೈಪ್ ಮಾಡಿ.",
+        "en": "Reply with 1-6, ask a question, or type 'menu' anytime.",
+        "hi": "1-6 लिखकर चुनें, अपना सवाल पूछें, या कभी भी 'menu' लिखें।",
+        "kn": "1-6 ಆಯ್ಕೆಮಾಡಿ, ನಿಮ್ಮ ಪ್ರಶ್ನೆ ಕೇಳಿ, ಅಥವಾ ಯಾವಾಗಲೂ 'menu' ಟೈಪ್ ಮಾಡಿ.",
     },
     "select_option": {
-        "en": "Select an option from below or reply with a number (1-7):",
-        "hi": "नीचे से कोई विकल्प चुनें या नंबर (1-7) लिखकर भेजें:",
-        "kn": "ಕೆಳಗಿನ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ ಅಥವಾ ಸಂಖ್ಯೆ (1-7) ಕಳುಹಿಸಿ:",
+        "en": "Select an option below, reply with 1-6, or type your question naturally:",
+        "hi": "नीचे से विकल्प चुनें, 1-6 लिखें, या सीधे अपना सवाल पूछें:",
+        "kn": "ಕೆಳಗಿನ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ, 1-6 ಟೈಪ್ ಮಾಡಿ, ಅಥವಾ ನೇರವಾಗಿ ಪ್ರಶ್ನೆ ಕೇಳಿ:",
     },
     "language_selection_prompt": {
         "en": (
@@ -526,110 +529,106 @@ MESSAGES: Dict[str, Dict[str, str]] = {
         ),
     },
     "session_expired": {
-        "en": "⏳ Your previous session has timed out. Welcome back! Type 'menu' to view options.",
-        "hi": "⏳ आपका सत्र समाप्त हो गया था। पुनः स्वागत है! विकल्प देखने के लिए 'menu' लिखें।",
-        "kn": "⏳ ನಿಮ್ಮ ಹಿಂದಿನ ಸೆಶನ್ ಮುಕ್ತಾಯಗೊಂಡಿದೆ. ಸುಸ್ವಾಗತ! ಆಯ್ಕೆಗಳನ್ನು ನೋಡಲು 'menu' ಎಂದು ಟೈಪ್ ಮಾಡಿ.",
+        "en": "Your previous session has timed out. Welcome back! Type 'menu' to view options.",
+        "hi": "आपका सत्र समाप्त हो गया था। पुनः स्वागत है! विकल्प देखने के लिए 'menu' लिखें।",
+        "kn": "ನಿಮ್ಮ ಹಿಂದಿನ ಸೆಶನ್ ಮುಕ್ತಾಯಗೊಂಡಿದೆ. ಸುಸ್ವಾಗತ! ಆಯ್ಕೆಗಳನ್ನು ನೋಡಲು 'menu' ಎಂದು ಟೈಪ್ ಮಾಡಿ.",
+    },
+    "marketplace_prompt": {
+        "en": "Tell me what agricultural product you need (e.g., 'water pump under ₹5000', 'urea', 'sprayer') or ask to compare products.\n\nBrowse online: {url}",
+        "hi": "आपको कौन-सा कृषि उत्पाद चाहिए (जैसे '₹5,000 के अंदर वाटर पंप', 'स्प्रेयर', 'खाद')? लिखकर या बोलकर बताएं।\n\nवेबसाइट देखें: {url}",
+        "kn": "ನಿಮಗೆ ಯಾವ ಕೃಷಿ ಉತ್ಪನ್ನ ಬೇಕು (ಉದಾ: '₹5,000 ಒಳಗೆ ವಾಟರ್ ಪಂಪ್', 'ಸ್ಪ್ರೇಯರ್')? ಟೈಪ್ ಮಾಡಿ.\n\nವೆಬ್‌ಸೈಟ್: {url}",
+    },
+    "rental_prompt": {
+        "en": "Which farm equipment do you need to rent, in which district or PIN code, and for which date?\n(Example: 'Tractor needed tomorrow in Pune')\n\nBrowse equipment: {url}",
+        "hi": "आपको कौन-सा कृषि यंत्र किराए पर चाहिए, किस जिले या पिन कोड में, और किस तारीख को?\n(उदाहरण: 'कल भोपाल में ट्रैक्टर चाहिए')\n\nवेबसाइट देखें: {url}",
+        "kn": "ನಿಮಗೆ ಯಾವ ಕೃಷಿ ಯಂತ್ರ ಬಾಡಿಗೆಗೆ ಬೇಕು, ಯಾವ ಜಿಲ್ಲೆ/ಪಿನ್‌ಕೋಡ್ ಮತ್ತು ದಿನಾಂಕ?\n\nವೆಬ್‌ಸೈಟ್: {url}",
     },
 }
 
-# Exactly 7 Main Menu Items
+# 6 Core Enterprise Main Menu Items (No standalone Weather item)
 MENU_ITEMS = [
     {
-        "id": "menu_crop_doctor",
+        "id": "menu_guidance",
         "num": "1",
         "title": {
-            "en": "1. Crop Doctor 🌿",
-            "hi": "1. क्रॉप डॉक्टर 🌿",
-            "kn": "1. ಕ್ರಾಪ್ ಡಾಕ್ಟರ್ 🌿",
+            "en": "1. AI Farming Assistant",
+            "hi": "1. AI कृषि सहायक",
+            "kn": "1. AI ಕೃಷಿ ಸಹಾಯಕ",
         },
         "desc": {
-            "en": "Upload crop photo for diagnosis & advice",
-            "hi": "फसल की फोटो भेजें, रोग व उपचार जानें",
-            "kn": "ಬೆಳೆ ಫೋಟೋ ಕಳುಹಿಸಿ, ರೋಗ ಪತ್ತೆ ಮಾಡಿ",
+            "en": "Crops, soil, irrigation, schemes & mandi advice",
+            "hi": "फसल, मिट्टी, सिंचाई, योजनाएं व मंडी सलाह",
+            "kn": "ಬೆಳೆ, ಮಣ್ಣು, ನೀರಾವರಿ, ಯೋಜನೆ ಮತ್ತು ಮಾರುಕಟ್ಟೆ ಸಲಹೆ",
         },
     },
     {
-        "id": "menu_guidance",
+        "id": "menu_marketplace",
         "num": "2",
         "title": {
-            "en": "2. Ask Agri Question 🌱",
-            "hi": "2. कृषि प्रश्न पूछें 🌱",
-            "kn": "2. ಕೃಷಿ ಪ್ರಶ್ನೆ ಕೇಳಿ 🌱",
+            "en": "2. Buy Agricultural Products",
+            "hi": "2. कृषि उत्पाद खरीदें",
+            "kn": "2. ಕೃಷಿ ಉತ್ಪನ್ನಗಳನ್ನು ಖರೀದಿಸಿ",
         },
         "desc": {
-            "en": "Farming, fertilizer & pest advice in plain words",
-            "hi": "खाद, सिंचाई व कीट नियंत्रण के सवाल पूछें",
-            "kn": "ಕೃಷಿ ಸಲಹೆಗಳನ್ನು ನೈಸರ್ಗಿಕ ಭಾಷೆಯಲ್ಲಿ ಕೇಳಿ",
+            "en": "Search verified pumps, seeds, fertilizers & tools",
+            "hi": "सत्यापित पंप, बीज, खाद व कृषि उपकरण खोजें",
+            "kn": "ಪ್ರಮಾಣೀಕೃತ ಪಂಪ್, ಬೀಜ, ಗೊಬ್ಬರ ಮತ್ತು ಉಪಕರಣಗಳು",
         },
     },
     {
-        "id": "menu_weather",
+        "id": "menu_rental",
         "num": "3",
         "title": {
-            "en": "3. Weather Updates 🌤️",
-            "hi": "3. मौसम पूर्वानुमान 🌤️",
-            "kn": "3. ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ 🌤️",
+            "en": "3. Rent Farm Equipment",
+            "hi": "3. कृषि यंत्र किराए पर लें",
+            "kn": "3. ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ಬಾಡಿಗೆ",
         },
         "desc": {
-            "en": "Location-based rain & temperature advisories",
-            "hi": "स्थान-आधारित मौसम व कृषि सलाह",
-            "kn": "ಸ್ಥಳ ಆಧಾರಿತ ಹವಾಮಾನ ಮತ್ತು ಕೃಷಿ ಸಲಹೆ",
+            "en": "Find tractors, harvesters & implements nearby",
+            "hi": "पास के ट्रैक्टर, हार्वेस्टर व यंत्र खोजें",
+            "kn": "ಹತ್ತಿರದ ಟ್ರ್ಯಾಕ್ಟರ್, ಹಾರ್ವೆಸ್ಟರ್ ಮತ್ತು ಯಂತ್ರಗಳು",
         },
     },
     {
-        "id": "menu_mandi",
+        "id": "menu_crop_doctor",
         "num": "4",
         "title": {
-            "en": "4. Mandi Prices 📊",
-            "hi": "4. मंडी भाव 📊",
-            "kn": "4. ಮಾರುಕಟ್ಟೆ ದರ 📊",
+            "en": "4. Crop Disease Detection",
+            "hi": "4. फसल रोग पहचान",
+            "kn": "4. ಬೆಳೆ ರೋಗ ಪತ್ತೆ",
         },
         "desc": {
-            "en": "Real APMC commodity prices & market rates",
-            "hi": "ताज़ा APMC मंडी फसल भाव व बाजार दरें",
-            "kn": "ನೈಜ APMC ಮಾರುಕಟ್ಟೆ ಬೆಲೆಗಳು ಮತ್ತು ದರಗಳು",
+            "en": "Send a leaf photo for visual symptom assessment",
+            "hi": "पत्ती की फोटो भेजें और संभावित रोग जानें",
+            "kn": "ಎಲೆಯ ಫೋಟೋ ಕಳುಹಿಸಿ ರೋಗ ಲಕ್ಷಣ ತಿಳಿಯಿರಿ",
         },
     },
     {
-        "id": "menu_schemes",
+        "id": "menu_bookings",
         "num": "5",
         "title": {
-            "en": "5. Govt Schemes 🏛️",
-            "hi": "5. सरकारी योजनाएं 🏛️",
-            "kn": "5. ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು 🏛️",
+            "en": "5. My Bookings",
+            "hi": "5. मेरी बुकिंग",
+            "kn": "5. ನನ್ನ ಬುಕಿಂಗ್‌ಗಳು",
         },
         "desc": {
-            "en": "Verified schemes, eligibility & benefits",
-            "hi": "सत्यापित योजनाएं, पात्रता व लाभ",
-            "kn": "ದೃಢೀಕೃತ ಯೋಜನೆಗಳು, ಅರ್ಹತೆ ಮತ್ತು ಪ್ರಯೋಜನಗಳು",
+            "en": "Check equipment rental status or cancel request",
+            "hi": "किराए की बुकिंग स्थिति देखें या रद्द करें",
+            "kn": "ಬಾಡಿಗೆ ಬುಕಿಂಗ್ ಸ್ಥಿತಿ ನೋಡಿ ಅಥವಾ ರದ್ದುಮಾಡಿ",
         },
     },
     {
         "id": "menu_support",
         "num": "6",
         "title": {
-            "en": "6. Talk to Support 👨‍🌾",
-            "hi": "6. विशेषज्ञ सहायता 👨‍🌾",
-            "kn": "6. ಬೆಂಬಲ ಪಡೆಯಿರಿ 👨‍🌾",
+            "en": "6. Customer Support",
+            "hi": "6. ग्राहक सहायता",
+            "kn": "6. ಗ್ರಾಹಕ ಬೆಂಬಲ",
         },
         "desc": {
-            "en": "Create a support request for agricultural specialists",
-            "hi": "कृषि विशेषज्ञों से सहायता अनुरोध दर्ज करें",
-            "kn": "ಕೃಷಿ ತಜ್ಞರ ನೆರವಿಗಾಗಿ ವಿನಂತಿ ದಾಖಲಿಸಿ",
-        },
-    },
-    {
-        "id": "menu_website",
-        "num": "7",
-        "title": {
-            "en": "7. Visit KisaanBuddy 🌐",
-            "hi": "7. किसानबडी पोर्टल 🌐",
-            "kn": "7. ಕಿಸಾನ್‌ಬಡ್ಡಿ ವೆಬ್ 🌐",
-        },
-        "desc": {
-            "en": "Explore web tools at www.kisaanbuddy.com",
-            "hi": "वेब पोर्टल www.kisaanbuddy.com पर जाएं",
-            "kn": "www.kisaanbuddy.com ನಲ್ಲಿ ಪರಿಶೀಲಿಸಿ",
+            "en": "Account linking, complaints, or support ticket",
+            "hi": "अकाउंट लिंक, शिकायत या सहायता टिकट दर्ज करें",
+            "kn": "ಖಾತೆ ಲಿಂಕ್, ದೂರು ಅಥವಾ ಸಹಾಯ ಟಿಕೆಟ್",
         },
     },
 ]

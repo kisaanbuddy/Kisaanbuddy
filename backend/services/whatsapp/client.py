@@ -326,6 +326,164 @@ class WhatsAppClient:
         headers = self._get_headers(effective_token)
         return await self._post_with_retry(url, payload, headers=headers)
 
+    async def upload_media(
+        self,
+        media_bytes: bytes,
+        mime_type: str = "audio/mpeg",
+        filename: str = "reply.mp3",
+        sender_phone_number_id: Optional[str] = None,
+        access_token: Optional[str] = None,
+    ) -> Optional[str]:
+        """Uploads media bytes to Meta Graph API and returns media_id."""
+        resolved_phone_id, resolved_token = resolve_whatsapp_credentials(sender_phone_number_id)
+        effective_token = access_token or resolved_token
+        if not is_whatsapp_configured() or not resolved_phone_id or not effective_token:
+            return None
+        version = settings.WHATSAPP_API_VERSION or "v21.0"
+        url = f"{GRAPH_API_BASE}/{version}/{resolved_phone_id}/media"
+        client = await self._get_client()
+        resp = await client.post(
+            url,
+            headers={"Authorization": f"Bearer {effective_token}"},
+            data={"messaging_product": "whatsapp", "type": mime_type},
+            files={"file": (filename, media_bytes, mime_type)},
+        )
+        if resp.status_code >= 400:
+            log.warning("Meta media upload failed (%d): %s", resp.status_code, resp.text[:200])
+            return None
+        return resp.json().get("id")
+
+    async def send_audio_message(
+        self,
+        to_phone: str,
+        media_id: str,
+        sender_phone_number_id: Optional[str] = None,
+        access_token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sends an audio/voice note message using a Meta media_id."""
+        clean_phone = normalize_phone_number(to_phone).lstrip("+")
+        resolved_phone_id, resolved_token = resolve_whatsapp_credentials(sender_phone_number_id)
+        effective_token = access_token or resolved_token
+        if not is_whatsapp_configured() or not resolved_phone_id or not effective_token:
+            raise WhatsAppAPIError("WhatsApp sender credentials are not configured", status_code=503)
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": clean_phone,
+            "type": "audio",
+            "audio": {"id": media_id},
+        }
+        return await self._post_with_retry(
+            self._get_messages_url(resolved_phone_id),
+            payload,
+            headers=self._get_headers(effective_token),
+        )
+
+    async def send_location_request(
+        self,
+        to_phone: str,
+        body_text: str,
+        sender_phone_number_id: Optional[str] = None,
+        access_token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sends a native WhatsApp interactive location request message."""
+        clean_phone = normalize_phone_number(to_phone).lstrip("+")
+        resolved_phone_id, resolved_token = resolve_whatsapp_credentials(sender_phone_number_id)
+        effective_token = access_token or resolved_token
+        if not is_whatsapp_configured() or not resolved_phone_id or not effective_token:
+            raise WhatsAppAPIError("WhatsApp sender credentials are not configured", status_code=503)
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": clean_phone,
+            "type": "interactive",
+            "interactive": {
+                "type": "location_request_message",
+                "body": {"text": body_text[:1024]},
+                "action": {"name": "send_location"},
+            },
+        }
+        return await self._post_with_retry(
+            self._get_messages_url(resolved_phone_id),
+            payload,
+            headers=self._get_headers(effective_token),
+        )
+
+    async def send_cta_url_button(
+        self,
+        to_phone: str,
+        body_text: str,
+        button_text: str,
+        url_link: str,
+        header_text: Optional[str] = None,
+        sender_phone_number_id: Optional[str] = None,
+        access_token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sends an interactive Call-To-Action URL button message."""
+        clean_phone = normalize_phone_number(to_phone).lstrip("+")
+        resolved_phone_id, resolved_token = resolve_whatsapp_credentials(sender_phone_number_id)
+        effective_token = access_token or resolved_token
+        if not is_whatsapp_configured() or not resolved_phone_id or not effective_token:
+            raise WhatsAppAPIError("WhatsApp sender credentials are not configured", status_code=503)
+        interactive: Dict[str, Any] = {
+            "type": "cta_url",
+            "body": {"text": body_text[:1024]},
+            "action": {
+                "name": "cta_url",
+                "parameters": {
+                    "display_text": button_text[:20],
+                    "url": url_link,
+                },
+            },
+        }
+        if header_text:
+            interactive["header"] = {"type": "text", "text": header_text[:60]}
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": clean_phone,
+            "type": "interactive",
+            "interactive": interactive,
+        }
+        return await self._post_with_retry(
+            self._get_messages_url(resolved_phone_id),
+            payload,
+            headers=self._get_headers(effective_token),
+        )
+
+    async def send_template_message(
+        self,
+        to_phone: str,
+        template_name: str,
+        language_code: str = "en",
+        components: Optional[List[Dict[str, Any]]] = None,
+        sender_phone_number_id: Optional[str] = None,
+        access_token: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Sends an approved Meta WhatsApp message template."""
+        clean_phone = normalize_phone_number(to_phone).lstrip("+")
+        resolved_phone_id, resolved_token = resolve_whatsapp_credentials(sender_phone_number_id)
+        effective_token = access_token or resolved_token
+        if not is_whatsapp_configured() or not resolved_phone_id or not effective_token:
+            raise WhatsAppAPIError("WhatsApp sender credentials are not configured", status_code=503)
+        template_obj: Dict[str, Any] = {
+            "name": template_name,
+            "language": {"code": language_code},
+        }
+        if components:
+            template_obj["components"] = components
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": clean_phone,
+            "type": "template",
+            "template": template_obj,
+        }
+        return await self._post_with_retry(
+            self._get_messages_url(resolved_phone_number_id),
+            payload,
+            headers=self._get_headers(effective_token),
+        )
+
     async def mark_message_as_read(
         self,
         message_id: str,

@@ -24,7 +24,8 @@ export function GlobalVoiceController() {
   function close() {
     v.stopAll();
     v.setIsHudOpen(false);
-    trigger.current?.focus();
+    const mobileTrigger = window.innerWidth < 768 ? document.querySelector<HTMLAnchorElement>('.kb-bottom-nav a[href="/chatbot"]') : null;
+    (mobileTrigger || trigger.current)?.focus();
   }
   return (
     <aside

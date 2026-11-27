@@ -633,7 +633,133 @@ TOOL_SCHEMAS: List[Dict[str, Any]] = [
                 },
             },
         },
-    }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_agri_products",
+            "description": "Search genuine agricultural products (pumps, sprayers, seeds, fertilizers, crop protection) in KisaanBuddy Marketplace with optional budget max_price.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Product keyword, e.g. 'water pump', 'sprayer', 'urea', 'neem'."},
+                    "category": {"type": "string", "description": "Category filter if known."},
+                    "max_price": {"type": "number", "description": "Maximum budget in INR, e.g. 5000."},
+                    "crop": {"type": "string", "description": "Target crop name."},
+                    "brand": {"type": "string", "description": "Brand or manufacturer."},
+                    "state": {"type": "string", "description": "Seller state."},
+                    "district": {"type": "string", "description": "Seller district."},
+                    "limit": {"type": "integer", "description": "Max results (1-10)."},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "compare_agri_products",
+            "description": "Compare up to 4 genuine agricultural products side by side by name or ID.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "product_names_or_ids": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "List of product names or IDs to compare.",
+                    },
+                },
+                "required": ["product_names_or_ids"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "search_rental_equipment",
+            "description": "Search genuine farm equipment rental listings (tractor, harvester, rotavator, sprayer, etc.) by district, state, PIN code, category, or max_price.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Equipment keyword, e.g. 'tractor', 'rotavator', 'harvester'."},
+                    "category": {"type": "string", "description": "Equipment category."},
+                    "district": {"type": "string", "description": "District name."},
+                    "state": {"type": "string", "description": "State name."},
+                    "pincode": {"type": "string", "description": "6-digit PIN code."},
+                    "max_price": {"type": "number", "description": "Maximum rental charge in INR."},
+                    "listing_type": {"type": "string", "description": "'rent' (default) or 'sale'."},
+                    "limit": {"type": "integer", "description": "Max results (1-10)."},
+                },
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_equipment_booking",
+            "description": "Create an equipment rental booking request. NEVER pass confirmed=true unless the farmer has explicitly confirmed creating the booking.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "listing_id": {"type": "integer", "description": "The equipment listing_id."},
+                    "farmer_name": {"type": "string", "description": "Farmer's name."},
+                    "farmer_phone": {"type": "string", "description": "Farmer's phone number."},
+                    "preferred_date": {"type": "string", "description": "Requested rental date, e.g. '2026-11-28' or 'tomorrow'."},
+                    "duration_notes": {"type": "string", "description": "Hours/days/work details."},
+                    "confirmed": {"type": "boolean", "description": "Must be true ONLY after explicit farmer confirmation."},
+                },
+                "required": ["listing_id", "farmer_name", "farmer_phone"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_my_bookings",
+            "description": "Retrieve the current farmer's equipment rental or marketplace booking requests.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone_number": {"type": "string", "description": "Current farmer's phone number."},
+                    "user_id": {"type": "integer", "description": "Linked website user_id if authenticated."},
+                },
+                "required": ["phone_number"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "cancel_booking_request",
+            "description": "Cancel a pending booking request. NEVER pass confirmed=true unless the farmer has explicitly confirmed cancellation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "inquiry_id": {"type": "integer", "description": "Numeric booking/inquiry ID."},
+                    "phone_number": {"type": "string", "description": "Current farmer's phone number."},
+                    "user_id": {"type": "integer", "description": "Linked website user_id if authenticated."},
+                    "reason": {"type": "string", "description": "Reason for cancellation."},
+                    "confirmed": {"type": "boolean", "description": "Must be true ONLY after explicit farmer confirmation."},
+                },
+                "required": ["inquiry_id", "phone_number"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_support_ticket",
+            "description": "Create a genuine customer support ticket when an issue cannot be resolved automatically.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "phone_number": {"type": "string", "description": "Farmer's phone number."},
+                    "query_summary": {"type": "string", "description": "Concise summary of the issue or complaint."},
+                    "farmer_name": {"type": "string", "description": "Farmer's name if known."},
+                },
+                "required": ["phone_number", "query_summary"],
+            },
+        },
+    },
 ]
 
 

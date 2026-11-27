@@ -17,7 +17,7 @@ export type Command = { type: string; value?: string; field?: string };
 export const ROUTE_COMMANDS: [string, RegExp][] = [
   ["/", /\b(home|home page|kisaanbuddy)\b|होम|मुख्य पृष्ठ|ಮುಖಪುಟ/i],
   ["/dashboard", /dashboard|डैशबोर्ड/i],
-  ["/weather", /weather|mausam|मौसम|हवामान|ಹವಾಮಾನ|வானிலை|వాతావరణం/i],
+  ["/chatbot", /weather|mausam|मौसम|हवामान|ಹವಾಮಾನ|வானிலை|వాతావరణం/i],
   ["/mandi", /mandi|market price|मंडी|भाव|ಮಂಡಿ|বাজার দর/i],
   [
     "/disease",
@@ -43,7 +43,6 @@ export const ROUTE_COMMANDS: [string, RegExp][] = [
 const routeAliases: Record<string, string[]> = {
   "/": ["shuru wala page", "pehla page", "मुख्य पेज", "शुरू वाला पेज", "home", "home page", "main page", "mukhya prishth", "shuruat", "kisaanbuddy", "होम", "मुख्य पृष्ठ", "मुखपृष्ठ", "ಮುಖಪುಟ"],
   "/dashboard": ["mera dashboard", "मेरी खेती का सारांश", "farm overview", "dashboard", "dash board", "डैशबोर्ड"],
-  "/weather": ["weather report", "mausam ka haal", "mosum", "मौसम का हाल", "बरसात की जानकारी", "weather", "mausam", "mosam", "mousam", "barish", "baarish", "barsaat", "rainfall", "forecast", "tapman", "havamana", "मौसम", "बारिश", "बरसात", "तापमान", "हवामान", "ಹವಾಮಾನ", "ಮಳೆ", "வானிலை", "వాతావరణం"],
   "/mandi": ["mandi ke rate", "mandi ka rate", "fasal ka bhav", "fasal ke bhav", "market rates", "crop prices", "मंडी के रेट", "फसल की कीमत", "फसल के भाव", "mandi", "mandee", "market price", "bazar bhav", "bazaar bhav", "fasal ke daam", "bhav", "भाव", "मंडी", "मण्डी", "फसल के दाम", "ಮಂಡಿ", "বাজার দর"],
   "/disease": ["fasal doctor", "crop check", "patte ki janch", "patti scan", "crop scan", "फसल की जांच", "पत्ते की जांच", "पत्ती स्कैन", "फसल चेक", "crop doctor", "disease", "fasal rog", "fasal ki bimari", "bimari", "beemari", "फसल डॉक्टर", "क्रॉप डॉक्टर", "फसल की बीमारी", "फसल रोग", "बीमारी", "photo upload", "फोटो", "ಬೆಳೆ ರೋಗ"],
   "/schemes": ["sarkari yojna", "sarkari sahayata", "government schemes", "government benefits", "kisan yojana", "सरकारी सहायता", "किसान योजना", "scheme", "schemes", "yojana", "yojna", "sarkari madad", "subsidy", "anudan", "pm kisan", "योजना", "सरकारी मदद", "सब्सिडी", "अनुदान", "ಯೋಜನೆ", "திட்டங்கள்"],

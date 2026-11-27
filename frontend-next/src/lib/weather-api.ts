@@ -114,7 +114,53 @@ export interface HealthResponse {
   rate_limit: string
 }
 
-// -------- Fetch helper --------
+export interface ContextualWeatherAlert {
+  type: string
+  severity: "high" | "medium" | "low"
+  title: string
+  message: string
+  forecast_window: string
+}
+
+export interface ContextualWeatherAdvisory {
+  status: string
+  title: string
+  message: string
+}
+
+export interface ContextualWeatherResponse {
+  available: boolean
+  reason?: string
+  location?: {
+    name: string
+    region?: string | null
+    country?: string | null
+    lat?: number | null
+    lon?: number | null
+  }
+  snapshot?: {
+    temp_c?: number | null
+    humidity?: number | null
+    wind_kph?: number | null
+    condition?: string | null
+    max_rain_prob_48h?: number | null
+  }
+  provider?: string | null
+  observed_at?: string | null
+  fetched_at: string
+  cached: boolean
+  uncertainty_note?: string
+  alerts: ContextualWeatherAlert[]
+  advisories: Record<string, ContextualWeatherAdvisory>
+  activity_focus?: string | null
+}
+
+// -------- Client-side deduplication & TTL cache --------
+
+const CLIENT_TTL_MS = 5 * 60 * 1000
+const LOCATION_TTL_MS = 30 * 60 * 1000
+const responseCache = new Map<string, { expiresAt: number; data: unknown }>()
+const inflightRequests = new Map<string, Promise<unknown>>()
 
 class WeatherAPIError extends Error {
   status: number
@@ -125,19 +171,56 @@ class WeatherAPIError extends Error {
   }
 }
 
-async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const res = await fetch(path, { signal, cache: "no-store" })
-  if (!res.ok) {
-    let detail = `Request failed (${res.status})`
-    try {
-      const j = await res.json()
-      if (j?.detail) detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail)
-    } catch {
-      /* ignore parse errors */
-    }
-    throw new WeatherAPIError(detail, res.status)
+async function apiGet<T>(path: string, signal?: AbortSignal, ttlMs = CLIENT_TTL_MS): Promise<T> {
+  const now = Date.now()
+  const cached = responseCache.get(path)
+  if (cached && cached.expiresAt > now) {
+    return cached.data as T
   }
-  return res.json() as Promise<T>
+
+  const inflight = inflightRequests.get(path)
+  if (inflight) {
+    return inflight as Promise<T>
+  }
+
+  const req = (async () => {
+    const res = await fetch(path, { signal, cache: "no-store" })
+    if (!res.ok) {
+      let detail = `Request failed (${res.status})`
+      try {
+        const j = await res.json()
+        if (j?.detail) detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j.detail)
+      } catch {
+        /* ignore parse errors */
+      }
+      throw new WeatherAPIError(detail, res.status)
+    }
+    const data = (await res.json()) as T
+    responseCache.set(path, { expiresAt: Date.now() + ttlMs, data })
+    return data
+  })()
+
+  inflightRequests.set(path, req)
+  try {
+    return await req
+  } finally {
+    inflightRequests.delete(path)
+  }
+}
+
+export function getContextualWeather(
+  params: { lat?: number; lon?: number; q?: string; crop?: string; activity?: string },
+  signal?: AbortSignal
+): Promise<ContextualWeatherResponse> {
+  const sp = new URLSearchParams()
+  if (params.lat !== undefined && params.lon !== undefined) {
+    sp.set("lat", params.lat.toFixed(2))
+    sp.set("lon", params.lon.toFixed(2))
+  }
+  if (params.q) sp.set("q", params.q)
+  if (params.crop) sp.set("crop", params.crop)
+  if (params.activity) sp.set("activity", params.activity)
+  return apiGet<ContextualWeatherResponse>(`/api/weather/contextual?${sp.toString()}`, signal)
 }
 
 // -------- Public API --------
@@ -185,27 +268,74 @@ export function getWeatherHealth(signal?: AbortSignal): Promise<HealthResponse> 
   return apiGet<HealthResponse>(`/api/weather/health`, signal)
 }
 
-// -------- Browser geolocation (with IP fallback) --------
+// -------- Browser geolocation (with manual override & IP fallback) --------
 
 export interface ResolvedLocation {
   lat: number
   lon: number
-  source: "browser" | "ip" | "default"
+  source: "manual" | "browser" | "ip" | "default"
   city?: string
   country?: string
 }
 
+const MANUAL_LOC_KEY = "kb_manual_weather_location"
+let cachedResolvedLoc: { expiresAt: number; loc: ResolvedLocation } | null = null
+
+export function getManualWeatherLocation(): ResolvedLocation | null {
+  if (typeof window === "undefined") return null
+  try {
+    const raw = window.localStorage.getItem(MANUAL_LOC_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (typeof parsed?.lat === "number" && typeof parsed?.lon === "number") {
+      return { ...parsed, source: "manual" }
+    }
+  } catch {
+    /* ignore */
+  }
+  return null
+}
+
+export function setManualWeatherLocation(loc: { lat: number; lon: number; city?: string; country?: string }): void {
+  if (typeof window === "undefined") return
+  const saved: ResolvedLocation = { ...loc, source: "manual" }
+  window.localStorage.setItem(MANUAL_LOC_KEY, JSON.stringify(saved))
+  cachedResolvedLoc = { expiresAt: Date.now() + LOCATION_TTL_MS, loc: saved }
+}
+
+export function clearManualWeatherLocation(): void {
+  if (typeof window === "undefined") return
+  window.localStorage.removeItem(MANUAL_LOC_KEY)
+  cachedResolvedLoc = null
+}
+
 /**
  * Resolves the user's current location using this chain:
- *   1. navigator.geolocation (if granted within `timeoutMs`)
- *   2. /api/weather/geoip
- *   3. Hardcoded Delhi fallback
- *
- * Never throws — always returns a location.
+ *   1. Manual user selection (saved in localStorage)
+ *   2. Cached session location
+ *   3. navigator.geolocation (only if permission is not denied)
+ *   4. /api/weather/geoip
+ *   5. Delhi fallback
  */
 export async function resolveUserLocation(timeoutMs = 4000): Promise<ResolvedLocation> {
-  // Try the browser first.
-  if (typeof navigator !== "undefined" && navigator.geolocation) {
+  const manual = getManualWeatherLocation()
+  if (manual) return manual
+
+  if (cachedResolvedLoc && cachedResolvedLoc.expiresAt > Date.now()) {
+    return cachedResolvedLoc.loc
+  }
+
+  let geoDenied = false
+  if (typeof navigator !== "undefined" && navigator.permissions?.query) {
+    try {
+      const perm = await navigator.permissions.query({ name: "geolocation" as PermissionName })
+      if (perm.state === "denied") geoDenied = true
+    } catch {
+      /* ignore */
+    }
+  }
+
+  if (!geoDenied && typeof navigator !== "undefined" && navigator.geolocation) {
     const browserLoc = await new Promise<ResolvedLocation | null>((resolve) => {
       const timer = setTimeout(() => resolve(null), timeoutMs)
       navigator.geolocation.getCurrentPosition(
@@ -224,19 +354,23 @@ export async function resolveUserLocation(timeoutMs = 4000): Promise<ResolvedLoc
         { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 5 * 60 * 1000 }
       )
     })
-    if (browserLoc) return browserLoc
+    if (browserLoc) {
+      cachedResolvedLoc = { expiresAt: Date.now() + LOCATION_TTL_MS, loc: browserLoc }
+      return browserLoc
+    }
   }
 
-  // IP-based fallback.
   try {
     const info = await geoipLookup()
-    return {
+    const loc: ResolvedLocation = {
       lat: info.lat,
       lon: info.lon,
       city: info.city,
       country: info.country,
       source: info.fallback ? "default" : "ip",
     }
+    cachedResolvedLoc = { expiresAt: Date.now() + LOCATION_TTL_MS, loc }
+    return loc
   } catch {
     return { lat: 28.6139, lon: 77.209, city: "Delhi", country: "India", source: "default" }
   }

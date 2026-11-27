@@ -22,8 +22,8 @@ interface FarmKpiRowProps {
   fields: FarmerField[];
   taskSummary?: FarmTaskSummary | null;
   latestSoilTest?: SoilTest | null;
-  weatherTemp?: number;
-  weatherCondition?: string;
+  weatherTemp?: number | null;
+  weatherCondition?: string | null;
 }
 
 export function FarmKpiRow({
@@ -31,8 +31,8 @@ export function FarmKpiRow({
   fields,
   taskSummary,
   latestSoilTest,
-  weatherTemp = 28,
-  weatherCondition = "Clear Sky",
+  weatherTemp = null,
+  weatherCondition = null,
 }: FarmKpiRowProps) {
   const prefersReduced = useReducedMotion();
 
@@ -118,11 +118,11 @@ export function FarmKpiRow({
     },
     {
       title: "Field Microclimate",
-      value: `${weatherTemp}°`,
-      unit: "C",
-      sub: weatherCondition,
+      value: weatherTemp !== undefined && weatherTemp !== null ? `${weatherTemp}°` : "—",
+      unit: weatherTemp !== undefined && weatherTemp !== null ? "C" : "Unavailable",
+      sub: weatherCondition || "Telemetry offline",
       icon: CloudSun,
-      href: "/weather",
+      href: "/soil-monitor",
       accent: "text-sky-600 dark:text-sky-400",
       bgAccent: "bg-sky-50 dark:bg-sky-950/50",
     },
@@ -138,11 +138,19 @@ export function FarmKpiRow({
     },
     {
       title: "Soil Health Index",
-      value: latestSoilTest?.organic_carbon_pct ? `${latestSoilTest.organic_carbon_pct}%` : "pH 6.8",
-      unit: latestSoilTest?.organic_carbon_pct ? "Organic C" : "Est. Value",
+      value: latestSoilTest?.organic_carbon_pct
+        ? `${latestSoilTest.organic_carbon_pct}%`
+        : latestSoilTest?.soil_ph
+          ? `pH ${latestSoilTest.soil_ph}`
+          : "—",
+      unit: latestSoilTest?.organic_carbon_pct
+        ? "Organic C"
+        : latestSoilTest?.soil_ph
+          ? "Soil pH"
+          : "No test",
       sub: latestSoilTest?.is_verified ? "Lab Verified" : soilStatus.label,
       icon: FlaskConical,
-      href: "/profile",
+      href: "/soil-health",
       accent: "text-indigo-600 dark:text-indigo-400",
       bgAccent: "bg-indigo-50 dark:bg-indigo-950/50",
     },

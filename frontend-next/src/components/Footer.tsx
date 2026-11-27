@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { OFFICIAL_WHATSAPP_NUMBER } from '@/components/announcement/AnnouncementPopup';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -41,34 +42,35 @@ export function Footer() {
   }
 
   return (
+    <>
+    <footer className="kb-mobile-footer md:hidden" aria-label="Mobile footer">
+      <strong>KisaanBuddy</strong>
+      <div><Link href="/contact">{lang === 'hi' ? 'संपर्क' : 'Contact'}</Link><button type="button" onClick={() => openFeedback()}>{lang === 'hi' ? 'सुझाव दें' : 'Feedback'}</button><a href={`https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || process.env.NEXT_PUBLIC_WHATSAPP_PHONE_NUMBER || OFFICIAL_WHATSAPP_NUMBER).replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">WhatsApp</a></div>
+      <details><summary>{lang === 'hi' ? 'नीतियाँ और जानकारी' : 'Policies & information'}</summary><div><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link><Link href="/disclaimer">Disclaimer</Link><Link href="/cookie-policy">Cookies</Link><Link href="/editorial-policy">Data sources</Link><Link href="/about">About</Link></div></details>
+    </footer>
     <footer
-      className="w-full relative border-t border-emerald-900/10 dark:border-stone-800 bg-white dark:bg-stone-950 mt-auto text-stone-700 dark:text-stone-300 transition-colors"
+      className="hidden md:block w-full relative border-t border-emerald-900/10 dark:border-stone-800 bg-white dark:bg-stone-950 mt-auto text-stone-700 dark:text-stone-300 transition-colors"
       role="contentinfo"
       aria-label="KisaanBuddy Platform Footer"
     >
-      {/* Top Agricultural Reality & Trust Banner */}
-      <div className="border-b border-emerald-900/10 dark:border-stone-800 bg-emerald-50/40 dark:bg-emerald-950/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-600/10 border border-emerald-600/20 text-emerald-800 dark:text-emerald-300 font-bold uppercase tracking-wider text-[11px]">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Reality-First Platform</span>
-              </span>
-              <span className="text-stone-600 dark:text-stone-300 font-medium text-center md:text-left">
-                Every product, mandi price, and diagnostic advisory is backed by authentic data sources.
-              </span>
-            </div>
+      {/* Top Controls Bar */}
+      <div className="border-b border-emerald-900/10 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-900/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <span className="inline-flex items-center gap-1.5 text-emerald-800 dark:text-emerald-300 font-semibold">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>Authentic agricultural data & verified listings</span>
+            </span>
 
             <div className="flex items-center gap-3 shrink-0 text-stone-500 dark:text-stone-400 font-medium">
               <button
                 type="button"
                 onClick={() => openLanguageModal()}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-900/10 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-emerald-600/40 hover:text-emerald-800 dark:hover:text-emerald-300 transition-all shadow-2xs cursor-pointer font-semibold"
-                aria-label={`भाषा बदलें / Select Language (Current: ${LANG_NAMES[lang] || 'English'})`}
+                aria-label={`Select Language (Current: ${LANG_NAMES[lang] || 'English'})`}
               >
                 <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>🌐 {LANG_NAMES[lang] || 'Language'}</span>
+                <span>{LANG_NAMES[lang] || 'Language'}</span>
               </button>
 
               <button
@@ -78,7 +80,7 @@ export function Footer() {
                 title="Share suggestions or report inaccurate data"
               >
                 <MessageSquareHeart className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span>Farmer Feedback</span>
+                <span>Feedback</span>
               </button>
             </div>
           </div>
@@ -108,11 +110,7 @@ export function Footer() {
             </Link>
 
             <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed max-w-md">
-              KisaanBuddy is an authentic agricultural technology platform purpose-built for Indian farmers. We bridge farm-level challenges with transparent mandi prices, genuine equipment and crop marketplace listings, certified crop leaf diagnosis, and agricultural labour coordination.
-            </p>
-
-            <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed max-w-md">
-              Built on our strict <strong>Reality-First standard</strong>: zero fake listings, no AI-generated product photographs, and verifiable data provenance for every agricultural decision.
+              AgriTech workspace for Indian farmers—crop disease diagnosis, live mandi rates, equipment rental, and farm advisory backed by verifiable data.
             </p>
 
             {/* Quick Feature Badges */}
@@ -183,21 +181,14 @@ export function Footer() {
                 className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors py-0.5 group"
               >
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all" />
-                <span>AgriLabour (Agricultural Workforce)</span>
+                <span>AgriLabour</span>
               </Link>
               <Link
-                href="/weather"
+                href="/crop-predictor"
                 className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors py-0.5 group"
               >
                 <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all" />
-                <span>Weather Intelligence &amp; Alerts</span>
-              </Link>
-              <Link
-                href="/contact"
-                className="flex items-center gap-2 text-stone-600 dark:text-stone-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors py-0.5 group"
-              >
-                <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 group-hover:text-emerald-600 transition-all" />
-                <span>Contact Us</span>
+                <span>Crop Recommendation</span>
               </Link>
             </nav>
           </div>
@@ -337,5 +328,7 @@ export function Footer() {
 
       </div>
     </footer>
+    </>
   );
 }
+

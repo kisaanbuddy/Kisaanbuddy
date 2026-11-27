@@ -325,49 +325,6 @@ export function HeroFeatureShowcase() {
             </Link>
           )}
 
-          {/* Card 3: Weather Intelligence & Spray Advisory */}
-          {(activeTab === "all" || activeTab === "agronomy") && (
-            <Link
-              href="/weather"
-              className="group relative flex flex-col justify-between p-3.5 rounded-2xl bg-gradient-to-br from-sky-500/[0.04] to-white dark:from-sky-950/30 dark:to-stone-900 border border-stone-200/90 dark:border-stone-700/80 hover:border-sky-500/50 hover:shadow-[0_8px_25px_rgba(14,165,233,0.12)] transition-all duration-300 hover:-translate-y-0.5"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-700 dark:text-sky-400 shrink-0 group-hover:scale-105 transition-transform">
-                    <CloudSun className="w-4 h-4" />
-                  </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-50 dark:bg-sky-950/70 text-sky-800 dark:text-sky-300 border border-sky-200 dark:border-sky-900">
-                    IMD Verified
-                  </span>
-                </div>
-
-                <h4 className="text-xs sm:text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-sky-700 dark:group-hover:text-sky-400 transition-colors flex items-center gap-1">
-                  <span>{isHi ? "मौसम व स्प्रे विंडो (Spray Advisory)" : "Weather & Spray Advisory"}</span>
-                </h4>
-                <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-snug">
-                  {isHi
-                    ? "घंटेवार बारिश अलर्ट और कीटनाशक छिड़काव का सबसे सुरक्षित समय।"
-                    : "Hyperlocal precipitation alerts and agronomic spray window calculation."}
-                </p>
-
-                {/* Micro Sub-Feature Pills */}
-                <div className="flex flex-wrap items-center gap-1 mt-2">
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 dark:bg-sky-950/60 text-sky-800 dark:text-sky-300 font-semibold">
-                    {isHi ? "स्प्रे विंडो" : "Spray Window"}
-                  </span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-medium">
-                    {isHi ? "7-दिवसीय मौसम" : "7-Day Radar"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-2.5 pt-2 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between text-[11px] font-bold text-sky-700 dark:text-sky-400">
-                <span>{isHi ? "स्प्रे समय देखें →" : "Check Spray Time →"}</span>
-                <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-          )}
-
           {/* Card 4: Agricultural Labour (AgriLabour Connect) */}
           {(activeTab === "all" || activeTab === "market") && (
             <Link

@@ -213,7 +213,7 @@ export function CropWeatherAdvisory({
 
                 {/* Non-guarantee Disclaimer */}
                 <p className="text-[10px] text-slate-400 italic pt-1 border-t border-emerald-200/40 dark:border-slate-700/40">
-                  * Hyperlocal weather advisory calibrated from IMD & open feeds. Forecasts are advisory and not guaranteed.
+                  Source: {weather.provider || 'Meteorological Feed'} • Updated {new Date(weather.current.observed_at || weather.fetched_at).toLocaleString()} • Forecasts are advisory and carry meteorological uncertainty.
                 </p>
               </div>
             );

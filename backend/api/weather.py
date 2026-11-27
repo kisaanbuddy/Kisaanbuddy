@@ -13,6 +13,7 @@ All errors are JSON with {detail: "..."}.
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Optional
 
@@ -28,6 +29,7 @@ except ImportError:
 
 from core.config import settings
 from schemas.weather import HealthResponse
+from services.weather_intelligence import build_contextual_weather_intelligence
 from services.weather_service import orchestrator
 from utils.geolocation import geolocate_ip, get_client_ip
 
@@ -199,35 +201,55 @@ async def get_ai_weather_advisory(
             pass
 
     if lat is None or lon is None:
-        # Default to Delhi coordinates if unspecified
-        lat, lon = 28.6139, 77.2090
+        return JSONResponse(
+            content={
+                "available": False,
+                "reason": "Location coordinates or city name required for weather advisory.",
+                "location": q or None,
+                "target_crop": crop or "General Crops",
+            }
+        )
 
     try:
         forecast_res = await orchestrator.get_forecast(lat, lon, days=5)
         fdata = forecast_res.payload if hasattr(forecast_res, "payload") else forecast_res
     except Exception as e:
         log.warning("Weather fetch failed in ai-advisory: %s", e)
-        fdata = {"daily": [], "current": {}}
+        return JSONResponse(
+            content={
+                "available": False,
+                "reason": "Live weather data is currently unavailable from meteorological providers.",
+                "location": q or f"({lat:.2f}, {lon:.2f})",
+                "target_crop": crop or "General Crops",
+            }
+        )
 
     from services.chat.gemini_service import is_gemini_configured, generate_with_retry, get_model_chain
     import json
 
-    loc_name = fdata.get("location", {}).get("city") or q or f"({lat:.2f}, {lon:.2f})"
+    loc_name = fdata.get("location", {}).get("name") or q or f"({lat:.2f}, {lon:.2f})"
     daily_summary = [
-        f"{d.get('date')}: Min {d.get('min_c')}°C, Max {d.get('max_c')}°C, Rain {d.get('rain_mm', 0)}mm, {d.get('condition')}"
+        f"{d.get('date')}: Min {d.get('temp_min_c')}°C, Max {d.get('temp_max_c')}°C, RainProb {d.get('chance_of_rain', 0)}%, Wind {d.get('wind_kph', 0)} km/h, {d.get('condition')}"
         for d in (fdata.get("daily") or [])[:5]
     ]
 
+    contextual = build_contextual_weather_intelligence(None, fdata, crop=crop)
     advisory_data = {
+        "available": True,
         "location": loc_name,
         "target_crop": crop or "General Crops",
-        "spray_window_safe": True,
-        "spray_recommendation": "Moderate weather. Check wind speed before spraying in early morning.",
-        "irrigation_action": "Maintain normal field moisture.",
-        "heat_frost_alert": "No extreme weather alert.",
-        "weekly_farm_actions": ["Field scouting for pest symptoms", "Weed clearing around borders"],
-        "advisory_summary": "Weather conditions are stable for seasonal field operations.",
+        "spray_window_safe": contextual["advisories"].get("spraying", {}).get("status") == "safe",
+        "spray_recommendation": contextual["advisories"].get("spraying", {}).get("message"),
+        "irrigation_action": contextual["advisories"].get("irrigation", {}).get("message"),
+        "heat_frost_alert": "; ".join(a["message"] for a in contextual["alerts"]) or "No extreme weather alert.",
+        "weekly_farm_actions": [
+            contextual["advisories"].get("fertilizer", {}).get("message"),
+            contextual["advisories"].get("disease", {}).get("message"),
+        ],
+        "advisory_summary": fdata.get("daily", [{}])[0].get("condition", "Forecast available."),
         "weather_source": fdata.get("provider", "Live Weather Engine"),
+        "fetched_at": fdata.get("fetched_at"),
+        "uncertainty_note": contextual.get("uncertainty_note"),
     }
 
     if is_gemini_configured():
@@ -264,6 +286,58 @@ async def get_ai_weather_advisory(
             log.warning("Gemini weather advisory generation error: %s", err)
 
     return JSONResponse(content=advisory_data)
+
+
+# ----------------------------------------------------------------------
+# CONTEXTUAL AGRICULTURAL WEATHER INTELLIGENCE
+# ----------------------------------------------------------------------
+@router.get("/contextual")
+@_rate_limit(_DEFAULT_LIMIT)
+async def get_contextual_weather(
+    request: Request,
+    lat: Optional[float] = Query(None, ge=-90, le=90),
+    lon: Optional[float] = Query(None, ge=-180, le=180),
+    q: Optional[str] = Query(None, min_length=1, max_length=100),
+    crop: Optional[str] = Query(None, max_length=80),
+    activity: Optional[str] = Query(None, max_length=80),
+):
+    """Background weather intelligence for irrigation, spraying, fertilizer, disease, harvest & equipment."""
+    if q and (lat is None or lon is None):
+        try:
+            hits = await orchestrator.search(q, limit=1)
+            if hits:
+                lat, lon = hits[0].lat, hits[0].lon
+        except Exception as e:
+            log.warning("Contextual weather location search failed for %r: %s", q, e)
+
+    if lat is None or lon is None:
+        return JSONResponse(
+            content=build_contextual_weather_intelligence(None, None, crop=crop, activity=activity)
+        )
+
+    current_payload = None
+    forecast_payload = None
+    try:
+        cur_res, fc_res = await asyncio.gather(
+            orchestrator.get_current(lat, lon),
+            orchestrator.get_forecast(lat, lon, days=3),
+            return_exceptions=True,
+        )
+        if not isinstance(cur_res, Exception):
+            current_payload = cur_res.payload
+        if not isinstance(fc_res, Exception):
+            forecast_payload = fc_res.payload
+    except Exception as e:
+        log.warning("Contextual weather fetch failed at (%s, %s): %s", lat, lon, e)
+
+    intelligence = build_contextual_weather_intelligence(
+        current_payload, forecast_payload, crop=crop, activity=activity
+    )
+    headers = {}
+    if intelligence.get("provider"):
+        headers["X-Weather-Provider"] = str(intelligence["provider"])
+        headers["X-Weather-Cached"] = "true" if intelligence.get("cached") else "false"
+    return JSONResponse(content=intelligence, headers=headers)
 
 
 # ----------------------------------------------------------------------

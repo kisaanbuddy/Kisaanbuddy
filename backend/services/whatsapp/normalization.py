@@ -59,29 +59,36 @@ NormalizedWhatsAppMessage = NormalizedMessage
 
 # Mapping of canonical stable IDs
 STABLE_ID_TO_ACTION = {
-    "crop_doctor": "crop_doctor",
-    "menu_crop_doctor": "crop_doctor",
-    "1": "crop_doctor",
     "guidance": "guidance",
     "menu_guidance": "guidance",
     "agriculture_question": "guidance",
-    "2": "guidance",
-    "weather": "weather",
-    "menu_weather": "weather",
-    "3": "weather",
-    "mandi": "mandi",
-    "menu_mandi": "mandi",
-    "4": "mandi",
-    "schemes": "schemes",
-    "menu_schemes": "schemes",
-    "5": "schemes",
+    "1": "guidance",
+    "marketplace": "marketplace",
+    "menu_marketplace": "marketplace",
+    "buy_products": "marketplace",
+    "2": "marketplace",
+    "rental": "rental",
+    "menu_rental": "rental",
+    "rent_equipment": "rental",
+    "3": "rental",
+    "crop_doctor": "crop_doctor",
+    "menu_crop_doctor": "crop_doctor",
+    "4": "crop_doctor",
+    "bookings": "bookings",
+    "menu_bookings": "bookings",
+    "my_bookings": "bookings",
+    "5": "bookings",
     "support": "support",
     "menu_support": "support",
     "human_support": "support",
     "6": "support",
+    # Legacy IDs kept for backward compatibility
+    "mandi": "mandi",
+    "menu_mandi": "mandi",
+    "schemes": "schemes",
+    "menu_schemes": "schemes",
     "website": "website",
     "menu_website": "website",
-    "7": "website",
 }
 
 # Indic to ASCII numeral translation tables
@@ -91,13 +98,12 @@ INDIC_NUMERALS = {
 }
 
 NUMBER_TO_ACTION = {
-    "1": "crop_doctor",
-    "2": "guidance",
-    "3": "weather",
-    "4": "mandi",
-    "5": "schemes",
+    "1": "guidance",
+    "2": "marketplace",
+    "3": "rental",
+    "4": "crop_doctor",
+    "5": "bookings",
     "6": "support",
-    "7": "website",
 }
 
 # Regex to detect leading option numbers: "4. Mandi Prices", "1) Crop Doctor", "4", "४. मंडी भाव"

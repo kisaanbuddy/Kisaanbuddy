@@ -40,6 +40,7 @@ import {
   Database,
   Layers,
   ArrowRight,
+  MessageCircle,
 } from "lucide-react";
 import {
   LineChart,
@@ -55,6 +56,7 @@ import {
 import { useAuth, logoutUser } from "@/lib/auth";
 import { adminApi } from "@/lib/admin-api";
 import { FarmerFeedbackAdminPanel } from "@/components/admin/FarmerFeedbackAdminPanel";
+import { WhatsAppAdminPanel } from "@/components/admin/WhatsAppAdminPanel";
 import type {
   OverviewData,
   AdminUser,
@@ -64,7 +66,7 @@ import type {
   AdminMedia,
 } from "@/lib/admin-types";
 
-type Tab = "dashboard" | "users" | "reviews" | "content" | "media" | "audit" | "settings" | "marketplace";
+type Tab = "dashboard" | "users" | "reviews" | "content" | "media" | "audit" | "settings" | "marketplace" | "whatsapp";
 
 export default function AdminClient() {
   const router = useRouter();
@@ -542,6 +544,7 @@ export default function AdminClient() {
     { id: "media", label: "Media Assets", icon: ImageIcon },
     { id: "audit", label: "Audit Logs", icon: ScrollText },
     { id: "marketplace", label: "Marketplace & Catalogue", icon: Store },
+    { id: "whatsapp", label: "WhatsApp AI", icon: MessageCircle },
     { id: "settings", label: "Settings", icon: Settings },
   ];
 
@@ -1500,6 +1503,9 @@ export default function AdminClient() {
             </div>
           </div>
         )}
+
+        {/* TAB 9: WHATSAPP AI CONTROL CENTER */}
+        {activeTab === "whatsapp" && <WhatsAppAdminPanel />}
 
         {/* TAB 7: SETTINGS */}
         {activeTab === "settings" && (

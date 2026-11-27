@@ -629,69 +629,6 @@ export function FeatureShowcaseSection() {
             </motion.div>
 
             {/* 5. Weather Intelligence */}
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: 0.2 }}
-              className="flex flex-col justify-between rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-[0_4px_24px_rgba(23,75,53,0.05)] hover:shadow-[0_12px_36px_rgba(23,75,53,0.1)] transition-all overflow-hidden group md:col-span-2 lg:col-span-1"
-            >
-              <div className="relative h-44 w-full overflow-hidden bg-stone-100 dark:bg-stone-800">
-                <img
-                  src="/images/weather/monsoon-farmland.jpg"
-                  alt="Monsoon Farmland Rain Forecast"
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#174B35]/70 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute top-3 left-3">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/95 dark:bg-stone-900/95 text-[#174B35] dark:text-[#78B957] border border-stone-200 shadow-xs">
-                    <CloudSun className="w-3 h-3 text-[#27834A]" />
-                    {t.weather.badge}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-6 flex flex-col justify-between flex-1">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold text-[#174B35] dark:text-white leading-snug mb-2 group-hover:text-[#27834A] transition-colors">
-                    {t.weather.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#68766C] dark:text-stone-300 leading-relaxed mb-4">
-                    {t.weather.desc}
-                  </p>
-
-                  <ul className="space-y-2 text-xs sm:text-sm text-[#1D2B22] dark:text-stone-200">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
-                      <span>{t.weather.bullet1}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
-                      <span>{t.weather.bullet2}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
-                      <span>{t.weather.bullet3}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-[#27834A] shrink-0 mt-0.5" />
-                      <span>{t.weather.bullet4}</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <div className="pt-4 mt-5 border-t border-stone-100 dark:border-stone-800 flex items-center justify-between">
-                  <Link
-                    href="/weather"
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#174B35] dark:text-[#78B957] hover:text-[#27834A] group/link"
-                  >
-                    <span>{t.weather.cta}</span>
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
-                  </Link>
-                </div>
-              </div>
-            </motion.div>
 
           </div>
 

@@ -6,7 +6,7 @@
  * a small, encoded allow-listed parameter set and executes its own real API.
  */
 export type VoiceFeature =
-  | "home" | "dashboard" | "weather" | "mandi" | "disease" | "crop-predictor" | "schemes"
+  | "home" | "dashboard" | "mandi" | "disease" | "crop-predictor" | "schemes"
   | "soil-health" | "soil-monitor" | "khet-diary" | "worker-connect" | "profile"
   | "assistant" | "marketplace" | "buyers" | "sell-crop" | "enam" | "procurement"
   | "settings" | "back"
@@ -29,7 +29,6 @@ export const VOICE_FEATURE_REGISTRY: Record<VoiceFeature, {
 }> = {
   home: { path: "/", safeActions: ["open home"] },
   dashboard: { path: "/dashboard", safeActions: ["open dashboard"] },
-  weather: { path: "/weather", safeActions: ["current weather", "forecast", "location search"] },
   mandi: { path: "/mandi", safeActions: ["crop price search", "state filter"] },
   disease: { path: "/disease", safeActions: ["open diagnosis", "pre-fill crop"], requiresUserInput: "A crop photo or symptom description" },
   "crop-predictor": { path: "/crop-predictor", safeActions: ["run recommendation"] },
@@ -127,11 +126,12 @@ export function parseVoiceAction(transcript: string, previous?: VoiceFeature | n
     return { feature: "marketplace", path: "/marketplace", label: "Marketplace", params }
 
   const weather = /weather|mausam|मौसम|forecast|बारिश|barish|rain|temperature|तापमान/i.test(text)
-  if (weather || (previous === "weather" && /kal|tomorrow|aaj|today|agle|next|दिन|din/i.test(text))) {
+  if (weather || (previous === "assistant" && /kal|tomorrow|aaj|today|agle|next|दिन|din/i.test(text))) {
     params.days = daysFrom(text)
     const city = cityFrom(text)
     if (city) params.city = city
-    return { feature: "weather", path: "/weather", label: "Weather", params }
+    params.q = text
+    return { feature: "assistant", path: "/chatbot", label: "AI Farming Assistant", params }
   }
   if (/mandi|price|rate|bhav|भाव|दाम|कीमत/i.test(text) || (previous === "mandi" && !!crop)) {
     const location = cityFrom(text)

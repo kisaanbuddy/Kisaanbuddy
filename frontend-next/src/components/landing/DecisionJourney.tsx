@@ -246,7 +246,7 @@ const JOURNEY_I18N: Record<string, JourneyContent> = {
 
 const TOOL_CONFIG = [
   { href: '/disease', icon: ScanLine, tone: 'bg-rose-500/10 text-rose-700' },
-  { href: '/weather', icon: CloudSun, tone: 'bg-sky-500/10 text-sky-700' },
+  { href: '/crop-predictor', icon: Sprout, tone: 'bg-emerald-500/10 text-emerald-700' },
   { href: '/mandi', icon: TrendingUp, tone: 'bg-amber-500/10 text-amber-700' },
   { href: '/schemes', icon: Landmark, tone: 'bg-violet-500/10 text-violet-700' },
 ];

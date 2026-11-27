@@ -327,6 +327,491 @@ async def _tool_diagnose_crop_disease(
 
 
 # ============================================================================
+# Enterprise Marketplace, Equipment Rental & Booking Tools (Reality-First)
+# ============================================================================
+def _frontend_base_url() -> str:
+    from core.config import settings
+    base = (getattr(settings, "FRONTEND_URL", None) or "https://kisaanbuddy.in").rstrip("/")
+    if "localhost" in base or "127.0.0.1" in base:
+        return "https://kisaanbuddy.in"
+    return base
+
+
+async def _tool_search_agri_products(
+    query: str = "",
+    category: Optional[str] = None,
+    max_price: Optional[float] = None,
+    crop: Optional[str] = None,
+    brand: Optional[str] = None,
+    state: Optional[str] = None,
+    district: Optional[str] = None,
+    limit: int = 5,
+) -> Dict[str, Any]:
+    """Search genuine agricultural input products with verified prices, images, and links."""
+    try:
+        from api.marketplace import AUTHENTIC_AGRI_PRODUCTS
+        from db.session import SessionLocal
+        from db.models import MarketplaceListing
+
+        q = (query or "").strip().lower()
+        cat = (category or "").strip().lower()
+        lim = max(1, min(10, int(limit or 5)))
+        base_url = _frontend_base_url()
+        results: list[Dict[str, Any]] = []
+
+        for p in AUTHENTIC_AGRI_PRODUCTS:
+            if cat and cat != "all" and cat not in (p.get("category") or "").lower():
+                continue
+            if brand and brand.lower() not in (p.get("brand") or "").lower():
+                continue
+            if state and state.lower() not in (p.get("state") or "").lower():
+                continue
+            if district and district.lower() not in (p.get("district") or "").lower():
+                continue
+            if crop and not (
+                any(crop.lower() in tc.lower() for tc in p.get("target_crops", []))
+                or crop.lower() in (p.get("name") or "").lower()
+            ):
+                continue
+            price_val = p.get("price")
+            if max_price is not None and price_val is not None and float(price_val) > float(max_price):
+                continue
+            if q:
+                hay = " ".join([
+                    str(p.get("name", "")),
+                    str(p.get("brand", "")),
+                    str(p.get("category", "")),
+                    str(p.get("active_ingredient", "")),
+                    str(p.get("description", "")),
+                    " ".join(p.get("target_crops", [])),
+                ]).lower()
+                tokens = [t for t in q.split() if len(t) > 1]
+                if tokens and not all(tok in hay for tok in tokens) and q not in hay:
+                    continue
+
+            pid = p.get("id")
+            results.append({
+                "id": pid,
+                "name": p.get("name"),
+                "brand": p.get("brand"),
+                "manufacturer": p.get("manufacturer") or p.get("brand"),
+                "category": p.get("category"),
+                "price_inr": price_val,
+                "unit": p.get("unit") or p.get("pack_size"),
+                "availability": p.get("availability_status", "available"),
+                "image_url": p.get("image_url"),
+                "seller_name": p.get("seller_name") or p.get("supplier_name"),
+                "seller_phone": p.get("seller_phone"),
+                "location": ", ".join(filter(None, [p.get("district"), p.get("state")])),
+                "product_url": f"{base_url}/marketplace?product={pid}",
+                "source": p.get("source") or "KisaanBuddy Verified Agri Catalog",
+            })
+            if len(results) >= lim:
+                break
+
+        # Also check DB MarketplaceListing (input sellers) if room remains
+        if len(results) < lim and SessionLocal is not None:
+            with SessionLocal() as db:
+                ml_q = db.query(MarketplaceListing).filter(
+                    MarketplaceListing.is_active == True,  # noqa: E712
+                    MarketplaceListing.is_archived == False,  # noqa: E712
+                    MarketplaceListing.listing_type == "sell",
+                )
+                if max_price is not None:
+                    ml_q = ml_q.filter(
+                        (MarketplaceListing.price == None) | (MarketplaceListing.price <= float(max_price))  # noqa: E711
+                    )
+                for ml in ml_q.limit(30).all():
+                    hay = f"{ml.crop_or_item or ''} {ml.variety or ''} {ml.category or ''} {ml.organization_name or ''} {ml.district or ''}".lower()
+                    if q and q not in hay:
+                        continue
+                    if district and district.lower() not in (ml.district or "").lower():
+                        continue
+                    results.append({
+                        "id": f"ml-{ml.id}",
+                        "name": f"{ml.crop_or_item} ({ml.variety})" if ml.variety else ml.crop_or_item,
+                        "brand": ml.organization_name,
+                        "category": ml.category,
+                        "price_inr": ml.price,
+                        "unit": ml.price_unit or ml.quantity_unit,
+                        "availability": ml.verification_status,
+                        "seller_name": ml.contact_person or ml.organization_name,
+                        "seller_phone": ml.contact_phone,
+                        "location": ", ".join(filter(None, [ml.district, ml.state])),
+                        "product_url": f"{base_url}/marketplace?listing={ml.id}",
+                        "source": "KisaanBuddy Verified Seller Listing",
+                    })
+                    if len(results) >= lim:
+                        break
+
+        return {
+            "count": len(results),
+            "products": results,
+            "note": (
+                "Only genuine verified products matching your criteria are shown."
+                if results else
+                "No verified products matched those exact filters in the KisaanBuddy marketplace."
+            ),
+        }
+    except Exception as e:
+        log.warning("tool search_agri_products failed: %s", e)
+        return {"error": f"Product search unavailable: {e}"}
+
+
+async def _tool_compare_agri_products(product_names_or_ids: list[str]) -> Dict[str, Any]:
+    """Compare up to 4 verified marketplace products side-by-side."""
+    try:
+        from api.marketplace import AUTHENTIC_AGRI_PRODUCTS
+        queries = [str(x).strip().lower() for x in (product_names_or_ids or []) if str(x).strip()][:4]
+        if not queries:
+            return {"error": "Provide at least one product name or ID to compare."}
+        matched = []
+        seen_ids = set()
+        for q in queries:
+            for p in AUTHENTIC_AGRI_PRODUCTS:
+                pid = str(p.get("id", "")).lower()
+                name = str(p.get("name", "")).lower()
+                if q == pid or q in name:
+                    if pid not in seen_ids:
+                        seen_ids.add(pid)
+                        matched.append({
+                            "id": p.get("id"),
+                            "name": p.get("name"),
+                            "brand": p.get("brand"),
+                            "category": p.get("category"),
+                            "price_inr": p.get("price"),
+                            "unit": p.get("unit") or p.get("pack_size"),
+                            "active_ingredient": p.get("active_ingredient"),
+                            "recommended_dosage": p.get("recommended_dosage"),
+                            "target_crops": p.get("target_crops", []),
+                            "seller_name": p.get("seller_name") or p.get("supplier_name"),
+                        })
+                    break
+        return {
+            "count": len(matched),
+            "comparison": matched,
+            "source": "KisaanBuddy Verified Agri Products",
+        }
+    except Exception as e:
+        log.warning("tool compare_agri_products failed: %s", e)
+        return {"error": f"Product comparison unavailable: {e}"}
+
+
+async def _tool_search_rental_equipment(
+    query: str = "",
+    category: Optional[str] = None,
+    district: Optional[str] = None,
+    state: Optional[str] = None,
+    pincode: Optional[str] = None,
+    max_price: Optional[float] = None,
+    listing_type: str = "rent",
+    limit: int = 5,
+) -> Dict[str, Any]:
+    """Search genuine farm equipment rental/sale listings by location, PIN code, and budget."""
+    try:
+        from db.session import SessionLocal
+        from db.models import EquipmentCatalog, EquipmentListing
+
+        q = (query or "").strip().lower()
+        lim = max(1, min(10, int(limit or 5)))
+        base_url = _frontend_base_url()
+        listings_out: list[Dict[str, Any]] = []
+        reference_models: list[Dict[str, Any]] = []
+
+        with SessionLocal() as db:
+            eq_q = db.query(EquipmentListing).filter(
+                EquipmentListing.is_archived == False,  # noqa: E712
+                EquipmentListing.availability_status.notin_(["sold", "inactive"]),
+            )
+            if listing_type in ("rent", "sale"):
+                eq_q = eq_q.filter(EquipmentListing.listing_type == listing_type)
+            if category:
+                eq_q = eq_q.filter(EquipmentListing.category.ilike(f"%{category.strip()}%"))
+            if district:
+                eq_q = eq_q.filter(EquipmentListing.district.ilike(f"%{district.strip()}%"))
+            if state:
+                eq_q = eq_q.filter(EquipmentListing.state.ilike(f"%{state.strip()}%"))
+            if pincode:
+                eq_q = eq_q.filter(EquipmentListing.pincode == str(pincode).strip())
+            if max_price is not None:
+                eq_q = eq_q.filter(EquipmentListing.price <= float(max_price))
+
+            for eq in eq_q.limit(30).all():
+                hay = f"{eq.title or ''} {eq.brand or ''} {eq.model_name or ''} {eq.category or ''} {eq.district or ''} {eq.tehsil_or_block or ''}".lower()
+                if q and q not in hay:
+                    continue
+                listings_out.append({
+                    "listing_id": eq.id,
+                    "title": eq.title or f"{eq.brand} {eq.model_name}",
+                    "brand": eq.brand,
+                    "model_name": eq.model_name,
+                    "category": eq.category,
+                    "hp_rating": eq.hp_rating,
+                    "listing_type": eq.listing_type,
+                    "price_inr": eq.price,
+                    "price_unit": eq.price_unit,
+                    "security_deposit_inr": eq.security_deposit,
+                    "includes_operator": eq.includes_operator,
+                    "availability_status": eq.availability_status,
+                    "availability_confirmed": eq.availability_confirmed,
+                    "availability_label": eq.availability_label,
+                    "owner_name": eq.owner_name,
+                    "owner_phone": eq.owner_phone if eq.owner_consent_shared else None,
+                    "provider_type": eq.provider_type,
+                    "location": ", ".join(filter(None, [eq.village, eq.tehsil_or_block, eq.district, eq.state, eq.pincode])),
+                    "image_url": eq.image_url,
+                    "listing_url": f"{base_url}/marketplace?tab=equipment&listing={eq.id}",
+                    "is_reference_only": False,
+                })
+                if len(listings_out) >= lim:
+                    break
+
+            # If no live rental listings found, optionally provide reference catalog specs clearly flagged
+            if not listings_out:
+                cat_q = db.query(EquipmentCatalog).filter(EquipmentCatalog.is_active == True)  # noqa: E712
+                if category:
+                    cat_q = cat_q.filter(EquipmentCatalog.category.ilike(f"%{category.strip()}%"))
+                for c in cat_q.limit(20).all():
+                    hay = f"{c.brand or ''} {c.model_name or ''} {c.category or ''}".lower()
+                    if q and q not in hay:
+                        continue
+                    reference_models.append({
+                        "catalog_id": c.id,
+                        "brand": c.brand,
+                        "model_name": c.model_name,
+                        "category": c.category,
+                        "hp_rating": c.hp_rating,
+                        "indicative_price_inr": c.indicative_price,
+                        "provenance_source": c.provenance_source,
+                        "is_reference_only": True,
+                    })
+                    if len(reference_models) >= 3:
+                        break
+
+        return {
+            "live_rental_count": len(listings_out),
+            "rental_listings": listings_out,
+            "reference_catalog_models": reference_models,
+            "policy_note": (
+                "Live listings are from real owners/CHCs; availability must be confirmed by the provider. "
+                "Reference catalog models (if shown) are NOT available for booking."
+            ),
+        }
+    except Exception as e:
+        log.warning("tool search_rental_equipment failed: %s", e)
+        return {"error": f"Equipment rental search unavailable: {e}"}
+
+
+async def _tool_create_equipment_booking(
+    listing_id: int,
+    farmer_name: str,
+    farmer_phone: str,
+    preferred_date: Optional[str] = None,
+    duration_notes: Optional[str] = None,
+    confirmed: bool = False,
+) -> Dict[str, Any]:
+    """Submit an equipment rental booking request. MUST have confirmed=True after explicit user confirmation."""
+    try:
+        from db.session import SessionLocal
+        from db.models import EquipmentListing, Notification, TradeInquiry
+
+        with SessionLocal() as db:
+            eq = db.query(EquipmentListing).filter(
+                EquipmentListing.id == int(listing_id),
+                EquipmentListing.is_archived == False,  # noqa: E712
+            ).first()
+            if not eq:
+                return {"error": f"Equipment listing #{listing_id} not found or no longer active."}
+            if eq.availability_status in ("sold", "inactive"):
+                return {"error": f"Equipment '{eq.title}' is currently {eq.availability_status} and cannot be booked."}
+
+            if not confirmed:
+                return {
+                    "requires_confirmation": True,
+                    "listing_id": eq.id,
+                    "title": eq.title,
+                    "price_inr": eq.price,
+                    "price_unit": eq.price_unit,
+                    "owner_name": eq.owner_name,
+                    "location": f"{eq.district}, {eq.state}",
+                    "preferred_date": preferred_date,
+                    "message": "Ask the farmer for explicit confirmation (Yes/Confirm) before creating this booking request.",
+                }
+
+            existing = db.query(TradeInquiry).filter(
+                TradeInquiry.listing_type == "equipment_listing",
+                TradeInquiry.listing_id == eq.id,
+                TradeInquiry.sender_phone == farmer_phone,
+                TradeInquiry.status.in_(["submitted", "in_discussion"]),
+            ).first()
+            if existing:
+                return {
+                    "already_exists": True,
+                    "booking_reference": f"#INQ-{existing.id}",
+                    "status": existing.status,
+                    "message": f"You already have an active request (#INQ-{existing.id}) for this equipment.",
+                }
+
+            notes = f"Preferred date: {preferred_date or 'Flexible'}. {duration_notes or ''}".strip()
+            inquiry = TradeInquiry(
+                listing_type="equipment_listing",
+                listing_id=eq.id,
+                sender_name=farmer_name or "WhatsApp Farmer",
+                sender_phone=farmer_phone,
+                sender_type="farmer",
+                proposed_price=eq.price,
+                price_unit=eq.price_unit,
+                message=notes,
+                inquiry_type="quotation",
+                status="submitted",
+            )
+            db.add(inquiry)
+            db.flush()
+            if eq.user_id:
+                db.add(Notification(
+                    user_id=eq.user_id,
+                    title=f"New Equipment Rental Request for {eq.title}",
+                    message=f"{farmer_name} ({farmer_phone}) requested rental. {notes}",
+                    category="marketplace_inquiry",
+                ))
+            db.commit()
+            db.refresh(inquiry)
+            return {
+                "created": True,
+                "booking_reference": f"#INQ-{inquiry.id}",
+                "status": inquiry.status,
+                "equipment_title": eq.title,
+                "provider_name": eq.owner_name,
+                "provider_phone": eq.owner_phone if eq.owner_consent_shared else None,
+                "confirmation_disclaimer": "Request submitted to provider. Booking is NOT confirmed until the provider accepts.",
+            }
+    except Exception as e:
+        log.warning("tool create_equipment_booking failed: %s", e)
+        return {"error": f"Could not create booking request: {e}"}
+
+
+async def _tool_get_my_bookings(
+    phone_number: str,
+    user_id: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Retrieve genuine booking/inquiry requests for the verified farmer phone or linked user_id."""
+    try:
+        from db.session import SessionLocal
+        from db.models import EquipmentListing, TradeInquiry
+        from sqlalchemy import or_
+
+        with SessionLocal() as db:
+            conds = [TradeInquiry.sender_phone == phone_number]
+            if user_id:
+                conds.append(TradeInquiry.sender_user_id == int(user_id))
+            rows = (
+                db.query(TradeInquiry)
+                .filter(or_(*conds))
+                .order_by(TradeInquiry.created_at.desc())
+                .limit(10)
+                .all()
+            )
+            bookings = []
+            for r in rows:
+                title = f"{r.listing_type} #{r.listing_id}"
+                if r.listing_type == "equipment_listing":
+                    eq = db.query(EquipmentListing).filter(EquipmentListing.id == r.listing_id).first()
+                    if eq:
+                        title = eq.title or f"{eq.brand} {eq.model_name}"
+                bookings.append({
+                    "inquiry_id": r.id,
+                    "booking_reference": f"#INQ-{r.id}",
+                    "listing_type": r.listing_type,
+                    "title": title,
+                    "status": r.status,
+                    "proposed_price": r.proposed_price,
+                    "price_unit": r.price_unit,
+                    "message": r.message,
+                    "cancellable": r.status in ("submitted", "in_discussion"),
+                    "created_at": r.created_at.isoformat() if r.created_at else None,
+                })
+        return {"count": len(bookings), "bookings": bookings}
+    except Exception as e:
+        log.warning("tool get_my_bookings failed: %s", e)
+        return {"error": f"Could not retrieve bookings: {e}"}
+
+
+async def _tool_cancel_booking_request(
+    inquiry_id: int,
+    phone_number: str,
+    user_id: Optional[int] = None,
+    reason: str = "",
+    confirmed: bool = False,
+) -> Dict[str, Any]:
+    """Cancel a pending booking request according to policy. Requires confirmed=True."""
+    try:
+        from db.session import SessionLocal
+        from db.models import TradeInquiry
+
+        with SessionLocal() as db:
+            inq = db.query(TradeInquiry).filter(TradeInquiry.id == int(inquiry_id)).first()
+            if not inq:
+                return {"error": f"Booking #INQ-{inquiry_id} not found."}
+            owns = (inq.sender_phone == phone_number) or (user_id and inq.sender_user_id == int(user_id))
+            if not owns:
+                return {"error": "Unauthorized: you can only cancel your own booking requests."}
+            if inq.status == "cancelled":
+                return {"already_cancelled": True, "booking_reference": f"#INQ-{inq.id}", "status": "cancelled"}
+            if inq.status not in ("submitted", "in_discussion"):
+                return {
+                    "cancellable": False,
+                    "status": inq.status,
+                    "error": f"Booking #INQ-{inq.id} is already '{inq.status}' and cannot be self-cancelled. Please contact the provider directly.",
+                }
+            if not confirmed:
+                return {
+                    "requires_confirmation": True,
+                    "booking_reference": f"#INQ-{inq.id}",
+                    "status": inq.status,
+                    "message": "Ask the farmer for explicit confirmation before cancelling this booking request.",
+                }
+            inq.status = "cancelled"
+            if reason:
+                inq.message = f"{inq.message or ''}\n[Cancelled by farmer: {reason}]".strip()
+            db.commit()
+            return {
+                "cancelled": True,
+                "booking_reference": f"#INQ-{inq.id}",
+                "status": "cancelled",
+            }
+    except Exception as e:
+        log.warning("tool cancel_booking_request failed: %s", e)
+        return {"error": f"Could not cancel booking: {e}"}
+
+
+async def _tool_create_support_ticket(
+    phone_number: str,
+    query_summary: str,
+    farmer_name: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Create a genuine backend support ticket with KB-SUP-YYYYMMDD-XXXX reference."""
+    try:
+        from db.session import SessionLocal
+        from services.whatsapp.support_handler import create_support_ticket
+
+        with SessionLocal() as db:
+            ticket_id = create_support_ticket(
+                phone_number=phone_number,
+                query_summary=query_summary,
+                db=db,
+                farmer_name=farmer_name,
+            )
+            return {
+                "created": True,
+                "ticket_id": ticket_id,
+                "status": "OPEN",
+            }
+    except Exception as e:
+        log.warning("tool create_support_ticket failed: %s", e)
+        return {"error": f"Could not create support ticket: {e}"}
+
+
+# ============================================================================
 # Agriculture Marketplace (Authentic Verified Listings)
 # ============================================================================
 async def _tool_search_marketplace(
@@ -684,6 +1169,13 @@ TOOLS: Dict[str, ToolFn] = {
     "suggest_wage": _tool_suggest_wage,
     "diagnose_crop_disease": _tool_diagnose_crop_disease,
     "search_marketplace": _tool_search_marketplace,
+    "search_agri_products": _tool_search_agri_products,
+    "compare_agri_products": _tool_compare_agri_products,
+    "search_rental_equipment": _tool_search_rental_equipment,
+    "create_equipment_booking": _tool_create_equipment_booking,
+    "get_my_bookings": _tool_get_my_bookings,
+    "cancel_booking_request": _tool_cancel_booking_request,
+    "create_support_ticket": _tool_create_support_ticket,
     "get_fertilizer_recommendation": _tool_get_fertilizer_recommendation,
     "get_irrigation_advisory": _tool_get_irrigation_advisory,
     "get_crop_calendar": _tool_get_crop_calendar,

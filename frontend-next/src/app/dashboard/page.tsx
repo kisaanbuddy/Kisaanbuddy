@@ -36,6 +36,11 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { FarmKpiRow } from "@/components/dashboard/FarmKpiRow";
 import { MyFarmCropsSection } from "@/components/dashboard/MyFarmCropsSection";
 import { WeatherRiskPanel } from "@/components/dashboard/WeatherRiskPanel";
+import {
+  getContextualWeather,
+  resolveUserLocation,
+  type ContextualWeatherResponse,
+} from "@/lib/weather-api";
 import { AiInsightsCard } from "@/components/dashboard/AiInsightsCard";
 import { FarmTasksPlanner } from "@/components/dashboard/FarmTasksPlanner";
 import { SoilHealthSummary } from "@/components/dashboard/SoilHealthSummary";
@@ -69,20 +74,8 @@ export default function DashboardPage() {
   const [sensorTemp, setSensorTemp] = useState(0);
   const [sensorHumidity, setSensorHumidity] = useState(0);
 
-  // Weather data
-  const [weatherData, setWeatherData] = useState<{
-    temp: number;
-    humidity: number;
-    windSpeed: number;
-    rainChance: number;
-    condition: string;
-  }>({
-    temp: 28,
-    humidity: 58,
-    windSpeed: 9,
-    rainChance: 12,
-    condition: "Partly Cloudy",
-  });
+  // Contextual weather intelligence (never fabricated)
+  const [weatherCtx, setWeatherCtx] = useState<ContextualWeatherResponse | null>(null);
 
   // Dynamic time-based greeting
   const greeting = useMemo(() => {
@@ -161,29 +154,20 @@ export default function DashboardPage() {
         setActivities(activitiesRes.value);
       }
 
-      // Try fetching live weather if lat/lon available
+      // Fetch contextual weather intelligence silently in the background
       try {
         const lat = profileRes.status === "fulfilled" ? profileRes.value?.gps_lat : null;
         const lon = profileRes.status === "fulfilled" ? profileRes.value?.gps_lon : null;
-        const weatherUrl =
-          lat && lon
-            ? `/api/weather?lat=${lat}&lon=${lon}`
-            : `/api/weather`;
-        const wRes = await fetch(weatherUrl);
-        if (wRes.ok) {
-          const wData = await wRes.json();
-          if (wData.current) {
-            setWeatherData({
-              temp: Math.round(wData.current.temp ?? 28),
-              humidity: Math.round(wData.current.humidity ?? 58),
-              windSpeed: Math.round(wData.current.wind_speed ?? 9),
-              rainChance: Math.round(wData.current.rain_chance ?? 15),
-              condition: wData.current.condition || "Partly Cloudy",
-            });
-          }
+        if (lat && lon) {
+          const ctx = await getContextualWeather({ lat, lon });
+          setWeatherCtx(ctx);
+        } else {
+          const loc = await resolveUserLocation(3000);
+          const ctx = await getContextualWeather({ lat: loc.lat, lon: loc.lon });
+          setWeatherCtx(ctx);
         }
       } catch {
-        // Fallback gracefully to default seasonal microclimate
+        setWeatherCtx(null);
       }
     } catch (err: any) {
       console.error("Dashboard data load error:", err);
@@ -308,11 +292,21 @@ export default function DashboardPage() {
   // WhatsApp Farm Report Share
   const handleShareWhatsApp = () => {
     const name = user?.name || "Kisaan";
-    const crops = fields.map((f) => f.current_crop).filter(Boolean).join(", ") || "General Crop";
+    const crops = fields.map((f) => f.current_crop).filter(Boolean).join(", ") || "Not set";
     const pendingCount = taskSummary?.due_today ?? 0;
-    const txt = encodeURIComponent(
-      `🌾 *KisaanBuddy Farm Intelligence Report*\nFarmer: ${name}\nActive Crops: ${crops}\nTasks Due Today: ${pendingCount}\nWeather: ${weatherData.temp}°C, ${weatherData.condition}\nMoisture: ${moisture}%\nGenerated via KisaanBuddy Farm AI.`
-    );
+    const lines = [
+      `*KisaanBuddy Farm Report*`,
+      `Farmer: ${name}`,
+      `Active Crops: ${crops}`,
+      `Tasks Due Today: ${pendingCount}`,
+    ];
+    if (weatherCtx?.available && weatherCtx?.snapshot?.temp_c != null) {
+      lines.push(`Weather: ${Math.round(weatherCtx.snapshot.temp_c)}°C${weatherCtx.snapshot.condition ? `, ${weatherCtx.snapshot.condition}` : ""}`);
+    }
+    if (sensorOnline) {
+      lines.push(`Soil Moisture: ${moisture}%`);
+    }
+    const txt = encodeURIComponent(lines.join("\n"));
     window.open(`https://wa.me/?text=${txt}`, "_blank");
   };
 
@@ -368,8 +362,8 @@ export default function DashboardPage() {
           fields={fields}
           taskSummary={taskSummary}
           latestSoilTest={soilTests[0] || null}
-          weatherTemp={weatherData.temp}
-          weatherCondition={weatherData.condition}
+          weatherTemp={weatherCtx?.available && weatherCtx?.snapshot?.temp_c != null ? Math.round(weatherCtx.snapshot.temp_c) : null}
+          weatherCondition={weatherCtx?.available ? weatherCtx?.snapshot?.condition : null}
         />
 
         {/* 3. Main Dashboard Layout: Two Balanced Operational Columns */}
@@ -399,16 +393,21 @@ export default function DashboardPage() {
           <div className="lg:col-span-5 space-y-6">
             {/* Weather & Agro-Risk Operational Advisory */}
             <WeatherRiskPanel
+              available={Boolean(weatherCtx?.available)}
               locationName={
+                weatherCtx?.location?.name ||
                 [profile?.village_name, profile?.district_name].filter(Boolean).join(", ") ||
                 "Local Farm"
               }
-              temperature={weatherData.temp}
-              humidity={weatherData.humidity}
-              windSpeedKmH={weatherData.windSpeed}
-              rainChancePct={weatherData.rainChance}
-              condition={weatherData.condition}
+              temperature={weatherCtx?.snapshot?.temp_c}
+              humidity={weatherCtx?.snapshot?.humidity}
+              windSpeedKmH={weatherCtx?.snapshot?.wind_kph}
+              rainChancePct={weatherCtx?.snapshot?.max_rain_prob_48h}
+              condition={weatherCtx?.snapshot?.condition}
               soilMoisturePct={sensorOnline ? moisture : undefined}
+              provider={weatherCtx?.provider}
+              fetchedAt={weatherCtx?.fetched_at}
+              alerts={weatherCtx?.alerts || []}
             />
 
             {/* Soil Health & Macronutrient Reserve */}

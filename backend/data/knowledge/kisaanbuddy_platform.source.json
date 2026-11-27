@@ -1,0 +1,24 @@
+{
+  "source_url": "https://kisaanbuddy.in/features",
+  "publisher": "KisaanBuddy Platform Documentation",
+  "title": "KisaanBuddy Platform Features, Marketplace, Rental, Policies & FAQ",
+  "publication_date": "2026-11-27",
+  "publication_date_status": "reported",
+  "geography": [
+    "India"
+  ],
+  "version": "1",
+  "reviewed_by": "Platform engineering verification against KisaanBuddy codebase",
+  "review_status": "approved",
+  "review_scope": "Verified against backend APIs, DB models, and frontend routes.",
+  "reviewed_at": "2026-11-27T00:00:00+00:00",
+  "review_expires_at": "2028-11-27T00:00:00+00:00",
+  "sha256": "e18e23c4e425510e2f6e1953760b45b0062438448394a62ee55df595cceb3312",
+  "topics": [
+    "platform_features",
+    "marketplace",
+    "equipment_rental",
+    "policies",
+    "faq"
+  ]
+}

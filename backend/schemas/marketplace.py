@@ -169,7 +169,14 @@ class EquipmentListingCreate(BaseModel):
 class EquipmentListingResponse(EquipmentListingCreate):
     id: int
     user_id: Optional[int] = None
-    availability_status: str = "available"
+    price: float = Field(default=0.0, ge=0.0)
+    availability_status: str = "contact_provider"
+    availability_confirmed: bool = False
+    availability_label: Optional[str] = "Contact Provider for Availability"
+    provider_type: Optional[str] = None
+    source_name: Optional[str] = None
+    source_url: Optional[str] = None
+    verification_category: str = "unverified"
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)

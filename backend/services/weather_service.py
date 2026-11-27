@@ -16,9 +16,10 @@ Public entry points (used by api/weather.py):
 """
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import httpx
 
@@ -56,6 +57,7 @@ class WeatherOrchestrator:
     def __init__(self):
         self._client: Optional[httpx.AsyncClient] = None
         self._providers: List[WeatherProvider] = []
+        self._inflight: Dict[str, asyncio.Future] = {}
 
     # ------------------------------------------------------------------
     # Lifecycle — called from main.py lifespan
@@ -96,38 +98,59 @@ class WeatherOrchestrator:
     def providers(self) -> List[WeatherProvider]:
         return self._providers
 
+    async def _coalesced_fetch(self, key: str, ttl: int, op_name: str, call) -> OrchestratorResult:
+        """Deduplicate concurrent cache-miss fetches for the same key (singleflight)."""
+        hit = await weather_cache.cache.get(key)
+        if hit:
+            hit["cached"] = True
+            return OrchestratorResult(payload=hit, provider=hit.get("provider", "?"), from_cache=True)
+
+        existing = self._inflight.get(key)
+        if existing is not None:
+            payload = await asyncio.shield(existing)
+            return OrchestratorResult(
+                payload={**payload, "cached": True},
+                provider=payload.get("provider", "?"),
+                from_cache=True,
+            )
+
+        loop = asyncio.get_running_loop()
+        fut: asyncio.Future = loop.create_future()
+        self._inflight[key] = fut
+        try:
+            result = await self._try_providers(op_name=op_name, call=call)
+            payload = result.model_dump(mode="json")
+            await weather_cache.cache.set(key, payload, ttl)
+            if not fut.done():
+                fut.set_result(payload)
+            return OrchestratorResult(payload=payload, provider=result.provider, from_cache=False)
+        except Exception as exc:
+            if not fut.done():
+                fut.set_exception(exc)
+            raise
+        finally:
+            self._inflight.pop(key, None)
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
     async def get_current(self, lat: float, lon: float) -> OrchestratorResult:
         key = weather_cache.make_key("current", lat, lon)
-        hit = await weather_cache.cache.get(key)
-        if hit:
-            hit["cached"] = True
-            return OrchestratorResult(payload=hit, provider=hit.get("provider", "?"), from_cache=True)
-
-        result = await self._try_providers(
+        return await self._coalesced_fetch(
+            key=key,
+            ttl=settings.CACHE_TTL_CURRENT,
             op_name="fetch_current",
             call=lambda p: p.fetch_current(lat, lon),
         )
-        payload = result.model_dump(mode="json")
-        await weather_cache.cache.set(key, payload, settings.CACHE_TTL_CURRENT)
-        return OrchestratorResult(payload=payload, provider=result.provider, from_cache=False)
 
     async def get_forecast(self, lat: float, lon: float, days: int = 5) -> OrchestratorResult:
         key = weather_cache.make_key("forecast", lat, lon, str(days))
-        hit = await weather_cache.cache.get(key)
-        if hit:
-            hit["cached"] = True
-            return OrchestratorResult(payload=hit, provider=hit.get("provider", "?"), from_cache=True)
-
-        result = await self._try_providers(
+        return await self._coalesced_fetch(
+            key=key,
+            ttl=settings.CACHE_TTL_FORECAST,
             op_name="fetch_forecast",
             call=lambda p: p.fetch_forecast(lat, lon, days),
         )
-        payload = result.model_dump(mode="json")
-        await weather_cache.cache.set(key, payload, settings.CACHE_TTL_FORECAST)
-        return OrchestratorResult(payload=payload, provider=result.provider, from_cache=False)
 
     async def search(self, query: str, limit: int = 5) -> List[LocationHit]:
         # Cache search results aggressively — location names rarely change.

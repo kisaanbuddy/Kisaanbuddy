@@ -1,31 +1,23 @@
 "use client";
+import { MobileHomeScreen } from "@/components/mobile/MobileHomeScreen";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  Mic,
   Bug,
   TrendingUp,
-  CloudSun,
+  Sprout,
   Tractor,
   Users,
-  Search,
   ArrowRight,
   ShieldCheck,
-  MessageCircle,
   Sparkles,
-  ChevronRight,
   MapPin,
-  Maximize2,
-  Minimize2,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth";
 import { useLanguage, type Lang } from "@/lib/language";
-import { openVoiceAssistant } from "@/components/assistant/VoiceAssistantModal";
 import { SpeakHeroControlHub } from "@/components/voice/SpeakHeroControlHub";
 import { HeroWhatsAppShowcase } from "@/components/home/HeroWhatsAppShowcase";
-import { WhatsAppShowcaseSection } from "@/components/home/WhatsAppShowcaseSection";
 import { HOME_I18N, HERO_I18N } from "@/lib/homepage-i18n";
 import {
   CinematicWordReveal,
@@ -35,49 +27,101 @@ import {
 } from "@/components/motion/MotionComponents";
 import { fadeUp, fadeIn, pressFeedback } from "@/lib/motion";
 
+interface HomeEquipmentPreview {
+  id: number;
+  title: string;
+  brand: string;
+  model_name: string;
+  listing_type: "rent" | "sale";
+  price: number;
+  price_unit: string;
+  district: string;
+  state: string;
+  availability_status: string;
+  image_url?: string | null;
+}
+
 export function WorldClassHomePage() {
-  const { user } = useAuth();
   const { lang } = useLanguage();
+  const [equipmentPreview, setEquipmentPreview] = useState<HomeEquipmentPreview[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/marketplace/equipment-listings?limit=4&status=available")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!active || !data) return;
+        const items = Array.isArray(data) ? data : Array.isArray(data.items) ? data.items : [];
+        setEquipmentPreview(items.slice(0, 4));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   // Load language dictionary dynamically based on selected language
   const dict = HOME_I18N[lang as Lang] || HOME_I18N.hi;
   const heroDict = HERO_I18N[lang as Lang] || HERO_I18N.hi;
-  const planningCopy =
+
+  const cropDoctorDescription =
+    lang === "hi"
+      ? "फसल की पत्ती की फोटो अपलोड करें और संभावित रोग की जांच करें।"
+      : lang === "kn"
+        ? "ಬೆಳೆ ಎಲೆಯ ಫೋಟೋ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ ರೋಗ ಪರಿಶೀಲಿಸಿ."
+        : "Upload a leaf photo to check for crop diseases and treatment guidance.";
+
+  const cropPredictorCard =
     lang === "hi"
       ? {
-          title: "कार्रवाई से पहले जांचें",
-          source: "कार्रवाई से पहले लाइव डेटा देखें",
-          weatherTitle: "छिड़काव से पहले मौसम जांचें",
-          weatherDescription: "अपने खेत का पूर्वानुमान खोलें; मौसम डेटा उपलब्ध न होने पर छिड़काव न करें।",
-          mandiTitle: "वर्तमान मंडी भाव की तुलना करें",
-          mandiDescription: "बेचने से पहले स्रोत और अंतिम अपडेट समय देखें।",
+          badge: "फसल सलाह",
+          title: "फसल चयन सलाहकार",
+          desc: "मिट्टी, क्षेत्र और सीजन के आधार पर उपयुक्त फसल चुनें।",
+          cta: "खेत विवरण दर्ज करें →",
         }
       : lang === "kn"
         ? {
-            title: "ಕ್ರಮ ಕೈಗೊಳ್ಳುವ ಮೊದಲು ಪರಿಶೀಲಿಸಿ",
-            source: "ಕ್ರಮ ಕೈಗೊಳ್ಳುವ ಮೊದಲು ನೇರ ದತ್ತಾಂಶವನ್ನು ನೋಡಿ",
-            weatherTitle: "ಸಿಂಪಡಣೆಗೆ ಮೊದಲು ಹವಾಮಾನ ಪರಿಶೀಲಿಸಿ",
-            weatherDescription: "ನಿಮ್ಮ ಜಮೀನಿನ ಮುನ್ಸೂಚನೆಯನ್ನು ತೆರೆಯಿರಿ; ಹವಾಮಾನ ದತ್ತಾಂಶ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ ಸಿಂಪಡಿಸಬೇಡಿ.",
-            mandiTitle: "ಪ್ರಸ್ತುತ ಮಂಡಿ ದರಗಳನ್ನು ಹೋಲಿಸಿ",
-            mandiDescription: "ಮಾರಾಟದ ಮೊದಲು ಮೂಲ ಮತ್ತು ಕೊನೆಯ ನವೀಕರಣ ಸಮಯವನ್ನು ನೋಡಿ.",
+            badge: "ಬೆಳೆ ಸಲಹೆ",
+            title: "ಬೆಳೆ ಆಯ್ಕೆ ಸಲಹೆಗಾರ",
+            desc: "ಮಣ್ಣು, ಪ್ರದೇಶ ಮತ್ತು ಋತುವಿನ ಆಧಾರದ ಮೇಲೆ ಸೂಕ್ತ ಬೆಳೆ ಆಯ್ಕೆ ಮಾಡಿ.",
+            cta: "ಜಮೀನಿನ ವಿವರ ನಮೂದಿಸಿ →",
           }
         : {
-            title: "Check before you act",
-            source: "Open live sources before acting",
-            weatherTitle: "Check weather before spraying",
-            weatherDescription: "Open the forecast for your farm; do not spray when weather data is unavailable.",
-            mandiTitle: "Compare current mandi prices",
-            mandiDescription: "Review the source and last-updated time before deciding to sell.",
+            badge: "Crop Advisor",
+            title: "Crop Recommendation",
+            desc: "Enter soil nutrients, season, and location to find suitable crops.",
+            cta: "Enter Farm Details →",
           };
-  const cropDoctorDescription =
+
+  const marketplaceCopy =
     lang === "hi"
-      ? "फसल की पत्ती की फोटो से संभावित समस्या की जांच शुरू करें। उपचार से पहले उत्पाद लेबल और स्थानीय विशेषज्ञ की सलाह देखें।"
+      ? {
+          heading: "उपलब्ध कृषि उपकरण और किराया",
+          subheading: "सत्यापित मालिकों द्वारा सूचीबद्ध वास्तविक उपकरण",
+          viewAll: "सभी उपकरण देखें →",
+          rentLabel: "किराया",
+          saleLabel: "बिक्री",
+        }
       : lang === "kn"
-        ? "ಬೆಳೆ ಎಲೆಯ ಫೋಟೋದಿಂದ ಸಾಧ್ಯವಿರುವ ಸಮಸ್ಯೆಯ ಪರಿಶೀಲನೆಯನ್ನು ಪ್ರಾರಂಭಿಸಿ. ಚಿಕಿತ್ಸೆಗೆ ಮುನ್ನ ಉತ್ಪನ್ನದ ಲೇಬಲ್ ಮತ್ತು ಸ್ಥಳೀಯ ತಜ್ಞರ ಸಲಹೆ ನೋಡಿ."
-        : "Start checking a possible crop issue from a leaf photo. Review the product label and local expert advice before treatment.";
+        ? {
+            heading: "ಲಭ್ಯವಿರುವ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣಗಳು",
+            subheading: "ನೈಜ ಮಾಲೀಕರಿಂದ ಪಟ್ಟಿ ಮಾಡಲಾದ ಉಪಕರಣಗಳು",
+            viewAll: "ಎಲ್ಲಾ ಯಂತ್ರಗಳನ್ನು ನೋಡಿ →",
+            rentLabel: "ಬಾಡಿಗೆ",
+            saleLabel: "ಮಾರಾಟ",
+          }
+        : {
+            heading: "Equipment Rental & Listings",
+            subheading: "Genuine machinery listed by verified owners",
+            viewAll: "Explore Marketplace →",
+            rentLabel: "Rent",
+            saleLabel: "Sale",
+          };
 
   return (
-    <div className="edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
+    <>
+    <MobileHomeScreen />
+    <div className="hidden md:block edge-to-edge w-full bg-[#FBFDF9] dark:bg-stone-950 text-stone-900 dark:text-stone-100 min-h-screen" data-fullwidth="true">
       <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-20 py-4 sm:py-8 space-y-10 sm:space-y-16">
         {/* ─────────────────────────────────────────────────────────────
             2. HERO SECTION (EXPANSIVE FULL SCREEN VIEWPORT)
@@ -202,41 +246,7 @@ export function WorldClassHomePage() {
             </span>
           </div>
 
-          {/* KisaanBuddy AI Voice Hub interactive launcher banner */}
-          <motion.div
-            whileHover={{ scale: 1.01 }}
-            transition={{ duration: 0.2 }}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950 via-stone-900 to-emerald-950 text-white border border-emerald-500/30 shadow-lg will-change-transform"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600/30 border border-emerald-400/40 flex items-center justify-center text-emerald-300 shrink-0">
-                <Mic className="w-5 h-5 animate-pulse" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-sm text-white">KisaanBuddy AI Voice Hub</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                    6 Services • 100% Voice
-                  </span>
-                </div>
-                <p className="text-xs text-stone-300">
-                  {lang === "kn"
-                    ? "ಬರೆಯಲು ಕಷ್ಟವೇ? ಮೈಕ್ ಒತ್ತಿ ನೇರವಾಗಿ ಮಾತನಾಡಿ — 6 ಸೇವೆಗಳು ನಿಮ್ಮ ಧ್ವನಿಯಿಂದ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತವೆ"
-                    : lang === "hi"
-                    ? "टाइप करने की जरूरत नहीं — नीचे दी गई किसी भी सेवा के लिए सिर्फ बोलें"
-                    : "Speak naturally in Hindi, Kannada or English to control all 6 agricultural services"}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => openVoiceAssistant()}
-              className="self-start sm:self-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-md transition-all hover:scale-105 active:scale-95 shrink-0 cursor-pointer"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-200" />
-              <span>{lang === "kn" ? "ಧ್ವನಿ ಹಬ್ ತೆರೆಯಿರಿ" : lang === "hi" ? "वॉइस हब खोलें" : "Open Voice Hub"}</span>
-            </button>
-          </motion.div>
+          {/* Core Product Tools Grid */}
 
           <StaggerList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {/* Card 1: Crop Doctor (पत्ती की फोटो खींचें) */}
@@ -269,22 +279,6 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {cropDoctorDescription}
                   </p>
-                  {/* Voice Shortcut Trigger */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openVoiceAssistant("Mere tamatar ke paudhe mein bimari hai");
-                    }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-900 text-[11px] font-semibold text-rose-800 dark:text-rose-300 flex items-center justify-between transition-colors"
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <Mic className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
-                      <span className="italic truncate">बोलें: "टमाटर में बीमारी है"</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-rose-500">Ask AI →</span>
-                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-rose-700 dark:text-rose-400">
                   {dict.cards.cropDoctor.cta}
@@ -323,22 +317,6 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.mandi.desc}
                   </p>
-                  {/* Voice Shortcut Trigger */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openVoiceAssistant("Mujhe aaj ka mandi bhav batao");
-                    }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-200 dark:border-amber-900 text-[11px] font-semibold text-amber-800 dark:text-amber-300 flex items-center justify-between transition-colors"
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <Mic className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
-                      <span className="italic truncate">बोलें: "आज का मंडी भाव बताओ"</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-amber-500">Ask AI →</span>
-                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-amber-800 dark:text-amber-400">
                   {dict.cards.mandi.cta}
@@ -347,55 +325,35 @@ export function WorldClassHomePage() {
             </Link>
             </StaggerItem>
 
-            {/* Card 3: Weather (मौसम व स्प्रे समय) */}
+            {/* Card 3: Crop Recommendation */}
             <StaggerItem>
             <Link
-              href="/weather"
-              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-sky-200 dark:border-sky-950/60 hover:border-sky-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
+              href="/crop-predictor"
+              className="group flex flex-col justify-between rounded-2xl bg-white dark:bg-stone-900 border-2 border-emerald-200 dark:border-emerald-950/60 hover:border-emerald-500 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden active:scale-[0.99] h-full"
             >
-              {/* Authentic Monsoon Weather Thumbnail */}
               <div className="relative h-36 w-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
                 <img
-                  src="/images/weather/monsoon-farmland.webp"
-                  alt="Farmland Weather and Rain Forecast"
+                  src="/images/crops/punjab-wheat-field.webp"
+                  alt="Crop Recommendation Engine"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg bg-black/70 backdrop-blur-md text-white text-[10px] font-bold flex items-center gap-1.5">
-                  <CloudSun className="w-3.5 h-3.5 text-sky-400" />
-                  <span>IMD Radar</span>
-                </div>
-                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full bg-sky-600 text-white text-[10px] font-bold shadow-md">
-                  {dict.cards.weather.badge}
+                  <Sprout className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{cropPredictorCard.badge}</span>
                 </div>
               </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-400 transition-colors">
-                    {dict.cards.weather.title}
+                  <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                    {cropPredictorCard.title}
                   </h3>
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
-                    {dict.cards.weather.desc}
+                    {cropPredictorCard.desc}
                   </p>
-                  {/* Voice Shortcut Trigger */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openVoiceAssistant("Kal baarish hogi kya?");
-                    }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/50 border border-sky-200 dark:border-sky-900 text-[11px] font-semibold text-sky-800 dark:text-sky-300 flex items-center justify-between transition-colors"
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <Mic className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
-                      <span className="italic truncate">बोलें: "कल बारिश होगी क्या?"</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-sky-500">Ask AI →</span>
-                  </button>
                 </div>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-sky-700 dark:text-sky-400">
-                  {dict.cards.weather.cta}
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  {cropPredictorCard.cta}
                 </span>
               </div>
             </Link>
@@ -431,22 +389,6 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.machinery.desc}
                   </p>
-                  {/* Voice Shortcut Trigger */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openVoiceAssistant("Mujhe tractor rent par chahiye");
-                    }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-900 text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 flex items-center justify-between transition-colors"
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <Mic className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                      <span className="italic truncate">बोलें: "ट्रैक्टर रेंट पर चाहिए"</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-emerald-600">Ask AI →</span>
-                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-emerald-800 dark:text-emerald-400">
                   {dict.cards.machinery.cta}
@@ -485,22 +427,6 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.agrilabour.desc}
                   </p>
-                  {/* Voice Shortcut Trigger */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openVoiceAssistant("Mujhe kheti ke liye mazdoor chahiye");
-                    }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-900 text-[11px] font-semibold text-indigo-800 dark:text-indigo-300 flex items-center justify-between transition-colors"
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <Mic className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 shrink-0" />
-                      <span className="italic truncate">बोलें: "खेती के लिए मजदूर चाहिए"</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-indigo-500">Ask AI →</span>
-                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-indigo-800 dark:text-indigo-400">
                   {dict.cards.agrilabour.cta}
@@ -539,22 +465,6 @@ export function WorldClassHomePage() {
                   <p className="mt-1 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-snug">
                     {dict.cards.aiAdvisor.desc}
                   </p>
-                  {/* Voice Shortcut Trigger */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openVoiceAssistant("Fertilizer kab dalna hai?");
-                    }}
-                    className="mt-3 w-full py-1.5 px-2.5 rounded-lg bg-teal-50 dark:bg-teal-950/40 hover:bg-teal-100 dark:hover:bg-teal-900/50 border border-teal-200 dark:border-teal-900 text-[11px] font-semibold text-teal-800 dark:text-teal-300 flex items-center justify-between transition-colors"
-                  >
-                    <span className="flex items-center gap-1.5 truncate">
-                      <Mic className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
-                      <span className="italic truncate">बोलें: "खाद कब डालना है?"</span>
-                    </span>
-                    <span className="text-[10px] uppercase font-bold text-teal-600">Ask AI →</span>
-                  </button>
                 </div>
                 <span className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-teal-800 dark:text-teal-400">
                   {dict.cards.aiAdvisor.cta}
@@ -566,107 +476,68 @@ export function WorldClassHomePage() {
         </MotionSection>
 
         {/* ─────────────────────────────────────────────────────────────
-            4. TODAY'S FIELD ADVISORY (आज की मुख्य सलाह)
+            4. GENUINE EQUIPMENT RENTAL & MARKETPLACE PREVIEW
         ───────────────────────────────────────────────────────────── */}
-        <MotionSection className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base sm:text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>{planningCopy.title}</span>
-            </h3>
-            <span className="text-xs text-stone-500 font-medium">
-              {planningCopy.source}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Weather & Spray Safety */}
-            <Link
-              href="/weather"
-              className="p-4 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-sm"
-            >
-              <CloudSun className="w-6 h-6 text-emerald-700 shrink-0 mt-0.5" />
+        {equipmentPreview.length > 0 && (
+          <MotionSection className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <strong className="block text-sm font-bold text-emerald-950 dark:text-emerald-200">
-                  {planningCopy.weatherTitle}
-                </strong>
-                <p className="text-xs text-emerald-900 dark:text-emerald-300 mt-0.5 leading-relaxed">
-                  {planningCopy.weatherDescription}
+                <h2 className="text-xl sm:text-2xl font-extrabold text-stone-900 dark:text-white">
+                  {marketplaceCopy.heading}
+                </h2>
+                <p className="text-xs sm:text-sm text-stone-500 dark:text-stone-400">
+                  {marketplaceCopy.subheading}
                 </p>
               </div>
-            </Link>
+              <Link
+                href="/marketplace"
+                className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+              >
+                {marketplaceCopy.viewAll}
+              </Link>
+            </div>
 
-            {/* Mandi Selling Tip */}
-            <Link
-              href="/mandi"
-              className="p-4 rounded-2xl bg-amber-50/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-start gap-3 transition-all hover:-translate-y-0.5 hover:shadow-sm"
-            >
-              <TrendingUp className="w-6 h-6 text-amber-700 shrink-0 mt-0.5" />
-              <div>
-                <strong className="block text-sm font-bold text-amber-950 dark:text-amber-200">
-                  {planningCopy.mandiTitle}
-                </strong>
-                <p className="text-xs text-amber-900 dark:text-amber-300 mt-0.5 leading-relaxed">
-                  {planningCopy.mandiDescription}
-                </p>
-              </div>
-            </Link>
-          </div>
-        </MotionSection>
-
-        {/* ─────────────────────────────────────────────────────────────
-            5. WHATSAPP AI COMPANION SHOWCASE (PREMIUM SAAS TWO-COLUMN)
-        ───────────────────────────────────────────────────────────── */}
-        <WhatsAppShowcaseSection />
-
-        {/* ─────────────────────────────────────────────────────────────
-            6. SIMPLE 3-STEP GUIDE (उपयोग कैसे करें?)
-        ───────────────────────────────────────────────────────────── */}
-        <MotionSection className="text-center space-y-4 pt-4">
-          <h3 className="text-lg sm:text-xl font-bold text-stone-900 dark:text-white">
-            {dict.howItWorks.heading}
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-            <motion.div
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs will-change-transform"
-            >
-              <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step1Title}</span>
-              <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                {dict.howItWorks.step1Desc}
-              </p>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs will-change-transform"
-            >
-              <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step2Title}</span>
-              <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                {dict.howItWorks.step2Desc}
-              </p>
-            </motion.div>
-
-            <motion.div
-              whileHover={{ y: -3 }}
-              transition={{ duration: 0.2 }}
-              className="p-5 rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 shadow-2xs will-change-transform"
-            >
-              <span className="text-2xl font-black text-emerald-700">{dict.howItWorks.step3Title}</span>
-              <p className="text-xs text-stone-600 dark:text-stone-300 mt-1">
-                {dict.howItWorks.step3Desc}
-              </p>
-            </motion.div>
-          </div>
-
-          <div className="pt-4 text-xs text-stone-500 font-medium">
-            <span>{dict.howItWorks.footerNote}</span>
-          </div>
-        </MotionSection>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {equipmentPreview.map((item) => (
+                <Link
+                  key={item.id}
+                  href={`/marketplace?listing=${item.id}`}
+                  className="group rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 hover:border-emerald-500/60 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div className="relative h-36 bg-stone-100 dark:bg-stone-800 flex items-center justify-center p-3">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <Tractor className="w-10 h-10 text-stone-400" />
+                    )}
+                    <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-700 text-white uppercase">
+                      {item.listing_type === "rent" ? marketplaceCopy.rentLabel : marketplaceCopy.saleLabel}
+                    </span>
+                  </div>
+                  <div className="p-4 space-y-1.5">
+                    <h3 className="text-sm font-bold text-stone-900 dark:text-white truncate">
+                      {item.title || `${item.brand} ${item.model_name}`}
+                    </h3>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1 truncate">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      <span>{[item.district, item.state].filter(Boolean).join(", ")}</span>
+                    </p>
+                    <p className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400">
+                      ₹{Number(item.price).toLocaleString("en-IN")}{" "}
+                      <span className="text-[11px] font-medium text-stone-500">{item.price_unit}</span>
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </MotionSection>
+        )}
       </div>
     </div>
+    </>
   );
 }

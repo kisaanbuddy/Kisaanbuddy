@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Lang, useLanguage } from "@/lib/language";
+import { ContextualWeatherNotice } from "@/components/contextual/ContextualWeatherNotice";
 import { SOIL_MONITOR_I18N, SoilMonitorDict } from "@/lib/soil-monitor-i18n";
 import {
   Activity,
@@ -843,6 +844,7 @@ void loop() {
         {/* ================================================================= */}
         {/* 2. DEVICE CONNECTION SECTION                                      */}
         {/* ================================================================= */}
+        <ContextualWeatherNotice domain="irrigation" />
         <section className="rounded-2xl border border-slate-200/90 bg-white p-5 shadow-xs transition sm:p-6">
           <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-center">
             <div className="flex items-center gap-3">
