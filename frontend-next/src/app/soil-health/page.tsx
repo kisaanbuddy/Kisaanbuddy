@@ -94,50 +94,11 @@ export default function SoilHealthPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Crawlable Semantic Overview Section */}
-      <section className="rounded-3xl border border-border/60 bg-gradient-to-b from-card to-card/60 p-6 md:p-8 shadow-xs space-y-6">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-            <TestTube className="w-3.5 h-3.5" />
-            <span>Soil Health Card Intelligence & Fertilizer Management</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black font-display text-foreground tracking-tight">
-            Scientific Soil Health Assessment & Customized Fertilizer Dosage
-          </h1>
-          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-4xl">
-            Healthy soil is the foundation of high crop productivity. 
-            Rather than relying on generic fertilizer bags, use your official Soil Health Card parameters to apply exactly the nutrients your crops need, reducing cultivation costs and restoring long-term soil fertility.
-          </p>
-        </div>
-
-        {/* Essential Soil Parameter Guide */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block">🌱 N-P-K Macro Nutrients</span>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong>Nitrogen (N):</strong> Powers tillering and green foliage. <br />
-              <strong>Phosphorus (P):</strong> Stimulates early root expansion. <br />
-              <strong>Potassium (K):</strong> Enhances grain weight and disease immunity.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block">⚖️ Soil Reaction (pH Level)</span>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Optimal nutrient absorption occurs between pH 6.5 and 7.5. Acidic or alkaline extremes chemically lock essential minerals away from plant root absorption.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
-            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block">🍂 Soil Organic Carbon (SOC)</span>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Target &gt;0.75% Organic Carbon to maximize water holding capacity, encourage beneficial mycorrhizae, and prevent soil compaction.
-            </p>
-          </div>
-        </div>
-
-        <p className="text-[11px] text-muted-foreground/80 italic border-t border-border/40 pt-3">
-          * Note: NPK and pH recommendations are advisory baselines aligned with Indian Council of Agricultural Research (ICAR) guidelines. Optimal field application rates depend on specific crop variety, irrigation method, previous crop residue, and local agro-climatic conditions. Consult your district Krishi Vigyan Kendra (KVK) for farm-specific prescriptions.
+      {/* Crawlable Semantic Overview (sr-only so interactive tool is first) */}
+      <section className="sr-only">
+        <h1>Scientific Soil Health Assessment & Customized Fertilizer Dosage</h1>
+        <p>
+          Analyze Soil Health Card parameters including NPK, soil pH, and Organic Carbon to get customized fertilizer dosage guidance.
         </p>
       </section>
 

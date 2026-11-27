@@ -94,54 +94,12 @@ export default function WorkerConnectPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Crawlable Semantic Overview Section */}
-      <section className="rounded-3xl border border-border/60 bg-gradient-to-b from-card to-card/60 p-6 md:p-8 shadow-xs space-y-6">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-            <Users className="w-3.5 h-3.5" />
-            <span>0% Commission Agricultural Labor & Job Exchange</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black font-display text-foreground tracking-tight">
-            AgriLabour: Verified Farm Labor Network & Rural Employment Directory
-          </h1>
-          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-4xl">
-            Finding reliable farm workers during peak sowing and harvesting seasons is critical for crop survival. 
-            KisaanBuddy AgriLabour directly links farm owners with skilled daily wage laborers, tractor operators, and harvesting crews without commission or middleman fees.
-          </p>
-        </div>
-
-        {/* Labor Exchange Principles */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              <IndianRupee className="w-4 h-4" />
-              <span>Zero Middleman Commission</span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              100% of agreed daily wages go directly from farm owner to agricultural worker. No contractor cuts or platform deductions.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Verified Identity & Skill Badges</span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Workers and farm owners complete basic phone verification. Operators can list tractor, sprayer, and harvesting experience.
-            </p>
-          </div>
-
-          <div className="p-4 rounded-2xl border border-border/50 bg-background space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              <HeartHandshake className="w-4 h-4" />
-              <span>Direct Village Coordination</span>
-            </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Filter available workers or farm vacancies by district and block (tehsil) to hire nearby laborers and minimize travel costs.
-            </p>
-          </div>
-        </div>
+      {/* Crawlable Semantic Overview (sr-only so interactive tool is first) */}
+      <section className="sr-only">
+        <h1>AgriLabour: Verified Farm Labor Network & Rural Employment Directory</h1>
+        <p>
+          KisaanBuddy AgriLabour directly links farm owners with skilled daily wage laborers, tractor operators, and harvesting crews without commission or middleman fees.
+        </p>
       </section>
 
       {/* Interactive Agricultural Labor Marketplace Tabs & Listings */}

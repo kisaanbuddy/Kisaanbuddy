@@ -145,52 +145,11 @@ export default function CropPredictorPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      {/* Crawlable Agricultural Context Section */}
-      <section className="rounded-3xl border border-border/60 bg-gradient-to-b from-card to-card/60 p-6 md:p-8 shadow-xs space-y-6">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-            <BrainCircuit className="w-3.5 h-3.5" />
-            <span>Agronomic Science & Crop Selection Guide</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black font-display text-foreground tracking-tight">
-            Scientific Crop Recommendation & Field Suitability Analysis
-          </h1>
-          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed max-w-4xl">
-            Selecting the right crop based on real soil chemistry and regional weather patterns is the single most important decision for a profitable harvest.
-            Our Machine Learning model matches your Soil Health Card measurements with proven biological growth parameters.
-          </p>
-        </div>
-
-        {/* Server-Rendered Scientific Benchmark Reference Table */}
-        <div className="overflow-x-auto rounded-2xl border border-border/50 bg-background">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-muted/50 border-b border-border/50 text-foreground font-bold">
-              <tr>
-                <th className="p-3.5">Major Crop</th>
-                <th className="p-3.5">Growing Season</th>
-                <th className="p-3.5">Optimal Nitrogen (N)</th>
-                <th className="p-3.5">Ideal Soil pH</th>
-                <th className="p-3.5">Moisture / Rainfall</th>
-                <th className="p-3.5">Temperature Range</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/40 text-muted-foreground">
-              {cropBenchmarks.map((b) => (
-                <tr key={b.crop} className="hover:bg-muted/20 transition-colors">
-                  <td className="p-3.5 font-bold text-foreground">{b.crop}</td>
-                  <td className="p-3.5">{b.season}</td>
-                  <td className="p-3.5">{b.nitrogen}</td>
-                  <td className="p-3.5">{b.ph}</td>
-                  <td className="p-3.5">{b.water}</td>
-                  <td className="p-3.5">{b.temp}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="text-[11px] text-muted-foreground/80 italic border-t border-border/40 pt-3">
-          * Benchmark ranges are reference guidelines compiled from Indian Council of Agricultural Research (ICAR) package of practices. Regional yields and optimum parameters vary depending on soil series, water availability, and seed cultivar.
+      {/* Crawlable Semantic Overview (sr-only so interactive tool is first) */}
+      <section className="sr-only">
+        <h1>Scientific Crop Recommendation & Field Suitability Analysis</h1>
+        <p>
+          Select suitable crops based on soil chemistry, NPK levels, soil pH, and regional climate parameters.
         </p>
       </section>
 
